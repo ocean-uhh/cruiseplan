@@ -24,9 +24,9 @@ def test_geo_search_and_map_generation(caplog):
 
     manager = PangaeaManager()
 
-    output_dir = "tests_output"
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    map_filename = Path(output_dir) / "test_map_geo_search.html"
+    output_dir = Path("tests_output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    map_filename = output_dir / "test_map_geo_search.html"
 
     # 1. Define Geographic Query (66-67N, 27-28W)
     # Note: West longitudes are negative.

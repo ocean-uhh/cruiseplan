@@ -95,7 +95,7 @@ def test_workflow_fetch_and_merge_mocked():
 # REAL SLOW TEST (Network Verification)
 # --------------------------------------------------------------------------
 @pytest.mark.slow
-def test_real_pangaea_workflow():
+def test_real_pangaea_workflow_1():
     """
     Connects to Pangaea, downloads 2 real datasets, and merges them.
     """
@@ -165,8 +165,12 @@ def test_real_pangaea_workflow(caplog):
     assert "VA176" in track["label"]
 
     # 4. VISUALIZE
-    # Use pathlib for the filename
-    output_path = Path("test_map_VA176.html")
+    # Create test_output directory if it doesn't exist
+    output_dir = Path("tests_output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save to tests_output/test_map_VA176.html
+    output_path = output_dir / "test_map_VA176.html"
 
     # Generate
     result_path = generate_cruise_map(merged, output_path)
