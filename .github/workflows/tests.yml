@@ -20,7 +20,7 @@ jobs:
         # Critical: "bash -l {0}" is required for Micromamba environments to activate
         shell: bash -l {0}
     strategy:
-      fail-fast: false
+      fail-fast: true
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         # Testing across all selected supported versions from your spec
