@@ -1,0 +1,44 @@
+cruise_name: Interactive_Session
+stations:
+  - name: STN_001
+    latitude: 59.494128
+    longitude: -40.541729
+    depth: -2619.1
+    comment: Interactive selection
+- name: STN_002
+  latitude: 59.616508
+  longitude: -50.794338
+  depth: -3382.2
+  comment: Interactive selection
+- name: STN_003
+  latitude: 54.214295
+  longitude: -50.076368
+  depth: -3493.6
+  comment: Interactive selection
+- name: STN_004
+  latitude: 56.137413
+  longitude: -37.842163
+  depth: -2843.5
+  comment: Interactive selection
+- name: STN_005
+  latitude: 62.029147
+  longitude: -44.705954
+  depth: 980.2
+  comment: Interactive selection
+sections:
+- name: Section_01
+  start:
+    latitude: 61.13752
+    longitude: -34.022564
+  end:
+    latitude: 57.178806
+    longitude: -48.334048
+  reversible: true
+- name: Section_02
+  start:
+    latitude: 59.162774
+    longitude: -50.666193
+  end:
+    latitude: 56.442595
+    longitude: -41.193456
+  reversible: true

@@ -36,20 +36,33 @@ def save_cruise_config(data: Dict, filepath: Union[str, Path]) -> None:
 def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
     """
     Helper to transform internal picker data into the Spec's YAML schema.
-
-    Input: {'lat': 47.5, 'lon': -52.0, 'depth': 200}
-    Output: {
-        'name': 'STN_001',
-        'latitude': 47.5,
-        'longitude': -52.0,
-        'depth': 200,
-        'comment': 'Interactive selection'
-    }
+    Converts coordinates to native Python floats to avoid NumPy serialization.
     """
     return {
-        "name": f"STN_{index:03d}",  # Default naming pattern
-        "latitude": round(station_data["lat"], 6),
-        "longitude": round(station_data["lon"], 6),
-        "depth": round(station_data.get("depth", -9999), 1),
+        "name": f"STN_{index:03d}",
+        # FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.
+        "latitude": round(float(station_data["lat"]), 4),
+        "longitude": round(float(station_data["lon"]), 4),
+        "depth": round(float(station_data.get("depth", -9999)), 1),
         "comment": "Interactive selection",
+    }
+
+def format_transect_for_yaml(transect_data, index):
+    """
+    Formats internal transect data into the standardized YAML schema.
+    Ensures coordinates are native Python floats.
+    """
+    return {
+        "name": f"Section_{index:02d}",
+        "start": {
+            # FIX: Explicitly cast to float() here
+            "latitude": round(float(transect_data["start"]["lat"]), 4),
+            "longitude": round(float(transect_data["start"]["lon"]), 4),
+        },
+        "end": {
+            # FIX: Explicitly cast to float() here
+            "latitude": round(float(transect_data["end"]["lat"]), 4),
+            "longitude": round(float(transect_data["end"]["lon"]), 4),
+        },
+        "reversible": True,
     }

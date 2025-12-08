@@ -9,7 +9,11 @@ from matplotlib.widgets import CheckButtons
 # Local Integrations
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, bathymetry
 from cruiseplan.data.pangaea import merge_campaign_tracks
-from cruiseplan.utils.config import format_station_for_yaml, save_cruise_config
+from cruiseplan.utils.config import (
+    format_station_for_yaml,
+    format_transect_for_yaml,
+    save_cruise_config,
+)
 
 
 class StationPicker:
@@ -62,6 +66,14 @@ class StationPicker:
         self._connect_events()
 
         self._plot_initial_campaigns()
+
+        # for the line clicker
+        self.rubber_band_artist = None  # Will hold the dashed line object
+
+        # Connect the motion listener
+        self.cid_move = self.ax_map.figure.canvas.mpl_connect(
+            "motion_notify_event", self._on_mouse_move
+        )
 
         # Initial View
         self._update_aspect_ratio()
@@ -291,10 +303,19 @@ class StationPicker:
         self.fig.canvas.draw_idle()
 
     def _reset_line_state(self):
-        if self.temp_line_artist:
+        self.line_start = None
+
+        # Remove the yellow '+' start marker
+        if hasattr(self, "temp_line_artist") and self.temp_line_artist:
             self.temp_line_artist.remove()
             self.temp_line_artist = None
-        self.line_start = None
+
+        # NEW: Remove the rubber band line
+        if self.rubber_band_artist:
+            self.rubber_band_artist.remove()
+            self.rubber_band_artist = None
+
+        self.ax_map.figure.canvas.draw_idle()
 
     def _remove_last_item(self):
         if not self.history:
@@ -429,52 +450,86 @@ class StationPicker:
             self._update_status_display(message="Transect added.")
 
     def _save_to_yaml(self):
+        """Compiles current state and delegates to the core save function."""
         if not self.stations and not self.transects:
-            print("⚠️ No data to save.")
+            self._update_status_display(message="⚠️ No data to save.")
             return
 
-        print(
-            f"Saving {len(self.stations)} stations and {len(self.transects)} transects..."
-        )
+        self._update_status_display(message="Saving data...")
 
+        # 1. Delegate Station Formatting
         yaml_stations = [
             format_station_for_yaml(stn, i) for i, stn in enumerate(self.stations, 1)
         ]
 
-        yaml_sections = []
-        for i, tr in enumerate(self.transects, 1):
-            yaml_sections.append(
-                {
-                    "name": f"Section_{i:02d}",
-                    "start": {
-                        "latitude": round(tr["start"]["lat"], 6),
-                        "longitude": round(tr["start"]["lon"], 6),
-                    },
-                    "end": {
-                        "latitude": round(tr["end"]["lat"], 6),
-                        "longitude": round(tr["end"]["lon"], 6),
-                    },
-                    "reversible": True,
-                }
-            )
+        # 2. Delegate Transect Formatting (Consistency!)
+        yaml_sections = [
+            format_transect_for_yaml(tr, i) for i, tr in enumerate(self.transects, 1)
+        ]
+
+        # 3. Preserve Metadata (Don't overwrite the cruise name if we have one)
+        # Assuming self.metadata was passed in __init__, otherwise fallback
+        current_name = getattr(self, "cruise_name", "Interactive_Session")
 
         output_data = {
-            "cruise_name": "Interactive_Session",
+            "cruise_name": current_name,
             "stations": yaml_stations,
             "sections": yaml_sections,
         }
 
         try:
+            # delegated I/O function
             save_cruise_config(output_data, self.output_file)
+
+            # Success Feedback
+            print(f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} sections.")
             self._update_status_display(message=f"SAVED TO {self.output_file}")
+
         except Exception as e:
-            self._update_status_display(message=f"SAVE FAILED: {e}")
+            # Error Feedback
+            print(f"❌ Save Error: {e}")
+            self._update_status_display(message="SAVE FAILED. Check console.")
 
     def _on_mouse_move(self, event):
+        """Updates depth readout AND handles rubber band line drawing."""
         if event.inaxes != self.ax_map:
             return
+
+        # 1. Existing Logic: Get Depth
         depth = bathymetry.get_depth_at_point(event.ydata, event.xdata)
-        self._update_status_display(event.ydata, event.xdata, depth)
+
+        # Determine if we have a special status message to show
+        status_msg = ""
+
+        # 2. New Logic: Rubber Banding
+        # Only runs if we are in 'line' mode AND have started drawing
+        if self.mode == "line" and self.line_start is not None:
+            start_lon, start_lat = self.line_start
+            end_lon, end_lat = event.xdata, event.ydata
+
+            # Create or Update the visual line
+            if self.rubber_band_artist is None:
+                (self.rubber_band_artist,) = self.ax_map.plot(
+                    [start_lon, end_lon],
+                    [start_lat, end_lat],
+                    "b--",
+                    alpha=0.6,
+                    linewidth=1.5,
+                    zorder=15
+                )
+            else:
+                # Fast update
+                self.rubber_band_artist.set_data(
+                    [start_lon, end_lon],
+                    [start_lat, end_lat]
+                )
+
+            self.ax_map.figure.canvas.draw_idle()
+            status_msg = "Click to set end point"
+
+        # 3. Update Status Display (Merged)
+        # We pass the status_msg so the user knows they are in the middle of an action
+        self._update_status_display(event.ydata, event.xdata, depth, message=status_msg)
 
     def _update_status_display(self, lat=0, lon=0, depth=0, message=""):
         # Helper to safely format numbers, returning "N/A" if they aren't numbers
