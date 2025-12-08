@@ -1,11 +1,36 @@
 cff-version: 1.2.0
-message: "This is just a demo of CITATION.cff.  You do not need to cite this software."
+title: "CruisePlan: A Tool for Oceanographic Cruise Planning"
+message: "If you use this software, please cite it as below."
+type: software
 authors:
-- family-names: Frajka-Williams
-  given-names: Eleanor
-  orcid: https://orcid.org/0000-0001-8773-7838
-  affiliation: University of Hamburg, Bundesstraße 53, 20146 Hamburg, Germany
-title: template-project
-version: 0.0.0
-date-released: 2025-04-12
-url: https://github.com/eleanorfrajka/template-project
+  - family-names: Frajka-Williams
+    given-names: Eleanor
+    orcid: "https://orcid.org/0000-0001-8773-7838"
+    affiliation: "University of Hamburg, Institute of Oceanography"
+  - family-names: Sorge
+    given-names: Yves
+    orcid: https://orcid.org/0009-0007-0043-9207
+  - family-names: Trace-Kleeberg
+    given-names: Sunke
+    orcid: https://orcid.org/0000-0002-5980-2492
+repository-code: "https://github.com/eleanorfrajka/cruiseplan"
+url: "https://eleanorfrajka.github.io/cruiseplan"
+abstract: >-
+  CruisePlan is a Python package for planning and scheduling oceanographic
+  research cruises. It provides tools for station distribution calculation,
+  CTD profile timing estimation, mooring operation planning, travel time
+  calculations, and multi-format output generation including HTML schedules,
+  CSV data, KML visualization files, and NetCDF scientific data formats.
+  The package includes interactive station selection tools with PANGAEA
+  database integration for historical oceanographic data analysis.
+keywords:
+  - oceanography
+  - cruise planning
+  - research vessels
+  - CTD
+  - moorings
+  - bathymetry
+  - station planning
+license: MIT
+version: "0.1.0"
+date-released: "2025-01-02"

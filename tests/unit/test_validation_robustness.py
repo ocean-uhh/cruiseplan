@@ -1,0 +1,102 @@
+
+# tests/unit/test_validation_robustness.py
+import pytest
+import warnings
+from pydantic import ValidationError
+from cruiseplan.core.cruise import Cruise
+
+# ... (Keep existing tests) ...
+
+def test_value_constraints_errors(tmp_path):
+    """Test HARD limits (Errors)."""
+    bad_yaml = tmp_path / "bad_values.yaml"
+    bad_yaml.write_text("""
+cruise_name: "Speed Demon"
+start_date: "2025-01-01"
+# ERROR: Speed > 20
+default_vessel_speed: 50
+default_distance_between_stations: 10
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port: {name: P1, position: "0,0"}
+arrival_port: {name: P1, position: "0,0"}
+first_station: "S1"
+last_station: "S1"
+stations: [{name: S1, position: "0,0"}]
+legs: []
+    """)
+    with pytest.raises(ValidationError) as exc:
+        Cruise(bad_yaml)
+    assert "unrealistic" in str(exc.value)
+
+def test_value_constraints_warnings(tmp_path):
+    """Test SOFT limits (Warnings)."""
+    warn_yaml = tmp_path / "warn_values.yaml"
+    warn_yaml.write_text("""
+cruise_name: "Slow Cruise"
+start_date: "2025-01-01"
+# WARNING: Speed < 1
+default_vessel_speed: 0.5
+# WARNING: Spacing > 50
+default_distance_between_stations: 100
+turnaround_time: 90
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port: {name: P1, position: "0,0"}
+arrival_port: {name: P1, position: "0,0"}
+first_station: "S1"
+last_station: "S1"
+stations: [{name: S1, position: "0,0"}]
+legs: []
+    """)
+
+    with pytest.warns(UserWarning) as record:
+        Cruise(warn_yaml)
+
+    # Check that we got the expected warnings
+    warnings_text = [str(w.message) for w in record]
+    assert any("unusually low" in w for w in warnings_text)
+    assert any("outside typical range" in w for w in warnings_text)
+    assert any("Turnaround time" in w for w in warnings_text)
+
+def test_explicit_lat_lon_parsing(tmp_path):
+    """Test that explicit latitude/longitude fields work."""
+    explicit_yaml = tmp_path / "explicit_coords.yaml"
+    explicit_yaml.write_text("""
+cruise_name: "Explicit Coords"
+start_date: "2025-01-01"
+default_vessel_speed: 10
+default_distance_between_stations: 10
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port: {name: P1, latitude: 50.0, longitude: -10.0}
+arrival_port: {name: P1, latitude: 50.0, longitude: -10.0}
+first_station: "S1"
+last_station: "M1"
+
+stations:
+  - name: S1
+    # Legacy String format still works
+    position: "50.0, -10.0"
+
+moorings:
+  - name: M1
+    # NEW Explicit format
+    latitude: 52.5
+    longitude: -15.5
+    action: recovery
+    duration: 60
+
+legs: []
+    """)
+
+    cruise = Cruise(explicit_yaml)
+
+    # Check Mooring parsed correctly
+    m1 = cruise.mooring_registry["M1"]
+    assert m1.position.latitude == 52.5
+    assert m1.position.longitude == -15.5
+
+    # Check Port parsed correctly
+    p1 = cruise.config.departure_port
+    assert p1.position.latitude == 50.0
