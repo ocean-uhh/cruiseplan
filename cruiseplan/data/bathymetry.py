@@ -1,11 +1,11 @@
 # cruiseplan/data/bathymetry.py
 import logging
 from pathlib import Path
+
 import netCDF4 as nc
 import numpy as np
 import requests
 from tqdm import tqdm
-from typing import Optional, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +15,7 @@ ETOPO_FILENAME = "ETOPO_2022_v1_60s_N90W180_bed.nc"
 
 # Constants from Spec
 DEPTH_CONTOURS = [0, -50, -100, -200, -500, -1000, -2000, -3000, -4000, -5000]
+
 
 class BathymetryManager:
     """
@@ -50,17 +51,21 @@ class BathymetryManager:
 
                 # Cache coordinate arrays for fast search
                 # (These are 1D arrays, so they fit easily in memory)
-                self._lats = self._dataset.variables['lat'][:]
-                self._lons = self._dataset.variables['lon'][:]
+                self._lats = self._dataset.variables["lat"][:]
+                self._lons = self._dataset.variables["lon"][:]
 
                 self._is_mock = False
                 logger.info(f"✅ Loaded bathymetry from {file_path}")
             except Exception as e:
-                logger.warning(f"❌ Failed to load bathymetry file: {e}. Using MOCK mode.")
+                logger.warning(
+                    f"❌ Failed to load bathymetry file: {e}. Using MOCK mode."
+                )
                 self._is_mock = True
         else:
             logger.info(f"⚠️ No bathymetry file found at {file_path}. Using MOCK mode.")
-            logger.info("   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.")
+            logger.info(
+                "   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it."
+            )
             self._is_mock = True
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
@@ -82,9 +87,11 @@ class BathymetryManager:
         Performs bilinear interpolation logic.
         """
         # 1. Bounds Check
-        if lat < self._lats[0] or lat > self._lats[-1]: return -9999.0
+        if lat < self._lats[0] or lat > self._lats[-1]:
+            return -9999.0
         # Simple wrap handling could be added here
-        if lon < self._lons[0] or lon > self._lons[-1]: return -9999.0
+        if lon < self._lons[0] or lon > self._lons[-1]:
+            return -9999.0
 
         # 2. Find Indices (Fast search on sorted arrays)
         lat_idx = np.searchsorted(self._lats, lat)
@@ -99,24 +106,27 @@ class BathymetryManager:
         x_indices = [lon_idx - 1, lon_idx]
 
         # Read only these 4 values from disk
-        z_grid = self._dataset.variables['z'][y_indices, x_indices]
+        z_grid = self._dataset.variables["z"][y_indices, x_indices]
 
         y_coords = self._lats[y_indices]
         x_coords = self._lons[x_indices]
 
         # 4. Bilinear Interpolation
-        dy = (y_coords[1] - y_coords[0])
-        dx = (x_coords[1] - x_coords[0])
+        dy = y_coords[1] - y_coords[0]
+        dx = x_coords[1] - x_coords[0]
 
-        if dy == 0 or dx == 0: return float(z_grid[0,0])
+        if dy == 0 or dx == 0:
+            return float(z_grid[0, 0])
 
         u = (lon - x_coords[0]) / dx
         v = (lat - y_coords[0]) / dy
 
-        depth = (1-u)*(1-v)*z_grid[0,0] + \
-                u*(1-v)*z_grid[0,1] + \
-                (1-u)*v*z_grid[1,0] + \
-                u*v*z_grid[1,1]
+        depth = (
+            (1 - u) * (1 - v) * z_grid[0, 0]
+            + u * (1 - v) * z_grid[0, 1]
+            + (1 - u) * v * z_grid[1, 0]
+            + u * v * z_grid[1, 1]
+        )
 
         return float(depth)
 
@@ -132,6 +142,7 @@ class BathymetryManager:
         if self._dataset and self._dataset.isopen():
             self._dataset.close()
 
+
 def download_bathymetry(target_dir: str = "data"):
     """Downloads ETOPO 2022 file with progress bar."""
     root = Path(__file__).parent.parent.parent
@@ -146,19 +157,23 @@ def download_bathymetry(target_dir: str = "data"):
         response.raise_for_status()
         total_size = int(response.headers.get("Content-Length", 0))
 
-        with open(local_path, "wb") as file, tqdm(
-            desc="Downloading ETOPO",
-            total=total_size,
-            unit="B",
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
+        with (
+            open(local_path, "wb") as file,
+            tqdm(
+                desc="Downloading ETOPO",
+                total=total_size,
+                unit="B",
+                unit_scale=True,
+                unit_divisor=1024,
+            ) as bar,
+        ):
             for chunk in response.iter_content(chunk_size=8192):
                 file.write(chunk)
                 bar.update(len(chunk))
         print("\nDownload complete!")
     except Exception as e:
         print(f"\nDownload failed: {e}")
+
 
 # Singleton instance
 bathymetry = BathymetryManager()
