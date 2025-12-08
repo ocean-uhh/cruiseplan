@@ -50,7 +50,7 @@ dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.dynamic.optional-dependencies]
 dev = { file = ["requirements-dev.txt"] }
-
+# pip install -e ".[dev]"
 
 [tool.setuptools_scm]
 write_to = "cruiseplan/_version.py"
