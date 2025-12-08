@@ -1,8 +1,9 @@
 from abc import ABC, abstractmethod
-from typing import Optional, List, Any, Union
+from typing import Any, List, Optional, Union
+
 from cruiseplan.core.validation import (
-    StationDefinition,
     MooringDefinition,
+    StationDefinition,
     TransitDefinition,
 )
 

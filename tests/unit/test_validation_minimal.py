@@ -1,6 +1,8 @@
 # tests/unit/test_validation_minimal.py
-import pytest
 from pathlib import Path
+
+import pytest
+
 from cruiseplan.core.cruise import Cruise, ReferenceError
 
 # Path to the sample file

@@ -1,6 +1,7 @@
 # tests/unit/test_validation_robustness.py
 import pytest
 from pydantic import ValidationError
+
 from cruiseplan.core.cruise import Cruise
 
 # ... (Keep existing tests) ...

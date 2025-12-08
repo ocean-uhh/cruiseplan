@@ -1,12 +1,13 @@
 # cruiseplan/core/cruise.py
-import yaml
 from pathlib import Path
-from typing import Dict, Any, List, Union
+from typing import Any, Dict, List, Union
+
+import yaml
 
 from cruiseplan.core.validation import (
     CruiseConfig,
-    StationDefinition,
     MooringDefinition,
+    StationDefinition,
     TransitDefinition,
 )
 
@@ -45,7 +46,7 @@ class Cruise:
         self._resolve_references()
 
     def _load_yaml(self) -> Dict[str, Any]:
-        with open(self.config_path, "r") as f:
+        with open(self.config_path) as f:
             return yaml.safe_load(f)
 
     def _resolve_references(self):
