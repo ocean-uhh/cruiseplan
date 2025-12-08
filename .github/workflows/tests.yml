@@ -72,4 +72,4 @@ jobs:
 
       - name: Run Phase 1 Tests
         run: |
-          pytest tests/unit
+          pytest tests/unit tests/integration -m "not slow"

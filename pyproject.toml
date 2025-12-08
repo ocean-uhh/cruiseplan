@@ -52,10 +52,6 @@ dependencies = { file = ["requirements.txt"] }
 dev = { file = ["requirements-dev.txt"] }
 
 
-
-
-
-
 [tool.setuptools_scm]
 write_to = "cruiseplan/_version.py"
 write_to_template = "__version__ = '{version}'"
@@ -105,3 +101,7 @@ convention = "numpy"
 testpaths = ["tests"]
 python_files = "test_*.py"
 addopts = "--verbose"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+]
