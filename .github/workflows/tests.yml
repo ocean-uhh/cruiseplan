@@ -30,24 +30,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Micromamba Python ${{ matrix.python-version }}
-        uses: mamba-org/setup-micromamba@v2
-        with:
-          environment-name: TEST
-          init-shell: bash
-          # STRATEGY: Use Mamba for the "Hard to Compile" binary dependencies.
-          # This solves Cartopy/NetCDF4 installation issues on Windows/Mac.
-          create-args: >-
-            python=${{ matrix.python-version }} --file requirements.txt --channel conda-forge
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
 
-      - name: Install cruiseplan (Hybrid)
+      - name: Install dependencies
         run: |
-          # We install the package in editable mode using Pip.
-          # Pip will detect that numpy/cartopy are already installed by Mamba and skip them.
-          # It will ONLY install the missing pure-python libs (like pangaeapy, simplekml).
-          python -m pip install -r requirements-dev.txt
-          python -m pip install -e .
+          python -m pip install --upgrade pip
+          python -m pip install flake8 pytest
+          if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
 
-      - name: Run Phase 1 Tests
+      - name: Install package
         run: |
-          pytest tests/unit tests/integration -m "not slow"
+          python -m pip install -e . --no-deps --force-reinstall
+
+      - name: Test with pytest
+        run: |
+          pytest

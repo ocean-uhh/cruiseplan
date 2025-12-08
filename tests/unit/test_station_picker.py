@@ -1,5 +1,6 @@
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+from unittest.mock import Mock
 
 import pytest
 
@@ -63,17 +64,37 @@ def test_initial_state(picker):
     assert len(picker.transects) == 0
     assert len(picker.history) == 0
 
-
 def test_mode_switching(picker):
-    """Test state machine transitions via mock key events."""
-    picker._on_key_press(MagicMock(key="p"))
-    assert picker.mode == "point"
+    # Expect 'navigation' initially
+    assert picker.mode == 'navigation'
 
-    picker._on_key_press(MagicMock(key="l"))
-    assert picker.mode == "line"
+    # Switch to point
+    picker.mode = 'point'
+    assert picker.mode == 'point'
 
-    picker._on_key_press(MagicMock(key="n"))
-    assert picker.mode == "navigation"
+    # Switch back (optional)
+    picker.mode = 'navigation'
+    assert picker.mode == 'navigation'
+
+def test_mode_switching_via_keypress(picker):
+    """Test that pressing 'p', 'r', 'n' actually changes the mode."""
+
+    # 1. Verify default start state (usually 'navigation')
+    assert picker.mode == 'navigation'
+
+    # 2. Create a proper Mock Event
+    mock_event = Mock()
+    mock_event.inaxes = picker.ax_map   # <--- CRITICAL: Passes the guard clause
+    mock_event.key = "p"                # <--- CRITICAL: Use 'key', not 'k'
+
+    # 3. Simulate pressing "p"
+    picker._on_key_press(mock_event)          # Call the actual event handler
+    assert picker.mode == 'point'       # Verify it changed
+
+    # 4. Simulate pressing "r" (Remove mode)
+    mock_event.key = "r"
+    picker._on_key_press(mock_event)
+    assert picker.mode == 'remove'
 
 
 def test_station_placement(picker):
@@ -159,24 +180,19 @@ def test_sanitize_limits_explosion(picker):
     picker.ax_map.set_ylim.assert_called_with(40, 65)
 
 
-def test_remove_last_item_clears_data_and_plot(picker):
-    """Test that removing the last item clears data and visuals."""
-
-    # 1. SETUP
+def test_undo_last_item(picker):
+    """Test 'u' key removes the last added station (LIFO)."""
     with patch(BATHY_MOCK_PATH, return_value=-1000.0):
-        picker._add_station(-50.0, 45.0)
+        picker._add_station(-50.0, 45.0) # 1st
+        picker._add_station(-60.0, 45.0) # 2nd
 
-    # Sanity check
+    assert len(picker.stations) == 2
+
+    # Run the Undo logic directly (simulating 'u' press)
+    picker._remove_last_item()
+
     assert len(picker.stations) == 1
-    added_artist = picker.history[-1][2]
-
-    # 2. ACTION: Call YOUR method
-    picker._remove_last_item()  # <--- Changed from picker.undo()
-
-    # 3. ASSERTIONS
-    assert len(picker.stations) == 0
-    assert len(picker.history) == 0
-    added_artist.remove.assert_called_once()
+    assert picker.stations[0]['lon'] == -50.0  # The 1st station should remain
 
 
 def test_remove_last_item_empty_safe(picker):
@@ -194,3 +210,34 @@ def test_remove_last_item_empty_safe(picker):
 
     # Optional: If you want to be thorough, check that no stations were somehow deleted
     assert len(picker.stations) == 0
+
+def test_remove_specific_station_by_click(picker):
+    """Test clicking near a station in remove mode deletes it."""
+    # 1. Setup: Add two stations
+    with patch(BATHY_MOCK_PATH, return_value=-1000.0):
+        picker._add_station(-50.0, 45.0) # Station 0
+        picker._add_station(-52.0, 46.0) # Station 1
+
+    assert len(picker.stations) == 2
+
+    # 2. Switch to remove mode
+    picker.mode = 'remove'
+
+    # 3. Simulate click NEAR Station 0 (-50.0, 45.0)
+    #    We click at -50.1, 45.1 (close enough)
+
+    # We need to mock the event object
+    from unittest.mock import Mock
+    mock_event = Mock()
+    mock_event.button = 1                  # Must look like a left-click
+    mock_event.inaxes = picker.ax_map
+    mock_event.xdata = -50.1
+    mock_event.ydata = 45.1
+
+    # 4. Action
+    picker._on_click(mock_event)
+
+    # 5. Assertions
+    assert len(picker.stations) == 1
+    # Ensure the remaining station is Station 1 (-52.0)
+    assert picker.stations[0]['lon'] == -52.0

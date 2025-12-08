@@ -256,6 +256,7 @@ class StationPicker:
         self.ax_map.set_aspect(aspect, adjustable="datalim")
         self.fig.canvas.draw_idle()
 
+
     def _on_release(self, event):
         if event.inaxes == self.ax_map:
             self._update_aspect_ratio()
@@ -264,6 +265,9 @@ class StationPicker:
         self._update_aspect_ratio()
 
     def _on_key_press(self, event):
+        """Handle key presses."""
+        if event.inaxes != self.ax_map:
+            return
         if event.key == "p":
             self.mode = "point"
             self._reset_line_state()
@@ -272,8 +276,11 @@ class StationPicker:
         elif event.key == "n":
             self.mode = "navigation"
             self._reset_line_state()
-        elif event.key == "r":
+        elif event.key == "u":
             self._remove_last_item()
+        elif event.key == "r":
+            self.mode = "remove"
+            self._update_status_display(message="Mode: REMOVE. Click near a station to delete it.")
         elif event.key == "y":
             self._save_to_yaml()
         elif event.key == "escape":
@@ -309,14 +316,50 @@ class StationPicker:
         self.ax_map.figure.canvas.draw_idle()
 
     def _on_click(self, event):
-        if event.inaxes != self.ax_map or self.mode == "navigation":
+        if event.button != 1 or event.inaxes != self.ax_map or self.mode == "navigation":
             return
 
-        if event.button == 1:
-            if self.mode == "point":
-                self._add_station(event.xdata, event.ydata)
-            elif self.mode == "line":
-                self._handle_line_click(event.xdata, event.ydata)
+        if self.mode == "point":
+            self._add_station(event.xdata, event.ydata)
+        elif self.mode == "line":
+            self._handle_line_click(event.xdata, event.ydata)
+
+        elif self.mode == 'remove':
+            # Try to find a station near the click
+            station_data, _ = self._find_nearest_station(event.xdata, event.ydata)
+
+            if station_data:
+                self._remove_specific_station(station_data)
+            else:
+                self._update_status_display(message="No station close enough to remove.")
+            return
+
+    def _find_nearest_station(self, target_lon, target_lat, threshold=2.0):
+        """
+        Finds the station closest to the click coordinates.
+        Returns the data dict and the index if found within threshold.
+        """
+        if not self.stations:
+            return None, None
+
+        closest_dist = float('inf')
+        closest_data = None
+        closest_index = -1
+
+        for i, station in enumerate(self.stations):
+            # Simple Euclidean distance (ok for picking, rough for geography)
+            # For precise geo-distance, use haversine, but this is usually fine for UI.
+            dist = ((station['lon'] - target_lon) ** 2 + (station['lat'] - target_lat) ** 2) ** 0.5
+
+            if dist < closest_dist:
+                closest_dist = dist
+                closest_data = station
+                closest_index = i
+
+        if closest_dist < threshold:
+            return closest_data, closest_index
+        return None, None
+
 
     def _add_station(self, lon, lat):
         depth = bathymetry.get_depth_at_point(lat, lon)
@@ -328,6 +371,29 @@ class StationPicker:
         self.stations.append(data)
         self.history.append(("station", data, artist))
         self._update_status_display(lat, lon, depth)
+
+    def _remove_specific_station(self, station_data):
+        # 1. Remove from data list
+        self.stations.remove(station_data)
+
+        # 2. Find and remove the visual artist (tricky part!)
+        # We have to search the history to find the artist associated with this data
+        history_item_to_remove = None
+
+        for item in self.history:
+            # item structure: (type, data, artist)
+            if item[1] == station_data:
+                history_item_to_remove = item
+                break
+
+        if history_item_to_remove:
+            # Remove the dot from the screen
+            history_item_to_remove[2].remove()
+            # Remove from history so "Undo" doesn't get confused later
+            self.history.remove(history_item_to_remove)
+
+        self.ax_map.figure.canvas.draw_idle()
+        self._update_status_display(message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}")
 
     def _handle_line_click(self, lon, lat):
         if self.line_start is None:
@@ -401,6 +467,13 @@ class StationPicker:
         self._update_status_display(event.ydata, event.xdata, depth)
 
     def _update_status_display(self, lat=0, lon=0, depth=0, message=""):
+        # Helper to safely format numbers, returning "N/A" if they aren't numbers
+        def safe_fmt(val, fmt):
+            try:
+                return f"{float(val):{fmt}}"
+            except (ValueError, TypeError):
+                return "N/A"
+
         text = (
             f"Mode: {self.mode.upper()}\n"
             f"----------------\n"
