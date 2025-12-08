@@ -277,3 +277,69 @@ def test_save_to_yaml_triggers_io(picker):
 
         # Check filename
         assert mock_save.call_args[0][1] == "test_cruise.yaml"
+
+
+def test_handle_line_click_workflow(picker):
+    """
+    Test that two calls to _handle_line_click correctly create one transect,
+    store history, and reset the state.
+    """
+
+    # Use a dummy artist for the final blue line
+    mock_final_artist = MagicMock()
+
+    # --- SETUP ---
+    # 1. Ensure the picker starts in the correct state
+    picker.mode = 'line'
+    picker.line_start = None
+
+    # 2. Mock external function calls and internal cleanup method
+    # Patch the plotting function to return the artists we expect.
+    with patch.object(picker.ax_map, 'plot') as mock_plot, \
+         patch.object(picker, '_reset_line_state') as mock_reset:
+
+        # Configure mock_plot: First call returns the temp marker, second returns the final line
+        mock_plot.side_effect = [
+            (MagicMock(),),  # First call (yellow marker)
+            (mock_final_artist,),  # Second call (final blue line)
+        ]
+
+        # --- ACTION 1: FIRST CLICK (Start Point) ---
+        lon1, lat1 = 10.0, 50.0
+        picker._handle_line_click(lon1, lat1)
+
+        ## ASSERTIONS AFTER CLICK 1
+        assert picker.line_start == (lon1, lat1)
+        assert len(picker.transects) == 0
+        assert mock_reset.call_count == 0  # Should not have reset yet
+        # Check plotting call for the start marker
+        mock_plot.assert_called_once_with(
+            lon1, lat1, "y+", markersize=12, markeredgewidth=2, zorder=15
+        )
+
+        # --- ACTION 2: SECOND CLICK (End Point) ---
+        lon2, lat2 = 20.0, 60.0
+        picker._handle_line_click(lon2, lat2)
+
+        ## ASSERTIONS AFTER CLICK 2
+
+        # 1. State Verification (The action is complete)
+        mock_reset.assert_called_once()  # Must call cleanup
+
+        # 2. Data Verification (One transect added)
+        assert len(picker.transects) == 1
+        transect_data = picker.transects[0]
+        assert transect_data["start"]["lat"] == lat1
+        assert transect_data["end"]["lon"] == lon2
+
+        # 3. History Verification (Action stored)
+        assert len(picker.history) == 1
+        history_entry = picker.history[0]
+        assert history_entry[0] == "transect"
+        assert history_entry[2] is mock_final_artist # Ensure the cleanup artist is stored
+
+        # 4. Plotting Verification (Final line drawn)
+        # Check the *second* call to plot()
+        mock_plot.assert_called_with(
+            [lon1, lon2], [lat1, lat2], "b-", linewidth=2, zorder=9
+        )
