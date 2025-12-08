@@ -208,6 +208,10 @@ class CruiseConfig(BaseModel):
     ctd_descent_rate: float = 1.0
     ctd_ascent_rate: float = 1.0
 
+    # Configuration "daylight" or "dayshift" window for moorings
+    day_start_hour: int = 8  # Default 08:00
+    day_end_hour: int = 20  # Default 20:00
+
     calculate_transfer_between_sections: bool
     calculate_depth_via_bathymetry: bool
     start_date: str
@@ -268,6 +272,20 @@ class CruiseConfig(BaseModel):
         if not (0.5 <= v <= 2.0):
             raise ValueError(f"CTD Rate {v} m/s is outside safe limits (0.5 - 2.0).")
         return v
+
+    @field_validator("day_start_hour", "day_end_hour")
+    def validate_hours(cls, v):
+        if not (0 <= v <= 23):
+            raise ValueError("Hour must be between 0 and 23")
+        return v
+
+    @model_validator(mode="after")
+    def validate_day_window(self):
+        if self.day_start_hour >= self.day_end_hour:
+            raise ValueError(
+                f"Day start ({self.day_start_hour}) must be before day end ({self.day_end_hour})"
+            )
+        return self
 
     @model_validator(mode="after")
     def check_longitude_consistency(self):
