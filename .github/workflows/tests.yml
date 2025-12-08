@@ -1,56 +1,75 @@
 name: Run tests
 
 on:
+  push:
+    branches: [ "main" ]
   pull_request:
-    branches:
-      - main
+    branches: [ "main" ]
     paths:
       - '**.py'
-      - '**.ipynb'
+      - '**.yaml'
+      - 'pyproject.toml'
+      - 'requirements*.txt'
 
 jobs:
-  job_mytests:
+  test:
+    name: ${{ matrix.os }} / Py ${{ matrix.python-version }}
     runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
-        python-version: ["3.12"]
-      fail-fast: true
     defaults:
       run:
+        # Critical: "bash -l {0}" is required for Micromamba environments to activate
         shell: bash -l {0}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+        # Testing across all selected supported versions from your spec
+        python-version: ["3.9", "3.12"]
+
     steps:
-    - name: Run a one-line script
-      run: echo "The job was automatically triggered by a ${{ github.event_name }} event."
-    - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+      - name: Setup Micromamba Python ${{ matrix.python-version }}
+        uses: mamba-org/setup-micromamba@v2
+        with:
+          environment-name: TEST
+          init-shell: bash
+          # STRATEGY: Use Mamba for the "Hard to Compile" binary dependencies.
+          # This solves Cartopy/NetCDF4 installation issues on Windows/Mac.
+          create-args: >-
+            python=${{ matrix.python-version }}
+            pytest
+            pytest-cov
+            ruff
+            black
+            numpy
+            pandas
+            xarray
+            netcdf4
+            scipy
+            matplotlib
+            cartopy
+            requests
+            pyyaml
+            --channel conda-forge
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
-        if [ -f requirements-dev.txt ]; then pip install -r requirements-dev.txt; fi
-    - name: Install template_project
-      run: |
-        python -m pip install -e . --no-deps --force-reinstall
+      - name: Install cruiseplan (Hybrid)
+        run: |
+          # We install the package in editable mode using Pip.
+          # Pip will detect that numpy/cartopy are already installed by Mamba and skip them.
+          # It will ONLY install the missing pure-python libs (like pangaeapy, simplekml).
+          python -m pip install -e .
 
-    - name: Test with pytest
-      run: |
-        pytest
+      - name: Lint with Ruff
+        run: |
+          ruff check .
+          ruff format --check .
 
-# Use the below code after deploying a release
-#    - name: Setup Micromamba Python ${{ matrix.python-version }}
-#      uses: mamba-org/setup-micromamba@v2
-#      with:
-#        environment-name: TEST
-#        init-shell: bash
-#        create-args: >-
-#          python=${{ matrix.python-version }} --file requirements-dev.txt --channel conda-forge
+      - name: Check formatting with Black
+        run: |
+          black --check .
 
-
-
-#    - name: Full Tests
-#      run: |
-#        python -m pytest --cov=seagliderOG1 --cov-report term-missing  tests/
+      - name: Run Phase 1 Tests
+        run: |
+          pytest tests/unit

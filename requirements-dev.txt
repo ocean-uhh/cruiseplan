@@ -1,6 +1,3 @@
-# Pull in the base stack so we don't duplicate pins here
--r requirements.txt
-
 # Jupyter and notebooks
 jupyterlab>=4.0
 nbconvert>=7.8
