@@ -10,8 +10,8 @@ def test_format_station_standard():
 
     expected = {
         "name": "STN_005",             # Padding check (03d)
-        "latitude": 47.1235,         # Rounding check (4 decimals)
-        "longitude": -52.9877,       # Rounding check (4 decimals)
+        "latitude": 47.12346,         # Rounding check (5 decimals)
+        "longitude": -52.98765,       # Rounding check (5 decimals)
         "depth": 250.6,                # Depth rounding (1 decimal)
         "comment": "Interactive selection"
     }
@@ -41,17 +41,17 @@ def test_format_transect_standard():
     expected_structure = {
         "name": "Section_02",          # Padding check (02d)
         "start": {
-            "latitude": 10.1235,     # Rounding check
-            "longitude": 20.1235
+            "latitude": 10.12346,     # Rounding check
+            "longitude": 20.12346
         },
         "end": {
-            "latitude": 30.9877,
-            "longitude": 40.9877
+            "latitude": 30.98765,
+            "longitude": 40.98765
         },
         "reversible": True
     }
 
     assert result == expected_structure
     # Double check it matches the structure exactly
-    assert result['start']['latitude'] == 10.1235
-    assert result['end']['longitude'] == 40.9877
+    assert result['start']['latitude'] == 10.12346
+    assert result['end']['longitude'] == 40.98765

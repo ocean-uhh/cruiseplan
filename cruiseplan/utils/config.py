@@ -41,8 +41,8 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
     return {
         "name": f"STN_{index:03d}",
         # FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.
-        "latitude": round(float(station_data["lat"]), 4),
-        "longitude": round(float(station_data["lon"]), 4),
+        "latitude": round(float(station_data["lat"]), 5),
+        "longitude": round(float(station_data["lon"]), 5),
         "depth": round(float(station_data.get("depth", -9999)), 1),
         "comment": "Interactive selection",
     }
@@ -56,13 +56,13 @@ def format_transect_for_yaml(transect_data, index):
         "name": f"Section_{index:02d}",
         "start": {
             # FIX: Explicitly cast to float() here
-            "latitude": round(float(transect_data["start"]["lat"]), 4),
-            "longitude": round(float(transect_data["start"]["lon"]), 4),
+            "latitude": round(float(transect_data["start"]["lat"]), 5),
+            "longitude": round(float(transect_data["start"]["lon"]), 5),
         },
         "end": {
             # FIX: Explicitly cast to float() here
-            "latitude": round(float(transect_data["end"]["lat"]), 4),
-            "longitude": round(float(transect_data["end"]["lon"]), 4),
+            "latitude": round(float(transect_data["end"]["lat"]), 5 ),
+            "longitude": round(float(transect_data["end"]["lon"]), 5),
         },
         "reversible": True,
     }
