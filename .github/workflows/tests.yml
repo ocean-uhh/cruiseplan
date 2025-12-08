@@ -38,27 +38,14 @@ jobs:
           # STRATEGY: Use Mamba for the "Hard to Compile" binary dependencies.
           # This solves Cartopy/NetCDF4 installation issues on Windows/Mac.
           create-args: >-
-            python=${{ matrix.python-version }}
-            pytest
-            pytest-cov
-            ruff
-            black
-            numpy
-            pandas
-            xarray
-            netcdf4
-            scipy
-            matplotlib
-            cartopy
-            requests
-            pyyaml
-            --channel conda-forge
+            python=${{ matrix.python-version }} --file requirements.txt --channel conda-forge
 
       - name: Install cruiseplan (Hybrid)
         run: |
           # We install the package in editable mode using Pip.
           # Pip will detect that numpy/cartopy are already installed by Mamba and skip them.
           # It will ONLY install the missing pure-python libs (like pangaeapy, simplekml).
+          python -m pip install -r requirements-dev.txt
           python -m pip install -e .
 
       - name: Run Phase 1 Tests
