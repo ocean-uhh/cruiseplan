@@ -11,7 +11,7 @@ matplotlib>=3.7
 # Phase 2a Dependencies
 pydantic>=2.0.0
 requests>=2.25.0
-pangaeapy>=1.4.0
+pangaeapy>=1.0.7
 folium
 branca  # Folium dependency, good to be explicit
 jinja2
