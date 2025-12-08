@@ -50,11 +50,7 @@ dependencies = { file = ["requirements.txt"] }
 
 [tool.setuptools.dynamic.optional-dependencies]
 dev = { file = ["requirements-dev.txt"] }
-
-
-
-
-
+# pip install -e ".[dev]"
 
 [tool.setuptools_scm]
 write_to = "cruiseplan/_version.py"
@@ -105,3 +101,7 @@ convention = "numpy"
 testpaths = ["tests"]
 python_files = "test_*.py"
 addopts = "--verbose"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks integration tests",
+]

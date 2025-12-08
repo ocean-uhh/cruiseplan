@@ -7,5 +7,10 @@ scipy>=1.10
 # Plotting
 matplotlib>=3.7
 
-# pydantic
-pydantic>=2.0
+# Phase 2a Dependencies
+pydantic>=2.0.0
+requests
+pangaeapy
+folium
+branca  # Folium dependency, good to be explicit
+jinja2
