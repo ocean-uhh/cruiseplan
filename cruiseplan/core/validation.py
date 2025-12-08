@@ -3,37 +3,43 @@ from typing import List, Optional, Union, Any
 from enum import Enum
 from pydantic import BaseModel, field_validator, model_validator, ConfigDict
 
+
 # --- Enums ---
 class StrategyEnum(str, Enum):
     SEQUENTIAL = "sequential"
     SPATIAL_INTERLEAVED = "spatial_interleaved"
     DAY_NIGHT_SPLIT = "day_night_split"
 
+
 class ActionEnum(str, Enum):
     DEPLOYMENT = "deployment"
     RECOVERY = "recovery"
 
+
 # --- Shared Models ---
+
 
 class GeoPoint(BaseModel):
     """
     Internal representation of a point.
     """
+
     latitude: float
     longitude: float
 
-    @field_validator('latitude')
+    @field_validator("latitude")
     def validate_lat(cls, v):
         if not (-90 <= v <= 90):
             raise ValueError(f"Latitude {v} must be between -90 and 90")
         return v
 
-    @field_validator('longitude')
+    @field_validator("longitude")
     def validate_lon(cls, v):
         # Individual point check: Must be valid in at least one system (-180..360 covers both)
         if not (-180 <= v <= 360):
-             raise ValueError(f"Longitude {v} must be between -180 and 360")
+            raise ValueError(f"Longitude {v} must be between -180 and 360")
         return v
+
 
 class FlexibleLocationModel(BaseModel):
     """
@@ -41,29 +47,38 @@ class FlexibleLocationModel(BaseModel):
     1. position: "lat, lon" (Legacy/Fast)
     2. latitude: float, longitude: float (Explicit/Clear)
     """
-    position: Optional[GeoPoint] = None # Internal storage
 
-    @model_validator(mode='before')
+    position: Optional[GeoPoint] = None  # Internal storage
+
+    @model_validator(mode="before")
     @classmethod
     def unify_coordinates(cls, data: Any) -> Any:
         if isinstance(data, dict):
             # Case A: Explicit Lat/Lon
-            if 'latitude' in data and 'longitude' in data:
-                data['position'] = {'latitude': data.pop('latitude'), 'longitude': data.pop('longitude')}
+            if "latitude" in data and "longitude" in data:
+                data["position"] = {
+                    "latitude": data.pop("latitude"),
+                    "longitude": data.pop("longitude"),
+                }
             # Case B: String Position
-            elif 'position' in data and isinstance(data['position'], str):
+            elif "position" in data and isinstance(data["position"], str):
                 try:
-                    lat, lon = map(float, data['position'].split(','))
-                    data['position'] = {'latitude': lat, 'longitude': lon}
+                    lat, lon = map(float, data["position"].split(","))
+                    data["position"] = {"latitude": lat, "longitude": lon}
                 except ValueError:
-                    raise ValueError(f"Invalid position string: '{data['position']}'. Expected 'lat, lon'")
+                    raise ValueError(
+                        f"Invalid position string: '{data['position']}'. Expected 'lat, lon'"
+                    )
         return data
 
+
 # --- Catalog Definitions ---
+
 
 class PortDefinition(FlexibleLocationModel):
     name: str
     timezone: Optional[str] = "UTC"
+
 
 class StationDefinition(FlexibleLocationModel):
     name: str
@@ -72,11 +87,12 @@ class StationDefinition(FlexibleLocationModel):
     comment: Optional[str] = None
     position_string: Optional[str] = None
 
-    @field_validator('duration')
+    @field_validator("duration")
     def validate_duration_positive(cls, v):
         if v is not None and v <= 0:
             raise ValueError("Duration must be positive")
         return v
+
 
 class MooringDefinition(FlexibleLocationModel):
     name: str
@@ -87,11 +103,12 @@ class MooringDefinition(FlexibleLocationModel):
     equipment: Optional[str] = None
     position_string: Optional[str] = None
 
-    @field_validator('duration')
+    @field_validator("duration")
     def validate_duration_positive(cls, v):
         if v <= 0:
             raise ValueError("Mooring duration must be positive")
         return v
+
 
 class TransitDefinition(BaseModel):
     name: str
@@ -99,19 +116,21 @@ class TransitDefinition(BaseModel):
     comment: Optional[str] = None
     vessel_speed: Optional[float] = None
 
-    @field_validator('route', mode='before')
+    @field_validator("route", mode="before")
     def parse_route_strings(cls, v):
         # Allow list of strings ["lat,lon", "lat,lon"]
         parsed = []
         for point in v:
             if isinstance(point, str):
-                lat, lon = map(float, point.split(','))
-                parsed.append({'latitude': lat, 'longitude': lon})
+                lat, lon = map(float, point.split(","))
+                parsed.append({"latitude": lat, "longitude": lon})
             else:
                 parsed.append(point)
         return parsed
 
+
 # --- Schedule Definitions ---
+
 
 class GenerateTransect(BaseModel):
     start: GeoPoint
@@ -121,15 +140,16 @@ class GenerateTransect(BaseModel):
     start_index: int = 1
     reversible: bool = True
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def parse_endpoints(cls, data):
         # Helper to parse start/end strings
-        for field in ['start', 'end']:
+        for field in ["start", "end"]:
             if field in data and isinstance(data[field], str):
-                lat, lon = map(float, data[field].split(','))
-                data[field] = {'latitude': lat, 'longitude': lon}
+                lat, lon = map(float, data[field].split(","))
+                data[field] = {"latitude": lat, "longitude": lon}
         return data
+
 
 class SectionDefinition(BaseModel):
     name: str
@@ -139,24 +159,28 @@ class SectionDefinition(BaseModel):
     reversible: bool = True
     stations: Optional[List[str]] = []
 
-    @model_validator(mode='before')
+    @model_validator(mode="before")
     @classmethod
     def parse_endpoints(cls, data):
-        for field in ['start', 'end']:
+        for field in ["start", "end"]:
             if field in data and isinstance(data[field], str):
-                lat, lon = map(float, data[field].split(','))
-                data[field] = {'latitude': lat, 'longitude': lon}
+                lat, lon = map(float, data[field].split(","))
+                data[field] = {"latitude": lat, "longitude": lon}
         return data
+
 
 class ClusterDefinition(BaseModel):
     name: str
     strategy: StrategyEnum = StrategyEnum.SEQUENTIAL
     ordered: bool = True
-    sequence: Optional[List[Union[str, MooringDefinition, StationDefinition, TransitDefinition]]] = None
+    sequence: Optional[
+        List[Union[str, MooringDefinition, StationDefinition, TransitDefinition]]
+    ] = None
     moorings: Optional[List[Union[str, MooringDefinition]]] = []
     stations: Optional[List[Union[str, StationDefinition]]] = []
     generate_transect: Optional[GenerateTransect] = None
     activities: Optional[List[dict]] = []
+
 
 class LegDefinition(BaseModel):
     name: str
@@ -168,7 +192,9 @@ class LegDefinition(BaseModel):
     moorings: Optional[List[Union[str, MooringDefinition]]] = []
     sequence: Optional[List[Union[str, MooringDefinition, StationDefinition]]] = []
 
+
 # --- Root Config ---
+
 
 class CruiseConfig(BaseModel):
     cruise_name: str
@@ -198,45 +224,51 @@ class CruiseConfig(BaseModel):
     transits: Optional[List[TransitDefinition]] = []
     legs: List[LegDefinition]
 
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
     # --- VALIDATORS ---
 
-    @field_validator('default_vessel_speed')
+    @field_validator("default_vessel_speed")
     def validate_speed(cls, v):
         if v <= 0:
             raise ValueError("Vessel speed must be positive")
         if v > 20:
-            raise ValueError(f"Vessel speed {v} knots is unrealistic (> 20). Raise an Error.")
+            raise ValueError(
+                f"Vessel speed {v} knots is unrealistic (> 20). Raise an Error."
+            )
         if v < 1:
             warnings.warn(f"Vessel speed {v} knots is unusually low (< 1).")
         return v
 
-    @field_validator('default_distance_between_stations')
+    @field_validator("default_distance_between_stations")
     def validate_distance(cls, v):
         if v <= 0:
-             raise ValueError("Distance must be positive")
+            raise ValueError("Distance must be positive")
         if v > 150:
-            raise ValueError(f"Station spacing {v} km is too large (> 150). Raise an Error.")
+            raise ValueError(
+                f"Station spacing {v} km is too large (> 150). Raise an Error."
+            )
         if v < 4 or v > 50:
             warnings.warn(f"Station spacing {v} km is outside typical range (4-50 km).")
         return v
 
-    @field_validator('turnaround_time')
+    @field_validator("turnaround_time")
     def validate_turnaround(cls, v):
         if v < 0:
             raise ValueError("Turnaround time cannot be negative")
         if v > 60:
-            warnings.warn(f"Turnaround time {v} minutes is high (> 60). Ensure units are minutes.")
+            warnings.warn(
+                f"Turnaround time {v} minutes is high (> 60). Ensure units are minutes."
+            )
         return v
 
-    @field_validator('ctd_descent_rate', 'ctd_ascent_rate')
+    @field_validator("ctd_descent_rate", "ctd_ascent_rate")
     def validate_ctd_rates(cls, v):
         if not (0.5 <= v <= 2.0):
             raise ValueError(f"CTD Rate {v} m/s is outside safe limits (0.5 - 2.0).")
         return v
 
-    @model_validator(mode='after')
+    @model_validator(mode="after")
     def check_longitude_consistency(self):
         """
         Ensures the entire cruise uses EITHER [-180, 180] OR [0, 360], but not both.
@@ -245,12 +277,16 @@ class CruiseConfig(BaseModel):
         lons = []
 
         # 1. Collect from Global Anchors
-        if self.departure_port: lons.append(self.departure_port.position.longitude)
-        if self.arrival_port: lons.append(self.arrival_port.position.longitude)
+        if self.departure_port:
+            lons.append(self.departure_port.position.longitude)
+        if self.arrival_port:
+            lons.append(self.arrival_port.position.longitude)
 
         # 2. Collect from Catalog
-        if self.stations: lons.extend([s.position.longitude for s in self.stations])
-        if self.moorings: lons.extend([m.position.longitude for m in self.moorings])
+        if self.stations:
+            lons.extend([s.position.longitude for s in self.stations])
+        if self.moorings:
+            lons.extend([m.position.longitude for m in self.moorings])
         if self.transits:
             for t in self.transits:
                 lons.extend([p.longitude for p in t.route])
@@ -259,14 +295,17 @@ class CruiseConfig(BaseModel):
         for leg in self.legs:
             # Helper to extract GeoPoint from various inline objects
             def extract_from_list(items):
-                if not items: return
+                if not items:
+                    return
                 for item in items:
-                    if hasattr(item, 'position') and isinstance(item.position, GeoPoint):
+                    if hasattr(item, "position") and isinstance(
+                        item.position, GeoPoint
+                    ):
                         lons.append(item.position.longitude)
-                    elif hasattr(item, 'start') and isinstance(item.start, GeoPoint):
+                    elif hasattr(item, "start") and isinstance(item.start, GeoPoint):
                         # Sections / Generators
                         lons.append(item.start.longitude)
-                        if hasattr(item, 'end') and isinstance(item.end, GeoPoint):
+                        if hasattr(item, "end") and isinstance(item.end, GeoPoint):
                             lons.append(item.end.longitude)
 
             extract_from_list(leg.moorings)

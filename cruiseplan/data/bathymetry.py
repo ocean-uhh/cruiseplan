@@ -1,12 +1,12 @@
 # cruiseplan/data/bathymetry.py
 import logging
 from pathlib import Path
-from typing import Tuple
 
 logger = logging.getLogger(__name__)
 
 # Constants from Spec
 DEPTH_CONTOURS = [0, -50, -100, -200, -500, -1000, -2000, -3000, -4000, -5000]
+
 
 class BathymetryManager:
     def __init__(self, source: str = "etopo2022", data_dir: str = "data"):
@@ -55,6 +55,7 @@ class BathymetryManager:
         # ensuring it's deterministic for tests.
         val = (abs(lat) * 100) + (abs(lon) * 50)
         return -(val % 4000) - 100  # Returns between -100 and -4100m
+
 
 # Singleton instance
 bathymetry = BathymetryManager()

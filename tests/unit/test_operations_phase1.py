@@ -1,13 +1,14 @@
 # tests/unit/test_operations_phase1.py
-import pytest
-from cruiseplan.core.operations import PointOperation, LineOperation
+from cruiseplan.core.operations import PointOperation
 from cruiseplan.data.bathymetry import BathymetryManager
+
 
 def test_point_operation_logic():
     """Verify PointOperation behaves as a domain object."""
     p = PointOperation(name="Test", position=(10, 20), duration=60)
     assert p.calculate_duration(None) == 60
     assert p.op_type == "station"
+
 
 def test_bathymetry_mock_fallback():
     """Verify the system degrades gracefully to Mock mode."""

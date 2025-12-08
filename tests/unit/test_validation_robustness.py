@@ -1,16 +1,16 @@
-
 # tests/unit/test_validation_robustness.py
 import pytest
-import warnings
 from pydantic import ValidationError
 from cruiseplan.core.cruise import Cruise
 
 # ... (Keep existing tests) ...
 
+
 def test_value_constraints_errors(tmp_path):
     """Test HARD limits (Errors)."""
     bad_yaml = tmp_path / "bad_values.yaml"
-    bad_yaml.write_text("""
+    bad_yaml.write_text(
+        """
 cruise_name: "Speed Demon"
 start_date: "2025-01-01"
 # ERROR: Speed > 20
@@ -24,15 +24,18 @@ first_station: "S1"
 last_station: "S1"
 stations: [{name: S1, position: "0,0"}]
 legs: []
-    """)
+    """
+    )
     with pytest.raises(ValidationError) as exc:
         Cruise(bad_yaml)
     assert "unrealistic" in str(exc.value)
 
+
 def test_value_constraints_warnings(tmp_path):
     """Test SOFT limits (Warnings)."""
     warn_yaml = tmp_path / "warn_values.yaml"
-    warn_yaml.write_text("""
+    warn_yaml.write_text(
+        """
 cruise_name: "Slow Cruise"
 start_date: "2025-01-01"
 # WARNING: Speed < 1
@@ -48,7 +51,8 @@ first_station: "S1"
 last_station: "S1"
 stations: [{name: S1, position: "0,0"}]
 legs: []
-    """)
+    """
+    )
 
     with pytest.warns(UserWarning) as record:
         Cruise(warn_yaml)
@@ -59,10 +63,12 @@ legs: []
     assert any("outside typical range" in w for w in warnings_text)
     assert any("Turnaround time" in w for w in warnings_text)
 
+
 def test_explicit_lat_lon_parsing(tmp_path):
     """Test that explicit latitude/longitude fields work."""
     explicit_yaml = tmp_path / "explicit_coords.yaml"
-    explicit_yaml.write_text("""
+    explicit_yaml.write_text(
+        """
 cruise_name: "Explicit Coords"
 start_date: "2025-01-01"
 default_vessel_speed: 10
@@ -88,7 +94,8 @@ moorings:
     duration: 60
 
 legs: []
-    """)
+    """
+    )
 
     cruise = Cruise(explicit_yaml)
 

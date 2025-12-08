@@ -1,8 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Optional, List, Any, Union
 from cruiseplan.core.validation import (
-    StationDefinition, MooringDefinition, TransitDefinition
+    StationDefinition,
+    MooringDefinition,
+    TransitDefinition,
 )
+
 
 class BaseOperation(ABC):
     """Abstract base class for all cruise operations."""
@@ -16,20 +19,29 @@ class BaseOperation(ABC):
         """Calculate duration in minutes based on provided rules."""
         pass
 
+
 class PointOperation(BaseOperation):
     """
     Atomic activity at a fixed location.
     Handles both Stations (CTD) and Moorings (Deploy/Recover).
     """
-    def __init__(self, name: str, position: tuple, depth: float = 0.0,
-                 duration: float = 0.0, comment: str = None,
-                 op_type: str = "station", action: str = None):
+
+    def __init__(
+        self,
+        name: str,
+        position: tuple,
+        depth: float = 0.0,
+        duration: float = 0.0,
+        comment: str = None,
+        op_type: str = "station",
+        action: str = None,
+    ):
         super().__init__(name, comment)
         self.position = position  # (lat, lon)
         self.depth = depth
         self.manual_duration = duration
         self.op_type = op_type
-        self.action = action # Specific to Moorings
+        self.action = action  # Specific to Moorings
 
     def calculate_duration(self, rules: Any) -> float:
         # Phase 2 Logic: Manual duration always wins
@@ -40,7 +52,9 @@ class PointOperation(BaseOperation):
         return 0.0
 
     @classmethod
-    def from_pydantic(cls, obj: Union[StationDefinition, MooringDefinition]) -> 'PointOperation':
+    def from_pydantic(
+        cls, obj: Union[StationDefinition, MooringDefinition]
+    ) -> "PointOperation":
         """
         Factory to create a logical operation from a validated Pydantic model.
         Handles the internal 'position' normalization done by FlexibleLocationModel.
@@ -54,7 +68,7 @@ class PointOperation(BaseOperation):
 
         if isinstance(obj, MooringDefinition):
             op_type = "mooring"
-            action = obj.action.value # Enum -> String
+            action = obj.action.value  # Enum -> String
 
         return cls(
             name=obj.name,
@@ -63,16 +77,20 @@ class PointOperation(BaseOperation):
             duration=obj.duration if obj.duration else 0.0,
             comment=obj.comment,
             op_type=op_type,
-            action=action
+            action=action,
         )
+
 
 class LineOperation(BaseOperation):
     """
     Continuous activity involving movement (Transit, Towyo).
     """
-    def __init__(self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None):
+
+    def __init__(
+        self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None
+    ):
         super().__init__(name, comment)
-        self.route = route # List of (lat, lon)
+        self.route = route  # List of (lat, lon)
         self.speed = speed
 
     def calculate_duration(self, rules: Any) -> float:
@@ -80,7 +98,9 @@ class LineOperation(BaseOperation):
         return 0.0
 
     @classmethod
-    def from_pydantic(cls, obj: TransitDefinition, default_speed: float) -> 'LineOperation':
+    def from_pydantic(
+        cls, obj: TransitDefinition, default_speed: float
+    ) -> "LineOperation":
         # Convert List[GeoPoint] -> List[tuple]
         route_tuples = [(p.latitude, p.longitude) for p in obj.route]
 
@@ -88,5 +108,5 @@ class LineOperation(BaseOperation):
             name=obj.name,
             route=route_tuples,
             speed=obj.vessel_speed if obj.vessel_speed else default_speed,
-            comment=obj.comment
+            comment=obj.comment,
         )

@@ -1,6 +1,6 @@
 # tests/unit/test_explicit_coordinates.py
-import pytest
 from cruiseplan.core.cruise import Cruise
+
 
 def test_fully_explicit_yaml(tmp_path):
     """
@@ -9,7 +9,8 @@ def test_fully_explicit_yaml(tmp_path):
     instead of comma-separated strings.
     """
     explicit_yaml = tmp_path / "explicit_full.yaml"
-    explicit_yaml.write_text("""
+    explicit_yaml.write_text(
+        """
 cruise_name: "Explicit Coordinates Test"
 start_date: "2025-06-01"
 default_vessel_speed: 10
@@ -80,7 +81,8 @@ legs:
           end:
             latitude: 65.0
             longitude: -15.0
-    """)
+    """
+    )
 
     # Attempt to load
     cruise = Cruise(explicit_yaml)

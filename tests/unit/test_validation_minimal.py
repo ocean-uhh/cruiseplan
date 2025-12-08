@@ -6,6 +6,7 @@ from cruiseplan.core.cruise import Cruise, ReferenceError
 # Path to the sample file
 SAMPLE_YAML = Path("tests/data/cruise_example.yaml")
 
+
 def test_load_and_validate_cruise():
     """
     Happy Path: Load a valid YAML and ensure Pydantic
@@ -42,13 +43,15 @@ def test_load_and_validate_cruise():
     assert resolved_stations[2].name == "STN_Inline_OneOff"
     assert resolved_stations[2].position.latitude == 62.25
 
+
 def test_missing_reference_raises_error(tmp_path):
     """
     Edge Case: Ensure the system throws an error if we schedule
     a mooring that doesn't exist in the catalog.
     """
     bad_yaml = tmp_path / "bad.yaml"
-    bad_yaml.write_text("""
+    bad_yaml.write_text(
+        """
 cruise_name: "Bad Cruise"
 start_date: "2025-01-01T00:00:00"
 default_vessel_speed: 10
@@ -68,7 +71,8 @@ legs:
   - name: Leg1
     moorings:
       - "GHOST_MOORING"  # <--- This does not exist in catalog
-    """)
+    """
+    )
 
     with pytest.raises(ReferenceError) as exc:
         Cruise(bad_yaml)
