@@ -256,7 +256,6 @@ class StationPicker:
         self.ax_map.set_aspect(aspect, adjustable="datalim")
         self.fig.canvas.draw_idle()
 
-
     def _on_release(self, event):
         if event.inaxes == self.ax_map:
             self._update_aspect_ratio()
@@ -280,7 +279,9 @@ class StationPicker:
             self._remove_last_item()
         elif event.key == "r":
             self.mode = "remove"
-            self._update_status_display(message="Mode: REMOVE. Click near a station to delete it.")
+            self._update_status_display(
+                message="Mode: REMOVE. Click near a station to delete it."
+            )
         elif event.key == "y":
             self._save_to_yaml()
         elif event.key == "escape":
@@ -316,7 +317,11 @@ class StationPicker:
         self.ax_map.figure.canvas.draw_idle()
 
     def _on_click(self, event):
-        if event.button != 1 or event.inaxes != self.ax_map or self.mode == "navigation":
+        if (
+            event.button != 1
+            or event.inaxes != self.ax_map
+            or self.mode == "navigation"
+        ):
             return
 
         if self.mode == "point":
@@ -324,14 +329,16 @@ class StationPicker:
         elif self.mode == "line":
             self._handle_line_click(event.xdata, event.ydata)
 
-        elif self.mode == 'remove':
+        elif self.mode == "remove":
             # Try to find a station near the click
             station_data, _ = self._find_nearest_station(event.xdata, event.ydata)
 
             if station_data:
                 self._remove_specific_station(station_data)
             else:
-                self._update_status_display(message="No station close enough to remove.")
+                self._update_status_display(
+                    message="No station close enough to remove."
+                )
             return
 
     def _find_nearest_station(self, target_lon, target_lat, threshold=2.0):
@@ -342,14 +349,16 @@ class StationPicker:
         if not self.stations:
             return None, None
 
-        closest_dist = float('inf')
+        closest_dist = float("inf")
         closest_data = None
         closest_index = -1
 
         for i, station in enumerate(self.stations):
             # Simple Euclidean distance (ok for picking, rough for geography)
             # For precise geo-distance, use haversine, but this is usually fine for UI.
-            dist = ((station['lon'] - target_lon) ** 2 + (station['lat'] - target_lat) ** 2) ** 0.5
+            dist = (
+                (station["lon"] - target_lon) ** 2 + (station["lat"] - target_lat) ** 2
+            ) ** 0.5
 
             if dist < closest_dist:
                 closest_dist = dist
@@ -359,7 +368,6 @@ class StationPicker:
         if closest_dist < threshold:
             return closest_data, closest_index
         return None, None
-
 
     def _add_station(self, lon, lat):
         depth = bathymetry.get_depth_at_point(lat, lon)
@@ -393,7 +401,9 @@ class StationPicker:
             self.history.remove(history_item_to_remove)
 
         self.ax_map.figure.canvas.draw_idle()
-        self._update_status_display(message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}")
+        self._update_status_display(
+            message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}"
+        )
 
     def _handle_line_click(self, lon, lat):
         if self.line_start is None:
