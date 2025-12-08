@@ -71,7 +71,6 @@ class Cruise:
             )
 
         for leg in self.config.legs:
-
             # Resolve Direct Leg Buckets
             if leg.moorings:
                 leg.moorings = self._resolve_list(
