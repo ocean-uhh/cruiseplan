@@ -97,7 +97,7 @@ moorings:
   - name: "Mooring_K7_Recovery"
     latitude: 53.2000
     longitude: -50.2000
-    action: "recover"
+    action: "recovery"
     duration: 180.0  # 3 hours
     depth: 2800.0
     comment: "Recover deep mooring"

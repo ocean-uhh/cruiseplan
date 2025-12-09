@@ -1,4 +1,5 @@
 # cruiseplan/utils/constants.py
+from datetime import datetime, timezone
 
 # --- Depth/Bathymetry Constants ---
 
@@ -27,8 +28,6 @@ DEFAULT_CTD_RATE_M_S = 1.0
 # Corresponds to CruiseConfig.default_distance_between_stations default.
 DEFAULT_STATION_SPACING_KM = 15.0
 
-# Default start_date
-from datetime import datetime, timezone
 
 DEFAULT_START_DATE_NUM = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 # Make this an ISO8601 string

@@ -28,7 +28,7 @@ def format_position_latex(lat: float, lon: float) -> str:
     lon_dir = "E" if lon >= 0 else "W"
 
     # The format uses LaTeX commands for the degree symbol
-    return f"{lat_deg:02d}$\\degree${lat_min:05.2f}'${lat_dir}$, {lon_deg:03d}$\\degree${lon_min:05.2f}'${lon_dir}$"
+    return f"{lat_deg:02d}$^\circ${lat_min:05.2f}'${lat_dir}$, {lon_deg:03d}$^\circ${lon_min:05.2f}'${lon_dir}$"
 
 
 class LaTeXGenerator:
@@ -126,10 +126,17 @@ class LaTeXGenerator:
         # 'Transit to Area 1', 'CTD stations', 'Total duration', etc.
         summary_rows = cruise_data.get("summary_breakdown", [])
 
+        # Calculate totals
+        total_duration = sum(float(row.get('duration_h', 0) or 0) for row in summary_rows)
+        total_transit = sum(float(row.get('transit_h', 0) or 0) for row in summary_rows)
+
         paginated_data = self._paginate_data(summary_rows, "work_days")
 
         return template.render(
-            cruise_name=cruise_data["cruise_name"], pages=paginated_data
+            cruise_name=cruise_data["cruise_name"],
+            pages=paginated_data,
+            total_duration_h=total_duration,
+            total_transit_h=total_transit
         )
 
 
