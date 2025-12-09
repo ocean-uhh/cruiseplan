@@ -18,7 +18,9 @@ def picker():
     with (
         patch("matplotlib.pyplot.figure") as mock_fig_cls,
         patch("matplotlib.pyplot.show"),  # Prevent actual UI display
-        patch("cruiseplan.interactive.station_picker.CampaignSelector") as MockCampaignSelector,
+        patch(
+            "cruiseplan.interactive.station_picker.CampaignSelector"
+        ) as MockCampaignSelector,
         patch("cruiseplan.interactive.station_picker.bathymetry") as mock_bathy,
     ):
 
@@ -43,8 +45,8 @@ def picker():
         mock_fig.add_gridspec.return_value = MagicMock()
         mock_fig.add_subplot.side_effect = [
             mock_ax_campaigns,  # ax_campaigns
-            mock_ax_map,        # ax_map
-            mock_ax_controls,   # ax_controls
+            mock_ax_map,  # ax_map
+            mock_ax_controls,  # ax_controls
         ]
         mock_fig.canvas = MagicMock()
 
@@ -92,6 +94,7 @@ def test_mode_switching(picker):
     # Switch back (optional)
     picker.mode = "navigation"
     assert picker.mode == "navigation"
+
 
 def test_mode_switching_via_keypress(picker):
     """Test that pressing 'p', 'r', 'n' actually changes the mode."""

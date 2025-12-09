@@ -24,8 +24,6 @@ from cruiseplan.utils.config import (
 )
 
 
-
-
 class StationPicker:
     """
     Interactive matplotlib-based tool for oceanographic cruise planning.
@@ -48,6 +46,7 @@ class StationPicker:
         "y": "save",  # Save to YAML
         "escape": "exit",
     }
+
     def __init__(
         self,
         campaign_data: Optional[List[Dict]] = None,
@@ -80,7 +79,7 @@ class StationPicker:
         self.line_start: Optional[Tuple[float, float]] = None
         self.temp_line_artist: Optional[any] = None
         self.rubber_band_artist: Optional[any] = None
-        
+
         # Area Drawing State
         self.current_area_points: List[Tuple[float, float]] = []
         self.temp_area_artist: Optional[any] = None
@@ -163,25 +162,37 @@ class StationPicker:
         # Create sub-areas within the controls panel
         # Mode indicator (top 20%)
         self.mode_text = self.ax_controls.text(
-            0.5, 0.9, "Mode: NAVIGATION",
+            0.5,
+            0.9,
+            "Mode: NAVIGATION",
             transform=self.ax_controls.transAxes,
-            ha='center', va='center', fontweight='bold', fontsize=12,
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="#2E8B57", alpha=0.3)
+            ha="center",
+            va="center",
+            fontweight="bold",
+            fontsize=12,
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#2E8B57", alpha=0.3),
         )
 
         # Status display (middle 60%)
         self.status_text = self.ax_controls.text(
-            0.05, 0.7, "",
+            0.05,
+            0.7,
+            "",
             transform=self.ax_controls.transAxes,
-            va="top", fontfamily="monospace", fontsize=9
+            va="top",
+            fontfamily="monospace",
+            fontsize=9,
         )
 
         # Instructions (bottom 20%)
         self.instructions_text = self.ax_controls.text(
-            0.05, 0.25,
+            0.05,
+            0.25,
             "KEYS:\n 'n': Navigation\n 'w','p': Point Mode\n 'l','s': Line Mode\n 'a': Area Mode*\n 'u': Undo\n 'r': Remove\n 'y': Save YAML\n 'esc': Quit\n\n*Press 'a' again\n to complete area",
             transform=self.ax_controls.transAxes,
-            va="top", fontfamily="monospace", fontsize=7
+            va="top",
+            fontfamily="monospace",
+            fontsize=7,
         )
 
     def _setup_widgets(self):
@@ -290,7 +301,6 @@ class StationPicker:
 
     # --- Mode Management Methods ---
 
-
     # --- Event Handlers ---
 
     def _on_key_press(self, event):
@@ -305,7 +315,11 @@ class StationPicker:
 
             if action in self.MODES:
                 # Special case: If we're in area mode and press 'a' again, complete the current area
-                if action == "area" and self.mode == "area" and len(self.current_area_points) >= 3:
+                if (
+                    action == "area"
+                    and self.mode == "area"
+                    and len(self.current_area_points) >= 3
+                ):
                     self._complete_area()
                 else:
                     self.set_mode(action)
@@ -461,75 +475,94 @@ class StationPicker:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
-        
+
         # Draw a point marker
         (point_artist,) = self.ax_map.plot(
             lon, lat, "go", markersize=6, markeredgecolor="darkgreen", zorder=12
         )
         self.area_point_artists.append(point_artist)
-        
+
         # Update area polygon if we have 2+ points
         if len(self.current_area_points) >= 2:
             self._update_temp_area()
-                
+
         # Update status with instruction
         if len(self.current_area_points) == 1:
-            self._update_status_display(message="Click to add more points. Press 'a' to complete area (min 3 points).")
+            self._update_status_display(
+                message="Click to add more points. Press 'a' to complete area (min 3 points)."
+            )
         elif len(self.current_area_points) == 2:
-            self._update_status_display(message="Area: 2 points. Add 1+ more, then press 'a' to complete.")
+            self._update_status_display(
+                message="Area: 2 points. Add 1+ more, then press 'a' to complete."
+            )
         else:
-            self._update_status_display(message=f"Area: {len(self.current_area_points)} points. Press 'a' to complete area.")
+            self._update_status_display(
+                message=f"Area: {len(self.current_area_points)} points. Press 'a' to complete area."
+            )
 
     def _update_temp_area(self):
         """Update the temporary area polygon display."""
         if len(self.current_area_points) < 2:
             return
-            
+
         # Remove existing temp area
         if self.temp_area_artist:
             self.temp_area_artist.remove()
-            
+
         # Create polygon from current points
         lons, lats = zip(*self.current_area_points)
-        
+
         # Add the current mouse position to close the polygon visually
         # For now, just draw the current polygon
         self.temp_area_artist = self.ax_map.plot(
-            list(lons) + [lons[0]], list(lats) + [lats[0]], 
-            "g--", alpha=0.6, linewidth=2, zorder=11
+            list(lons) + [lons[0]],
+            list(lats) + [lats[0]],
+            "g--",
+            alpha=0.6,
+            linewidth=2,
+            zorder=11,
         )[0]
-        
+
         self.fig.canvas.draw_idle()
 
     def _complete_area(self):
         """Complete the current area and add it to the areas list."""
         if len(self.current_area_points) < 3:
             return
-            
+
         # Remove temporary visualization
         self._reset_area_state()
-        
+
         # Create polygon patch for the completed area
         from matplotlib.patches import Polygon
+
         lons, lats = zip(*self.current_area_points)
         polygon_coords = list(zip(lons, lats))
-        
-        polygon = Polygon(polygon_coords, alpha=0.3, facecolor='green', 
-                         edgecolor='darkgreen', linewidth=2, zorder=8)
+
+        polygon = Polygon(
+            polygon_coords,
+            alpha=0.3,
+            facecolor="green",
+            edgecolor="darkgreen",
+            linewidth=2,
+            zorder=8,
+        )
         self.ax_map.add_patch(polygon)
-        
+
         # Store area data
         area_data = {
             "points": self.current_area_points.copy(),
             "type": "survey_area",
-            "center": (sum(lons)/len(lons), sum(lats)/len(lats))
+            "center": (sum(lons) / len(lons), sum(lats) / len(lats)),
         }
         self.areas.append(area_data)
         self.history.append(("area", area_data, polygon))
-        
+
         # Reset state
         self.current_area_points = []
-        self._update_status_display(message=f"Area completed! Total areas: {len(self.areas)}")
+        self._update_status_display(
+            message=f"Area completed! Total areas: {len(self.areas)}"
+        )
 
     def _reset_area_state(self):
         """Reset area drawing state."""
@@ -537,12 +570,12 @@ class StationPicker:
         if self.temp_area_artist:
             self.temp_area_artist.remove()
             self.temp_area_artist = None
-            
+
         # Remove temporary point markers
         for artist in self.area_point_artists:
             artist.remove()
         self.area_point_artists = []
-        
+
         self.fig.canvas.draw_idle()
 
     def _find_nearest_station(self, target_lon, target_lat, threshold=2.0):
@@ -583,7 +616,9 @@ class StationPicker:
             self.history.remove(history_item_to_remove)
 
         self.ax_map.figure.canvas.draw_idle()
-        self._update_status_display(message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}")
+        self._update_status_display(
+            message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}"
+        )
 
     def _remove_last_item(self):
         """Remove the most recently added operation."""
@@ -615,15 +650,17 @@ class StationPicker:
         # Color mapping for modes
         mode_colors = {
             "navigation": "#2E8B57",  # Sea green
-            "point": "#4169E1",      # Royal blue
-            "line": "#FF6347",       # Tomato
-            "area": "#9932CC",       # Dark orchid
-            "remove": "#DC143C"      # Crimson
+            "point": "#4169E1",  # Royal blue
+            "line": "#FF6347",  # Tomato
+            "area": "#9932CC",  # Dark orchid
+            "remove": "#DC143C",  # Crimson
         }
 
         color = mode_colors.get(self.mode, "#808080")
         self.mode_text.set_text(f"Mode: {self.mode.upper()}")
-        self.mode_text.set_bbox(dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.3))
+        self.mode_text.set_bbox(
+            dict(boxstyle="round,pad=0.3", facecolor=color, alpha=0.3)
+        )
         self.fig.canvas.draw_idle()
 
     def _update_status_display(self, lat=0, lon=0, depth=0, message=""):
@@ -708,7 +745,7 @@ class StationPicker:
         yaml_sections = [
             format_transect_for_yaml(tr, i) for i, tr in enumerate(self.transects, 1)
         ]
-        
+
         # Format areas for YAML
         yaml_areas = []
         for i, area in enumerate(self.areas, 1):
@@ -716,7 +753,7 @@ class StationPicker:
                 "id": f"AREA_{i:02d}",
                 "type": "survey_area",
                 "points": [{"lat": lat, "lon": lon} for lon, lat in area["points"]],
-                "center": {"lat": area["center"][1], "lon": area["center"][0]}
+                "center": {"lat": area["center"][1], "lon": area["center"][0]},
             }
             yaml_areas.append(area_dict)
 
