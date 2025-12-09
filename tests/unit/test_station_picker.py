@@ -14,44 +14,63 @@ def picker():
     """
     Creates a StationPicker instance with all Matplotlib backend calls mocked out.
     """
-    # Patch the specific imports used in station_picker.py
+    # Patch all the dependencies needed for our simplified StationPicker
     with (
         patch("matplotlib.pyplot.figure") as mock_fig_cls,
-        patch("matplotlib.gridspec.GridSpec"),
-        patch("matplotlib.widgets.CheckButtons"),
+        patch("matplotlib.pyplot.show"),  # Prevent actual UI display
+        patch(
+            "cruiseplan.interactive.station_picker.CampaignSelector"
+        ) as MockCampaignSelector,
         patch("cruiseplan.interactive.station_picker.bathymetry") as mock_bathy,
     ):
 
-        # 1. Setup the Shared Axes Mock
-        shared_ax = MagicMock()
+        # 1. Setup the main axes mocks
+        mock_ax_campaigns = MagicMock()
+        mock_ax_map = MagicMock()
+        mock_ax_controls = MagicMock()
 
-        # CRITICAL FIX: Configure .plot() to return a list with 1 item
+        # CRITICAL: Configure .plot() to return a list with 1 item
         # This allows the syntax:  (artist,) = ax.plot(...)  to work
-        shared_ax.plot.return_value = [MagicMock()]
+        mock_ax_map.plot.return_value = [MagicMock()]
 
         # Configure return values for logic checks
-        shared_ax.get_xlim.return_value = (-60, -10)
-        shared_ax.get_ylim.return_value = (40, 65)
+        mock_ax_map.get_xlim.return_value = (-60, -10)
+        mock_ax_map.get_ylim.return_value = (40, 65)
 
-        # 2. Setup Figure Mock to return this shared axis
+        # Mock text objects for the simplified interface
+        mock_ax_controls.text.return_value = MagicMock()
+
+        # 2. Setup Figure Mock to return the axes in correct order
         mock_fig = mock_fig_cls.return_value
-        mock_fig.add_subplot.return_value = shared_ax
+        mock_fig.add_gridspec.return_value = MagicMock()
+        mock_fig.add_subplot.side_effect = [
+            mock_ax_campaigns,  # ax_campaigns
+            mock_ax_map,  # ax_map
+            mock_ax_controls,  # ax_controls
+        ]
+        mock_fig.canvas = MagicMock()
 
         # 3. Setup Bathymetry Mock
         mock_bathy.get_grid_subset.return_value = (
-            MagicMock(),
-            MagicMock(),
-            MagicMock(),
+            MagicMock(),  # lons
+            MagicMock(),  # lats
+            MagicMock(),  # depths
         )
         mock_bathy.get_depth_at_point.return_value = -1000.0
 
-        # 4. Instantiate
+        # 4. Setup CampaignSelector Mock
+        MockCampaignSelector.return_value.setup_ui = MagicMock()
+        MockCampaignSelector.return_value.campaign_artists = {}
+
+        # 5. Instantiate
         output_dir = Path("tests_output")
         output_dir.mkdir(parents=True, exist_ok=True)
         sp = StationPicker(output_file=str(output_dir / "test_output.yaml"))
 
-        # 5. Force override ax_map (safety)
-        sp.ax_map = shared_ax
+        # 6. Ensure proper references (safety)
+        sp.ax_map = mock_ax_map
+        sp.ax_campaigns = mock_ax_campaigns
+        sp.ax_controls = mock_ax_controls
 
         return sp
 
@@ -79,22 +98,27 @@ def test_mode_switching(picker):
 
 def test_mode_switching_via_keypress(picker):
     """Test that pressing 'p', 'r', 'n' actually changes the mode."""
-    # 1. Verify default start state (usually 'navigation')
+    # 1. Verify default start state
     assert picker.mode == "navigation"
 
     # 2. Create a proper Mock Event
     mock_event = Mock()
-    mock_event.inaxes = picker.ax_map  # <--- CRITICAL: Passes the guard clause
-    mock_event.key = "p"  # <--- CRITICAL: Use 'key', not 'k'
+    mock_event.inaxes = picker.ax_map  # Passes the guard clause
+    mock_event.key = "p"
 
-    # 3. Simulate pressing "p"
-    picker._on_key_press(mock_event)  # Call the actual event handler
-    assert picker.mode == "point"  # Verify it changed
+    # 3. Simulate pressing "p" (point mode)
+    picker._on_key_press(mock_event)
+    assert picker.mode == "point"
 
-    # 4. Simulate pressing "r" (Remove mode)
+    # 4. Simulate pressing "r" (remove mode)
     mock_event.key = "r"
     picker._on_key_press(mock_event)
     assert picker.mode == "remove"
+
+    # 5. Simulate pressing "n" (navigation mode)
+    mock_event.key = "n"
+    picker._on_key_press(mock_event)
+    assert picker.mode == "navigation"
 
 
 def test_station_placement(picker):

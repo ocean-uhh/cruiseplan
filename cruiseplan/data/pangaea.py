@@ -1,7 +1,8 @@
 import logging
+import pickle
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 
 import pandas as pd
 
@@ -325,3 +326,67 @@ def merge_campaign_tracks(datasets: List[Dict]) -> List[Dict]:
         result.append(data)
 
     return result
+
+
+def load_campaign_data(
+    file_path: Union[str, Path], merge_tracks: bool = True
+) -> List[Dict]:
+    """
+    Load pre-processed PANGAEA campaign data from pickle file.
+
+    This function is required by the CLI to integrate with the interactive picker.
+    If merge_tracks is True, it ensures that all datasets with the same
+    label are combined into a single track before being returned.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to the pickled PANGAEA campaign file.
+    merge_tracks : bool
+        If True, runs merge_campaign_tracks on the loaded data. (Default: True)
+
+    Returns
+    -------
+    List[Dict]
+        List of campaign datasets (merged if requested).
+    """
+    file_path = Path(file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Campaign data file not found: {file_path}")
+
+    try:
+        with open(file_path, "rb") as f:
+            campaign_data = pickle.load(f)
+
+        # Validate the loaded data structure
+        if not isinstance(campaign_data, list):
+            raise ValueError(f"Expected list of campaigns, got {type(campaign_data)}")
+
+        # Basic validation of campaign structure
+        for i, campaign in enumerate(campaign_data):
+            if not isinstance(campaign, dict):
+                raise ValueError(f"Campaign {i} is not a dictionary: {type(campaign)}")
+
+            required_keys = ["label", "latitude", "longitude"]
+            missing_keys = [key for key in required_keys if key not in campaign]
+            if missing_keys:
+                raise ValueError(f"Campaign {i} missing required keys: {missing_keys}")
+
+        logger.info(
+            f"Successfully loaded {len(campaign_data)} campaigns from {file_path}"
+        )
+
+        if merge_tracks:
+            # Apply your crucial merging step here before returning to the GUI
+            logging.info("Merging campaign tracks by label for unique plotting.")
+            return merge_campaign_tracks(campaign_data)
+        else:
+            return campaign_data
+
+    except pickle.PickleError as e:
+        raise pickle.PickleError(
+            f"Failed to unpickle campaign data from {file_path}: {e}"
+        )
+    except Exception as e:
+        raise ValueError(f"Error loading campaign data from {file_path}: {e}")

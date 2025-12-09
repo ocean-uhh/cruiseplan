@@ -644,8 +644,8 @@ If arrival at the target happens during a prohibited window (e.g., Night for Moo
 **Interaction Model:**
 - **Mouse Controls**: Click to place stations, scroll to zoom, drag to pan
 - **Keyboard Controls**:
-  - `'p'`: Switch to add point (single lat/lon) mode
-  - `'l'`: Switch to add line (defined by a start and end point) mode
+  - `'p'` or `'w'`: Switch to add WayPoint (single lat/lon) mode
+  - `'l'` or `'s'`: Switch to add LineSection (defined by a start and end point) mode
   - `'a'`: Switch to add area (defined by a set of points and finished by clicking `'a'` again)
   - `'n'`: Toggle navigation mode
   - `'y'`: Save current stations to YAML

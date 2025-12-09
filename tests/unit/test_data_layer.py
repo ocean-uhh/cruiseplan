@@ -1,8 +1,15 @@
-from unittest.mock import MagicMock, patch
+import pickle
+from unittest.mock import MagicMock, mock_open, patch
 
 import pytest
 
-from cruiseplan.data.pangaea import PangaeaManager, _is_valid_doi, merge_campaign_tracks
+# Import the function under test
+from cruiseplan.data.pangaea import (
+    PangaeaManager,
+    _is_valid_doi,
+    load_campaign_data,
+    merge_campaign_tracks,
+)
 
 
 @pytest.fixture
@@ -182,3 +189,137 @@ def test_merge_handles_inconsistent_data():
     # Here we assume robust code skips the bad arrays but keeps the entry if valid.
     # Since the only data was bad, the lat/lon lists should be empty.
     assert merged[0]["latitude"] == []
+
+
+class TestLoadCampaignData:
+
+    @pytest.fixture
+    def mock_merged_data(self):
+        """Standardized, simple mock data representing merged campaigns."""
+        return [
+            {
+                "label": "Cruise-A",
+                "latitude": [10.0, 11.0],
+                "longitude": [5.0, 6.0],
+                "doi": "doi:1",
+            },
+            {
+                "label": "Cruise-B",
+                "latitude": [50.0],
+                "longitude": [0.0],
+                "doi": "doi:3",
+            },
+        ]
+
+    # --- Test 1: Success Path (Loading and Merging) ---
+
+    @patch("cruiseplan.data.pangaea.merge_campaign_tracks")
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    def test_load_and_merge_success(self, mock_exists, mock_merge, mock_merged_data):
+        """
+        Tests successful loading, validation, and mandatory merging.
+        The mock open simulates loading raw data, and we mock merge to verify it runs.
+        """
+        # Mock the data found in the pickle file (must be a list of dicts)
+        raw_loaded_data = [
+            {"label": "Cruise-A", "latitude": [10.0], "longitude": [5.0]},
+            {
+                "label": "Cruise-A",
+                "latitude": [11.0],
+                "longitude": [6.0],
+            },  # Duplicate label to be merged
+            {"label": "Cruise-B", "latitude": [50.0], "longitude": [0.0]},
+        ]
+
+        # Configure merge_campaign_tracks to return the final, clean data
+        mock_merge.return_value = mock_merged_data
+
+        # Patch pickle.load to return the raw data
+        with patch("builtins.open", mock_open(read_data=pickle.dumps(raw_loaded_data))):
+            results = load_campaign_data("dummy_path.pkl", merge_tracks=True)
+
+        # 1. Assert merge was called with the raw data
+        mock_merge.assert_called_once_with(raw_loaded_data)
+
+        # 2. Assert final output is the merged data
+        assert results == mock_merged_data
+        assert len(results) == 2
+
+    # --- Test 2: Success Path (Loading without Merging) ---
+
+    @patch("cruiseplan.data.pangaea.merge_campaign_tracks")
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    def test_load_without_merging(self, mock_exists, mock_merge, mock_merged_data):
+        """Tests successful loading when merge_tracks=False."""
+        raw_loaded_data = (
+            mock_merged_data  # Use clean data to skip deep validation issues
+        )
+
+        with patch("builtins.open", mock_open(read_data=pickle.dumps(raw_loaded_data))):
+            results = load_campaign_data("dummy_path.pkl", merge_tracks=False)
+
+        # 1. Assert merge was NOT called
+        mock_merge.assert_not_called()
+
+        # 2. Assert final output is the raw data
+        assert results == raw_loaded_data
+        assert len(results) == 2
+
+    # --- Test 3: File System and General Error Handling ---
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=False)
+    def test_file_not_found(self, mock_exists):
+        """Tests the FileNotFoundError exception path."""
+        with pytest.raises(FileNotFoundError, match="Campaign data file not found"):
+            load_campaign_data("non_existent_path.pkl")
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    @patch("builtins.open", side_effect=OSError("Permission denied"))
+    def test_io_error_handling(self, mock_open, mock_exists):
+        """Tests general IO errors during file reading."""
+        with pytest.raises(ValueError, match="Error loading campaign data"):
+            load_campaign_data("unreadable_file.pkl")
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    @patch("builtins.open", mock_open(read_data=b"invalid pickle data"))
+    def test_pickle_error_handling(self, mock_exists):
+        """Tests failure during unpickling."""
+        with pytest.raises(
+            pickle.PickleError, match="Failed to unpickle campaign data"
+        ):
+            load_campaign_data("bad_pickle.pkl")
+
+    # --- Test 4: Data Validation and Structure Errors ---
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    def test_invalid_data_root_structure(self, mock_exists):
+        """Tests failure if the loaded data is not a list."""
+        with patch(
+            "builtins.open", mock_open(read_data=pickle.dumps({"campaign": "dict"}))
+        ):
+            with pytest.raises(ValueError, match="Expected list of campaigns, got"):
+                load_campaign_data("dict_not_list.pkl")
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    def test_missing_required_keys(self, mock_exists):
+        """Tests failure if a campaign dictionary is missing required keys."""
+        bad_data = [
+            {"label": "Good", "latitude": [10.0], "longitude": [5.0]},
+            {"label": "Bad", "latitude": [10.0]},  # Missing longitude
+        ]
+        with patch("builtins.open", mock_open(read_data=pickle.dumps(bad_data))):
+            with pytest.raises(
+                ValueError, match="missing required keys: \\['longitude'\\]"
+            ):
+                load_campaign_data("missing_key.pkl")
+
+    @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
+    def test_invalid_campaign_is_not_dict(self, mock_exists):
+        """Tests failure if an item in the list is not a dictionary."""
+        bad_data = [
+            {"label": "Good", "latitude": [10.0], "longitude": [5.0]},
+            "this is a string",  # Invalid item
+        ]
+        with patch("builtins.open", mock_open(read_data=pickle.dumps(bad_data))):
+            with pytest.raises(ValueError, match="is not a dictionary"):
+                load_campaign_data("not_dict.pkl")
