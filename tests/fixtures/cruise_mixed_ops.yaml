@@ -1,0 +1,52 @@
+# Mixed operations: station, mooring, and line section
+cruise_name: "Mixed_Operations_Test_2028"
+description: "Testing multiple operation types"
+default_vessel_speed: 12.0
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+
+departure_port:
+  latitude: 53.3321
+  longitude: -60.4200
+  name: "Labrador Sea Start"
+
+arrival_port:
+  latitude: 53.3321
+  longitude: -60.4200
+  name: "Labrador Sea End"
+
+# Mixed catalog definitions
+stations:
+  - name: "CTD_Station_A"
+    latitude: 53.5000
+    longitude: -50.0000
+    depth: 2500.0
+    comment: "Deep CTD profile"
+
+moorings:
+  - name: "Mooring_K7_Recovery"
+    latitude: 53.2000
+    longitude: -50.2000
+    action: "recovery"
+    duration: 180.0  # 3 hours
+    depth: 2800.0
+    comment: "Recover deep mooring"
+    equipment: "Full-depth array with ADCP"
+
+transits:
+  - name: "Survey_Line_Alpha"
+    comment: "Acoustic survey transect"
+    route:
+      - latitude: 53.3000
+        longitude: -50.5000
+      - latitude: 53.7000
+        longitude: -50.1000
+
+first_station: "CTD_Station_A"
+last_station: "Mooring_K7_Recovery"
+
+# Single leg with mixed operations
+legs:
+  - name: "Labrador_Sea_Operations"
+    strategy: "sequential"
+    sequence: ["CTD_Station_A", "Survey_Line_Alpha", "Mooring_K7_Recovery"]

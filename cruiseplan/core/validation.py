@@ -4,6 +4,12 @@ from typing import Any, List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
+from cruiseplan.utils.constants import (
+    DEFAULT_START_DATE,
+    DEFAULT_STATION_SPACING_KM,
+    DEFAULT_TURNAROUND_TIME_MIN,
+)
+
 # cruiseplan/core/validation.py
 
 
@@ -197,6 +203,7 @@ class LegDefinition(BaseModel):
     description: Optional[str] = None
     strategy: Optional[StrategyEnum] = None
     ordered: Optional[bool] = None
+    stations: Optional[List[Union[str, StationDefinition]]] = []
     clusters: Optional[List[ClusterDefinition]] = []
     sections: Optional[List[SectionDefinition]] = []
     moorings: Optional[List[Union[str, MooringDefinition]]] = []
@@ -212,8 +219,8 @@ class CruiseConfig(BaseModel):
 
     # --- LOGIC CONSTRAINTS ---
     default_vessel_speed: float
-    default_distance_between_stations: float
-    turnaround_time: float = 0.0
+    default_distance_between_stations: float = DEFAULT_STATION_SPACING_KM
+    turnaround_time: float = DEFAULT_TURNAROUND_TIME_MIN
     ctd_descent_rate: float = 1.0
     ctd_ascent_rate: float = 1.0
 
@@ -223,7 +230,7 @@ class CruiseConfig(BaseModel):
 
     calculate_transfer_between_sections: bool
     calculate_depth_via_bathymetry: bool
-    start_date: str
+    start_date: str = DEFAULT_START_DATE
     start_time: Optional[str] = "08:00"
     station_label_format: str = "C{:03d}"
     mooring_label_format: str = "M{:02d}"

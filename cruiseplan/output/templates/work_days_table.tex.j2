@@ -1,0 +1,17 @@
+\BLOCK{for page in pages}
+\begin{table}[htbp]\VAR{page.caption_suffix}
+\caption{Work days at sea: \VAR{cruise_name}\VAR{page.caption_suffix}}
+\centering
+\begin{tabular}{llrr}
+\toprule
+\textbf{Area} & \textbf{Activity} & \textbf{Duration (h)} & \textbf{Transit (h)} \\
+\midrule
+\BLOCK{for row in page.rows}
+\VAR{row.area} & \VAR{row.activity} & \VAR{row.duration_h} & \VAR{row.transit_h} \\
+\BLOCK{endfor}
+\midrule
+\textbf{Total duration} & & \textbf{\VAR{total_duration_h}} & \textbf{\VAR{total_transit_h}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endfor}

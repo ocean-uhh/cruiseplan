@@ -22,3 +22,14 @@ DEFAULT_TURNAROUND_TIME_MIN = 30.0
 # Default CTD descent/ascent rate in meters per second (m/s)
 # Corresponds to CruiseConfig.ctd_descent_rate/ascent_rate default.
 DEFAULT_CTD_RATE_M_S = 1.0
+
+# Default distance between stations in kilometers (km)
+# Corresponds to CruiseConfig.default_distance_between_stations default.
+DEFAULT_STATION_SPACING_KM = 15.0
+
+# Default start_date
+from datetime import datetime, timezone
+
+DEFAULT_START_DATE_NUM = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+# Make this an ISO8601 string
+DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()

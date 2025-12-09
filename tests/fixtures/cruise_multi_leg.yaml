@@ -1,0 +1,61 @@
+# Multi-leg cruise with multiple stations per leg
+cruise_name: "Multi_Leg_Expedition_2028"
+description: "Complex multi-area expedition"
+default_vessel_speed: 11.0
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+default_distance_between_stations: 20.0  # km
+start_date: "2028-07-01T08:00:00Z"
+
+departure_port:
+  latitude: 47.5705
+  longitude: -52.6979
+  name: "St. Johns"
+
+arrival_port:
+  latitude: 64.1466
+  longitude: -21.9426
+  name: "Reykjavik"
+
+# Station catalog (6 stations total)
+stations:
+  - name: "LEG1_STN_01"
+    latitude: 48.5000
+    longitude: -45.0000
+    depth: 3200.0
+  - name: "LEG1_STN_02"
+    latitude: 49.0000
+    longitude: -44.5000
+    depth: 3100.0
+  - name: "LEG1_STN_03"
+    latitude: 49.5000
+    longitude: -44.0000
+    depth: 2900.0
+
+  - name: "LEG2_STN_01"
+    latitude: 58.0000
+    longitude: -35.0000
+    depth: 2200.0
+  - name: "LEG2_STN_02"
+    latitude: 58.5000
+    longitude: -34.5000
+    depth: 2000.0
+  - name: "LEG2_STN_03"
+    latitude: 59.0000
+    longitude: -34.0000
+    depth: 1800.0
+
+first_station: "LEG1_STN_01"
+last_station: "LEG2_STN_03"
+
+# Two-leg structure
+legs:
+  - name: "Southern_Operations"
+    description: "Deep water profiles in Labrador Basin"
+    strategy: "sequential"
+    stations: ["LEG1_STN_01", "LEG1_STN_02", "LEG1_STN_03"]
+
+  - name: "Northern_Operations"
+    description: "Shelf break stations near Greenland"
+    strategy: "sequential"
+    stations: ["LEG2_STN_01", "LEG2_STN_02", "LEG2_STN_03"]

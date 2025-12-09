@@ -1,0 +1,29 @@
+\BLOCK{if pages}
+\BLOCK{for page in pages}
+\begin{table}[htbp]\VAR{page.caption_suffix}
+\caption{Working area, stations and profiles: \VAR{cruise_name}\VAR{page.caption_suffix}}
+\centering
+\begin{tabular}{llrrrl}
+\toprule
+\textbf{Operation} & \textbf{Station} & \textbf{Position} & \textbf{Water depth (m)} \\
+\midrule
+\BLOCK{for row in page.rows}
+\VAR{row.operation} & \VAR{row.station} & \VAR{row.position} & \VAR{row.depth_m} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endfor}
+\BLOCK{else}
+\begin{table}[htbp]
+\caption{Working area, stations and profiles: \VAR{cruise_name}}
+\centering
+\begin{tabular}{llrrrl}
+\toprule
+\textbf{Operation} & \textbf{Station} & \textbf{Position} & \textbf{Water depth (m)} \\
+\midrule
+\textit{No stations defined} & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endif}
