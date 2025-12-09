@@ -316,152 +316,6 @@ def generate_latex_tables(cruise_data: Dict, output_dir: Path) -> List[Path]:
 
 ---
 
-## Phase 3b: HTML Summary Generation
-
-### Implementation Requirements
-
-**File**: `cruiseplan/output/html_generator.py`
-
-**Core Function**: Generate comprehensive HTML reports with interactive navigation and detailed breakdowns.
-
-### HTML Structure Requirements
-
-```html
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <title>Schedule for {{cruise_name}}</title>
-    <style>
-        /* Professional styling with responsive tables */
-        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f5f5f5; font-weight: bold; }
-        .summary { background-color: #e8f4fd; }
-        .total-row { font-weight: bold; background-color: #f0f8ff; }
-    </style>
-</head>
-<body>
-    <h1>{{cruise_name}}</h1>
-    <p><strong>Description:</strong> {{description}}</p>
-
-    <!-- Navigation Links -->
-    <h2>Output Files</h2>
-    <ul>
-        <li><a href="{{cruise_name}}_plot.html">Interactive Cruise Map</a></li>
-        <li><a href="{{cruise_name}}.kml">KML file (Google Earth)</a></li>
-        <li><a href="{{cruise_name}}.csv">CSV Spreadsheet</a></li>
-        <li><a href="{{cruise_name}}.nc">NetCDF Dataset</a></li>
-        <li><a href="{{cruise_name}}_stations.tex">LaTeX Stations Table</a></li>
-        <li><a href="{{cruise_name}}_work_days.tex">LaTeX Work Days Table</a></li>
-    </ul>
-
-    <!-- 1. Cruise Schedule Summary -->
-    <h2>1. Cruise Schedule Summary</h2>
-    <table>
-        <tr>
-            <th>Task Category</th>
-            <th>Description</th>
-            <th>Total Hours</th>
-            <th>Total Days</th>
-        </tr>
-        <!-- Dynamic content based on cruise data -->
-        <tr>
-            <td>Total Stations</td>
-            <td>{{station_count}} stations, Avg depth: {{avg_depth}}m, Avg duration: {{avg_station_duration}}h</td>
-            <td>{{total_station_hours}}</td>
-            <td>{{total_station_days}}</td>
-        </tr>
-        <tr class="total-row">
-            <td><strong>TOTAL CRUISE</strong></td>
-            <td>{{total_operations}} total operations</td>
-            <td><strong>{{total_hours}}</strong></td>
-            <td><strong>{{total_days}}</strong></td>
-        </tr>
-    </table>
-
-    <!-- Detailed sections follow... -->
-</body>
-</html>
-```
-
-### Implementation Steps
-
-1. **Create HTML Template System**:
-   ```python
-   class HTMLGenerator:
-       def __init__(self):
-           self.env = Environment(loader=FileSystemLoader("templates"))
-
-       def calculate_summary_statistics(self, cruise_data: Dict) -> Dict:
-           """Calculate summary statistics for HTML template."""
-           stats = {
-               'station_count': len(cruise_data.get('stations', [])),
-               'mooring_count': len(cruise_data.get('moorings', [])),
-               'total_operations': 0,
-               'total_hours': 0.0,
-               'total_days': 0.0,
-               'avg_depth': 0.0,
-               'avg_station_duration': 0.0
-           }
-
-           # Calculate detailed statistics
-           return stats
-   ```
-
-2. **Data Aggregation Logic**:
-   ```python
-   def aggregate_cruise_data(self, cruise_data: Dict) -> Dict:
-       """Perform deep flattening operation for HTML rendering."""
-       # Flatten: Global_Stations + Legs->Clusters->Stations + Legs->Sections->Stations
-       all_stations = []
-       all_moorings = []
-       all_transfers = []
-
-       # Process legs and clusters
-       for leg in cruise_data.get('legs', []):
-           # Extract stations, moorings, transfers from each leg
-           pass
-
-       return {
-           'stations': all_stations,
-           'moorings': all_moorings,
-           'transfers': all_transfers
-       }
-   ```
-
-3. **Generate Detailed Breakdown Tables**:
-   - Sections/Clusters detail table
-   - Moorings manifest table
-   - Transfers summary table
-   - Miscellaneous activities table
-
-### Output Interface
-```python
-def generate_html_summary(cruise_data: Dict, output_dir: Path) -> Path:
-    """
-    Generate comprehensive HTML cruise summary.
-
-    Returns:
-        Path to generated index.html file
-    """
-    aggregated_data = self.aggregate_cruise_data(cruise_data)
-    summary_stats = self.calculate_summary_statistics(aggregated_data)
-
-    template_data = {
-        'cruise_name': cruise_data['cruise_name'],
-        'description': cruise_data.get('description', ''),
-        **summary_stats,
-        **aggregated_data
-    }
-
-    template = self.env.get_template('cruise_summary.html.j2')
-    html_content = template.render(**template_data)
-
-    output_file = output_dir / 'index.html'
-    output_file.write_text(html_content)
-
-    return output_file
-```
 
 ---
 
@@ -657,8 +511,155 @@ def generate_netcdf_outputs(cruise_data: Dict, output_dir: Path) -> List[Path]:
 ```
 
 ---
+## Phase 3e: HTML Summary Generation
 
-## Phase 3d: KML Generation
+### Implementation Requirements
+
+**File**: `cruiseplan/output/html_generator.py`
+
+**Core Function**: Generate comprehensive HTML reports with interactive navigation and detailed breakdowns.
+
+### HTML Structure Requirements
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Schedule for {{cruise_name}}</title>
+    <style>
+        /* Professional styling with responsive tables */
+        table { border-collapse: collapse; width: 100%; margin: 1em 0; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f5f5f5; font-weight: bold; }
+        .summary { background-color: #e8f4fd; }
+        .total-row { font-weight: bold; background-color: #f0f8ff; }
+    </style>
+</head>
+<body>
+    <h1>{{cruise_name}}</h1>
+    <p><strong>Description:</strong> {{description}}</p>
+
+    <!-- Navigation Links -->
+    <h2>Output Files</h2>
+    <ul>
+        <li><a href="{{cruise_name}}_plot.html">Interactive Cruise Map</a></li>
+        <li><a href="{{cruise_name}}.kml">KML file (Google Earth)</a></li>
+        <li><a href="{{cruise_name}}.csv">CSV Spreadsheet</a></li>
+        <li><a href="{{cruise_name}}.nc">NetCDF Dataset</a></li>
+        <li><a href="{{cruise_name}}_stations.tex">LaTeX Stations Table</a></li>
+        <li><a href="{{cruise_name}}_work_days.tex">LaTeX Work Days Table</a></li>
+    </ul>
+
+    <!-- 1. Cruise Schedule Summary -->
+    <h2>1. Cruise Schedule Summary</h2>
+    <table>
+        <tr>
+            <th>Task Category</th>
+            <th>Description</th>
+            <th>Total Hours</th>
+            <th>Total Days</th>
+        </tr>
+        <!-- Dynamic content based on cruise data -->
+        <tr>
+            <td>Total Stations</td>
+            <td>{{station_count}} stations, Avg depth: {{avg_depth}}m, Avg duration: {{avg_station_duration}}h</td>
+            <td>{{total_station_hours}}</td>
+            <td>{{total_station_days}}</td>
+        </tr>
+        <tr class="total-row">
+            <td><strong>TOTAL CRUISE</strong></td>
+            <td>{{total_operations}} total operations</td>
+            <td><strong>{{total_hours}}</strong></td>
+            <td><strong>{{total_days}}</strong></td>
+        </tr>
+    </table>
+
+    <!-- Detailed sections follow... -->
+</body>
+</html>
+```
+
+### Implementation Steps
+
+1. **Create HTML Template System**:
+   ```python
+   class HTMLGenerator:
+       def __init__(self):
+           self.env = Environment(loader=FileSystemLoader("templates"))
+
+       def calculate_summary_statistics(self, cruise_data: Dict) -> Dict:
+           """Calculate summary statistics for HTML template."""
+           stats = {
+               'station_count': len(cruise_data.get('stations', [])),
+               'mooring_count': len(cruise_data.get('moorings', [])),
+               'total_operations': 0,
+               'total_hours': 0.0,
+               'total_days': 0.0,
+               'avg_depth': 0.0,
+               'avg_station_duration': 0.0
+           }
+
+           # Calculate detailed statistics
+           return stats
+   ```
+
+2. **Data Aggregation Logic**:
+   ```python
+   def aggregate_cruise_data(self, cruise_data: Dict) -> Dict:
+       """Perform deep flattening operation for HTML rendering."""
+       # Flatten: Global_Stations + Legs->Clusters->Stations + Legs->Sections->Stations
+       all_stations = []
+       all_moorings = []
+       all_transfers = []
+
+       # Process legs and clusters
+       for leg in cruise_data.get('legs', []):
+           # Extract stations, moorings, transfers from each leg
+           pass
+
+       return {
+           'stations': all_stations,
+           'moorings': all_moorings,
+           'transfers': all_transfers
+       }
+   ```
+
+3. **Generate Detailed Breakdown Tables**:
+   - Sections/Clusters detail table
+   - Moorings manifest table
+   - Transfers summary table
+   - Miscellaneous activities table
+
+### Output Interface
+```python
+def generate_html_summary(cruise_data: Dict, output_dir: Path) -> Path:
+    """
+    Generate comprehensive HTML cruise summary.
+
+    Returns:
+        Path to generated index.html file
+    """
+    aggregated_data = self.aggregate_cruise_data(cruise_data)
+    summary_stats = self.calculate_summary_statistics(aggregated_data)
+
+    template_data = {
+        'cruise_name': cruise_data['cruise_name'],
+        'description': cruise_data.get('description', ''),
+        **summary_stats,
+        **aggregated_data
+    }
+
+    template = self.env.get_template('cruise_summary.html.j2')
+    html_content = template.render(**template_data)
+
+    output_file = output_dir / 'index.html'
+    output_file.write_text(html_content)
+
+    return output_file
+```
+
+---
+## Phase 3f: KML Generation
 
 ### Implementation Requirements
 

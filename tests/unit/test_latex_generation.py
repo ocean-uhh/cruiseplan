@@ -2,63 +2,95 @@
 Test basic LaTeX generation functionality.
 
 These tests validate the Phase 3a LaTeX generation works with mock data.
-Complete cruise scheduling logic will be implemented in Phase 3c.
 """
 
+from datetime import datetime
 from pathlib import Path
+from unittest.mock import MagicMock
 
+from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.output.latex_generator import generate_latex_tables
 
 
 def test_latex_generation_basic():
     """Test that LaTeX generation produces valid output files."""
-    # Mock cruise data as would be provided by Phase 3c scheduling
-    mock_cruise_data = {
-        "cruise_name": "Test_Cruise_2028",
-        "operations": [
-            {
-                "type": "CTD profile",
-                "name": "STN_001",
-                "latitude": 50.0,
-                "longitude": -40.0,
-                "depth": 1000.0,
-            },
-            {
-                "type": "CTD profile",
-                "name": "STN_002",
-                "latitude": 51.0,
-                "longitude": -40.0,
-                "depth": 1000.0,
-            },
-        ],
-        "summary_breakdown": [
-            {
-                "area": "Transit to Port",
-                "activity": "",
-                "duration_h": "",
-                "transit_h": 35.0,
-            },
-            {
-                "area": "Test Operations",
-                "activity": "CTD stations",
-                "duration_h": 2.1,
-                "transit_h": "",
-            },
-            {
-                "area": "Transit within area",
-                "activity": "",
-                "duration_h": 10.0,
-                "transit_h": "",
-            },
-        ],
-        "default_vessel_speed": 10.0,
-    }
+    # Mock config
+    mock_config = MagicMock(spec=CruiseConfig)
+    mock_config.cruise_name = "Test_Cruise_2028"
+    mock_config.first_station = "STN_001"
+    mock_config.last_station = "STN_002"
+
+    # Mock ports
+    mock_config.departure_port = MagicMock()
+    mock_config.departure_port.name = "Departure Port"
+    mock_config.arrival_port = MagicMock()
+    mock_config.arrival_port.name = "Arrival Port"
+
+    # Mock timeline data
+    mock_timeline = [
+        {
+            "activity": "Transit",
+            "label": "Transit to working area",
+            "lat": 50.0,
+            "lon": -40.0,
+            "depth": 0.0,
+            "start_time": datetime(2028, 6, 1, 8, 0),
+            "end_time": datetime(2028, 6, 2, 19, 0),
+            "duration_minutes": 2100.0,  # 35 hours
+            "transit_dist_nm": 350.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Transit",
+            "operation_type": "Transit",
+        },
+        {
+            "activity": "Station",
+            "label": "STN_001",
+            "lat": 50.0,
+            "lon": -40.0,
+            "depth": 1000.0,
+            "start_time": datetime(2028, 6, 2, 19, 0),
+            "end_time": datetime(2028, 6, 2, 20, 3),
+            "duration_minutes": 63.0,
+            "transit_dist_nm": 0.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Test_Operations",
+            "operation_type": "station",
+        },
+        {
+            "activity": "Station",
+            "label": "STN_002",
+            "lat": 51.0,
+            "lon": -40.0,
+            "depth": 1000.0,
+            "start_time": datetime(2028, 6, 2, 20, 3),
+            "end_time": datetime(2028, 6, 2, 21, 6),
+            "duration_minutes": 63.0,
+            "transit_dist_nm": 10.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Test_Operations",
+            "operation_type": "station",
+        },
+        {
+            "activity": "Transit",
+            "label": "Transit from working area",
+            "lat": 50.0,
+            "lon": -40.0,
+            "depth": 0.0,
+            "start_time": datetime(2028, 6, 2, 21, 6),
+            "end_time": datetime(2028, 6, 4, 8, 6),
+            "duration_minutes": 2100.0,  # 35 hours
+            "transit_dist_nm": 350.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Transit",
+            "operation_type": "Transit",
+        },
+    ]
 
     # Test output directory
     output_dir = Path("tests_output/test_latex")
 
     # Generate LaTeX files
-    generated_files = generate_latex_tables(mock_cruise_data, output_dir)
+    generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
 
     # Verify files were created
     assert len(generated_files) == 2
@@ -78,37 +110,42 @@ def test_latex_generation_basic():
 
     # Verify work days file has content
     work_days_content = work_days_file.read_text()
-    assert "CTD stations" in work_days_content
-    assert "2.1" in work_days_content  # Duration
-    assert "Total duration" in work_days_content
+    assert "CTD/Station Operations" in work_days_content
+    assert "Transit to area" in work_days_content
+    assert "Transit from area" in work_days_content
+    assert "TOTAL" in work_days_content
 
 
 def test_latex_generation_no_double_totals():
     """Test that work days table doesn't have duplicate total rows."""
-    mock_cruise_data = {
-        "cruise_name": "No_Doubles_Test",
-        "operations": [
-            {
-                "type": "CTD profile",
-                "name": "STN_001",
-                "latitude": 50.0,
-                "longitude": -40.0,
-                "depth": 1000.0,
-            }
-        ],
-        "summary_breakdown": [
-            {
-                "area": "Test Area",
-                "activity": "CTD stations",
-                "duration_h": 1.0,
-                "transit_h": "",
-            },
-        ],
-        "default_vessel_speed": 10.0,
-    }
+    mock_config = MagicMock(spec=CruiseConfig)
+    mock_config.cruise_name = "No_Doubles_Test"
+    mock_config.first_station = "STN_001"
+    mock_config.last_station = "STN_001"
+    mock_config.departure_port = MagicMock()
+    mock_config.departure_port.name = "Start"
+    mock_config.arrival_port = MagicMock()
+    mock_config.arrival_port.name = "End"
+
+    mock_timeline = [
+        {
+            "activity": "Station",
+            "label": "STN_001",
+            "lat": 50.0,
+            "lon": -40.0,
+            "depth": 1000.0,
+            "start_time": datetime(2028, 6, 1, 8, 0),
+            "end_time": datetime(2028, 6, 1, 9, 0),
+            "duration_minutes": 60.0,
+            "transit_dist_nm": 0.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Test_Operations",
+            "operation_type": "station",
+        }
+    ]
 
     output_dir = Path("tests_output/test_no_doubles")
-    generated_files = generate_latex_tables(mock_cruise_data, output_dir)
+    generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
 
     work_days_file = output_dir / "No_Doubles_Test_work_days.tex"
     content = work_days_file.read_text()
@@ -116,26 +153,40 @@ def test_latex_generation_no_double_totals():
     # Should only have one "Total duration" line (from template)
     total_count = content.count("Total duration")
     assert total_count == 1, f"Expected 1 'Total duration' line, found {total_count}"
+    assert len(generated_files) == 2  # Use the variable to avoid warning
 
 
 def test_latex_generation_empty_operations():
     """Test LaTeX generation handles empty operations gracefully."""
-    mock_cruise_data = {
-        "cruise_name": "Empty_Test",
-        "operations": [],  # No operations
-        "summary_breakdown": [
-            {
-                "area": "Transit to Port",
-                "activity": "",
-                "duration_h": "",
-                "transit_h": 35.0,
-            },
-        ],
-        "default_vessel_speed": 10.0,
-    }
+    mock_config = MagicMock(spec=CruiseConfig)
+    mock_config.cruise_name = "Empty_Test"
+    mock_config.first_station = "STN_001"
+    mock_config.last_station = "STN_001"
+    mock_config.departure_port = MagicMock()
+    mock_config.departure_port.name = "Start"
+    mock_config.arrival_port = MagicMock()
+    mock_config.arrival_port.name = "End"
+
+    # Empty timeline (only transit operations)
+    mock_timeline = [
+        {
+            "activity": "Transit",
+            "label": "Transit to working area",
+            "lat": 50.0,
+            "lon": -40.0,
+            "depth": 0.0,
+            "start_time": datetime(2028, 6, 1, 8, 0),
+            "end_time": datetime(2028, 6, 2, 19, 0),
+            "duration_minutes": 2100.0,  # 35 hours
+            "transit_dist_nm": 350.0,
+            "vessel_speed_kt": 10.0,
+            "leg_name": "Transit",
+            "operation_type": "Transit",
+        }
+    ]
 
     output_dir = Path("tests_output/test_empty")
-    generated_files = generate_latex_tables(mock_cruise_data, output_dir)
+    generated_files = generate_latex_tables(mock_config, mock_timeline, output_dir)
 
     # Files should still be generated
     assert len(generated_files) == 2

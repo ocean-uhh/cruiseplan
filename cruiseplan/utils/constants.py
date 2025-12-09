@@ -1,6 +1,9 @@
 # cruiseplan/utils/constants.py
 from datetime import datetime, timezone
 
+# --- Time Conversion Factors ---
+MINUTES_PER_HOUR = 60.0
+
 # --- Depth/Bathymetry Constants ---
 
 # Sentinel value indicating that depth data is missing, the station is outside
@@ -32,3 +35,15 @@ DEFAULT_STATION_SPACING_KM = 15.0
 DEFAULT_START_DATE_NUM = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 # Make this an ISO8601 string
 DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
+
+# --- Unit Conversion Functions ---
+
+
+def minutes_to_hours(minutes: float) -> float:
+    """Converts minutes to hours."""
+    return minutes / MINUTES_PER_HOUR
+
+
+def hours_to_minutes(hours: float) -> float:
+    """Converts hours to minutes."""
+    return hours * MINUTES_PER_HOUR

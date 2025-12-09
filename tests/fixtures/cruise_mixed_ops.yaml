@@ -36,6 +36,7 @@ moorings:
 transits:
   - name: "Survey_Line_Alpha"
     comment: "Acoustic survey transect"
+    vessel_speed: 5.0  # Slower speed for survey work
     route:
       - latitude: 53.3000
         longitude: -50.5000

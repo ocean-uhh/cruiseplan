@@ -5,6 +5,8 @@ from cruiseplan.core.validation import GeoPoint
 
 # Earth radius in kilometers (approximate)
 R_EARTH_KM = 6371.0
+
+# Distance conversion factors
 NM_PER_KM = 0.539957
 KM_PER_NM = 1.852
 
