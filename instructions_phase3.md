@@ -6,14 +6,14 @@ Phase 3 implements the comprehensive output generation system for the oceanograp
 
 ## Phase 3 Architecture
 
-The output generation system consists of five integrated sub-phases:
+The output generation system consists of six integrated sub-phases:
 
-- **Phase 3a**: LaTeX Table Generation (Cruise proposals)
-- **Phase 3b**: Scheduling logic
-- **Phase 3c**: NetCDF Output (Scientific data formats)
-- **Phase 3d**: Interactive Web Maps (Building on existing map_generator.py)
-- **Phase 3e**: HTML Summary Generation (Interactive reports)
-- **Phase 3f**: KML Generation (Google Earth visualization)
+- **Phase 3a**: LaTeX Table Generation (Cruise proposals) ✅ **COMPLETED**
+- **Phase 3b**: Scheduling logic ✅ **COMPLETED**  
+- **Phase 3c**: NetCDF Output (Scientific data formats) ⚠️ **PARTIALLY COMPLETED**
+- **Phase 3d**: Interactive Web Maps (Building on existing map_generator.py) ❌ **NOT IMPLEMENTED**
+- **Phase 3e**: HTML Summary Generation (Interactive reports) ❌ **NOT IMPLEMENTED**
+- **Phase 3f**: KML Generation (Google Earth visualization) ❌ **NOT IMPLEMENTED**
 
 ## Test Data Requirements
 
@@ -66,11 +66,11 @@ legs:
     stations: ["STN_001", "STN_002"]
 ```
 
-### Test File 2: cruise_mixed_ops.yaml
+### Test File 2: cruise_mixed_ops.yaml ✅ **UPDATED**
 ```yaml
-# Mixed operations: station, mooring, and line section
+# Mixed operations: station, mooring, and scientific transit (unified schema)
 cruise_name: "Mixed_Operations_Test_2028"
-description: "Testing multiple operation types"
+description: "Testing multiple operation types with unified schema"
 default_vessel_speed: 12.0
 calculate_transfer_between_sections: true
 calculate_depth_via_bathymetry: true
@@ -85,27 +85,33 @@ arrival_port:
   longitude: -60.4200
   name: "Labrador Sea End"
 
-# Mixed catalog definitions
+# Unified station definitions (includes both stations and moorings)
 stations:
   - name: "CTD_Station_A"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 53.5000
     longitude: -50.0000
     depth: 2500.0
     comment: "Deep CTD profile"
 
-moorings:
   - name: "Mooring_K7_Recovery"
+    operation_type: "mooring"
+    action: "recovery"
     latitude: 53.2000
     longitude: -50.2000
-    action: "recovery"
     duration: 180.0  # 3 hours
     depth: 2800.0
     comment: "Recover deep mooring"
     equipment: "Full-depth array with ADCP"
 
+# Scientific transits (line operations)
 transits:
   - name: "Survey_Line_Alpha"
     comment: "Acoustic survey transect"
+    operation_type: "underway"
+    action: "ADCP"
+    vessel_speed: 5.0  # Slower speed for survey work
     route:
       - latitude: 53.3000
         longitude: -50.5000
@@ -187,7 +193,68 @@ legs:
 
 ---
 
-## Phase 3a: LaTeX Table Generation
+## Summary of Current Implementation Status
+
+### ✅ Completed Components (Phase 3a + 3b)
+- **LaTeX Table Generation**: Fully implemented in `cruiseplan/output/latex_generator.py`
+  - Professional booktabs formatting
+  - Coordinate formatting (DD MM.mmm format)
+  - Stations table and work days table generation
+  - Page breaking for long tables
+  - Working with updated unified schema (operation_dist_nm, transit_dist_nm)
+
+- **Scheduling Logic**: Fully implemented in `cruiseplan/calculators/scheduler.py`
+  - Timeline generation with ActivityRecord output
+  - Support for unified stations schema (stations + moorings)
+  - Scientific transits vs pure navigation handling
+  - Inter-operation transit calculation
+  - Proper distance semantics (transit_dist_nm vs operation_dist_nm)
+
+### ⚠️ Partially Completed Components
+
+#### Phase 3c: NetCDF Output
+- **Current**: Basic functionality in `cruiseplan/output/scientific_formats.py`
+- **Missing**: Full CF-1.8 compliance as specified in `netcdf_outputs.md`
+  - Need to implement discrete sampling geometries
+  - Need to create separate files for points, lines, areas, and schedule
+  - Need proper featureType specifications
+  - Need complete CF-1.8 validation
+
+### ❌ Missing Components
+
+#### Phase 3d: Interactive Web Maps
+- **Status**: Not implemented
+- **Existing**: Basic static map generation in `cruiseplan/output/map_generator.py`
+- **Need**: Interactive Leaflet-based maps with enhanced features
+- **Priority**: Medium - would greatly enhance user experience
+
+#### Phase 3e: HTML Summary Generation
+- **Status**: Not implemented
+- **Need**: Comprehensive HTML reports with cruise summaries
+- **Priority**: High - essential for cruise proposal documentation
+
+#### Phase 3f: KML Generation  
+- **Status**: Not implemented
+- **Need**: Google Earth visualization files
+- **Priority**: Low - nice to have for sharing and presentation
+
+### Recommended Implementation Order
+
+#### Next Steps (Priority Order):
+1. **Complete Phase 3c**: Finish NetCDF implementation per `netcdf_outputs.md`
+2. **Implement Phase 3e**: HTML summary generation for documentation
+3. **Implement Phase 3d**: Interactive web maps for enhanced visualization
+4. **Implement Phase 3f**: KML generation for Google Earth compatibility
+
+#### Dependencies:
+- All remaining phases depend on the completed scheduler and unified schema
+- NetCDF implementation should use the current `List[ActivityRecord]` from scheduler
+- HTML and KML generators should integrate with the existing LaTeX coordinate formatting
+- Interactive maps should build upon existing `map_generator.py`
+
+---
+
+## Phase 3a: LaTeX Table Generation ✅ **COMPLETED**
 
 ### Implementation Requirements
 
@@ -319,13 +386,18 @@ def generate_latex_tables(cruise_data: Dict, output_dir: Path) -> List[Path]:
 
 ---
 
-## Phase 3c: NetCDF Output Generation
+## Phase 3c: NetCDF Output Generation ⚠️ **PARTIALLY COMPLETED**
+
+### Current Status
+- ✅ **Completed**: `cruiseplan/output/scientific_formats.py` provides basic NetCDF functionality
+- ⚠️ **Incomplete**: Full CF-1.8 compliance with discrete sampling geometries
+- ❌ **Missing**: Comprehensive NetCDF generator as specified in `netcdf_outputs.md`
 
 ### Implementation Requirements
 
-**File**: `cruiseplan/output/netcdf_generator.py`
+**File**: `cruiseplan/output/netcdf_generator.py` (needs to be created)
 
-**Core Function**: Generate CF-compliant NetCDF datasets for scientific data management and analysis.
+**Core Function**: Generate CF-compliant NetCDF datasets for scientific data management and analysis according to the specification in `netcdf_outputs.md`.
 
 ### NetCDF Structure Requirements
 
@@ -511,13 +583,75 @@ def generate_netcdf_outputs(cruise_data: Dict, output_dir: Path) -> List[Path]:
 ```
 
 ---
-## Phase 3e: HTML Summary Generation
+## Phase 3d: Interactive Web Maps ❌ **NOT IMPLEMENTED**
+
+### Current Status
+- ✅ **Existing**: `cruiseplan/output/map_generator.py` provides basic static map generation
+- ❌ **Missing**: Interactive Leaflet-based web maps with enhanced functionality
 
 ### Implementation Requirements
 
-**File**: `cruiseplan/output/html_generator.py`
+**File**: `cruiseplan/output/interactive_map_generator.py` (needs to be created)
 
-**Core Function**: Generate comprehensive HTML reports with interactive navigation and detailed breakdowns.
+**Core Function**: Build upon the existing map generator to create interactive Leaflet-based web maps with enhanced cruise planning functionality.
+
+### Key Features to Implement
+
+1. **Interactive Leaflet Maps**:
+   ```python
+   class InteractiveMapGenerator:
+       def __init__(self):
+           self.base_layers = {
+               'OpenStreetMap': 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+               'ESRI Ocean': 'https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/{z}/{y}/{x}',
+               'CartoDB Positron': 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png'
+           }
+
+       def create_interactive_map(self, cruise_data: Dict, timeline: List[ActivityRecord], output_dir: Path) -> Path:
+           """Create interactive Leaflet map with cruise visualization."""
+           # Generate HTML with embedded Leaflet map
+           # Add station markers with depth-based styling
+           # Include cruise track with timing information
+           # Add popup windows with detailed activity information
+   ```
+
+2. **Enhanced Map Features**:
+   - Station clustering for dense operations
+   - Route animation with timing controls
+   - Bathymetry overlay integration (if available)
+   - Layer toggle controls (stations, moorings, transits, bathymetry)
+   - Export functionality for static images
+   - Responsive design for mobile viewing
+
+3. **Integration with Existing System**:
+   ```python
+   def enhance_existing_map_generator():
+       """Maintain backward compatibility while adding new features."""
+       # Keep existing generate_cruise_map() function
+       # Add new generate_interactive_map() function
+       # Share common coordinate transformation logic
+   ```
+
+### Output Interface
+```python
+def generate_interactive_map(cruise_data: Dict, timeline: List[ActivityRecord], output_dir: Path) -> Path:
+    """
+    Generate interactive HTML map with Leaflet.
+    
+    Returns:
+        Path to generated HTML file with embedded map
+    """
+    pass
+```
+
+---
+## Phase 3e: HTML Summary Generation ❌ **NOT IMPLEMENTED**
+
+### Implementation Requirements
+
+**File**: `cruiseplan/output/html_generator.py` (needs to be created)
+
+**Core Function**: Generate comprehensive HTML reports with interactive navigation and detailed breakdowns for cruise planning documentation.
 
 ### HTML Structure Requirements
 
@@ -659,13 +793,13 @@ def generate_html_summary(cruise_data: Dict, output_dir: Path) -> Path:
 ```
 
 ---
-## Phase 3f: KML Generation
+## Phase 3f: KML Generation ❌ **NOT IMPLEMENTED**
 
 ### Implementation Requirements
 
-**File**: `cruiseplan/output/kml_generator.py`
+**File**: `cruiseplan/output/kml_generator.py` (needs to be created)
 
-**Core Function**: Generate Google Earth-compatible KML files with cruise tracks, stations, and metadata.
+**Core Function**: Generate Google Earth-compatible KML files with cruise tracks, stations, and metadata for 3D visualization and sharing.
 
 ### KML Structure Requirements
 

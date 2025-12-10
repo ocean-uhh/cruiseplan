@@ -2,6 +2,7 @@ setup.sh
 */_version.py
 data/temp.nc
 tests_output/*html
+tests_output/netcdf/*
 tests_output/latex_reports/*
 tests_output/test_empty/*
 tests_output/test_latex/*
