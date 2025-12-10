@@ -232,10 +232,13 @@ legs:
         duration: 120                   # Optional. Minutes override for manual timing
         comment: "Deep water sampling"  # Optional
         
-    moorings:
-      - name: "MOOR_K7"
-        latitude: 59.8                  # Required. Decimal degrees
-        longitude: -39.5                # Required. Decimal degrees
+    # Moorings are now included in the stations list with operation_type: "mooring"
+    # Example mooring entry in stations:
+    # - name: "MOOR_K7"
+    #   operation_type: "mooring"
+    #   action: "recovery" 
+    #   latitude: 59.8
+    #   longitude: -39.5
         action: "recovery"              # Required: "deployment" or "recovery"
         duration: 180                   # Required. Minutes for mooring operations
         equipment: "ADCP + T/S chain"   # Optional
@@ -292,9 +295,9 @@ legs:
           - "Grid_Survey_Alpha" # Reference to an Area Survey
 
         # OPTION B: Unordered Buckets (Optimization Target)
+        # Note: moorings are now included in stations list, not as separate field
         ordered: false
-        moorings: [M_53_A, M_53_B, M_53_C]
-        stations: [CTD_01, CTD_02, CTD_20]
+        stations: [CTD_01, CTD_02, CTD_20, M_53_A, M_53_B, M_53_C]
         surveys: [ADCP_Line_1, Bathymetry_Survey_2]
         area_surveys: [Grid_Alpha, Systematic_Mapping_Beta]
 ```
@@ -525,11 +528,9 @@ stations:
     comment: string                   # Optional: Station description
     position_string: string           # Auto-generated: Degrees + decimal minutes format coordinates "lat string, lon string"
 
-# Mooring definitions
-moorings:
-  - name: string                      # Required: ID: e.g. K7_Recovery
-    latitude: float                   # Required: latitude as signed decimal degrees
-    longitude: float                  # Required: longitude as signed decimal degrees
+# Mooring definitions (DEPRECATED - now included in stations list)
+# Moorings are now defined in the stations list with operation_type: "mooring"
+# See stations section above for current schema
     action: "deploy|recover"          # Required: Operation type (service = deploy+recover)
     duration: float                   # Required: Operation duration (minutes)
     depth: float                      # Optional: Water depth
@@ -582,9 +583,9 @@ legs:
 
     # 2. Category buckets
     # Used if "sequence" is undefined. System applies `strategy` to these
-    moorings: [string, string,...]
+    # Note: moorings are now included in stations list
     stations:
-      - "STN_Deep_01"             # Reference by ID
+      - "STN_Deep_01"             # Reference by ID (includes both stations and moorings)
 
     # Hybrid Support: You can still define inline if needed
     # (Useful for one-off operations not worth cataloging)

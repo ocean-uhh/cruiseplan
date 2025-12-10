@@ -41,7 +41,9 @@ class TestSchedulerWithYAMLFixtures:
             activities[0] == "Transit"
         ), "First activity should be transit to working area"
         assert activities[1] == "Station", "Second activity should be first station"
-        assert activities[2] == "Transit", "Third activity should be inter-operation transit"
+        assert (
+            activities[2] == "Transit"
+        ), "Third activity should be inter-operation transit"
         assert activities[3] == "Station", "Fourth activity should be second station"
         assert (
             activities[4] == "Transit"

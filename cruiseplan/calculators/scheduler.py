@@ -72,10 +72,14 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes
                 "action": (
-                    match.action.value
-                    if match.action and hasattr(match.action, 'value')
-                    else match.action
-                ) if match.action else None,
+                    (
+                        match.action.value
+                        if match.action and hasattr(match.action, "value")
+                        else match.action
+                    )
+                    if match.action
+                    else None
+                ),
             }
 
     # Note: moorings are now included in stations list with operation_type="mooring"
@@ -121,7 +125,8 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "operation_type": getattr(match, "operation_type", None),
                 "action": (
                     getattr(match, "action", None).value
-                    if getattr(match, "action", None) and hasattr(getattr(match, "action", None), 'value')
+                    if getattr(match, "action", None)
+                    and hasattr(getattr(match, "action", None), "value")
                     else getattr(match, "action", None)
                 ),
             }
@@ -217,17 +222,20 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
     # Process sequential activities (no complex Composite parsing yet)
     for i, activity in enumerate(all_activities):
 
-        # Get the operation type and action early for use in ActivityRecord
-        op_type = activity.get("operation_type", activity["op_type"])
+        # Get the action early for use in ActivityRecord
         action = activity.get("action", None)
 
         # 3a. Calculate Transit time from last activity
         # For transits, calculate distance to the START of the route, not the end
         if activity["op_type"] == "transit" and "start_lat" in activity:
-            target_position = GeoPoint(latitude=activity["start_lat"], longitude=activity["start_lon"])
+            target_position = GeoPoint(
+                latitude=activity["start_lat"], longitude=activity["start_lon"]
+            )
         else:
-            target_position = GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
-        
+            target_position = GeoPoint(
+                latitude=activity["lat"], longitude=activity["lon"]
+            )
+
         transit_time_min, transit_dist_nm = _calculate_inter_operation_transit(
             last_position,
             target_position,
@@ -300,7 +308,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         else:
             # Regular operations (stations, moorings)
             current_pos = GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
-            
+
             # Note: Inter-operation transit time is now handled by explicit transit records above
             # so we don't add it to current_time here to avoid double-counting
 
@@ -317,14 +325,18 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
             operation_distance = activity["route_distance_nm"]
         else:
             operation_distance = 0.0  # No operation distance for point operations
-            
+
         # For scientific transits, transit_dist_nm should be 0 since inter-operation transit is separate
         # For point operations, transit_dist_nm should show the distance to reach this operation
         if activity["op_type"] == "transit":
-            transit_distance = 0.0  # Scientific transits: inter-operation distance handled separately
+            transit_distance = (
+                0.0  # Scientific transits: inter-operation distance handled separately
+            )
         else:
-            transit_distance = transit_dist_nm  # Point operations: show distance to reach here
-            
+            transit_distance = (
+                transit_dist_nm  # Point operations: show distance to reach here
+            )
+
         timeline.append(
             ActivityRecord(
                 {

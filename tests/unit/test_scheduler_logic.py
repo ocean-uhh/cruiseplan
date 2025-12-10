@@ -229,11 +229,23 @@ def test_timeline_generation_simple_sequential(mock_calculations, config_simple)
     assert stn2_rec["transit_dist_nm"] == pytest.approx(
         60.0, rel=1e-3
     )  # Transit from STN_001 to STN_002
-    assert stn2_rec["operation_dist_nm"] == 0.0  # No operation distance for point operations
+    assert (
+        stn2_rec["operation_dist_nm"] == 0.0
+    )  # No operation distance for point operations
     # STN_002 starts after STN_001 ends + inter-operation transit time
     # The inter-operation transit time should be approximately 6 hours (360.24 minutes based on actual distance)
-    expected_stn2_start_timedelta = timedelta(minutes=inter_transit_rec["duration_minutes"])
-    assert abs((stn2_rec["start_time"] - (stn1_rec["end_time"] + expected_stn2_start_timedelta)).total_seconds()) < 1.0
+    expected_stn2_start_timedelta = timedelta(
+        minutes=inter_transit_rec["duration_minutes"]
+    )
+    assert (
+        abs(
+            (
+                stn2_rec["start_time"]
+                - (stn1_rec["end_time"] + expected_stn2_start_timedelta)
+            ).total_seconds()
+        )
+        < 1.0
+    )
 
     # 5. Transit from working area
     transit_from_start = stn2_rec["end_time"]

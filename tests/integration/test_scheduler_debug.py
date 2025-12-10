@@ -187,11 +187,11 @@ class TestSchedulerDebug:
         # Expected inter-operation distances (transit_dist_nm) - only for transit records
         expected_transit_distances = {
             1: (372.67, "Departure port to CTD_Station_A"),
-            3: (21.55, "CTD_Station_A to Survey_Line_Alpha start"), 
+            3: (21.55, "CTD_Station_A to Survey_Line_Alpha start"),
             5: (30.23, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
             7: (366.77, "Mooring_K7_Recovery to arrival port"),
         }
-        
+
         # Expected operation distances (operation_dist_nm) - only for scientific transits
         expected_operation_distances = {
             4: (27.94, "Survey_Line_Alpha route distance"),
@@ -210,20 +210,24 @@ class TestSchedulerDebug:
                 assert (
                     abs(actual_dist - expected_dist) < 0.1
                 ), f"Transit distance mismatch for activity {i}: expected {expected_dist:.2f}, got {actual_dist:.2f}"
-            
+
             # Check operation distances (route lengths for scientific operations)
             if i in expected_operation_distances:
                 expected_op_dist, description = expected_operation_distances[i]
                 actual_op_dist = activity.get("operation_dist_nm", 0)
                 print(f"   Activity {i}: {description}")
-                print(f"     Expected operation_dist_nm: {expected_op_dist:.2f} nm, Actual: {actual_op_dist:.2f} nm")
+                print(
+                    f"     Expected operation_dist_nm: {expected_op_dist:.2f} nm, Actual: {actual_op_dist:.2f} nm"
+                )
 
                 assert (
                     abs(actual_op_dist - expected_op_dist) < 0.1
                 ), f"Operation distance mismatch for activity {i}: expected {expected_op_dist:.2f}, got {actual_op_dist:.2f}"
 
         # Verify custom vessel speed is applied
-        survey_activity = timeline[3]  # Survey_Line_Alpha (now at index 3 due to inter-operation transit)
+        survey_activity = timeline[
+            3
+        ]  # Survey_Line_Alpha (now at index 3 due to inter-operation transit)
         assert survey_activity["label"] == "Survey_Line_Alpha"
 
         # At 5 knots, the internal route should take longer than at 12 knots
