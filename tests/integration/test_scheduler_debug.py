@@ -51,14 +51,18 @@ class TestSchedulerDebug:
                     else:
                         print(f"     {i+1}. {stn.name} - NO POSITION!")
 
-            print(f"\n   Moorings: {len(config.moorings or [])}")
-            if config.moorings:
-                for i, mooring in enumerate(config.moorings):
+            # Count mooring operations from stations list
+            mooring_operations = [s for s in (config.stations or []) if hasattr(s, 'operation_type') and s.operation_type.value == "mooring"]
+            print(f"\n   Mooring operations: {len(mooring_operations)}")
+            if mooring_operations:
+                for i, mooring in enumerate(mooring_operations):
                     if hasattr(mooring, "position") and mooring.position:
                         duration = getattr(mooring, "duration", "not set")
                         print(
                             f"     {i+1}. {mooring.name} at {mooring.position.latitude}, {mooring.position.longitude} ({duration} min)"
                         )
+                    else:
+                        print(f"     {i+1}. {mooring.name} - NO POSITION!")
 
             print(f"\n   Transits: {len(config.transits or [])}")
             if config.transits:

@@ -94,17 +94,24 @@ def config_simple():
     station1.position = GeoPoint(latitude=50.0, longitude=-40.0)
     station1.depth = 1000.0
     station1.duration = 0.0
+    # Add operation_type for the unified schema
+    mock_operation_type1 = MagicMock()
+    mock_operation_type1.value = "CTD"
+    station1.operation_type = mock_operation_type1
 
     station2 = MagicMock()
     station2.name = "STN_002"
     station2.position = GeoPoint(latitude=51.0, longitude=-40.0)
     station2.depth = 1000.0
     station2.duration = 0.0
+    # Add operation_type for the unified schema
+    mock_operation_type2 = MagicMock()
+    mock_operation_type2.value = "CTD"
+    station2.operation_type = mock_operation_type2
 
     mock_config.stations = [station1, station2]
     # IMPORTANT: The scheduler uses getattr(match, 'depth', 0.0) which is fine for mocks.
     # The fix relies on MagicMock(name=...) ensuring the name attribute exists.
-    mock_config.moorings = []
     mock_config.transits = []
 
     # Legs (Sequential order is essential here)
@@ -141,9 +148,12 @@ def test_timeline_handles_mooring_manual_duration(mock_calculations):
     mock_mooring.depth = 2800.0
     mock_mooring.action = "deploy"
     mock_mooring.duration = 180.0
+    # Add operation_type for the unified schema
+    mock_operation_type = MagicMock()
+    mock_operation_type.value = "mooring"
+    mock_mooring.operation_type = mock_operation_type
 
-    mock_config.stations = []
-    mock_config.moorings = [mock_mooring]
+    mock_config.stations = [mock_mooring]  # Moorings are now in stations list
     mock_config.transits = []
 
     leg_mock = MagicMock()

@@ -204,33 +204,78 @@ This allows the user to catalog their major assets while quickly adding "one-off
 ```yaml
 # Single-leg cruise (default - transparent to user)
 cruise_name: Simple_Cruise_2028
-sections: [...]
-moorings: [...]
-transfers: [...]
 
-# Multi-leg cruise with Composite Operations
+# Point Operations (featureType: point)
+stations: [...]        # CTD profiles, water sampling, calibrations
+moorings: [...]        # Deployments and recoveries at fixed points
+
+# Line Operations (featureType: trajectory) 
+surveys: [...]         # Scientific operations along paths (ADCP, towing, bathymetry)
+
+# Area Operations (featureType: trajectory or specialized)
+area_surveys: [...]    # Systematic coverage patterns, grid surveys
+
+# Pure navigation (schedule file only)
+transits: [...]        # Non-scientific vessel movement between operations
+
+# Multi-leg cruise with enhanced operation types
 cruise_name: Complex_Expedition_2028
 legs:
   - name: "Irminger_Sea_Operations"
     description: "Deep water mooring recoveries"
 
-    # Simple Point Operations
+    # Point Operations: Fixed location scientific activities
+    stations:
+      - name: "STN_001"
+        latitude: 60.5                  # Required. Decimal degrees
+        longitude: -40.2                # Required. Decimal degrees
+        depth: 2800                     # Optional. Will use bathymetry if not provided
+        duration: 120                   # Optional. Minutes override for manual timing
+        comment: "Deep water sampling"  # Optional
+        
     moorings:
-      - name: M1
-        latitude: float                 # Required. Decimal degrees
-        longitude: float                # Required. Decimal degrees
+      - name: "MOOR_K7"
+        latitude: 59.8                  # Required. Decimal degrees
+        longitude: -39.5                # Required. Decimal degrees
+        action: "recovery"              # Required: "deployment" or "recovery"
+        duration: 180                   # Required. Minutes for mooring operations
+        equipment: "ADCP + T/S chain"   # Optional
 
-    # Composite: A standard section (ordered list of stations)
-    sections:
-      - name: "AR7E_Section"
-        start:
-          latitude: float               # Required. Decimal degrees
-          longitude: float              # Required. Decimal degrees
-        end:
-          latitude: float               # Required. Decimal degrees
-          longitude: float              # Required. Decimal degrees
-        ordered: false                  # Default for sections. Optimizer CAN shuffle internals
-        stations: [Stn01, Stn02, Stn03...]
+    # Line Operations: Scientific operations along defined paths
+    surveys:
+      - name: "ADCP_Transect_A"
+        operation_type: "underway"      # Required: "underway" or "towing"
+        action: "ADCP"                  # Required: ADCP, bathymetry, thermosalinograph, etc.
+        route:                          # Required: Start and end points
+          - latitude: 60.0
+            longitude: -40.0
+          - latitude: 60.5
+            longitude: -39.0
+        vessel_speed: 8.0               # Optional. Knots, overrides default
+        
+    # Area Operations: Systematic coverage patterns
+    area_surveys:
+      - name: "Grid_Survey_Alpha"
+        pattern_type: "grid_survey"     # Required: grid_survey, systematic_mapping, etc.
+        boundary:                       # Required: Polygon vertices (closed)
+          - latitude: 60.0
+            longitude: -40.0
+          - latitude: 60.0
+            longitude: -39.0
+          - latitude: 60.5
+            longitude: -39.0
+          - latitude: 60.5
+            longitude: -40.0
+
+    # Pure Navigation: Non-scientific vessel movements
+    transits:
+      - name: "Transit_to_Area"
+        route:                          # Required: Navigation path
+          - latitude: 59.0
+            longitude: -42.0
+          - latitude: 60.0
+            longitude: -40.0
+        vessel_speed: 12.0              # Optional. Knots
 
   - name: "53N_Observatory_Work"
     description: "Mixed operations with Day/Night constraints"
@@ -241,21 +286,43 @@ legs:
         strategy: day_night_split    # Tells the scheduler: Day? Pop from moorings, Night? Pop from stations
 
         # OPTION A: Explicit Mixed Sequence (Manual Control)
-        # The system executes these exactly in this order.
-        # Logic: ordered=True is implied.
         sequence:
-          - "Mooring_K7"        # Reference to a Mooring
-          - "STN_001"           # Reference to a Station
-          - "Transect_Line_A"   # Reference to a Line Operation
-          - "Mooring_K8"
+          - "MOOR_K7"          # Reference to a Mooring
+          - "STN_001"          # Reference to a Station  
+          - "ADCP_Transect_A"  # Reference to a Survey
+          - "Grid_Survey_Alpha" # Reference to an Area Survey
 
         # OPTION B: Unordered Buckets (Optimization Target)
-        # If 'sequence' is missing, the system looks here and optimizes/zips them
         ordered: false
         moorings: [M_53_A, M_53_B, M_53_C]
-        stations: [CTD_01...CTD_20]
+        stations: [CTD_01, CTD_02, CTD_20]
+        surveys: [ADCP_Line_1, Bathymetry_Survey_2]
+        area_surveys: [Grid_Alpha, Systematic_Mapping_Beta]
 ```
 
+### Controlled Vocabulary
+
+**Mooring Actions:**
+- `"deployment"` - Deploy mooring at location
+- `"recovery"` - Recover existing mooring
+
+**Survey Operation Types:**
+- `"underway"` - Instruments operating while ship underway (nothing over the side)
+- `"towing"` - Towed instruments or devices deployed behind vessel
+
+**Survey Actions:**
+- `"ADCP"` - Acoustic Doppler Current Profiler survey
+- `"bathymetry"` - Multibeam or singlebeam seafloor mapping
+- `"thermosalinograph"` - Underway temperature and salinity measurement
+- `"tow_yo"` - Tow-yo CTD profiling operations
+- `"seismic"` - Seismic reflection/refraction surveys
+- `"microstructure"` - Microstructure turbulence profiling
+
+**Area Survey Pattern Types:**
+- `"grid_survey"` - Systematic grid-based coverage
+- `"systematic_mapping"` - Structured mapping pattern
+- `"search_pattern"` - Search and rescue or target location patterns
+- `"random_sampling"` - Statistical sampling within defined area
 
 **Benefits:**
 - **Operational Logic**: Allows grouping of spatially related activities that are operationally distinct

@@ -27,7 +27,7 @@ def test_load_and_validate_cruise():
 
     # 3. Check Catalog Loading
     assert "STN_Start_01" in cruise.station_registry
-    assert "M_End_01" in cruise.mooring_registry
+    assert "M_End_01" in cruise.station_registry
 
     # 4. Check Schedule Resolution (The Hybrid Pattern)
     leg1 = cruise.config.legs[0]
@@ -35,7 +35,7 @@ def test_load_and_validate_cruise():
 
     # The 'stations' list in the cluster should now be FULL OBJECTS, not strings
     resolved_stations = cluster.stations
-    assert len(resolved_stations) == 3
+    assert len(resolved_stations) == 4  # Updated to 4 since mooring moved to stations
 
     # Item 0: Was a reference "STN_Start_01" -> Should resolve to object
     assert resolved_stations[0].name == "STN_Start_01"
@@ -44,6 +44,10 @@ def test_load_and_validate_cruise():
     # Item 2: Was inline "STN_Inline_OneOff" -> Should be object
     assert resolved_stations[2].name == "STN_Inline_OneOff"
     assert resolved_stations[2].position.latitude == 62.25
+
+    # Item 3: Should be the mooring "M_End_01"
+    assert resolved_stations[3].name == "M_End_01"
+    assert resolved_stations[3].operation_type.value == "mooring"
 
 
 def test_missing_reference_raises_error(tmp_path):
@@ -67,17 +71,19 @@ last_station: "STN_Existing"
 
 stations:
   - name: STN_Existing
+    operation_type: CTD
+    action: profile
     position: "0,0"
 
 legs:
   - name: Leg1
-    moorings:
-      - "GHOST_MOORING"  # <--- This does not exist in catalog
+    stations:
+      - "GHOST_STATION"  # <--- This does not exist in catalog
     """
     )
 
     with pytest.raises(ReferenceError) as exc:
         Cruise(bad_yaml)
 
-    assert "GHOST_MOORING" in str(exc.value)
+    assert "GHOST_STATION" in str(exc.value)
     assert "not found in Catalog" in str(exc.value)

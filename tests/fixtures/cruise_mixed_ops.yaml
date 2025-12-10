@@ -18,16 +18,18 @@ arrival_port:
 # Mixed catalog definitions
 stations:
   - name: "CTD_Station_A"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 53.5000
     longitude: -50.0000
     depth: 2500.0
     comment: "Deep CTD profile"
 
-moorings:
   - name: "Mooring_K7_Recovery"
+    operation_type: "mooring"
+    action: "recovery"
     latitude: 53.2000
     longitude: -50.2000
-    action: "recovery"
     duration: 180.0  # 3 hours
     depth: 2800.0
     comment: "Recover deep mooring"
@@ -36,6 +38,8 @@ moorings:
 transits:
   - name: "Survey_Line_Alpha"
     comment: "Acoustic survey transect"
+    operation_type: "underway"      # Required: "underway" or "towing"
+    action: "ADCP"                  # Required: ADCP, bathymetry, thermosalinograph, etc.
     vessel_speed: 5.0  # Slower speed for survey work
     route:
       - latitude: 53.3000

@@ -32,19 +32,20 @@ arrival_port:
 first_station: "S1"
 last_station: "M1"
 
-# 2. STATIONS (Top Level explicit)
+# 2. STATIONS (unified schema with operations)
 stations:
   - name: S1
+    operation_type: CTD
+    action: profile
     latitude: 60.0
     longitude: -20.0
     depth: 1000
 
-# 3. MOORINGS (Top Level explicit)
-moorings:
   - name: M1
+    operation_type: mooring
+    action: recovery
     latitude: 61.0
     longitude: -19.0
-    action: recovery
     duration: 120
 
 # 4. TRANSITS (List of explicit objects)
@@ -97,8 +98,8 @@ legs:
     assert s1.position.latitude == 60.0
     assert s1.position.longitude == -20.0
 
-    # 3. Mooring
-    m1 = cruise.mooring_registry["M1"]
+    # 3. Mooring (now in stations registry)
+    m1 = cruise.station_registry["M1"]
     assert m1.position.latitude == 61.0
 
     # 4. Transit

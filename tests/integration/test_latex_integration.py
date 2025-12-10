@@ -25,7 +25,7 @@ class TestLatexGeneratorIntegration:
         # Generate timeline
         timeline = generate_timeline(config)
         assert len(timeline) > 0, "Timeline should not be empty"
-        assert len(timeline) == 4, "Expected 4 activities for simple cruise"
+        assert len(timeline) == 5, "Expected 4 activities for simple cruise (2 x CTD, 3 x Transit)"
 
         # Generate LaTeX tables
         output_dir = Path("tests_output")
@@ -52,12 +52,19 @@ class TestLatexGeneratorIntegration:
         assert "STN_002" in stations_content
         assert "Working area, stations and profiles" in stations_content
 
-        # Verify work days table contains expected elements
+        # Verify work days table contains expected elements and values
         work_days_content = work_days_file.read_text()
         assert "Transit to area" in work_days_content
         assert "CTD/Station Operations" in work_days_content
+        assert "Transit within area" in work_days_content
         assert "Transit from area" in work_days_content
         assert "TOTAL" in work_days_content
+
+        # Check specific numeric values match expected calculations
+        assert "& Transit to area &  & 52.2 \\\\" in work_days_content
+        assert "& CTD/Station Operations & 2.1 &  \\\\" in work_days_content
+        assert "& Transit within area &  & 6.0 \\\\" in work_days_content
+        assert "& Transit from area &  & 97.3 \\\\" in work_days_content
 
     def test_latex_generation_mixed_operations(self):
         """Test LaTeX generation with mixed operations (stations, moorings, transits)."""
@@ -90,6 +97,7 @@ class TestLatexGeneratorIntegration:
         # Check that mixed operations are represented
         assert "CTD/Station Operations" in work_days_content
         assert "Mooring Operations" in work_days_content
+        assert "ADCP Survey" in work_days_content
         assert "Transit within area" in work_days_content
 
     @pytest.mark.parametrize(

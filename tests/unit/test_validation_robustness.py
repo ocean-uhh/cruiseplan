@@ -23,7 +23,7 @@ departure_port: {name: P1, position: "0,0"}
 arrival_port: {name: P1, position: "0,0"}
 first_station: "S1"
 last_station: "S1"
-stations: [{name: S1, position: "0,0"}]
+stations: [{name: S1, operation_type: CTD, action: profile, position: "0,0"}]
 legs: []
     """
     )
@@ -50,7 +50,7 @@ departure_port: {name: P1, position: "0,0"}
 arrival_port: {name: P1, position: "0,0"}
 first_station: "S1"
 last_station: "S1"
-stations: [{name: S1, position: "0,0"}]
+stations: [{name: S1, operation_type: CTD, action: profile, position: "0,0"}]
 legs: []
     """
     )
@@ -83,15 +83,17 @@ last_station: "M1"
 
 stations:
   - name: S1
+    operation_type: CTD
+    action: profile
     # Legacy String format still works
     position: "50.0, -10.0"
 
-moorings:
   - name: M1
+    operation_type: mooring
+    action: recovery
     # NEW Explicit format
     latitude: 52.5
     longitude: -15.5
-    action: recovery
     duration: 60
 
 legs: []
@@ -100,8 +102,8 @@ legs: []
 
     cruise = Cruise(explicit_yaml)
 
-    # Check Mooring parsed correctly
-    m1 = cruise.mooring_registry["M1"]
+    # Check Mooring parsed correctly (now in station_registry)
+    m1 = cruise.station_registry["M1"]
     assert m1.position.latitude == 52.5
     assert m1.position.longitude == -15.5
 

@@ -2,7 +2,6 @@ from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Tuple, Union
 
 from cruiseplan.core.validation import (
-    MooringDefinition,
     StationDefinition,
     TransitDefinition,
 )
@@ -71,9 +70,7 @@ class PointOperation(BaseOperation):
         return 0.0
 
     @classmethod
-    def from_pydantic(
-        cls, obj: Union[StationDefinition, MooringDefinition]
-    ) -> "PointOperation":
+    def from_pydantic(cls, obj: StationDefinition) -> "PointOperation":
         """
         Factory to create a logical operation from a validated Pydantic model.
         Handles the internal 'position' normalization done by FlexibleLocationModel.
@@ -81,13 +78,16 @@ class PointOperation(BaseOperation):
         # 1. Extract Position (Guaranteed by validation.py to exist)
         pos = (obj.position.latitude, obj.position.longitude)
 
-        # 2. Extract specific fields based on type
-        op_type = "station"
-        action = None
-
-        if isinstance(obj, MooringDefinition):
-            op_type = "mooring"
-            action = obj.action.value  # Enum -> String
+        # 2. Map operation types to legacy internal types
+        op_type_mapping = {
+            "CTD": "station",
+            "water_sampling": "station", 
+            "calibration": "station",
+            "mooring": "mooring",
+        }
+        
+        internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
+        action = obj.action.value if obj.action else None
 
         return cls(
             name=obj.name,
@@ -95,7 +95,7 @@ class PointOperation(BaseOperation):
             depth=obj.depth if obj.depth else 0.0,
             duration=obj.duration if obj.duration else 0.0,
             comment=obj.comment,
-            op_type=op_type,
+            op_type=internal_op_type,
             action=action,
         )
 

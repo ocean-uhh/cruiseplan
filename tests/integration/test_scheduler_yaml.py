@@ -68,8 +68,12 @@ class TestSchedulerWithYAMLFixtures:
         config = loader.load()
 
         assert config.cruise_name == "Mixed_Operations_Test_2028"
-        assert len(config.stations) == 1
-        assert len(config.moorings) == 1
+        assert len(config.stations) == 2  # CTD station + mooring operation
+        
+        # Verify we have both operation types in stations
+        operation_types = [s.operation_type.value for s in config.stations]
+        assert "CTD" in operation_types
+        assert "mooring" in operation_types
 
         # Generate timeline
         timeline = generate_timeline(config)
