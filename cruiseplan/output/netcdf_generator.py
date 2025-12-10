@@ -382,8 +382,19 @@ class NetCDFGenerator:
                     actions.append("unknown")
                     operation_refs.append("")
 
-                # Add comment (placeholder - would need to lookup from config)
-                comments.append("")
+                # Add comment (lookup from config if available)
+                comment = ""
+                if activity in ["Station", "Mooring"]:
+                    station_name = event["label"]
+                    station = station_lookup.get(station_name)
+                    if station and hasattr(station, "comment"):
+                        comment = getattr(station, "comment", "")
+                elif activity == "Transit":
+                    transit_name = event["label"]
+                    transit = transit_lookup.get(transit_name)
+                    if transit and hasattr(transit, "comment"):
+                        comment = getattr(transit, "comment", "")
+                comments.append(comment if comment is not None else "")
 
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
