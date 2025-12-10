@@ -568,83 +568,89 @@ class NetCDFGenerator:
         if operation_type == "point":
             attrs["depth_datum"] = "Mean Sea Level"
 
-        # Create empty dataset with basic structure to satisfy tests
-        ds = xr.Dataset({}, attrs=attrs)
-
-        # Add minimum required dimensions and variables based on operation type
+        # Create empty dataset with proper data variables that xarray can handle
         if operation_type == "point":
             # Point operations need obs dimension and basic variables
-            ds = ds.assign_coords(obs=("obs", []))
-            ds = ds.assign(
-                {
+            ds = xr.Dataset(
+                data_vars={
                     "category": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype='<U1'),  # Empty string array
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype=np.float64),
                         {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
                     ),
                     "latitude": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype=np.float64),
                         {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
                     ),
                     "waterdepth": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype=np.float64),
                         {
                             "standard_name": "sea_floor_depth_below_sea_surface",
                             "units": "m",
                         },
                     ),
-                }
+                },
+                coords={
+                    "obs": ("obs", np.array([], dtype=np.int32))
+                },
+                attrs=attrs,
             )
         elif operation_type == "line":
             # Line operations need operations and endpoints dimensions
-            ds = ds.assign_coords(operations=("operations", []))
-            ds = ds.assign_coords(endpoints=("endpoints", ["start", "end"]))
-            ds = ds.assign(
-                {
+            ds = xr.Dataset(
+                data_vars={
                     "category": (
                         ("operations",),
-                        np.array([]),
+                        np.array([], dtype='<U1'),
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("operations", "endpoints"),
-                        np.array([]).reshape(0, 2),
+                        np.empty((0, 2), dtype=np.float64),
                         {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
                     ),
                     "latitude": (
                         ("operations", "endpoints"),
-                        np.array([]).reshape(0, 2),
+                        np.empty((0, 2), dtype=np.float64),
                         {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
                     ),
-                }
+                },
+                coords={
+                    "operations": ("operations", np.array([], dtype=np.int32)),
+                    "endpoints": ("endpoints", ["start", "end"]),
+                },
+                attrs=attrs,
             )
         else:  # area operations
-            ds = ds.assign_coords(obs=("obs", []))
-            ds = ds.assign(
-                {
+            ds = xr.Dataset(
+                data_vars={
                     "category": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype='<U1'),
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype=np.float64),
                         {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
                     ),
                     "latitude": (
                         ("obs",),
-                        np.array([]),
+                        np.array([], dtype=np.float64),
                         {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
                     ),
-                }
+                },
+                coords={
+                    "obs": ("obs", np.array([], dtype=np.int32))
+                },
+                attrs=attrs,
             )
 
         return ds
