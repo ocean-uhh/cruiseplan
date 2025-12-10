@@ -575,18 +575,26 @@ class NetCDFGenerator:
                 data_vars={
                     "category": (
                         ("obs",),
-                        np.array([], dtype='<U1'),  # Empty string array
+                        np.array([], dtype="<U1"),  # Empty string array
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("obs",),
                         np.array([], dtype=np.float64),
-                        {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "longitude",
+                            "units": "degrees_east",
+                        },
                     ),
                     "latitude": (
                         ("obs",),
                         np.array([], dtype=np.float64),
-                        {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "latitude",
+                            "units": "degrees_north",
+                        },
                     ),
                     "waterdepth": (
                         ("obs",),
@@ -597,9 +605,7 @@ class NetCDFGenerator:
                         },
                     ),
                 },
-                coords={
-                    "obs": ("obs", np.array([], dtype=np.int32))
-                },
+                coords={"obs": ("obs", np.array([], dtype=np.int32))},
                 attrs=attrs,
             )
         elif operation_type == "line":
@@ -608,18 +614,26 @@ class NetCDFGenerator:
                 data_vars={
                     "category": (
                         ("operations",),
-                        np.array([], dtype='<U1'),
+                        np.array([], dtype="<U1"),
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("operations", "endpoints"),
                         np.empty((0, 2), dtype=np.float64),
-                        {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "longitude",
+                            "units": "degrees_east",
+                        },
                     ),
                     "latitude": (
                         ("operations", "endpoints"),
                         np.empty((0, 2), dtype=np.float64),
-                        {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "latitude",
+                            "units": "degrees_north",
+                        },
                     ),
                 },
                 coords={
@@ -633,23 +647,29 @@ class NetCDFGenerator:
                 data_vars={
                     "category": (
                         ("obs",),
-                        np.array([], dtype='<U1'),
+                        np.array([], dtype="<U1"),
                         {"long_name": "activity category"},
                     ),
                     "longitude": (
                         ("obs",),
                         np.array([], dtype=np.float64),
-                        {"standard_name": "longitude", "long_name": "longitude", "units": "degrees_east"},
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "longitude",
+                            "units": "degrees_east",
+                        },
                     ),
                     "latitude": (
                         ("obs",),
                         np.array([], dtype=np.float64),
-                        {"standard_name": "latitude", "long_name": "latitude", "units": "degrees_north"},
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "latitude",
+                            "units": "degrees_north",
+                        },
                     ),
                 },
-                coords={
-                    "obs": ("obs", np.array([], dtype=np.int32))
-                },
+                coords={"obs": ("obs", np.array([], dtype=np.int32))},
                 attrs=attrs,
             )
 
