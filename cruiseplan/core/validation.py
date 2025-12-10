@@ -143,18 +143,18 @@ class StationDefinition(FlexibleLocationModel):
             OperationTypeEnum.MOORING: [ActionEnum.DEPLOYMENT, ActionEnum.RECOVERY],
             OperationTypeEnum.CALIBRATION: [ActionEnum.CALIBRATION],
         }
-        
+
         if self.operation_type in valid_combinations:
             if self.action not in valid_combinations[self.operation_type]:
-                valid_actions = ", ".join([a.value for a in valid_combinations[self.operation_type]])
+                valid_actions = ", ".join(
+                    [a.value for a in valid_combinations[self.operation_type]]
+                )
                 raise ValueError(
                     f"Operation type '{self.operation_type.value}' must use action: {valid_actions}. "
                     f"Got '{self.action.value}'"
                 )
-        
+
         return self
-
-
 
 
 class TransitDefinition(BaseModel):
@@ -182,26 +182,36 @@ class TransitDefinition(BaseModel):
     def validate_scientific_transit_fields(self):
         """If operation_type is provided, action must also be provided and vice versa."""
         if (self.operation_type is None) != (self.action is None):
-            raise ValueError("Both operation_type and action must be provided together for scientific transits")
-        
+            raise ValueError(
+                "Both operation_type and action must be provided together for scientific transits"
+            )
+
         # If this is a scientific transit, validate action matches operation_type
         if self.operation_type is not None and self.action is not None:
             valid_combinations = {
-                LineOperationTypeEnum.UNDERWAY: [ActionEnum.ADCP, ActionEnum.BATHYMETRY, ActionEnum.THERMOSALINOGRAPH],
-                LineOperationTypeEnum.TOWING: [ActionEnum.TOW_YO, ActionEnum.SEISMIC, ActionEnum.MICROSTRUCTURE],
+                LineOperationTypeEnum.UNDERWAY: [
+                    ActionEnum.ADCP,
+                    ActionEnum.BATHYMETRY,
+                    ActionEnum.THERMOSALINOGRAPH,
+                ],
+                LineOperationTypeEnum.TOWING: [
+                    ActionEnum.TOW_YO,
+                    ActionEnum.SEISMIC,
+                    ActionEnum.MICROSTRUCTURE,
+                ],
             }
-            
+
             if self.operation_type in valid_combinations:
                 if self.action not in valid_combinations[self.operation_type]:
-                    valid_actions = ", ".join([a.value for a in valid_combinations[self.operation_type]])
+                    valid_actions = ", ".join(
+                        [a.value for a in valid_combinations[self.operation_type]]
+                    )
                     raise ValueError(
                         f"Operation type '{self.operation_type.value}' must use action: {valid_actions}. "
                         f"Got '{self.action.value}'"
                     )
-        
+
         return self
-
-
 
 
 # --- Schedule Definitions ---
@@ -248,9 +258,7 @@ class ClusterDefinition(BaseModel):
     name: str
     strategy: StrategyEnum = StrategyEnum.SEQUENTIAL
     ordered: bool = True
-    sequence: Optional[
-        List[Union[str, StationDefinition, TransitDefinition]]
-    ] = None
+    sequence: Optional[List[Union[str, StationDefinition, TransitDefinition]]] = None
     stations: Optional[List[Union[str, StationDefinition]]] = []
     generate_transect: Optional[GenerateTransect] = None
     activities: Optional[List[dict]] = []

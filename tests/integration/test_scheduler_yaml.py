@@ -69,7 +69,7 @@ class TestSchedulerWithYAMLFixtures:
 
         assert config.cruise_name == "Mixed_Operations_Test_2028"
         assert len(config.stations) == 2  # CTD station + mooring operation
-        
+
         # Verify we have both operation types in stations
         operation_types = [s.operation_type.value for s in config.stations]
         assert "CTD" in operation_types

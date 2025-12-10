@@ -23,7 +23,7 @@ def is_scientific_transit(transit: ActivityRecord) -> bool:
     Scientific Transits: Have 'action' field (ADCP, bathymetry, etc.)
     Pure Navigation Transits: Lack the 'action' field.
     """
-    return transit.get('activity') == "Transit" and transit.get('action') is not None
+    return transit.get("activity") == "Transit" and transit.get("action") is not None
 
 
 class LaTeXGenerator:
@@ -104,13 +104,13 @@ class LaTeXGenerator:
                 # Scientific transits are line operations, show start and end positions.
                 # Assuming the ActivityRecord is populated with the start coordinates by the scheduler.
                 # If these fields are missing, it defaults to the end position for the start as a fallback.
-                start_lat = op.get('start_lat', op['lat'])
-                start_lon = op.get('start_lon', op['lon'])
+                start_lat = op.get("start_lat", op["lat"])
+                start_lon = op.get("start_lon", op["lon"])
 
                 start_pos_str = format_position_latex(start_lat, start_lon)
-                end_pos_str = format_position_latex(op['lat'], op['lon'])
+                end_pos_str = format_position_latex(op["lat"], op["lon"])
                 position_str = f"({start_pos_str}) to ({end_pos_str})"
-                depth_str = "N/A" # Surveys typically don't have a single station depth
+                depth_str = "N/A"  # Surveys typically don't have a single station depth
 
                 table_rows.append(
                     {
@@ -178,10 +178,11 @@ class LaTeXGenerator:
             # action can be None if the YAML schema is poorly formed, use a fallback
             action = a.get("action", "Uncategorized Scientific Transit")
             duration_h = a["duration_minutes"] / 60
-            scientific_op_durations_h[action] = scientific_op_durations_h.get(action, 0.0) + duration_h
+            scientific_op_durations_h[action] = (
+                scientific_op_durations_h.get(action, 0.0) + duration_h
+            )
 
         total_scientific_op_h = sum(scientific_op_durations_h.values())
-
 
         # 3. Duration Categorization - Pure Navigation Transits (counted as transit time)
         transit_to_area_h = 0.0
@@ -248,7 +249,9 @@ class LaTeXGenerator:
             display_name = ACTION_TO_DISPLAY_NAME.get(action, f"{action} Operations")
 
             # Count the number of segments for the notes field
-            num_activities = len([a for a in scientific_transits if a.get('action') == action])
+            num_activities = len(
+                [a for a in scientific_transits if a.get("action") == action]
+            )
 
             summary_rows.append(
                 {
@@ -258,7 +261,6 @@ class LaTeXGenerator:
                     "notes": f"{num_activities} segments",
                 }
             )
-
 
         # 5. Navigation Transit (Within Area)
         if transit_within_area_h > 0:
@@ -286,9 +288,11 @@ class LaTeXGenerator:
         total_operation_duration_h = (
             station_duration_h
             + mooring_duration_h
-            + total_scientific_op_h # Scientific transit duration is operation time
+            + total_scientific_op_h  # Scientific transit duration is operation time
         )
-        total_transit_h = total_navigation_transit_h # Only pure navigation transit duration
+        total_transit_h = (
+            total_navigation_transit_h  # Only pure navigation transit duration
+        )
         total_duration_h = total_operation_duration_h + total_transit_h
         total_days = total_duration_h / 24
 
@@ -356,4 +360,3 @@ def generate_latex_tables(
     files_created.append(work_days_file)
 
     return files_created
-

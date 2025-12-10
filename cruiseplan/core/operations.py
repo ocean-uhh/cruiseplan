@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, List, Optional, Tuple
 
 from cruiseplan.core.validation import (
     StationDefinition,
@@ -81,11 +81,11 @@ class PointOperation(BaseOperation):
         # 2. Map operation types to legacy internal types
         op_type_mapping = {
             "CTD": "station",
-            "water_sampling": "station", 
+            "water_sampling": "station",
             "calibration": "station",
             "mooring": "mooring",
         }
-        
+
         internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
         action = obj.action.value if obj.action else None
 

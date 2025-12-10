@@ -8,12 +8,10 @@ import logging
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
-from soupsieve import match
-
 from cruiseplan.calculators.distance import (
     haversine_distance,  # Returns km
     km_to_nm,
-    route_distance
+    route_distance,
 )
 from cruiseplan.calculators.duration import (
     DurationCalculator,  # Provides duration lookup
@@ -82,7 +80,9 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
         match = next((t for t in config.transits if t.name == name), None)
         if match and match.route:
             # For transits, use the last point in the route as the "position"
-            first_point = match.route[0]  # <-- Capture start point for scientific transits
+            first_point = match.route[
+                0
+            ]  # <-- Capture start point for scientific transits
             last_point = match.route[-1]
 
             # Calculate total route distance for proper transit duration
@@ -114,8 +114,12 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "manual_duration": transit_duration_min,
                 "route_distance_nm": route_distance_nm,  # Store for debugging
                 "operation_type": getattr(match, "operation_type", None),
-                "action": getattr(match, "action", None).value if getattr(match, "action", None) else None,
-        }
+                "action": (
+                    getattr(match, "action", None).value
+                    if getattr(match, "action", None)
+                    else None
+                ),
+            }
 
     return None
 
@@ -184,7 +188,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "action": None,
                     "start_lat": start_pos.latitude,
                     "start_lon": start_pos.longitude,
-            }
+                }
             )
         )
         current_time += timedelta(minutes=transit_time_min)
@@ -215,28 +219,29 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         transit_time_min, transit_dist_nm = _calculate_inter_operation_transit(
             last_position,
             GeoPoint(latitude=activity["lat"], longitude=activity["lon"]),
-            config.default_vessel_speed
+            config.default_vessel_speed,
         )
-          # Add inter-operation transit record if distance > threshold
+        # Add inter-operation transit record if distance > threshold
         if transit_dist_nm > 0.1:  # Only add if meaningful distance
-            timeline.append({
-                "activity": "Transit",
-                "label": f"Transit to {activity['name']}",
-                "operation_type": "Transit",
-                "action": None,  # Pure navigation
-                "lat": activity["lat"],
-                "lon": activity["lon"],
-                "depth": 0.0,
-                "start_time": current_time,
-                "end_time": current_time + timedelta(minutes=transit_time_min),
-                "duration_minutes": transit_time_min,
-                "transit_dist_nm": transit_dist_nm,
-                "vessel_speed_kt": config.default_vessel_speed,
-                "leg_name": "Inter-operation Transit",
-                "start_lat": last_position.latitude if last_position else None,
-                "start_lon": last_position.longitude if last_position else None,
-
-        })
+            timeline.append(
+                {
+                    "activity": "Transit",
+                    "label": f"Transit to {activity['name']}",
+                    "operation_type": "Transit",
+                    "action": None,  # Pure navigation
+                    "lat": activity["lat"],
+                    "lon": activity["lon"],
+                    "depth": 0.0,
+                    "start_time": current_time,
+                    "end_time": current_time + timedelta(minutes=transit_time_min),
+                    "duration_minutes": transit_time_min,
+                    "transit_dist_nm": transit_dist_nm,
+                    "vessel_speed_kt": config.default_vessel_speed,
+                    "leg_name": "Inter-operation Transit",
+                    "start_lat": last_position.latitude if last_position else None,
+                    "start_lon": last_position.longitude if last_position else None,
+                }
+            )
 
         # For transit operations, we need to handle route logic differently
         if activity["op_type"] == "transit":

@@ -52,7 +52,11 @@ class TestSchedulerDebug:
                         print(f"     {i+1}. {stn.name} - NO POSITION!")
 
             # Count mooring operations from stations list
-            mooring_operations = [s for s in (config.stations or []) if hasattr(s, 'operation_type') and s.operation_type.value == "mooring"]
+            mooring_operations = [
+                s
+                for s in (config.stations or [])
+                if hasattr(s, "operation_type") and s.operation_type.value == "mooring"
+            ]
             print(f"\n   Mooring operations: {len(mooring_operations)}")
             if mooring_operations:
                 for i, mooring in enumerate(mooring_operations):

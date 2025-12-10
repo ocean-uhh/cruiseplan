@@ -25,7 +25,9 @@ class TestLatexGeneratorIntegration:
         # Generate timeline
         timeline = generate_timeline(config)
         assert len(timeline) > 0, "Timeline should not be empty"
-        assert len(timeline) == 5, "Expected 4 activities for simple cruise (2 x CTD, 3 x Transit)"
+        assert (
+            len(timeline) == 5
+        ), "Expected 4 activities for simple cruise (2 x CTD, 3 x Transit)"
 
         # Generate LaTeX tables
         output_dir = Path("tests_output")
