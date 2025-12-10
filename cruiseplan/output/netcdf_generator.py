@@ -6,7 +6,7 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 """
 
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import List
 
@@ -268,8 +268,12 @@ class NetCDFGenerator:
         logger.info(f"Generating master schedule NetCDF: {output_path}")
 
         if not timeline:
-            # Create empty dataset
-            ds = xr.Dataset()
+            # Create empty dataset with proper structure for derive methods
+            ds = xr.Dataset(
+                {
+                    "category": (["obs"], [], {"long_name": "operation category"}),
+                }
+            )
         else:
             n_events = len(timeline)
 
@@ -277,6 +281,13 @@ class NetCDFGenerator:
             station_lookup = {
                 station.name: station for station in (config.stations or [])
             }
+
+            # Create a lookup for transit definitions with routes
+            transit_lookup = {}
+            if hasattr(config, "transits") and config.transits:
+                for transit in config.transits:
+                    if hasattr(transit, "route") and transit.route:
+                        transit_lookup[transit.name] = transit
 
             # Extract timeline data
             times = []
@@ -288,16 +299,26 @@ class NetCDFGenerator:
             types = []
             actions = []
             comments = []
-            operation_refs = []
             leg_names = []
             durations = []
             vessel_speeds = []
+            # Additional coordinates for line operations
+            start_lats = []
+            start_lons = []
+            end_lats = []
+            end_lons = []
 
             for event in timeline:
                 # Convert time to days since epoch for CF compliance
                 time_obj = event.get("time", datetime.now())
                 if isinstance(time_obj, str):
                     time_obj = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
+
+                # Handle timezone-aware datetime objects properly
+                if time_obj.tzinfo is not None:
+                    # Convert to UTC and then to naive datetime
+                    time_obj = time_obj.astimezone(timezone.utc).replace(tzinfo=None)
+
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
@@ -361,26 +382,18 @@ class NetCDFGenerator:
                         types.append(activity.lower())
                         actions.append(event.get("action", "unknown"))
 
-                    operation_refs.append(
-                        event["label"]
-                    )  # Reference to point operations file
                 elif activity == "Transit" and event.get("action"):
                     categories.append("line_operation")
                     types.append(event.get("operation_type", "underway"))
                     actions.append(event.get("action", "unknown"))
-                    operation_refs.append(
-                        event["label"]
-                    )  # Reference to line operations file
                 elif activity == "Transit":
                     categories.append("transit")
                     types.append("navigation")
                     actions.append("transit")
-                    operation_refs.append("")  # No operation file reference
                 else:
                     categories.append("other")
                     types.append("unknown")
                     actions.append("unknown")
-                    operation_refs.append("")
 
                 # Add comment (lookup from config if available)
                 comment = ""
@@ -396,6 +409,34 @@ class NetCDFGenerator:
                         comment = getattr(transit, "comment", "")
                 comments.append(comment if comment is not None else "")
 
+                # Extract start/end coordinates for line operations
+                if activity == "Transit" and event.get("action"):
+                    # This is a line operation - use provided start coordinates
+                    start_lats.append(event.get("start_lat", event["lat"]))
+                    start_lons.append(event.get("start_lon", event["lon"]))
+                    # For end coordinates, use route end point from transit definition if available
+                    transit_name = event["label"]
+                    transit_def = transit_lookup.get(transit_name)
+
+                    if (
+                        transit_def
+                        and hasattr(transit_def, "route")
+                        and len(transit_def.route) >= 2
+                    ):
+                        end_point = transit_def.route[-1]
+                        end_lats.append(end_point.latitude)
+                        end_lons.append(end_point.longitude)
+                    else:
+                        # Fallback: use event position as end point
+                        end_lats.append(event["lat"])
+                        end_lons.append(event["lon"])
+                else:
+                    # Not a line operation - fill with NaN
+                    start_lats.append(np.nan)
+                    start_lons.append(np.nan)
+                    end_lats.append(np.nan)
+                    end_lons.append(np.nan)
+
             # Convert to numpy arrays
             times = np.array(times, dtype=np.float64)
             lats = np.array(lats, dtype=np.float32)
@@ -405,6 +446,11 @@ class NetCDFGenerator:
             )  # New: waterdepth array
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
+            # Convert start/end coordinates to numpy arrays
+            start_lats = np.array(start_lats, dtype=np.float32)
+            start_lons = np.array(start_lons, dtype=np.float32)
+            end_lats = np.array(end_lats, dtype=np.float32)
+            end_lons = np.array(end_lons, dtype=np.float32)
 
             # Create xarray Dataset
             ds = xr.Dataset(
@@ -493,15 +539,6 @@ class NetCDFGenerator:
                             "coordinates": "time latitude longitude waterdepth",
                         },
                     ),
-                    "operation_file_ref": (
-                        ["obs"],
-                        operation_refs,
-                        {
-                            "long_name": "reference to operation in catalog files",
-                            "coordinates": "time latitude longitude waterdepth",
-                            "comment": "Links to point/line/area operation files by name",
-                        },
-                    ),
                     "leg_assignment": (
                         ["obs"],
                         leg_names,
@@ -526,6 +563,51 @@ class NetCDFGenerator:
                             "long_name": "vessel speed",
                             "units": "knots",
                             "coordinates": "time latitude longitude waterdepth",
+                        },
+                    ),
+                    # Start/end coordinates for line operations (NaN for other activities)
+                    "start_latitude": (
+                        ["obs"],
+                        start_lats,
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "line operation start latitude",
+                            "units": "degrees_north",
+                            "coordinates": "time latitude longitude",
+                            "_FillValue": np.nan,
+                        },
+                    ),
+                    "start_longitude": (
+                        ["obs"],
+                        start_lons,
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "line operation start longitude",
+                            "units": "degrees_east",
+                            "coordinates": "time latitude longitude",
+                            "_FillValue": np.nan,
+                        },
+                    ),
+                    "end_latitude": (
+                        ["obs"],
+                        end_lats,
+                        {
+                            "standard_name": "latitude",
+                            "long_name": "line operation end latitude",
+                            "units": "degrees_north",
+                            "coordinates": "time latitude longitude",
+                            "_FillValue": np.nan,
+                        },
+                    ),
+                    "end_longitude": (
+                        ["obs"],
+                        end_lons,
+                        {
+                            "standard_name": "longitude",
+                            "long_name": "line operation end longitude",
+                            "units": "degrees_east",
+                            "coordinates": "time latitude longitude",
+                            "_FillValue": np.nan,
                         },
                     ),
                 }
@@ -697,8 +779,12 @@ class NetCDFGenerator:
         ds_master = xr.open_dataset(schedule_file)
 
         # Filter to point operations only
-        point_mask = ds_master["category"] == "point_operation"
-        if not point_mask.any():
+        if "category" not in ds_master.data_vars:
+            point_mask = []
+        else:
+            point_mask = ds_master["category"] == "point_operation"
+
+        if not point_mask or not point_mask.any():
             logger.warning("No point operations found in master schedule")
             # Create empty dataset with proper attributes
             ds_points = self._create_empty_derived_dataset("point", config)
@@ -738,8 +824,12 @@ class NetCDFGenerator:
         ds_master = xr.open_dataset(schedule_file)
 
         # Filter to line operations only
-        line_mask = ds_master["category"] == "line_operation"
-        if not line_mask.any():
+        if "category" not in ds_master.data_vars:
+            line_mask = []
+        else:
+            line_mask = ds_master["category"] == "line_operation"
+
+        if not line_mask or not line_mask.any():
             logger.warning("No line operations found in master schedule")
             # Create empty dataset with proper attributes and dimensions for tests
             ds_lines = self._create_empty_derived_dataset("line", config)
@@ -748,10 +838,10 @@ class NetCDFGenerator:
             ds_lines = ds_master.sel(obs=line_mask)
 
             # Rename 'obs' dimension to 'operations' for backward compatibility
-            ds_lines = ds_lines.rename({"obs": "operations"})
+            if "obs" in ds_lines.dims:
+                ds_lines = ds_lines.rename({"obs": "operations"})
 
-            # For line operations, we need to create start/end coordinates
-            # This is a simplified approach - in reality would need proper trajectory handling
+            # For line operations, extract start/end coordinates from master schedule
             n_operations = ds_lines.dims["operations"]
 
             # Create endpoints dimension
@@ -759,24 +849,31 @@ class NetCDFGenerator:
 
             # Reshape coordinate variables for trajectory format
             if n_operations > 0:
-                # For now, create different start/end coordinates with small offset
-                lons = ds_lines["longitude"].values
-                lats = ds_lines["latitude"].values
+                # Use the actual start/end coordinates stored in master schedule
+                start_lats = ds_lines["start_latitude"].values
+                start_lons = ds_lines["start_longitude"].values
+                end_lats = ds_lines["end_latitude"].values
+                end_lons = ds_lines["end_longitude"].values
 
-                # Create 2D arrays: (operations, endpoints) with slight offset for end points
-                lon_start = lons
-                lon_end = lons + 0.001  # Small longitude offset for end points
-                lat_start = lats
-                lat_end = lats + 0.001  # Small latitude offset for end points
-
-                lon_2d = np.column_stack([lon_start, lon_end])
-                lat_2d = np.column_stack([lat_start, lat_end])
+                # Create 2D arrays: (operations, endpoints) using actual route coordinates
+                lat_2d = np.column_stack([start_lats, end_lats])
+                lon_2d = np.column_stack([start_lons, end_lons])
 
                 ds_lines = ds_lines.assign(
                     {
                         "longitude": (("operations", "endpoints"), lon_2d),
                         "latitude": (("operations", "endpoints"), lat_2d),
                     }
+                )
+
+                # Remove the intermediate start/end coordinate variables as they're now in the 2D format
+                ds_lines = ds_lines.drop_vars(
+                    [
+                        "start_latitude",
+                        "start_longitude",
+                        "end_latitude",
+                        "end_longitude",
+                    ]
                 )
 
             # Update metadata for line operations file
@@ -903,7 +1000,6 @@ class NetCDFGenerator:
             types = []
             actions = []
             comments = []
-            operation_refs = []
             leg_names = []
             durations = []
             vessel_speeds = []
@@ -913,6 +1009,12 @@ class NetCDFGenerator:
                 time_obj = event.get("time", datetime.now())
                 if isinstance(time_obj, str):
                     time_obj = datetime.fromisoformat(time_obj.replace("Z", "+00:00"))
+
+                # Handle timezone-aware datetime objects properly
+                if time_obj.tzinfo is not None:
+                    # Convert to UTC and then to naive datetime
+                    time_obj = time_obj.astimezone(timezone.utc).replace(tzinfo=None)
+
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
@@ -931,26 +1033,18 @@ class NetCDFGenerator:
                     categories.append("point_operation")
                     types.append(activity.lower())  # 'station' or 'mooring'
                     actions.append(event.get("action", "unknown"))
-                    operation_refs.append(
-                        event["label"]
-                    )  # Reference to point operations file
                 elif activity == "Transit" and event.get("action"):
                     categories.append("line_operation")
                     types.append(event.get("operation_type", "underway"))
                     actions.append(event.get("action", "unknown"))
-                    operation_refs.append(
-                        event["label"]
-                    )  # Reference to line operations file
                 elif activity == "Transit":
                     categories.append("transit")
                     types.append("navigation")
                     actions.append("transit")
-                    operation_refs.append("")  # No operation file reference
                 else:
                     categories.append("other")
                     types.append("unknown")
                     actions.append("unknown")
-                    operation_refs.append("")
 
                 # Add comment (placeholder - would need to lookup from config)
                 comments.append("")
@@ -1033,15 +1127,6 @@ class NetCDFGenerator:
                         {
                             "long_name": "activity comments",
                             "coordinates": "time latitude longitude",
-                        },
-                    ),
-                    "operation_file_ref": (
-                        ["obs"],
-                        operation_refs,
-                        {
-                            "long_name": "reference to operation in catalog files",
-                            "coordinates": "time latitude longitude",
-                            "comment": "Links to point/line/area operation files by name",
                         },
                     ),
                     "leg_assignment": (
@@ -1345,8 +1430,8 @@ def generate_netcdf_outputs(
     -------
         List of generated NetCDF file paths
     """
-    # Default output directory for tests
-    if str(output_dir).endswith("tmp") or "tmp" in str(output_dir):
+    # Default output directory for tests - only redirect if directory name is exactly "tmp"
+    if output_dir.name == "tmp":
         # This is likely a test temporary directory, redirect to tests_output
         output_dir = Path("tests_output/netcdf")
 

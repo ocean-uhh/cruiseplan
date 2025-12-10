@@ -122,6 +122,7 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "op_type": "transit",
                 "manual_duration": transit_duration_min,
                 "route_distance_nm": route_distance_nm,  # Store for debugging
+                "vessel_speed_kt": vessel_speed,  # Include transit-specific vessel speed
                 "operation_type": getattr(match, "operation_type", None),
                 "action": (
                     getattr(match, "action", None).value
@@ -129,6 +130,7 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                     and hasattr(getattr(match, "action", None), "value")
                     else getattr(match, "action", None)
                 ),
+                "leg_name": None,  # Will be set by calling code
             }
 
     return None
@@ -193,7 +195,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "transit_dist_nm": distance_nm,  # Inter-operation distance
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
-                    "leg_name": "Transit to working area",
+                    "leg_name": "Transit_to_working_area",
                     "operation_type": "Transit",
                     # Added for completeness, though unused for pure navigation
                     "action": None,
@@ -217,6 +219,8 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         for name in activity_names:
             details = _resolve_station_details(config, name)
             if details:
+                # Add leg name to activity details
+                details["leg_name"] = leg.name
                 all_activities.append(details)
 
     # Process sequential activities (no complex Composite parsing yet)
@@ -258,7 +262,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "transit_dist_nm": transit_dist_nm,  # Inter-operation distance
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
-                    "leg_name": "Inter-operation Transit",
+                    "leg_name": activity.get("leg_name", "Inter-operation Transit"),
                     "start_lat": last_position.latitude if last_position else None,
                     "start_lon": last_position.longitude if last_position else None,
                 }
@@ -351,7 +355,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "transit_dist_nm": transit_distance,  # Distance to reach this operation
                     "operation_dist_nm": operation_distance,  # Distance traveled during this operation
                     "vessel_speed_kt": config.default_vessel_speed,
-                    "leg_name": "Test_Operations",  # Needs proper leg name assignment
+                    "leg_name": activity.get("leg_name", "Unknown_Leg"),
                     "operation_type": activity["op_type"],
                     # Propagate scientific/start coordinates
                     "action": action,
@@ -390,7 +394,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "transit_dist_nm": distance_nm,  # Inter-operation distance
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
-                    "leg_name": "Transit from working area",
+                    "leg_name": "Transit_from_working_area",
                     "operation_type": "Transit",
                     # Added for completeness, though unused for pure navigation
                     "action": None,
