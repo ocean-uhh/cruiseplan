@@ -784,7 +784,7 @@ class NetCDFGenerator:
         else:
             point_mask = ds_master["category"] == "point_operation"
 
-        if not point_mask or not point_mask.any():
+        if len(point_mask) == 0 or not point_mask.any():
             logger.warning("No point operations found in master schedule")
             # Create empty dataset with proper attributes
             ds_points = self._create_empty_derived_dataset("point", config)
@@ -829,7 +829,7 @@ class NetCDFGenerator:
         else:
             line_mask = ds_master["category"] == "line_operation"
 
-        if not line_mask or not line_mask.any():
+        if len(line_mask) == 0 or not line_mask.any():
             logger.warning("No line operations found in master schedule")
             # Create empty dataset with proper attributes and dimensions for tests
             ds_lines = self._create_empty_derived_dataset("line", config)
