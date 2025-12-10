@@ -6,7 +6,6 @@ import yaml
 
 from cruiseplan.core.validation import (
     CruiseConfig,
-    MooringDefinition,
     StationDefinition,
     TransitDefinition,
 )
@@ -35,9 +34,6 @@ class Cruise:
         self.station_registry: Dict[str, StationDefinition] = {
             s.name: s for s in (self.config.stations or [])
         }
-        self.mooring_registry: Dict[str, MooringDefinition] = {
-            m.name: m for m in (self.config.moorings or [])
-        }
         self.transit_registry: Dict[str, TransitDefinition] = {
             t.name: t for t in (self.config.transits or [])
         }
@@ -55,27 +51,21 @@ class Cruise:
         Converts string references into full objects from the registry.
         """
         # Validate Global Anchors exist
-        if (
-            self.config.first_station not in self.station_registry
-            and self.config.first_station not in self.mooring_registry
-        ):
+        if self.config.first_station not in self.station_registry:
             raise ReferenceError(
                 f"Global anchor 'first_station': {self.config.first_station} not found in catalog."
             )
 
-        if (
-            self.config.last_station not in self.station_registry
-            and self.config.last_station not in self.mooring_registry
-        ):
+        if self.config.last_station not in self.station_registry:
             raise ReferenceError(
                 f"Global anchor 'last_station': {self.config.last_station} not found in catalog."
             )
 
         for leg in self.config.legs:
-            # Resolve Direct Leg Buckets
-            if leg.moorings:
-                leg.moorings = self._resolve_list(
-                    leg.moorings, self.mooring_registry, "Mooring"
+            # Resolve Direct Leg Stations
+            if leg.stations:
+                leg.stations = self._resolve_list(
+                    leg.stations, self.station_registry, "Station"
                 )
 
             # Resolve Clusters
@@ -87,10 +77,6 @@ class Cruise:
                         cluster.sequence = self._resolve_mixed_list(cluster.sequence)
 
                     # Resolve Buckets
-                    if cluster.moorings:
-                        cluster.moorings = self._resolve_list(
-                            cluster.moorings, self.mooring_registry, "Mooring"
-                        )
                     if cluster.stations:
                         cluster.stations = self._resolve_list(
                             cluster.stations, self.station_registry, "Station"
@@ -118,21 +104,19 @@ class Cruise:
 
     def _resolve_mixed_list(self, items: List[Union[str, Any]]) -> List[Any]:
         """
-        Resolves a 'sequence' list which can contain Stations, Moorings, or Transits.
+        Resolves a 'sequence' list which can contain Stations or Transits.
         """
         resolved_items = []
         for item in items:
             if isinstance(item, str):
                 # Try finding it in any registry
-                if item in self.mooring_registry:
-                    resolved_items.append(self.mooring_registry[item])
-                elif item in self.station_registry:
+                if item in self.station_registry:
                     resolved_items.append(self.station_registry[item])
                 elif item in self.transit_registry:
                     resolved_items.append(self.transit_registry[item])
                 else:
                     raise ReferenceError(
-                        f"Sequence ID '{item}' not found in any Catalog (Stations, Moorings, Transits)."
+                        f"Sequence ID '{item}' not found in any Catalog (Stations, Transits)."
                     )
             else:
                 resolved_items.append(item)

@@ -27,19 +27,23 @@ last_station: "M_End_01"
 # --- PART 1: THE CATALOG (Definitions) ---
 stations:
   - name: STN_Start_01
+    operation_type: CTD
+    action: profile
     position: "63.00, -20.00"
     depth: 500.0
     duration: 60.0
     comment: "The global start station"
 
   - name: STN_Ref_02
+    operation_type: CTD
+    action: profile
     position: "62.50, -20.00"
     depth: 1200.0
 
-moorings:
   - name: M_End_01
+    operation_type: mooring
+    action: recovery
     position: "62.00, -19.00"
-    action: "recovery"
     duration: 180.0
     depth: 1500.0
 
@@ -61,12 +65,12 @@ legs:
           - "STN_Start_01"                 # Reference
           - "STN_Ref_02"                   # Reference
           - name: "STN_Inline_OneOff"      # Inline
+            operation_type: CTD
+            action: profile
             position: "62.25, -19.50"
             depth: 1400.0
             duration: 45.0
-
-        moorings:
-          - "M_End_01"                     # Reference
+          - "M_End_01"                     # Reference (mooring in stations)
 
     # B. GENERATOR SECTION (Testing Auto-creation)
     sections:

@@ -27,9 +27,31 @@ class StrategyEnum(str, Enum):
     DAY_NIGHT_SPLIT = "day_night_split"
 
 
+class OperationTypeEnum(str, Enum):
+    CTD = "CTD"
+    WATER_SAMPLING = "water_sampling"
+    MOORING = "mooring"
+    CALIBRATION = "calibration"
+
+
 class ActionEnum(str, Enum):
+    PROFILE = "profile"
+    SAMPLING = "sampling"
     DEPLOYMENT = "deployment"
     RECOVERY = "recovery"
+    CALIBRATION = "calibration"
+    # Line operation actions
+    ADCP = "ADCP"
+    BATHYMETRY = "bathymetry"
+    THERMOSALINOGRAPH = "thermosalinograph"
+    TOW_YO = "tow_yo"
+    SEISMIC = "seismic"
+    MICROSTRUCTURE = "microstructure"
+
+
+class LineOperationTypeEnum(str, Enum):
+    UNDERWAY = "underway"
+    TOWING = "towing"
 
 
 # --- Shared Models ---
@@ -98,9 +120,12 @@ class PortDefinition(FlexibleLocationModel):
 
 class StationDefinition(FlexibleLocationModel):
     name: str
+    operation_type: OperationTypeEnum
+    action: ActionEnum
     depth: Optional[float] = None
     duration: Optional[float] = None
     comment: Optional[str] = None
+    equipment: Optional[str] = None
     position_string: Optional[str] = None
 
     @field_validator("duration")
@@ -109,21 +134,27 @@ class StationDefinition(FlexibleLocationModel):
             raise ValueError("Duration must be positive")
         return v
 
+    @model_validator(mode="after")
+    def validate_action_matches_operation(self):
+        """Ensure action is compatible with operation_type."""
+        valid_combinations = {
+            OperationTypeEnum.CTD: [ActionEnum.PROFILE],
+            OperationTypeEnum.WATER_SAMPLING: [ActionEnum.SAMPLING],
+            OperationTypeEnum.MOORING: [ActionEnum.DEPLOYMENT, ActionEnum.RECOVERY],
+            OperationTypeEnum.CALIBRATION: [ActionEnum.CALIBRATION],
+        }
 
-class MooringDefinition(FlexibleLocationModel):
-    name: str
-    action: ActionEnum
-    duration: float
-    depth: Optional[float] = None
-    comment: Optional[str] = None
-    equipment: Optional[str] = None
-    position_string: Optional[str] = None
+        if self.operation_type in valid_combinations:
+            if self.action not in valid_combinations[self.operation_type]:
+                valid_actions = ", ".join(
+                    [a.value for a in valid_combinations[self.operation_type]]
+                )
+                raise ValueError(
+                    f"Operation type '{self.operation_type.value}' must use action: {valid_actions}. "
+                    f"Got '{self.action.value}'"
+                )
 
-    @field_validator("duration")
-    def validate_duration_positive(cls, v):
-        if v <= 0:
-            raise ValueError("Mooring duration must be positive")
-        return v
+        return self
 
 
 class TransitDefinition(BaseModel):
@@ -131,6 +162,9 @@ class TransitDefinition(BaseModel):
     route: List[GeoPoint]
     comment: Optional[str] = None
     vessel_speed: Optional[float] = None
+    # Optional fields for scientific transits
+    operation_type: Optional[LineOperationTypeEnum] = None
+    action: Optional[ActionEnum] = None
 
     @field_validator("route", mode="before")
     def parse_route_strings(cls, v):
@@ -143,6 +177,41 @@ class TransitDefinition(BaseModel):
             else:
                 parsed.append(point)
         return parsed
+
+    @model_validator(mode="after")
+    def validate_scientific_transit_fields(self):
+        """If operation_type is provided, action must also be provided and vice versa."""
+        if (self.operation_type is None) != (self.action is None):
+            raise ValueError(
+                "Both operation_type and action must be provided together for scientific transits"
+            )
+
+        # If this is a scientific transit, validate action matches operation_type
+        if self.operation_type is not None and self.action is not None:
+            valid_combinations = {
+                LineOperationTypeEnum.UNDERWAY: [
+                    ActionEnum.ADCP,
+                    ActionEnum.BATHYMETRY,
+                    ActionEnum.THERMOSALINOGRAPH,
+                ],
+                LineOperationTypeEnum.TOWING: [
+                    ActionEnum.TOW_YO,
+                    ActionEnum.SEISMIC,
+                    ActionEnum.MICROSTRUCTURE,
+                ],
+            }
+
+            if self.operation_type in valid_combinations:
+                if self.action not in valid_combinations[self.operation_type]:
+                    valid_actions = ", ".join(
+                        [a.value for a in valid_combinations[self.operation_type]]
+                    )
+                    raise ValueError(
+                        f"Operation type '{self.operation_type.value}' must use action: {valid_actions}. "
+                        f"Got '{self.action.value}'"
+                    )
+
+        return self
 
 
 # --- Schedule Definitions ---
@@ -189,10 +258,7 @@ class ClusterDefinition(BaseModel):
     name: str
     strategy: StrategyEnum = StrategyEnum.SEQUENTIAL
     ordered: bool = True
-    sequence: Optional[
-        List[Union[str, MooringDefinition, StationDefinition, TransitDefinition]]
-    ] = None
-    moorings: Optional[List[Union[str, MooringDefinition]]] = []
+    sequence: Optional[List[Union[str, StationDefinition, TransitDefinition]]] = None
     stations: Optional[List[Union[str, StationDefinition]]] = []
     generate_transect: Optional[GenerateTransect] = None
     activities: Optional[List[dict]] = []
@@ -206,8 +272,7 @@ class LegDefinition(BaseModel):
     stations: Optional[List[Union[str, StationDefinition]]] = []
     clusters: Optional[List[ClusterDefinition]] = []
     sections: Optional[List[SectionDefinition]] = []
-    moorings: Optional[List[Union[str, MooringDefinition]]] = []
-    sequence: Optional[List[Union[str, MooringDefinition, StationDefinition]]] = []
+    sequence: Optional[List[Union[str, StationDefinition]]] = []
 
 
 # --- Root Config ---
@@ -241,7 +306,6 @@ class CruiseConfig(BaseModel):
     last_station: str
 
     stations: Optional[List[StationDefinition]] = []
-    moorings: Optional[List[MooringDefinition]] = []
     transits: Optional[List[TransitDefinition]] = []
     legs: List[LegDefinition]
 
@@ -320,8 +384,6 @@ class CruiseConfig(BaseModel):
         # 2. Collect from Catalog
         if self.stations:
             lons.extend([s.position.longitude for s in self.stations])
-        if self.moorings:
-            lons.extend([m.position.longitude for m in self.moorings])
         if self.transits:
             for t in self.transits:
                 lons.extend([p.longitude for p in t.route])
@@ -343,12 +405,11 @@ class CruiseConfig(BaseModel):
                         if hasattr(item, "end") and isinstance(item.end, GeoPoint):
                             lons.append(item.end.longitude)
 
-            extract_from_list(leg.moorings)
+            extract_from_list(leg.stations)
             extract_from_list(leg.sections)
 
             if leg.clusters:
                 for cluster in leg.clusters:
-                    extract_from_list(cluster.moorings)
                     extract_from_list(cluster.stations)
                     if cluster.generate_transect:
                         lons.append(cluster.generate_transect.start.longitude)

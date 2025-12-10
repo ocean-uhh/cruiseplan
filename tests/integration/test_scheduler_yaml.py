@@ -32,8 +32,8 @@ class TestSchedulerWithYAMLFixtures:
         # Basic validations
         assert len(timeline) > 0, "Timeline should not be empty"
         assert (
-            len(timeline) == 4
-        ), "Expected: transit to area + 2 stations + transit from area"
+            len(timeline) == 5
+        ), "Expected: transit to area + station + inter-operation transit + station + transit from area"
 
         # Check timeline structure
         activities = [activity["activity"] for activity in timeline]
@@ -41,10 +41,13 @@ class TestSchedulerWithYAMLFixtures:
             activities[0] == "Transit"
         ), "First activity should be transit to working area"
         assert activities[1] == "Station", "Second activity should be first station"
-        assert activities[2] == "Station", "Third activity should be second station"
         assert (
-            activities[3] == "Transit"
-        ), "Last activity should be transit from working area"
+            activities[2] == "Transit"
+        ), "Third activity should be inter-operation transit"
+        assert activities[3] == "Station", "Fourth activity should be second station"
+        assert (
+            activities[4] == "Transit"
+        ), "Fifth activity should be transit from working area"
 
         # Check timing is sequential
         for i in range(len(timeline) - 1):
@@ -68,8 +71,12 @@ class TestSchedulerWithYAMLFixtures:
         config = loader.load()
 
         assert config.cruise_name == "Mixed_Operations_Test_2028"
-        assert len(config.stations) == 1
-        assert len(config.moorings) == 1
+        assert len(config.stations) == 2  # CTD station + mooring operation
+
+        # Verify we have both operation types in stations
+        operation_types = [s.operation_type.value for s in config.stations]
+        assert "CTD" in operation_types
+        assert "mooring" in operation_types
 
         # Generate timeline
         timeline = generate_timeline(config)

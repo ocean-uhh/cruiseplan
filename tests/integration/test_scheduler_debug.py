@@ -51,14 +51,22 @@ class TestSchedulerDebug:
                     else:
                         print(f"     {i+1}. {stn.name} - NO POSITION!")
 
-            print(f"\n   Moorings: {len(config.moorings or [])}")
-            if config.moorings:
-                for i, mooring in enumerate(config.moorings):
+            # Count mooring operations from stations list
+            mooring_operations = [
+                s
+                for s in (config.stations or [])
+                if hasattr(s, "operation_type") and s.operation_type.value == "mooring"
+            ]
+            print(f"\n   Mooring operations: {len(mooring_operations)}")
+            if mooring_operations:
+                for i, mooring in enumerate(mooring_operations):
                     if hasattr(mooring, "position") and mooring.position:
                         duration = getattr(mooring, "duration", "not set")
                         print(
                             f"     {i+1}. {mooring.name} at {mooring.position.latitude}, {mooring.position.longitude} ({duration} min)"
                         )
+                    else:
+                        print(f"     {i+1}. {mooring.name} - NO POSITION!")
 
             print(f"\n   Transits: {len(config.transits or [])}")
             if config.transits:
@@ -176,31 +184,50 @@ class TestSchedulerDebug:
         # Verify specific distance calculations
         print("\n🔍 Verifying transit distance calculations:")
 
-        # Expected distances for mixed operations
-        expected_distances = {
+        # Expected inter-operation distances (transit_dist_nm) - only for transit records
+        expected_transit_distances = {
             1: (372.67, "Departure port to CTD_Station_A"),
-            2: (0.0, "CTD_Station_A (no transit)"),
             3: (21.55, "CTD_Station_A to Survey_Line_Alpha start"),
-            4: (30.23, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
-            5: (366.77, "Mooring_K7_Recovery to arrival port"),
+            5: (30.23, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
+            7: (366.77, "Mooring_K7_Recovery to arrival port"),
+        }
+
+        # Expected operation distances (operation_dist_nm) - only for scientific transits
+        expected_operation_distances = {
+            4: (27.94, "Survey_Line_Alpha route distance"),
         }
 
         for i, activity in enumerate(timeline, 1):
-            if i in expected_distances:
-                expected_dist, description = expected_distances[i]
+            # Check transit distances (inter-operation) for transit records
+            if i in expected_transit_distances:
+                expected_dist, description = expected_transit_distances[i]
                 actual_dist = activity.get("transit_dist_nm", 0)
                 print(f"   Activity {i}: {description}")
                 print(
-                    f"     Expected: {expected_dist:.2f} nm, Actual: {actual_dist:.2f} nm"
+                    f"     Expected transit_dist_nm: {expected_dist:.2f} nm, Actual: {actual_dist:.2f} nm"
                 )
 
-                # Allow small tolerance for floating point differences
                 assert (
                     abs(actual_dist - expected_dist) < 0.1
-                ), f"Distance mismatch for activity {i}: expected {expected_dist:.2f}, got {actual_dist:.2f}"
+                ), f"Transit distance mismatch for activity {i}: expected {expected_dist:.2f}, got {actual_dist:.2f}"
+
+            # Check operation distances (route lengths for scientific operations)
+            if i in expected_operation_distances:
+                expected_op_dist, description = expected_operation_distances[i]
+                actual_op_dist = activity.get("operation_dist_nm", 0)
+                print(f"   Activity {i}: {description}")
+                print(
+                    f"     Expected operation_dist_nm: {expected_op_dist:.2f} nm, Actual: {actual_op_dist:.2f} nm"
+                )
+
+                assert (
+                    abs(actual_op_dist - expected_op_dist) < 0.1
+                ), f"Operation distance mismatch for activity {i}: expected {expected_op_dist:.2f}, got {actual_op_dist:.2f}"
 
         # Verify custom vessel speed is applied
-        survey_activity = timeline[2]  # Survey_Line_Alpha
+        survey_activity = timeline[
+            3
+        ]  # Survey_Line_Alpha (now at index 3 due to inter-operation transit)
         assert survey_activity["label"] == "Survey_Line_Alpha"
 
         # At 5 knots, the internal route should take longer than at 12 knots

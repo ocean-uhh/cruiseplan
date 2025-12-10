@@ -20,27 +20,39 @@ arrival_port:
 # Station catalog (6 stations total)
 stations:
   - name: "LEG1_STN_01"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 48.5000
     longitude: -45.0000
     depth: 3200.0
   - name: "LEG1_STN_02"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 49.0000
     longitude: -44.5000
     depth: 3100.0
   - name: "LEG1_STN_03"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 49.5000
     longitude: -44.0000
     depth: 2900.0
 
   - name: "LEG2_STN_01"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 58.0000
     longitude: -35.0000
     depth: 2200.0
   - name: "LEG2_STN_02"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 58.5000
     longitude: -34.5000
     depth: 2000.0
   - name: "LEG2_STN_03"
+    operation_type: "CTD"
+    action: "profile"
     latitude: 59.0000
     longitude: -34.0000
     depth: 1800.0
