@@ -206,8 +206,7 @@ This allows the user to catalog their major assets while quickly adding "one-off
 cruise_name: Simple_Cruise_2028
 
 # Point Operations (featureType: point)
-stations: [...]        # CTD profiles, water sampling, calibrations
-moorings: [...]        # Deployments and recoveries at fixed points
+stations: [...]        # CTD profiles, water sampling, calibrations, mooring deployments and recoveries (as stations with operation_type: "mooring" and action: "deployment"/"recovery")
 
 # Line Operations (featureType: trajectory) 
 surveys: [...]         # Scientific operations along paths (ADCP, towing, bathymetry)
