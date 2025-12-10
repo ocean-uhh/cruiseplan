@@ -37,7 +37,8 @@ class ActivityRecord(Dict):
     start_time: datetime
     end_time: datetime
     duration_minutes: float
-    transit_dist_nm: float
+    transit_dist_nm: float  # Inter-operation distance (to reach this operation)
+    operation_dist_nm: float  # Distance traveled during this operation
     vessel_speed_kt: float
     leg_name: str
     operation_type: str
@@ -70,7 +71,11 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "op_type": op_type,
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes
-                "action": match.action.value if match.action else None,
+                "action": (
+                    match.action.value
+                    if match.action and hasattr(match.action, 'value')
+                    else match.action
+                ) if match.action else None,
             }
 
     # Note: moorings are now included in stations list with operation_type="mooring"
@@ -116,8 +121,8 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "operation_type": getattr(match, "operation_type", None),
                 "action": (
                     getattr(match, "action", None).value
-                    if getattr(match, "action", None)
-                    else None
+                    if getattr(match, "action", None) and hasattr(getattr(match, "action", None), 'value')
+                    else getattr(match, "action", None)
                 ),
             }
 
@@ -180,7 +185,8 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "start_time": current_time,
                     "end_time": current_time + timedelta(minutes=transit_time_min),
                     "duration_minutes": transit_time_min,
-                    "transit_dist_nm": distance_nm,
+                    "transit_dist_nm": distance_nm,  # Inter-operation distance
+                    "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Transit to working area",
                     "operation_type": "Transit",
@@ -216,9 +222,15 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         action = activity.get("action", None)
 
         # 3a. Calculate Transit time from last activity
+        # For transits, calculate distance to the START of the route, not the end
+        if activity["op_type"] == "transit" and "start_lat" in activity:
+            target_position = GeoPoint(latitude=activity["start_lat"], longitude=activity["start_lon"])
+        else:
+            target_position = GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
+        
         transit_time_min, transit_dist_nm = _calculate_inter_operation_transit(
             last_position,
-            GeoPoint(latitude=activity["lat"], longitude=activity["lon"]),
+            target_position,
             config.default_vessel_speed,
         )
         # Add inter-operation transit record if distance > threshold
@@ -229,19 +241,22 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "label": f"Transit to {activity['name']}",
                     "operation_type": "Transit",
                     "action": None,  # Pure navigation
-                    "lat": activity["lat"],
-                    "lon": activity["lon"],
+                    "lat": target_position.latitude,
+                    "lon": target_position.longitude,
                     "depth": 0.0,
                     "start_time": current_time,
                     "end_time": current_time + timedelta(minutes=transit_time_min),
                     "duration_minutes": transit_time_min,
-                    "transit_dist_nm": transit_dist_nm,
+                    "transit_dist_nm": transit_dist_nm,  # Inter-operation distance
+                    "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Inter-operation Transit",
                     "start_lat": last_position.latitude if last_position else None,
                     "start_lon": last_position.longitude if last_position else None,
                 }
             )
+            # Advance current_time after the inter-operation transit
+            current_time += timedelta(minutes=transit_time_min)
 
         # For transit operations, we need to handle route logic differently
         if activity["op_type"] == "transit":
@@ -285,14 +300,9 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         else:
             # Regular operations (stations, moorings)
             current_pos = GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
-
-            # Skip transit calculation for first activity (already handled in step 2)
-            if i > 0 and last_position:
-                distance_km = haversine_distance(last_position, current_pos)
-                transit_dist_nm = km_to_nm(distance_km)
-                transit_time_h = transit_dist_nm / config.default_vessel_speed
-                transit_time_min = hours_to_minutes(transit_time_h)
-                current_time += timedelta(minutes=transit_time_min)
+            
+            # Note: Inter-operation transit time is now handled by explicit transit records above
+            # so we don't add it to current_time here to avoid double-counting
 
         # 3b. Calculate Operation Duration
         if activity["manual_duration"] > 0:
@@ -302,6 +312,19 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         else:
             op_duration_min = 60.0  # Default fallback for non-CTD/Mooring ops
 
+        # Set operation distance: route distance for scientific transits, 0 for point operations
+        if activity["op_type"] == "transit" and "route_distance_nm" in activity:
+            operation_distance = activity["route_distance_nm"]
+        else:
+            operation_distance = 0.0  # No operation distance for point operations
+            
+        # For scientific transits, transit_dist_nm should be 0 since inter-operation transit is separate
+        # For point operations, transit_dist_nm should show the distance to reach this operation
+        if activity["op_type"] == "transit":
+            transit_distance = 0.0  # Scientific transits: inter-operation distance handled separately
+        else:
+            transit_distance = transit_dist_nm  # Point operations: show distance to reach here
+            
         timeline.append(
             ActivityRecord(
                 {
@@ -313,7 +336,8 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "start_time": current_time,
                     "end_time": current_time + timedelta(minutes=op_duration_min),
                     "duration_minutes": op_duration_min,
-                    "transit_dist_nm": transit_dist_nm,
+                    "transit_dist_nm": transit_distance,  # Distance to reach this operation
+                    "operation_dist_nm": operation_distance,  # Distance traveled during this operation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Test_Operations",  # Needs proper leg name assignment
                     "operation_type": activity["op_type"],
@@ -351,7 +375,8 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "start_time": demob_start_time,
                     "end_time": demob_end_time,
                     "duration_minutes": transit_time_min,
-                    "transit_dist_nm": distance_nm,
+                    "transit_dist_nm": distance_nm,  # Inter-operation distance
+                    "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Transit from working area",
                     "operation_type": "Transit",
