@@ -25,8 +25,8 @@ The revised YAML schema cleanly separates operation types:
 
 ```yaml
 # Point operations (featureType: point)
-stations: [...]        # CTD profiles, water sampling, calibrations
-moorings: [...]        # Deployments and recoveries at fixed points
+stations: [...]        # All fixed-location operations (CTD profiles, water sampling, calibrations, mooring deployments/recoveries)
+# Each station entry includes an `operation_type` field, e.g. "station" or "mooring"
 
 # Line operations (featureType: trajectory)
 surveys: [...]         # Scientific operations along paths (ADCP, towing, bathymetry)
