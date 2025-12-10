@@ -96,8 +96,8 @@ class TestNetCDFIntegration:
         assert len(netcdf_files) == 4, "Should create 4 NetCDF files"
 
         expected_files = [
-            f"{config.cruise_name.replace(' ', '_')}_points.nc",
             f"{config.cruise_name.replace(' ', '_')}_schedule.nc",
+            f"{config.cruise_name.replace(' ', '_')}_points.nc",
             f"{config.cruise_name.replace(' ', '_')}_lines.nc",
             f"{config.cruise_name.replace(' ', '_')}_areas.nc",
         ]
