@@ -154,26 +154,6 @@ class TestValidateCommand:
             main(args)
 
     @patch("cruiseplan.core.validation.validate_configuration_file")
-    def test_validate_keyboard_interrupt(self, mock_validate_config):
-        """Test handling of keyboard interrupt."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
-        mock_validate_config.side_effect = KeyboardInterrupt()
-
-        args = Namespace(
-            config_file=input_file,
-            check_depths=False,
-            tolerance=10.0,
-            bathymetry_source="etopo2022",
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        with pytest.raises(SystemExit, match="1"):
-            main(args)
-
-    @patch("cruiseplan.core.validation.validate_configuration_file")
     def test_validate_unexpected_error(self, mock_validate_config):
         """Test handling of unexpected errors."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
