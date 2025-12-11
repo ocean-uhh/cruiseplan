@@ -28,6 +28,8 @@ def test_format_station_standard():
         "longitude": -52.98765,  # Rounding check (5 decimals)
         "depth": 250.6,  # Depth rounding (1 decimal)
         "comment": "Interactive selection",
+        "operation_type": "CTD",
+        "action": "profile",
     }
 
     assert result == expected
@@ -56,15 +58,21 @@ def test_format_transect_standard():
 
     expected_structure = {
         "name": "Section_02",  # Padding check (02d)
-        "start": {"latitude": 10.12346, "longitude": 20.12346},  # Rounding check
-        "end": {"latitude": 30.98765, "longitude": 40.98765},
+        "comment": "Interactive transect",
+        "operation_type": "underway",
+        "action": "ADCP",
+        "vessel_speed": "10.0",
+        "route": [
+            {"latitude": 10.12346, "longitude": 20.12346},  # Rounding check (5 decimals)
+            {"latitude": 30.98765, "longitude": 40.98765},
+        ],
         "reversible": True,
     }
 
     assert result == expected_structure
     # Double check it matches the structure exactly
-    assert result["start"]["latitude"] == 10.12346
-    assert result["end"]["longitude"] == 40.98765
+    assert result["route"][0]["latitude"] == 10.12346
+    assert result["route"][1]["longitude"] == 40.98765
 
 
 # --- Mocking Dependencies ---
@@ -258,6 +266,6 @@ class TestConfigUtils:
         formatted = format_transect_for_yaml(transect_data, 5)
 
         assert formatted["name"] == "Section_05"
-        assert formatted["start"]["latitude"] == 50.12346
-        assert formatted["end"]["longitude"] == -11.44444
+        assert formatted["route"][0]["latitude"] == 50.12346
+        assert formatted["route"][1]["longitude"] == -11.44444
         assert formatted["reversible"] is True

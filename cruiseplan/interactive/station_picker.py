@@ -20,6 +20,7 @@ from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
 from cruiseplan.utils.config import (
     format_station_for_yaml,
     format_transect_for_yaml,
+    format_area_for_yaml,
     save_cruise_config,
 )
 
@@ -475,11 +476,13 @@ class StationPicker:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
+        depth = bathymetry.get_depth_at_point(lat, lon)
 
         # Draw a point marker
         (point_artist,) = self.ax_map.plot(
             lon, lat, "go", markersize=6, markeredgecolor="darkgreen", zorder=12
         )
+        data = {"lat": lat, "lon": lon, "depth": depth}
         self.area_point_artists.append(point_artist)
 
         # Update area polygon if we have 2+ points
@@ -746,16 +749,20 @@ class StationPicker:
             format_transect_for_yaml(tr, i) for i, tr in enumerate(self.transects, 1)
         ]
 
+        yaml_areas = [
+            format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)
+        ]
+
         # Format areas for YAML
-        yaml_areas = []
-        for i, area in enumerate(self.areas, 1):
-            area_dict = {
-                "id": f"AREA_{i:02d}",
-                "type": "survey_area",
-                "points": [{"lat": lat, "lon": lon} for lon, lat in area["points"]],
-                "center": {"lat": area["center"][1], "lon": area["center"][0]},
-            }
-            yaml_areas.append(area_dict)
+        #yaml_areas = []
+        #for i, area in enumerate(self.areas, 1):
+        #    area_dict = {
+        #        "id": f"AREA_{i:02d}",
+        #        "type": "survey_area",
+        #        "points": [{"lat": lat, "lon": lon} for lon, lat in area["points"]],
+        #        "center": {"lat": area["center"][1], "lon": area["center"][0]},
+        #    }
+        #    yaml_areas.append(area_dict)
 
         current_name = getattr(self, "cruise_name", "Interactive_Session")
 

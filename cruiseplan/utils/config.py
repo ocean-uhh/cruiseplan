@@ -52,6 +52,8 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
         "longitude": round(float(station_data["lon"]), 5),
         "depth": round(float(station_data.get("depth", -9999)), 1),
         "comment": "Interactive selection",
+        "operation_type": "CTD", # CTD | mooring | calibration
+        "action": "profile", # profile | deploy | recover
     }
 
 
@@ -62,19 +64,41 @@ def format_transect_for_yaml(transect_data, index):
     """
     return {
         "name": f"Section_{index:02d}",
-        "start": {
-            # FIX: Explicitly cast to float() here
-            "latitude": round(float(transect_data["start"]["lat"]), 5),
-            "longitude": round(float(transect_data["start"]["lon"]), 5),
-        },
-        "end": {
-            # FIX: Explicitly cast to float() here
-            "latitude": round(float(transect_data["end"]["lat"]), 5),
-            "longitude": round(float(transect_data["end"]["lon"]), 5),
-        },
+        "comment": "Interactive transect",
+        "operation_type": "underway",
+        "action": "ADCP",
+        "vessel_speed": "10.0",
+        "route": [
+            {
+                "latitude": round(float(transect_data["start"]["lat"]), 5),
+                "longitude": round(float(transect_data["start"]["lon"]), 5),
+            },
+            {
+                "latitude": round(float(transect_data["end"]["lat"]), 5),
+                "longitude": round(float(transect_data["end"]["lon"]), 5),
+            },
+        ],
         "reversible": True,
     }
 
+def format_area_for_yaml(area_data, index):
+    """
+    Formats internal area survey data into the standardized YAML schema.
+    Ensures coordinates are native Python floats.
+    """
+    return {
+        "name": f"Area_{index:02d}",
+        "corners": [
+            {
+                "latitude": round(float(lat), 5),
+                "longitude": round(float(lon), 5),
+            }
+            for lon, lat in area_data["points"]
+        ],
+        "comment": "Interactive area survey",
+        "operation_type": "survey",
+        "action": "bathymetry",
+    }
 
 # --- YAML LOADING CLASS (New Implementation) ---
 

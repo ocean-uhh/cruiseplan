@@ -157,6 +157,7 @@ class LaTeXGenerator:
         all_transits = [a for a in timeline if a["activity"] == "Transit"]
         station_activities = [a for a in timeline if a["activity"] == "Station"]
         mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
+        area_activities = [a for a in timeline if a["activity"] == "Area"]
 
         # Separate transits into scientific and navigation (Step 2)
         scientific_transits = [a for a in all_transits if is_scientific_transit(a)]
@@ -260,7 +261,18 @@ class LaTeXGenerator:
                 }
             )
 
-        # 5. Navigation Transit (Within Area)
+        # 5. Scientific survey (Area)
+        if area_activities:
+            summary_rows.append(
+                {
+                    "activity": "Area Survey Operations",
+                    "duration_h": f"{area_duration_h:.1f}",
+                    "transit_h": "",  # No transit time for this row
+                    "notes": f"{len(area_activities)} areas",
+                }
+            )
+
+        # 6. Navigation Transit (Within Area)
         if transit_within_area_h > 0:
             summary_rows.append(
                 {
