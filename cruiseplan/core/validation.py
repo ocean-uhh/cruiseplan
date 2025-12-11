@@ -492,18 +492,16 @@ def enrich_configuration(
 
         # Add depths if requested
         if add_depths and (not hasattr(station, "depth") or station.depth is None):
-            if add_depths:
-                depth = bathymetry.get_depth_at_point(
-                    station.position.latitude, station.position.longitude
+            depth = bathymetry.get_depth_at_point(
+                station.position.latitude, station.position.longitude
+            )
+            if depth is not None and depth != 0:
+                station.depth = abs(depth)
+                enrichment_summary["stations_with_depths_added"] += 1
+                station_modified = True
+                logger.debug(
+                    f"Added depth {station.depth:.0f}m to station {station_name}"
                 )
-                if depth is not None and depth != 0:
-                    station.depth = abs(depth)
-                    enrichment_summary["stations_with_depths_added"] += 1
-                    station_modified = True
-                    logger.debug(
-                        f"Added depth {station.depth:.0f}m to station {station_name}"
-                    )
-
         # Add coordinate fields if requested (handled later in YAML update section)
         if add_coords and coord_format == "dmm":
             # We can't add attributes to Pydantic models dynamically,
