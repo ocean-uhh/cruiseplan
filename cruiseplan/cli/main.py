@@ -167,7 +167,7 @@ For detailed help on a subcommand:
     enrich_parser.add_argument(
         "--add-coords",
         action="store_true",
-        help="Add formatted coordinate fields (DMM, DMS)",
+        help="Add formatted coordinate fields (DMM; DMS not yet implemented)",
     )
     enrich_parser.add_argument(
         "-o",
