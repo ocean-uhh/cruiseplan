@@ -74,7 +74,6 @@ def main(args: argparse.Namespace) -> None:
             config_path=config_file,
             output_dir=output_dir,
             formats=formats,
-            # validate_depths=args.validate_depths,
             selected_leg=getattr(args, "leg", None),
         )
 
@@ -105,7 +104,7 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except KeyboardInterrupt:
-        logger.info("\\n\\n⚠️ Operation cancelled by user.")
+        logger.info("\n\n⚠️ Operation cancelled by user.")
         sys.exit(1)
 
     except Exception as e:
@@ -132,11 +131,6 @@ if __name__ == "__main__":
         default="all",
         help="Output format (default: all)",
     )
-    # parser.add_argument(
-    #    "--validate-depths",
-    #    action="store_true",
-    #    help="Validate station depths during schedule generation"
-    # )
     parser.add_argument(
         "--leg", type=str, help="Generate schedule for specific leg only"
     )

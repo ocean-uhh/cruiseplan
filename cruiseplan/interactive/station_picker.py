@@ -751,17 +751,6 @@ class StationPicker:
 
         yaml_areas = [format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)]
 
-        # Format areas for YAML
-        # yaml_areas = []
-        # for i, area in enumerate(self.areas, 1):
-        #    area_dict = {
-        #        "id": f"AREA_{i:02d}",
-        #        "type": "survey_area",
-        #        "points": [{"lat": lat, "lon": lon} for lon, lat in area["points"]],
-        #        "center": {"lat": area["center"][1], "lon": area["center"][0]},
-        #    }
-        #    yaml_areas.append(area_dict)
-
         current_name = getattr(self, "cruise_name", "Interactive_Session")
 
         output_data = {

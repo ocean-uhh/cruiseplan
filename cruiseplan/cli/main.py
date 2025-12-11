@@ -101,11 +101,6 @@ For detailed help on a subcommand:
         default="all",
         help="Output formats (default: all)",
     )
-    # schedule_parser.add_argument(
-    #    "--validate-depths",
-    #    action="store_true",
-    #    help="Compare stated depths with bathymetry",
-    # )
     schedule_parser.add_argument("--leg", help="Process specific leg only")
 
     # --- 3. Stations Subcommand ---

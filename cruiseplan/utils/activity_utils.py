@@ -112,14 +112,14 @@ def format_operation_action(operation_type: str, action: str) -> str:
         return ""
 
     operation_type = str(operation_type).lower()
-    action_str = str(action).lower() if action else ""
+    action_str = str(action) if action else ""
 
     # Handle different operation types
-    if operation_type == "ctd" and action_str == "profile":
+    if operation_type == "ctd" and action_str.lower() == "profile":
         return "CTD profile"
-    elif operation_type == "mooring" and action_str == "deployment":
+    elif operation_type == "mooring" and action_str.lower() == "deployment":
         return "Mooring deployment"
-    elif operation_type == "mooring" and action_str == "recovery":
+    elif operation_type == "mooring" and action_str.lower() == "recovery":
         return "Mooring recovery"
     elif operation_type == "transit":
         if action_str:

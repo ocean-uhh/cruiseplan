@@ -83,7 +83,7 @@ class CSVGenerator:
                 duration_hours = round(activity["duration_minutes"] / 60.0, 1)
 
                 # Round transit distance to nearest 0.1 nm
-                transit_dist_nm = round(activity.get("transit_dist_nm", 0), 1)
+                transit_dist_nm = round(activity.get("transit_dist_nm", 0.0), 1)
 
                 # Vessel speed - 0 for station operations, actual speed for transits
                 if activity.get("activity", "").lower() == "transit":
@@ -105,8 +105,13 @@ class CSVGenerator:
                 lon_deg_float, lon_min = UnitConverter.decimal_degrees_to_dmm(
                     lon_decimal
                 )
-                lat_deg_rounded = int(lat_deg_float)
-                lon_deg_rounded = int(lon_deg_float)
+                # Preserve sign for rounded degrees
+                lat_deg_rounded = (
+                    int(lat_deg_float) if lat_decimal >= 0 else -int(lat_deg_float)
+                )
+                lon_deg_rounded = (
+                    int(lon_deg_float) if lon_decimal >= 0 else -int(lon_deg_float)
+                )
                 lat_min = round(lat_min, 2)
                 lon_min = round(lon_min, 2)
 

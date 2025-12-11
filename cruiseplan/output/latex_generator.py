@@ -284,7 +284,7 @@ class LaTeXGenerator:
                 }
             )
 
-        # 6. Navigation Transit (From Area)
+        # 7. Navigation Transit (From Area)
         if transit_from_area_h > 0:
             summary_rows.append(
                 {

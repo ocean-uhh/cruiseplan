@@ -103,6 +103,7 @@ def _calculate_summary_statistics(timeline):
             "count": len(scientific_transits),
             "avg_duration_h": avg_survey_duration_h,
             "avg_distance_nm": avg_survey_distance_nm,
+            "total_distance_nm": total_survey_distance_nm,
             "total_duration_h": total_survey_duration_h,
             "total_duration_days": total_survey_duration_h / 24,
         }
@@ -111,6 +112,7 @@ def _calculate_summary_statistics(timeline):
             "count": 0,
             "avg_duration_h": 0,
             "avg_distance_nm": 0,
+            "total_distance_nm": 0,
             "total_duration_h": 0,
             "total_duration_days": 0,
         }
@@ -348,7 +350,7 @@ class HTMLGenerator:
         html_content += f"""
         <tr style="font-weight: bold;">
             <td>Total Cruise</td>
-            <td>{stats["moorings"]["count"] + stats["stations"]["count"] + stats["surveys"]["count"]} operations</td>
+            <td>{stats["moorings"]["count"] + stats["stations"]["count"] + stats["surveys"]["count"] + stats["areas"]["count"]} operations</td>
             <td class="number">{total_duration_h:.1f}</td>
             <td class="number">{total_duration_days:.1f}</td>
         </tr>
