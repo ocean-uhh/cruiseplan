@@ -2,7 +2,7 @@ import logging
 import pickle
 import re
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Union, Callable
+from typing import Any, Callable, Dict, List, Optional, Union
 
 import pandas as pd
 
@@ -56,10 +56,13 @@ class PangaeaManager:
             logger.error(f"Search failed: {e}")
             return []
 
-    def fetch_datasets(self, doi_list: List[str], 
-                      rate_limit: Optional[float] = None,
-                      merge_campaigns: bool = False,
-                      progress_callback: Optional[Callable[[int, int, str], None]] = None) -> List[Dict[str, Any]]:
+    def fetch_datasets(
+        self,
+        doi_list: List[str],
+        rate_limit: Optional[float] = None,
+        merge_campaigns: bool = False,
+        progress_callback: Optional[Callable[[int, int, str], None]] = None,
+    ) -> List[Dict[str, Any]]:
         """
         Process a list of DOIs and return standardized metadata objects.
 
@@ -69,26 +72,31 @@ class PangaeaManager:
             merge_campaigns: Whether to merge campaigns with same name
             progress_callback: Optional function(current, total, message) for progress updates
 
-        Returns:
+        Returns
+        -------
             List of dicts: [{'label': '...', 'latitude': [...], 'longitude': [...], 'doi': '...'}, ...]
         """
         import time
-        
+
         results = []
-        
+
         if progress_callback:
-            progress_callback(0, len(doi_list), f"Starting fetch of {len(doi_list)} PANGAEA datasets")
+            progress_callback(
+                0, len(doi_list), f"Starting fetch of {len(doi_list)} PANGAEA datasets"
+            )
 
         for i, doi in enumerate(doi_list, 1):
             try:
                 if progress_callback:
                     progress_callback(i, len(doi_list), f"Fetching {doi}")
-                    
+
                 clean_doi = self._clean_doi(doi)
                 if not clean_doi:
                     logger.warning(f"Skipping invalid DOI: {doi}")
                     if progress_callback:
-                        progress_callback(i, len(doi_list), f"⚠ Skipping invalid DOI: {doi}")
+                        progress_callback(
+                            i, len(doi_list), f"⚠ Skipping invalid DOI: {doi}"
+                        )
                     continue
 
                 cache_key = f"pangaea_meta_{clean_doi.replace('/', '_')}"
@@ -103,21 +111,27 @@ class PangaeaManager:
                 if data is not None:
                     results.append(data)
                     if progress_callback:
-                        progress_callback(i, len(doi_list), f"✓ Retrieved dataset")
+                        progress_callback(i, len(doi_list), "✓ Retrieved dataset")
                 else:
                     if progress_callback:
-                        progress_callback(i, len(doi_list), f"⚠ No data found for {doi}")
+                        progress_callback(
+                            i, len(doi_list), f"⚠ No data found for {doi}"
+                        )
 
                 # Rate limiting between requests
                 if rate_limit and i < len(doi_list):  # Don't sleep after last request
                     sleep_time = 1.0 / rate_limit
                     time.sleep(sleep_time)
-                    
+
             except KeyboardInterrupt:
                 if progress_callback:
-                    progress_callback(i-1, len(doi_list), f"Processing interrupted at {i-1}/{len(doi_list)} DOIs")
+                    progress_callback(
+                        i - 1,
+                        len(doi_list),
+                        f"Processing interrupted at {i-1}/{len(doi_list)} DOIs",
+                    )
                 break
-                
+
             except Exception as e:
                 if progress_callback:
                     progress_callback(i, len(doi_list), f"✗ Error fetching {doi}: {e}")
@@ -129,17 +143,19 @@ class PangaeaManager:
             original_count = len(results)
             results = merge_campaign_tracks(results)
             merged_count = len(results)
-            
+
             if progress_callback and merged_count < original_count:
                 progress_callback(
-                    len(doi_list), len(doi_list), 
-                    f"Merged {original_count} datasets into {merged_count} campaigns"
+                    len(doi_list),
+                    len(doi_list),
+                    f"Merged {original_count} datasets into {merged_count} campaigns",
                 )
-        
+
         if progress_callback:
             progress_callback(
-                len(doi_list), len(doi_list), 
-                f"Completed: {len(results)} datasets from {len(doi_list)} DOIs"
+                len(doi_list),
+                len(doi_list),
+                f"Completed: {len(results)} datasets from {len(doi_list)} DOIs",
             )
 
         return results
@@ -386,55 +402,59 @@ def merge_campaign_tracks(datasets: List[Dict]) -> List[Dict]:
     return result
 
 
-
 def save_campaign_data(
-    datasets: List[Dict], 
+    datasets: List[Dict],
     file_path: Union[str, Path],
     progress_callback: Optional[Callable[[str], None]] = None,
-    original_dataset_count: Optional[int] = None
+    original_dataset_count: Optional[int] = None,
 ) -> None:
     """
     Save PANGAEA datasets to pickle file.
-    
+
     Args:
         datasets: List of dataset dictionaries
         file_path: Output file path
         progress_callback: Optional function(message) for progress updates
         original_dataset_count: Optional count of datasets before merging
-    
-    Raises:
+
+    Raises
+    ------
         ValueError: If there's an error saving the file
     """
     import pickle
-    
+
     file_path = Path(file_path)
-    
+
     try:
         # Create parent directories if needed
         file_path.parent.mkdir(parents=True, exist_ok=True)
-        
+
         # Save datasets to pickle
-        with open(file_path, 'wb') as f:
+        with open(file_path, "wb") as f:
             pickle.dump(datasets, f, protocol=pickle.HIGHEST_PROTOCOL)
-        
+
         if progress_callback:
             progress_callback(f"Saved {len(datasets)} datasets to: {file_path}")
-            
+
             # Provide summary statistics
             if datasets:
                 # Count stations from latitude arrays (primary) or events (fallback)
                 total_events = sum(
-                    len(ds.get('latitude', ds.get('events', []))) for ds in datasets
+                    len(ds.get("latitude", ds.get("events", []))) for ds in datasets
                 )
-                campaigns = set(ds.get('label', 'Unknown') for ds in datasets)
-                
-                progress_callback(f"Summary:")
+                campaigns = set(ds.get("label", "Unknown") for ds in datasets)
+
+                progress_callback("Summary:")
                 # Use original count if provided, otherwise current count
-                dataset_count = original_dataset_count if original_dataset_count is not None else len(datasets)
+                dataset_count = (
+                    original_dataset_count
+                    if original_dataset_count is not None
+                    else len(datasets)
+                )
                 progress_callback(f"  - {dataset_count} datasets")
                 progress_callback(f"  - {len(campaigns)} unique campaigns")
                 progress_callback(f"  - {total_events} total events/stations")
-        
+
     except Exception as e:
         raise ValueError(f"Error saving pickle file: {e}")
 

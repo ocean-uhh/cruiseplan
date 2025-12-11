@@ -7,17 +7,16 @@ station placement with PANGAEA background data and bathymetry visualization.
 
 import argparse
 import logging
-import pickle
 import sys
 from pathlib import Path
 
 from cruiseplan.cli.utils import (
     CLIError,
+    format_coordinate_bounds,
+    generate_output_filename,
     setup_logging,
     validate_input_file,
     validate_output_path,
-    format_coordinate_bounds,
-    generate_output_filename,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,98 +25,114 @@ logger = logging.getLogger(__name__)
 def load_pangaea_data(pangaea_file: Path) -> list:
     """
     Load PANGAEA campaign data from pickle file.
-    
+
     Args:
         pangaea_file: Path to PANGAEA pickle file
-        
-    Returns:
+
+    Returns
+    -------
         List of campaign datasets
-        
-    Raises:
+
+    Raises
+    ------
         CLIError: If file cannot be loaded
     """
     try:
         from cruiseplan.data.pangaea import load_campaign_data
-        
+
         campaign_data = load_campaign_data(pangaea_file)
-        
+
         if not campaign_data:
             raise CLIError(f"No campaign data found in {pangaea_file}")
-        
+
         # Summary statistics
-        total_points = sum(len(campaign.get('latitude', [])) for campaign in campaign_data)
-        campaigns = [campaign.get('label', 'Unknown') for campaign in campaign_data]
-        
-        logger.info(f"Loaded {len(campaign_data)} campaigns with {total_points} total stations:")
+        total_points = sum(
+            len(campaign.get("latitude", [])) for campaign in campaign_data
+        )
+        campaigns = [campaign.get("label", "Unknown") for campaign in campaign_data]
+
+        logger.info(
+            f"Loaded {len(campaign_data)} campaigns with {total_points} total stations:"
+        )
         for campaign in campaigns:
             logger.info(f"  - {campaign}")
-        
+
         return campaign_data
-        
+
     except ImportError as e:
         raise CLIError(f"PANGAEA functionality not available: {e}")
     except Exception as e:
         raise CLIError(f"Error loading PANGAEA data: {e}")
 
 
-def determine_coordinate_bounds(args: argparse.Namespace, campaign_data: list = None) -> tuple:
+def determine_coordinate_bounds(
+    args: argparse.Namespace, campaign_data: list = None
+) -> tuple:
     """
     Determine coordinate bounds from arguments or PANGAEA data.
-    
+
     Args:
         args: Command line arguments
         campaign_data: Loaded PANGAEA campaign data
-        
-    Returns:
+
+    Returns
+    -------
         Tuple of (lat_bounds, lon_bounds) as (min, max) tuples
     """
     # Use explicit bounds if provided
     if args.lat and args.lon:
         lat_bounds = tuple(args.lat)
         lon_bounds = tuple(args.lon)
-        logger.info(f"Using explicit bounds: {format_coordinate_bounds(lat_bounds, lon_bounds)}")
+        logger.info(
+            f"Using explicit bounds: {format_coordinate_bounds(lat_bounds, lon_bounds)}"
+        )
         return lat_bounds, lon_bounds
-    
+
     # Try to derive bounds from PANGAEA data
     if campaign_data:
         all_lats = []
         all_lons = []
-        
+
         for campaign in campaign_data:
-            all_lats.extend(campaign.get('latitude', []))
-            all_lons.extend(campaign.get('longitude', []))
-        
+            all_lats.extend(campaign.get("latitude", []))
+            all_lons.extend(campaign.get("longitude", []))
+
         if all_lats and all_lons:
             # Add some padding
             lat_padding = (max(all_lats) - min(all_lats)) * 0.1
             lon_padding = (max(all_lons) - min(all_lons)) * 0.1
-            
+
             lat_bounds = (min(all_lats) - lat_padding, max(all_lats) + lat_padding)
             lon_bounds = (min(all_lons) - lon_padding, max(all_lons) + lon_padding)
-            
-            logger.info(f"Using bounds from PANGAEA data: {format_coordinate_bounds(lat_bounds, lon_bounds)}")
+
+            logger.info(
+                f"Using bounds from PANGAEA data: {format_coordinate_bounds(lat_bounds, lon_bounds)}"
+            )
             return lat_bounds, lon_bounds
-    
+
     # Fall back to defaults
     lat_bounds = tuple(args.lat) if args.lat else (45.0, 70.0)
     lon_bounds = tuple(args.lon) if args.lon else (-65.0, -5.0)
-    
-    logger.info(f"Using default bounds: {format_coordinate_bounds(lat_bounds, lon_bounds)}")
+
+    logger.info(
+        f"Using default bounds: {format_coordinate_bounds(lat_bounds, lon_bounds)}"
+    )
     return lat_bounds, lon_bounds
 
 
 def main(args: argparse.Namespace) -> None:
     """
     Main entry point for interactive station placement.
-    
+
     Args:
         args: Parsed command line arguments
     """
     try:
         # Setup logging
-        setup_logging(verbose=getattr(args, 'verbose', False),
-                     quiet=getattr(args, 'quiet', False))
-        
+        setup_logging(
+            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
+        )
+
         # Check for optional dependencies
         try:
             import matplotlib.pyplot as plt
@@ -126,11 +141,11 @@ def main(args: argparse.Namespace) -> None:
                 "Interactive station picker requires matplotlib. "
                 "Install with: pip install matplotlib"
             )
-        
-        logger.info("="*50)
+
+        logger.info("=" * 50)
         logger.info("Interactive Station Picker")
-        logger.info("="*50)
-        
+        logger.info("=" * 50)
+
         # Load PANGAEA campaign data if provided
         campaign_data = None
         if args.pangaea_file:
@@ -139,16 +154,16 @@ def main(args: argparse.Namespace) -> None:
             campaign_data = load_pangaea_data(pangaea_file)
         else:
             logger.info("No PANGAEA data provided - using bathymetry only")
-        
+
         # Determine coordinate bounds
         lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
-        
+
         # Validate bounds
         if not (-90 <= lat_bounds[0] < lat_bounds[1] <= 90):
             raise CLIError(f"Invalid latitude bounds: {lat_bounds}")
         if not (-180 <= lon_bounds[0] < lon_bounds[1] <= 180):
             raise CLIError(f"Invalid longitude bounds: {lon_bounds}")
-        
+
         # Determine output file
         if args.output_file:
             output_path = validate_output_path(output_file=args.output_file)
@@ -161,11 +176,11 @@ def main(args: argparse.Namespace) -> None:
                     args.pangaea_file, "_stations", ".yaml"
                 )
             output_path = output_dir / output_filename
-        
+
         logger.info(f"Output file: {output_path}")
         logger.info(f"Bathymetry source: {args.bathymetry_source}")
         logger.info("")
-        
+
         # Display usage instructions
         logger.info("Interactive Controls:")
         logger.info("  'p' or 'w' - Place point stations (waypoints)")
@@ -178,36 +193,35 @@ def main(args: argparse.Namespace) -> None:
         logger.info("  'Escape'   - Exit without saving")
         logger.info("")
         logger.info("🎯 Launching interactive station picker...")
-        
+
         # Import and initialize the interactive picker
         try:
             from cruiseplan.interactive.station_picker import StationPicker
-            
+
             # Initialize the picker
             picker = StationPicker(
-                campaign_data=campaign_data,
-                output_file=str(output_path)
+                campaign_data=campaign_data, output_file=str(output_path)
             )
-            
+
             # Set coordinate bounds
             picker.ax_map.set_xlim(lon_bounds)
             picker.ax_map.set_ylim(lat_bounds)
             picker._update_aspect_ratio()
-            
+
             # Show the interactive interface (blocking call)
             picker.show()
-            
+
         except ImportError as e:
             raise CLIError(f"Station picker not available: {e}")
-        
+
     except CLIError as e:
         logger.error(f"❌ {e}")
         sys.exit(1)
-        
+
     except KeyboardInterrupt:
         logger.info("\n\n⚠️ Operation cancelled by user.")
         sys.exit(1)
-        
+
     except Exception as e:
         logger.error(f"❌ Unexpected error: {e}")
         sys.exit(1)
@@ -216,14 +230,24 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     # This allows the module to be run directly for testing
     import argparse
-    
+
     parser = argparse.ArgumentParser(description="Interactive station placement")
-    parser.add_argument("-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file")
-    parser.add_argument("--lat", nargs=2, type=float, metavar=("MIN", "MAX"), help="Latitude bounds")
-    parser.add_argument("--lon", nargs=2, type=float, metavar=("MIN", "MAX"), help="Longitude bounds") 
-    parser.add_argument("-o", "--output-dir", type=Path, default=Path("."), help="Output directory")
+    parser.add_argument(
+        "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
+    )
+    parser.add_argument(
+        "--lat", nargs=2, type=float, metavar=("MIN", "MAX"), help="Latitude bounds"
+    )
+    parser.add_argument(
+        "--lon", nargs=2, type=float, metavar=("MIN", "MAX"), help="Longitude bounds"
+    )
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=Path("."), help="Output directory"
+    )
     parser.add_argument("--output-file", type=Path, help="Specific output file path")
-    parser.add_argument("--bathymetry-source", choices=["etopo2022", "gebco2025"], default="etopo2022")
-    
+    parser.add_argument(
+        "--bathymetry-source", choices=["etopo2022", "gebco2025"], default="etopo2022"
+    )
+
     args = parser.parse_args()
     main(args)

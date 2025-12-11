@@ -53,7 +53,7 @@ class CampaignSelector:
 
         # Prepare names and initial states
         campaign_names = [
-            camp.get("name", f"Campaign {i}")
+            camp.get("label", f"Campaign {i}")
             for i, camp in enumerate(self.campaign_data)
         ]
 
