@@ -73,83 +73,196 @@ Phase 4 implements a comprehensive CLI interface with modern subcommand architec
 - Interactive testing with different geographic regions
 - Performance testing for large PANGAEA datasets
 
-## Phase 4b: Data Enhancement Commands (Weeks 14-15)
+## Phase 4b: Data Enhancement and Validation Commands (Weeks 14-15)
 
-### 4b.1: cruiseplan depths (cli/enhance.py)
+### 4b.1: cruiseplan enrich (cli/enrich.py)
 
-**Purpose**: Validate and add bathymetry depths to existing station configurations
+**Purpose**: Add missing data to existing station configurations
 
 **Implementation Steps**:
 
-1. **Create cli/enhance.py module**
+1. **Create cli/enrich.py module**
    - Import bathymetry functionality from cruiseplan.data.bathymetry
-   - Implement depth validation algorithms
-   - Add tolerance checking and warning systems
+   - Import coordinate utilities from cruiseplan.utils.coordinates
+   - Implement data addition functions with safe YAML handling
 
 2. **Command Interface**:
    ```bash
-   cruiseplan depths -c INPUT_CONFIG [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
-                     [--tolerance PERCENT] [--source DATASET]
+   cruiseplan enrich -c INPUT_CONFIG [--add-depths] [--add-coords] 
+                     [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
+                     [--bathymetry-source DATASET] [--coord-format FORMAT]
    ```
 
 3. **Key Features**:
-   - Batch depth lookup for all stations
-   - Tolerance checking against existing depths
+   - `--add-depths`: Add missing depth values to stations using bathymetry data
+   - `--add-coords`: Add formatted coordinate fields (DMM, DMS formats)
+   - Composable operations (can combine multiple enhancements in one command)
+   - Safe YAML modification with validation before writing
    - Multiple bathymetry dataset support (ETOPO, GEBCO)
-   - Warning system for significant depth differences
-   - Automated depth addition for stations without depth values
+   - Preserves existing data and structure
 
-### 4b.2: cruiseplan coords (cli/enhance.py)
+### 4b.2: cruiseplan validate (cli/validate.py)
 
-**Purpose**: Add navigational coordinate formatting to YAML configurations
-
-**Implementation Steps**:
-
-1. **Extend cli/enhance.py module**
-   - Implement coordinate format conversion functions
-   - Add multiple format support (DD, DM, DMS)
-   - Create field injection capabilities
-
-2. **Command Interface**:
-   ```bash
-   cruiseplan coords -c INPUT_CONFIG [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
-                     [--format FORMAT] [--field-name FIELD]
-   ```
-
-3. **Key Features**:
-   - Multiple coordinate format options
-   - Customizable output field names
-   - Preservation of existing coordinate data
-   - Validation of coordinate ranges and formats
-
-### 4b.3: cruiseplan validate (cli/enhance.py)
-
-**Purpose**: Comprehensive YAML configuration validation
+**Purpose**: Comprehensive YAML configuration validation (read-only)
 
 **Implementation Steps**:
 
-1. **Extend cli/enhance.py module**
+1. **Create cli/validate.py module**
    - Import validation functionality from cruiseplan.core.validation
-   - Add comprehensive error reporting
-   - Implement validation rule checking
+   - Import bathymetry functionality for depth checking
+   - Add comprehensive error reporting with line numbers
 
 2. **Command Interface**:
    ```bash
-   cruiseplan validate -c INPUT_CONFIG [--strict] [--warnings-only]
+   cruiseplan validate -c INPUT_CONFIG [--check-depths] [--strict] [--warnings-only]
+                       [--tolerance PERCENT] [--bathymetry-source DATASET]
    ```
 
 3. **Key Features**:
-   - Pydantic schema validation
+   - Pydantic schema validation (structure, types, required fields)
+   - `--check-depths`: Compare existing depths with bathymetry data
    - Cross-reference checking (station/transit references)
    - Geographic bounds validation
    - Timing and duration consistency checks
-   - Port accessibility validation
+   - Read-only operation (no file modification)
+   - Configurable tolerance levels for depth discrepancies
+
+### 4b.3: Design Philosophy
+
+**Separation of Concerns**:
+- `cruiseplan enrich`: Modifies configuration files by adding missing data
+- `cruiseplan validate`: Validates configuration files without modification
+
+**Typical Workflow**:
+```bash
+# Add missing data to configuration
+cruiseplan enrich -c cruise.yaml --add-depths --add-coords
+
+# Validate the enriched configuration
+cruiseplan validate -c cruise.yaml --check-depths
+
+# Generate schedule from validated configuration
+cruiseplan schedule -c cruise.yaml
+```
+
+**Future Extensibility**:
+- `enrich` can later add `--correct-depths` (auto-fix depth discrepancies)
+- `validate` can add more validation types (ports, weather patterns, etc.)
+
+### 4b.4: Architecture and Implementation Details
+
+**Core Logic Placement**:
+Following the principle that CLI modules should be lightweight wrappers, the actual validation and enrichment logic resides in `cruiseplan/core/validation.py`:
+
+**`cruiseplan/core/validation.py`** (extend existing file):
+```python
+def enrich_configuration(
+    config_path: Path, 
+    add_depths: bool = False, 
+    add_coords: bool = False,
+    bathymetry_source: str = "etopo2022",
+    coord_format: str = "dmm",
+    output_path: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Add missing data to cruise configuration.
+    Returns summary of changes made.
+    """
+
+def validate_configuration_file(
+    config_path: Path, 
+    check_depths: bool = False,
+    tolerance: float = 10.0,
+    bathymetry_source: str = "etopo2022",
+    strict: bool = False
+) -> Tuple[bool, List[str], List[str]]:
+    """
+    Comprehensive validation of YAML configuration file.
+    Returns (success, errors, warnings).
+    """
+
+def validate_depth_accuracy(
+    cruise: Cruise, 
+    bathymetry_manager: BathymetryManager, 
+    tolerance: float
+) -> Tuple[int, List[str]]:
+    """
+    Compare station depths with bathymetry data.
+    Returns (stations_checked, warning_messages).
+    """
+```
+
+**`cruiseplan/cli/enrich.py`** (lightweight wrapper):
+```python
+def main(args: argparse.Namespace) -> None:
+    """CLI wrapper that delegates to core validation functions."""
+    # Setup logging, validate inputs
+    from cruiseplan.core.validation import enrich_configuration
+    
+    result = enrich_configuration(
+        config_path=args.config_file,
+        add_depths=args.add_depths,
+        add_coords=args.add_coords,
+        bathymetry_source=args.bathymetry_source,
+        coord_format=args.coord_format,
+        output_path=determine_output_path(args)
+    )
+    
+    # Handle result reporting and exit codes
+```
+
+**`cruiseplan/cli/validate.py`** (lightweight wrapper):
+```python
+def main(args: argparse.Namespace) -> None:
+    """CLI wrapper that delegates to core validation functions."""
+    # Setup logging, validate inputs
+    from cruiseplan.core.validation import validate_configuration_file
+    
+    success, errors, warnings = validate_configuration_file(
+        config_path=args.config_file,
+        check_depths=args.check_depths,
+        tolerance=args.tolerance,
+        bathymetry_source=args.bathymetry_source,
+        strict=args.strict
+    )
+    
+    # Handle result reporting and exit codes
+```
+
+**Benefits of This Approach**:
+- CLI modules remain lightweight and focused on argument parsing
+- Core validation logic can be reused by other parts of the system
+- Testing is easier (test core functions independently of CLI)
+- Clear separation of concerns: CLI for interface, core for business logic
+- Follows existing patterns in the codebase
+
+**Implementation Steps**:
+
+1. **Extend `cruiseplan/core/validation.py`**:
+   - Add imports for bathymetry and coordinate utilities
+   - Implement the three core functions: `enrich_configuration()`, `validate_configuration_file()`, `validate_depth_accuracy()`
+   - Leverage existing Pydantic models and validation patterns
+   - Handle file I/O, error collection, and result formatting
+
+2. **Refactor CLI modules to be lightweight wrappers**:
+   - Update `cruiseplan/cli/enrich.py` to call core validation functions
+   - Update `cruiseplan/cli/validate.py` to call core validation functions  
+   - Keep CLI responsibilities: argument parsing, logging setup, result reporting, exit codes
+   - Remove business logic from CLI modules
+
+3. **Testing Strategy**:
+   - Unit tests for core functions in `tests/core/test_validation.py`
+   - CLI integration tests in `tests/cli/test_enrich.py` and `tests/cli/test_validate.py`
+   - Separate test data and mock strategies for core vs CLI testing
 
 **Testing Requirements for Phase 4b**:
+- Core function unit tests with various YAML configurations
 - Validation tests with malformed YAML files
-- Accuracy testing for depth lookups
+- Accuracy testing for depth lookups against bathymetry data
 - Coordinate conversion accuracy testing
 - Performance testing with large station catalogs
+- CLI integration tests verifying argument parsing and output formatting
+- Error handling tests for file I/O operations
 
 ## Phase 4c: Schedule Generation Command (Week 15-16)
 

@@ -28,9 +28,14 @@ def stations_main(args: argparse.Namespace):
     print(f"Stations logic will process bounds: {args.lat}, {args.lon}")
 
 
-def depths_main(args: argparse.Namespace):
-    """Placeholder for depth validation logic."""
-    print(f"Depth validation logic for config: {args.config_file}")
+def enrich_main(args: argparse.Namespace):
+    """Placeholder for enrich logic."""
+    print(f"Enrich logic for config: {args.config_file}")
+
+
+def validate_main(args: argparse.Namespace):
+    """Placeholder for validate logic."""
+    print(f"Validate logic for config: {args.config_file}")
 
 
 def pangaea_main(args: argparse.Namespace):
@@ -48,7 +53,8 @@ def main():
 Examples:
   cruiseplan schedule -c cruise.yaml -o results/
   cruiseplan stations --lat 50 65 --lon -60 -30
-  cruiseplan depths cruise.yaml --tolerance 15
+  cruiseplan enrich -c cruise.yaml --add-depths --add-coords
+  cruiseplan validate -c cruise.yaml --check-depths
   cruiseplan pangaea doi_list.txt -o pangaea_data/
 
 For detailed help on a subcommand:
@@ -142,51 +148,92 @@ For detailed help on a subcommand:
         help="Bathymetry dataset (default: etopo2022)",
     )
 
-    # --- 4. Depths Subcommand (NEW) ---
-    depths_parser = subparsers.add_parser(
-        "depths", help="Validate and add bathymetry depths to configuration"
+    # --- 4. Enrich Subcommand ---
+    enrich_parser = subparsers.add_parser(
+        "enrich", help="Add missing data to configuration files"
     )
-    depths_parser.add_argument(
-        "config_file",
+    enrich_parser.add_argument(
+        "-c",
+        "--config-file",
+        required=True,
         type=Path,
-        help="Input YAML file with station positions",
+        help="Input YAML configuration file",
     )
-    depths_parser.add_argument(
+    enrich_parser.add_argument(
+        "--add-depths",
+        action="store_true",
+        help="Add missing depth values to stations using bathymetry data",
+    )
+    enrich_parser.add_argument(
+        "--add-coords",
+        action="store_true",
+        help="Add formatted coordinate fields (DMM, DMS)",
+    )
+    enrich_parser.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("."),
         help="Output directory (default: current)",
     )
-    depths_parser.add_argument(
-        "--tolerance",
-        type=float,
-        default=10.0,
-        help="Depth difference warning threshold in percent (default: 10.0)",
-    )
-    depths_parser.add_argument(
-        "--source",
-        choices=["etopo2022", "gebco2025"],
-        default="etopo2022",
-        help="Bathymetry dataset (default: etopo2022)",
-    )
-    depths_parser.add_argument(
-        "--add-missing",
-        action="store_true",
-        help="Add depth for stations without depth values in the YAML",
-    )
-    depths_parser.add_argument(
-        "--warnings-only",
-        action="store_true",
-        help="Only show warnings, don't modify the output file",
-    )
-    depths_parser.add_argument(
+    enrich_parser.add_argument(
         "--output-file",
         type=Path,
         help="Specific output file path",
     )
+    enrich_parser.add_argument(
+        "--bathymetry-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset (default: etopo2022)",
+    )
+    enrich_parser.add_argument(
+        "--coord-format",
+        choices=["dmm", "dms"],
+        default="dmm",
+        help="Coordinate format (default: dmm)",
+    )
 
-    # --- 5. Pangaea Subcommand (NEW) ---
+    # --- 5. Validate Subcommand ---
+    validate_parser = subparsers.add_parser(
+        "validate", help="Validate configuration files (read-only)"
+    )
+    validate_parser.add_argument(
+        "-c",
+        "--config-file",
+        required=True,
+        type=Path,
+        help="Input YAML configuration file",
+    )
+    validate_parser.add_argument(
+        "--check-depths",
+        action="store_true",
+        help="Compare existing depths with bathymetry data",
+    )
+    validate_parser.add_argument(
+        "--strict",
+        action="store_true",
+        help="Enable strict validation mode",
+    )
+    validate_parser.add_argument(
+        "--warnings-only",
+        action="store_true",
+        help="Show warnings without failing",
+    )
+    validate_parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth difference tolerance in percent (default: 10.0)",
+    )
+    validate_parser.add_argument(
+        "--bathymetry-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset (default: etopo2022)",
+    )
+
+    # --- 6. Pangaea Subcommand ---
     pangaea_parser = subparsers.add_parser(
         "pangaea", help="Process PANGAEA DOI lists into campaign datasets"
     )
@@ -243,10 +290,14 @@ For detailed help on a subcommand:
             from cruiseplan.cli.stations import main as stations_main
 
             stations_main(args)
-        elif args.subcommand == "depths":
-            from cruiseplan.cli.depths import main as depths_main
+        elif args.subcommand == "enrich":
+            from cruiseplan.cli.enrich import main as enrich_main
 
-            depths_main(args)
+            enrich_main(args)
+        elif args.subcommand == "validate":
+            from cruiseplan.cli.validate import main as validate_main
+
+            validate_main(args)
         elif args.subcommand == "pangaea":
             from cruiseplan.cli.pangaea import main as pangaea_main
 

@@ -1,14 +1,7 @@
 setup.sh
 */_version.py
 data/temp.nc
-tests_output/*html
-tests_output/netcdf/*
-tests_output/latex_reports/*
-tests_output/test_empty/*
-tests_output/test_latex/*
-tests_output/test_no_doubles/*
-tests_output/*tex
-tests_output/pangaea/*
+tests_output/*
 data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 
 logs/*log

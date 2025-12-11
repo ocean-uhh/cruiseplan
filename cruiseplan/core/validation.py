@@ -434,3 +434,235 @@ class CruiseConfig(BaseModel):
             )
 
         return self
+
+
+# ===== Configuration Enrichment and Validation Functions =====
+
+import logging
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+logger = logging.getLogger(__name__)
+
+
+def enrich_configuration(
+    config_path: Path,
+    add_depths: bool = False,
+    add_coords: bool = False,
+    bathymetry_source: str = "etopo2022",
+    coord_format: str = "dmm",
+    output_path: Optional[Path] = None,
+) -> Dict[str, Any]:
+    """
+    Add missing data to cruise configuration.
+
+    Args:
+        config_path: Path to input YAML configuration
+        add_depths: Whether to add missing depth values
+        add_coords: Whether to add formatted coordinate fields
+        bathymetry_source: Bathymetry dataset to use
+        coord_format: Coordinate format ("dmm" or "dms")
+        output_path: Path for output file (if None, modifies in place)
+
+    Returns
+    -------
+        Dictionary with enrichment summary
+    """
+    from cruiseplan.cli.utils import save_yaml_config
+    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.data.bathymetry import BathymetryManager
+    from cruiseplan.utils.coordinates import format_dmm_comment
+
+    # Load cruise configuration
+    cruise = Cruise(config_path)
+
+    enrichment_summary = {
+        "stations_with_depths_added": 0,
+        "stations_with_coords_added": 0,
+        "total_stations_processed": len(cruise.station_registry),
+    }
+
+    # Initialize managers if needed
+    if add_depths:
+        bathymetry = BathymetryManager(source=bathymetry_source, data_dir="data")
+
+    # Process each station
+    for station_name, station in cruise.station_registry.items():
+        station_modified = False
+
+        # Add depths if requested
+        if add_depths and (not hasattr(station, "depth") or station.depth is None):
+            if add_depths:
+                depth = bathymetry.get_depth_at_point(
+                    station.position.latitude, station.position.longitude
+                )
+                if depth is not None and depth != 0:
+                    station.depth = abs(depth)
+                    enrichment_summary["stations_with_depths_added"] += 1
+                    station_modified = True
+                    logger.debug(
+                        f"Added depth {station.depth:.0f}m to station {station_name}"
+                    )
+
+        # Add coordinate fields if requested (handled later in YAML update section)
+        if add_coords and coord_format == "dmm":
+            # We can't add attributes to Pydantic models dynamically,
+            # so we'll handle this in the YAML update section below
+            pass
+
+    # Update YAML configuration with any changes
+    config_dict = cruise.raw_data.copy()
+    coord_changes_made = 0
+
+    # Process coordinate additions and other changes
+    if "stations" in config_dict:
+        for station_data in config_dict["stations"]:
+            station_name = station_data["name"]
+            if station_name in cruise.station_registry:
+                station_obj = cruise.station_registry[station_name]
+
+                # Update depth if it was added
+                if hasattr(station_obj, "depth") and station_obj.depth is not None:
+                    station_data["depth"] = float(station_obj.depth)
+
+                # Add coordinate fields if requested
+                if add_coords and coord_format == "dmm":
+                    if "coordinates_dmm" not in station_data or not station_data.get(
+                        "coordinates_dmm"
+                    ):
+                        dmm_comment = format_dmm_comment(
+                            station_obj.position.latitude,
+                            station_obj.position.longitude,
+                        )
+                        station_data["coordinates_dmm"] = dmm_comment
+                        coord_changes_made += 1
+                        logger.debug(
+                            f"Added DMM coordinates to station {station_name}: {dmm_comment}"
+                        )
+
+    # Update the enrichment summary
+    enrichment_summary["stations_with_coords_added"] = coord_changes_made
+    total_enriched = (
+        enrichment_summary["stations_with_depths_added"]
+        + enrichment_summary["stations_with_coords_added"]
+    )
+
+    # Save enriched configuration if any changes were made
+    if total_enriched > 0 and output_path:
+        save_yaml_config(config_dict, output_path, backup=True)
+
+    return enrichment_summary
+
+
+def validate_configuration_file(
+    config_path: Path,
+    check_depths: bool = False,
+    tolerance: float = 10.0,
+    bathymetry_source: str = "etopo2022",
+    strict: bool = False,
+) -> Tuple[bool, List[str], List[str]]:
+    """
+    Comprehensive validation of YAML configuration file.
+
+    Args:
+        config_path: Path to input YAML configuration
+        check_depths: Whether to validate depths against bathymetry
+        tolerance: Depth difference tolerance percentage
+        bathymetry_source: Bathymetry dataset to use
+        strict: Whether to use strict validation mode
+
+    Returns
+    -------
+        Tuple of (success, errors, warnings)
+    """
+    from pydantic import ValidationError
+
+    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.data.bathymetry import BathymetryManager
+
+    errors = []
+    warnings = []
+
+    try:
+        # Load and validate configuration
+        cruise = Cruise(config_path)
+
+        # Basic validation passed if we get here
+        logger.debug("✓ YAML structure and schema validation passed")
+
+        # Depth validation if requested
+        if check_depths:
+            bathymetry = BathymetryManager(source=bathymetry_source, data_dir="data")
+            stations_checked, depth_warnings = validate_depth_accuracy(
+                cruise, bathymetry, tolerance
+            )
+            warnings.extend(depth_warnings)
+            logger.debug(f"Checked {stations_checked} stations for depth accuracy")
+
+        # Additional validations can be added here
+
+        success = len(errors) == 0
+        return success, errors, warnings
+
+    except ValidationError as e:
+        for error in e.errors():
+            location = " -> ".join(str(loc) for loc in error["loc"])
+            message = error["msg"]
+            errors.append(f"Schema error at {location}: {message}")
+        return False, errors, warnings
+
+    except Exception as e:
+        errors.append(f"Configuration loading error: {e}")
+        return False, errors, warnings
+
+
+def validate_depth_accuracy(
+    cruise, bathymetry_manager, tolerance: float
+) -> Tuple[int, List[str]]:
+    """
+    Compare station depths with bathymetry data.
+
+    Args:
+        cruise: Loaded cruise configuration
+        bathymetry_manager: Bathymetry data manager
+        tolerance: Tolerance percentage for depth differences
+
+    Returns
+    -------
+        Tuple of (stations_checked, warning_messages)
+    """
+    stations_checked = 0
+    warning_messages = []
+
+    for station_name, station in cruise.station_registry.items():
+        if hasattr(station, "depth") and station.depth is not None:
+            stations_checked += 1
+
+            # Get depth from bathymetry
+            bathymetry_depth = bathymetry_manager.get_depth_at_point(
+                station.position.latitude, station.position.longitude
+            )
+
+            if bathymetry_depth is not None and bathymetry_depth != 0:
+                # Convert to positive depth value
+                expected_depth = abs(bathymetry_depth)
+                stated_depth = station.depth
+
+                # Calculate percentage difference
+                if expected_depth > 0:
+                    diff_percent = (
+                        abs(stated_depth - expected_depth) / expected_depth * 100
+                    )
+
+                    if diff_percent > tolerance:
+                        warning_msg = (
+                            f"Station {station_name}: depth discrepancy of "
+                            f"{diff_percent:.1f}% (stated: {stated_depth:.0f}m, "
+                            f"bathymetry: {expected_depth:.0f}m)"
+                        )
+                        warning_messages.append(warning_msg)
+            else:
+                warning_msg = f"Station {station_name}: could not verify depth (no bathymetry data)"
+                warning_messages.append(warning_msg)
+
+    return stations_checked, warning_messages
