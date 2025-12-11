@@ -65,7 +65,7 @@ class TestDoiValidation:
 class TestPangaeaDataFetching:
     """Test PANGAEA data fetching with mocks."""
 
-    @patch("cruiseplan.data.pangaea.PangaeaManager")
+    @patch("cruiseplan.cli.pangaea.PangaeaManager")
     def test_fetch_pangaea_data_success(self, mock_pangaea_class):
         """Test successful data fetching."""
         # Setup mocks
@@ -92,7 +92,7 @@ class TestPangaeaDataFetching:
         )
         assert result == mock_datasets
 
-    @patch("cruiseplan.data.pangaea.PangaeaManager")
+    @patch("cruiseplan.cli.pangaea.PangaeaManager")
     def test_fetch_pangaea_data_with_errors(self, mock_pangaea_class):
         """Test data fetching handles individual errors."""
         # Setup mocks

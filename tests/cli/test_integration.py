@@ -26,7 +26,7 @@ class TestPangaeaIntegration:
         doi_file.write_text(doi_content)
         return doi_file
 
-    @patch("cruiseplan.data.pangaea.PangaeaManager")
+    @patch("cruiseplan.cli.pangaea.PangaeaManager")
     def test_pangaea_end_to_end(self, mock_pangaea_class, tmp_path):
         """Test complete PANGAEA workflow."""
         from argparse import Namespace
@@ -170,7 +170,7 @@ class TestStationsIntegration:
 class TestWorkflowIntegration:
     """Test complete workflow integration."""
 
-    @patch("cruiseplan.data.pangaea.PangaeaManager")
+    @patch("cruiseplan.cli.pangaea.PangaeaManager")
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
     def test_pangaea_to_stations_workflow(
