@@ -1,6 +1,8 @@
+import logging
 import warnings
 from enum import Enum
-from typing import Any, List, Optional, Union
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from pydantic import BaseModel, ConfigDict, field_validator, model_validator
 
@@ -9,6 +11,8 @@ from cruiseplan.utils.constants import (
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
 )
+
+logger = logging.getLogger(__name__)
 
 # cruiseplan/core/validation.py
 
@@ -438,12 +442,6 @@ class CruiseConfig(BaseModel):
 
 # ===== Configuration Enrichment and Validation Functions =====
 
-import logging
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
-logger = logging.getLogger(__name__)
-
 
 def enrich_configuration(
     config_path: Path,
@@ -486,10 +484,11 @@ def enrich_configuration(
     if add_depths:
         bathymetry = BathymetryManager(source=bathymetry_source, data_dir="data")
 
+    # Track which stations had depths added for accurate YAML updating
+    stations_with_depths_added = set()
+
     # Process each station
     for station_name, station in cruise.station_registry.items():
-        station_modified = False
-
         # Add depths if requested
         if add_depths and (not hasattr(station, "depth") or station.depth is None):
             depth = bathymetry.get_depth_at_point(
@@ -498,15 +497,10 @@ def enrich_configuration(
             if depth is not None and depth != 0:
                 station.depth = abs(depth)
                 enrichment_summary["stations_with_depths_added"] += 1
-                station_modified = True
+                stations_with_depths_added.add(station_name)
                 logger.debug(
                     f"Added depth {station.depth:.0f}m to station {station_name}"
                 )
-        # Add coordinate fields if requested (handled later in YAML update section)
-        if add_coords and coord_format == "dmm":
-            # We can't add attributes to Pydantic models dynamically,
-            # so we'll handle this in the YAML update section below
-            pass
 
     # Update YAML configuration with any changes
     config_dict = cruise.raw_data.copy()
@@ -519,15 +513,16 @@ def enrich_configuration(
             if station_name in cruise.station_registry:
                 station_obj = cruise.station_registry[station_name]
 
-                # Update depth if it was added
-                if hasattr(station_obj, "depth") and station_obj.depth is not None:
+                # Update depth only if it was newly added by this function
+                if station_name in stations_with_depths_added:
                     station_data["depth"] = float(station_obj.depth)
 
                 # Add coordinate fields if requested
                 if add_coords:
                     if coord_format == "dmm":
-                        if "coordinates_dmm" not in station_data or not station_data.get(
-                            "coordinates_dmm"
+                        if (
+                            "coordinates_dmm" not in station_data
+                            or not station_data.get("coordinates_dmm")
                         ):
                             dmm_comment = format_dmm_comment(
                                 station_obj.position.latitude,

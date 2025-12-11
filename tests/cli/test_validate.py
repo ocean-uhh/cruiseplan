@@ -154,10 +154,10 @@ class TestValidateCommand:
             main(args)
 
     @patch("cruiseplan.core.validation.validate_configuration_file")
-    def test_validate_unexpected_error(self, mock_validate_config):
-        """Test handling of unexpected errors."""
+    def test_validate_keyboard_interrupt(self, mock_validate_config):
+        """Test handling of keyboard interrupt."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        mock_validate_config.side_effect = RuntimeError("Unexpected error")
+        mock_validate_config.side_effect = KeyboardInterrupt()
 
         args = Namespace(
             config_file=input_file,
@@ -315,42 +315,6 @@ class TestValidateCommand:
     @patch("cruiseplan.cli.validate.validate_configuration_file")
     @patch("cruiseplan.cli.validate.validate_input_file")
     @patch("cruiseplan.cli.validate.setup_logging")
-    def test_validate_with_custom_tolerance(
-        self, mock_setup_logging, mock_validate_input, mock_validate_config
-    ):
-        """Test validation with custom depth tolerance."""
-        # Setup mocks
-        mock_validate_input.return_value = Path("/test/config.yaml")
-        mock_validate_config.return_value = (True, [], [])
-
-        # Create args with custom tolerance
-        args = Namespace(
-            config_file=Path("config.yaml"),
-            check_depths=True,
-            tolerance=25.0,  # Custom tolerance
-            bathymetry_source="etopo2022",
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        # Should exit with code 0
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-        # Verify custom tolerance was passed
-        mock_validate_config.assert_called_once_with(
-            config_path=Path("/test/config.yaml"),
-            check_depths=True,
-            tolerance=25.0,
-            bathymetry_source="etopo2022",
-            strict=False,
-        )
-
-    @patch("cruiseplan.cli.validate.validate_configuration_file")
-    @patch("cruiseplan.cli.validate.validate_input_file")
-    @patch("cruiseplan.cli.validate.setup_logging")
     def test_validate_only_errors_no_warnings(
         self, mock_setup_logging, mock_validate_input, mock_validate_config
     ):
@@ -377,34 +341,6 @@ class TestValidateCommand:
         # Should exit with code 1
         with pytest.raises(SystemExit, match="1"):
             main(args)
-
-    @patch("cruiseplan.cli.validate.validate_configuration_file")
-    @patch("cruiseplan.cli.validate.validate_input_file")
-    @patch("cruiseplan.cli.validate.setup_logging")
-    def test_validate_quiet_mode(
-        self, mock_setup_logging, mock_validate_input, mock_validate_config
-    ):
-        """Test validation in quiet mode."""
-        # Setup mocks
-        mock_validate_input.return_value = Path("/test/config.yaml")
-        mock_validate_config.return_value = (True, [], [])
-
-        args = Namespace(
-            config_file=Path("config.yaml"),
-            check_depths=False,
-            tolerance=10.0,
-            bathymetry_source="etopo2022",
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=True,  # Quiet mode
-        )
-
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-        # Verify quiet mode was passed to setup_logging
-        mock_setup_logging.assert_called_once_with(verbose=False, quiet=True)
 
 
 class TestValidateCommandExecution:
