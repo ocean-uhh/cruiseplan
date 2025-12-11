@@ -8,6 +8,7 @@ tests_output/test_empty/*
 tests_output/test_latex/*
 tests_output/test_no_doubles/*
 tests_output/*tex
+tests_output/pangaea/*
 data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 
 logs/*log

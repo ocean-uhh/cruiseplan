@@ -66,7 +66,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
     MockLoadCampaign.assert_called_once_with(mock_args.pangaea_file)
 
     # 2. Assert StationPicker was initialized correctly
-    output_file = str(mock_args.output_dir / "stations.yaml")
+    output_file = str(mock_args.output_dir / "campaigns_stations.yaml")
     MockPicker.assert_called_once_with(
         campaign_data=[{"name": "C1", "data": []}, {"name": "C2", "data": []}],
         output_file=output_file,
@@ -74,9 +74,9 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
 
     # 3. Assert map bounds were set
     MockPicker.return_value.ax_map.set_xlim.assert_called_once_with(
-        [-30.0, -20.0]
+        (-30.0, -20.0)
     )  # lon bounds from mock_args
-    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with([50.0, 60.0])
+    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with((50.0, 60.0))
 
     # 4. Assert picker was shown
     MockPicker.return_value.show.assert_called_once()
@@ -96,8 +96,8 @@ def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps)
     main(mock_args)
 
     # Assert default bounds are used: lat [45, 70], lon [-65, -5]
-    MockPicker.return_value.ax_map.set_xlim.assert_called_once_with([-65, -5])
-    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with([45, 70])
+    MockPicker.return_value.ax_map.set_xlim.assert_called_once_with((-65.0, -5.0))
+    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with((45.0, 70.0))
 
 
 def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
@@ -124,7 +124,9 @@ def test_main_handles_explicit_output_file(mock_args, mock_external_deps):
 
     # Assert picker was initialized with the custom path
     MockPicker.assert_called_once()
-    assert MockPicker.call_args[1]["output_file"] == str(custom_output)
+    actual_path = MockPicker.call_args[1]["output_file"]
+    # Resolve both paths to handle symlinks like /tmp -> /private/tmp on macOS
+    assert Path(actual_path).resolve() == custom_output.resolve()
 
 
 @pytest.mark.skip(reason="Import error testing is complex with dynamic imports")
