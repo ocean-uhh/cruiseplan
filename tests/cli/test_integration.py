@@ -178,11 +178,11 @@ class TestScheduleIntegration:
         """Test complete schedule CSV output with proper formatting."""
         import csv
         from argparse import Namespace
-        
+
         from cruiseplan.cli.schedule import main as schedule_main
-        
+
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         # Create args for CSV output
         args = Namespace(
             config_file=input_file,
@@ -202,7 +202,7 @@ class TestScheduleIntegration:
         assert csv_file.exists(), f"CSV file {csv_file} was not created"
 
         # Read and verify CSV content
-        with open(csv_file, 'r', newline='') as f:
+        with open(csv_file, newline="") as f:
             reader = csv.DictReader(f)
             rows = list(reader)
 
@@ -211,47 +211,73 @@ class TestScheduleIntegration:
 
         # Verify expected columns exist (using actual column names from CSV output)
         expected_columns = [
-            "activity", "label", "operation_action", "start_time", "end_time", 
-            "Transit dist [nm]", "Vessel speed [kt]", "Duration [hrs]", 
-            "Depth [m]", "Lat [deg]", "Lon [deg]", "Lat [deg_rounded]", "Lat [min]", 
-            "Lon [deg_rounded]", "Lon [min]", "leg_name"
+            "activity",
+            "label",
+            "operation_action",
+            "start_time",
+            "end_time",
+            "Transit dist [nm]",
+            "Vessel speed [kt]",
+            "Duration [hrs]",
+            "Depth [m]",
+            "Lat [deg]",
+            "Lon [deg]",
+            "Lat [deg_rounded]",
+            "Lat [min]",
+            "Lon [deg_rounded]",
+            "Lon [min]",
+            "leg_name",
         ]
-        
+
         for col in expected_columns:
             assert col in reader.fieldnames, f"Missing expected column: {col}"
 
         # Verify we have station activities (not just transits)
         station_activities = [row for row in rows if row["activity"] == "Station"]
-        assert len(station_activities) >= 2, f"Expected at least 2 station activities, got {len(station_activities)}"
+        assert (
+            len(station_activities) >= 2
+        ), f"Expected at least 2 station activities, got {len(station_activities)}"
 
         # Verify transit activities exist
         transit_activities = [row for row in rows if row["activity"] == "Transit"]
-        assert len(transit_activities) >= 2, f"Expected at least 2 transit activities, got {len(transit_activities)}"
+        assert (
+            len(transit_activities) >= 2
+        ), f"Expected at least 2 transit activities, got {len(transit_activities)}"
 
         # Test specific formatting requirements
         for row in rows:
             # Test time formatting (should be to nearest minute, no seconds)
             start_time = row["start_time"]
             end_time = row["end_time"]
-            assert ":00" in start_time or start_time.count(":") == 1, f"Start time not rounded to minute: {start_time}"
-            assert ":00" in end_time or end_time.count(":") == 1, f"End time not rounded to minute: {end_time}"
+            assert (
+                ":00" in start_time or start_time.count(":") == 1
+            ), f"Start time not rounded to minute: {start_time}"
+            assert (
+                ":00" in end_time or end_time.count(":") == 1
+            ), f"End time not rounded to minute: {end_time}"
 
             # Test duration formatting (should be to nearest 0.1 hours)
             duration = float(row["Duration [hrs]"])
-            assert abs(duration - round(duration, 1)) < 0.01, f"Duration not rounded to 0.1 hours: {duration}"
+            assert (
+                abs(duration - round(duration, 1)) < 0.01
+            ), f"Duration not rounded to 0.1 hours: {duration}"
 
             # Test depth formatting (should be whole numbers for stations)
             if row["activity"] == "Station":
                 depth = row["Depth [m]"]
                 if depth and depth != "N/A":
-                    assert "." not in depth, f"Station depth should be whole number: {depth}"
+                    assert (
+                        "." not in depth
+                    ), f"Station depth should be whole number: {depth}"
 
             # Test transit distance formatting (should be to nearest 0.1 nm)
             if row["activity"] == "Transit":
                 dist = row["Transit dist [nm]"]
                 if dist and dist != "":
                     dist_val = float(dist)
-                    assert abs(dist_val - round(dist_val, 1)) < 0.01, f"Transit distance not rounded to 0.1 nm: {dist_val}"
+                    assert (
+                        abs(dist_val - round(dist_val, 1)) < 0.01
+                    ), f"Transit distance not rounded to 0.1 nm: {dist_val}"
 
             # Test vessel speed (should be 0 for stations)
             if row["activity"] == "Station":
@@ -269,11 +295,11 @@ class TestScheduleIntegration:
     def test_schedule_html_output_integration(self, tmp_path):
         """Test HTML output generation."""
         from argparse import Namespace
-        
+
         from cruiseplan.cli.schedule import main as schedule_main
-        
+
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         args = Namespace(
             config_file=input_file,
             output_dir=tmp_path,
@@ -299,11 +325,11 @@ class TestScheduleIntegration:
     def test_schedule_all_formats_integration(self, tmp_path):
         """Test generation of all available formats."""
         from argparse import Namespace
-        
+
         from cruiseplan.cli.schedule import main as schedule_main
-        
+
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         args = Namespace(
             config_file=input_file,
             output_dir=tmp_path,
@@ -319,7 +345,9 @@ class TestScheduleIntegration:
 
         # Verify multiple output files were created
         output_files = list(tmp_path.glob("Simple_Test_Cruise_2028_schedule.*"))
-        assert len(output_files) >= 2, f"Expected multiple output formats, got {len(output_files)}"
+        assert (
+            len(output_files) >= 2
+        ), f"Expected multiple output formats, got {len(output_files)}"
 
         # Should have at least CSV and HTML
         extensions = [f.suffix for f in output_files]

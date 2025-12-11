@@ -362,7 +362,9 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "duration_minutes": op_duration_min,
                     "transit_dist_nm": transit_distance,  # Distance to reach this operation
                     "operation_dist_nm": operation_distance,  # Distance traveled during this operation
-                    "vessel_speed_kt": activity.get("vessel_speed_kt", config.default_vessel_speed),
+                    "vessel_speed_kt": activity.get(
+                        "vessel_speed_kt", config.default_vessel_speed
+                    ),
                     "leg_name": activity.get("leg_name", "Unknown_Leg"),
                     "operation_type": activity["op_type"],
                     # Propagate scientific/start coordinates
@@ -456,7 +458,8 @@ def generate_cruise_schedule(
         validate_depths: Whether to validate depths during generation
         selected_leg: If specified, only generate schedule for this leg
 
-    Returns:
+    Returns
+    -------
         Dictionary with generation summary and statistics
     """
     from pathlib import Path
@@ -485,7 +488,7 @@ def generate_cruise_schedule(
             config_path=Path(config_path),
             check_depths=True,
             tolerance=10.0,
-            bathymetry_source="etopo2022"
+            bathymetry_source="etopo2022",
         )
 
         if errors:
@@ -506,13 +509,22 @@ def generate_cruise_schedule(
 
     # Filter timeline by selected leg if specified
     if selected_leg:
-        timeline = [activity for activity in timeline if activity.get("leg_name") == selected_leg]
+        timeline = [
+            activity
+            for activity in timeline
+            if activity.get("leg_name") == selected_leg
+        ]
 
     logger.info(f"Generated {len(timeline)} activities")
 
     # Calculate summary statistics
-    total_duration_hours = sum(activity["duration_minutes"] for activity in timeline) / 60.0
-    total_distance_nm = sum(activity.get("transit_dist_nm", 0) + activity.get("operation_dist_nm", 0) for activity in timeline)
+    total_duration_hours = (
+        sum(activity["duration_minutes"] for activity in timeline) / 60.0
+    )
+    total_distance_nm = sum(
+        activity.get("transit_dist_nm", 0) + activity.get("operation_dist_nm", 0)
+        for activity in timeline
+    )
 
     logger.info(f"Total schedule duration: {total_duration_hours:.1f} hours")
     logger.info(f"Total distance: {total_distance_nm:.1f} nm")
@@ -536,7 +548,7 @@ def generate_cruise_schedule(
 
             if format_name == "html":
                 from cruiseplan.output.html_generator import generate_html_schedule
-                
+
                 output_file = output_path / f"{base_filename}.html"
                 generate_html_schedule(config, timeline, output_file)
                 formats_generated.append("html")
@@ -544,27 +556,31 @@ def generate_cruise_schedule(
 
             elif format_name == "csv":
                 from cruiseplan.output.csv_generator import generate_csv_schedule
-                
+
                 output_file = output_path / f"{base_filename}.csv"
                 generate_csv_schedule(config, timeline, output_file)
                 formats_generated.append("csv")
                 output_files.append(output_file)
 
             elif format_name == "latex":
-                output_file = _generate_latex_schedule(timeline, config, output_path, base_filename)
+                output_file = _generate_latex_schedule(
+                    timeline, config, output_path, base_filename
+                )
                 formats_generated.append("latex")
                 output_files.append(output_file)
 
             elif format_name == "kml":
                 from cruiseplan.output.kml_generator import generate_kml_schedule
-                
+
                 output_file = output_path / f"{base_filename}.kml"
                 generate_kml_schedule(config, timeline, output_file)
                 formats_generated.append("kml")
                 output_files.append(output_file)
 
             elif format_name == "netcdf":
-                output_file = _generate_netcdf_schedule(timeline, config, output_path, base_filename)
+                output_file = _generate_netcdf_schedule(
+                    timeline, config, output_path, base_filename
+                )
                 formats_generated.append("netcdf")
                 output_files.append(output_file)
 
@@ -589,8 +605,6 @@ def generate_cruise_schedule(
     }
 
 
-
-
 def _generate_latex_schedule(timeline, config, output_path, base_filename):
     """Generate LaTeX schedule output."""
     try:
@@ -599,14 +613,14 @@ def _generate_latex_schedule(timeline, config, output_path, base_filename):
         # Use existing LaTeX generator function with correct parameters
         latex_files = generate_latex_tables(config, timeline, output_path)
 
-        logger.info(f"LaTeX schedule files saved to: {output_path} ({len(latex_files)} files)")
+        logger.info(
+            f"LaTeX schedule files saved to: {output_path} ({len(latex_files)} files)"
+        )
         return latex_files[0] if latex_files else None
 
     except ImportError:
         logger.warning("LaTeX generator not available - skipping LaTeX output")
         return None
-
-
 
 
 def _generate_netcdf_schedule(timeline, config, output_path, base_filename):

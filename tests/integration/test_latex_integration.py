@@ -50,8 +50,8 @@ class TestLatexGeneratorIntegration:
 
         # Verify stations table contains expected elements
         stations_content = stations_file.read_text()
-        assert "STN-001" in stations_content # Replace underscore with dash
-        assert "STN-002" in stations_content # Replace underscore with dash
+        assert "STN-001" in stations_content  # Replace underscore with dash
+        assert "STN-002" in stations_content  # Replace underscore with dash
         assert "Working area, stations and profiles" in stations_content
 
         # Verify work days table contains expected elements and values

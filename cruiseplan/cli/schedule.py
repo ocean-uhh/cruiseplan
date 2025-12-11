@@ -9,7 +9,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List, Optional
 
 from cruiseplan.cli.utils import (
     CLIError,
@@ -75,7 +74,7 @@ def main(args: argparse.Namespace) -> None:
             config_path=config_file,
             output_dir=output_dir,
             formats=formats,
-            validate_depths=args.validate_depths,
+            # validate_depths=args.validate_depths,
             selected_leg=getattr(args, "leg", None),
         )
 
@@ -85,8 +84,12 @@ def main(args: argparse.Namespace) -> None:
         logger.info("Schedule Generation Complete")
         logger.info("=" * 60)
         logger.info(f"Total activities: {schedule_result['total_activities']}")
-        logger.info(f"Total duration: {schedule_result['total_duration_hours']:.1f} hours")
-        logger.info(f"Generated formats: {', '.join(schedule_result['formats_generated'])}")
+        logger.info(
+            f"Total duration: {schedule_result['total_duration_hours']:.1f} hours"
+        )
+        logger.info(
+            f"Generated formats: {', '.join(schedule_result['formats_generated'])}"
+        )
 
         if schedule_result.get("warnings"):
             logger.warning("⚠️ Warnings:")
@@ -114,26 +117,28 @@ if __name__ == "__main__":
     # This allows the module to be run directly for testing
     parser = argparse.ArgumentParser(description="Generate cruise schedules")
     parser.add_argument(
-        "-c", "--config-file", type=Path, required=True, help="Input YAML configuration file"
+        "-c",
+        "--config-file",
+        type=Path,
+        required=True,
+        help="Input YAML configuration file",
     )
     parser.add_argument(
         "-o", "--output-dir", type=Path, help="Output directory for schedule files"
     )
     parser.add_argument(
-        "--format", 
+        "--format",
         choices=["html", "latex", "csv", "kml", "netcdf", "all"],
         default="all",
-        help="Output format (default: all)"
+        help="Output format (default: all)",
     )
+    # parser.add_argument(
+    #    "--validate-depths",
+    #    action="store_true",
+    #    help="Validate station depths during schedule generation"
+    # )
     parser.add_argument(
-        "--validate-depths", 
-        action="store_true", 
-        help="Validate station depths during schedule generation"
-    )
-    parser.add_argument(
-        "--leg", 
-        type=str, 
-        help="Generate schedule for specific leg only"
+        "--leg", type=str, help="Generate schedule for specific leg only"
     )
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     parser.add_argument("--quiet", action="store_true", help="Quiet output")

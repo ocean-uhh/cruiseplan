@@ -21,7 +21,7 @@ class TestScheduleCommand:
     def test_schedule_basic_real_file(self, tmp_path):
         """Test basic schedule generation using real fixture file."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         # Create args
         args = Namespace(
             config_file=input_file,
@@ -37,17 +37,17 @@ class TestScheduleCommand:
         main(args)
 
         # Verify output files were created
-        expected_files = [
-            tmp_path / "Simple_Test_Cruise_2028_schedule.csv"
-        ]
-        
+        expected_files = [tmp_path / "Simple_Test_Cruise_2028_schedule.csv"]
+
         for expected_file in expected_files:
-            assert expected_file.exists(), f"Expected output file {expected_file} was not created"
+            assert (
+                expected_file.exists()
+            ), f"Expected output file {expected_file} was not created"
 
     def test_schedule_all_formats_real_file(self, tmp_path):
         """Test schedule generation with all formats using real fixture file."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         # Create args
         args = Namespace(
             config_file=input_file,
@@ -64,12 +64,14 @@ class TestScheduleCommand:
 
         # Verify at least some output files were created (some formats might not be available)
         output_files = list(tmp_path.glob("Simple_Test_Cruise_2028_schedule.*"))
-        assert len(output_files) >= 2, "Expected at least HTML and CSV formats to be generated"
+        assert (
+            len(output_files) >= 2
+        ), "Expected at least HTML and CSV formats to be generated"
 
     def test_schedule_with_depth_validation_real_file(self, tmp_path):
         """Test schedule generation with depth validation."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         # Create args
         args = Namespace(
             config_file=input_file,
@@ -86,12 +88,14 @@ class TestScheduleCommand:
 
         # Verify at least one output file was created (may have different naming)
         output_files = list(tmp_path.glob("*.html"))
-        assert len(output_files) >= 1, f"Expected HTML output file to be created, found files: {list(tmp_path.iterdir())}"
+        assert (
+            len(output_files) >= 1
+        ), f"Expected HTML output file to be created, found files: {list(tmp_path.iterdir())}"
 
     def test_schedule_nonexistent_file(self, tmp_path):
         """Test handling of nonexistent input file."""
         nonexistent_file = tmp_path / "nonexistent.yaml"
-        
+
         args = Namespace(
             config_file=nonexistent_file,
             output_dir=tmp_path,
@@ -108,7 +112,7 @@ class TestScheduleCommand:
     def test_schedule_specific_leg_real_file(self, tmp_path):
         """Test schedule generation for specific leg."""
         input_file = self.get_fixture_path("cruise_multi_leg.yaml")
-        
+
         # Create args for specific leg
         args = Namespace(
             config_file=input_file,
@@ -130,7 +134,7 @@ class TestScheduleCommand:
     def test_schedule_nonexistent_leg_real_file(self, tmp_path):
         """Test handling of nonexistent leg name."""
         input_file = self.get_fixture_path("cruise_simple.yaml")
-        
+
         args = Namespace(
             config_file=input_file,
             output_dir=tmp_path,

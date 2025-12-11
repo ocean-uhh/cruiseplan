@@ -104,8 +104,8 @@ def test_latex_generation_basic():
 
     # Verify stations file has content
     stations_content = stations_file.read_text()
-    assert "STN-001" in stations_content # Replace underscore with dash
-    assert "STN-002" in stations_content # Replace underscore with dash
+    assert "STN-001" in stations_content  # Replace underscore with dash
+    assert "STN-002" in stations_content  # Replace underscore with dash
     assert "1000" in stations_content  # Depth (formatted without decimal)
 
     # Verify work days file has content

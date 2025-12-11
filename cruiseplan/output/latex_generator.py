@@ -202,9 +202,7 @@ class LaTeXGenerator:
                     sum(a["duration_minutes"] for a in middle_nav_transits) / 60
                 )
 
-        total_navigation_transit_h = (
-            transit_to_area_h + transit_from_area_h
-        )
+        total_navigation_transit_h = transit_to_area_h + transit_from_area_h
 
         # --- Build Summary Rows ---
 

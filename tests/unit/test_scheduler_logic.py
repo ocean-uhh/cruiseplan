@@ -290,7 +290,7 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     mock_config.default_vessel_speed = 12.0  # Default speed
     mock_config.start_date = "2024-01-01"
     mock_config.start_time = "00:00"
-    
+
     # Ports
     mock_config.departure_port = create_mock_port(53.0, -60.0, "Start Port")
     mock_config.arrival_port = create_mock_port(53.0, -60.0, "End Port")
@@ -303,7 +303,7 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     mock_transit.position = GeoPoint(latitude=53.5, longitude=-50.0)  # End position
     mock_transit.depth = 0.0
     mock_transit.vessel_speed = 5.0  # Operation-specific speed (slower for survey)
-    
+
     # Add operation type and action to make it scientific
     mock_operation_type = MagicMock()
     mock_operation_type.value = "underway"
@@ -311,7 +311,7 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     mock_action = MagicMock()
     mock_action.value = "ADCP"
     mock_transit.action = mock_action
-    
+
     # Route with start and end points for line operation
     mock_route_point1 = MagicMock()
     mock_route_point1.latitude = 53.3
@@ -320,7 +320,7 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     mock_route_point2.latitude = 53.7
     mock_route_point2.longitude = -50.1
     mock_transit.route = [mock_route_point1, mock_route_point2]
-    
+
     mock_config.stations = []
     mock_config.transits = [mock_transit]
 
@@ -334,24 +334,32 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     timeline = generate_timeline(mock_config)
 
     # --- ASSERTIONS ---
-    
+
     # Find the survey operation in the timeline
     survey_record = None
     for record in timeline:
         if record["label"] == "SURVEY_LINE":
             survey_record = record
             break
-    
+
     assert survey_record is not None, "Survey operation not found in timeline"
     assert survey_record["activity"] == "Transit"
-    
+
     # The key assertion: operation-specific vessel speed should be used
-    assert survey_record["vessel_speed_kt"] == 5.0, f"Expected 5.0 kt, got {survey_record['vessel_speed_kt']}"
-    
+    assert (
+        survey_record["vessel_speed_kt"] == 5.0
+    ), f"Expected 5.0 kt, got {survey_record['vessel_speed_kt']}"
+
     # Also verify navigation transits still use default speed
-    navigation_transits = [r for r in timeline if r["activity"] == "Transit" and r["label"] != "SURVEY_LINE"]
+    navigation_transits = [
+        r
+        for r in timeline
+        if r["activity"] == "Transit" and r["label"] != "SURVEY_LINE"
+    ]
     for transit in navigation_transits:
-        assert transit["vessel_speed_kt"] == 12.0, f"Navigation transit should use default speed of 12.0 kt, got {transit['vessel_speed_kt']}"
+        assert (
+            transit["vessel_speed_kt"] == 12.0
+        ), f"Navigation transit should use default speed of 12.0 kt, got {transit['vessel_speed_kt']}"
 
 
 def test_vessel_speed_uses_default_when_no_operation_specific_speed(mock_calculations):
@@ -363,7 +371,7 @@ def test_vessel_speed_uses_default_when_no_operation_specific_speed(mock_calcula
     mock_config.default_vessel_speed = 10.0  # Default speed
     mock_config.start_date = "2024-01-01"
     mock_config.start_time = "00:00"
-    
+
     # Ports
     mock_config.departure_port = create_mock_port(53.0, -60.0, "Start Port")
     mock_config.arrival_port = create_mock_port(53.0, -60.0, "End Port")
@@ -377,9 +385,9 @@ def test_vessel_speed_uses_default_when_no_operation_specific_speed(mock_calcula
     mock_station.depth = 1000.0
     mock_station.duration = 0.0
     # Explicitly ensure vessel_speed attribute does not exist
-    if hasattr(mock_station, 'vessel_speed'):
-        delattr(mock_station, 'vessel_speed')
-    
+    if hasattr(mock_station, "vessel_speed"):
+        delattr(mock_station, "vessel_speed")
+
     mock_operation_type = MagicMock()
     mock_operation_type.value = "CTD"
     mock_station.operation_type = mock_operation_type
@@ -389,7 +397,7 @@ def test_vessel_speed_uses_default_when_no_operation_specific_speed(mock_calcula
 
     # Single leg with the station
     leg_mock = MagicMock()
-    leg_mock.sequence = ["STN_001"]  
+    leg_mock.sequence = ["STN_001"]
     leg_mock.stations = []
     mock_config.legs = [leg_mock]
 
@@ -397,16 +405,18 @@ def test_vessel_speed_uses_default_when_no_operation_specific_speed(mock_calcula
     timeline = generate_timeline(mock_config)
 
     # --- ASSERTIONS ---
-    
+
     # Find the station operation in the timeline
     station_record = None
     for record in timeline:
         if record["label"] == "STN_001":
             station_record = record
             break
-    
+
     assert station_record is not None, "Station operation not found in timeline"
     assert station_record["activity"] == "Station"
-    
+
     # Should use default vessel speed since no operation-specific speed provided
-    assert station_record["vessel_speed_kt"] == 10.0, f"Expected default speed of 10.0 kt, got {station_record['vessel_speed_kt']}"
+    assert (
+        station_record["vessel_speed_kt"] == 10.0
+    ), f"Expected default speed of 10.0 kt, got {station_record['vessel_speed_kt']}"
