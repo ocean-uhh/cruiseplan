@@ -58,6 +58,10 @@ class LineOperationTypeEnum(str, Enum):
     TOWING = "towing"
 
 
+class AreaOperationTypeEnum(str, Enum):
+    SURVEY = "survey"
+
+
 # --- Shared Models ---
 
 
@@ -258,6 +262,15 @@ class SectionDefinition(BaseModel):
         return data
 
 
+class AreaDefinition(BaseModel):
+    name: str
+    corners: List[GeoPoint]
+    comment: Optional[str] = None
+    operation_type: Optional[str] = "survey"
+    action: Optional[ActionEnum] = None
+    duration: Optional[float] = None  # Duration in minutes
+
+
 class ClusterDefinition(BaseModel):
     name: str
     strategy: StrategyEnum = StrategyEnum.SEQUENTIAL
@@ -311,6 +324,7 @@ class CruiseConfig(BaseModel):
 
     stations: Optional[List[StationDefinition]] = []
     transits: Optional[List[TransitDefinition]] = []
+    areas: Optional[List[AreaDefinition]] = []
     legs: List[LegDefinition]
 
     model_config = ConfigDict(extra="forbid")

@@ -30,6 +30,7 @@ def _calculate_summary_statistics(timeline):
     # Separate activities by type
     station_activities = [a for a in timeline if a["activity"] == "Station"]
     mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
+    area_activities = [a for a in timeline if a["activity"] == "Area"]
     all_transits = [a for a in timeline if a["activity"] == "Transit"]
 
     # Separate scientific and navigation transits
@@ -114,6 +115,25 @@ def _calculate_summary_statistics(timeline):
             "total_duration_days": 0,
         }
 
+    # Calculate area operations
+    area_stats = {}
+    if area_activities:
+        total_area_duration_h = sum(a["duration_minutes"] for a in area_activities) / 60
+        avg_area_duration_h = total_area_duration_h / len(area_activities)
+        area_stats = {
+            "count": len(area_activities),
+            "avg_duration_h": avg_area_duration_h,
+            "total_duration_h": total_area_duration_h,
+            "total_duration_days": total_area_duration_h / 24,
+        }
+    else:
+        area_stats = {
+            "count": 0,
+            "avg_duration_h": 0,
+            "total_duration_h": 0,
+            "total_duration_days": 0,
+        }
+
     # Calculate within-area navigation transits (excluding first and last)
     within_area_transits = (
         navigation_transits[1:-1] if len(navigation_transits) > 2 else []
@@ -179,6 +199,7 @@ def _calculate_summary_statistics(timeline):
         "moorings": mooring_stats,
         "stations": station_stats,
         "surveys": survey_stats,
+        "areas": area_stats,
         "within_area": within_area_stats,
         "port_area": port_area_stats,
         "mooring_activities": mooring_activities,
@@ -222,6 +243,7 @@ class HTMLGenerator:
             stats["moorings"]["total_duration_h"]
             + stats["stations"]["total_duration_h"]
             + stats["surveys"]["total_duration_h"]
+            + stats["areas"]["total_duration_h"]
             + stats["within_area"]["total_duration_h"]
             + stats["port_area"]["total_duration_h"]
         )
@@ -245,7 +267,7 @@ class HTMLGenerator:
 <body>
     <h1>{config.cruise_name}</h1>
     {f'<p class="description">{config.description}</p>' if config.description else ''}
-    
+
     <h2>1. Cruise Schedule</h2>
     <table cellpadding="5" cellspacing="0" border="1">
         <tr>
@@ -286,6 +308,17 @@ class HTMLGenerator:
             <td>{stats["surveys"]["count"]} operations, avg distance {stats["surveys"]["avg_distance_nm"]:.1f} nm, avg {stats["surveys"]["avg_duration_h"]:.1f} hrs each</td>
             <td class="number">{stats["surveys"]["total_duration_h"]:.1f}</td>
             <td class="number">{stats["surveys"]["total_duration_days"]:.1f}</td>
+        </tr>
+"""
+
+        # Area operations row
+        if stats["areas"]["count"] > 0:
+            html_content += f"""
+        <tr>
+            <td>Area operations</td>
+            <td>{stats["areas"]["count"]} operations, avg {stats["areas"]["avg_duration_h"]:.1f} hrs each</td>
+            <td class="number">{stats["areas"]["total_duration_h"]:.1f}</td>
+            <td class="number">{stats["areas"]["total_duration_days"]:.1f}</td>
         </tr>
 """
 

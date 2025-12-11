@@ -24,7 +24,7 @@ def is_scientific_operation(activity: Dict[str, Any]) -> bool:
     bool
         True if this is a scientific operation
     """
-    if activity["activity"] in ["Station", "Mooring"]:
+    if activity["activity"] in ["Station", "Mooring", "Area"]:
         return True
     elif activity["activity"] == "Transit":
         # Scientific transit if it has an action field

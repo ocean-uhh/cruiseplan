@@ -246,7 +246,13 @@ class TestNetCDFIntegration:
 
             # Check activity types are valid
             activity_types = [str(at) for at in ds.variables["category"][:]]
-            valid_types = {"point_operation", "line_operation", "transit", "other"}
+            valid_types = {
+                "point_operation",
+                "line_operation",
+                "transit",
+                "area_operation",
+                "other",
+            }
             for activity_type in activity_types:
                 assert (
                     activity_type in valid_types

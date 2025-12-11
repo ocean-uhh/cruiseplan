@@ -330,6 +330,8 @@ def test_vessel_speed_uses_operation_specific_speed_when_provided(mock_calculati
     leg_mock.stations = []
     mock_config.legs = [leg_mock]
 
+    mock_config.areas = []
+
     # --- ACT ---
     timeline = generate_timeline(mock_config)
 

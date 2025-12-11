@@ -188,8 +188,8 @@ class TestSchedulerDebug:
         expected_transit_distances = {
             1: (372.67, "Departure port to CTD_Station_A"),
             3: (21.55, "CTD_Station_A to Survey_Line_Alpha start"),
-            5: (30.23, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
-            7: (366.77, "Mooring_K7_Recovery to arrival port"),
+            5: (219.12, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
+            9: (366.77, "Mooring_K7_Recovery to arrival port"),
         }
 
         # Expected operation distances (operation_dist_nm) - only for scientific transits

@@ -18,9 +18,9 @@ from cruiseplan.interactive.campaign_selector import CampaignSelector
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
 from cruiseplan.utils.config import (
+    format_area_for_yaml,
     format_station_for_yaml,
     format_transect_for_yaml,
-    format_area_for_yaml,
     save_cruise_config,
 )
 
@@ -749,13 +749,11 @@ class StationPicker:
             format_transect_for_yaml(tr, i) for i, tr in enumerate(self.transects, 1)
         ]
 
-        yaml_areas = [
-            format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)
-        ]
+        yaml_areas = [format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)]
 
         # Format areas for YAML
-        #yaml_areas = []
-        #for i, area in enumerate(self.areas, 1):
+        # yaml_areas = []
+        # for i, area in enumerate(self.areas, 1):
         #    area_dict = {
         #        "id": f"AREA_{i:02d}",
         #        "type": "survey_area",

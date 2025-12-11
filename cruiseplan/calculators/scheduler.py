@@ -55,11 +55,13 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
         match = next((s for s in config.stations if s.name == name), None)
         if match and match.position:
             # Map operation type to legacy op_type for backward compatibility
+            # This is a little confusing --> these are how activities are filtered in latex_generator
             op_type_mapping = {
                 "CTD": "station",
                 "water_sampling": "station",
                 "calibration": "station",
                 "mooring": "mooring",
+                "survey": "area",
             }
             op_type = op_type_mapping.get(match.operation_type.value, "station")
 
@@ -83,6 +85,41 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
             }
 
     # Note: moorings are now included in stations list with operation_type="mooring"
+
+    # Check areas second
+    if config.areas:
+        match = next((a for a in config.areas if a.name == name), None)
+        if match and match.corners:
+            # For areas, calculate center point from corners
+            center_lat = sum(corner.latitude for corner in match.corners) / len(
+                match.corners
+            )
+            center_lon = sum(corner.longitude for corner in match.corners) / len(
+                match.corners
+            )
+
+            return {
+                "name": match.name,
+                "lat": center_lat,
+                "lon": center_lon,
+                "depth": 0.0,  # Areas typically don't have depth
+                "op_type": "area",
+                "manual_duration": getattr(match, "duration", 0.0)
+                or 0.0,  # Duration in minutes
+                "action": (
+                    (
+                        match.action.value
+                        if match.action and hasattr(match.action, "value")
+                        else match.action
+                    )
+                    if match.action
+                    else None
+                ),
+                "corners": [
+                    {"latitude": corner.latitude, "longitude": corner.longitude}
+                    for corner in match.corners
+                ],
+            }
 
     # Check transits third
     if config.transits:
@@ -371,6 +408,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "action": action,
                     "start_lat": activity.get("start_lat", current_pos.latitude),
                     "start_lon": activity.get("start_lon", current_pos.longitude),
+                    "corners": activity.get("corners", []),  # Area corner coordinates
                 }
             )
         )

@@ -77,6 +77,17 @@ class KMLGenerator:
                 <width>3</width>
             </LineStyle>
         </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
 """
 
         # Filter timeline to only include scientific operations
@@ -121,6 +132,60 @@ class KMLGenerator:
             <description>Midpoint label for {action_str} operation</description>
             <Point>
                 <coordinates>{mid_lon},{mid_lat},0</coordinates>
+            </Point>
+        </Placemark>
+"""
+            elif activity["activity"] == "Area":
+                # Area operation - create polygon with corners
+                corners = activity.get("corners", [])
+                if corners and len(corners) >= 3:
+                    # Create coordinate list for polygon (close the polygon by repeating first point)
+                    coord_list = []
+                    for corner in corners:
+                        coord_list.append(
+                            f"{corner['longitude']},{corner['latitude']},0"
+                        )
+                    # Close the polygon
+                    if len(corners) > 0:
+                        coord_list.append(
+                            f"{corners[0]['longitude']},{corners[0]['latitude']},0"
+                        )
+
+                    coordinates_str = " ".join(coord_list)
+                    action_str = activity.get("action", "Survey")
+
+                    kml_content += f"""
+        <Placemark>
+            <name>{activity['label']} - {action_str}</name>
+            <description>
+                Activity: {activity['activity']} ({action_str})
+                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
+                Duration: {activity['duration_minutes']:.1f} min
+                Area: {len(corners)} corners
+            </description>
+            <styleUrl>#areaStyle</styleUrl>
+            <Polygon>
+                <outerBoundaryIs>
+                    <LinearRing>
+                        <coordinates>{coordinates_str}</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+"""
+                else:
+                    # Fallback to center point if no corners defined
+                    kml_content += f"""
+        <Placemark>
+            <name>{activity['label']}</name>
+            <description>
+                Activity: {activity['activity']} (Area - no corners defined)
+                Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
+                Duration: {activity['duration_minutes']:.1f} min
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>{activity['lon']},{activity['lat']},0</coordinates>
             </Point>
         </Placemark>
 """

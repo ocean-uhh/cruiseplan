@@ -52,8 +52,8 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
         "longitude": round(float(station_data["lon"]), 5),
         "depth": round(float(station_data.get("depth", -9999)), 1),
         "comment": "Interactive selection",
-        "operation_type": "CTD", # CTD | mooring | calibration
-        "action": "profile", # profile | deploy | recover
+        "operation_type": "CTD",  # CTD | mooring | calibration
+        "action": "profile",  # profile | deploy | recover
     }
 
 
@@ -81,6 +81,7 @@ def format_transect_for_yaml(transect_data, index):
         "reversible": True,
     }
 
+
 def format_area_for_yaml(area_data, index):
     """
     Formats internal area survey data into the standardized YAML schema.
@@ -98,7 +99,9 @@ def format_area_for_yaml(area_data, index):
         "comment": "Interactive area survey",
         "operation_type": "survey",
         "action": "bathymetry",
+        "duration": 0.0,
     }
+
 
 # --- YAML LOADING CLASS (New Implementation) ---
 

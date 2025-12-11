@@ -282,6 +282,9 @@ class NetCDFGenerator:
                 station.name: station for station in (config.stations or [])
             }
 
+            # Create a lookup for area definitions
+            area_lookup = {area.name: area for area in (config.areas or [])}
+
             # Create a lookup for transit definitions with routes
             transit_lookup = {}
             if hasattr(config, "transits") and config.transits:
@@ -382,6 +385,32 @@ class NetCDFGenerator:
                         types.append(activity.lower())
                         actions.append(event.get("action", "unknown"))
 
+                elif activity == "Area":
+                    categories.append("area_operation")
+
+                    # Get area details from config
+                    area_name = event["label"]
+                    area = area_lookup.get(area_name)
+                    if (
+                        area
+                        and hasattr(area, "operation_type")
+                        and hasattr(area, "action")
+                    ):
+                        operation_type = getattr(area, "operation_type", "survey")
+                        action = getattr(area, "action", "unknown")
+
+                        # Convert enum objects to strings if necessary
+                        if hasattr(operation_type, "value"):
+                            operation_type = operation_type.value
+                        if hasattr(action, "value"):
+                            action = action.value
+
+                        formatted_type = f"{operation_type.capitalize()}_{action}"
+                        types.append(formatted_type)
+                        actions.append(action)
+                    else:
+                        types.append("Survey_unknown")
+                        actions.append("unknown")
                 elif activity == "Transit" and event.get("action"):
                     categories.append("line_operation")
                     types.append(event.get("operation_type", "underway"))
@@ -402,6 +431,11 @@ class NetCDFGenerator:
                     station = station_lookup.get(station_name)
                     if station and hasattr(station, "comment"):
                         comment = getattr(station, "comment", "")
+                elif activity == "Area":
+                    area_name = event["label"]
+                    area = area_lookup.get(area_name)
+                    if area and hasattr(area, "comment"):
+                        comment = getattr(area, "comment", "")
                 elif activity == "Transit":
                     transit_name = event["label"]
                     transit = transit_lookup.get(transit_name)

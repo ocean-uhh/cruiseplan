@@ -63,7 +63,10 @@ def test_format_transect_standard():
         "action": "ADCP",
         "vessel_speed": "10.0",
         "route": [
-            {"latitude": 10.12346, "longitude": 20.12346},  # Rounding check (5 decimals)
+            {
+                "latitude": 10.12346,
+                "longitude": 20.12346,
+            },  # Rounding check (5 decimals)
             {"latitude": 30.98765, "longitude": 40.98765},
         ],
         "reversible": True,

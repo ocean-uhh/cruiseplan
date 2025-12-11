@@ -172,6 +172,7 @@ class LaTeXGenerator:
         # Calculate operation durations in hours (CTD/Mooring)
         station_duration_h = sum(a["duration_minutes"] for a in station_activities) / 60
         mooring_duration_h = sum(a["duration_minutes"] for a in mooring_activities) / 60
+        area_duration_h = sum(a["duration_minutes"] for a in area_activities) / 60
 
         # 3. Duration Categorization - Scientific Transits (counted as operation time)
         scientific_op_durations_h: Dict[str, float] = {}
@@ -298,6 +299,7 @@ class LaTeXGenerator:
         total_operation_duration_h = (
             station_duration_h
             + mooring_duration_h
+            + area_duration_h
             + total_scientific_op_h  # Scientific transit duration is operation time
             + transit_within_area_h  # Within-area transit counted as operation time
         )

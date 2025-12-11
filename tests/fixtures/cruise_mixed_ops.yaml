@@ -47,6 +47,20 @@ transits:
       - latitude: 53.7000
         longitude: -50.1000
 
+areas:
+  - name: "Bathy_survey"
+    corners:
+    - latitude: 59.0983
+      longitude: -46.89092
+    - latitude: 55.48548
+      longitude: -50.99612
+    - latitude: 55.69465
+      longitude: -41.93637
+    comment: "Bathymetric survey area"
+    operation_type: "survey"
+    action: "bathymetry"
+    duration: 120.0  # 2 hours
+
 first_station: "CTD_Station_A"
 last_station: "Mooring_K7_Recovery"
 
@@ -54,4 +68,4 @@ last_station: "Mooring_K7_Recovery"
 legs:
   - name: "Labrador_Sea_Operations"
     strategy: "sequential"
-    sequence: ["CTD_Station_A", "Survey_Line_Alpha", "Mooring_K7_Recovery"]
+    sequence: ["CTD_Station_A", "Survey_Line_Alpha", "Bathy_survey", "Mooring_K7_Recovery"]
