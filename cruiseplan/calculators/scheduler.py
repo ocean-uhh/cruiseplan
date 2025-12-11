@@ -214,7 +214,15 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         if leg.sequence:
             activity_names = leg.sequence
         else:
-            activity_names = leg.stations or []
+            # Extract station names from station objects
+            activity_names = []
+            if leg.stations:
+                for station in leg.stations:
+                    if isinstance(station, str):
+                        activity_names.append(station)
+                    else:
+                        # Station object - extract name
+                        activity_names.append(station.name)
 
         for name in activity_names:
             details = _resolve_station_details(config, name)
@@ -354,7 +362,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "duration_minutes": op_duration_min,
                     "transit_dist_nm": transit_distance,  # Distance to reach this operation
                     "operation_dist_nm": operation_distance,  # Distance traveled during this operation
-                    "vessel_speed_kt": config.default_vessel_speed,
+                    "vessel_speed_kt": activity.get("vessel_speed_kt", config.default_vessel_speed),
                     "leg_name": activity.get("leg_name", "Unknown_Leg"),
                     "operation_type": activity["op_type"],
                     # Propagate scientific/start coordinates
@@ -423,3 +431,198 @@ def _calculate_inter_operation_transit(last_pos, current_pos, vessel_speed_kt):
     transit_time_min = transit_time_h * 60
 
     return transit_time_min, distance_nm
+
+
+# ===== CLI Integration Function =====
+
+
+def generate_cruise_schedule(
+    config_path,
+    output_dir,
+    formats: List[str] = None,
+    validate_depths: bool = False,
+    selected_leg: Optional[str] = None,
+) -> Dict[str, Any]:
+    """
+    Generate comprehensive cruise schedules from YAML configuration.
+
+    This is the main function called by the CLI that orchestrates the entire
+    schedule generation process.
+
+    Args:
+        config_path: Path to input YAML configuration
+        output_dir: Output directory for schedule files
+        formats: List of output formats to generate
+        validate_depths: Whether to validate depths during generation
+        selected_leg: If specified, only generate schedule for this leg
+
+    Returns:
+        Dictionary with generation summary and statistics
+    """
+    from pathlib import Path
+
+    from cruiseplan.core.cruise import Cruise
+
+    # Set defaults
+    if formats is None:
+        formats = ["html", "csv"]
+
+    # Load cruise configuration
+    cruise = Cruise(config_path)
+    config = cruise.config
+
+    logger.info(f"Loaded cruise: {config.cruise_name}")
+    if config.description:
+        logger.info(f"Description: {config.description}")
+
+    # Validate depths if requested
+    warnings = []
+    if validate_depths:
+        logger.info("Validating station depths...")
+        from cruiseplan.core.validation import validate_configuration_file
+
+        success, errors, depth_warnings = validate_configuration_file(
+            config_path=Path(config_path),
+            check_depths=True,
+            tolerance=10.0,
+            bathymetry_source="etopo2022"
+        )
+
+        if errors:
+            raise RuntimeError(f"Configuration validation failed: {errors}")
+        warnings.extend(depth_warnings)
+
+    # Filter legs if specified
+    legs_to_process = config.legs
+    if selected_leg:
+        legs_to_process = [leg for leg in config.legs if leg.name == selected_leg]
+        if not legs_to_process:
+            raise ValueError(f"Leg '{selected_leg}' not found in configuration")
+        logger.info(f"Processing selected leg: {selected_leg}")
+
+    # Generate timeline
+    logger.info("Generating activity timeline...")
+    timeline = generate_timeline(config)
+
+    # Filter timeline by selected leg if specified
+    if selected_leg:
+        timeline = [activity for activity in timeline if activity.get("leg_name") == selected_leg]
+
+    logger.info(f"Generated {len(timeline)} activities")
+
+    # Calculate summary statistics
+    total_duration_hours = sum(activity["duration_minutes"] for activity in timeline) / 60.0
+    total_distance_nm = sum(activity.get("transit_dist_nm", 0) + activity.get("operation_dist_nm", 0) for activity in timeline)
+
+    logger.info(f"Total schedule duration: {total_duration_hours:.1f} hours")
+    logger.info(f"Total distance: {total_distance_nm:.1f} nm")
+
+    # Generate output files
+    formats_generated = []
+    output_files = []
+
+    # Create output directory
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    # Determine base filename
+    cruise_name = config.cruise_name.replace(" ", "_")
+    leg_suffix = f"_{selected_leg}" if selected_leg else ""
+    base_filename = f"{cruise_name}{leg_suffix}_schedule"
+
+    for format_name in formats:
+        try:
+            logger.info(f"Generating {format_name.upper()} output...")
+
+            if format_name == "html":
+                from cruiseplan.output.html_generator import generate_html_schedule
+                
+                output_file = output_path / f"{base_filename}.html"
+                generate_html_schedule(config, timeline, output_file)
+                formats_generated.append("html")
+                output_files.append(output_file)
+
+            elif format_name == "csv":
+                from cruiseplan.output.csv_generator import generate_csv_schedule
+                
+                output_file = output_path / f"{base_filename}.csv"
+                generate_csv_schedule(config, timeline, output_file)
+                formats_generated.append("csv")
+                output_files.append(output_file)
+
+            elif format_name == "latex":
+                output_file = _generate_latex_schedule(timeline, config, output_path, base_filename)
+                formats_generated.append("latex")
+                output_files.append(output_file)
+
+            elif format_name == "kml":
+                from cruiseplan.output.kml_generator import generate_kml_schedule
+                
+                output_file = output_path / f"{base_filename}.kml"
+                generate_kml_schedule(config, timeline, output_file)
+                formats_generated.append("kml")
+                output_files.append(output_file)
+
+            elif format_name == "netcdf":
+                output_file = _generate_netcdf_schedule(timeline, config, output_path, base_filename)
+                formats_generated.append("netcdf")
+                output_files.append(output_file)
+
+            else:
+                logger.warning(f"Unknown format '{format_name}' - skipping")
+
+        except Exception as e:
+            logger.error(f"Failed to generate {format_name} output: {e}")
+            warnings.append(f"Failed to generate {format_name} format: {e}")
+
+    # Return summary
+    return {
+        "success": True,
+        "total_activities": len(timeline),
+        "total_duration_hours": total_duration_hours,
+        "total_distance_nm": total_distance_nm,
+        "formats_generated": formats_generated,
+        "output_files": output_files,
+        "warnings": warnings,
+        "cruise_name": config.cruise_name,
+        "selected_leg": selected_leg,
+    }
+
+
+
+
+def _generate_latex_schedule(timeline, config, output_path, base_filename):
+    """Generate LaTeX schedule output."""
+    try:
+        from cruiseplan.output.latex_generator import generate_latex_tables
+
+        # Use existing LaTeX generator function with correct parameters
+        latex_files = generate_latex_tables(config, timeline, output_path)
+
+        logger.info(f"LaTeX schedule files saved to: {output_path} ({len(latex_files)} files)")
+        return latex_files[0] if latex_files else None
+
+    except ImportError:
+        logger.warning("LaTeX generator not available - skipping LaTeX output")
+        return None
+
+
+
+
+def _generate_netcdf_schedule(timeline, config, output_path, base_filename):
+    """Generate NetCDF schedule output."""
+    try:
+        from cruiseplan.output.netcdf_generator import NetCDFGenerator
+
+        output_file = output_path / f"{base_filename}.nc"
+
+        # Use existing NetCDF generator
+        netcdf_gen = NetCDFGenerator()
+        netcdf_gen.generate_master_schedule(timeline, config, output_file)
+
+        logger.info(f"NetCDF schedule saved to: {output_file}")
+        return output_file
+
+    except ImportError:
+        logger.warning("NetCDF generator not available - skipping NetCDF output")
+        return None

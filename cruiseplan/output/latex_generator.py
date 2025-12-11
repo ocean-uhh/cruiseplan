@@ -11,19 +11,8 @@ from jinja2 import Environment, FileSystemLoader
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.utils.activity_utils import is_scientific_transit
 from cruiseplan.utils.coordinates import format_position_latex
-
-
-# 1. Transit Classification Function
-def is_scientific_transit(transit: ActivityRecord) -> bool:
-    """
-    Distinguishes a Transit activity as scientific based on the presence of the
-    'action' field, as per the schema change description.
-
-    Scientific Transits: Have 'action' field (ADCP, bathymetry, etc.)
-    Pure Navigation Transits: Lack the 'action' field.
-    """
-    return transit.get("activity") == "Transit" and transit.get("action") is not None
 
 
 class LaTeXGenerator:
@@ -114,9 +103,19 @@ class LaTeXGenerator:
 
                 table_rows.append(
                     {
-                        "operation": "Survey",
-                        "station": op["label"],
-                        "position": position_str,
+                        "operation": "Survey (start)",
+                        "station": str(op["label"]).replace("_", "-"),
+                        "position": start_pos_str,
+                        "depth_m": depth_str,
+                        "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": f"{op['duration_minutes']/60:.1f}",
+                    }
+                )
+                table_rows.append(
+                    {
+                        "operation": "Survey (end)",
+                        "station": str(op["label"]).replace("_", "-"),
+                        "position": end_pos_str,
                         "depth_m": depth_str,
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": f"{op['duration_minutes']/60:.1f}",
@@ -130,7 +129,7 @@ class LaTeXGenerator:
                 table_rows.append(
                     {
                         "operation": op["activity"],
-                        "station": op["label"],
+                        "station": str(op["label"]).replace("_", "-"),
                         "position": position_str,
                         "depth_m": f"{op['depth']:.0f}",
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
@@ -140,7 +139,8 @@ class LaTeXGenerator:
 
         paginated_data = self._paginate_data(table_rows, "stations")
 
-        return template.render(cruise_name=config.cruise_name, pages=paginated_data)
+        cruise_name = str(config.cruise_name).replace("_", "-")
+        return template.render(cruise_name=cruise_name, pages=paginated_data)
 
     def generate_work_days_table(
         self, config: CruiseConfig, timeline: List[ActivityRecord]
@@ -203,7 +203,7 @@ class LaTeXGenerator:
                 )
 
         total_navigation_transit_h = (
-            transit_to_area_h + transit_from_area_h + transit_within_area_h
+            transit_to_area_h + transit_from_area_h
         )
 
         # --- Build Summary Rows ---
@@ -267,8 +267,8 @@ class LaTeXGenerator:
             summary_rows.append(
                 {
                     "activity": "Transit within area",
-                    "duration_h": "",  # No operation duration
-                    "transit_h": f"{transit_within_area_h:.1f}",
+                    "duration_h": f"{transit_within_area_h:.1f}",
+                    "transit_h": "",  # No operation duration
                     "notes": "Between operations",
                 }
             )
@@ -289,6 +289,7 @@ class LaTeXGenerator:
             station_duration_h
             + mooring_duration_h
             + total_scientific_op_h  # Scientific transit duration is operation time
+            + transit_within_area_h  # Within-area transit counted as operation time
         )
         total_transit_h = (
             total_navigation_transit_h  # Only pure navigation transit duration
@@ -296,24 +297,14 @@ class LaTeXGenerator:
         total_duration_h = total_operation_duration_h + total_transit_h
         total_days = total_duration_h / 24
 
-        # Add total row
-        summary_rows.append(
-            {
-                "activity": "TOTAL",
-                "duration_h": f"{total_operation_duration_h:.1f}",
-                "transit_h": f"{total_transit_h:.1f}",
-                "notes": f"≈ {total_days:.1f} days at sea",
-            }
-        )
-
         paginated_data = self._paginate_data(summary_rows, "work_days")
 
         return template.render(
-            cruise_name=config.cruise_name,
+            cruise_name=str(config.cruise_name).replace("_", "-"),
             pages=paginated_data,
-            total_duration_h=total_duration_h,
-            total_transit_h=total_transit_h,
-            total_days=total_days,
+            total_duration_h=f"{total_operation_duration_h:.1f}",
+            total_transit_h=f"{total_transit_h:.1f}",
+            total_days=f"{total_days:.1f}",
         )
 
 

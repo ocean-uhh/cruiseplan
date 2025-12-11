@@ -1,3 +1,8 @@
+\documentclass[11pt, oneside]{article}   	% use "amsart" instead of "article" for AMSLaTeX format
+\usepackage{booktabs}
+
+\begin{document}
+
 \BLOCK{for page in pages}
 \begin{table}[htbp]\VAR{page.caption_suffix}
 \caption{Work days at sea: \VAR{cruise_name}\VAR{page.caption_suffix}}
@@ -15,3 +20,5 @@
 \end{tabular}
 \end{table}
 \BLOCK{endfor}
+
+\end{document}

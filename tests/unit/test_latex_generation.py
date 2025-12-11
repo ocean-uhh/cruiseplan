@@ -104,8 +104,8 @@ def test_latex_generation_basic():
 
     # Verify stations file has content
     stations_content = stations_file.read_text()
-    assert "STN_001" in stations_content
-    assert "STN_002" in stations_content
+    assert "STN-001" in stations_content # Replace underscore with dash
+    assert "STN-002" in stations_content # Replace underscore with dash
     assert "1000" in stations_content  # Depth (formatted without decimal)
 
     # Verify work days file has content
@@ -113,7 +113,6 @@ def test_latex_generation_basic():
     assert "CTD/Station Operations" in work_days_content
     assert "Transit to area" in work_days_content
     assert "Transit from area" in work_days_content
-    assert "TOTAL" in work_days_content
 
 
 def test_latex_generation_no_double_totals():
