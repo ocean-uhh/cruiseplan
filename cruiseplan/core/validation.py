@@ -524,20 +524,32 @@ def enrich_configuration(
                     station_data["depth"] = float(station_obj.depth)
 
                 # Add coordinate fields if requested
-                if add_coords and coord_format == "dmm":
-                    if "coordinates_dmm" not in station_data or not station_data.get(
-                        "coordinates_dmm"
-                    ):
-                        dmm_comment = format_dmm_comment(
-                            station_obj.position.latitude,
-                            station_obj.position.longitude,
+                if add_coords:
+                    if coord_format == "dmm":
+                        if "coordinates_dmm" not in station_data or not station_data.get(
+                            "coordinates_dmm"
+                        ):
+                            dmm_comment = format_dmm_comment(
+                                station_obj.position.latitude,
+                                station_obj.position.longitude,
+                            )
+                            station_data["coordinates_dmm"] = dmm_comment
+                            coord_changes_made += 1
+                            logger.debug(
+                                f"Added DMM coordinates to station {station_name}: {dmm_comment}"
+                            )
+                    elif coord_format == "dms":
+                        warnings.warn(
+                            "DMS coordinate format is not yet supported. No coordinates were added for station "
+                            f"{station_name}.",
+                            UserWarning,
                         )
-                        station_data["coordinates_dmm"] = dmm_comment
-                        coord_changes_made += 1
-                        logger.debug(
-                            f"Added DMM coordinates to station {station_name}: {dmm_comment}"
+                    else:
+                        warnings.warn(
+                            f"Unknown coordinate format '{coord_format}' specified. No coordinates were added for station "
+                            f"{station_name}.",
+                            UserWarning,
                         )
-
     # Update the enrichment summary
     enrichment_summary["stations_with_coords_added"] = coord_changes_made
     total_enriched = (
