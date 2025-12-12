@@ -1,6 +1,3 @@
-.. automodules::
-   :members:
-
 CruisePlan API
 ==============
 

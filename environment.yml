@@ -1,4 +1,4 @@
-name: template-project
+name: cruiseplan
 channels:
   - conda-forge
 dependencies:
