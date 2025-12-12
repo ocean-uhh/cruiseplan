@@ -32,9 +32,9 @@ dynamic = ["version", "dependencies", "optional-dependencies"]
 cruiseplan = "cruiseplan.cli.main:main"
 
 [project.urls]
-documentation = "https://github.com/eleanorfrajka/cruiseplan"
-homepage = "https://github.com/eleanorfrajka/cruiseplan"
-repository = "https://github.com/eleanorfrajka/cruiseplan"
+documentation = "https://github.com/ocean-uhh/cruiseplan"
+homepage = "https://github.com/ocean-uhh/cruiseplan"
+repository = "https://github.com/ocean-uhh/cruiseplan"
 
 
 # ---------------------------------------------------------

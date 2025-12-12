@@ -13,8 +13,8 @@ authors:
   - family-names: Trace-Kleeberg
     given-names: Sunke
     orcid: https://orcid.org/0000-0002-5980-2492
-repository-code: "https://github.com/eleanorfrajka/cruiseplan"
-url: "https://eleanorfrajka.github.io/cruiseplan"
+repository-code: "https://github.com/ocean-uhh/cruiseplan"
+url: "https://ocean-uhh.github.io/cruiseplan"
 abstract: >-
   CruisePlan is a Python package for planning and scheduling oceanographic
   research cruises. It provides tools for station distribution calculation,

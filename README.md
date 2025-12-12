@@ -2,15 +2,15 @@
 
 > 🌊 Oceanographic Research Cruise Planning System — comprehensive software for planning, documenting, and optimizing oceanographic research cruises.
 
-[![Tests](https://github.com/eleanorfrajka/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/eleanorfrajka/cruiseplan/actions/workflows/tests.yml)
+[![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://eleanorfrajka.github.io/cruiseplan/)
+[![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
 
 CruisePlan assists oceanographic researchers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
 
 📘 Full documentation available at:  
-👉 https://eleanorfrajka.github.io/cruiseplan/
+👉 https://ocean-uhh.github.io/cruiseplan/
 
 ---
 
@@ -64,7 +64,7 @@ cruiseplan/
 Install CruisePlan in development mode:
 
 ```bash
-git clone https://github.com/eleanorfrajka/cruiseplan.git
+git clone https://github.com/ocean-uhh/cruiseplan.git
 cd cruiseplan
 
 # Option A: Using conda/mamba (recommended)
@@ -94,17 +94,17 @@ make html
 
 ## 📚 Learn More
 
-- [Installation Guide](https://eleanorfrajka.github.io/cruiseplan/installation.html)
-- [Usage Guide](https://eleanorfrajka.github.io/cruiseplan/usage.html)
-- [API Reference](https://eleanorfrajka.github.io/cruiseplan/api/modules.html)
-- [Development Roadmap](https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md)
-- [Contributing Guidelines](https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md)
+- [Installation Guide](https://ocean-uhh.github.io/cruiseplan/installation.html)
+- [Usage Guide](https://ocean-uhh.github.io/cruiseplan/usage.html)
+- [API Reference](https://ocean-uhh.github.io/cruiseplan/api/modules.html)
+- [Development Roadmap](https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md)
+- [Contributing Guidelines](https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md) for details on how to get started.
+Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md) for details on how to get started.
 
 For information about planned improvements and the development roadmap, see [PROJECT_SPECS.md](PROJECT_SPECS.md).
 
@@ -120,7 +120,7 @@ For BibTeX format:
 @software{cruiseplan,
   author = {Frajka-Williams, Eleanor},
   title = {CruisePlan: Oceanographic Research Cruise Planning System},
-  url = {https://github.com/eleanorfrajka/cruiseplan},
+  url = {https://github.com/ocean-uhh/cruiseplan},
   year = {2025}
 }
 ```

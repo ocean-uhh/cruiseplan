@@ -25,7 +25,7 @@ For development or to access the latest features, clone and install from source:
 
 .. code-block:: bash
 
-   git clone https://github.com/eleanorfrajka/cruiseplan.git
+   git clone https://github.com/ocean-uhh/cruiseplan.git
    cd cruiseplan
 
    # Option A: Using conda/mamba (recommended)

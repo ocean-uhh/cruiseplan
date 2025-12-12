@@ -12,7 +12,7 @@ Thank you for your interest in contributing to CruisePlan! This document provide
 
 1. Fork and clone the repository:
    ```bash
-   git clone https://github.com/YOUR_USERNAME/cruiseplan.git
+   git clone https://github.com/ocean-uhh/cruiseplan.git
    cd cruiseplan
    ```
 
