@@ -3,13 +3,22 @@ name: Run tests
 on:
   push:
     branches: [ "main" ]
+    paths:
+      - '**.py'
+      - 'cruiseplan/**'
+      - 'tests/**'
+      - 'pyproject.toml'
+      - 'requirements*.txt'
+      - '.pre-commit-config.yaml'
   pull_request:
     branches: [ "main" ]
     paths:
       - '**.py'
-      - '**.yaml'
+      - 'cruiseplan/**'
+      - 'tests/**'
       - 'pyproject.toml'
       - 'requirements*.txt'
+      - '.pre-commit-config.yaml'
 
 jobs:
   test:
