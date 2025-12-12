@@ -411,7 +411,6 @@ class TransitDefinition(BaseModel):
         ValueError
             If operation_type and action are not provided together.
         """
-        """If operation_type is provided, action must also be provided and vice versa."""
         if (self.operation_type is None) != (self.action is None):
             raise ValueError(
                 "Both operation_type and action must be provided together for scientific transits"
@@ -922,10 +921,6 @@ class CruiseConfig(BaseModel):
         ------
         ValueError
             If inconsistent longitude systems are detected.
-        """
-        """
-        Ensures the entire cruise uses EITHER [-180, 180] OR [0, 360], but not both.
-        Example: Cannot have one point at -5 (355) and another at 355 (355) if inputs differ.
         """
         lons = []
 

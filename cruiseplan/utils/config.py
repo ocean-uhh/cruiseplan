@@ -118,24 +118,6 @@ def format_transect_for_yaml(transect_data, index):
         ],
         "reversible": True,
     }
-    return {
-        "name": f"Section_{index:02d}",
-        "comment": "Interactive transect",
-        "operation_type": "underway",
-        "action": "ADCP",
-        "vessel_speed": "10.0",
-        "route": [
-            {
-                "latitude": round(float(transect_data["start"]["lat"]), 5),
-                "longitude": round(float(transect_data["start"]["lon"]), 5),
-            },
-            {
-                "latitude": round(float(transect_data["end"]["lat"]), 5),
-                "longitude": round(float(transect_data["end"]["lon"]), 5),
-            },
-        ],
-        "reversible": True,
-    }
 
 
 def format_area_for_yaml(area_data, index):
@@ -158,20 +140,6 @@ def format_area_for_yaml(area_data, index):
     -----
     Ensures coordinates are native Python floats for proper YAML serialization.
     """
-    return {
-        "name": f"Area_{index:02d}",
-        "corners": [
-            {
-                "latitude": round(float(lat), 5),
-                "longitude": round(float(lon), 5),
-            }
-            for lon, lat in area_data["points"]
-        ],
-        "comment": "Interactive area survey",
-        "operation_type": "survey",
-        "action": "bathymetry",
-        "duration": 0.0,
-    }
     return {
         "name": f"Area_{index:02d}",
         "corners": [

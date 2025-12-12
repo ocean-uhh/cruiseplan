@@ -47,9 +47,6 @@ class UnitConverter:
         degrees = int(abs(decimal_degrees))
         minutes = (abs(decimal_degrees) - degrees) * 60
         return float(degrees), minutes
-        degrees = int(abs(decimal_degrees))
-        minutes = (abs(decimal_degrees) - degrees) * 60
-        return float(degrees), minutes
 
 
 def format_dmm_comment(lat: float, lon: float) -> str:
