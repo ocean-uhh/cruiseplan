@@ -55,7 +55,6 @@ def test_missing_reference_raises_error(tmp_path):
     Edge Case: Ensure the system throws an error if we schedule
     a mooring that doesn't exist in the catalog.
     """
-    
     bad_yaml = tmp_path / "bad.yaml"
     bad_yaml.write_text(
         """
