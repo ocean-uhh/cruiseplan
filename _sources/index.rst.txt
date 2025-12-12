@@ -19,15 +19,15 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    :maxdepth: 2
    :caption: Project Specifications
 
-   Development Roadmap <https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md>
+   Development Roadmap <https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md>
    NetCDF Data Standards <netcdf_outputs.md>
 
 .. toctree::
    :maxdepth: 2
    :caption: Help and Reference
 
-   Contributing Guidelines <https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md>
-   GitHub Repository <https://github.com/eleanorfrajka/cruiseplan>
+   Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
+   GitHub Repository <https://github.com/ocean-uhh/cruiseplan>
    CLI Command Reference <cli_reference.rst>
    API Reference <api/modules.rst>
 
