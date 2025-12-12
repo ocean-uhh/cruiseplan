@@ -6,35 +6,48 @@
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 import datetime
+from datetime import date
 
-year = datetime.datetime.now(tz=datetime.timezone.utc).date().year
-
+# -- Path setup --------------------------------------------------------------
 # Should not need to add paths if the docs.yml and docs_deploy.yml install the package.
-# import os
-# import sys
+# If extensions (or modules to document with autodoc) are in another directory,
+# add these directories to sys.path here.
+# Critical for local builds to find the package without installation
+#import os
+#import sys
+#sys.path.insert(0, os.path.abspath('../..'))
 # sys.path.insert(0, os.path.abspath('..'))
-# sys.path.insert(0, os.path.abspath('../..'))
-# print(sys.path)
 
-# General information about the project.
-project = "CruisePlan"
+# -- Project information -----------------------------------------------------
+project = 'CruisePlan'
 author = "Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg"
-copyright = f"{year}, {author}"
-release = "v0.0.0"
+copyright = f'{date.today().year}, {author}'
+release = 'v0.0.0' 
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
-
 extensions = [
-    "sphinx.ext.autodoc",
-    "sphinx.ext.viewcode",
-    "sphinx.ext.napoleon",
-    "nbsphinx",
-    "myst_parser",
+    'sphinx.ext.autodoc',      # Core library for html generation from docstrings
+    'sphinx.ext.napoleon',     # Support for NumPy and Google style docstrings
+    'sphinx.ext.viewcode',     # Add links to highlighted source code
+    'sphinx.ext.todo',         # Support for todo items
+    'sphinx_rtd_theme',        # Read the Docs theme
+    'myst_parser',             # Markdown support (optional, for .md files)
+    'nbsphinx',                # Jupyter Notebook support
 ]
 
+# The name of the Pygments (syntax highlighting) style to use.
+pygments_style = "sphinx"
+
+# Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
+
+source_suffix = {
+    '.rst': 'restructuredtext',
+    '.txt': 'markdown',
+    '.md': 'markdown',
+}
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -47,20 +60,24 @@ exclude_patterns = ["_build"]
 # unit titles (such as .. function::).
 # add_module_names = True
 
-# The name of the Pygments (syntax highlighting) style to use.
-pygments_style = "sphinx"
-
-
-# If true, keep warnings as "system message" paragraphs in the built documents.
-# keep_warnings = False
 
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
+html_theme = 'sphinx_rtd_theme'
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-html_theme = "sphinx_rtd_theme"
+# Add any paths that contain custom static files (such as style sheets) here,
+# relative to this directory. They are copied after the builtin static files,
+# so a file named "default.css" will overwrite the builtin "default.css".
+html_static_path = ['_static']
+
+# Custom styling and logo
+html_css_files = [
+    "css/custom.css",
+]
+# The name of an image file (relative to this directory) to place at the top
+# of the sidebar.
+html_logo = "_static/logo.png"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -69,28 +86,9 @@ html_theme = "sphinx_rtd_theme"
 # A shorter title for the navigation bar.  Default is the same as html_title.
 # html_short_title = None
 
-# Add any paths that contain custom static files (such as style sheets) here,
-# relative to this directory. They are copied after the builtin static files,
-# so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ["_static"]
-
-# custom CSS files
-# html_context = {
-#    "css_files": ["_static/css/custom.css"],
-# }
-html_css_files = [
-    "css/custom.css",
-]
-
 # If not '', a 'Last updated on:' timestamp is inserted at every page bottom,
 # using the given strftime format.
 # html_last_updated_fmt = '%b %d, %Y'
-
-source_suffix = [".rst", ".md"]
-
-# The name of an image file (relative to this directory) to place at the top
-# of the sidebar.
-html_logo = "_static/logo.png"
 
 # If false, no index is generated.
 # html_use_index = True
@@ -109,8 +107,28 @@ html_logo = "_static/logo.png"
 # If true, "Created using Sphinx" is shown in the HTML footer. Default is True.
 # html_show_sphinx = True
 
-# -- Options for LaTeX output ---------------------------------------------
+# -- Extension configuration -------------------------------------------------
+# Napoleon settings to handle your NumPy style docstrings
+napoleon_google_docstring = False
+napoleon_numpy_docstring = True
+napoleon_include_init_with_doc = True
+napoleon_include_private_with_doc = False
+napoleon_include_special_with_doc = True
+napoleon_use_admonition_for_examples = False
+napoleon_use_admonition_for_notes = False
+napoleon_use_admonition_for_references = False
+napoleon_use_ivar = False
+napoleon_use_param = True
+napoleon_use_rtype = True
 
+# Todo settings
+todo_include_todos = True
+
+# If true, keep warnings as "system message" paragraphs in the built documents.
+# keep_warnings = False
+
+
+# -- Options for LaTeX output ---------------------------------------------
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
     # 'papersize': 'letterpaper',
@@ -119,16 +137,13 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     # 'preamble': '',
 }
-
-# Grouping the document tree into LaTeX files. List of tuples
-# (source start file, target name, title,
-#  author, documentclass [howto, manual, or own class]).
+    
 latex_documents = [
     (
         "index",
-        "ReadtheDocsTemplate.tex",
-        "Read the Docs Template Documentation",
-        "Read the Docs",
+        "CruisePlanDocumentation.tex",
+        "CruisePlan Documentation",
+        author,
         "manual",
     ),
 ]

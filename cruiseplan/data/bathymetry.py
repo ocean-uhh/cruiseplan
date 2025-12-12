@@ -27,10 +27,38 @@ DEPTH_CONTOURS = [-5000, -4000, -3000, -2000, -1000, -500, -200, -100, -50, 0]
 class BathymetryManager:
     """
     Handles ETOPO bathymetry data with lazy loading and bilinear interpolation.
-    Implements 'Dev Mode' (returns mock depth) if data is missing.
+
+    Manages bathymetric data from ETOPO datasets, providing depth lookups
+    and grid subsets for oceanographic applications. Implements fallback
+    to mock data when bathymetry files are unavailable.
+
+    Attributes
+    ----------
+    source : str
+        Bathymetry data source identifier.
+    data_dir : Path
+        Directory containing bathymetry data files.
+    _is_mock : bool
+        Whether the manager is operating in mock mode.
+    _dataset : Optional[nc.Dataset]
+        NetCDF dataset object when loaded.
+    _lats : Optional[np.ndarray]
+        Latitude coordinate array.
+    _lons : Optional[np.ndarray]
+        Longitude coordinate array.
     """
 
     def __init__(self, source: str = "etopo2022", data_dir: str = "data"):
+        """
+        Initialize the bathymetry manager.
+
+        Parameters
+        ----------
+        source : str, optional
+            Bathymetry data source (default: "etopo2022").
+        data_dir : str, optional
+            Data directory relative to project root (default: "data").
+        """
         self.source = source
         # Resolve path relative to this file's location to be safe
         root = Path(__file__).parent.parent.parent
@@ -45,7 +73,10 @@ class BathymetryManager:
 
     def _initialize_data(self):
         """
-        Attempts to load NetCDF. Falls back to Mock mode on failure.
+        Attempt to load NetCDF data, falling back to mock mode on failure.
+
+        Tries to load the specified bathymetry dataset. If the file doesn't
+        exist or cannot be loaded, switches to mock mode for testing.
         """
         # Map simple source name to actual filename
         filename = ETOPO_FILENAME if self.source == "etopo2022" else f"{self.source}.nc"
@@ -75,8 +106,22 @@ class BathymetryManager:
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
         """
-        Returns depth in meters (negative down).
-        Uses bilinear interpolation on the ETOPO grid.
+        Get depth at a specific geographic point.
+
+        Returns depth in meters (negative values indicate depth below sea level).
+        Uses bilinear interpolation on the ETOPO grid for accurate results.
+
+        Parameters
+        ----------
+        lat : float
+            Latitude in decimal degrees.
+        lon : float
+            Longitude in decimal degrees.
+
+        Returns
+        -------
+        float
+            Depth in meters (negative for below sea level).
         """
         if self._is_mock:
             return self._get_mock_depth(lat, lon)
@@ -89,8 +134,28 @@ class BathymetryManager:
 
     def get_grid_subset(self, lat_min, lat_max, lon_min, lon_max, stride=1):
         """
-        Returns (lons, lats, z) 2D arrays for contour plotting.
-        Supports 'stride' to downsample large regions for performance.
+        Get a subset of the bathymetry grid for contour plotting.
+
+        Returns 2D arrays suitable for matplotlib contour plotting.
+        Supports downsampling with stride parameter for performance.
+
+        Parameters
+        ----------
+        lat_min : float
+            Minimum latitude of the subset.
+        lat_max : float
+            Maximum latitude of the subset.
+        lon_min : float
+            Minimum longitude of the subset.
+        lon_max : float
+            Maximum longitude of the subset.
+        stride : int, optional
+            Downsampling factor (default: 1, no downsampling).
+
+        Returns
+        -------
+        tuple
+            Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.
         """
         if self._is_mock:
             # Generate synthetic grid
@@ -132,7 +197,19 @@ class BathymetryManager:
 
     def _interpolate_depth(self, lat: float, lon: float) -> float:
         """
-        Performs bilinear interpolation logic.
+        Perform bilinear interpolation on the bathymetry grid.
+
+        Parameters
+        ----------
+        lat : float
+            Latitude for interpolation.
+        lon : float
+            Longitude for interpolation.
+
+        Returns
+        -------
+        float
+            Interpolated depth value.
         """
         # 1. Bounds Check
         if lat < self._lats[0] or lat > self._lats[-1]:
@@ -190,19 +267,49 @@ class BathymetryManager:
 
     def _get_mock_depth(self, lat: float, lon: float) -> float:
         """
-        Deterministic mock depth based on coordinates.
-        Useful for testing without needing random numbers.
+        Generate deterministic mock depth for testing.
+
+        Uses a deterministic formula based on coordinates to provide
+        consistent depth values for testing without real bathymetry data.
+
+        Parameters
+        ----------
+        lat : float
+            Latitude coordinate.
+        lon : float
+            Longitude coordinate.
+
+        Returns
+        -------
+        float
+            Mock depth value.
         """
         val = (abs(lat) * 100) + (abs(lon) * 50)
         return -(val % 4000) - 100
 
     def close(self):
+        """
+        Close the NetCDF dataset if open.
+
+        Should be called when the manager is no longer needed to free resources.
+        """
         if self._dataset and self._dataset.isopen():
             self._dataset.close()
 
 
 def download_bathymetry(target_dir: str = "data"):
-    """Downloads ETOPO 2022 file with progress bar."""
+    """
+    Download ETOPO 2022 bathymetry dataset with progress bar.
+
+    Downloads the ETOPO 2022 60-second resolution bathymetry data
+    from NOAA servers. Tries multiple mirror URLs if the primary fails.
+
+    Parameters
+    ----------
+    target_dir : str, optional
+        Target directory relative to project root (default: "data").
+        The file will be saved in a "bathymetry" subdirectory.
+    """
     root = Path(__file__).parent.parent.parent
     output_dir = root / target_dir / "bathymetry"
     output_dir.mkdir(parents=True, exist_ok=True)

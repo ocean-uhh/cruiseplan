@@ -8,22 +8,72 @@ from cruiseplan.core.validation import (
 
 
 class BaseOperation(ABC):
-    """Abstract base class for all cruise operations."""
+    """
+    Abstract base class for all cruise operations.
+
+    This class defines the common interface that all cruise operations must
+    implement, providing a foundation for different types of oceanographic
+    activities.
+
+    Attributes
+    ----------
+    name : str
+        Unique identifier for this operation.
+    comment : Optional[str]
+        Optional human-readable comment or description.
+    """
 
     def __init__(self, name: str, comment: Optional[str] = None):
+        """
+        Initialize a base operation.
+
+        Parameters
+        ----------
+        name : str
+            Unique identifier for this operation.
+        comment : Optional[str], optional
+            Human-readable comment or description.
+        """
         self.name = name
         self.comment = comment
 
     @abstractmethod
     def calculate_duration(self, rules: Any) -> float:
-        """Calculate duration in minutes based on provided rules."""
+        """
+        Calculate duration in minutes based on provided rules.
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules and parameters.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
         pass
 
 
 class PointOperation(BaseOperation):
     """
     Atomic activity at a fixed location.
-    Handles both Stations (CTD) and Moorings (Deploy/Recover).
+
+    Handles both Stations (CTD casts) and Moorings (deploy/recover operations).
+    Represents the most basic unit of work in a cruise plan.
+
+    Attributes
+    ----------
+    position : tuple
+        Geographic position as (latitude, longitude).
+    depth : float
+        Operation depth in meters.
+    manual_duration : float
+        User-specified duration override in minutes.
+    op_type : str
+        Type of operation ('station' or 'mooring').
+    action : str
+        Specific action for moorings (deploy/recover).
     """
 
     def __init__(
@@ -36,6 +86,26 @@ class PointOperation(BaseOperation):
         op_type: str = "station",
         action: str = None,
     ):
+        """
+        Initialize a point operation.
+
+        Parameters
+        ----------
+        name : str
+            Unique identifier for this operation.
+        position : tuple
+            Geographic position as (latitude, longitude).
+        depth : float, optional
+            Operation depth in meters (default: 0.0).
+        duration : float, optional
+            Manual duration override in minutes (default: 0.0).
+        comment : str, optional
+            Human-readable comment or description.
+        op_type : str, optional
+            Type of operation ('station' or 'mooring', default: 'station').
+        action : str, optional
+            Specific action for moorings (deploy/recover).
+        """
         super().__init__(name, comment)
         self.position = position  # (lat, lon)
         self.depth = depth
@@ -44,7 +114,22 @@ class PointOperation(BaseOperation):
         self.action = action  # Specific to Moorings
 
     def calculate_duration(self, rules: Any) -> float:
-        """Calculate duration based on operation type and rules."""
+        """
+        Calculate duration based on operation type and rules.
+
+        Uses manual duration if specified, otherwise calculates based on
+        operation type (CTD time for stations, default duration for moorings).
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules containing config.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
         # Phase 2 Logic: Manual duration always wins
         if self.manual_duration > 0:
             return self.manual_duration
@@ -73,7 +158,18 @@ class PointOperation(BaseOperation):
     def from_pydantic(cls, obj: StationDefinition) -> "PointOperation":
         """
         Factory to create a logical operation from a validated Pydantic model.
+
         Handles the internal 'position' normalization done by FlexibleLocationModel.
+
+        Parameters
+        ----------
+        obj : StationDefinition
+            Validated Pydantic station definition model.
+
+        Returns
+        -------
+        PointOperation
+            New PointOperation instance.
         """
         # 1. Extract Position (Guaranteed by validation.py to exist)
         pos = (obj.position.latitude, obj.position.longitude)
@@ -103,16 +199,53 @@ class PointOperation(BaseOperation):
 class LineOperation(BaseOperation):
     """
     Continuous activity involving movement (Transit, Towyo).
+
+    Represents operations that involve traveling between points, such as
+    vessel transits or towed instrument deployments.
+
+    Attributes
+    ----------
+    route : List[tuple]
+        List of geographic waypoints as (latitude, longitude) tuples.
+    speed : float
+        Vessel speed in knots.
     """
 
     def __init__(
         self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None
     ):
+        """
+        Initialize a line operation.
+
+        Parameters
+        ----------
+        name : str
+            Unique identifier for this operation.
+        route : List[tuple]
+            List of geographic waypoints as (latitude, longitude) tuples.
+        speed : float, optional
+            Vessel speed in knots (default: 10.0).
+        comment : str, optional
+            Human-readable comment or description.
+        """
         super().__init__(name, comment)
         self.route = route  # List of (lat, lon)
         self.speed = speed
 
     def calculate_duration(self, rules: Any) -> float:
+        """
+        Calculate duration for the line operation.
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules and parameters.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
         # Placeholder for Phase 2 distance calculation
         return 0.0
 
@@ -120,6 +253,21 @@ class LineOperation(BaseOperation):
     def from_pydantic(
         cls, obj: TransitDefinition, default_speed: float
     ) -> "LineOperation":
+        """
+        Factory to create a line operation from a validated Pydantic model.
+
+        Parameters
+        ----------
+        obj : TransitDefinition
+            Validated Pydantic transit definition model.
+        default_speed : float
+            Default vessel speed to use if not specified in the model.
+
+        Returns
+        -------
+        LineOperation
+            New LineOperation instance.
+        """
         # Convert List[GeoPoint] -> List[tuple]
         route_tuples = [(p.latitude, p.longitude) for p in obj.route]
 
@@ -134,7 +282,20 @@ class LineOperation(BaseOperation):
 class CompositeOperation(BaseOperation):
     """
     Logical container for grouping related PointOperations or other BaseOperations.
-    Examples: "53N Section" (20 CTDs), "OSNAP Array" (Mixed CTDs + Moorings)
+
+    Examples: "53N Section" (20 CTDs), "OSNAP Array" (Mixed CTDs + Moorings).
+    Provides different scheduling strategies for optimizing execution order.
+
+    Attributes
+    ----------
+    children : List[BaseOperation]
+        List of child operations contained within this composite.
+    geometry_definition : Optional[Any]
+        Geometric definition (LineString or Polygon) for spatial operations.
+    scheduling_strategy : str
+        Strategy for scheduling child operations ('sequential', 'spatial_interleaved', 'day_night_split').
+    ordered : bool
+        Whether the order of operations should be preserved.
     """
 
     def __init__(
@@ -146,6 +307,24 @@ class CompositeOperation(BaseOperation):
         ordered: bool = True,
         comment: str = None,
     ):
+        """
+        Initialize a composite operation.
+
+        Parameters
+        ----------
+        name : str
+            Unique identifier for this composite operation.
+        children : List[BaseOperation]
+            List of child operations to contain.
+        geometry_definition : Optional[Any], optional
+            Geometric definition for spatial operations.
+        scheduling_strategy : str, optional
+            Scheduling strategy ('sequential', 'spatial_interleaved', 'day_night_split', default: 'sequential').
+        ordered : bool, optional
+            Whether to preserve operation order (default: True).
+        comment : str, optional
+            Human-readable comment or description.
+        """
         super().__init__(name, comment)
         self.children = children
         self.geometry_definition = geometry_definition
@@ -154,8 +333,19 @@ class CompositeOperation(BaseOperation):
 
     def calculate_duration(self, rules: Any) -> float:
         """
-        Calculates total duration by solving internal routing logic.
+        Calculate total duration by solving internal routing logic.
+
         Accounts for strategy (sequential, day_night_split, spatial_interleaved).
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules and parameters.
+
+        Returns
+        -------
+        float
+            Total duration in minutes.
         """
         if not self.children:
             return 0.0
@@ -174,7 +364,19 @@ class CompositeOperation(BaseOperation):
             return sum(child.calculate_duration(rules) for child in self.children)
 
     def _calculate_day_night_duration(self, rules: Any) -> float:
-        """Calculate duration for day/night split strategy."""
+        """
+        Calculate duration for day/night split strategy.
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules and parameters.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
+        """
         # Implement zipper pattern logic from specs
         total_duration = 0.0
         # This is a placeholder - implement according to PROJECT_SPECS.md section 3.2
@@ -186,7 +388,18 @@ class CompositeOperation(BaseOperation):
 class AreaOperation(BaseOperation):
     """
     Activities within defined polygonal regions.
-    Examples: grid surveys, area monitoring, search patterns
+
+    Examples: grid surveys, area monitoring, search patterns.
+    Operations that cover a defined geographic area rather than specific points or lines.
+
+    Attributes
+    ----------
+    boundary_polygon : List[Tuple[float, float]]
+        List of (latitude, longitude) tuples defining the area boundary.
+    area_km2 : float
+        Area of the polygon in square kilometers.
+    sampling_density : float
+        Sampling density factor for duration calculations.
     """
 
     def __init__(
@@ -197,6 +410,22 @@ class AreaOperation(BaseOperation):
         sampling_density: float = 1.0,
         comment: str = None,
     ):
+        """
+        Initialize an area operation.
+
+        Parameters
+        ----------
+        name : str
+            Unique identifier for this operation.
+        boundary_polygon : List[Tuple[float, float]]
+            List of (latitude, longitude) tuples defining the area boundary.
+        area_km2 : float
+            Area of the polygon in square kilometers.
+        sampling_density : float, optional
+            Sampling density factor for duration calculations (default: 1.0).
+        comment : str, optional
+            Human-readable comment or description.
+        """
         super().__init__(name, comment)
         self.boundary_polygon = boundary_polygon
         self.area_km2 = area_km2
@@ -204,7 +433,17 @@ class AreaOperation(BaseOperation):
 
     def calculate_duration(self, rules: Any) -> float:
         """
-        Duration calculation: area coverage models or user-defined.
+        Calculate duration using area coverage models or user-defined formulas.
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules and parameters.
+
+        Returns
+        -------
+        float
+            Duration in minutes.
         """
         # Placeholder - implement area coverage calculation
         return self.area_km2 * self.sampling_density * 0.1  # Example formula
