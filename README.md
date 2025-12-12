@@ -1,72 +1,75 @@
-# template-project
+# CruisePlan
 
-> 🧪 A modern Python template for scientific projects — with clean code, automated tests, documentation, citation, and publication tools, ready out-of-the-box.
+> 🌊 Oceanographic Research Cruise Planning System — comprehensive software for planning, documenting, and optimizing oceanographic research cruises.
 
-This repository is designed to help researchers and developers (especially in the [UHH Experimental Oceanography group](http://eleanorfrajka.com) quickly launch well-structured Python projects with consistent tooling for open science.
+[![Tests](https://github.com/eleanorfrajka/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/eleanorfrajka/cruiseplan/actions/workflows/tests.yml)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://eleanorfrajka.github.io/cruiseplan/)
+
+CruisePlan assists oceanographic researchers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
 
 📘 Full documentation available at:  
-👉 https://eleanorfrajka.github.io/template-project/
+👉 https://eleanorfrajka.github.io/cruiseplan/
 
 ---
 
 ## 🚀 What's Included
 
-- ✅ Example Python package layout: `template_project/*.py`
-- 📓 Jupyter notebook demo: `notebooks/demo.ipynb`
-- 📄 Markdown and Sphinx-based documentation in `docs/`
-- 🔍 Tests with `pytest` in `tests/`, CI with GitHub Actions
-- 🎨 Code style via `black`, `ruff`, `pre-commit`
-- 📦 Package config via `pyproject.toml` + optional PyPI release workflow
-- 🧾 Machine-readable citation: `CITATION.cff`
+- ✅ **Interactive station planning**: Click-to-place stations on bathymetric maps with real-time depth feedback
+- 📓 **PANGAEA integration**: Browse and incorporate past cruise data for context
+- 📄 **Multi-format outputs**: Generate NetCDF, LaTeX reports, HTML maps, KML files, and CSV data
+- 🔍 **Comprehensive validation**: Automated checking of cruise configurations and operational feasibility
+- 🎨 **Professional documentation**: Sphinx-based docs with API references and usage guides
+- 📦 **Modern Python packaging**: Complete with testing, linting, and CI/CD workflows
+- 🧾 **Scientific citation support**: CITATION.cff for academic attribution
 
 ---
 
 ## Project structure
 
-template-project/
+cruiseplan/
 ├── .github/
 │   └── workflows/              # GitHub Actions for tests, docs, PyPI
 ├── docs/                       # Sphinx-based documentation
 │   ├── source/                 # reStructuredText + MyST Markdown + _static
 │   └── Makefile                # for building HTML docs
-├── notebooks/                  # Example notebooks
-├── template_project/           # Main Python package
-│   ├── __init__.py
-│   ├── _version.py
-│   ├── tools.py
-│   ├── readers.py
-│   ├── writers.py
-│   ├── utilities.py
-│   ├── plotters.py
-│   └── template_project.mplstyle  # Optional: matplotlib style file
-├── tests/                      # Pytest test suite
-│   ├── test_tools.py
-│   └── test_utilities.py
+├── notebooks/                  # Example notebooks and demos
+├── cruiseplan/                 # Main Python package
+│   ├── cli/                    # Command-line interface modules
+│   ├── core/                   # Core cruise planning logic
+│   ├── calculators/            # Distance, duration, routing calculators
+│   ├── data/                   # Bathymetry and PANGAEA data handling
+│   ├── interactive/            # Interactive station picking tools
+│   ├── output/                 # Multi-format output generators
+│   └── utils/                  # Utilities and coordinate handling
+├── tests/                      # Comprehensive pytest test suite
+├── data/                       # Bathymetry datasets
 ├── .gitignore
 ├── .pre-commit-config.yaml
-├── CITATION.cff                # Sample file for citable software
-├── CONTRIBUTING.md             # Sample file for inviting contributions
-├── LICENSE                     # Sample MIT license
+├── CITATION.cff                # Citation file for academic use
+├── CONTRIBUTING.md             # Contribution guidelines
+├── LICENSE                     # MIT license
 ├── README.md
 ├── pyproject.toml              # Modern packaging config
-├── requirements.txt            # Package requirements
-├── customisation_checklist.md  # Development requirements
-└── requirements-dev.txt        # Linting, testing, docs tools
-
+├── requirements.txt            # Core package dependencies
+├── requirements-dev.txt        # Development and testing tools
+├── environment.yml             # Conda environment specification
+└── PROJECT_SPECS.md            # Development roadmap and specifications
 
 ---
 
 ## 🔧 Quickstart
 
-Install in development mode:
+Install CruisePlan in development mode:
 
 ```bash
-git clone https://github.com/eleanorfrajka/template-project.git
-cd template-project
+git clone https://github.com/eleanorfrajka/cruiseplan.git
+cd cruiseplan
 
 # Option A: Using conda/mamba (recommended)
 conda env create -f environment.yml
-conda activate template-project
+conda activate cruiseplan
 pip install -e .
 
 # Option B: Using pip
@@ -91,31 +94,33 @@ make html
 
 ## 📚 Learn More
 
-- [Setup instructions](https://eleanorfrajka.github.io/template-project/setup.html)
-- [Solo Git workflow](https://eleanorfrajka.github.io/template-project/gitworkflow_solo.html)
-- [Fork-based collaboration](https://eleanorfrajka.github.io/template-project/gitcollab_v2.html)
-- [Building docs](https://eleanorfrajka.github.io/template-project/build_docs.html)
-- [Publishing to PyPI](https://eleanorfrajka.github.io/template-project/pypi_guide.html)
+- [Installation Guide](https://eleanorfrajka.github.io/cruiseplan/installation.html)
+- [Usage Guide](https://eleanorfrajka.github.io/cruiseplan/usage.html)
+- [API Reference](https://eleanorfrajka.github.io/cruiseplan/api/modules.html)
+- [Development Roadmap](https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md)
+- [Contributing Guidelines](https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md)
 
 ---
 
 ## 🤝 Contributing
 
-Contributions are welcome!  Please also consider adding an [issue](https://github.com/eleanorfrajka/template-project/issues) when something isn't clear.
+Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md) for details on how to get started.
 
-See the [customisation checklist](customisation_checklist.md) to adapt this template to your own project.
-
-For information about planned improvements and the development roadmap, see [MODERNIZATION_PLAN.md](MODERNIZATION_PLAN.md).
-
----
-
-## Future plans
-
-I'll also (once I know how) add instructions for how to publish the package to conda forge, so that folks who use conda or mamba for environment management can also install that way.
+For information about planned improvements and the development roadmap, see [PROJECT_SPECS.md](PROJECT_SPECS.md).
 
 ---
 
 ## 📣 Citation
 
-This repository includes a `CITATION.cff` file so that users of this template can include one in their own project.  
-There is no need to cite this repository directly.
+If you use CruisePlan in your research, please cite it using the information in [CITATION.cff](CITATION.cff).
+
+For BibTeX format:
+
+```bibtex
+@software{cruiseplan,
+  author = {Frajka-Williams, Eleanor},
+  title = {CruisePlan: Oceanographic Research Cruise Planning System},
+  url = {https://github.com/eleanorfrajka/cruiseplan},
+  year = {2025}
+}
+```
