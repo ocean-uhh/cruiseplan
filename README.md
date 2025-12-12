@@ -1,13 +1,13 @@
 # CruisePlan
 
-> 🌊 Oceanographic Research Cruise Planning System — comprehensive software for planning, documenting, and optimizing oceanographic research cruises.
+> 🌊 Oceanographic Research Cruise Planning System — a software package for planning oceanographic research cruises.
 
 [![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
 
-CruisePlan assists oceanographic researchers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
+CruisePlan assists oceanographers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
 
 📘 Full documentation available at:  
 👉 https://ocean-uhh.github.io/cruiseplan/
@@ -19,8 +19,8 @@ CruisePlan assists oceanographic researchers in designing optimal station layout
 - ✅ **Interactive station planning**: Click-to-place stations on bathymetric maps with real-time depth feedback
 - 📓 **PANGAEA integration**: Browse and incorporate past cruise data for context
 - 📄 **Multi-format outputs**: Generate NetCDF, LaTeX reports, HTML maps, KML files, and CSV data
-- 🔍 **Comprehensive validation**: Automated checking of cruise configurations and operational feasibility
-- 🎨 **Professional documentation**: Sphinx-based docs with API references and usage guides
+- 🔍 **Cruise validation**: Automated checking of cruise configurations and operational feasibility
+- 🎨 **Documentation**: Sphinx-based docs with API references and usage guides
 - 📦 **Modern Python packaging**: Complete with testing, linting, and CI/CD workflows
 - 🧾 **Scientific citation support**: CITATION.cff for academic attribution
 
@@ -28,6 +28,7 @@ CruisePlan assists oceanographic researchers in designing optimal station layout
 
 ## Project structure
 
+```text
 cruiseplan/
 ├── .github/
 │   └── workflows/              # GitHub Actions for tests, docs, PyPI
@@ -56,6 +57,7 @@ cruiseplan/
 ├── requirements-dev.txt        # Development and testing tools
 ├── environment.yml             # Conda environment specification
 └── PROJECT_SPECS.md            # Development roadmap and specifications
+```
 
 ---
 
@@ -73,6 +75,7 @@ conda activate cruiseplan
 pip install -e .
 
 # Option B: Using pip
+pip install -r requirements.txt
 pip install -r requirements-dev.txt
 pip install -e .
 ```
@@ -114,13 +117,3 @@ For information about planned improvements and the development roadmap, see [PRO
 
 If you use CruisePlan in your research, please cite it using the information in [CITATION.cff](CITATION.cff).
 
-For BibTeX format:
-
-```bibtex
-@software{cruiseplan,
-  author = {Frajka-Williams, Eleanor},
-  title = {CruisePlan: Oceanographic Research Cruise Planning System},
-  url = {https://github.com/ocean-uhh/cruiseplan},
-  year = {2025}
-}
-```
