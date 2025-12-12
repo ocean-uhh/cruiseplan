@@ -1,0 +1,811 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.data.pangaea &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.data.pangaea</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.data.pangaea</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+
+<span class="c1"># PangaeaPy Imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pangaeapy.pandataset</span><span class="w"> </span><span class="kn">import</span> <span class="n">PanDataSet</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pangaeapy.panquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">PanQuery</span>
+
+<span class="c1"># Local Imports</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_cruise_map</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="PangaeaManager">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">PangaeaManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manager for PANGAEA dataset search and retrieval.</span>
+
+<span class="sd">    Provides functionality to search PANGAEA datasets using spatial queries,</span>
+<span class="sd">    fetch metadata and coordinate data, and cache results for performance.</span>
+<span class="sd">    Integrates with the cruise planning system for incorporating existing</span>
+<span class="sd">    cruise tracks into planning workflows.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cache : CacheManager</span>
+<span class="sd">        File-based cache for storing fetched dataset metadata.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="PangaeaManager.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cache_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;.cache&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize PANGAEA manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cache_dir : str, optional</span>
+<span class="sd">            Directory for cache storage (default: &quot;.cache&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span> <span class="o">=</span> <span class="n">CacheManager</span><span class="p">(</span><span class="n">cache_dir</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PangaeaManager.search">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.search">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">search</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">query</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">bbox</span><span class="p">:</span> <span class="nb">tuple</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Search PANGAEA using the native PanQuery bbox support.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        query : str</span>
+<span class="sd">            Search query string for PANGAEA datasets.</span>
+<span class="sd">        bbox : tuple, optional</span>
+<span class="sd">            Bounding box as (min_lon, min_lat, max_lon, max_lat).</span>
+<span class="sd">        limit : int, optional</span>
+<span class="sd">            Maximum number of results to return (default: 10).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict[str, Any]]</span>
+<span class="sd">            List of dataset metadata dictionaries.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Searching Pangaea: &#39;</span><span class="si">{</span><span class="n">query</span><span class="si">}</span><span class="s2">&#39; (Limit: </span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># 1. Use bbox directly. The class maps it to &amp;minlon, &amp;maxlat, etc.</span>
+            <span class="n">pq</span> <span class="o">=</span> <span class="n">PanQuery</span><span class="p">(</span><span class="n">query</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
+
+            <span class="c1"># Check for errors reported by the class</span>
+            <span class="k">if</span> <span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Pangaea Query Error: </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">[]</span>
+
+            <span class="c1"># 2. Extract DOIs correctly</span>
+            <span class="c1"># The source code provides a helper method for this:</span>
+            <span class="n">raw_dois</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get_dois</span><span class="p">()</span>
+            <span class="n">clean_dois</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span> <span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">raw_dois</span><span class="p">]</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Search found </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">totalcount</span><span class="si">}</span><span class="s2"> total matches. Retrieving first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2">...&quot;</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_dois</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[]</span>
+
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">fetch_datasets</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Search failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="PangaeaManager.fetch_datasets">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.fetch_datasets">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fetch_datasets</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">doi_list</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+        <span class="n">rate_limit</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">merge_campaigns</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Process a list of DOIs and return standardized metadata objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        doi_list : List[str]</span>
+<span class="sd">            List of DOI strings to fetch.</span>
+<span class="sd">        rate_limit : Optional[float], optional</span>
+<span class="sd">            Optional requests per second limit (None = no rate limiting).</span>
+<span class="sd">        merge_campaigns : bool, optional</span>
+<span class="sd">            Whether to merge campaigns with same name (default: False).</span>
+<span class="sd">        progress_callback : Optional[Callable[[int, int, str], None]], optional</span>
+<span class="sd">            Optional function(current, total, message) for progress updates.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        List[Dict[str, Any]]</span>
+<span class="sd">            List of dataset dictionaries with standardized metadata.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+            <span class="n">progress_callback</span><span class="p">(</span>
+                <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Starting fetch of </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> PANGAEA datasets&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">doi</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">doi_list</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                    <span class="n">progress_callback</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;Fetching </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                <span class="n">clean_doi</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_doi</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Skipping invalid DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                        <span class="n">progress_callback</span><span class="p">(</span>
+                            <span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;⚠ Skipping invalid DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                    <span class="k">continue</span>
+
+                <span class="n">cache_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;pangaea_meta_</span><span class="si">{</span><span class="n">clean_doi</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;/&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;_&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">cache_key</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="c1"># Fetch fresh from API</span>
+                    <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_fetch_from_api</span><span class="p">(</span><span class="n">clean_doi</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">cache</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">cache_key</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+
+                <span class="k">if</span> <span class="n">data</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                        <span class="n">progress_callback</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="s2">&quot;✓ Retrieved dataset&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                        <span class="n">progress_callback</span><span class="p">(</span>
+                            <span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;⚠ No data found for </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+                <span class="c1"># Rate limiting between requests</span>
+                <span class="k">if</span> <span class="n">rate_limit</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">):</span>  <span class="c1"># Don&#39;t sleep after last request</span>
+                    <span class="n">sleep_time</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">rate_limit</span>
+                    <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">)</span>
+
+            <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                    <span class="n">progress_callback</span><span class="p">(</span>
+                        <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span>
+                        <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
+                        <span class="sa">f</span><span class="s2">&quot;Processing interrupted at </span><span class="si">{</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                <span class="k">break</span>
+
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+                    <span class="n">progress_callback</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;✗ Error fetching </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error fetching </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+
+        <span class="c1"># Merge campaigns if requested</span>
+        <span class="k">if</span> <span class="n">merge_campaigns</span> <span class="ow">and</span> <span class="n">results</span><span class="p">:</span>
+            <span class="n">original_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="n">results</span> <span class="o">=</span> <span class="n">merge_campaign_tracks</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+            <span class="n">merged_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">progress_callback</span> <span class="ow">and</span> <span class="n">merged_count</span> <span class="o">&lt;</span> <span class="n">original_count</span><span class="p">:</span>
+                <span class="n">progress_callback</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
+                    <span class="sa">f</span><span class="s2">&quot;Merged </span><span class="si">{</span><span class="n">original_count</span><span class="si">}</span><span class="s2"> datasets into </span><span class="si">{</span><span class="n">merged_count</span><span class="si">}</span><span class="s2"> campaigns&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+            <span class="n">progress_callback</span><span class="p">(</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
+                <span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">),</span>
+                <span class="sa">f</span><span class="s2">&quot;Completed: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">doi_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">results</span></div>
+
+
+<div class="viewcode-block" id="PangaeaManager.create_map">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.create_map">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_map</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">datasets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;pangaea_map.html&quot;</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Convenience wrapper to visualize datasets fetched by this manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        datasets : List[Dict[str, Any]]</span>
+<span class="sd">            List of dataset dictionaries with latitude/longitude data.</span>
+<span class="sd">        filename : str, optional</span>
+<span class="sd">            Output filename for the HTML map (default: &quot;pangaea_map.html&quot;).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            Path to the generated HTML map file.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># You might want to do a quick transformation here if your dataset dicts</span>
+        <span class="c1"># don&#39;t exactly match what generate_cruise_map expects.</span>
+        <span class="c1"># But if they match (latitude, longitude, label), just pass them through:</span>
+
+        <span class="k">return</span> <span class="n">generate_cruise_map</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_clean_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate and clean DOI format (10.xxxx/xxxx).</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        doi : str</span>
+<span class="sd">            DOI string to clean and validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Cleaned DOI string or empty string if invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doi</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="n">doi</span> <span class="o">=</span> <span class="n">doi</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="c1"># Handle &quot;doi:&quot; prefix (e.g., from Pangaea API &quot;doi:10.1594/...&quot;)</span>
+        <span class="k">if</span> <span class="n">doi</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;doi:&quot;</span><span class="p">):</span>
+            <span class="n">doi</span> <span class="o">=</span> <span class="n">doi</span><span class="p">[</span><span class="mi">4</span><span class="p">:]</span>  <span class="c1"># Remove the first 4 characters</span>
+
+        <span class="c1"># Handle full URL format (e.g., &quot;https://doi.org/10.xxxx&quot;)</span>
+        <span class="k">if</span> <span class="s2">&quot;doi.org/&quot;</span> <span class="ow">in</span> <span class="n">doi</span><span class="p">:</span>
+            <span class="n">doi</span> <span class="o">=</span> <span class="n">doi</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;doi.org/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Final validation: Must start with the directory indicator &quot;10.&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">doi</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;10.&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">doi</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fetch_from_api</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fetch dataset metadata from PANGAEA API.</span>
+
+<span class="sd">        Strategy:</span>
+<span class="sd">        1. Try extracting from `ds.events` (Metadata - Best for coordinates/campaigns)</span>
+<span class="sd">        2. Fallback to `ds.data` (Main Table - Messy columns)</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        doi : str</span>
+<span class="sd">            DOI identifier for the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Dict[str, Any]]</span>
+<span class="sd">            Standardized dataset metadata or None if fetch fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Fetching PANGAEA dataset: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">ds</span> <span class="o">=</span> <span class="n">PanDataSet</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span>
+
+            <span class="c1"># STRATEGY 1: Use Events Metadata (Preferred - Lightweight)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;events&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ds</span><span class="o">.</span><span class="n">events</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_events</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">events</span><span class="p">,</span> <span class="n">doi</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">data</span>
+
+            <span class="c1"># STRATEGY 2: Fallback to Main Data Table</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No events found for </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">, falling back to data table.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_data_table</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">doi</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to fetch </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_events</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">events_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extracts lat/lon/label/campaign from the .events attribute.</span>
+
+<span class="sd">        Returns a standardized Dictionary.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        events_data : Any</span>
+<span class="sd">            Events data from PANGAEA dataset.</span>
+<span class="sd">        doi : str</span>
+<span class="sd">            DOI identifier for the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Dict[str, Any]]</span>
+<span class="sd">            Standardized dataset metadata or None if parsing fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">events_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Normalize input to list</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">events_data</span><span class="p">,</span> <span class="s2">&quot;iterrows&quot;</span><span class="p">):</span>
+            <span class="n">events_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">event</span> <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events_data</span><span class="o">.</span><span class="n">iterrows</span><span class="p">()]</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">events_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">events_list</span> <span class="o">=</span> <span class="n">events_data</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">lats</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">lons</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">campaign_label</span> <span class="o">=</span> <span class="s2">&quot;Unknown Campaign&quot;</span>
+
+        <span class="c1"># We need to aggregate points for this single dataset</span>
+        <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">events_list</span><span class="p">:</span>
+            <span class="n">lat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_get</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="s2">&quot;LATITUDE&quot;</span><span class="p">])</span>
+            <span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_get</span><span class="p">(</span>
+                <span class="n">event</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="s2">&quot;long&quot;</span><span class="p">,</span> <span class="s2">&quot;LONGITUDE&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+                    <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                    <span class="k">continue</span>
+
+            <span class="c1"># Try to grab the campaign label from the first valid event</span>
+            <span class="k">if</span> <span class="n">campaign_label</span> <span class="o">==</span> <span class="s2">&quot;Unknown Campaign&quot;</span><span class="p">:</span>
+                <span class="n">camp_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_safe_get</span><span class="p">(</span>
+                    <span class="n">event</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Campaign&quot;</span><span class="p">,</span> <span class="s2">&quot;campaign&quot;</span><span class="p">,</span> <span class="s2">&quot;expedition&quot;</span><span class="p">,</span> <span class="s2">&quot;Expedition&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">camp_obj</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">camp_obj</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">):</span>
+                        <span class="n">campaign_label</span> <span class="o">=</span> <span class="n">camp_obj</span><span class="o">.</span><span class="n">label</span>
+                    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">camp_obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                        <span class="n">campaign_label</span> <span class="o">=</span> <span class="n">camp_obj</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">campaign_label</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">camp_obj</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lats</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">campaign_label</span><span class="p">),</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lats</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lons</span><span class="p">,</span>
+            <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="n">doi</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_parse_data_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ds</span><span class="p">:</span> <span class="n">PanDataSet</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Fallback: Scrape the main data table for coordinates.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ds : PanDataSet</span>
+<span class="sd">            PANGAEA dataset object.</span>
+<span class="sd">        doi : str</span>
+<span class="sd">            DOI identifier for the dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[Dict[str, Any]]</span>
+<span class="sd">            Standardized dataset metadata or None if parsing fails.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">ds</span><span class="o">.</span><span class="n">data</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ds</span><span class="o">.</span><span class="n">data</span><span class="o">.</span><span class="n">empty</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">df</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">data</span>
+
+        <span class="c1"># Find columns</span>
+        <span class="n">lat_col</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">lon_col</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)),</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">lat_col</span> <span class="ow">and</span> <span class="n">lon_col</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Extract Clean Lists</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">clean_lats</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">lat_col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+            <span class="n">clean_lons</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">to_numeric</span><span class="p">(</span><span class="n">df</span><span class="p">[</span><span class="n">lon_col</span><span class="p">],</span> <span class="n">errors</span><span class="o">=</span><span class="s2">&quot;coerce&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_lats</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="c1"># Campaign is likely global metadata in this case</span>
+        <span class="n">campaign</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="s2">&quot;title&quot;</span><span class="p">,</span> <span class="n">doi</span><span class="p">)</span>
+
+        <span class="c1"># Clean up title if it&#39;s too long (common in Pangaea titles)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">campaign</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+            <span class="n">campaign</span> <span class="o">=</span> <span class="n">campaign</span><span class="p">[:</span><span class="mi">47</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;...&quot;</span>
+
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">campaign</span><span class="p">,</span>
+            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">clean_lats</span><span class="p">,</span>
+            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">clean_lons</span><span class="p">,</span>
+            <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="n">doi</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_safe_get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">keys</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Helper to get attributes safely from dicts or objects.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : Any</span>
+<span class="sd">            Object to extract attribute from.</span>
+<span class="sd">        keys : List[str]</span>
+<span class="sd">            List of possible key/attribute names to try.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Any</span>
+<span class="sd">            Value if found, None otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="c1"># Try dictionary access</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;get&quot;</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">val</span>
+
+            <span class="c1"># Try attribute access</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">val</span>
+
+            <span class="c1"># Try lowercase attribute</span>
+            <span class="n">lower_key</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">lower_key</span><span class="p">):</span>
+                <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">lower_key</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">val</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="n">val</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<span class="c1"># ------------------------------------------------------------------------------</span>
+<span class="c1"># Utility Functions (Module Level)</span>
+<span class="c1"># ------------------------------------------------------------------------------</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_valid_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">:</span> <span class="nb">any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validates if the input string is a valid DOI format.</span>
+
+<span class="sd">    Strictly checks for &#39;10.XXXX/XXXX&#39; format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    doi : any</span>
+<span class="sd">        Input to validate as DOI.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if valid DOI format, False otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">doi</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">doi</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="n">doi</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;^10\.\d{4,9}/\S+$&quot;</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">doi</span><span class="p">))</span>
+
+
+<div class="viewcode-block" id="merge_campaign_tracks">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.merge_campaign_tracks">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">merge_campaign_tracks</span><span class="p">(</span><span class="n">datasets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Merges datasets by their &#39;label&#39; (campaign).</span>
+
+<span class="sd">    Aggregates coordinates into single arrays and collects all source DOIs.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : List[Dict]</span>
+<span class="sd">        List of dataset dictionaries to merge.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[Dict]</span>
+<span class="sd">        Merged campaign datasets with combined coordinates.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">grouped</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">:</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown Campaign&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">label</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">grouped</span><span class="p">:</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="n">label</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">label</span><span class="p">,</span>
+                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;dois&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">(),</span>
+            <span class="p">}</span>
+
+        <span class="n">lats</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">lons</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">doi</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;doi&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Robustness: Normalize scalars to lists</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">lats</span> <span class="o">=</span> <span class="p">[</span><span class="n">lats</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="n">lons</span> <span class="o">=</span> <span class="p">[</span><span class="n">lons</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">lons</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Skipping segment in </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (DOI: </span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">): Lat/Lon length mismatch.&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">grouped</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lats</span><span class="p">)</span>
+        <span class="n">grouped</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lons</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">doi</span><span class="p">:</span>
+            <span class="n">grouped</span><span class="p">[</span><span class="n">label</span><span class="p">][</span><span class="s2">&quot;dois&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span>
+
+    <span class="c1"># Convert sets to lists for JSON serialization</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">data</span> <span class="ow">in</span> <span class="n">grouped</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">data</span><span class="p">[</span><span class="s2">&quot;dois&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;dois&quot;</span><span class="p">])</span>
+        <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span></div>
+
+
+
+<div class="viewcode-block" id="save_campaign_data">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.save_campaign_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_campaign_data</span><span class="p">(</span>
+    <span class="n">datasets</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">progress_callback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">original_dataset_count</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save PANGAEA datasets to pickle file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    datasets : List[Dict]</span>
+<span class="sd">        List of dataset dictionaries to save.</span>
+<span class="sd">    file_path : Union[str, Path]</span>
+<span class="sd">        Output file path for the pickle file.</span>
+<span class="sd">    progress_callback : Optional[Callable[[str], None]], optional</span>
+<span class="sd">        Optional function(message) for progress updates.</span>
+<span class="sd">    original_dataset_count : Optional[int], optional</span>
+<span class="sd">        Optional count of datasets before merging for summary.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If there&#39;s an error saving the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">pickle</span>
+
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Create parent directories if needed</span>
+        <span class="n">file_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># Save datasets to pickle</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">pickle</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">f</span><span class="p">,</span> <span class="n">protocol</span><span class="o">=</span><span class="n">pickle</span><span class="o">.</span><span class="n">HIGHEST_PROTOCOL</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">progress_callback</span><span class="p">:</span>
+            <span class="n">progress_callback</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets to: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Provide summary statistics</span>
+            <span class="k">if</span> <span class="n">datasets</span><span class="p">:</span>
+                <span class="c1"># Count stations from latitude arrays (primary) or events (fallback)</span>
+                <span class="n">total_events</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+                    <span class="nb">len</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;events&quot;</span><span class="p">,</span> <span class="p">[])))</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span>
+                <span class="p">)</span>
+                <span class="n">campaigns</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">ds</span> <span class="ow">in</span> <span class="n">datasets</span><span class="p">)</span>
+
+                <span class="n">progress_callback</span><span class="p">(</span><span class="s2">&quot;Summary:&quot;</span><span class="p">)</span>
+                <span class="c1"># Use original count if provided, otherwise current count</span>
+                <span class="n">dataset_count</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">original_dataset_count</span>
+                    <span class="k">if</span> <span class="n">original_dataset_count</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                    <span class="k">else</span> <span class="nb">len</span><span class="p">(</span><span class="n">datasets</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">progress_callback</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">dataset_count</span><span class="si">}</span><span class="s2"> datasets&quot;</span><span class="p">)</span>
+                <span class="n">progress_callback</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">campaigns</span><span class="p">)</span><span class="si">}</span><span class="s2"> unique campaigns&quot;</span><span class="p">)</span>
+                <span class="n">progress_callback</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">total_events</span><span class="si">}</span><span class="s2"> total events/stations&quot;</span><span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error saving pickle file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="load_campaign_data">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.pangaea.load_campaign_data">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_campaign_data</span><span class="p">(</span>
+    <span class="n">file_path</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">merge_tracks</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load pre-processed PANGAEA campaign data from pickle file.</span>
+
+<span class="sd">    This function is required by the CLI to integrate with the interactive picker.</span>
+<span class="sd">    If merge_tracks is True, it ensures that all datasets with the same</span>
+<span class="sd">    label are combined into a single track before being returned.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    file_path : Union[str, Path]</span>
+<span class="sd">        Path to the pickled PANGAEA campaign file.</span>
+<span class="sd">    merge_tracks : bool</span>
+<span class="sd">        If True, runs merge_campaign_tracks on the loaded data. (Default: True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[Dict]</span>
+<span class="sd">        List of campaign datasets (merged if requested).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">file_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Campaign data file not found: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">campaign_data</span> <span class="o">=</span> <span class="n">pickle</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+        <span class="c1"># Validate the loaded data structure</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expected list of campaigns, got </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Basic validation of campaign structure</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">campaign</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">campaign</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Campaign </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> is not a dictionary: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">campaign</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="n">required_keys</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+            <span class="n">missing_keys</span> <span class="o">=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required_keys</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">campaign</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">missing_keys</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Campaign </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2"> missing required keys: </span><span class="si">{</span><span class="n">missing_keys</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Successfully loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> campaigns from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">merge_tracks</span><span class="p">:</span>
+            <span class="c1"># Apply your crucial merging step here before returning to the GUI</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Merging campaign tracks by label for unique plotting.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">merge_campaign_tracks</span><span class="p">(</span><span class="n">campaign_data</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">campaign_data</span>
+
+    <span class="k">except</span> <span class="n">pickle</span><span class="o">.</span><span class="n">PickleError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">pickle</span><span class="o">.</span><span class="n">PickleError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Failed to unpickle campaign data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error loading campaign data from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

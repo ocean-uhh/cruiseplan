@@ -1,0 +1,849 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.calculators.scheduler</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.calculators.scheduler</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Core cruise scheduling and timeline generation logic.</span>
+
+<span class="sd">This module implements sequential ordering logic and time/distance calculation</span>
+<span class="sd">for generating complete cruise timelines. Provides the ActivityRecord data structure</span>
+<span class="sd">and scheduling algorithms that transform cruise configurations into executable plans.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">haversine_distance</span><span class="p">,</span>  <span class="c1"># Returns km</span>
+    <span class="n">km_to_nm</span><span class="p">,</span>
+    <span class="n">route_distance</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.duration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DurationCalculator</span><span class="p">,</span>  <span class="c1"># Provides duration lookup</span>
+<span class="p">)</span>
+
+<span class="c1"># Import core components and calculators (assuming they are complete)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">GeoPoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># --- Data Structure Definitions ---</span>
+
+
+<div class="viewcode-block" id="ActivityRecord">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActivityRecord</span><span class="p">(</span><span class="n">Dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Standardized output structure for a single scheduled activity.</span>
+
+<span class="sd">    This class represents a scheduled cruise activity with all relevant</span>
+<span class="sd">    timing, positioning, and operational information.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    activity : str</span>
+<span class="sd">        Type of activity (e.g., &quot;Station&quot;, &quot;Transit&quot;, &quot;Mooring&quot;).</span>
+<span class="sd">    label : str</span>
+<span class="sd">        Human-readable label for the activity.</span>
+<span class="sd">    lat : float</span>
+<span class="sd">        Latitude in decimal degrees.</span>
+<span class="sd">    lon : float</span>
+<span class="sd">        Longitude in decimal degrees.</span>
+<span class="sd">    depth : float</span>
+<span class="sd">        Water depth in meters.</span>
+<span class="sd">    start_time : datetime</span>
+<span class="sd">        Activity start time.</span>
+<span class="sd">    end_time : datetime</span>
+<span class="sd">        Activity end time.</span>
+<span class="sd">    duration_minutes : float</span>
+<span class="sd">        Activity duration in minutes.</span>
+<span class="sd">    transit_dist_nm : float</span>
+<span class="sd">        Distance traveled to reach this activity in nautical miles.</span>
+<span class="sd">    operation_dist_nm : float</span>
+<span class="sd">        Distance traveled during this activity in nautical miles.</span>
+<span class="sd">    vessel_speed_kt : float</span>
+<span class="sd">        Vessel speed in knots.</span>
+<span class="sd">    leg_name : str</span>
+<span class="sd">        Name of the cruise leg.</span>
+<span class="sd">    operation_type : str</span>
+<span class="sd">        Type of scientific operation.</span>
+<span class="sd">    &quot;&quot;&quot;</span></div>
+
+
+
+<span class="c1"># --- Core Scheduling Logic ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Finds a station, mooring, or transit definition by name.&quot;&quot;&quot;</span>
+    <span class="c1"># Check stations (includes all point operations: CTD, mooring, etc.)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+            <span class="c1"># Map operation type to legacy op_type for backward compatibility</span>
+            <span class="c1"># This is a little confusing --&gt; these are how activities are filtered in latex_generator</span>
+            <span class="n">op_type_mapping</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;CTD&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;water_sampling&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;calibration&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;mooring&quot;</span><span class="p">:</span> <span class="s2">&quot;mooring&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;survey&quot;</span><span class="p">:</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">op_type</span><span class="p">,</span>
+                <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="k">match</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+            <span class="p">}</span>
+
+    <span class="c1"># Note: moorings are now included in stations list with operation_type=&quot;mooring&quot;</span>
+
+    <span class="c1"># Check areas second</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">corners</span><span class="p">:</span>
+            <span class="c1"># For areas, calculate center point from corners</span>
+            <span class="n">center_lat</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">latitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="k">match</span><span class="o">.</span><span class="n">corners</span>
+            <span class="p">)</span>
+            <span class="n">center_lon</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">longitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="k">match</span><span class="o">.</span><span class="n">corners</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">center_lat</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">center_lon</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Areas typically don&#39;t have depth</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+                <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="k">match</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">match</span><span class="o">.</span><span class="n">action</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">longitude</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">match</span><span class="o">.</span><span class="n">corners</span>
+                <span class="p">],</span>
+            <span class="p">}</span>
+
+    <span class="c1"># Check transits third</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+            <span class="c1"># For transits, use the last point in the route as the &quot;position&quot;</span>
+            <span class="n">first_point</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">[</span>
+                <span class="mi">0</span>
+            <span class="p">]</span>  <span class="c1"># &lt;-- Capture start point for scientific transits</span>
+            <span class="n">last_point</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="c1"># Calculate total route distance for proper transit duration</span>
+            <span class="n">total_route_distance_km</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="n">start_point</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+                <span class="n">end_point</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">segment_distance</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">)</span>
+                <span class="n">total_route_distance_km</span> <span class="o">+=</span> <span class="n">segment_distance</span>
+
+            <span class="c1"># Convert to nautical miles and calculate duration</span>
+            <span class="n">route_distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">total_route_distance_km</span><span class="p">)</span>
+            <span class="c1"># Use transit-specific vessel speed if provided, otherwise use default</span>
+            <span class="n">vessel_speed</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;vessel_speed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+            <span class="p">)</span>
+            <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">route_distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
+            <span class="n">transit_duration_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="c1"># XXX: Is it a problem that the default position is the last position?</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="n">transit_duration_min</span><span class="p">,</span>
+                <span class="s2">&quot;route_distance_nm&quot;</span><span class="p">:</span> <span class="n">route_distance_nm</span><span class="p">,</span>  <span class="c1"># Store for debugging</span>
+                <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">vessel_speed</span><span class="p">,</span>  <span class="c1"># Include transit-specific vessel speed</span>
+                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Will be set by calling code</span>
+            <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="generate_timeline">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a flattened, time-ordered list of all cruise activities.</span>
+
+<span class="sd">    This function implements sequential scheduling logic where activities are</span>
+<span class="sd">    processed in the order defined in the cruise configuration. Start times</span>
+<span class="sd">    are calculated cumulatively based on operation durations and transit times.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object containing legs, operations, and parameters.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of ActivityRecord</span>
+<span class="sd">        Time-ordered list of all scheduled activities.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Phase 3a implementation: Strict sequential ordering based on YAML leg/sequence.</span>
+<span class="sd">    Start time calculation: End Time (N) = Start Time (N) + Duration (N),</span>
+<span class="sd">    Start Time (N+1) = End Time (N) + Transit Time (N -&gt; N+1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># 1. Initialize start time and duration calculator</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Handle different start_date formats</span>
+        <span class="k">if</span> <span class="s2">&quot;T&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
+            <span class="c1"># ISO format with time included (e.g., &quot;2028-06-01T08:00:00Z&quot;)</span>
+            <span class="c1"># Remove timezone suffix and parse</span>
+            <span class="n">start_date_clean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">start_date_clean</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Separate date and time (e.g., start_date=&quot;2028-06-01&quot;, start_time=&quot;08:00&quot;)</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid start_date or start_time format in config: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">duration_calc</span> <span class="o">=</span> <span class="n">DurationCalculator</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">last_position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># --- Step 2: Transit to Working Area ---</span>
+    <span class="n">first_station_details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">first_station</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">first_station_details</span><span class="p">:</span>
+        <span class="n">start_pos</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span>
+        <span class="n">end_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+            <span class="n">latitude</span><span class="o">=</span><span class="n">first_station_details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span>
+            <span class="n">longitude</span><span class="o">=</span><span class="n">first_station_details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+        <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">)</span>
+        <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+        <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">distance_nm</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+        <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
+
+        <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ActivityRecord</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to working area: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">first_station</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">),</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time_min</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">distance_nm</span><span class="p">,</span>  <span class="c1"># Inter-operation distance</span>
+                    <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
+                    <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+                    <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit_to_working_area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="c1"># Added for completeness, though unused for pure navigation</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+        <span class="n">last_position</span> <span class="o">=</span> <span class="n">end_pos</span>
+
+    <span class="c1"># --- Step 3: Iterate through Legs and Activities (Sequential Science) ---</span>
+    <span class="n">all_activities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
+        <span class="c1"># Check for sequence field first, then fall back to stations</span>
+        <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
+            <span class="n">activity_names</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Extract station names from station objects</span>
+            <span class="n">activity_names</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="c1"># Station object - extract name</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">activity_names</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
+                <span class="c1"># Add leg name to activity details</span>
+                <span class="n">details</span><span class="p">[</span><span class="s2">&quot;leg_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span>
+                <span class="n">all_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+
+    <span class="c1"># Process sequential activities (no complex Composite parsing yet)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_activities</span><span class="p">):</span>
+
+        <span class="c1"># Get the action early for use in ActivityRecord</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># 3a. Calculate Transit time from last activity</span>
+        <span class="c1"># For transits, calculate distance to the START of the route, not the end</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span> <span class="ow">and</span> <span class="s2">&quot;start_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+            <span class="n">target_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">target_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="n">transit_time_min</span><span class="p">,</span> <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="n">_calculate_inter_operation_transit</span><span class="p">(</span>
+            <span class="n">last_position</span><span class="p">,</span>
+            <span class="n">target_position</span><span class="p">,</span>
+            <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># Add inter-operation transit record if distance &gt; threshold</span>
+        <span class="k">if</span> <span class="n">transit_dist_nm</span> <span class="o">&gt;</span> <span class="mf">0.1</span><span class="p">:</span>  <span class="c1"># Only add if meaningful distance</span>
+            <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># Pure navigation</span>
+                    <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">target_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">target_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">),</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time_min</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">transit_dist_nm</span><span class="p">,</span>  <span class="c1"># Inter-operation distance</span>
+                    <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
+                    <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+                    <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Inter-operation Transit&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span> <span class="k">if</span> <span class="n">last_position</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span> <span class="k">if</span> <span class="n">last_position</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+            <span class="c1"># Advance current_time after the inter-operation transit</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+
+        <span class="c1"># For transit operations, we need to handle route logic differently</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+            <span class="c1"># Find the original transit definition to get the route start</span>
+            <span class="n">transit_def</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]),</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">transit_def</span> <span class="ow">and</span> <span class="n">transit_def</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+                <span class="n">route_start</span> <span class="o">=</span> <span class="n">transit_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">route_end</span> <span class="o">=</span> <span class="n">transit_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># Calculate transit TO the route start (if not first activity)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">last_position</span><span class="p">:</span>
+                    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>
+                        <span class="n">last_position</span><span class="p">,</span>
+                        <span class="n">GeoPoint</span><span class="p">(</span>
+                            <span class="n">latitude</span><span class="o">=</span><span class="n">route_start</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="n">longitude</span><span class="o">=</span><span class="n">route_start</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                        <span class="p">),</span>
+                    <span class="p">)</span>
+                    <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+                    <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">transit_dist_nm</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+                    <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
+                    <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+
+                <span class="c1"># Current position for this activity is the route END</span>
+                <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="n">route_end</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">route_end</span><span class="o">.</span><span class="n">longitude</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Fallback if route not found</span>
+                <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">last_position</span><span class="p">:</span>
+                    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">last_position</span><span class="p">,</span> <span class="n">current_pos</span><span class="p">)</span>
+                    <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+                    <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">transit_dist_nm</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+                    <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
+                    <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Regular operations (stations, moorings)</span>
+            <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+
+            <span class="c1"># Note: Inter-operation transit time is now handled by explicit transit records above</span>
+            <span class="c1"># so we don&#39;t add it to current_time here to avoid double-counting</span>
+
+        <span class="c1"># 3b. Calculate Operation Duration</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;manual_duration&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">op_duration_min</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;manual_duration&quot;</span><span class="p">]</span>
+        <span class="k">elif</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;station&quot;</span><span class="p">:</span>
+            <span class="n">op_duration_min</span> <span class="o">=</span> <span class="n">duration_calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">op_duration_min</span> <span class="o">=</span> <span class="mf">60.0</span>  <span class="c1"># Default fallback for non-CTD/Mooring ops</span>
+
+        <span class="c1"># Set operation distance: route distance for scientific transits, 0 for point operations</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span> <span class="ow">and</span> <span class="s2">&quot;route_distance_nm&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+            <span class="n">operation_distance</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;route_distance_nm&quot;</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">operation_distance</span> <span class="o">=</span> <span class="mf">0.0</span>  <span class="c1"># No operation distance for point operations</span>
+
+        <span class="c1"># For scientific transits, transit_dist_nm should be 0 since inter-operation transit is separate</span>
+        <span class="c1"># For point operations, transit_dist_nm should show the distance to reach this operation</span>
+        <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+            <span class="n">transit_distance</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="mf">0.0</span>  <span class="c1"># Scientific transits: inter-operation distance handled separately</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">transit_distance</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">transit_dist_nm</span>  <span class="c1"># Point operations: show distance to reach here</span>
+            <span class="p">)</span>
+
+        <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ActivityRecord</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>  <span class="c1"># Use current_pos which accounts for route ends</span>
+                    <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">op_duration_min</span><span class="p">),</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">op_duration_min</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">transit_distance</span><span class="p">,</span>  <span class="c1"># Distance to reach this operation</span>
+                    <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="n">operation_distance</span><span class="p">,</span>  <span class="c1"># Distance traveled during this operation</span>
+                    <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                        <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown_Leg&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">],</span>
+                    <span class="c1"># Propagate scientific/start coordinates</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">action</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">,</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">),</span>
+                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">,</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">),</span>
+                    <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;corners&quot;</span><span class="p">,</span> <span class="p">[]),</span>  <span class="c1"># Area corner coordinates</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">op_duration_min</span><span class="p">)</span>
+        <span class="n">last_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+
+    <span class="c1"># --- Step 4: Transit from Working Area ---</span>
+    <span class="k">if</span> <span class="n">last_position</span><span class="p">:</span>
+        <span class="n">end_pos</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span>
+        <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">last_position</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">)</span>
+        <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+        <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">distance_nm</span> <span class="o">/</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+        <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
+
+        <span class="c1"># Demobilization (transit) starts after the last station ends</span>
+        <span class="n">demob_start_time</span> <span class="o">=</span> <span class="n">current_time</span>
+        <span class="n">demob_end_time</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+
+        <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ActivityRecord</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit from working area to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">demob_start_time</span><span class="p">,</span>
+                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">demob_end_time</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time_min</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">distance_nm</span><span class="p">,</span>  <span class="c1"># Inter-operation distance</span>
+                    <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
+                    <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+                    <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit_from_working_area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="c1"># Added for completeness, though unused for pure navigation</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">timeline</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_inter_operation_transit</span><span class="p">(</span><span class="n">last_pos</span><span class="p">,</span> <span class="n">current_pos</span><span class="p">,</span> <span class="n">vessel_speed_kt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate transit time and distance between two operations.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">last_pos</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">current_pos</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Use existing route_distance function with a 2-point route</span>
+    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">route_distance</span><span class="p">([</span><span class="n">last_pos</span><span class="p">,</span> <span class="n">current_pos</span><span class="p">])</span>
+
+    <span class="c1"># Use existing DurationCalculator.calculate_transit_time</span>
+    <span class="c1"># Note: You&#39;ll need to create a DurationCalculator instance or pass it in</span>
+    <span class="c1"># For now, we can calculate directly:</span>
+    <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+    <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed_kt</span> <span class="k">if</span> <span class="n">vessel_speed_kt</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">transit_time_h</span> <span class="o">*</span> <span class="mi">60</span>
+
+    <span class="k">return</span> <span class="n">transit_time_min</span><span class="p">,</span> <span class="n">distance_nm</span>
+
+
+<span class="c1"># ===== CLI Integration Function =====</span>
+
+
+<div class="viewcode-block" id="generate_cruise_schedule">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_cruise_schedule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_schedule</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">,</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">validate_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">selected_leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate comprehensive cruise schedules from YAML configuration.</span>
+
+<span class="sd">    This is the main function called by the CLI that orchestrates the entire</span>
+<span class="sd">    schedule generation process, including timeline creation and output formatting.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_path : str or Path</span>
+<span class="sd">        Path to input YAML configuration file.</span>
+<span class="sd">    output_dir : str or Path</span>
+<span class="sd">        Output directory for generated schedule files.</span>
+<span class="sd">    formats : list of str, optional</span>
+<span class="sd">        List of output formats to generate. Default is [&quot;html&quot;, &quot;csv&quot;].</span>
+<span class="sd">    validate_depths : bool, optional</span>
+<span class="sd">        Whether to validate depths during generation. Default is False.</span>
+<span class="sd">    selected_leg : str, optional</span>
+<span class="sd">        If specified, only generate schedule for this leg. Default is None.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary with generation summary and statistics.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
+
+    <span class="c1"># Set defaults</span>
+    <span class="k">if</span> <span class="n">formats</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Load cruise configuration</span>
+    <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded cruise: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">description</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Description: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Validate depths if requested</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">validate_depths</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validating station depths...&quot;</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_configuration_file</span>
+
+        <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">depth_warnings</span> <span class="o">=</span> <span class="n">validate_configuration_file</span><span class="p">(</span>
+            <span class="n">config_path</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span>
+            <span class="n">check_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">bathymetry_source</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration validation failed: </span><span class="si">{</span><span class="n">errors</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">depth_warnings</span><span class="p">)</span>
+
+    <span class="c1"># Filter legs if specified</span>
+    <span class="n">legs_to_process</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+    <span class="k">if</span> <span class="n">selected_leg</span><span class="p">:</span>
+        <span class="n">legs_to_process</span> <span class="o">=</span> <span class="p">[</span><span class="n">leg</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">selected_leg</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">legs_to_process</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&#39; not found in configuration&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing selected leg: </span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Generate timeline</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating activity timeline...&quot;</span><span class="p">)</span>
+    <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+
+    <span class="c1"># Filter timeline by selected leg if specified</span>
+    <span class="k">if</span> <span class="n">selected_leg</span><span class="p">:</span>
+        <span class="n">timeline</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">activity</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
+            <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">selected_leg</span>
+        <span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate summary statistics</span>
+    <span class="n">total_duration_hours</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">sum</span><span class="p">(</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">)</span> <span class="o">/</span> <span class="mf">60.0</span>
+    <span class="p">)</span>
+    <span class="n">total_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
+    <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total schedule duration: </span><span class="si">{</span><span class="n">total_duration_hours</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total distance: </span><span class="si">{</span><span class="n">total_distance_nm</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Generate output files</span>
+    <span class="n">formats_generated</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">output_files</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Create output directory</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Determine base filename</span>
+    <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="n">leg_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">selected_leg</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">base_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}{</span><span class="n">leg_suffix</span><span class="si">}</span><span class="s2">_schedule&quot;</span>
+
+    <span class="k">for</span> <span class="n">format_name</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating </span><span class="si">{</span><span class="n">format_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> output...&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.html_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_html_schedule</span>
+
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.html&quot;</span>
+                <span class="n">generate_html_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;html&quot;</span><span class="p">)</span>
+                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.csv_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_csv_schedule</span>
+
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.csv&quot;</span>
+                <span class="n">generate_csv_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
+                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;latex&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">_generate_latex_schedule</span><span class="p">(</span>
+                    <span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span>
+                <span class="p">)</span>
+                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;latex&quot;</span><span class="p">)</span>
+                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;kml&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.kml_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_kml_schedule</span>
+
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.kml&quot;</span>
+                <span class="n">generate_kml_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;kml&quot;</span><span class="p">)</span>
+                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">_generate_netcdf_schedule</span><span class="p">(</span>
+                    <span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span>
+                <span class="p">)</span>
+                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;netcdf&quot;</span><span class="p">)</span>
+                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown format &#39;</span><span class="si">{</span><span class="n">format_name</span><span class="si">}</span><span class="s2">&#39; - skipping&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate </span><span class="si">{</span><span class="n">format_name</span><span class="si">}</span><span class="s2"> output: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate </span><span class="si">{</span><span class="n">format_name</span><span class="si">}</span><span class="s2"> format: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Return summary</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;total_activities&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">),</span>
+        <span class="s2">&quot;total_duration_hours&quot;</span><span class="p">:</span> <span class="n">total_duration_hours</span><span class="p">,</span>
+        <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_distance_nm</span><span class="p">,</span>
+        <span class="s2">&quot;formats_generated&quot;</span><span class="p">:</span> <span class="n">formats_generated</span><span class="p">,</span>
+        <span class="s2">&quot;output_files&quot;</span><span class="p">:</span> <span class="n">output_files</span><span class="p">,</span>
+        <span class="s2">&quot;warnings&quot;</span><span class="p">:</span> <span class="n">warnings</span><span class="p">,</span>
+        <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">,</span>
+        <span class="s2">&quot;selected_leg&quot;</span><span class="p">:</span> <span class="n">selected_leg</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_latex_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate LaTeX schedule output.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.latex_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_latex_tables</span>
+
+        <span class="c1"># Use existing LaTeX generator function with correct parameters</span>
+        <span class="n">latex_files</span> <span class="o">=</span> <span class="n">generate_latex_tables</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;LaTeX schedule files saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">latex_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">latex_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">latex_files</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;LaTeX generator not available - skipping LaTeX output&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_netcdf_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate NetCDF schedule output.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.netcdf_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">NetCDFGenerator</span>
+
+        <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+
+        <span class="c1"># Use existing NetCDF generator</span>
+        <span class="n">netcdf_gen</span> <span class="o">=</span> <span class="n">NetCDFGenerator</span><span class="p">()</span>
+        <span class="n">netcdf_gen</span><span class="o">.</span><span class="n">generate_master_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NetCDF schedule saved to: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_file</span>
+
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;NetCDF generator not available - skipping NetCDF output&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

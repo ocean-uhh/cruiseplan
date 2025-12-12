@@ -1,0 +1,616 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.output.html_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.output.html_generator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">HTML Schedule Generation System.</span>
+
+<span class="sd">Generates comprehensive HTML reports with summary tables and detailed activity listings</span>
+<span class="sd">for cruise planning and execution. Provides human-readable visualizations of cruise</span>
+<span class="sd">schedules including statistics, timelines, and operational details.</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">The HTML generator creates self-contained HTML files with embedded CSS styling,</span>
+<span class="sd">requiring no external dependencies for viewing. Output includes summary statistics</span>
+<span class="sd">for different activity types (moorings, stations, surveys, areas) and detailed</span>
+<span class="sd">tables for each operation type.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.activity_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_scientific_operation</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert decimal degrees to DD MM.mmm format for HTML display.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    decimal_degrees : float</span>
+<span class="sd">        Latitude or longitude in decimal degrees.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Formatted coordinate string in DD MM.mmm format with leading zeros.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">degrees</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">))</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span> <span class="o">-</span> <span class="n">degrees</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">degrees</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">))</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">((</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">)</span> <span class="o">-</span> <span class="n">degrees</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">decimal_degrees</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_summary_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate summary statistics for HTML output from activity timeline.</span>
+
+<span class="sd">    Computes comprehensive statistics for different activity types including</span>
+<span class="sd">    counts, durations, distances, and averages. Separates activities into</span>
+<span class="sd">    scientific operations and navigation transits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    timeline : list of dict</span>
+<span class="sd">        List of activity records from the scheduler.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Dictionary containing statistics for each activity type with keys:</span>
+<span class="sd">        &#39;moorings&#39;, &#39;stations&#39;, &#39;surveys&#39;, &#39;areas&#39;, &#39;within_area&#39;, &#39;port_area&#39;,</span>
+<span class="sd">        and &#39;mooring_activities&#39; (raw mooring data).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Separate activities by type</span>
+    <span class="n">station_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">]</span>
+    <span class="n">mooring_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]</span>
+    <span class="n">area_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">]</span>
+    <span class="n">all_transits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Separate scientific and navigation transits</span>
+    <span class="n">scientific_transits</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">a</span>
+        <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_transits</span>
+        <span class="k">if</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="ow">and</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span>
+    <span class="p">]</span>
+    <span class="n">navigation_transits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_transits</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">a</span><span class="p">)]</span>
+
+    <span class="c1"># Calculate mooring statistics</span>
+    <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">mooring_activities</span><span class="p">:</span>
+        <span class="n">total_mooring_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">mooring_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="p">)</span>
+        <span class="n">avg_mooring_duration_h</span> <span class="o">=</span> <span class="n">total_mooring_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">)</span>
+        <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">),</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_mooring_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_mooring_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_mooring_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Calculate station statistics</span>
+    <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">station_activities</span><span class="p">:</span>
+        <span class="n">total_station_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">station_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="p">)</span>
+        <span class="n">avg_station_duration_h</span> <span class="o">=</span> <span class="n">total_station_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_activities</span><span class="p">)</span>
+        <span class="n">avg_depth</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">station_activities</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+            <span class="n">station_activities</span>
+        <span class="p">)</span>
+        <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_activities</span><span class="p">),</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_station_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;avg_depth_m&quot;</span><span class="p">:</span> <span class="n">avg_depth</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_station_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_station_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_depth_m&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Calculate survey operations (scientific transits)</span>
+    <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">scientific_transits</span><span class="p">:</span>
+        <span class="n">total_survey_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="p">)</span>
+        <span class="n">avg_survey_duration_h</span> <span class="o">=</span> <span class="n">total_survey_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">)</span>
+        <span class="n">total_survey_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span>
+        <span class="p">)</span>
+        <span class="n">avg_survey_distance_nm</span> <span class="o">=</span> <span class="n">total_survey_distance_nm</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">)</span>
+        <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">),</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_survey_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">:</span> <span class="n">avg_survey_distance_nm</span><span class="p">,</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_survey_distance_nm</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_survey_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_survey_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Calculate area operations</span>
+    <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">area_activities</span><span class="p">:</span>
+        <span class="n">total_area_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">area_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">avg_area_duration_h</span> <span class="o">=</span> <span class="n">total_area_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">)</span>
+        <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">),</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_area_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_area_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_area_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Calculate within-area navigation transits (excluding first and last)</span>
+    <span class="n">within_area_transits</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">navigation_transits</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="p">)</span>
+    <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">within_area_transits</span><span class="p">:</span>
+        <span class="n">total_within_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">within_area_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="p">)</span>
+        <span class="n">total_within_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+            <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">within_area_transits</span>
+        <span class="p">)</span>
+        <span class="n">avg_speed_kts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">total_within_distance_nm</span> <span class="o">/</span> <span class="n">total_within_duration_h</span>
+            <span class="k">if</span> <span class="n">total_within_duration_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_within_distance_nm</span><span class="p">,</span>
+            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_within_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_within_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Calculate to/from working area transits (first and last)</span>
+    <span class="n">port_transits</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">port_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>  <span class="c1"># First transit</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="n">port_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>  <span class="c1"># Last transit</span>
+
+    <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">port_transits</span><span class="p">:</span>
+        <span class="n">total_port_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">port_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">total_port_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">port_transits</span><span class="p">)</span>
+        <span class="n">avg_speed_kts</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">total_port_distance_nm</span> <span class="o">/</span> <span class="n">total_port_duration_h</span>
+            <span class="k">if</span> <span class="n">total_port_duration_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+        <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_port_distance_nm</span><span class="p">,</span>
+            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_port_duration_h</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_port_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;moorings&quot;</span><span class="p">:</span> <span class="n">mooring_stats</span><span class="p">,</span>
+        <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">station_stats</span><span class="p">,</span>
+        <span class="s2">&quot;surveys&quot;</span><span class="p">:</span> <span class="n">survey_stats</span><span class="p">,</span>
+        <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="n">area_stats</span><span class="p">,</span>
+        <span class="s2">&quot;within_area&quot;</span><span class="p">:</span> <span class="n">within_area_stats</span><span class="p">,</span>
+        <span class="s2">&quot;port_area&quot;</span><span class="p">:</span> <span class="n">port_area_stats</span><span class="p">,</span>
+        <span class="s2">&quot;mooring_activities&quot;</span><span class="p">:</span> <span class="n">mooring_activities</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<div class="viewcode-block" id="HTMLGenerator">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.HTMLGenerator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">HTMLGenerator</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages HTML generation for cruise schedules with summary tables and detailed listings.</span>
+
+<span class="sd">    This class provides methods to generate comprehensive HTML reports from cruise</span>
+<span class="sd">    schedule data, including summary statistics and detailed activity breakdowns.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="HTMLGenerator.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.HTMLGenerator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the HTML generator.&quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="HTMLGenerator.generate_schedule_report">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.HTMLGenerator.generate_schedule_report">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_schedule_report</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate comprehensive HTML schedule report.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : CruiseConfig</span>
+<span class="sd">            The cruise configuration object</span>
+<span class="sd">        timeline : List[ActivityRecord]</span>
+<span class="sd">            Timeline generated by the scheduler</span>
+<span class="sd">        output_file : Path</span>
+<span class="sd">            Path to output HTML file</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Path</span>
+<span class="sd">            Path to generated HTML file</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Calculate summary statistics</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">_calculate_summary_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
+
+        <span class="c1"># Calculate total statistics</span>
+        <span class="n">total_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">total_duration_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
+
+        <span class="c1"># Create HTML content</span>
+        <span class="n">html_content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span>
+<span class="s2">&lt;html&gt;</span>
+<span class="s2">&lt;head&gt;</span>
+<span class="s2">    &lt;title&gt;Schedule for </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&lt;/title&gt;</span>
+<span class="s2">    &lt;style&gt;</span>
+<span class="s2">        body </span><span class="se">{{</span><span class="s2"> font-family: Arial, sans-serif; margin: 20px; </span><span class="se">}}</span>
+<span class="s2">        table </span><span class="se">{{</span><span class="s2"> border-collapse: collapse; width: 100%; margin-bottom: 20px; </span><span class="se">}}</span>
+<span class="s2">        th, td </span><span class="se">{{</span><span class="s2"> border: 1px solid #ddd; padding: 5px; text-align: left; </span><span class="se">}}</span>
+<span class="s2">        th </span><span class="se">{{</span><span class="s2"> background-color: #f2f2f2; </span><span class="se">}}</span>
+<span class="s2">        .number </span><span class="se">{{</span><span class="s2"> text-align: right; </span><span class="se">}}</span>
+<span class="s2">        h1, h2 </span><span class="se">{{</span><span class="s2"> color: #333; </span><span class="se">}}</span>
+<span class="s2">        .description </span><span class="se">{{</span><span class="s2"> font-style: italic; color: #666; </span><span class="se">}}</span>
+<span class="s2">    &lt;/style&gt;</span>
+<span class="s2">&lt;/head&gt;</span>
+<span class="s2">&lt;body&gt;</span>
+<span class="s2">    &lt;h1&gt;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&lt;/h1&gt;</span>
+<span class="s2">    </span><span class="si">{</span><span class="sa">f</span><span class="s1">&#39;&lt;p class=&quot;description&quot;&gt;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">description</span><span class="si">}</span><span class="s1">&lt;/p&gt;&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="n">config</span><span class="o">.</span><span class="n">description</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span>
+
+<span class="s2">    &lt;h2&gt;1. Cruise Schedule&lt;/h2&gt;</span>
+<span class="s2">    &lt;table cellpadding=&quot;5&quot; cellspacing=&quot;0&quot; border=&quot;1&quot;&gt;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;th&gt;Activity&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Description&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Hours&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Days&lt;/th&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Moorings row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;Moorings&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;avg_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hrs each&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># CTD Profiles row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;CTD Profiles&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stations, avg depth </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;avg_depth_m&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;avg_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hrs each&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Survey operations row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;Survey operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations, avg distance </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;avg_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hrs each&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Area operations row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;Area operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;avg_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hrs each&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Transit within area row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;Transit within area&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Transit to/from working area row</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;Transit to/from working area&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Total row</span>
+        <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr style=&quot;font-weight: bold;&quot;&gt;</span>
+<span class="s2">            &lt;td&gt;Total Cruise&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_duration_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">    &lt;/table&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Moorings detail table</span>
+        <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;h2&gt;2. Moorings&lt;/h2&gt;</span>
+<span class="s2">    &lt;table cellpadding=&quot;5&quot; cellspacing=&quot;0&quot; border=&quot;1&quot;&gt;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;th&gt;Name&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Comment&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Position (Decimal)&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Position (DD MM.mmm)&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Depth (m)&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Duration (hrs)&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Action&lt;/th&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
+            <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
+                <span class="n">lat_dmm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
+                <span class="n">lon_dmm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                <span class="n">comment</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">depth</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+
+                <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">lat_dmm</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_dmm</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td colspan=&quot;7&quot;&gt;No moorings defined&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;/table&gt;</span>
+<span class="s2">&lt;/body&gt;</span>
+<span class="s2">&lt;/html&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Write to file</span>
+        <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_content</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTML schedule saved to: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">output_file</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="generate_html_schedule">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.generate_html_schedule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_html_schedule</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Main interface to generate HTML schedule from scheduler timeline.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        The cruise configuration object</span>
+<span class="sd">    timeline : List[ActivityRecord]</span>
+<span class="sd">        Timeline generated by the scheduler</span>
+<span class="sd">    output_file : Path</span>
+<span class="sd">        Path to output HTML file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Path to generated HTML file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">generator</span> <span class="o">=</span> <span class="n">HTMLGenerator</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_schedule_report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

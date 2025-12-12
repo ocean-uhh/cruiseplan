@@ -1,0 +1,503 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.data.bathymetry</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.data.bathymetry</h1><div class="highlight"><pre>
+<span></span><span class="c1"># cruiseplan/data/bathymetry.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">requests</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tqdm</span><span class="w"> </span><span class="kn">import</span> <span class="n">tqdm</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">FALLBACK_DEPTH</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Constants</span>
+<span class="c1"># Primary: NGDC (National Geophysical Data Center)</span>
+<span class="c1"># Backup: NCEI (National Centers for Environmental Information)</span>
+<span class="n">ETOPO_URLS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;https://www.ngdc.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;https://www.ncei.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ETOPO_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;ETOPO_2022_v1_60s_N90W180_bed.nc&quot;</span>
+
+<span class="c1"># Constants from Spec</span>
+<span class="n">DEPTH_CONTOURS</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">5000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="BathymetryManager">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">BathymetryManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Handles ETOPO bathymetry data with lazy loading and bilinear interpolation.</span>
+
+<span class="sd">    Manages bathymetric data from ETOPO datasets, providing depth lookups</span>
+<span class="sd">    and grid subsets for oceanographic applications. Implements fallback</span>
+<span class="sd">    to mock data when bathymetry files are unavailable.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    source : str</span>
+<span class="sd">        Bathymetry data source identifier.</span>
+<span class="sd">    data_dir : Path</span>
+<span class="sd">        Directory containing bathymetry data files.</span>
+<span class="sd">    _is_mock : bool</span>
+<span class="sd">        Whether the manager is operating in mock mode.</span>
+<span class="sd">    _dataset : Optional[nc.Dataset]</span>
+<span class="sd">        NetCDF dataset object when loaded.</span>
+<span class="sd">    _lats : Optional[np.ndarray]</span>
+<span class="sd">        Latitude coordinate array.</span>
+<span class="sd">    _lons : Optional[np.ndarray]</span>
+<span class="sd">        Longitude coordinate array.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="BathymetryManager.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the bathymetry manager.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        source : str, optional</span>
+<span class="sd">            Bathymetry data source (default: &quot;etopo2022&quot;).</span>
+<span class="sd">        data_dir : str, optional</span>
+<span class="sd">            Data directory relative to project root (default: &quot;data&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
+        <span class="c1"># Resolve path relative to this file&#39;s location to be safe</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_data</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Attempt to load NetCDF data, falling back to mock mode on failure.</span>
+
+<span class="sd">        Tries to load the specified bathymetry dataset. If the file doesn&#39;t</span>
+<span class="sd">        exist or cannot be loaded, switches to mock mode for testing.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Map simple source name to actual filename</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="n">ETOPO_FILENAME</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+        <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">filename</span>
+
+        <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Load using netCDF4 for efficient lazy slicing</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
+                <span class="c1"># Cache coordinate arrays for fast search</span>
+                <span class="c1"># (These are 1D arrays, so they fit easily in memory)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">][:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">][:]</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">False</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Loaded bathymetry from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;❌ Failed to load bathymetry file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Using MOCK mode.&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ No bathymetry file found at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">. Using MOCK mode.&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.&quot;</span>
+            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
+
+<div class="viewcode-block" id="BathymetryManager.get_depth_at_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.get_depth_at_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_depth_at_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get depth at a specific geographic point.</span>
+
+<span class="sd">        Returns depth in meters (negative values indicate depth below sea level).</span>
+<span class="sd">        Uses bilinear interpolation on the ETOPO grid for accurate results.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lat : float</span>
+<span class="sd">            Latitude in decimal degrees.</span>
+<span class="sd">        lon : float</span>
+<span class="sd">            Longitude in decimal degrees.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Depth in meters (negative for below sea level).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_mock_depth</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_interpolate_depth</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error interpolating depth at </span><span class="si">{</span><span class="n">lat</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">FALLBACK_DEPTH</span></div>
+
+
+<div class="viewcode-block" id="BathymetryManager.get_grid_subset">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.get_grid_subset">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_grid_subset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat_min</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">,</span> <span class="n">lon_min</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">,</span> <span class="n">stride</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get a subset of the bathymetry grid for contour plotting.</span>
+
+<span class="sd">        Returns 2D arrays suitable for matplotlib contour plotting.</span>
+<span class="sd">        Supports downsampling with stride parameter for performance.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lat_min : float</span>
+<span class="sd">            Minimum latitude of the subset.</span>
+<span class="sd">        lat_max : float</span>
+<span class="sd">            Maximum latitude of the subset.</span>
+<span class="sd">        lon_min : float</span>
+<span class="sd">            Minimum longitude of the subset.</span>
+<span class="sd">        lon_max : float</span>
+<span class="sd">            Maximum longitude of the subset.</span>
+<span class="sd">        stride : int, optional</span>
+<span class="sd">            Downsampling factor (default: 1, no downsampling).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple</span>
+<span class="sd">            Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span><span class="p">:</span>
+            <span class="c1"># Generate synthetic grid</span>
+            <span class="n">lat_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lat_min</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">lon_range</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">linspace</span><span class="p">(</span><span class="n">lon_min</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span>
+            <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lon_range</span><span class="p">,</span> <span class="n">lat_range</span><span class="p">)</span>
+            <span class="c1"># Same formula as get_mock_depth but vectorized</span>
+            <span class="n">zz</span> <span class="o">=</span> <span class="o">-</span><span class="p">((</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">yy</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">xx</span><span class="p">)</span> <span class="o">*</span> <span class="mi">50</span><span class="p">))</span> <span class="o">%</span> <span class="mi">4000</span> <span class="o">-</span> <span class="mi">100</span>
+            <span class="k">return</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">zz</span>
+
+        <span class="c1"># Real Data Slicing</span>
+        <span class="c1"># Find indices</span>
+        <span class="n">lat_idx_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">,</span> <span class="n">lat_min</span><span class="p">)</span>
+        <span class="n">lat_idx_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">)</span>
+        <span class="n">lon_idx_min</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">,</span> <span class="n">lon_min</span><span class="p">)</span>
+        <span class="n">lon_idx_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">)</span>
+
+        <span class="c1"># Handle edge cases (if requested area is outside dataset)</span>
+        <span class="n">lat_idx_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lat_idx_min</span><span class="p">)</span>
+        <span class="n">lat_idx_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lat_idx_max</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">))</span>
+        <span class="n">lon_idx_min</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">lon_idx_min</span><span class="p">)</span>
+        <span class="n">lon_idx_max</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">lon_idx_max</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">lat_idx_min</span> <span class="o">&gt;=</span> <span class="n">lat_idx_max</span> <span class="ow">or</span> <span class="n">lon_idx_min</span> <span class="o">&gt;=</span> <span class="n">lon_idx_max</span><span class="p">:</span>
+            <span class="c1"># Return empty grid if invalid slice</span>
+            <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([]),</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])</span>
+
+        <span class="c1"># Slice with stride</span>
+        <span class="n">lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">[</span><span class="n">lat_idx_min</span><span class="p">:</span><span class="n">lat_idx_max</span><span class="p">:</span><span class="n">stride</span><span class="p">]</span>
+        <span class="n">lons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[</span><span class="n">lon_idx_min</span><span class="p">:</span><span class="n">lon_idx_max</span><span class="p">:</span><span class="n">stride</span><span class="p">]</span>
+
+        <span class="c1"># Read subset from disk</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">][</span>
+            <span class="n">lat_idx_min</span><span class="p">:</span><span class="n">lat_idx_max</span><span class="p">:</span><span class="n">stride</span><span class="p">,</span> <span class="n">lon_idx_min</span><span class="p">:</span><span class="n">lon_idx_max</span><span class="p">:</span><span class="n">stride</span>
+        <span class="p">]</span>
+
+        <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">lons</span><span class="p">,</span> <span class="n">lats</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">xx</span><span class="p">,</span> <span class="n">yy</span><span class="p">,</span> <span class="n">z</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_interpolate_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Perform bilinear interpolation on the bathymetry grid.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lat : float</span>
+<span class="sd">            Latitude for interpolation.</span>
+<span class="sd">        lon : float</span>
+<span class="sd">            Longitude for interpolation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Interpolated depth value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># 1. Bounds Check</span>
+        <span class="k">if</span> <span class="n">lat</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">lat</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">FALLBACK_DEPTH</span>
+        <span class="k">if</span> <span class="n">lon</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">or</span> <span class="n">lon</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="n">FALLBACK_DEPTH</span>
+
+        <span class="c1"># 2. Find 2x2 Grid Indices</span>
+        <span class="c1"># np.searchsorted gives the index *after* the point, so the grid is defined by [idx-1, idx]</span>
+        <span class="n">lon_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+        <span class="n">lat_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">searchsorted</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">,</span> <span class="n">lat</span><span class="p">)</span>
+
+        <span class="c1"># Ensure indices are within bounds for the grid corners</span>
+        <span class="n">x0_idx</span> <span class="o">=</span> <span class="n">lon_idx</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">x1_idx</span> <span class="o">=</span> <span class="n">lon_idx</span>
+        <span class="n">y0_idx</span> <span class="o">=</span> <span class="n">lat_idx</span> <span class="o">-</span> <span class="mi">1</span>
+        <span class="n">y1_idx</span> <span class="o">=</span> <span class="n">lat_idx</span>
+
+        <span class="c1"># Check against array limits (safety check, should be covered by bounds check)</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">x1_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">y1_idx</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">x0_idx</span> <span class="o">&lt;</span> <span class="mi">0</span>
+            <span class="ow">or</span> <span class="n">y0_idx</span> <span class="o">&lt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">FALLBACK_DEPTH</span>
+
+        <span class="c1"># 3. Extract 2x2 Grid (Lazy Load from Disk)</span>
+        <span class="c1"># Note: z(lat, lon) -&gt; z(y, x)</span>
+        <span class="n">z_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">][[</span><span class="n">y0_idx</span><span class="p">,</span> <span class="n">y1_idx</span><span class="p">],</span> <span class="p">[</span><span class="n">x0_idx</span><span class="p">,</span> <span class="n">x1_idx</span><span class="p">]]</span>
+        <span class="n">y_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">[[</span><span class="n">y0_idx</span><span class="p">,</span> <span class="n">y1_idx</span><span class="p">]]</span>
+        <span class="n">x_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[[</span><span class="n">x0_idx</span><span class="p">,</span> <span class="n">x1_idx</span><span class="p">]]</span>
+
+        <span class="c1"># 4. Bilinear Interpolation (Corrected Formula)</span>
+        <span class="n">x0</span><span class="p">,</span> <span class="n">x1</span> <span class="o">=</span> <span class="n">x_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">x_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">y0</span><span class="p">,</span> <span class="n">y1</span> <span class="o">=</span> <span class="n">y_coords</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">y_coords</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">z00</span><span class="p">,</span> <span class="n">z01</span><span class="p">,</span> <span class="n">z10</span><span class="p">,</span> <span class="n">z11</span> <span class="o">=</span> <span class="n">z_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_grid</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">z_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">z_grid</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Check for zero spacing</span>
+        <span class="k">if</span> <span class="n">x1</span> <span class="o">==</span> <span class="n">x0</span> <span class="ow">or</span> <span class="n">y1</span> <span class="o">==</span> <span class="n">y0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">z00</span><span class="p">)</span>  <span class="c1"># Fallback to nearest grid point</span>
+
+        <span class="n">u</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">x1</span> <span class="o">-</span> <span class="n">x0</span><span class="p">)</span>  <span class="c1"># Fractional distance in x</span>
+        <span class="n">v</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y1</span> <span class="o">-</span> <span class="n">y0</span><span class="p">)</span>  <span class="c1"># Fractional distance in y</span>
+
+        <span class="c1"># Bilinear interpolation formula</span>
+        <span class="n">depth</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">z00</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">z10</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">v</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">z01</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">u</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span>
+            <span class="o">+</span> <span class="n">z11</span> <span class="o">*</span> <span class="n">u</span> <span class="o">*</span> <span class="n">v</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_mock_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate deterministic mock depth for testing.</span>
+
+<span class="sd">        Uses a deterministic formula based on coordinates to provide</span>
+<span class="sd">        consistent depth values for testing without real bathymetry data.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lat : float</span>
+<span class="sd">            Latitude coordinate.</span>
+<span class="sd">        lon : float</span>
+<span class="sd">            Longitude coordinate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Mock depth value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="k">return</span> <span class="o">-</span><span class="p">(</span><span class="n">val</span> <span class="o">%</span> <span class="mi">4000</span><span class="p">)</span> <span class="o">-</span> <span class="mi">100</span>
+
+<div class="viewcode-block" id="BathymetryManager.close">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.close">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Close the NetCDF dataset if open.</span>
+
+<span class="sd">        Should be called when the manager is no longer needed to free resources.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">isopen</span><span class="p">():</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">close</span><span class="p">()</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="download_bathymetry">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.download_bathymetry">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Download ETOPO 2022 bathymetry dataset with progress bar.</span>
+
+<span class="sd">    Downloads the ETOPO 2022 60-second resolution bathymetry data</span>
+<span class="sd">    from NOAA servers. Tries multiple mirror URLs if the primary fails.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    target_dir : str, optional</span>
+<span class="sd">        Target directory relative to project root (default: &quot;data&quot;).</span>
+<span class="sd">        The file will be saved in a &quot;bathymetry&quot; subdirectory.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">target_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">local_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ETOPO_FILENAME</span>
+
+    <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading ETOPO dataset to </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">url</span> <span class="ow">in</span> <span class="n">ETOPO_URLS</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempting download from: </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="n">url</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">10</span>
+            <span class="p">)</span>  <span class="c1"># 10s timeout for connect</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+            <span class="n">total_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;Content-Length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">local_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">,</span>
+                <span class="n">tqdm</span><span class="p">(</span>
+                    <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading ETOPO&quot;</span><span class="p">,</span>
+                    <span class="n">total</span><span class="o">=</span><span class="n">total_size</span><span class="p">,</span>
+                    <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+                    <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Download complete!&quot;</span><span class="p">)</span>
+            <span class="k">return</span>  <span class="c1"># Success, exit function</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to download from </span><span class="si">{</span><span class="n">url</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>  <span class="c1"># Cleanup partial download</span>
+
+    <span class="c1"># If we reach here, all URLs failed</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⛔ AUTOMATIC DOWNLOAD FAILED&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please download the file manually using your browser:&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;URL: </span><span class="si">{</span><span class="n">ETOPO_URLS</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Save to: </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># Singleton instance</span>
+<span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">()</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

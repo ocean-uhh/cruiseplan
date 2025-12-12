@@ -1,0 +1,689 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Interactive pickers &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data - Bathymetry &amp; Pangaea" href="cruiseplan.data.html" />
+    <link rel="prev" title="Core Classes" href="cruiseplan.core.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.cli.html">Command-line-interface (CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.core.html">Core Classes</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Interactive pickers</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.interactive.campaign_selector">cruiseplan.interactive.campaign_selector module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.campaign_selector.CampaignSelector"><code class="docutils literal notranslate"><span class="pre">CampaignSelector</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-interactive-station-picker-module">cruiseplan.interactive.station_picker module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.interactive.widgets">cruiseplan.interactive.widgets module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.widgets.ModeIndicator"><code class="docutils literal notranslate"><span class="pre">ModeIndicator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.widgets.StatusDisplay"><code class="docutils literal notranslate"><span class="pre">StatusDisplay</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.data.html">Data - Bathymetry &amp; Pangaea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.calculators.html">Calculators &amp; Scheduling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.output.html">Output formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.utils.html">General Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">CruisePlan API</a></li>
+      <li class="breadcrumb-item active">Interactive pickers</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/cruiseplan.interactive.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cruiseplan.interactive">
+<span id="interactive-pickers"></span><h1>Interactive pickers<a class="headerlink" href="#module-cruiseplan.interactive" title="Link to this heading"></a></h1>
+<p>cruiseplan.interactive package</p>
+<p>This package contains interactive components for cruise planning:</p>
+<ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">campaign_selector</span></code>: Interface for selecting and managing PANGAEA campaign data</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">station_picker</span></code>: Main interactive matplotlib-based tool for planning cruise stations and transects</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">widgets</span></code>: Custom matplotlib widgets for the interactive interface (mode indicators, status displays)</p></li>
+</ul>
+<p>These modules provide the graphical user interface components for interactive cruise
+planning, allowing users to visually design cruise tracks, select stations, and
+integrate with external data sources through an intuitive matplotlib-based interface.</p>
+<section id="module-cruiseplan.interactive.campaign_selector">
+<span id="cruiseplan-interactive-campaign-selector-module"></span><h2>cruiseplan.interactive.campaign_selector module<a class="headerlink" href="#module-cruiseplan.interactive.campaign_selector" title="Link to this heading"></a></h2>
+<p>PANGAEA campaign selection and management interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.campaign_selector.</span></span><span class="sig-name descname"><span class="pre">CampaignSelector</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages PANGAEA campaign data loading and selection interface.</p>
+<p>Provides checkbox interface for toggling campaign visibility on interactive maps.
+Allows users to selectively display or hide PANGAEA cruise tracks for better
+visualization and planning.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.campaign_data">
+<span class="sig-name descname"><span class="pre">campaign_data</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.campaign_data" title="Link to this definition"></a></dt>
+<dd><p>List of campaign datasets with coordinate and metadata information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.selected_campaigns">
+<span class="sig-name descname"><span class="pre">selected_campaigns</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.selected_campaigns" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping campaign names to their visibility state.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.campaign_artists">
+<span class="sig-name descname"><span class="pre">campaign_artists</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.campaign_artists" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping campaign names to their matplotlib artist objects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.ax_campaign">
+<span class="sig-name descname"><span class="pre">ax_campaign</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.ax_campaign" title="Link to this definition"></a></dt>
+<dd><p>Matplotlib axes for the campaign selection interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.check_buttons">
+<span class="sig-name descname"><span class="pre">check_buttons</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.check_buttons" title="Link to this definition"></a></dt>
+<dd><p>Matplotlib CheckButtons widget for campaign selection.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[CheckButtons]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.map_ax">
+<span class="sig-name descname"><span class="pre">map_ax</span></span><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.map_ax" title="Link to this definition"></a></dt>
+<dd><p>Reference to the main map axes for updating campaign display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[plt.Axes]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the campaign selector.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>campaign_data</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Dict</em><em>]</em><em>]</em><em>, </em><em>optional</em>) – Pre-loaded campaign track data from PANGAEA (default: None).</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.get_selected_campaigns">
+<span class="sig-name descname"><span class="pre">get_selected_campaigns</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector.get_selected_campaigns"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.get_selected_campaigns" title="Link to this definition"></a></dt>
+<dd><p>Return list of currently selected campaigns.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of campaign dictionaries that are currently visible/selected.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.save_selection">
+<span class="sig-name descname"><span class="pre">save_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector.save_selection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.save_selection" title="Link to this definition"></a></dt>
+<dd><p>Save current campaign selection to a pickle file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>str</em>) – Path where the selected campaign data will be saved.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.setup_ui">
+<span class="sig-name descname"><span class="pre">setup_ui</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax_campaign</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector.setup_ui"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.setup_ui" title="Link to this definition"></a></dt>
+<dd><p>Initialize the campaign selection interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ax_campaign</strong> (<em>plt.Axes</em>) – Matplotlib axes where the campaign selector will be displayed.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.campaign_selector.CampaignSelector.toggle_all">
+<span class="sig-name descname"><span class="pre">toggle_all</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/campaign_selector.html#CampaignSelector.toggle_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.campaign_selector.CampaignSelector.toggle_all" title="Link to this definition"></a></dt>
+<dd><p>Toggle all campaigns on/off.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>bool</em>) – True to show all campaigns, False to hide all campaigns.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="cruiseplan-interactive-station-picker-module">
+<h2>cruiseplan.interactive.station_picker module<a class="headerlink" href="#cruiseplan-interactive-station-picker-module" title="Link to this heading"></a></h2>
+<p>Interactive station picker for oceanographic cruise planning.</p>
+<p>This module provides the StationPicker class, which creates an interactive
+matplotlib-based interface for planning cruise stations, transects, and survey areas.</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.station_picker.</span></span><span class="sig-name descname"><span class="pre">StationPicker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stations.yaml'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/station_picker.html#StationPicker"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Interactive matplotlib-based tool for oceanographic cruise planning.</p>
+<p>Combines the original functionality with modern widget integration
+for enhanced user experience and accessibility. Provides interactive
+tools for placing stations, drawing transects, and defining survey areas
+on a bathymetric map with PANGAEA campaign data overlay.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">MODES</span></span></dt>
+<dd><p>Available interaction modes: navigation, point, line, area.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">KEY_BINDINGS</span></span></dt>
+<dd><p>Keyboard shortcuts for mode switching and actions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">mode</span></span></dt>
+<dd><p>Current interaction mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">output_file</span></span></dt>
+<dd><p>Path for saving cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">stations</span></span></dt>
+<dd><p>List of planned sampling stations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">transects</span></span></dt>
+<dd><p>List of planned transects.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">areas</span></span></dt>
+<dd><p>List of planned survey areas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">history</span></span></dt>
+<dd><p>Undo history for operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Tuple[str, Dict, any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">campaigns</span></span></dt>
+<dd><p>PANGAEA campaign data for visualization.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">fig</span></span></dt>
+<dd><p>Main matplotlib figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">ax_map</span></span></dt>
+<dd><p>Main map axes for bathymetry and planning elements.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">KEY_BINDINGS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">{'a':</span> <span class="pre">'area',</span> <span class="pre">'escape':</span> <span class="pre">'exit',</span> <span class="pre">'l':</span> <span class="pre">'line',</span> <span class="pre">'n':</span> <span class="pre">'navigation',</span> <span class="pre">'p':</span> <span class="pre">'point',</span> <span class="pre">'r':</span> <span class="pre">'remove',</span> <span class="pre">'s':</span> <span class="pre">'line',</span> <span class="pre">'u':</span> <span class="pre">'remove_last',</span> <span class="pre">'w':</span> <span class="pre">'point',</span> <span class="pre">'y':</span> <span class="pre">'save'}</span></em></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">MODES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['navigation',</span> <span class="pre">'point',</span> <span class="pre">'line',</span> <span class="pre">'area']</span></em></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'stations.yaml'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/station_picker.html#StationPicker.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Initialize the station picker interface.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>campaign_data</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em><em>, </em><em>optional</em>) – Pre-loaded campaign track data from PANGAEA</p></li>
+<li><p><strong>output_file</strong> (<em>str</em>) – Output filename for saving cruise plans</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">get_cruise_data</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/station_picker.html#StationPicker.get_cruise_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Get the current cruise plan data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary containing current stations and transects data.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/station_picker.html#StationPicker.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Change the current interaction mode and update the display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_mode</strong> (<em>str</em>) – New interaction mode. Must be one of MODES or “remove”.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">show</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/station_picker.html#StationPicker.show"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Display the interactive cruise planning interface.</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.interactive.widgets">
+<span id="cruiseplan-interactive-widgets-module"></span><h2>cruiseplan.interactive.widgets module<a class="headerlink" href="#module-cruiseplan.interactive.widgets" title="Link to this heading"></a></h2>
+<p>Custom matplotlib widgets for oceanographic cruise planning interface.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.widgets.</span></span><span class="sig-name descname"><span class="pre">ModeIndicator</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'navigation'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#ModeIndicator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Widget</span></code></p>
+<p>Visual indicator for current interaction mode.</p>
+<p>Shows current mode (navigation/point/line/area) with clear styling.
+Provides visual feedback to users about the current interaction state.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.ax">
+<span class="sig-name descname"><span class="pre">ax</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.ax" title="Link to this definition"></a></dt>
+<dd><p>Matplotlib axes for the widget display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.modes">
+<span class="sig-name descname"><span class="pre">modes</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.modes" title="Link to this definition"></a></dt>
+<dd><p>List of available interaction modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.current_mode">
+<span class="sig-name descname"><span class="pre">current_mode</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.current_mode" title="Link to this definition"></a></dt>
+<dd><p>Currently active interaction mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.callbacks">
+<span class="sig-name descname"><span class="pre">callbacks</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.callbacks" title="Link to this definition"></a></dt>
+<dd><p>Dictionary of callback functions for mode changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Callable]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.colors">
+<span class="sig-name descname"><span class="pre">colors</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.colors" title="Link to this definition"></a></dt>
+<dd><p>Color mapping for different modes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.text_obj">
+<span class="sig-name descname"><span class="pre">text_obj</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.text_obj" title="Link to this definition"></a></dt>
+<dd><p>Matplotlib text object for mode display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[plt.Text]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'navigation'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#ModeIndicator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the mode indicator widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ax</strong> (<em>plt.Axes</em>) – Matplotlib axes for widget placement.</p></li>
+<li><p><strong>modes</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of available interaction modes.</p></li>
+<li><p><strong>initial_mode</strong> (<em>str</em><em>, </em><em>optional</em>) – Initial mode to display (default: “navigation”).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.on_mode_change">
+<span class="sig-name descname"><span class="pre">on_mode_change</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">callback</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Callable</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#ModeIndicator.on_mode_change"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.on_mode_change" title="Link to this definition"></a></dt>
+<dd><p>Register callback for mode changes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>mode</strong> (<em>str</em>) – Mode for which to register the callback.</p></li>
+<li><p><strong>callback</strong> (<em>Callable</em>) – Function to call when mode changes to the specified mode.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.ModeIndicator.set_mode">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#ModeIndicator.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.ModeIndicator.set_mode" title="Link to this definition"></a></dt>
+<dd><p>Change the current mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> (<em>str</em>) – New mode to set. Must be one of the available modes.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.widgets.</span></span><span class="sig-name descname"><span class="pre">StatusDisplay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#StatusDisplay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Widget</span></code></p>
+<p>Real-time status display for coordinates, depth, and operation counts.</p>
+<p>Shows current mouse coordinates, bathymetric depth, and counts of
+planned stations, transects, and areas.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.ax">
+<span class="sig-name descname"><span class="pre">ax</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.ax" title="Link to this definition"></a></dt>
+<dd><p>Matplotlib axes for the widget display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>plt.Axes</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.status_lines">
+<span class="sig-name descname"><span class="pre">status_lines</span></span><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.status_lines" title="Link to this definition"></a></dt>
+<dd><p>List of matplotlib text objects for status display lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[plt.Text]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Axes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#StatusDisplay.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the status display widget.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ax</strong> (<em>plt.Axes</em>) – Matplotlib axes for widget placement.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.update_coordinates">
+<span class="sig-name descname"><span class="pre">update_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#StatusDisplay.update_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.update_coordinates" title="Link to this definition"></a></dt>
+<dd><p>Update coordinate display, using Degrees Decimal Minutes format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Latitude coordinate in decimal degrees.</p></li>
+<li><p><strong>lon</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Longitude coordinate in decimal degrees.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.update_counts">
+<span class="sig-name descname"><span class="pre">update_counts</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transects</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">areas</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#StatusDisplay.update_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.update_counts" title="Link to this definition"></a></dt>
+<dd><p>Update operation counters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stations</strong> (<em>int</em>) – Number of planned stations.</p></li>
+<li><p><strong>transects</strong> (<em>int</em>) – Number of planned transects.</p></li>
+<li><p><strong>areas</strong> (<em>int</em>) – Number of planned survey areas.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.interactive.widgets.StatusDisplay.update_depth">
+<span class="sig-name descname"><span class="pre">update_depth</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/interactive/widgets.html#StatusDisplay.update_depth"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.widgets.StatusDisplay.update_depth" title="Link to this definition"></a></dt>
+<dd><p>Update depth display, handling positive elevation and negative depth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>depth</strong> (<em>Optional</em><em>[</em><em>float</em><em>]</em>) – Depth/elevation value in meters (negative for depth, positive for elevation).</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cruiseplan.core.html" class="btn btn-neutral float-left" title="Core Classes" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cruiseplan.data.html" class="btn btn-neutral float-right" title="Data - Bathymetry &amp; Pangaea" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

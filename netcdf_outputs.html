@@ -1,0 +1,603 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NetCDF Output Specification for CruisePlan Phase 3c &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="CLI Command Reference" href="cli_reference.html" />
+    <link rel="prev" title="Usage Guide" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">NetCDF Data Standards</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-design-principles">Key Design Principles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cf-convention-alignment">CF Convention Alignment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#yaml-schema-organization">YAML Schema Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#output-file-structure">Output File Structure</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#point-operations-cruise-name-points-nc">1. Point Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_points.nc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#line-operations-cruise-name-lines-nc">2. Line Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_lines.nc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#area-operations-cruise-name-areas-nc">3. Area Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_areas.nc</span></code>)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#ship-schedule-cruise-name-schedule-nc">4. Ship Schedule (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.nc</span></code>)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#implementation-requirements">Implementation Requirements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#file-location-and-output-directory">File Location and Output Directory</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#integration-with-current-system">Integration with Current System</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schema-enhancement-requirements">Schema Enhancement Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cf-compliance-requirements">CF Compliance Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#data-type-specifications">Data Type Specifications</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#controlled-vocabulary">Controlled Vocabulary</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validation-requirements">Validation Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cross-reference-system">Cross-Reference System</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-with-test-framework">Integration with Test Framework</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">NetCDF Output Specification for CruisePlan Phase 3c</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/netcdf_outputs.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="netcdf-output-specification-for-cruiseplan-phase-3c">
+<h1>NetCDF Output Specification for CruisePlan Phase 3c<a class="headerlink" href="#netcdf-output-specification-for-cruiseplan-phase-3c" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This specification defines CF-1.8 compliant NetCDF output formats for the CruisePlan system. The structure aligns with discrete sampling geometries from cfconventions.org, organizing cruise data by operation geometry type (point vs line) and providing a complete ship trajectory timeline.</p>
+</section>
+<section id="key-design-principles">
+<h2>Key Design Principles<a class="headerlink" href="#key-design-principles" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>CF-1.8 Compliance</strong>: Strict adherence to CF discrete sampling geometries conventions</p></li>
+<li><p><strong>Operation Geometry Organization</strong>: Separate files based on spatial operation type</p></li>
+<li><p><strong>Clean Schema Separation</strong>: Pure navigation (<code class="docutils literal notranslate"><span class="pre">transits</span></code>) vs scientific operations (<code class="docutils literal notranslate"><span class="pre">surveys</span></code>)</p></li>
+<li><p><strong>Ship Trajectory</strong>: Complete time-ordered vessel path including all activities</p></li>
+<li><p><strong>CruiseConfig Source</strong>: All operation metadata extracted directly from YAML configuration</p></li>
+</ol>
+</section>
+<section id="cf-convention-alignment">
+<h2>CF Convention Alignment<a class="headerlink" href="#cf-convention-alignment" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>FeatureType “point”</strong>: Discrete observations at fixed locations (stations, moorings)</p></li>
+<li><p><strong>FeatureType “trajectory”</strong>: Sequential observations along paths (surveys, ship schedule)</p></li>
+<li><p><strong>Coordinate Requirements</strong>: All data variables include <code class="docutils literal notranslate"><span class="pre">coordinates</span></code> attribute</p></li>
+<li><p><strong>Standard Names</strong>: Use CF standard name table for oceanographic variables</p></li>
+</ul>
+</section>
+<section id="yaml-schema-organization">
+<h2>YAML Schema Organization<a class="headerlink" href="#yaml-schema-organization" title="Link to this heading"></a></h2>
+<p>The revised YAML schema cleanly separates operation types:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Point operations (featureType: point)</span>
+<span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">        </span><span class="c1"># All fixed-location operations (CTD profiles, water sampling, calibrations, mooring deployments/recoveries)</span>
+<span class="c1"># Each station entry includes an `operation_type` field, e.g. &quot;station&quot; or &quot;mooring&quot;</span>
+
+<span class="c1"># Line operations (featureType: trajectory)</span>
+<span class="nt">surveys</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Scientific operations along paths (ADCP, towing, bathymetry)</span>
+
+<span class="c1"># Area operations (featureType: trajectory or specialized)</span>
+<span class="nt">area_surveys</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">    </span><span class="c1"># Systematic coverage patterns, grid surveys</span>
+
+<span class="c1"># Pure navigation (schedule file only)</span>
+<span class="nt">transits</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">        </span><span class="c1"># Non-scientific vessel movement between operations</span>
+</pre></div>
+</div>
+</section>
+<section id="output-file-structure">
+<h2>Output File Structure<a class="headerlink" href="#output-file-structure" title="Link to this heading"></a></h2>
+<p>The system generates four NetCDF files organized by operation geometry and CF featureType:</p>
+<section id="point-operations-cruise-name-points-nc">
+<h3>1. Point Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_points.nc</span></code>)<a class="headerlink" href="#point-operations-cruise-name-points-nc" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: All discrete scientific operations at fixed locations
+<strong>Data Source</strong>: <code class="docutils literal notranslate"><span class="pre">config.stations[]</span></code> + <code class="docutils literal notranslate"><span class="pre">config.moorings[]</span></code>
+<strong>FeatureType</strong>: <code class="docutils literal notranslate"><span class="pre">point</span></code> (CF discrete sampling geometry)
+<strong>Use Case</strong>: Station lists, mooring inventories, sampling locations</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Dimensions</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">N_point_operations</span>  <span class="c1"># Total stations + moorings</span>
+
+<span class="c1"># Coordinate variables (spatial only)</span>
+<span class="n">lon</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;longitude of the operation&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+
+<span class="n">lat</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;latitude&quot;</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;latitude of the operation&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_north&quot;</span>
+
+<span class="c1"># Oceanographic coordinate</span>
+<span class="n">waterdepth</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;water depth at operation location&quot;</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;sea_floor_depth_below_sea_surface&quot;</span>
+    <span class="n">vocabulary</span> <span class="o">=</span> <span class="s2">&quot;http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;m&quot;</span>
+    <span class="n">positive</span> <span class="o">=</span> <span class="s2">&quot;down&quot;</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="s2">&quot;Z&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
+
+<span class="c1"># Operation metadata</span>
+<span class="n">name</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;operation identifier from cruise plan&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;lat lon waterdepth&quot;</span>
+
+<span class="n">operation</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;type of oceanographic operation&quot;</span>
+    <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;CTD_profile water_sampling calibration Mooring_deployment Mooring_recovery&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;lat lon waterdepth&quot;</span>
+
+<span class="n">duration</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;planned operation duration&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;hours&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;lat lon waterdepth&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+
+<span class="n">comment</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S256</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;operation comments from cruise plan&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;lat lon waterdepth&quot;</span>
+
+<span class="c1"># Global attributes</span>
+<span class="p">:</span><span class="n">featureType</span> <span class="o">=</span> <span class="s2">&quot;point&quot;</span>
+<span class="p">:</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Point Operations: </span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">institution</span> <span class="o">=</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span>
+<span class="p">:</span><span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;YAML configuration file&quot;</span>
+<span class="p">:</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+<span class="p">:</span><span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">creation_date</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{iso_timestamp}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">coordinate_system</span> <span class="o">=</span> <span class="s2">&quot;WGS84&quot;</span>
+<span class="p">:</span><span class="n">depth_datum</span> <span class="o">=</span> <span class="s2">&quot;Mean Sea Level&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="line-operations-cruise-name-lines-nc">
+<h3>2. Line Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_lines.nc</span></code>)<a class="headerlink" href="#line-operations-cruise-name-lines-nc" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Scientific operations along defined paths
+<strong>Data Source</strong>: <code class="docutils literal notranslate"><span class="pre">config.surveys[]</span></code>
+<strong>FeatureType</strong>: <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> (CF discrete sampling geometry)
+<strong>Use Case</strong>: ADCP surveys, tow-yo operations, bathymetry transects</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Dimensions</span>
+<span class="n">operations</span> <span class="o">=</span> <span class="n">N_line_operations</span>    <span class="c1"># Number of discrete line operations</span>
+<span class="n">endpoints</span> <span class="o">=</span> <span class="mi">2</span>                    <span class="c1"># Start and end points (0=start, 1=end)</span>
+
+<span class="c1"># Coordinate variables (2D arrays for start/end points)</span>
+<span class="n">longitude</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;longitude coordinates defining line operation&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;endpoints dimension: 0=start point, 1=end point&quot;</span>
+
+<span class="n">latitude</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="n">endpoints</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;latitude coordinates defining line operation&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_north&quot;</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;endpoints dimension: 0=start point, 1=end point&quot;</span>
+
+<span class="c1"># Operation metadata</span>
+<span class="n">operation_name</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;line operation identifier&quot;</span>
+
+<span class="n">operation_type</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;type of line operation&quot;</span>
+    <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;underway towing&quot;</span>
+    <span class="n">flag_meanings</span> <span class="o">=</span> <span class="s2">&quot;underway_instruments towed_instruments&quot;</span>
+
+<span class="n">action</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;specific survey instrument or method&quot;</span>
+    <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;ADCP bathymetry thermosalinograph tow_yo seismic microstructure&quot;</span>
+
+<span class="n">vessel_speed</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;planned vessel speed for operation&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;knots&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+
+<span class="n">estimated_duration</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;estimated operation duration&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;hours&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+
+<span class="c1"># Global attributes</span>
+<span class="p">:</span><span class="n">featureType</span> <span class="o">=</span> <span class="s2">&quot;trajectory&quot;</span>
+<span class="p">:</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Line Operations: </span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">institution</span> <span class="o">=</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span>
+<span class="p">:</span><span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;YAML configuration file&quot;</span>
+<span class="p">:</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+<span class="p">:</span><span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">creation_date</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{iso_timestamp}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="area-operations-cruise-name-areas-nc">
+<h3>3. Area Operations (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_areas.nc</span></code>)<a class="headerlink" href="#area-operations-cruise-name-areas-nc" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Scientific operations over defined areas (future implementation)
+<strong>Data Source</strong>: <code class="docutils literal notranslate"><span class="pre">config.area_surveys[]</span></code>
+<strong>FeatureType</strong>: <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> (coverage patterns) or specialized
+<strong>Use Case</strong>: Grid surveys, systematic mapping, search patterns</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Dimensions</span>
+<span class="n">operations</span> <span class="o">=</span> <span class="n">N_area_operations</span>      <span class="c1"># Number of area operations  </span>
+<span class="n">max_vertices</span> <span class="o">=</span> <span class="mi">20</span>                   <span class="c1"># Maximum vertices in any polygon</span>
+
+<span class="c1"># Coordinate variables (2D arrays with ragged fill)</span>
+<span class="n">longitude</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="n">max_vertices</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;longitude vertices of area boundary polygon&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Vertices define closed polygon boundary, unused positions filled with NaN&quot;</span>
+
+<span class="n">latitude</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="n">max_vertices</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;latitude vertices of area boundary polygon&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_north&quot;</span> 
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Vertices define closed polygon boundary, unused positions filled with NaN&quot;</span>
+
+<span class="c1"># Vertex count for each operation</span>
+<span class="n">n_boundary_vertices</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="n">int32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;number of vertices in boundary polygon&quot;</span>
+    <span class="n">valid_range</span> <span class="o">=</span> <span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">20</span><span class="p">]</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Actual number of vertices used (rest are NaN)&quot;</span>
+
+<span class="c1"># Operation metadata</span>
+<span class="n">area_name</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;area operation identifier&quot;</span>
+
+<span class="n">pattern_type</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;area survey pattern&quot;</span>
+    <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;grid_survey systematic_mapping search_pattern random_sampling&quot;</span>
+
+<span class="n">estimated_duration</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;estimated operation duration&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;hours&quot;</span> 
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+
+<span class="c1"># Derived geometric properties (useful for analysis)</span>
+<span class="n">area_extent_km2</span><span class="p">(</span><span class="n">operations</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;approximate area coverage&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;km^2&quot;</span>
+    <span class="n">_FillValue</span> <span class="o">=</span> <span class="n">NaN</span>
+
+<span class="c1"># Global attributes</span>
+<span class="p">:</span><span class="n">featureType</span> <span class="o">=</span> <span class="s2">&quot;trajectory&quot;</span>  <span class="c1"># or specialized area type</span>
+<span class="p">:</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Area Operations: </span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">institution</span> <span class="o">=</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span>
+<span class="p">:</span><span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;YAML configuration file&quot;</span>
+<span class="p">:</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+<span class="p">:</span><span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">creation_date</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{iso_timestamp}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="ship-schedule-cruise-name-schedule-nc">
+<h3>4. Ship Schedule (<code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.nc</span></code>)<a class="headerlink" href="#ship-schedule-cruise-name-schedule-nc" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Complete ship trajectory including all operations and transits
+<strong>Data Source</strong>: Timeline from scheduler (<code class="docutils literal notranslate"><span class="pre">List[ActivityRecord]</span></code>)
+<strong>FeatureType</strong>: <code class="docutils literal notranslate"><span class="pre">trajectory</span></code> (ship’s continuous path)
+<strong>Use Case</strong>: Operational timeline, logistics, voyage tracking</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Dimensions</span>
+<span class="n">obs</span> <span class="o">=</span> <span class="n">N_timeline_events</span>  <span class="c1"># All scheduled activities in time order</span>
+
+<span class="c1"># Coordinate variables (CF required)</span>
+<span class="n">time</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float64</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;time&quot;</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;time of ship position&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;days since 1970-01-01 00:00:00&quot;</span>
+
+<span class="n">lon</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;ship longitude&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+
+<span class="n">lat</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;latitude&quot;</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;ship latitude&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_north&quot;</span>
+
+<span class="c1"># Schedule metadata</span>
+<span class="n">activity_name</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;activity identifier&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+
+<span class="n">activity_type</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;type of cruise activity&quot;</span>
+    <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;point_operation line_operation area_operation transit&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+
+<span class="n">operation_file_ref</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S64</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;reference to operation in catalog files&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+    <span class="n">comment</span> <span class="o">=</span> <span class="s2">&quot;Links to point/line/area operation files by name&quot;</span>
+
+<span class="n">leg_assignment</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;cruise leg identifier&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+
+<span class="n">duration</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;activity duration&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;hours&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+
+<span class="n">vessel_speed</span><span class="p">(</span><span class="n">obs</span><span class="p">):</span> <span class="n">float32</span>
+    <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;vessel speed&quot;</span>
+    <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;knots&quot;</span>
+    <span class="n">coordinates</span> <span class="o">=</span> <span class="s2">&quot;time lat lon&quot;</span>
+
+<span class="c1"># Global attributes</span>
+<span class="p">:</span><span class="n">featureType</span> <span class="o">=</span> <span class="s2">&quot;trajectory&quot;</span>
+<span class="p">:</span><span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Ship Schedule: </span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">institution</span> <span class="o">=</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span>
+<span class="p">:</span><span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;Scheduler computation from YAML configuration&quot;</span>
+<span class="p">:</span><span class="n">Conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+<span class="p">:</span><span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+<span class="p">:</span><span class="n">total_duration_days</span> <span class="o">=</span> <span class="p">{</span><span class="n">total_days</span><span class="p">}</span>
+<span class="p">:</span><span class="n">creation_date</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{iso_timestamp}</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="implementation-requirements">
+<h2>Implementation Requirements<a class="headerlink" href="#implementation-requirements" title="Link to this heading"></a></h2>
+<section id="file-location-and-output-directory">
+<h3>File Location and Output Directory<a class="headerlink" href="#file-location-and-output-directory" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>All NetCDF files should be written to <code class="docutils literal notranslate"><span class="pre">tests_output/</span></code> for test cases</p></li>
+<li><p>Production outputs should allow user-specified output directory</p></li>
+<li><p>Filename format: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_{type}.nc</span></code> where type is <code class="docutils literal notranslate"><span class="pre">points</span></code>, <code class="docutils literal notranslate"><span class="pre">lines</span></code>, <code class="docutils literal notranslate"><span class="pre">areas</span></code>, or <code class="docutils literal notranslate"><span class="pre">schedule</span></code></p></li>
+</ul>
+</section>
+<section id="integration-with-current-system">
+<h3>Integration with Current System<a class="headerlink" href="#integration-with-current-system" title="Link to this heading"></a></h3>
+<p><strong>Input Sources:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Point Operations</strong>: Built from <code class="docutils literal notranslate"><span class="pre">config.stations[]</span></code> + <code class="docutils literal notranslate"><span class="pre">config.moorings[]</span></code></p></li>
+<li><p><strong>Line Operations</strong>: Built from <code class="docutils literal notranslate"><span class="pre">config.surveys[]</span></code> (future schema enhancement)</p></li>
+<li><p><strong>Area Operations</strong>: Built from <code class="docutils literal notranslate"><span class="pre">config.area_surveys[]</span></code> (future implementation)</p></li>
+<li><p><strong>Ship Schedule</strong>: Built from <code class="docutils literal notranslate"><span class="pre">List[ActivityRecord]</span></code> returned by <code class="docutils literal notranslate"><span class="pre">generate_timeline()</span></code></p></li>
+</ol>
+<p><strong>Key Functions to Implement:</strong></p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_point_operations</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate point operations NetCDF from stations and moorings.&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_line_operations</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate line operations NetCDF from surveys.&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_area_operations</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate area operations NetCDF from area_surveys.&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_ship_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate ship schedule NetCDF from timeline.&quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_all_netcdf_outputs</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate all NetCDF files and return paths.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="schema-enhancement-requirements">
+<h3>Schema Enhancement Requirements<a class="headerlink" href="#schema-enhancement-requirements" title="Link to this heading"></a></h3>
+<p><strong>Immediate (Phase 3c):</strong></p>
+<ol class="arabic simple">
+<li><p>Current system can generate point operations and ship schedule files</p></li>
+<li><p>Line operations file requires new <code class="docutils literal notranslate"><span class="pre">surveys[]</span></code> list in YAML schema</p></li>
+<li><p>Area operations file is placeholder for future development</p></li>
+</ol>
+<p><strong>YAML Schema Updates Needed:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add to CruiseConfig validation</span>
+<span class="nt">surveys</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Optional[List[SurveyDefinition]] = []</span>
+<span class="nt">area_surveys</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Optional[List[AreaSurveyDefinition]] = []</span>
+
+<span class="nt">class SurveyDefinition(BaseModel)</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span><span class="w">  </span><span class="c1"># &quot;underway&quot; or &quot;towing&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span><span class="w">         </span><span class="c1"># &quot;ADCP&quot;, &quot;bathymetry&quot;, &quot;tow_yo&quot;, etc.</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List[GeoPoint]</span>
+<span class="w">    </span><span class="nt">vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Optional[float] = None</span>
+
+<span class="nt">class AreaSurveyDefinition(BaseModel)</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span>
+<span class="w">    </span><span class="nt">pattern_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">str</span><span class="w">   </span><span class="c1"># &quot;grid_survey&quot;, &quot;search_pattern&quot;, etc.</span>
+<span class="w">    </span><span class="nt">boundary</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">List[GeoPoint]</span>
+<span class="w">    </span><span class="c1"># Additional area-specific fields</span>
+</pre></div>
+</div>
+</section>
+<section id="cf-compliance-requirements">
+<h3>CF Compliance Requirements<a class="headerlink" href="#cf-compliance-requirements" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>FeatureType Specification</strong>: Each file must have exactly one <code class="docutils literal notranslate"><span class="pre">featureType</span></code> global attribute</p></li>
+<li><p><strong>Coordinate Variables</strong>: Must include proper <code class="docutils literal notranslate"><span class="pre">units</span></code>, <code class="docutils literal notranslate"><span class="pre">standard_name</span></code>, and <code class="docutils literal notranslate"><span class="pre">long_name</span></code> attributes</p></li>
+<li><p><strong>Coordinates Attribute</strong>: All data variables must include <code class="docutils literal notranslate"><span class="pre">coordinates</span> <span class="pre">=</span> <span class="pre">&quot;time</span> <span class="pre">lat</span> <span class="pre">lon</span> <span class="pre">...&quot;</span></code> attribute</p></li>
+<li><p><strong>Time Variables</strong>: Use CF-standard time encoding (<code class="docutils literal notranslate"><span class="pre">days</span> <span class="pre">since</span> <span class="pre">1970-01-01</span> <span class="pre">00:00:00</span></code>)</p></li>
+<li><p><strong>Global Attributes</strong>: Include mandatory CF attributes (<code class="docutils literal notranslate"><span class="pre">Conventions</span></code>, <code class="docutils literal notranslate"><span class="pre">title</span></code>, <code class="docutils literal notranslate"><span class="pre">institution</span></code>, <code class="docutils literal notranslate"><span class="pre">featureType</span></code>)</p></li>
+<li><p><strong>Standard Names</strong>: Use CF standard name table for oceanographic variables</p></li>
+<li><p><strong>Fill Values</strong>: Use appropriate <code class="docutils literal notranslate"><span class="pre">_FillValue</span></code> for missing or optional data</p></li>
+</ol>
+</section>
+<section id="data-type-specifications">
+<h3>Data Type Specifications<a class="headerlink" href="#data-type-specifications" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Coordinates</strong>: <code class="docutils literal notranslate"><span class="pre">float64</span></code> for time precision, <code class="docutils literal notranslate"><span class="pre">float32</span></code> for spatial coordinates</p></li>
+<li><p><strong>Time</strong>: <code class="docutils literal notranslate"><span class="pre">float64</span></code> (days since epoch for CF compliance)</p></li>
+<li><p><strong>Measurements</strong>: <code class="docutils literal notranslate"><span class="pre">float32</span></code> for efficiency</p></li>
+<li><p><strong>Strings</strong>: Variable length based on content (<code class="docutils literal notranslate"><span class="pre">|S32</span></code>, <code class="docutils literal notranslate"><span class="pre">|S64</span></code>, <code class="docutils literal notranslate"><span class="pre">|S256</span></code>)</p></li>
+<li><p><strong>Flags/Categories</strong>: <code class="docutils literal notranslate"><span class="pre">|S32</span></code> for string enumerations</p></li>
+</ul>
+</section>
+<section id="controlled-vocabulary">
+<h3>Controlled Vocabulary<a class="headerlink" href="#controlled-vocabulary" title="Link to this heading"></a></h3>
+<p><strong>Point Operation Types:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;CTD_profile&quot;</span></code> - CTD casts and water sampling</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;water_sampling&quot;</span></code> - Discrete water sample collection</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;calibration&quot;</span></code> - Instrument calibration activities</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;Mooring_deployment&quot;</span></code> - Mooring deployment operations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;Mooring_recovery&quot;</span></code> - Mooring recovery operations</p></li>
+</ul>
+<p><strong>Line Operation Types:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;underway&quot;</span></code> - Instruments operating while ship underway (nothing over the side)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;towing&quot;</span></code> - Towed instruments or devices</p></li>
+</ul>
+<p><strong>Line Action Types:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;ADCP&quot;</span></code> - Acoustic Doppler Current Profiler</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;bathymetry&quot;</span></code> - Multibeam or singlebeam mapping</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;thermosalinograph&quot;</span></code> - Underway temperature/salinity</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;tow_yo&quot;</span></code> - Tow-yo CTD operations</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;seismic&quot;</span></code> - Seismic surveys</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">&quot;microstructure&quot;</span></code> - Microstructure profilers</p></li>
+</ul>
+</section>
+<section id="validation-requirements">
+<h3>Validation Requirements<a class="headerlink" href="#validation-requirements" title="Link to this heading"></a></h3>
+<p>Each generated file must:</p>
+<ol class="arabic simple">
+<li><p>Pass CF checker validation (<code class="docutils literal notranslate"><span class="pre">cf-checker</span></code> tool)</p></li>
+<li><p>Include all required CF attributes for the specified featureType</p></li>
+<li><p>Have consistent dimension sizes across variables</p></li>
+<li><p>Include proper coordinate references for all data variables</p></li>
+<li><p>Use valid CF standard names and units</p></li>
+<li><p>Contain realistic values within expected ranges</p></li>
+</ol>
+</section>
+<section id="cross-reference-system">
+<h3>Cross-Reference System<a class="headerlink" href="#cross-reference-system" title="Link to this heading"></a></h3>
+<p><strong>Operation Linking:</strong></p>
+<ul class="simple">
+<li><p>Use operation <code class="docutils literal notranslate"><span class="pre">name</span></code> fields as primary keys between files</p></li>
+<li><p>Ship schedule <code class="docutils literal notranslate"><span class="pre">operation_file_ref</span></code> links to catalog files</p></li>
+<li><p>Maintain naming consistency across all files</p></li>
+</ul>
+<p><strong>File Relationships:</strong></p>
+<ol class="arabic simple">
+<li><p>Point operations file ← Ship schedule (via <code class="docutils literal notranslate"><span class="pre">operation_file_ref</span></code>)</p></li>
+<li><p>Line operations file ← Ship schedule (via <code class="docutils literal notranslate"><span class="pre">operation_file_ref</span></code>)</p></li>
+<li><p>Area operations file ← Ship schedule (via <code class="docutils literal notranslate"><span class="pre">operation_file_ref</span></code>)</p></li>
+</ol>
+</section>
+</section>
+<section id="integration-with-test-framework">
+<h2>Integration with Test Framework<a class="headerlink" href="#integration-with-test-framework" title="Link to this heading"></a></h2>
+<p><strong>Test Output Location</strong>: All test-generated NetCDF files should be written to <code class="docutils literal notranslate"><span class="pre">tests_output/</span></code></p>
+<p><strong>Test Requirements</strong>:</p>
+<ol class="arabic simple">
+<li><p>Generate NetCDF outputs from existing test fixtures (<code class="docutils literal notranslate"><span class="pre">tests/fixtures/*.yaml</span></code>)</p></li>
+<li><p>Validate CF compliance using <code class="docutils literal notranslate"><span class="pre">cf-checker</span></code> or equivalent</p></li>
+<li><p>Test cross-reference integrity between catalog and schedule files</p></li>
+<li><p>Verify coordinate consistency and realistic value ranges</p></li>
+</ol>
+<p><strong>Test Coverage</strong>:</p>
+<ul class="simple">
+<li><p>Point operations only (stations and moorings)</p></li>
+<li><p>Mixed operations (points + transits)</p></li>
+<li><p>Complex multi-leg cruises</p></li>
+<li><p>Edge cases (empty operation lists, missing optional fields)</p></li>
+</ul>
+<p><strong>Implementation Priority</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Phase 3c</strong>: Point operations and ship schedule files (immediate)</p></li>
+<li><p><strong>Future</strong>: Line operations file (requires schema enhancement)</p></li>
+<li><p><strong>Future</strong>: Area operations file (placeholder implementation)</p></li>
+</ol>
+<p>This specification provides a complete foundation for CF-1.8 compliant NetCDF outputs that properly separate operation types by geometry while maintaining scientific data standards and enabling cross-file analysis.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cli_reference.html" class="btn btn-neutral float-right" title="CLI Command Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

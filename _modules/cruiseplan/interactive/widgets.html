@@ -1,0 +1,412 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.interactive.widgets &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.interactive.widgets</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.interactive.widgets</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Custom matplotlib widgets for oceanographic cruise planning interface.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">matplotlib.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">Widget</span>
+
+
+<div class="viewcode-block" id="ModeIndicator">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ModeIndicator</span><span class="p">(</span><span class="n">Widget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Visual indicator for current interaction mode.</span>
+
+<span class="sd">    Shows current mode (navigation/point/line/area) with clear styling.</span>
+<span class="sd">    Provides visual feedback to users about the current interaction state.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : plt.Axes</span>
+<span class="sd">        Matplotlib axes for the widget display.</span>
+<span class="sd">    modes : List[str]</span>
+<span class="sd">        List of available interaction modes.</span>
+<span class="sd">    current_mode : str</span>
+<span class="sd">        Currently active interaction mode.</span>
+<span class="sd">    callbacks : Dict[str, Callable]</span>
+<span class="sd">        Dictionary of callback functions for mode changes.</span>
+<span class="sd">    colors : Dict[str, str]</span>
+<span class="sd">        Color mapping for different modes.</span>
+<span class="sd">    text_obj : Optional[plt.Text]</span>
+<span class="sd">        Matplotlib text object for mode display.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="ModeIndicator.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">,</span> <span class="n">modes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">initial_mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;navigation&quot;</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the mode indicator widget.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : plt.Axes</span>
+<span class="sd">            Matplotlib axes for widget placement.</span>
+<span class="sd">        modes : List[str]</span>
+<span class="sd">            List of available interaction modes.</span>
+<span class="sd">        initial_mode : str, optional</span>
+<span class="sd">            Initial mode to display (default: &quot;navigation&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">modes</span> <span class="o">=</span> <span class="n">modes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">current_mode</span> <span class="o">=</span> <span class="n">initial_mode</span>
+        <span class="c1"># Callbacks are for external components (like StationPicker) to react to mode changes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Style configuration aligned with visual distinction</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;navigation&quot;</span><span class="p">:</span> <span class="s2">&quot;#2E8B57&quot;</span><span class="p">,</span>  <span class="c1"># Sea green</span>
+            <span class="s2">&quot;point&quot;</span><span class="p">:</span> <span class="s2">&quot;#4169E1&quot;</span><span class="p">,</span>  <span class="c1"># Royal blue</span>
+            <span class="s2">&quot;line&quot;</span><span class="p">:</span> <span class="s2">&quot;#FF6347&quot;</span><span class="p">,</span>  <span class="c1"># Tomato</span>
+            <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;#9932CC&quot;</span><span class="p">,</span>  <span class="c1"># Dark orchid</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_obj</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Text</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_display</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the mode indicator display.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_display</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_update_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update the visual indicator.&quot;&quot;&quot;</span>
+        <span class="c1"># Clear the axis content but maintain background properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Background color based on mode</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mode</span><span class="p">,</span> <span class="s2">&quot;#808080&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">add_patch</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">Rectangle</span><span class="p">((</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">))</span>
+
+        <span class="c1"># Mode text</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">text_obj</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="mf">0.5</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;Mode: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">current_mode</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">ha</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">va</span><span class="o">=</span><span class="s2">&quot;center&quot;</span><span class="p">,</span>
+            <span class="n">fontweight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="n">fontsize</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Restore necessary aesthetic properties</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
+
+<div class="viewcode-block" id="ModeIndicator.set_mode">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.set_mode">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_mode</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Change the current mode.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            New mode to set. Must be one of the available modes.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">modes</span><span class="p">:</span>
+            <span class="n">old_mode</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">current_mode</span> <span class="o">=</span> <span class="n">mode</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_display</span><span class="p">()</span>
+
+            <span class="c1"># Trigger callbacks registered for the new mode</span>
+            <span class="k">if</span> <span class="n">mode</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">mode</span><span class="p">](</span><span class="n">old_mode</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="ModeIndicator.on_mode_change">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.on_mode_change">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">on_mode_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Register callback for mode changes.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        mode : str</span>
+<span class="sd">            Mode for which to register the callback.</span>
+<span class="sd">        callback : Callable</span>
+<span class="sd">            Function to call when mode changes to the specified mode.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">callbacks</span><span class="p">[</span><span class="n">mode</span><span class="p">]</span> <span class="o">=</span> <span class="n">callback</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="StatusDisplay">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.StatusDisplay">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StatusDisplay</span><span class="p">(</span><span class="n">Widget</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Real-time status display for coordinates, depth, and operation counts.</span>
+
+<span class="sd">    Shows current mouse coordinates, bathymetric depth, and counts of</span>
+<span class="sd">    planned stations, transects, and areas.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    ax : plt.Axes</span>
+<span class="sd">        Matplotlib axes for the widget display.</span>
+<span class="sd">    status_lines : List[plt.Text]</span>
+<span class="sd">        List of matplotlib text objects for status display lines.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="StatusDisplay.__init__">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.StatusDisplay.__init__">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Initialize the status display widget.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        ax : plt.Axes</span>
+<span class="sd">            Matplotlib axes for widget placement.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span> <span class="o">=</span> <span class="n">ax</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">Text</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_setup_display</span><span class="p">()</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_setup_display</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize the status display.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_xticks</span><span class="p">([])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yticks</span><span class="p">([])</span>
+
+        <span class="c1"># Initialize status text lines</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.85</span><span class="p">,</span> <span class="s2">&quot;Coordinates: --&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.05</span><span class="p">,</span> <span class="mf">0.70</span><span class="p">,</span> <span class="s2">&quot;Depth: --&quot;</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.05</span><span class="p">,</span>
+                <span class="mf">0.55</span><span class="p">,</span>
+                <span class="s2">&quot;Stations: 0&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.05</span><span class="p">,</span>
+                <span class="mf">0.40</span><span class="p">,</span>
+                <span class="s2">&quot;Transects: 0&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">text</span><span class="p">(</span>
+                <span class="mf">0.05</span><span class="p">,</span>
+                <span class="mf">0.25</span><span class="p">,</span>
+                <span class="s2">&quot;Areas: 0&quot;</span><span class="p">,</span>
+                <span class="n">fontsize</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span>
+                <span class="n">transform</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                <span class="n">weight</span><span class="o">=</span><span class="s2">&quot;bold&quot;</span><span class="p">,</span>
+            <span class="p">),</span>
+        <span class="p">]</span>
+
+<div class="viewcode-block" id="StatusDisplay.update_coordinates">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.StatusDisplay.update_coordinates">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">lon</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update coordinate display, using Degrees Decimal Minutes format.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        lat : Optional[float]</span>
+<span class="sd">            Latitude coordinate in decimal degrees.</span>
+<span class="sd">        lon : Optional[float]</span>
+<span class="sd">            Longitude coordinate in decimal degrees.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Format: DD MM.mmm Dir, DDD MM.mmm Dir</span>
+
+            <span class="c1"># --- Latitude Conversion ---</span>
+            <span class="n">lat_deg</span><span class="p">,</span> <span class="n">lat_frac</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lat_min</span> <span class="o">=</span> <span class="n">lat_frac</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="n">lat_dir</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
+
+            <span class="c1"># --- Longitude Conversion ---</span>
+            <span class="n">lon_deg</span><span class="p">,</span> <span class="n">lon_frac</span> <span class="o">=</span> <span class="nb">divmod</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">lon_min</span> <span class="o">=</span> <span class="n">lon_frac</span> <span class="o">*</span> <span class="mi">60</span>
+            <span class="n">lon_dir</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
+
+            <span class="c1"># Format string for display (e.g., 53° 07.40&#39;N, 050° 34.07&#39;W)</span>
+            <span class="n">coord_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_deg</span><span class="si">:</span><span class="s2">02.0f</span><span class="si">}</span><span class="s2">° </span><span class="si">{</span><span class="n">lat_min</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">lat_dir</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_deg</span><span class="si">:</span><span class="s2">03.0f</span><span class="si">}</span><span class="s2">° </span><span class="si">{</span><span class="n">lon_min</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">lon_dir</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Coordinates: </span><span class="si">{</span><span class="n">coord_str</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Coordinates: --&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StatusDisplay.update_depth">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.StatusDisplay.update_depth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update depth display, handling positive elevation and negative depth.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        depth : Optional[float]</span>
+<span class="sd">            Depth/elevation value in meters (negative for depth, positive for elevation).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">depth</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Elevation: +</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Depth: </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="s2">&quot;Depth: --&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="StatusDisplay.update_counts">
+<a class="viewcode-back" href="../../../api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.StatusDisplay.update_counts">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_counts</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">stations</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">transects</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">areas</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Update operation counters.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        stations : int</span>
+<span class="sd">            Number of planned stations.</span>
+<span class="sd">        transects : int</span>
+<span class="sd">            Number of planned transects.</span>
+<span class="sd">        areas : int</span>
+<span class="sd">            Number of planned survey areas.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Stations: </span><span class="si">{</span><span class="n">stations</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transects: </span><span class="si">{</span><span class="n">transects</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">status_lines</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span><span class="o">.</span><span class="n">set_text</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Areas: </span><span class="si">{</span><span class="n">areas</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Refresh display</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

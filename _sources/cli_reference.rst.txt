@@ -1,0 +1,194 @@
+CLI Command Reference
+=====================
+
+This document provides a comprehensive reference for the `cruiseplan` command-line interface, detailing available subcommands and their required and optional arguments.
+
+General Usage
+-------------
+
+The `cruiseplan` CLI uses a "git-style" subcommand architecture.
+
+.. code-block:: bash
+
+    usage: cruiseplan [-h] [--version] {download,schedule,stations,enrich,validate,pangaea} ...
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-h, --help``
+     - Show the program's main help message and exit.
+   * - ``--version``
+     - Show the program's version number and exit.
+
+**Examples:**
+
+.. code-block:: bash
+
+    $ cruiseplan schedule -c cruise.yaml -o results/
+    $ cruiseplan stations --lat 50 65 --lon -60 -30
+    $ cruiseplan enrich -c cruise.yaml --add-depths --add-coords
+    $ cruiseplan validate -c cruise.yaml --check-depths
+    $ cruiseplan pangaea doi_list.txt -o pangaea_data/
+
+---
+
+Subcommands
+-----------
+
+.. note:: For detailed help on any subcommand, use: ``cruiseplan <command> --help``
+
+schedule
+^^^^^^^^
+
+Generate the cruise timeline and schedule outputs from a YAML configuration file.
+
+.. code-block:: bash
+
+    usage: cruiseplan schedule [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--format {html,latex,csv,kml,netcdf,all}] [--leg LEG]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** YAML cruise configuration file.
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory (default: ``current`` directory).
+   * - ``--format {html,latex,csv,kml,netcdf,all}``
+     - Output formats to generate (default: ``all``).
+   * - ``--leg LEG``
+     - Process specific leg only (e.g., ``--leg Northern_Operations``).
+
+stations
+^^^^^^^^
+
+Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.
+
+.. code-block:: bash
+
+    usage: cruiseplan stations [-h] [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-p PANGAEA_FILE, --pangaea-file PANGAEA_FILE``
+     - Path to the pickled PANGAEA campaigns file.
+   * - ``--lat MIN MAX``
+     - Latitude bounds for the map view (default: ``45 70``).
+   * - ``--lon MIN MAX``
+     - Longitude bounds for the map view (default: ``-65 -5``).
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory for the generated station YAML (default: ``current``).
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path for the generated YAML.
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset to use for depth lookups (default: ``etopo2022``).
+
+enrich
+^^^^^^
+
+Adds missing or computed data (like depth or formatted coordinates) to a configuration file.
+
+.. code-block:: bash
+
+    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** Input YAML configuration file.
+   * - ``--add-depths``
+     - Add missing ``depth`` values to stations using bathymetry data.
+   * - ``--add-coords``
+     - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory (default: ``current``).
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path.
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset (default: ``etopo2022``).
+   * - ``--coord-format {dmm,dms}``
+     - Format for adding coordinates.
+
+validate
+^^^^^^^^
+
+Performs validation checks on a configuration file, including comparing stated depths against bathymetry data.
+
+.. code-block:: bash
+
+    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [...]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** Input YAML configuration file.
+   * - ``--check-depths``
+     - Compare existing depths with bathymetry data.
+   * - ``--strict``
+     - Enable strict validation mode (fail on warnings).
+   * - ``--warnings-only``
+     - Show warnings but do not fail the exit code.
+   * - ``--tolerance TOLERANCE``
+     - Depth difference tolerance in percent (default: ``10.0``).
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset (default: ``etopo2022``).
+
+pangaea
+^^^^^^^
+
+Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and outputs a searchable dataset.
+
+.. code-block:: bash
+
+    usage: cruiseplan pangaea [-h] [-o OUTPUT_DIR] [--rate-limit RATE_LIMIT] [--merge-campaigns] [--output-file OUTPUT_FILE] doi_file
+
+**Arguments:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``doi_file``
+     - **Required.** Text file with PANGAEA DOIs (one per line).
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory (default: ``data/``).
+   * - ``--rate-limit RATE_LIMIT``
+     - API request rate limit (requests per second, default: ``1.0``).
+   * - ``--merge-campaigns``
+     - Merge campaigns with the same name.
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path for the pickled dataset.
+
+download
+^^^^^^^^
+
+Download and manage external data assets required by CruisePlan (e.g., bathymetry grids).
+
+.. code-block:: bash
+
+    usage: cruiseplan download [-h]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-h, --help``
+     - Show this help message and exit.

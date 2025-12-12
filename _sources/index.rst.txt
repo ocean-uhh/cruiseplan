@@ -1,70 +1,39 @@
-.. template-project documentation master file
+.. CruisePlan documentation master file.
 
-====================================
-Template Project: Documentation Hub
-====================================
+=======================================
+CruisePlan: Oceanographic Planning Hub
+=======================================
 
-Welcome to the documentation for the **template-project** — a minimal, modern Python project template designed for research groups and scientific code development.
+Welcome to the official documentation for **CruisePlan** — the comprehensive software tool designed for planning and documenting oceanographic research cruises.
 
-This template includes tools for testing, documentation, versioning, citation, publishing to PyPI, and more. Whether you're working solo or collaborating in a team, this guide will help you get started and stay consistent.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Getting started
-
-   setup.md
-   customisation_checklist.md
-   project_structure.md
+CruisePlan assists researchers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
 
 .. toctree::
    :maxdepth: 2
-   :caption: GitHub basics
+   :caption: Getting Started
 
-   github_intro.md
-   github_tags_guide.md
-   gitworkflow_solo.md
-   gitcollab.md
-
+   installation.rst
+   usage.rst
 
 .. toctree::
    :maxdepth: 2
-   :caption: Development Guide
+   :caption: Project Specifications
 
-   style_guide.md
-   writing_tests.md
-   build_docs.md
-   precommit_guide.md
-   actions_overview.md
-
+   Development Roadmap <https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md>
+   NetCDF Data Standards <netcdf_outputs.md>
 
 .. toctree::
    :maxdepth: 2
-   :caption: Project Management
+   :caption: Help and Reference
 
-   citation_guide.md
-   pypi_guide.md
-   gitorg_transfer.md
+   Contributing Guidelines <https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md>
+   GitHub Repository <https://github.com/eleanorfrajka/cruiseplan>
+   CLI Command Reference <cli_reference.rst>
+   API Reference <api/modules.rst>
 
-.. toctree::
-   :maxdepth: 2
-   :caption: Development
+Indices and tables
+==================
 
-   Development Roadmap <../../MODERNIZATION_PLAN.md>
-
-.. toctree::
-   :maxdepth: 3
-   :caption: Users' guide
-
-   demo-output.ipynb
-
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Help and reference
-
-   GitHub Repo <http://github.com/eleanorfrajka/template-project>
-   template_project
-   faq
-
-These documentation pages were created based on processes used to develop and maintain http://github.com/OceanGlidersCommunity/glidertest and edited using chatGPT.
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -1,0 +1,612 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Output formats &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="General Utilities" href="cruiseplan.utils.html" />
+    <link rel="prev" title="Calculators &amp; Scheduling" href="cruiseplan.calculators.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.cli.html">Command-line-interface (CLI)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.core.html">Core Classes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.interactive.html">Interactive pickers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.data.html">Data - Bathymetry &amp; Pangaea</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.calculators.html">Calculators &amp; Scheduling</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Output formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.csv_generator">cruiseplan.output.csv_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.csv_generator.CSVGenerator"><code class="docutils literal notranslate"><span class="pre">CSVGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.csv_generator.generate_csv_schedule"><code class="docutils literal notranslate"><span class="pre">generate_csv_schedule()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.html_generator">cruiseplan.output.html_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.html_generator.HTMLGenerator"><code class="docutils literal notranslate"><span class="pre">HTMLGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.html_generator.generate_html_schedule"><code class="docutils literal notranslate"><span class="pre">generate_html_schedule()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.kml_generator">cruiseplan.output.kml_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.kml_generator.KMLGenerator"><code class="docutils literal notranslate"><span class="pre">KMLGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.kml_generator.generate_kml_schedule"><code class="docutils literal notranslate"><span class="pre">generate_kml_schedule()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-output-latex-generator-module">cruiseplan.output.latex_generator module</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.map_generator">cruiseplan.output.map_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.generate_cruise_map"><code class="docutils literal notranslate"><span class="pre">generate_cruise_map()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.netcdf_generator">cruiseplan.output.netcdf_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator"><code class="docutils literal notranslate"><span class="pre">NetCDFGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.netcdf_generator.generate_netcdf_outputs"><code class="docutils literal notranslate"><span class="pre">generate_netcdf_outputs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="cruiseplan.utils.html">General Utilities</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="modules.html">CruisePlan API</a></li>
+      <li class="breadcrumb-item active">Output formats</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/api/cruiseplan.output.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="module-cruiseplan.output">
+<span id="output-formats"></span><h1>Output formats<a class="headerlink" href="#module-cruiseplan.output" title="Link to this heading"></a></h1>
+<p>cruiseplan.output package</p>
+<p>This package contains output generation modules for various formats:</p>
+<ul class="simple">
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">csv_generator</span></code>: Generates comprehensive CSV files with detailed cruise activity formatting</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">html_generator</span></code>: Creates HTML reports with summary tables and activity listings</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">kml_generator</span></code>: Produces Google Earth compatible KML files for geographic visualization</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">latex_generator</span></code>: Generates LaTeX tables using Jinja2 templates for scientific proposals</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">map_generator</span></code>: Creates interactive Leaflet maps from cruise track data</p></li>
+<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">netcdf_generator</span></code>: Produces CF-1.8 compliant NetCDF datasets for scientific data management</p></li>
+</ul>
+<p>These modules handle the conversion of cruise planning data into various output formats
+suitable for different use cases, from interactive web maps to scientific data archives.</p>
+<p>Note that the current set of outputs were each designed for a specific purpose.</p>
+<section id="module-cruiseplan.output.csv_generator">
+<span id="cruiseplan-output-csv-generator-module"></span><h2>cruiseplan.output.csv_generator module<a class="headerlink" href="#module-cruiseplan.output.csv_generator" title="Link to this heading"></a></h2>
+<p>CSV Schedule Generation System.
+Generates comprehensive CSV files with detailed formatting for all cruise activities.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.output.csv_generator.CSVGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.csv_generator.</span></span><span class="sig-name descname"><span class="pre">CSVGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/csv_generator.html#CSVGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.csv_generator.CSVGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages CSV generation for cruise schedules with comprehensive formatting.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.csv_generator.CSVGenerator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/csv_generator.html#CSVGenerator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.csv_generator.CSVGenerator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the CSV generator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.csv_generator.CSVGenerator.generate_schedule_csv">
+<span class="sig-name descname"><span class="pre">generate_schedule_csv</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/csv_generator.html#CSVGenerator.generate_schedule_csv"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.csv_generator.CSVGenerator.generate_schedule_csv" title="Link to this definition"></a></dt>
+<dd><p>Generate CSV schedule output with comprehensive formatting.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output CSV file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated CSV file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.csv_generator.generate_csv_schedule">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.csv_generator.</span></span><span class="sig-name descname"><span class="pre">generate_csv_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/csv_generator.html#generate_csv_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.csv_generator.generate_csv_schedule" title="Link to this definition"></a></dt>
+<dd><p>Main interface to generate CSV schedule from scheduler timeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output CSV file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated CSV file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.output.html_generator">
+<span id="cruiseplan-output-html-generator-module"></span><h2>cruiseplan.output.html_generator module<a class="headerlink" href="#module-cruiseplan.output.html_generator" title="Link to this heading"></a></h2>
+<p>HTML Schedule Generation System.</p>
+<p>Generates comprehensive HTML reports with summary tables and detailed activity listings
+for cruise planning and execution. Provides human-readable visualizations of cruise
+schedules including statistics, timelines, and operational details.</p>
+<p class="rubric">Notes</p>
+<p>The HTML generator creates self-contained HTML files with embedded CSS styling,
+requiring no external dependencies for viewing. Output includes summary statistics
+for different activity types (moorings, stations, surveys, areas) and detailed
+tables for each operation type.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.output.html_generator.HTMLGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.html_generator.</span></span><span class="sig-name descname"><span class="pre">HTMLGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/html_generator.html#HTMLGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.html_generator.HTMLGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages HTML generation for cruise schedules with summary tables and detailed listings.</p>
+<p>This class provides methods to generate comprehensive HTML reports from cruise
+schedule data, including summary statistics and detailed activity breakdowns.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.html_generator.HTMLGenerator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/html_generator.html#HTMLGenerator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.html_generator.HTMLGenerator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the HTML generator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.html_generator.HTMLGenerator.generate_schedule_report">
+<span class="sig-name descname"><span class="pre">generate_schedule_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/html_generator.html#HTMLGenerator.generate_schedule_report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.html_generator.HTMLGenerator.generate_schedule_report" title="Link to this definition"></a></dt>
+<dd><p>Generate comprehensive HTML schedule report.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output HTML file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated HTML file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.html_generator.generate_html_schedule">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.html_generator.</span></span><span class="sig-name descname"><span class="pre">generate_html_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/html_generator.html#generate_html_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.html_generator.generate_html_schedule" title="Link to this definition"></a></dt>
+<dd><p>Main interface to generate HTML schedule from scheduler timeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output HTML file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated HTML file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.output.kml_generator">
+<span id="cruiseplan-output-kml-generator-module"></span><h2>cruiseplan.output.kml_generator module<a class="headerlink" href="#module-cruiseplan.output.kml_generator" title="Link to this heading"></a></h2>
+<p>KML Schedule Generation System.</p>
+<p>Generates Google Earth compatible KML files showing scientific operations only.
+Creates geospatial visualizations of cruise activities for geographic analysis
+and planning. Only includes scientific operations (stations, moorings, surveys)
+in the KML output, excluding navigation transits.</p>
+<p class="rubric">Notes</p>
+<p>KML files can be opened directly in Google Earth or other GIS applications.
+Each operation type is styled differently for visual distinction. Point features
+include detailed metadata in popups.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.output.kml_generator.KMLGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.kml_generator.</span></span><span class="sig-name descname"><span class="pre">KMLGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#KMLGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.KMLGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages KML generation for cruise schedules showing only scientific operations.</p>
+<p>This class generates Google Earth compatible KML files containing geospatial
+representations of scientific cruise activities. Only scientific operations
+are included, with different styling for each operation type.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.kml_generator.KMLGenerator.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#KMLGenerator.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.KMLGenerator.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize the KML generator.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.kml_generator.KMLGenerator.generate_schedule_kml">
+<span class="sig-name descname"><span class="pre">generate_schedule_kml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#KMLGenerator.generate_schedule_kml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.KMLGenerator.generate_schedule_kml" title="Link to this definition"></a></dt>
+<dd><p>Generate KML schedule output with only scientific operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output KML file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated KML file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.kml_generator.generate_kml_schedule">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.kml_generator.</span></span><span class="sig-name descname"><span class="pre">generate_kml_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#generate_kml_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.generate_kml_schedule" title="Link to this definition"></a></dt>
+<dd><p>Main interface to generate KML schedule from scheduler timeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output KML file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated KML file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="cruiseplan-output-latex-generator-module">
+<h2>cruiseplan.output.latex_generator module<a class="headerlink" href="#cruiseplan-output-latex-generator-module" title="Link to this heading"></a></h2>
+<p>LaTeX Table Generation System (Phase 3a).</p>
+<p>Generates proposal-ready tables using Jinja2 templates for LaTeX documents.
+Creates paginated tables with proper LaTeX formatting for scientific proposals
+and reports. Supports multiple table types with automatic page breaks.</p>
+<p class="rubric">Notes</p>
+<p>Uses Jinja2 templating with custom delimiters to avoid LaTeX syntax conflicts.
+Templates are stored in the templates/ subdirectory. Tables are automatically
+paginated to fit within LaTeX float environments.</p>
+<dl class="py class">
+<dt class="sig sig-object py">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.latex_generator.</span></span><span class="sig-name descname"><span class="pre">LaTeXGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/latex_generator.html#LaTeXGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Manages the Jinja2 environment and template rendering for LaTeX outputs.</p>
+<p>This class handles LaTeX table generation using Jinja2 templates with
+custom delimiters to avoid conflicts with LaTeX syntax. Supports automatic
+pagination of large tables.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">MAX_ROWS_PER_PAGE</span></span></dt>
+<dd><p>Maximum number of rows per page for LaTeX table float environment (45).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">env</span></span></dt>
+<dd><p>Jinja2 environment configured with LaTeX-safe delimiters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>jinja2.Environment</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">MAX_ROWS_PER_PAGE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">45</span></em></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">generate_stations_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/latex_generator.html#LaTeXGenerator.generate_stations_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Generates the Working Area, Stations and Profiles table from scheduler timeline.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">generate_work_days_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/latex_generator.html#LaTeXGenerator.generate_work_days_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Generates the Work Days at Sea table from scheduler timeline.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.latex_generator.</span></span><span class="sig-name descname"><span class="pre">generate_latex_tables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/latex_generator.html#generate_latex_tables"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
+<dd><p>Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object</p></li>
+<li><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – Timeline generated by the scheduler</p></li>
+<li><p><strong>output_dir</strong> (<em>Path</em>) – Directory to write output files</p></li>
+</ul>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of generated .tex files</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.output.map_generator">
+<span id="cruiseplan-output-map-generator-module"></span><h2>cruiseplan.output.map_generator module<a class="headerlink" href="#module-cruiseplan.output.map_generator" title="Link to this heading"></a></h2>
+<p>Interactive Map Generation System.</p>
+<p>Generates interactive Leaflet maps from cruise track data using Folium.
+Creates HTML files with embedded JavaScript for web-based geographic visualization
+of cruise operations and tracks.</p>
+<p class="rubric">Notes</p>
+<p>Maps are centered on the first track’s average position. Multiple tracks are
+displayed with different colors. Requires internet connection for tile loading
+when viewing the generated HTML files.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.generate_cruise_map">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">generate_cruise_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tracks</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise_map.html'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#generate_cruise_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.generate_cruise_map" title="Link to this definition"></a></dt>
+<dd><p>Generates an interactive Leaflet map from merged cruise tracks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>tracks</strong> (<em>list</em><em> of </em><em>dict</em>) – List of track dictionaries with ‘latitude’, ‘longitude’, ‘label’, ‘dois’ keys.
+Each track contains coordinate lists and metadata.</p></li>
+<li><p><strong>output_file</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path or string for the output HTML file. Default is “cruise_map.html”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The absolute path to the generated map file.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Map is centered on the average position of the first track. Tracks are
+displayed with different colors. Returns None if no valid tracks provided.</p>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.output.netcdf_generator">
+<span id="cruiseplan-output-netcdf-generator-module"></span><h2>cruiseplan.output.netcdf_generator module<a class="headerlink" href="#module-cruiseplan.output.netcdf_generator" title="Link to this heading"></a></h2>
+<p>NetCDF Output Generation System (Phase 3c).</p>
+<p>Generates CF-1.8 compliant NetCDF datasets for scientific data management and analysis.
+Implements discrete sampling geometries as specified in netcdf_outputs.md.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.netcdf_generator.</span></span><span class="sig-name descname"><span class="pre">NetCDFGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>CF-1.8 compliant NetCDF generator using xarray.</p>
+<p>Generates CF-1.8 compliant NetCDF files organized by operation geometry type.
+Implements discrete sampling geometries for scientific data management and
+analysis as specified in the netcdf_outputs.md specification.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.cf_conventions">
+<span class="sig-name descname"><span class="pre">cf_conventions</span></span><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.cf_conventions" title="Link to this definition"></a></dt>
+<dd><p>CF conventions version used for NetCDF files (“CF-1.8”).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_area_operations">
+<span class="sig-name descname"><span class="pre">derive_area_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schedule_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">areas_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.derive_area_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_area_operations" title="Link to this definition"></a></dt>
+<dd><p>Derive area operations file from master schedule.nc.
+Filters to include only area_operation categories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_line_operations">
+<span class="sig-name descname"><span class="pre">derive_line_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schedule_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lines_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.derive_line_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_line_operations" title="Link to this definition"></a></dt>
+<dd><p>Derive line operations file from master schedule.nc.
+Filters to include only line_operation categories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_point_operations">
+<span class="sig-name descname"><span class="pre">derive_point_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">schedule_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">points_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.derive_point_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.derive_point_operations" title="Link to this definition"></a></dt>
+<dd><p>Derive point operations file from master schedule.nc.
+Filters to include only point_operation categories.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_all_netcdf_outputs">
+<span class="sig-name descname"><span class="pre">generate_all_netcdf_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_all_netcdf_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_all_netcdf_outputs" title="Link to this definition"></a></dt>
+<dd><p>Generate all NetCDF files according to netcdf_outputs.md specification.</p>
+<p>Uses master file approach: generate schedule.nc as master, then derive
+specialized files for different operation types. Implements CF-1.8
+compliant discrete sampling geometries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – Cruise configuration object containing cruise metadata.</p></li>
+<li><p><strong>timeline</strong> (<em>list</em><em> of </em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a>) – Timeline of scheduled activities from the scheduler.</p></li>
+<li><p><strong>output_dir</strong> (<em>Path</em>) – Directory where NetCDF files will be written.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of paths to all generated NetCDF files.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list of Path</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_area_operations">
+<span class="sig-name descname"><span class="pre">generate_area_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_area_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_area_operations" title="Link to this definition"></a></dt>
+<dd><p>Generate area operations NetCDF (placeholder for future implementation).
+FeatureType: trajectory (coverage patterns)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_line_operations">
+<span class="sig-name descname"><span class="pre">generate_line_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_line_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_line_operations" title="Link to this definition"></a></dt>
+<dd><p>Generate line operations NetCDF from scientific transits.
+FeatureType: trajectory (start/end points defining survey lines)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_master_schedule">
+<span class="sig-name descname"><span class="pre">generate_master_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_master_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_master_schedule" title="Link to this definition"></a></dt>
+<dd><p>Generate master schedule NetCDF from timeline with waterdepth included for all operations.
+FeatureType: trajectory (ship’s continuous path)
+This is the master file containing all data that other files derive from.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_point_operations">
+<span class="sig-name descname"><span class="pre">generate_point_operations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_point_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_point_operations" title="Link to this definition"></a></dt>
+<dd><p>Generate point operations NetCDF from stations and moorings.
+FeatureType: point (CF discrete sampling geometry)</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_ship_schedule">
+<span class="sig-name descname"><span class="pre">generate_ship_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#NetCDFGenerator.generate_ship_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_ship_schedule" title="Link to this definition"></a></dt>
+<dd><p>Generate ship schedule NetCDF from timeline.
+FeatureType: trajectory (ship’s continuous path)</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.netcdf_generator.generate_netcdf_outputs">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.netcdf_generator.</span></span><span class="sig-name descname"><span class="pre">generate_netcdf_outputs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/netcdf_generator.html#generate_netcdf_outputs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.netcdf_generator.generate_netcdf_outputs" title="Link to this definition"></a></dt>
+<dd><p>Convenience function to generate all NetCDF outputs.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config: Cruise configuration
+timeline: Generated timeline from scheduler
+output_dir: Directory to write NetCDF files (defaults to tests_output/netcdf for tests)</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of generated NetCDF file paths</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cruiseplan.calculators.html" class="btn btn-neutral float-left" title="Calculators &amp; Scheduling" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="cruiseplan.utils.html" class="btn btn-neutral float-right" title="General Utilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

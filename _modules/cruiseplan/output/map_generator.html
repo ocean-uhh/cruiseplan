@@ -1,0 +1,254 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=20758594" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=8b92e751"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/eleanorfrajka/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.output.map_generator</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.output.map_generator</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Interactive Map Generation System.</span>
+
+<span class="sd">Generates interactive Leaflet maps from cruise track data using Folium.</span>
+<span class="sd">Creates HTML files with embedded JavaScript for web-based geographic visualization</span>
+<span class="sd">of cruise operations and tracks.</span>
+
+<span class="sd">Notes</span>
+<span class="sd">-----</span>
+<span class="sd">Maps are centered on the first track&#39;s average position. Multiple tracks are</span>
+<span class="sd">displayed with different colors. Requires internet connection for tile loading</span>
+<span class="sd">when viewing the generated HTML files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">folium</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="generate_cruise_map">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.map_generator.generate_cruise_map">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_map</span><span class="p">(</span>
+    <span class="n">tracks</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;cruise_map.html&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates an interactive Leaflet map from merged cruise tracks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    tracks : list of dict</span>
+<span class="sd">        List of track dictionaries with &#39;latitude&#39;, &#39;longitude&#39;, &#39;label&#39;, &#39;dois&#39; keys.</span>
+<span class="sd">        Each track contains coordinate lists and metadata.</span>
+<span class="sd">    output_file : str or Path, optional</span>
+<span class="sd">        Path or string for the output HTML file. Default is &quot;cruise_map.html&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        The absolute path to the generated map file.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    Map is centered on the average position of the first track. Tracks are</span>
+<span class="sd">    displayed with different colors. Returns None if no valid tracks provided.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">tracks</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;No tracks provided to generate map.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Ensure output_file is a Path object</span>
+    <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+    <span class="c1"># Create parent directories if they don&#39;t exist</span>
+    <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># 1. Determine Map Center (Average of first track&#39;s points)</span>
+    <span class="n">first_track</span> <span class="o">=</span> <span class="n">tracks</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="c1"># Safety check for empty coordinate lists</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Track </span><span class="si">{</span><span class="n">first_track</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> has no coordinates.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">avg_lat</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">])</span>
+    <span class="n">avg_lon</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">])</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">first_track</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">])</span>
+
+    <span class="n">m</span> <span class="o">=</span> <span class="n">folium</span><span class="o">.</span><span class="n">Map</span><span class="p">(</span><span class="n">location</span><span class="o">=</span><span class="p">[</span><span class="n">avg_lat</span><span class="p">,</span> <span class="n">avg_lon</span><span class="p">],</span> <span class="n">zoom_start</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">tiles</span><span class="o">=</span><span class="s2">&quot;Cartodb Positron&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 2. Draw Each Track</span>
+    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;blue&quot;</span><span class="p">,</span> <span class="s2">&quot;red&quot;</span><span class="p">,</span> <span class="s2">&quot;green&quot;</span><span class="p">,</span> <span class="s2">&quot;purple&quot;</span><span class="p">,</span> <span class="s2">&quot;orange&quot;</span><span class="p">,</span> <span class="s2">&quot;darkblue&quot;</span><span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">track</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">tracks</span><span class="p">):</span>
+        <span class="n">lats</span> <span class="o">=</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span>
+        <span class="n">lons</span> <span class="o">=</span> <span class="n">track</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+        <span class="n">dois</span> <span class="o">=</span> <span class="n">track</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dois&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lats</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">lons</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Zip coordinates for Folium (Lat, Lon)</span>
+        <span class="n">points</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">))</span>
+
+        <span class="c1"># Pick a color</span>
+        <span class="n">color</span> <span class="o">=</span> <span class="n">colors</span><span class="p">[</span><span class="n">i</span> <span class="o">%</span> <span class="nb">len</span><span class="p">(</span><span class="n">colors</span><span class="p">)]</span>
+
+        <span class="c1"># Add the Line</span>
+        <span class="n">folium</span><span class="o">.</span><span class="n">PolyLine</span><span class="p">(</span>
+            <span class="n">points</span><span class="p">,</span>
+            <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>
+            <span class="n">weight</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">opacity</span><span class="o">=</span><span class="mf">0.6</span><span class="p">,</span>
+            <span class="n">dash_array</span><span class="o">=</span><span class="s2">&quot;5, 10&quot;</span><span class="p">,</span>  <span class="c1"># Optional: Dashed line to differentiate from other layers</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># B. Draw Discrete Stations (The dots themselves)</span>
+        <span class="c1"># We step through points. If you have 10,000 points, you might want points[::10]</span>
+        <span class="k">for</span> <span class="n">point_idx</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">points</span><span class="p">):</span>
+            <span class="n">folium</span><span class="o">.</span><span class="n">CircleMarker</span><span class="p">(</span>
+                <span class="n">location</span><span class="o">=</span><span class="n">point</span><span class="p">,</span>
+                <span class="n">radius</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>  <span class="c1"># Small dot</span>
+                <span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>  <span class="c1"># Border color</span>
+                <span class="n">fill</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                <span class="n">fill_color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span>  <span class="c1"># Fill color</span>
+                <span class="n">fill_opacity</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
+                <span class="n">popup</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (St. </span><span class="si">{</span><span class="n">point_idx</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>  <span class="c1"># Simple popup</span>
+                <span class="n">tooltip</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">point_idx</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># HTML for popup</span>
+        <span class="n">doi_html</span> <span class="o">=</span> <span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">dois</span><span class="p">)</span> <span class="k">if</span> <span class="n">dois</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
+        <span class="n">popup_html</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&lt;b&gt;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&lt;/b&gt;&lt;br&gt;&lt;u&gt;Source DOIs:&lt;/u&gt;&lt;br&gt;</span><span class="si">{</span><span class="n">doi_html</span><span class="si">}</span><span class="s2">&quot;</span>
+
+        <span class="c1"># Add Marker at Start</span>
+        <span class="n">folium</span><span class="o">.</span><span class="n">Marker</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">points</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
+            <span class="n">popup</span><span class="o">=</span><span class="n">folium</span><span class="o">.</span><span class="n">Popup</span><span class="p">(</span><span class="n">popup_html</span><span class="p">,</span> <span class="n">max_width</span><span class="o">=</span><span class="mi">300</span><span class="p">),</span>
+            <span class="n">icon</span><span class="o">=</span><span class="n">folium</span><span class="o">.</span><span class="n">Icon</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="n">color</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;ship&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;fa&quot;</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+        <span class="c1"># Add Marker at End</span>
+        <span class="n">folium</span><span class="o">.</span><span class="n">Marker</span><span class="p">(</span>
+            <span class="n">location</span><span class="o">=</span><span class="n">points</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span>
+            <span class="n">popup</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;End: </span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">icon</span><span class="o">=</span><span class="n">folium</span><span class="o">.</span><span class="n">Icon</span><span class="p">(</span><span class="n">color</span><span class="o">=</span><span class="s2">&quot;gray&quot;</span><span class="p">,</span> <span class="n">icon</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="n">prefix</span><span class="o">=</span><span class="s2">&quot;fa&quot;</span><span class="p">),</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">add_to</span><span class="p">(</span><span class="n">m</span><span class="p">)</span>
+
+    <span class="c1"># 3. Save</span>
+    <span class="n">m</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Map successfully saved to </span><span class="si">{</span><span class="n">output_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_path</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
