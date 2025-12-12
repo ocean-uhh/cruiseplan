@@ -1,12 +1,12 @@
 Calculators & Scheduling
-=======================
+========================
 
 .. automodule:: cruiseplan.calculators
    :members:
 
 
 cruiseplan.calculators.distance module
------------------------------------
+--------------------------------------
 
 .. automodule:: cruiseplan.calculators.distance
    :members:
@@ -14,7 +14,7 @@ cruiseplan.calculators.distance module
    :show-inheritance:
 
 cruiseplan.calculators.duration module
-------------------------------------
+--------------------------------------
 
 .. automodule:: cruiseplan.calculators.duration
    :members:
@@ -22,7 +22,7 @@ cruiseplan.calculators.duration module
    :show-inheritance:
 
 cruiseplan.calculators.routing module
----------------------------------
+-------------------------------------
 
 .. automodule:: cruiseplan.calculators.routing
    :members:
@@ -30,7 +30,7 @@ cruiseplan.calculators.routing module
    :show-inheritance:
 
 cruiseplan.calculators.scheduler module
-------------------------------------
+---------------------------------------
 
 .. automodule:: cruiseplan.calculators.scheduler
    :members:

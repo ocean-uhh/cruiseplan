@@ -1,12 +1,12 @@
 Command-line-interface (CLI)
-==========================
+============================
 
 .. automodule:: cruiseplan.cli
    :members:
 
 
 cruiseplan.cli.main module
------------------------------
+--------------------------
 
 .. automodule:: cruiseplan.cli.main
    :members:
@@ -14,7 +14,7 @@ cruiseplan.cli.main module
    :show-inheritance:
 
 cruiseplan.cli.pangaea module
-----------------------------
+-----------------------------
 
 .. automodule:: cruiseplan.cli.pangaea
    :members:
@@ -22,7 +22,7 @@ cruiseplan.cli.pangaea module
    :show-inheritance:
 
 cruiseplan.cli.stations module
----------------------------------
+------------------------------
 
 .. automodule:: cruiseplan.cli.stations
    :members:
@@ -30,7 +30,7 @@ cruiseplan.cli.stations module
    :show-inheritance:
 
 cruiseplan.cli.enrich module
----------------------------------
+----------------------------
 
 .. automodule:: cruiseplan.cli.enrich
    :members:
@@ -38,7 +38,7 @@ cruiseplan.cli.enrich module
    :show-inheritance:
 
 cruiseplan.cli.validate module
----------------------------------
+------------------------------
 
 .. automodule:: cruiseplan.cli.validate
    :members:
@@ -46,7 +46,7 @@ cruiseplan.cli.validate module
    :show-inheritance:
 
 cruiseplan.cli.schedule module
----------------------------------
+------------------------------
 
 .. automodule:: cruiseplan.cli.schedule
    :members:
@@ -54,7 +54,7 @@ cruiseplan.cli.schedule module
    :show-inheritance:
 
 cruiseplan.cli.utils module
----------------------------------
+---------------------------
 
 .. automodule:: cruiseplan.cli.utils
    :members:

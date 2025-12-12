@@ -37,6 +37,7 @@ cruiseplan.output.latex_generator module
    :members:
    :undoc-members:
    :show-inheritance:
+   :no-index:
 
 
 cruiseplan.output.map_generator module
