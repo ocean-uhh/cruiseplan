@@ -1,0 +1,601 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 4: CLI Integration Implementation Plan &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Phase 4: CLI Integration Implementation Plan</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instructions_phase4.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="phase-4-cli-integration-implementation-plan">
+<h1>Phase 4: CLI Integration Implementation Plan<a class="headerlink" href="#phase-4-cli-integration-implementation-plan" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Phase 4 implements a comprehensive CLI interface with modern subcommand architecture following git-style patterns. This phase is divided into three sub-phases to ensure systematic development and testing.</p>
+</section>
+<section id="phase-4a-data-acquisition-commands-weeks-13-14">
+<h2>Phase 4a: Data Acquisition Commands (Weeks 13-14)<a class="headerlink" href="#phase-4a-data-acquisition-commands-weeks-13-14" title="Link to this heading"></a></h2>
+<section id="a-1-cruiseplan-pangaea-cli-download-py">
+<h3>4a.1: cruiseplan pangaea (cli/download.py)<a class="headerlink" href="#a-1-cruiseplan-pangaea-cli-download-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Process PANGAEA DOI lists into campaign datasets for background context</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic">
+<li><p><strong>Create cli/download.py module</strong></p>
+<ul class="simple">
+<li><p>Import existing PANGAEA functionality from cruiseplan.data.pangaea</p></li>
+<li><p>Implement command-line argument parsing using argparse</p></li>
+<li><p>Add progress indicators for API requests</p></li>
+<li><p>Implement rate limiting controls</p></li>
+</ul>
+</li>
+<li><p><strong>Command Interface</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>DOI_LIST_FILE<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span>
+<span class="w">                   </span><span class="o">[</span>--rate-limit<span class="w"> </span>REQUESTS_PER_SECOND<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>DOI validation before processing</p></li>
+<li><p>Progress bars for long API operations</p></li>
+<li><p>Rate limiting to respect PANGAEA servers</p></li>
+<li><p>Geographic filtering options</p></li>
+<li><p>Campaign merging capabilities</p></li>
+</ul>
+</li>
+<li><p><strong>Error Handling</strong>:</p>
+<ul class="simple">
+<li><p>Invalid DOI format detection</p></li>
+<li><p>Network connectivity issues</p></li>
+<li><p>API rate limit exceeded warnings</p></li>
+<li><p>Malformed response handling</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="a-2-cruiseplan-stations-cli-stations-py">
+<h3>4a.2: cruiseplan stations (cli/stations.py)<a class="headerlink" href="#a-2-cruiseplan-stations-cli-stations-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Interactive station placement with PANGAEA background data and bathymetry</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic">
+<li><p><strong>Create cli/stations.py module</strong></p>
+<ul class="simple">
+<li><p>Import existing interactive functionality from cruiseplan.interactive</p></li>
+<li><p>Integrate bathymetry rendering capabilities</p></li>
+<li><p>Add PANGAEA data overlay features</p></li>
+<li><p>Implement command-line configuration</p></li>
+</ul>
+</li>
+<li><p><strong>Command Interface</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span>
+<span class="w">                   </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Interactive map interface with station placement</p></li>
+<li><p>PANGAEA campaign overlay for context</p></li>
+<li><p>Bathymetry contour visualization</p></li>
+<li><p>Real-time coordinate display</p></li>
+<li><p>Station metadata input forms</p></li>
+</ul>
+</li>
+<li><p><strong>Output Generation</strong>:</p>
+<ul class="simple">
+<li><p>YAML station catalog generation</p></li>
+<li><p>Coordinate validation and formatting</p></li>
+<li><p>Depth estimation from bathymetry</p></li>
+<li><p>Station naming and classification</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Testing Requirements for Phase 4a</strong>:</p>
+<ul class="simple">
+<li><p>Unit tests for argument parsing and validation</p></li>
+<li><p>Integration tests with sample DOI lists</p></li>
+<li><p>Interactive testing with different geographic regions</p></li>
+<li><p>Performance testing for large PANGAEA datasets</p></li>
+</ul>
+</section>
+</section>
+<section id="phase-4b-data-enhancement-and-validation-commands-weeks-14-15">
+<h2>Phase 4b: Data Enhancement and Validation Commands (Weeks 14-15)<a class="headerlink" href="#phase-4b-data-enhancement-and-validation-commands-weeks-14-15" title="Link to this heading"></a></h2>
+<section id="b-1-cruiseplan-enrich-cli-enrich-py">
+<h3>4b.1: cruiseplan enrich (cli/enrich.py)<a class="headerlink" href="#b-1-cruiseplan-enrich-cli-enrich-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Add missing data to existing station configurations</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic">
+<li><p><strong>Create cli/enrich.py module</strong></p>
+<ul class="simple">
+<li><p>Import bathymetry functionality from cruiseplan.data.bathymetry</p></li>
+<li><p>Import coordinate utilities from cruiseplan.utils.coordinates</p></li>
+<li><p>Implement data addition functions with safe YAML handling</p></li>
+</ul>
+</li>
+<li><p><strong>Command Interface</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>INPUT_CONFIG<span class="w"> </span><span class="o">[</span>--add-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--add-coords<span class="o">]</span><span class="w"> </span>
+<span class="w">                  </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span>
+<span class="w">                  </span><span class="o">[</span>--bathymetry-source<span class="w"> </span>DATASET<span class="o">]</span><span class="w"> </span><span class="o">[</span>--coord-format<span class="w"> </span>FORMAT<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--add-depths</span></code>: Add missing depth values to stations using bathymetry data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code>: Add formatted coordinate fields (DMM, DMS formats)</p></li>
+<li><p>Composable operations (can combine multiple enhancements in one command)</p></li>
+<li><p>Safe YAML modification with validation before writing</p></li>
+<li><p>Multiple bathymetry dataset support (ETOPO, GEBCO)</p></li>
+<li><p>Preserves existing data and structure</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="b-2-cruiseplan-validate-cli-validate-py">
+<h3>4b.2: cruiseplan validate (cli/validate.py)<a class="headerlink" href="#b-2-cruiseplan-validate-cli-validate-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Comprehensive YAML configuration validation (read-only)</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic">
+<li><p><strong>Create cli/validate.py module</strong></p>
+<ul class="simple">
+<li><p>Import validation functionality from cruiseplan.core.validation</p></li>
+<li><p>Import bathymetry functionality for depth checking</p></li>
+<li><p>Add comprehensive error reporting with line numbers</p></li>
+</ul>
+</li>
+<li><p><strong>Command Interface</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>INPUT_CONFIG<span class="w"> </span><span class="o">[</span>--check-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--strict<span class="o">]</span><span class="w"> </span><span class="o">[</span>--warnings-only<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>--tolerance<span class="w"> </span>PERCENT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span>DATASET<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Pydantic schema validation (structure, types, required fields)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--check-depths</span></code>: Compare existing depths with bathymetry data</p></li>
+<li><p>Cross-reference checking (station/transit references)</p></li>
+<li><p>Geographic bounds validation</p></li>
+<li><p>Timing and duration consistency checks</p></li>
+<li><p>Read-only operation (no file modification)</p></li>
+<li><p>Configurable tolerance levels for depth discrepancies</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="b-3-design-philosophy">
+<h3>4b.3: Design Philosophy<a class="headerlink" href="#b-3-design-philosophy" title="Link to this heading"></a></h3>
+<p><strong>Separation of Concerns</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">enrich</span></code>: Modifies configuration files by adding missing data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">validate</span></code>: Validates configuration files without modification</p></li>
+</ul>
+<p><strong>Typical Workflow</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Add missing data to configuration</span>
+cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
+
+<span class="c1"># Validate the enriched configuration</span>
+cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--check-depths
+
+<span class="c1"># Generate schedule from validated configuration</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml
+</pre></div>
+</div>
+<p><strong>Future Extensibility</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">enrich</span></code> can later add <code class="docutils literal notranslate"><span class="pre">--correct-depths</span></code> (auto-fix depth discrepancies)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">validate</span></code> can add more validation types (ports, weather patterns, etc.)</p></li>
+</ul>
+</section>
+<section id="b-4-architecture-and-implementation-details">
+<h3>4b.4: Architecture and Implementation Details<a class="headerlink" href="#b-4-architecture-and-implementation-details" title="Link to this heading"></a></h3>
+<p><strong>Core Logic Placement</strong>:
+Following the principle that CLI modules should be lightweight wrappers, the actual validation and enrichment logic resides in <code class="docutils literal notranslate"><span class="pre">cruiseplan/core/validation.py</span></code>:</p>
+<p><strong><code class="docutils literal notranslate"><span class="pre">cruiseplan/core/validation.py</span></code></strong> (extend existing file):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">enrich_configuration</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> 
+    <span class="n">add_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> 
+    <span class="n">add_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dmm&quot;</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add missing data to cruise configuration.</span>
+<span class="sd">    Returns summary of changes made.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_configuration_file</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> 
+    <span class="n">check_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">strict</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Comprehensive validation of YAML configuration file.</span>
+<span class="sd">    Returns (success, errors, warnings).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">validate_depth_accuracy</span><span class="p">(</span>
+    <span class="n">cruise</span><span class="p">:</span> <span class="n">Cruise</span><span class="p">,</span> 
+    <span class="n">bathymetry_manager</span><span class="p">:</span> <span class="n">BathymetryManager</span><span class="p">,</span> 
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compare station depths with bathymetry data.</span>
+<span class="sd">    Returns (stations_checked, warning_messages).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">cruiseplan/cli/enrich.py</span></code></strong> (lightweight wrapper):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI wrapper that delegates to core validation functions.&quot;&quot;&quot;</span>
+    <span class="c1"># Setup logging, validate inputs</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">enrich_configuration</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">enrich_configuration</span><span class="p">(</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="n">add_depths</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">add_depths</span><span class="p">,</span>
+        <span class="n">add_coords</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">add_coords</span><span class="p">,</span>
+        <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">,</span>
+        <span class="n">coord_format</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coord_format</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="n">determine_output_path</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Handle result reporting and exit codes</span>
+</pre></div>
+</div>
+<p><strong><code class="docutils literal notranslate"><span class="pre">cruiseplan/cli/validate.py</span></code></strong> (lightweight wrapper):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI wrapper that delegates to core validation functions.&quot;&quot;&quot;</span>
+    <span class="c1"># Setup logging, validate inputs</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_configuration_file</span>
+    
+    <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">validate_configuration_file</span><span class="p">(</span>
+        <span class="n">config_path</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="n">check_depths</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">check_depths</span><span class="p">,</span>
+        <span class="n">tolerance</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
+        <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">,</span>
+        <span class="n">strict</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">strict</span>
+    <span class="p">)</span>
+    
+    <span class="c1"># Handle result reporting and exit codes</span>
+</pre></div>
+</div>
+<p><strong>Benefits of This Approach</strong>:</p>
+<ul class="simple">
+<li><p>CLI modules remain lightweight and focused on argument parsing</p></li>
+<li><p>Core validation logic can be reused by other parts of the system</p></li>
+<li><p>Testing is easier (test core functions independently of CLI)</p></li>
+<li><p>Clear separation of concerns: CLI for interface, core for business logic</p></li>
+<li><p>Follows existing patterns in the codebase</p></li>
+</ul>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Extend <code class="docutils literal notranslate"><span class="pre">cruiseplan/core/validation.py</span></code></strong>:</p>
+<ul class="simple">
+<li><p>Add imports for bathymetry and coordinate utilities</p></li>
+<li><p>Implement the three core functions: <code class="docutils literal notranslate"><span class="pre">enrich_configuration()</span></code>, <code class="docutils literal notranslate"><span class="pre">validate_configuration_file()</span></code>, <code class="docutils literal notranslate"><span class="pre">validate_depth_accuracy()</span></code></p></li>
+<li><p>Leverage existing Pydantic models and validation patterns</p></li>
+<li><p>Handle file I/O, error collection, and result formatting</p></li>
+</ul>
+</li>
+<li><p><strong>Refactor CLI modules to be lightweight wrappers</strong>:</p>
+<ul class="simple">
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">cruiseplan/cli/enrich.py</span></code> to call core validation functions</p></li>
+<li><p>Update <code class="docutils literal notranslate"><span class="pre">cruiseplan/cli/validate.py</span></code> to call core validation functions</p></li>
+<li><p>Keep CLI responsibilities: argument parsing, logging setup, result reporting, exit codes</p></li>
+<li><p>Remove business logic from CLI modules</p></li>
+</ul>
+</li>
+<li><p><strong>Testing Strategy</strong>:</p>
+<ul class="simple">
+<li><p>Unit tests for core functions in <code class="docutils literal notranslate"><span class="pre">tests/core/test_validation.py</span></code></p></li>
+<li><p>CLI integration tests in <code class="docutils literal notranslate"><span class="pre">tests/cli/test_enrich.py</span></code> and <code class="docutils literal notranslate"><span class="pre">tests/cli/test_validate.py</span></code></p></li>
+<li><p>Separate test data and mock strategies for core vs CLI testing</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Testing Requirements for Phase 4b</strong>:</p>
+<ul class="simple">
+<li><p>Core function unit tests with various YAML configurations</p></li>
+<li><p>Validation tests with malformed YAML files</p></li>
+<li><p>Accuracy testing for depth lookups against bathymetry data</p></li>
+<li><p>Coordinate conversion accuracy testing</p></li>
+<li><p>Performance testing with large station catalogs</p></li>
+<li><p>CLI integration tests verifying argument parsing and output formatting</p></li>
+<li><p>Error handling tests for file I/O operations</p></li>
+</ul>
+</section>
+</section>
+<section id="phase-4c-schedule-generation-command-week-15-16">
+<h2>Phase 4c: Schedule Generation Command (Week 15-16)<a class="headerlink" href="#phase-4c-schedule-generation-command-week-15-16" title="Link to this heading"></a></h2>
+<section id="c-1-cruiseplan-schedule-cli-schedule-py">
+<h3>4c.1: cruiseplan schedule (cli/schedule.py)<a class="headerlink" href="#c-1-cruiseplan-schedule-cli-schedule-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Generate comprehensive cruise schedules from YAML configuration</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic">
+<li><p><strong>Create cli/schedule.py module</strong></p>
+<ul class="simple">
+<li><p>Import scheduling functionality from cruiseplan.calculators.scheduler</p></li>
+<li><p>Import output generation from cruiseplan.output</p></li>
+<li><p>Implement format selection and processing</p></li>
+</ul>
+</li>
+<li><p><strong>Command Interface</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>INPUT_CONFIG<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--format<span class="w"> </span>FORMATS<span class="o">]</span>
+<span class="w">                    </span><span class="o">[</span>--validate-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--leg<span class="w"> </span>LEGNAME<span class="o">]</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Multiple output format generation (HTML, LaTeX, CSV, KML, NetCDF)</p></li>
+<li><p>Selective leg processing</p></li>
+<li><p>Integrated depth validation during scheduling</p></li>
+<li><p>Comprehensive schedule validation</p></li>
+</ul>
+</li>
+<li><p><strong>Output Management</strong>:</p>
+<ul class="simple">
+<li><p>Organized output directory structure</p></li>
+<li><p>Format-specific file naming conventions</p></li>
+<li><p>Progress reporting for complex schedules</p></li>
+<li><p>Error reporting with line numbers and context</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Testing Requirements for Phase 4c</strong>:</p>
+<ul class="simple">
+<li><p>End-to-end workflow testing</p></li>
+<li><p>Multi-format output validation</p></li>
+<li><p>Large cruise configuration performance testing</p></li>
+<li><p>Error handling and recovery testing</p></li>
+</ul>
+</section>
+</section>
+<section id="phase-4-infrastructure-components">
+<h2>Phase 4: Infrastructure Components<a class="headerlink" href="#phase-4-infrastructure-components" title="Link to this heading"></a></h2>
+<section id="cli-framework-cli-main-py">
+<h3>4.1: CLI Framework (cli/main.py)<a class="headerlink" href="#cli-framework-cli-main-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Unified command interface with subcommand routing</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Create cli/main.py module</strong></p>
+<ul class="simple">
+<li><p>Implement main command parser with subcommands</p></li>
+<li><p>Add global options (–verbose, –quiet, –help)</p></li>
+<li><p>Create subcommand registration system</p></li>
+<li><p>Implement consistent error handling patterns</p></li>
+</ul>
+</li>
+<li><p><strong>Key Features</strong>:</p>
+<ul class="simple">
+<li><p>Git-style subcommand architecture</p></li>
+<li><p>Comprehensive help system with examples</p></li>
+<li><p>Consistent parameter validation across subcommands</p></li>
+<li><p>Global configuration and logging setup</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="common-utilities-cli-utils-py">
+<h3>4.2: Common Utilities (cli/utils.py)<a class="headerlink" href="#common-utilities-cli-utils-py" title="Link to this heading"></a></h3>
+<p><strong>Purpose</strong>: Shared functionality across CLI modules</p>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Create cli/utils.py module</strong></p>
+<ul class="simple">
+<li><p>File path validation and resolution</p></li>
+<li><p>Output directory creation and management</p></li>
+<li><p>Progress bar utilities</p></li>
+<li><p>Error message formatting</p></li>
+<li><p>YAML file loading and saving utilities</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="testing-infrastructure">
+<h3>4.3: Testing Infrastructure<a class="headerlink" href="#testing-infrastructure" title="Link to this heading"></a></h3>
+<p><strong>Implementation Steps</strong>:</p>
+<ol class="arabic simple">
+<li><p><strong>Create tests/cli/ directory structure</strong></p>
+<ul class="simple">
+<li><p>Unit tests for each CLI module</p></li>
+<li><p>Integration tests for complete workflows</p></li>
+<li><p>Mock data for testing without external dependencies</p></li>
+<li><p>Performance benchmarking tests</p></li>
+</ul>
+</li>
+<li><p><strong>Key Testing Areas</strong>:</p>
+<ul class="simple">
+<li><p>Argument parsing and validation</p></li>
+<li><p>File I/O operations</p></li>
+<li><p>Error handling and recovery</p></li>
+<li><p>Progress reporting accuracy</p></li>
+<li><p>Output format correctness</p></li>
+</ul>
+</li>
+</ol>
+</section>
+</section>
+<section id="success-criteria">
+<h2>Success Criteria<a class="headerlink" href="#success-criteria" title="Link to this heading"></a></h2>
+<section id="phase-4a-success-criteria">
+<h3>Phase 4a Success Criteria:<a class="headerlink" href="#phase-4a-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] PANGAEA DOI processing works with real DOI lists</p></li>
+<li><p>[ ] Interactive station placement generates valid YAML configurations</p></li>
+<li><p>[ ] Geographic filtering and bounds checking work correctly</p></li>
+<li><p>[ ] Progress indicators provide accurate feedback</p></li>
+</ul>
+</section>
+<section id="phase-4b-success-criteria">
+<h3>Phase 4b Success Criteria:<a class="headerlink" href="#phase-4b-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Depth validation identifies discrepancies accurately</p></li>
+<li><p>[ ] Coordinate formatting supports all specified formats</p></li>
+<li><p>[ ] YAML validation catches all configuration errors</p></li>
+<li><p>[ ] Enhancement commands preserve existing data integrity</p></li>
+</ul>
+</section>
+<section id="phase-4c-success-criteria">
+<h3>Phase 4c Success Criteria:<a class="headerlink" href="#phase-4c-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Schedule generation produces all required output formats</p></li>
+<li><p>[ ] Large configuration files process within reasonable time</p></li>
+<li><p>[ ] Error messages provide actionable feedback</p></li>
+<li><p>[ ] CLI interface feels intuitive and responsive</p></li>
+</ul>
+</section>
+<section id="overall-phase-4-success-criteria">
+<h3>Overall Phase 4 Success Criteria:<a class="headerlink" href="#overall-phase-4-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Complete end-to-end workflow: PANGAEA → stations → validate → schedule</p></li>
+<li><p>[ ] Comprehensive help documentation for all commands</p></li>
+<li><p>[ ] Consistent error handling and user feedback</p></li>
+<li><p>[ ] Performance meets requirements for typical cruise configurations</p></li>
+<li><p>[ ] CLI passes all integration and regression tests</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation-notes">
+<h2>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Link to this heading"></a></h2>
+<section id="development-priorities">
+<h3>Development Priorities:<a class="headerlink" href="#development-priorities" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p>Core functionality first (argument parsing, basic operations)</p></li>
+<li><p>Error handling and validation second</p></li>
+<li><p>Progress indicators and UX polish third</p></li>
+<li><p>Performance optimization last</p></li>
+</ol>
+</section>
+<section id="code-organization">
+<h3>Code Organization:<a class="headerlink" href="#code-organization" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Keep CLI modules focused and single-purpose</p></li>
+<li><p>Extract complex logic to existing core modules</p></li>
+<li><p>Maintain clear separation between CLI interface and business logic</p></li>
+<li><p>Use consistent patterns across all subcommands</p></li>
+</ul>
+</section>
+<section id="documentation-requirements">
+<h3>Documentation Requirements:<a class="headerlink" href="#documentation-requirements" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Comprehensive docstrings for all CLI functions</p></li>
+<li><p>Usage examples in help text</p></li>
+<li><p>Error message suggestions for common issues</p></li>
+<li><p>Integration examples in main project documentation</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

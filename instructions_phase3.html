@@ -1,0 +1,1504 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Phase 3 Implementation Instructions: Output Generation System &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Phase 3 Implementation Instructions: Output Generation System</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/instructions_phase3.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="phase-3-implementation-instructions-output-generation-system">
+<h1>Phase 3 Implementation Instructions: Output Generation System<a class="headerlink" href="#phase-3-implementation-instructions-output-generation-system" title="Link to this heading"></a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>Phase 3 implements the comprehensive output generation system for the oceanographic cruise planning system. This phase transforms the interactive station selections and YAML cruise configurations into professional outputs suitable for cruise proposals, operational planning, and scientific data management.</p>
+</section>
+<section id="phase-3-architecture">
+<h2>Phase 3 Architecture<a class="headerlink" href="#phase-3-architecture" title="Link to this heading"></a></h2>
+<p>The output generation system consists of six integrated sub-phases:</p>
+<ul class="simple">
+<li><p><strong>Phase 3a</strong>: LaTeX Table Generation (Cruise proposals) ✅ <strong>COMPLETED</strong></p></li>
+<li><p><strong>Phase 3b</strong>: Scheduling logic ✅ <strong>COMPLETED</strong></p></li>
+<li><p><strong>Phase 3c</strong>: NetCDF Output (Scientific data formats) ⚠️ <strong>PARTIALLY COMPLETED</strong></p></li>
+<li><p><strong>Phase 3d</strong>: Interactive Web Maps (Building on existing map_generator.py) ❌ <strong>NOT IMPLEMENTED</strong></p></li>
+<li><p><strong>Phase 3e</strong>: HTML Summary Generation (Interactive reports) ❌ <strong>NOT IMPLEMENTED</strong></p></li>
+<li><p><strong>Phase 3f</strong>: KML Generation (Google Earth visualization) ❌ <strong>NOT IMPLEMENTED</strong></p></li>
+</ul>
+</section>
+<section id="test-data-requirements">
+<h2>Test Data Requirements<a class="headerlink" href="#test-data-requirements" title="Link to this heading"></a></h2>
+<p>Before implementation, create three comprehensive test YAML files in <code class="docutils literal notranslate"><span class="pre">tests/fixtures/</span></code>:</p>
+<section id="test-file-1-cruise-simple-yaml">
+<h3>Test File 1: cruise_simple.yaml<a class="headerlink" href="#test-file-1-cruise-simple-yaml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simple 2-station cruise for basic functionality testing</span>
+<span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Simple_Test_Cruise_2028&quot;</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Basic</span><span class="nv"> </span><span class="s">two-station</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">cruise&quot;</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span>
+<span class="nt">default_distance_between_stations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">111.0</span><span class="w">  </span><span class="c1"># ~1 degree latitude</span>
+<span class="nt">calculate_transfer_between_sections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">calculate_depth_via_bathymetry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="c1"># Ports (Atlantic crossing simulation)</span>
+<span class="nt">departure_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">47.5705</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-52.6979</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;St.</span><span class="nv"> </span><span class="s">Johns&quot;</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GMT-3.5&quot;</span>
+
+<span class="nt">arrival_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64.1466</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-21.9426</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Reykjavik&quot;</span>
+<span class="w">  </span><span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;GMT+0&quot;</span>
+
+<span class="c1"># Station definitions (exactly 1 degree apart, 1000m depth)</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50.0000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-40.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;First</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">station&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">51.0000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-40.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1000.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Second</span><span class="nv"> </span><span class="s">test</span><span class="nv"> </span><span class="s">station</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">111km</span><span class="nv"> </span><span class="s">north&quot;</span>
+
+<span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span>
+
+<span class="c1"># Simple single-leg cruise</span>
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Test_Operations&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="test-file-2-cruise-mixed-ops-yaml-updated">
+<h3>Test File 2: cruise_mixed_ops.yaml ✅ <strong>UPDATED</strong><a class="headerlink" href="#test-file-2-cruise-mixed-ops-yaml-updated" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Mixed operations: station, mooring, and scientific transit (unified schema)</span>
+<span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mixed_Operations_Test_2028&quot;</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Testing</span><span class="nv"> </span><span class="s">multiple</span><span class="nv"> </span><span class="s">operation</span><span class="nv"> </span><span class="s">types</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">unified</span><span class="nv"> </span><span class="s">schema&quot;</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span>
+<span class="nt">calculate_transfer_between_sections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">calculate_depth_via_bathymetry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">departure_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.3321</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-60.4200</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Labrador</span><span class="nv"> </span><span class="s">Sea</span><span class="nv"> </span><span class="s">Start&quot;</span>
+
+<span class="nt">arrival_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.3321</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-60.4200</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Labrador</span><span class="nv"> </span><span class="s">Sea</span><span class="nv"> </span><span class="s">End&quot;</span>
+
+<span class="c1"># Unified station definitions (includes both stations and moorings)</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_Station_A&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.5000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2500.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">CTD</span><span class="nv"> </span><span class="s">profile&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_K7_Recovery&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mooring&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;recovery&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.2000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.2000</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180.0</span><span class="w">  </span><span class="c1"># 3 hours</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2800.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Recover</span><span class="nv"> </span><span class="s">deep</span><span class="nv"> </span><span class="s">mooring&quot;</span>
+<span class="w">    </span><span class="nt">equipment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Full-depth</span><span class="nv"> </span><span class="s">array</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">ADCP&quot;</span>
+
+<span class="c1"># Scientific transits (line operations)</span>
+<span class="nt">transits</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Line_Alpha&quot;</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Acoustic</span><span class="nv"> </span><span class="s">survey</span><span class="nv"> </span><span class="s">transect&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;underway&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ADCP&quot;</span>
+<span class="w">    </span><span class="nt">vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5.0</span><span class="w">  </span><span class="c1"># Slower speed for survey work</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.3000</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.5000</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">53.7000</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.1000</span>
+
+<span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_Station_A&quot;</span>
+<span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_K7_Recovery&quot;</span>
+
+<span class="c1"># Single leg with mixed operations</span>
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Labrador_Sea_Operations&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">sequence</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_Station_A&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Survey_Line_Alpha&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Mooring_K7_Recovery&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="test-file-3-cruise-multi-leg-yaml">
+<h3>Test File 3: cruise_multi_leg.yaml<a class="headerlink" href="#test-file-3-cruise-multi-leg-yaml" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Multi-leg cruise with multiple stations per leg</span>
+<span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Multi_Leg_Expedition_2028&quot;</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Complex</span><span class="nv"> </span><span class="s">multi-area</span><span class="nv"> </span><span class="s">expedition&quot;</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">11.0</span>
+<span class="nt">calculate_transfer_between_sections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">calculate_depth_via_bathymetry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+
+<span class="nt">departure_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">47.5705</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-52.6979</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;St.</span><span class="nv"> </span><span class="s">Johns&quot;</span>
+
+<span class="nt">arrival_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64.1466</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-21.9426</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Reykjavik&quot;</span>
+
+<span class="c1"># Station catalog (6 stations total)</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG1_STN_01&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">48.5000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-45.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3200.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG1_STN_02&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">49.0000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-44.5000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3100.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG1_STN_03&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">49.5000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-44.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2900.0</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG2_STN_01&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">58.0000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-35.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2200.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG2_STN_02&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">58.5000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-34.5000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG2_STN_03&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">59.0000</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-34.0000</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1800.0</span>
+
+<span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG1_STN_01&quot;</span>
+<span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;LEG2_STN_03&quot;</span>
+
+<span class="c1"># Two-leg structure</span>
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Southern_Operations&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">profiles</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Labrador</span><span class="nv"> </span><span class="s">Basin&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;LEG1_STN_01&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LEG1_STN_02&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LEG1_STN_03&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Northern_Operations&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Shelf</span><span class="nv"> </span><span class="s">break</span><span class="nv"> </span><span class="s">stations</span><span class="nv"> </span><span class="s">near</span><span class="nv"> </span><span class="s">Greenland&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;LEG2_STN_01&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LEG2_STN_02&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;LEG2_STN_03&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="summary-of-current-implementation-status">
+<h2>Summary of Current Implementation Status<a class="headerlink" href="#summary-of-current-implementation-status" title="Link to this heading"></a></h2>
+<section id="completed-components-phase-3a-3b">
+<h3>✅ Completed Components (Phase 3a + 3b)<a class="headerlink" href="#completed-components-phase-3a-3b" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>LaTeX Table Generation</strong>: Fully implemented in <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/latex_generator.py</span></code></p>
+<ul>
+<li><p>Professional booktabs formatting</p></li>
+<li><p>Coordinate formatting (DD MM.mmm format)</p></li>
+<li><p>Stations table and work days table generation</p></li>
+<li><p>Page breaking for long tables</p></li>
+<li><p>Working with updated unified schema (operation_dist_nm, transit_dist_nm)</p></li>
+</ul>
+</li>
+<li><p><strong>Scheduling Logic</strong>: Fully implemented in <code class="docutils literal notranslate"><span class="pre">cruiseplan/calculators/scheduler.py</span></code></p>
+<ul>
+<li><p>Timeline generation with ActivityRecord output</p></li>
+<li><p>Support for unified stations schema (stations + moorings)</p></li>
+<li><p>Scientific transits vs pure navigation handling</p></li>
+<li><p>Inter-operation transit calculation</p></li>
+<li><p>Proper distance semantics (transit_dist_nm vs operation_dist_nm)</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="partially-completed-components">
+<h3>⚠️ Partially Completed Components<a class="headerlink" href="#partially-completed-components" title="Link to this heading"></a></h3>
+<section id="phase-3c-netcdf-output">
+<h4>Phase 3c: NetCDF Output<a class="headerlink" href="#phase-3c-netcdf-output" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Current</strong>: Basic functionality in <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/scientific_formats.py</span></code></p></li>
+<li><p><strong>Missing</strong>: Full CF-1.8 compliance as specified in <code class="docutils literal notranslate"><span class="pre">netcdf_outputs.md</span></code></p>
+<ul>
+<li><p>Need to implement discrete sampling geometries</p></li>
+<li><p>Need to create separate files for points, lines, areas, and schedule</p></li>
+<li><p>Need proper featureType specifications</p></li>
+<li><p>Need complete CF-1.8 validation</p></li>
+</ul>
+</li>
+</ul>
+</section>
+</section>
+<section id="missing-components">
+<h3>❌ Missing Components<a class="headerlink" href="#missing-components" title="Link to this heading"></a></h3>
+<section id="phase-3d-interactive-web-maps">
+<h4>Phase 3d: Interactive Web Maps<a class="headerlink" href="#phase-3d-interactive-web-maps" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Status</strong>: Not implemented</p></li>
+<li><p><strong>Existing</strong>: Basic static map generation in <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/map_generator.py</span></code></p></li>
+<li><p><strong>Need</strong>: Interactive Leaflet-based maps with enhanced features</p></li>
+<li><p><strong>Priority</strong>: Medium - would greatly enhance user experience</p></li>
+</ul>
+</section>
+<section id="phase-3e-html-summary-generation">
+<h4>Phase 3e: HTML Summary Generation<a class="headerlink" href="#phase-3e-html-summary-generation" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Status</strong>: Not implemented</p></li>
+<li><p><strong>Need</strong>: Comprehensive HTML reports with cruise summaries</p></li>
+<li><p><strong>Priority</strong>: High - essential for cruise proposal documentation</p></li>
+</ul>
+</section>
+<section id="phase-3f-kml-generation">
+<h4>Phase 3f: KML Generation<a class="headerlink" href="#phase-3f-kml-generation" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p><strong>Status</strong>: Not implemented</p></li>
+<li><p><strong>Need</strong>: Google Earth visualization files</p></li>
+<li><p><strong>Priority</strong>: Low - nice to have for sharing and presentation</p></li>
+</ul>
+</section>
+</section>
+<section id="recommended-implementation-order">
+<h3>Recommended Implementation Order<a class="headerlink" href="#recommended-implementation-order" title="Link to this heading"></a></h3>
+<section id="next-steps-priority-order">
+<h4>Next Steps (Priority Order):<a class="headerlink" href="#next-steps-priority-order" title="Link to this heading"></a></h4>
+<ol class="arabic simple">
+<li><p><strong>Complete Phase 3c</strong>: Finish NetCDF implementation per <code class="docutils literal notranslate"><span class="pre">netcdf_outputs.md</span></code></p></li>
+<li><p><strong>Implement Phase 3e</strong>: HTML summary generation for documentation</p></li>
+<li><p><strong>Implement Phase 3d</strong>: Interactive web maps for enhanced visualization</p></li>
+<li><p><strong>Implement Phase 3f</strong>: KML generation for Google Earth compatibility</p></li>
+</ol>
+</section>
+<section id="dependencies">
+<h4>Dependencies:<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h4>
+<ul class="simple">
+<li><p>All remaining phases depend on the completed scheduler and unified schema</p></li>
+<li><p>NetCDF implementation should use the current <code class="docutils literal notranslate"><span class="pre">List[ActivityRecord]</span></code> from scheduler</p></li>
+<li><p>HTML and KML generators should integrate with the existing LaTeX coordinate formatting</p></li>
+<li><p>Interactive maps should build upon existing <code class="docutils literal notranslate"><span class="pre">map_generator.py</span></code></p></li>
+</ul>
+</section>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3a-latex-table-generation-completed">
+<h2>Phase 3a: LaTeX Table Generation ✅ <strong>COMPLETED</strong><a class="headerlink" href="#phase-3a-latex-table-generation-completed" title="Link to this heading"></a></h2>
+<section id="implementation-requirements">
+<h3>Implementation Requirements<a class="headerlink" href="#implementation-requirements" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/latex_generator.py</span></code></p>
+<p><strong>Core Function</strong>: Generate professional LaTeX tables for cruise proposals that meet DFG (German Research Foundation) and NSF standards.</p>
+</section>
+<section id="required-tables">
+<h3>Required Tables<a class="headerlink" href="#required-tables" title="Link to this heading"></a></h3>
+<section id="working-area-stations-and-profiles-table">
+<h4>1. Working Area, Stations and Profiles Table<a class="headerlink" href="#working-area-stations-and-profiles-table" title="Link to this heading"></a></h4>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[htbp]
+<span class="k">\caption</span><span class="nb">{</span>Working area, stations and profiles: [Cruise Name]<span class="nb">}</span>
+<span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>llrrc<span class="nb">}</span>
+<span class="k">\toprule</span>
+Operation <span class="nb">&amp;</span> Station <span class="nb">&amp;</span> Position <span class="nb">&amp;</span> Water depth (m) <span class="k">\\</span>
+<span class="k">\midrule</span>
+CTD profile <span class="nb">&amp;</span> STN01 <span class="nb">&amp;</span> 52°30.15&#39;N, 051°20.23&#39;W <span class="nb">&amp;</span> 2847 <span class="k">\\</span>
+Mooring deployment <span class="nb">&amp;</span> M02 <span class="nb">&amp;</span> 53°07.20&#39;N, 050°34.10&#39;W <span class="nb">&amp;</span> 2156 <span class="k">\\</span>
+<span class="k">\bottomrule</span>
+<span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+<span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</pre></div>
+</div>
+</section>
+<section id="work-days-at-sea-table">
+<h4>2. Work Days at Sea Table<a class="headerlink" href="#work-days-at-sea-table" title="Link to this heading"></a></h4>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[htbp]
+<span class="k">\caption</span><span class="nb">{</span>Work days at sea: [Cruise Name]<span class="nb">}</span>
+<span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>llrr<span class="nb">}</span>
+<span class="k">\toprule</span>
+Area <span class="nb">&amp;</span> Activity <span class="nb">&amp;</span> Duration (h) <span class="nb">&amp;</span> Transit (h) <span class="k">\\</span>
+<span class="k">\midrule</span>
+Transit to Area 1 <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> 35 <span class="k">\\</span>
+<span class="k">\midrule</span>
+Area 1 <span class="nb">&amp;</span> CTD stations <span class="nb">&amp;</span> 100 <span class="nb">&amp;</span> <span class="k">\\</span>
+Area 1 <span class="nb">&amp;</span> Mooring operations <span class="nb">&amp;</span> 25 <span class="nb">&amp;</span> <span class="k">\\</span>
+Transit within area <span class="nb">&amp;</span> <span class="nb">&amp;</span> 25 <span class="nb">&amp;</span> <span class="k">\\</span>
+<span class="k">\midrule</span>
+Area 2 <span class="nb">&amp;</span> CTD stations <span class="nb">&amp;</span> 25 <span class="nb">&amp;</span> <span class="k">\\</span>
+Transit within area <span class="nb">&amp;</span> <span class="nb">&amp;</span> 25 <span class="nb">&amp;</span> <span class="k">\\</span>
+<span class="k">\midrule</span>
+Transit from working area <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> 25 <span class="k">\\</span>
+<span class="k">\midrule</span>
+<span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>175<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>85<span class="nb">}</span> <span class="k">\\</span>
+<span class="k">\bottomrule</span>
+<span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+<span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="implementation-steps">
+<h3>Implementation Steps<a class="headerlink" href="#implementation-steps" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Create LaTeX Template System</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">LaTeXGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">template_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;templates&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span>
+            <span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="n">template_dir</span><span class="p">),</span>
+            <span class="n">block_start_string</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">BLOCK{&#39;</span><span class="p">,</span>
+            <span class="n">block_end_string</span><span class="o">=</span><span class="s1">&#39;}&#39;</span><span class="p">,</span>
+            <span class="n">variable_start_string</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">VAR{&#39;</span><span class="p">,</span>
+            <span class="n">variable_end_string</span><span class="o">=</span><span class="s1">&#39;}&#39;</span><span class="p">,</span>
+            <span class="n">comment_start_string</span><span class="o">=</span><span class="s1">&#39;</span><span class="se">\\</span><span class="s1">#{&#39;</span><span class="p">,</span>
+            <span class="n">comment_end_string</span><span class="o">=</span><span class="s1">&#39;}&#39;</span><span class="p">,</span>
+            <span class="n">line_statement_prefix</span><span class="o">=</span><span class="s1">&#39;</span><span class="si">%%</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="n">line_comment_prefix</span><span class="o">=</span><span class="s1">&#39;%#&#39;</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Coordinate Formatting Function</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">format_position_latex</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert decimal degrees to LaTeX-formatted degrees and decimal minutes.&quot;&quot;&quot;</span>
+    <span class="c1"># Latitude</span>
+    <span class="n">lat_deg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">))</span>
+    <span class="n">lat_min</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span> <span class="o">-</span> <span class="n">lat_deg</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span>
+    <span class="n">lat_dir</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
+
+    <span class="c1"># Longitude</span>
+    <span class="n">lon_deg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">))</span>
+    <span class="n">lon_min</span> <span class="o">=</span> <span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span> <span class="o">-</span> <span class="n">lon_deg</span><span class="p">)</span> <span class="o">*</span> <span class="mi">60</span>
+    <span class="n">lon_dir</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_deg</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">$^</span><span class="se">\\</span><span class="s2">circ$</span><span class="si">{</span><span class="n">lat_min</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">&#39;$</span><span class="si">{</span><span class="n">lat_dir</span><span class="si">}</span><span class="s2">$, </span><span class="si">{</span><span class="n">lon_deg</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">$^</span><span class="se">\\</span><span class="s2">circ$</span><span class="si">{</span><span class="n">lon_min</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">&#39;$</span><span class="si">{</span><span class="n">lon_dir</span><span class="si">}</span><span class="s2">$&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Page Breaking Logic</strong>:</p>
+<ul class="simple">
+<li><p>Implement automatic page breaks for tables &gt; 45 rows</p></li>
+<li><p>Add “Continued” to caption on subsequent pages</p></li>
+<li><p>Repeat header rows after page breaks</p></li>
+</ul>
+</li>
+<li><p><strong>Create Template Files</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">templates/stations_table.tex.j2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">templates/work_days_table.tex.j2</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">templates/complete_cruise.tex.j2</span></code></p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="output-interface">
+<h3>Output Interface<a class="headerlink" href="#output-interface" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_latex_tables</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate LaTeX tables for cruise proposal.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of generated .tex files</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">files_created</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Generate individual tables</span>
+    <span class="n">stations_table</span> <span class="o">=</span> <span class="n">generate_stations_table</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+    <span class="n">work_days_table</span> <span class="o">=</span> <span class="n">generate_work_days_table</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+
+    <span class="c1"># Write to files</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">stations_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_stations.tex&quot;</span>
+    <span class="n">work_days_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_work_days.tex&quot;</span>
+
+    <span class="n">stations_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">stations_table</span><span class="p">)</span>
+    <span class="n">work_days_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">work_days_table</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">stations_file</span><span class="p">,</span> <span class="n">work_days_file</span><span class="p">]</span>
+</pre></div>
+</div>
+<hr class="docutils" />
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3c-netcdf-output-generation-partially-completed">
+<h2>Phase 3c: NetCDF Output Generation ⚠️ <strong>PARTIALLY COMPLETED</strong><a class="headerlink" href="#phase-3c-netcdf-output-generation-partially-completed" title="Link to this heading"></a></h2>
+<section id="current-status">
+<h3>Current Status<a class="headerlink" href="#current-status" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>✅ <strong>Completed</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/scientific_formats.py</span></code> provides basic NetCDF functionality</p></li>
+<li><p>⚠️ <strong>Incomplete</strong>: Full CF-1.8 compliance with discrete sampling geometries</p></li>
+<li><p>❌ <strong>Missing</strong>: Comprehensive NetCDF generator as specified in <code class="docutils literal notranslate"><span class="pre">netcdf_outputs.md</span></code></p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Implementation Requirements<a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/netcdf_generator.py</span></code> (needs to be created)</p>
+<p><strong>Core Function</strong>: Generate CF-compliant NetCDF datasets for scientific data management and analysis according to the specification in <code class="docutils literal notranslate"><span class="pre">netcdf_outputs.md</span></code>.</p>
+</section>
+<section id="netcdf-structure-requirements">
+<h3>NetCDF Structure Requirements<a class="headerlink" href="#netcdf-structure-requirements" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Primary cruise dataset structure</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">nc</span><span class="p">:</span>
+  <span class="n">dimensions</span><span class="p">:</span>
+    <span class="n">station</span> <span class="o">=</span> <span class="n">UNLIMITED</span>  <span class="c1"># Number of operations</span>
+
+  <span class="n">variables</span><span class="p">:</span>
+    <span class="c1"># Coordinate variables</span>
+    <span class="n">longitude</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">float64</span>
+      <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_east&quot;</span>
+      <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Station longitude&quot;</span>
+
+    <span class="n">latitude</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">float64</span>
+      <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;degrees_north&quot;</span>
+      <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;latitude&quot;</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Station latitude&quot;</span>
+
+    <span class="c1"># Data variables</span>
+    <span class="n">water_depth</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">float32</span>
+      <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;m&quot;</span>
+      <span class="n">standard_name</span> <span class="o">=</span> <span class="s2">&quot;sea_floor_depth_below_sea_surface&quot;</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Water depth at station&quot;</span>
+      <span class="n">_FillValue</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
+
+    <span class="n">operation_duration</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">float32</span>
+      <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;minutes&quot;</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Operation duration&quot;</span>
+
+    <span class="n">distance_from_start</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">float32</span>
+      <span class="n">units</span> <span class="o">=</span> <span class="s2">&quot;nautical_miles&quot;</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Cumulative distance from cruise start&quot;</span>
+
+    <span class="n">operation_type</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="o">|</span><span class="n">S32</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Type of oceanographic operation&quot;</span>
+      <span class="n">flag_values</span> <span class="o">=</span> <span class="s2">&quot;ctd_profile mooring_deployment mooring_recovery transfer waypoint&quot;</span>
+
+    <span class="n">leg_assignment</span><span class="p">(</span><span class="n">station</span><span class="p">):</span> <span class="n">int32</span>
+      <span class="n">long_name</span> <span class="o">=</span> <span class="s2">&quot;Cruise leg number assignment&quot;</span>
+
+  <span class="n">global_attributes</span><span class="p">:</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Oceanographic Cruise Plan: </span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+    <span class="n">institution</span> <span class="o">=</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span>
+    <span class="n">source</span> <span class="o">=</span> <span class="s2">&quot;Cruise planning system&quot;</span>
+    <span class="n">history</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{timestamp}</span><span class="s2">: Generated from YAML configuration&quot;</span>
+    <span class="n">conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+    <span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{cruise_name}</span><span class="s2">&quot;</span>
+    <span class="n">vessel_speed_knots</span> <span class="o">=</span> <span class="p">{</span><span class="n">vessel_speed</span><span class="p">}</span>
+    <span class="n">total_duration_days</span> <span class="o">=</span> <span class="p">{</span><span class="n">total_days</span><span class="p">}</span>
+    <span class="n">creation_date</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{iso_timestamp}</span><span class="s2">&quot;</span>
+    <span class="n">coordinate_system</span> <span class="o">=</span> <span class="s2">&quot;WGS84&quot;</span>
+    <span class="n">depth_datum</span> <span class="o">=</span> <span class="s2">&quot;Mean Sea Level&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3>Implementation Steps<a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>NetCDF Creation Function</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">NetCDFGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cf_conventions</span> <span class="o">=</span> <span class="s2">&quot;CF-1.8&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_cruise_dataset</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create primary cruise NetCDF dataset.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Process cruise data to extract all operations</span>
+        <span class="n">operations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_all_operations</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+        <span class="n">n_operations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">operations</span><span class="p">)</span>
+
+        <span class="c1"># Create NetCDF file</span>
+        <span class="k">with</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">output_path</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s1">&#39;NETCDF4&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># Create dimensions</span>
+            <span class="n">ds</span><span class="o">.</span><span class="n">createDimension</span><span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,</span> <span class="n">n_operations</span><span class="p">)</span>
+
+            <span class="c1"># Create coordinate variables</span>
+            <span class="n">lon_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+            <span class="n">lat_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;latitude&#39;</span><span class="p">,</span> <span class="s1">&#39;f8&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+
+            <span class="c1"># Create data variables</span>
+            <span class="n">depth_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;water_depth&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,),</span>
+                                        <span class="n">fill_value</span><span class="o">=-</span><span class="mf">9999.0</span><span class="p">)</span>
+            <span class="n">duration_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;operation_duration&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+            <span class="n">distance_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;distance_from_start&#39;</span><span class="p">,</span> <span class="s1">&#39;f4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+            <span class="n">op_type_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;operation_type&#39;</span><span class="p">,</span> <span class="s1">&#39;S32&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+            <span class="n">leg_var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">createVariable</span><span class="p">(</span><span class="s1">&#39;leg_assignment&#39;</span><span class="p">,</span> <span class="s1">&#39;i4&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s1">&#39;station&#39;</span><span class="p">,))</span>
+
+            <span class="c1"># Set variable attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_variable_attributes</span><span class="p">(</span><span class="n">lon_var</span><span class="p">,</span> <span class="n">lat_var</span><span class="p">,</span> <span class="n">depth_var</span><span class="p">,</span>
+                                       <span class="n">duration_var</span><span class="p">,</span> <span class="n">distance_var</span><span class="p">,</span>
+                                       <span class="n">op_type_var</span><span class="p">,</span> <span class="n">leg_var</span><span class="p">)</span>
+
+            <span class="c1"># Fill with data</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">populate_variables</span><span class="p">(</span><span class="n">operations</span><span class="p">,</span> <span class="n">lon_var</span><span class="p">,</span> <span class="n">lat_var</span><span class="p">,</span> <span class="n">depth_var</span><span class="p">,</span>
+                                  <span class="n">duration_var</span><span class="p">,</span> <span class="n">distance_var</span><span class="p">,</span> <span class="n">op_type_var</span><span class="p">,</span> <span class="n">leg_var</span><span class="p">)</span>
+
+            <span class="c1"># Set global attributes</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">set_global_attributes</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Specialized Dataset Generation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_specialized_datasets</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create specialized NetCDF datasets for different operation types.&quot;&quot;&quot;</span>
+
+    <span class="n">files_created</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># CTD stations dataset</span>
+    <span class="n">stations_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_stations.nc&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_stations_dataset</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">stations_file</span><span class="p">)</span>
+    <span class="n">files_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stations_file</span><span class="p">)</span>
+
+    <span class="c1"># Moorings dataset</span>
+    <span class="n">moorings_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_moorings.nc&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_moorings_dataset</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">moorings_file</span><span class="p">)</span>
+    <span class="n">files_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">moorings_file</span><span class="p">)</span>
+
+    <span class="c1"># Transfers dataset</span>
+    <span class="n">transfers_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">_transfers.nc&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_transfers_dataset</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">transfers_file</span><span class="p">)</span>
+    <span class="n">files_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">transfers_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">files_created</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>CF Compliance Validation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">validate_cf_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">netcdf_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate CF conventions compliance.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">netcdf_file</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">ds</span><span class="p">:</span>
+            <span class="c1"># Check required global attributes</span>
+            <span class="n">required_attrs</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;Conventions&#39;</span><span class="p">,</span> <span class="s1">&#39;title&#39;</span><span class="p">,</span> <span class="s1">&#39;institution&#39;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">required_attrs</span><span class="p">:</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">attr</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="c1"># Check coordinate variables have required attributes</span>
+            <span class="k">for</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">,</span> <span class="s1">&#39;latitude&#39;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">var_name</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
+                    <span class="n">var</span> <span class="o">=</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="n">var_name</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;units&#39;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;standard_name&#39;</span><span class="p">):</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="id3">
+<h3>Output Interface<a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_netcdf_outputs</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate all NetCDF outputs for cruise data.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of generated NetCDF file paths</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">files_created</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Primary cruise dataset</span>
+    <span class="n">main_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_cruise_dataset</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">main_file</span><span class="p">)</span>
+    <span class="n">files_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">main_file</span><span class="p">)</span>
+
+    <span class="c1"># Specialized datasets</span>
+    <span class="n">specialized_files</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">create_specialized_datasets</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+    <span class="n">files_created</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">specialized_files</span><span class="p">)</span>
+
+    <span class="c1"># Validate all files</span>
+    <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">files_created</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">validate_cf_compliance</span><span class="p">(</span><span class="n">file_path</span><span class="p">):</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CF compliance validation failed for </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">files_created</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3d-interactive-web-maps-not-implemented">
+<h2>Phase 3d: Interactive Web Maps ❌ <strong>NOT IMPLEMENTED</strong><a class="headerlink" href="#phase-3d-interactive-web-maps-not-implemented" title="Link to this heading"></a></h2>
+<section id="id4">
+<h3>Current Status<a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>✅ <strong>Existing</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/map_generator.py</span></code> provides basic static map generation</p></li>
+<li><p>❌ <strong>Missing</strong>: Interactive Leaflet-based web maps with enhanced functionality</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Implementation Requirements<a class="headerlink" href="#id5" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/interactive_map_generator.py</span></code> (needs to be created)</p>
+<p><strong>Core Function</strong>: Build upon the existing map generator to create interactive Leaflet-based web maps with enhanced cruise planning functionality.</p>
+</section>
+<section id="key-features-to-implement">
+<h3>Key Features to Implement<a class="headerlink" href="#key-features-to-implement" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Interactive Leaflet Maps</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InteractiveMapGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_layers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;OpenStreetMap&#39;</span><span class="p">:</span> <span class="s1">&#39;https://</span><span class="si">{s}</span><span class="s1">.tile.openstreetmap.org/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ESRI Ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;CartoDB Positron&#39;</span><span class="p">:</span> <span class="s1">&#39;https://</span><span class="si">{s}</span><span class="s1">.basemaps.cartocdn.com/light_all/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">.png&#39;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_interactive_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create interactive Leaflet map with cruise visualization.&quot;&quot;&quot;</span>
+        <span class="c1"># Generate HTML with embedded Leaflet map</span>
+        <span class="c1"># Add station markers with depth-based styling</span>
+        <span class="c1"># Include cruise track with timing information</span>
+        <span class="c1"># Add popup windows with detailed activity information</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Enhanced Map Features</strong>:</p>
+<ul class="simple">
+<li><p>Station clustering for dense operations</p></li>
+<li><p>Route animation with timing controls</p></li>
+<li><p>Bathymetry overlay integration (if available)</p></li>
+<li><p>Layer toggle controls (stations, moorings, transits, bathymetry)</p></li>
+<li><p>Export functionality for static images</p></li>
+<li><p>Responsive design for mobile viewing</p></li>
+</ul>
+</li>
+<li><p><strong>Integration with Existing System</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">enhance_existing_map_generator</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Maintain backward compatibility while adding new features.&quot;&quot;&quot;</span>
+    <span class="c1"># Keep existing generate_cruise_map() function</span>
+    <span class="c1"># Add new generate_interactive_map() function</span>
+    <span class="c1"># Share common coordinate transformation logic</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="id6">
+<h3>Output Interface<a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_interactive_map</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate interactive HTML map with Leaflet.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to generated HTML file with embedded map</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3e-html-summary-generation-not-implemented">
+<h2>Phase 3e: HTML Summary Generation ❌ <strong>NOT IMPLEMENTED</strong><a class="headerlink" href="#phase-3e-html-summary-generation-not-implemented" title="Link to this heading"></a></h2>
+<section id="id7">
+<h3>Implementation Requirements<a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/html_generator.py</span></code> (needs to be created)</p>
+<p><strong>Core Function</strong>: Generate comprehensive HTML reports with interactive navigation and detailed breakdowns for cruise planning documentation.</p>
+</section>
+<section id="html-structure-requirements">
+<h3>HTML Structure Requirements<a class="headerlink" href="#html-structure-requirements" title="Link to this heading"></a></h3>
+<div class="highlight-html notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;!DOCTYPE html&gt;</span>
+<span class="p">&lt;</span><span class="nt">html</span> <span class="na">lang</span><span class="o">=</span><span class="s">&quot;en&quot;</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">head</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">title</span><span class="p">&gt;</span>Schedule for {{cruise_name}}<span class="p">&lt;/</span><span class="nt">title</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">style</span><span class="p">&gt;</span>
+<span class="w">        </span><span class="c">/* Professional styling with responsive tables */</span>
+<span class="w">        </span><span class="nt">table</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">border-collapse</span><span class="p">:</span><span class="w"> </span><span class="kc">collapse</span><span class="p">;</span><span class="w"> </span><span class="k">width</span><span class="p">:</span><span class="w"> </span><span class="mi">100</span><span class="kt">%</span><span class="p">;</span><span class="w"> </span><span class="k">margin</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">em</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="nt">th</span><span class="o">,</span><span class="w"> </span><span class="nt">td</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">border</span><span class="p">:</span><span class="w"> </span><span class="mi">1</span><span class="kt">px</span><span class="w"> </span><span class="kc">solid</span><span class="w"> </span><span class="mh">#ddd</span><span class="p">;</span><span class="w"> </span><span class="k">padding</span><span class="p">:</span><span class="w"> </span><span class="mi">8</span><span class="kt">px</span><span class="p">;</span><span class="w"> </span><span class="k">text-align</span><span class="p">:</span><span class="w"> </span><span class="kc">left</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="nt">th</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#f5f5f5</span><span class="p">;</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="kc">bold</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">.</span><span class="nc">summary</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#e8f4fd</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">        </span><span class="p">.</span><span class="nc">total-row</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="k">font-weight</span><span class="p">:</span><span class="w"> </span><span class="kc">bold</span><span class="p">;</span><span class="w"> </span><span class="k">background-color</span><span class="p">:</span><span class="w"> </span><span class="mh">#f0f8ff</span><span class="p">;</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">&lt;/</span><span class="nt">style</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">head</span><span class="p">&gt;</span>
+<span class="p">&lt;</span><span class="nt">body</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h1</span><span class="p">&gt;</span>{{cruise_name}}<span class="p">&lt;/</span><span class="nt">h1</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">p</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>Description:<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;</span> {{description}}<span class="p">&lt;/</span><span class="nt">p</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- Navigation Links --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>Output Files<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">ul</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}_plot.html&quot;</span><span class="p">&gt;</span>Interactive Cruise Map<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}.kml&quot;</span><span class="p">&gt;</span>KML file (Google Earth)<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}.csv&quot;</span><span class="p">&gt;</span>CSV Spreadsheet<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}.nc&quot;</span><span class="p">&gt;</span>NetCDF Dataset<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}_stations.tex&quot;</span><span class="p">&gt;</span>LaTeX Stations Table<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">li</span><span class="p">&gt;&lt;</span><span class="nt">a</span> <span class="na">href</span><span class="o">=</span><span class="s">&quot;{{cruise_name}}_work_days.tex&quot;</span><span class="p">&gt;</span>LaTeX Work Days Table<span class="p">&lt;/</span><span class="nt">a</span><span class="p">&gt;&lt;/</span><span class="nt">li</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">ul</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- 1. Cruise Schedule Summary --&gt;</span>
+    <span class="p">&lt;</span><span class="nt">h2</span><span class="p">&gt;</span>1. Cruise Schedule Summary<span class="p">&lt;/</span><span class="nt">h2</span><span class="p">&gt;</span>
+    <span class="p">&lt;</span><span class="nt">table</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Task Category<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Description<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Total Hours<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">th</span><span class="p">&gt;</span>Total Days<span class="p">&lt;/</span><span class="nt">th</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="cm">&lt;!-- Dynamic content based on cruise data --&gt;</span>
+        <span class="p">&lt;</span><span class="nt">tr</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>Total Stations<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>{{station_count}} stations, Avg depth: {{avg_depth}}m, Avg duration: {{avg_station_duration}}h<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>{{total_station_hours}}<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>{{total_station_days}}<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+        <span class="p">&lt;</span><span class="nt">tr</span> <span class="na">class</span><span class="o">=</span><span class="s">&quot;total-row&quot;</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>TOTAL CRUISE<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;</span>{{total_operations}} total operations<span class="p">&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>{{total_hours}}<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+            <span class="p">&lt;</span><span class="nt">td</span><span class="p">&gt;&lt;</span><span class="nt">strong</span><span class="p">&gt;</span>{{total_days}}<span class="p">&lt;/</span><span class="nt">strong</span><span class="p">&gt;&lt;/</span><span class="nt">td</span><span class="p">&gt;</span>
+        <span class="p">&lt;/</span><span class="nt">tr</span><span class="p">&gt;</span>
+    <span class="p">&lt;/</span><span class="nt">table</span><span class="p">&gt;</span>
+
+    <span class="cm">&lt;!-- Detailed sections follow... --&gt;</span>
+<span class="p">&lt;/</span><span class="nt">body</span><span class="p">&gt;</span>
+<span class="p">&lt;/</span><span class="nt">html</span><span class="p">&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id8">
+<h3>Implementation Steps<a class="headerlink" href="#id8" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Create HTML Template System</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">HTMLGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">env</span> <span class="o">=</span> <span class="n">Environment</span><span class="p">(</span><span class="n">loader</span><span class="o">=</span><span class="n">FileSystemLoader</span><span class="p">(</span><span class="s2">&quot;templates&quot;</span><span class="p">))</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_summary_statistics</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate summary statistics for HTML template.&quot;&quot;&quot;</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;station_count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cruise_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stations&#39;</span><span class="p">,</span> <span class="p">[])),</span>
+            <span class="s1">&#39;mooring_count&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cruise_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;moorings&#39;</span><span class="p">,</span> <span class="p">[])),</span>
+            <span class="s1">&#39;total_operations&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s1">&#39;total_hours&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;total_days&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;avg_depth&#39;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+            <span class="s1">&#39;avg_station_duration&#39;</span><span class="p">:</span> <span class="mf">0.0</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Calculate detailed statistics</span>
+        <span class="k">return</span> <span class="n">stats</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Data Aggregation Logic</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">aggregate_cruise_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Perform deep flattening operation for HTML rendering.&quot;&quot;&quot;</span>
+    <span class="c1"># Flatten: Global_Stations + Legs-&gt;Clusters-&gt;Stations + Legs-&gt;Sections-&gt;Stations</span>
+    <span class="n">all_stations</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_moorings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_transfers</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Process legs and clusters</span>
+    <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">cruise_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;legs&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="c1"># Extract stations, moorings, transfers from each leg</span>
+        <span class="k">pass</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;stations&#39;</span><span class="p">:</span> <span class="n">all_stations</span><span class="p">,</span>
+        <span class="s1">&#39;moorings&#39;</span><span class="p">:</span> <span class="n">all_moorings</span><span class="p">,</span>
+        <span class="s1">&#39;transfers&#39;</span><span class="p">:</span> <span class="n">all_transfers</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Generate Detailed Breakdown Tables</strong>:</p>
+<ul class="simple">
+<li><p>Sections/Clusters detail table</p></li>
+<li><p>Moorings manifest table</p></li>
+<li><p>Transfers summary table</p></li>
+<li><p>Miscellaneous activities table</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="id9">
+<h3>Output Interface<a class="headerlink" href="#id9" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_html_summary</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate comprehensive HTML cruise summary.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to generated index.html file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">aggregated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">aggregate_cruise_data</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+    <span class="n">summary_stats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">calculate_summary_statistics</span><span class="p">(</span><span class="n">aggregated_data</span><span class="p">)</span>
+
+    <span class="n">template_data</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;cruise_name&#39;</span><span class="p">:</span> <span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">],</span>
+        <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">cruise_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="o">**</span><span class="n">summary_stats</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">aggregated_data</span>
+    <span class="p">}</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s1">&#39;cruise_summary.html.j2&#39;</span><span class="p">)</span>
+    <span class="n">html_content</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="o">**</span><span class="n">template_data</span><span class="p">)</span>
+
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s1">&#39;index.html&#39;</span>
+    <span class="n">output_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">html_content</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output_file</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3f-kml-generation-not-implemented">
+<h2>Phase 3f: KML Generation ❌ <strong>NOT IMPLEMENTED</strong><a class="headerlink" href="#phase-3f-kml-generation-not-implemented" title="Link to this heading"></a></h2>
+<section id="id10">
+<h3>Implementation Requirements<a class="headerlink" href="#id10" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/kml_generator.py</span></code> (needs to be created)</p>
+<p><strong>Core Function</strong>: Generate Google Earth-compatible KML files with cruise tracks, stations, and metadata for 3D visualization and sharing.</p>
+</section>
+<section id="kml-structure-requirements">
+<h3>KML Structure Requirements<a class="headerlink" href="#kml-structure-requirements" title="Link to this heading"></a></h3>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;kml</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://www.opengis.net/kml/2.2&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Document&gt;</span>
+<span class="w">    </span><span class="nt">&lt;name&gt;</span>Cruise<span class="w"> </span>Plan:<span class="w"> </span>{{cruise_name}}<span class="nt">&lt;/name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;description&gt;</span>{{description}}<span class="nt">&lt;/description&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Styles for different operation types --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;station-shallow&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;IconStyle&gt;</span>
+<span class="w">        </span><span class="nt">&lt;color&gt;</span>ff0000ff<span class="nt">&lt;/color&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Icon&gt;&lt;href&gt;</span>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png<span class="nt">&lt;/href&gt;&lt;/Icon&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/IconStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Style&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;station-deep&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;IconStyle&gt;</span>
+<span class="w">        </span><span class="nt">&lt;color&gt;</span>ffff0000<span class="nt">&lt;/color&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Icon&gt;&lt;href&gt;</span>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png<span class="nt">&lt;/href&gt;&lt;/Icon&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/IconStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Style&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;mooring&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;IconStyle&gt;</span>
+<span class="w">        </span><span class="nt">&lt;color&gt;</span>ff00ff00<span class="nt">&lt;/color&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Icon&gt;&lt;href&gt;</span>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png<span class="nt">&lt;/href&gt;&lt;/Icon&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/IconStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Style&gt;</span>
+
+<span class="w">    </span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;cruise-track&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;LineStyle&gt;</span>
+<span class="w">        </span><span class="nt">&lt;color&gt;</span>ff0000ff<span class="nt">&lt;/color&gt;</span>
+<span class="w">        </span><span class="nt">&lt;width&gt;</span>3<span class="nt">&lt;/width&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/LineStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Style&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Station Folder --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Folder&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>CTD<span class="w"> </span>Stations<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>CTD<span class="w"> </span>profile<span class="w"> </span>locations<span class="nt">&lt;/description&gt;</span>
+
+<span class="w">      </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">        </span><span class="nt">&lt;name&gt;</span>{{station_name}}<span class="nt">&lt;/name&gt;</span>
+<span class="w">        </span><span class="nt">&lt;description&gt;</span>
+<span class="w">          </span><span class="cp">&lt;![CDATA[</span>
+<span class="cp">            &lt;b&gt;Station:&lt;/b&gt; {{station_name}}&lt;br/&gt;</span>
+<span class="cp">            &lt;b&gt;Position:&lt;/b&gt; {{formatted_position}}&lt;br/&gt;</span>
+<span class="cp">            &lt;b&gt;Water Depth:&lt;/b&gt; {{depth}}m&lt;br/&gt;</span>
+<span class="cp">            &lt;b&gt;Operation:&lt;/b&gt; CTD Profile&lt;br/&gt;</span>
+<span class="cp">            &lt;b&gt;Duration:&lt;/b&gt; {{duration}} minutes</span>
+<span class="cp">          ]]&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/description&gt;</span>
+<span class="w">        </span><span class="nt">&lt;styleUrl&gt;</span>#station-{{depth_category}}<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Point&gt;</span>
+<span class="w">          </span><span class="nt">&lt;coordinates&gt;</span>{{longitude}},{{latitude}},0<span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/Point&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/Placemark&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Folder&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Cruise Track --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>Cruise<span class="w"> </span>Track<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>Complete<span class="w"> </span>cruise<span class="w"> </span>route<span class="nt">&lt;/description&gt;</span>
+<span class="w">      </span><span class="nt">&lt;styleUrl&gt;</span>#cruise-track<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">      </span><span class="nt">&lt;LineString&gt;</span>
+<span class="w">        </span><span class="nt">&lt;tessellate&gt;</span>1<span class="nt">&lt;/tessellate&gt;</span>
+<span class="w">        </span><span class="nt">&lt;coordinates&gt;</span>
+<span class="w">          </span>{{track_coordinates}}
+<span class="w">        </span><span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/LineString&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Placemark&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/Document&gt;</span>
+<span class="nt">&lt;/kml&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="id11">
+<h3>Implementation Steps<a class="headerlink" href="#id11" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>KML Generation Class</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">simplekml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Tuple</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">KMLGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">depth_thresholds</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;shallow&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>    <span class="c1"># &lt; 200m</span>
+            <span class="s1">&#39;medium&#39;</span><span class="p">:</span> <span class="mi">1000</span><span class="p">,</span>    <span class="c1"># 200-1000m</span>
+            <span class="s1">&#39;deep&#39;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="s1">&#39;inf&#39;</span><span class="p">)</span>  <span class="c1"># &gt; 1000m</span>
+        <span class="p">}</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">colors</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;shallow&#39;</span><span class="p">:</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">blue</span><span class="p">,</span>
+            <span class="s1">&#39;medium&#39;</span><span class="p">:</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">yellow</span><span class="p">,</span>
+            <span class="s1">&#39;deep&#39;</span><span class="p">:</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">red</span><span class="p">,</span>
+            <span class="s1">&#39;mooring&#39;</span><span class="p">:</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">green</span><span class="p">,</span>
+            <span class="s1">&#39;track&#39;</span><span class="p">:</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Color</span><span class="o">.</span><span class="n">red</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">classify_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Classify depth for styling purposes.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">depth</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_thresholds</span><span class="p">[</span><span class="s1">&#39;shallow&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s1">&#39;shallow&#39;</span>
+        <span class="k">elif</span> <span class="n">depth</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth_thresholds</span><span class="p">[</span><span class="s1">&#39;medium&#39;</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="s1">&#39;medium&#39;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s1">&#39;deep&#39;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Station Placemark Generation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_station_placemark</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kml_doc</span><span class="p">,</span> <span class="n">station_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create KML placemark for a CTD station.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Create placemark</span>
+    <span class="n">placemark</span> <span class="o">=</span> <span class="n">kml_doc</span><span class="o">.</span><span class="n">newpoint</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">],</span>
+        <span class="n">coords</span><span class="o">=</span><span class="p">[(</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">],</span> <span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">])]</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Format description with HTML</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;b&gt;Station:&lt;/b&gt; </span><span class="si">{</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;br/&gt;</span>
+<span class="s2">    &lt;b&gt;Position:&lt;/b&gt; </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">format_position_dms</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">],</span><span class="w"> </span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&lt;br/&gt;</span>
+<span class="s2">    &lt;b&gt;Water Depth:&lt;/b&gt; </span><span class="si">{</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">m&lt;br/&gt;</span>
+<span class="s2">    &lt;b&gt;Operation:&lt;/b&gt; CTD Profile&lt;br/&gt;</span>
+<span class="s2">    &lt;b&gt;Duration:&lt;/b&gt; </span><span class="si">{</span><span class="n">station_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;duration&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;TBD&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> minutes</span>
+<span class="s2">    &quot;&quot;&quot;</span>
+    <span class="n">placemark</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">description</span>
+
+    <span class="c1"># Set style based on depth</span>
+    <span class="n">depth_category</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">classify_depth</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">])</span>
+    <span class="n">placemark</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">iconstyle</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="n">depth_category</span><span class="p">]</span>
+    <span class="n">placemark</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">iconstyle</span><span class="o">.</span><span class="n">icon</span><span class="o">.</span><span class="n">href</span> <span class="o">=</span> <span class="s2">&quot;http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png&quot;</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Cruise Track Generation</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_cruise_track</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kml_doc</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create KML linestring for complete cruise track.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Extract all coordinates in cruise order</span>
+    <span class="n">track_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">extract_cruise_track</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+
+    <span class="c1"># Create linestring</span>
+    <span class="n">linestring</span> <span class="o">=</span> <span class="n">kml_doc</span><span class="o">.</span><span class="n">newlinestring</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Cruise Track&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Complete cruise route including transfers&quot;</span><span class="p">,</span>
+        <span class="n">coords</span><span class="o">=</span><span class="n">track_coords</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Style the track</span>
+    <span class="n">linestring</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">linestyle</span><span class="o">.</span><span class="n">color</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">colors</span><span class="p">[</span><span class="s1">&#39;track&#39;</span><span class="p">]</span>
+    <span class="n">linestring</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">linestyle</span><span class="o">.</span><span class="n">width</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="n">linestring</span><span class="o">.</span><span class="n">tessellate</span> <span class="o">=</span> <span class="mi">1</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Folder Organization</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">organize_into_folders</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kml_doc</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Organize placemarks into logical folders.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Create folders</span>
+    <span class="n">stations_folder</span> <span class="o">=</span> <span class="n">kml_doc</span><span class="o">.</span><span class="n">newfolder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;CTD Stations&quot;</span><span class="p">)</span>
+    <span class="n">moorings_folder</span> <span class="o">=</span> <span class="n">kml_doc</span><span class="o">.</span><span class="n">newfolder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Moorings&quot;</span><span class="p">)</span>
+    <span class="n">transfers_folder</span> <span class="o">=</span> <span class="n">kml_doc</span><span class="o">.</span><span class="n">newfolder</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s2">&quot;Transfer Routes&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Populate folders with placemarks</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">populate_stations_folder</span><span class="p">(</span><span class="n">stations_folder</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">populate_moorings_folder</span><span class="p">(</span><span class="n">moorings_folder</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">populate_transfers_folder</span><span class="p">(</span><span class="n">transfers_folder</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="id12">
+<h3>Output Interface<a class="headerlink" href="#id12" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_kml</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate Google Earth KML file for cruise visualization.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Path to generated KML file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create KML document</span>
+    <span class="n">kml_doc</span> <span class="o">=</span> <span class="n">simplekml</span><span class="o">.</span><span class="n">Kml</span><span class="p">()</span>
+    <span class="n">kml_doc</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Cruise Plan: </span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">kml_doc</span><span class="o">.</span><span class="n">description</span> <span class="o">=</span> <span class="n">cruise_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Organize content into folders</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">organize_into_folders</span><span class="p">(</span><span class="n">kml_doc</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+
+    <span class="c1"># Create cruise track</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">create_cruise_track</span><span class="p">(</span><span class="n">kml_doc</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">)</span>
+
+    <span class="c1"># Save KML file</span>
+    <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;cruise_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">.kml&quot;</span>
+    <span class="n">kml_doc</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">output_file</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">output_file</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="phase-3e-interactive-web-maps">
+<h2>Phase 3e: Interactive Web Maps<a class="headerlink" href="#phase-3e-interactive-web-maps" title="Link to this heading"></a></h2>
+<section id="id13">
+<h3>Implementation Requirements<a class="headerlink" href="#id13" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan/output/map_generator.py</span></code> (Enhancement of existing)</p>
+<p><strong>Core Function</strong>: Build upon the existing map generator to create interactive Leaflet-based web maps with enhanced functionality.</p>
+</section>
+<section id="enhancement-requirements">
+<h3>Enhancement Requirements<a class="headerlink" href="#enhancement-requirements" title="Link to this heading"></a></h3>
+<ol class="arabic">
+<li><p><strong>Current State Assessment</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># First, analyze existing map_generator.py to understand:</span>
+<span class="c1"># - Current functionality and API</span>
+<span class="c1"># - Data input formats</span>
+<span class="c1"># - Output capabilities</span>
+<span class="c1"># - Integration points</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Interactive Features to Add</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InteractiveMapGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">base_layers</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;OpenStreetMap&#39;</span><span class="p">:</span> <span class="s1">&#39;https://</span><span class="si">{s}</span><span class="s1">.tile.openstreetmap.org/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">.png&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;ESRI Ocean&#39;</span><span class="p">:</span> <span class="s1">&#39;https://services.arcgisonline.com/ArcGIS/rest/services/Ocean/World_Ocean_Base/MapServer/tile/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;Satellite&#39;</span><span class="p">:</span> <span class="s1">&#39;https://</span><span class="si">{s}</span><span class="s1">.tile.opentopomap.org/</span><span class="si">{z}</span><span class="s1">/</span><span class="si">{x}</span><span class="s1">/</span><span class="si">{y}</span><span class="s1">.png&#39;</span>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">create_interactive_map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cruise_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create interactive Leaflet map with enhanced functionality.&quot;&quot;&quot;</span>
+
+        <span class="c1"># Generate HTML with embedded Leaflet map</span>
+        <span class="c1"># Add station clustering for dense operations</span>
+        <span class="c1"># Implement route animation capabilities</span>
+        <span class="c1"># Add popup information windows</span>
+        <span class="c1"># Include layer toggle controls</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Bathymetry Overlay Integration</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">add_bathymetry_overlay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_obj</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add bathymetry contours as map overlay.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Integration with existing bathymetry system</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span>
+
+    <span class="c1"># Extract contour lines for the cruise area</span>
+    <span class="c1"># Convert to GeoJSON format</span>
+    <span class="c1"># Add as overlay layer with toggle control</span>
+</pre></div>
+</div>
+</li>
+<li><p><strong>Export Functionality</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">add_export_controls</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">map_obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add export functionality for static images.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Implement Leaflet.EasyPrint plugin</span>
+    <span class="c1"># Add screenshot/PDF export capabilities</span>
+    <span class="c1"># Include scale bar and north arrow</span>
+</pre></div>
+</div>
+</li>
+</ol>
+</section>
+<section id="integration-requirements">
+<h3>Integration Requirements<a class="headerlink" href="#integration-requirements" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Maintain Backward Compatibility</strong>: Ensure existing <code class="docutils literal notranslate"><span class="pre">generate_cruise_map()</span></code> function continues to work</p></li>
+<li><p><strong>Enhance API</strong>: Add new optional parameters for interactive features</p></li>
+<li><p><strong>Template System</strong>: Create HTML templates with embedded Leaflet maps</p></li>
+<li><p><strong>Asset Management</strong>: Handle CSS/JS dependencies efficiently</p></li>
+</ol>
+</section>
+</section>
+<hr class="docutils" />
+<section id="testing-strategy-for-phase-3">
+<h2>Testing Strategy for Phase 3<a class="headerlink" href="#testing-strategy-for-phase-3" title="Link to this heading"></a></h2>
+<section id="unit-tests">
+<h3>Unit Tests<a class="headerlink" href="#unit-tests" title="Link to this heading"></a></h3>
+<p>Create comprehensive unit tests in <code class="docutils literal notranslate"><span class="pre">tests/unit/test_output_generators.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output</span><span class="w"> </span><span class="kn">import</span> <span class="n">latex_generator</span><span class="p">,</span> <span class="n">html_generator</span><span class="p">,</span> <span class="n">netcdf_generator</span><span class="p">,</span> <span class="n">kml_generator</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestLaTeXGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_coordinate_formatting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test LaTeX coordinate formatting.&quot;&quot;&quot;</span>
+        <span class="n">formatted</span> <span class="o">=</span> <span class="n">latex_generator</span><span class="o">.</span><span class="n">format_position_latex</span><span class="p">(</span><span class="mf">52.5025</span><span class="p">,</span> <span class="o">-</span><span class="mf">51.3369</span><span class="p">)</span>
+        <span class="n">expected</span> <span class="o">=</span> <span class="s2">&quot;52$^</span><span class="se">\\</span><span class="s2">circ$30.15&#39;$N$, 051$^</span><span class="se">\\</span><span class="s2">circ$20.21&#39;$W$&quot;</span>
+        <span class="k">assert</span> <span class="n">formatted</span> <span class="o">==</span> <span class="n">expected</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_stations_table_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test stations table LaTeX generation.&quot;&quot;&quot;</span>
+        <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_test_cruise</span><span class="p">(</span><span class="s1">&#39;cruise_simple.yaml&#39;</span><span class="p">)</span>
+        <span class="n">table</span> <span class="o">=</span> <span class="n">latex_generator</span><span class="o">.</span><span class="n">generate_stations_table</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+
+        <span class="c1"># Verify table structure</span>
+        <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">begin</span><span class="si">{table}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">table</span>
+        <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">toprule&quot;</span> <span class="ow">in</span> <span class="n">table</span>
+        <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">bottomrule&quot;</span> <span class="ow">in</span> <span class="n">table</span>
+        <span class="k">assert</span> <span class="s2">&quot;STN_001&quot;</span> <span class="ow">in</span> <span class="n">table</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestHTMLGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_summary_statistics_calculation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test HTML summary statistics calculation.&quot;&quot;&quot;</span>
+        <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_test_cruise</span><span class="p">(</span><span class="s1">&#39;cruise_mixed_ops.yaml&#39;</span><span class="p">)</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">html_generator</span><span class="o">.</span><span class="n">HTMLGenerator</span><span class="p">()</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">calculate_summary_statistics</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;station_count&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">stats</span><span class="p">[</span><span class="s1">&#39;mooring_count&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s1">&#39;total_hours&#39;</span> <span class="ow">in</span> <span class="n">stats</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNetCDFGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_cf_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test CF conventions compliance.&quot;&quot;&quot;</span>
+        <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_test_cruise</span><span class="p">(</span><span class="s1">&#39;cruise_simple.yaml&#39;</span><span class="p">)</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">netcdf_generator</span><span class="o">.</span><span class="n">NetCDFGenerator</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp_dir</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;test.nc&quot;</span>
+            <span class="n">generator</span><span class="o">.</span><span class="n">create_cruise_dataset</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+            <span class="k">assert</span> <span class="n">generator</span><span class="o">.</span><span class="n">validate_cf_compliance</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestKMLGenerator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_depth_classification</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test depth-based styling classification.&quot;&quot;&quot;</span>
+        <span class="n">generator</span> <span class="o">=</span> <span class="n">kml_generator</span><span class="o">.</span><span class="n">KMLGenerator</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="n">generator</span><span class="o">.</span><span class="n">classify_depth</span><span class="p">(</span><span class="mi">150</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;shallow&#39;</span>
+        <span class="k">assert</span> <span class="n">generator</span><span class="o">.</span><span class="n">classify_depth</span><span class="p">(</span><span class="mi">500</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;medium&#39;</span>
+        <span class="k">assert</span> <span class="n">generator</span><span class="o">.</span><span class="n">classify_depth</span><span class="p">(</span><span class="mi">2500</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;deep&#39;</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-tests">
+<h3>Integration Tests<a class="headerlink" href="#integration-tests" title="Link to this heading"></a></h3>
+<p>Create integration tests in <code class="docutils literal notranslate"><span class="pre">tests/integration/test_phase3_integration.py</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TestPhase3Integration</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_complete_output_generation</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test generation of all output formats for each test cruise.&quot;&quot;&quot;</span>
+
+        <span class="n">test_cruises</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s1">&#39;cruise_simple.yaml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cruise_mixed_ops.yaml&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;cruise_multi_leg.yaml&#39;</span>
+        <span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">cruise_file</span> <span class="ow">in</span> <span class="n">test_cruises</span><span class="p">:</span>
+            <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">output_dir</span><span class="p">:</span>
+                <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_test_cruise</span><span class="p">(</span><span class="n">cruise_file</span><span class="p">)</span>
+                <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+                <span class="c1"># Generate all outputs</span>
+                <span class="n">latex_files</span> <span class="o">=</span> <span class="n">generate_latex_tables</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+                <span class="n">html_file</span> <span class="o">=</span> <span class="n">generate_html_summary</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+                <span class="n">netcdf_files</span> <span class="o">=</span> <span class="n">generate_netcdf_outputs</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+                <span class="n">kml_file</span> <span class="o">=</span> <span class="n">generate_kml</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+                <span class="n">map_file</span> <span class="o">=</span> <span class="n">generate_interactive_map</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+                <span class="c1"># Verify all files exist and are valid</span>
+                <span class="k">for</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">latex_files</span> <span class="o">+</span> <span class="n">netcdf_files</span> <span class="o">+</span> <span class="p">[</span><span class="n">html_file</span><span class="p">,</span> <span class="n">kml_file</span><span class="p">,</span> <span class="n">map_file</span><span class="p">]:</span>
+                    <span class="k">assert</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+                    <span class="k">assert</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_data_consistency_across_formats</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test that coordinate and metadata are consistent across all output formats.&quot;&quot;&quot;</span>
+
+        <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_test_cruise</span><span class="p">(</span><span class="s1">&#39;cruise_simple.yaml&#39;</span><span class="p">)</span>
+
+        <span class="c1"># Extract reference coordinates from original data</span>
+        <span class="n">ref_station</span> <span class="o">=</span> <span class="n">cruise_data</span><span class="p">[</span><span class="s1">&#39;stations&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">ref_lat</span><span class="p">,</span> <span class="n">ref_lon</span> <span class="o">=</span> <span class="n">ref_station</span><span class="p">[</span><span class="s1">&#39;latitude&#39;</span><span class="p">],</span> <span class="n">ref_station</span><span class="p">[</span><span class="s1">&#39;longitude&#39;</span><span class="p">]</span>
+
+        <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">output_dir</span><span class="p">:</span>
+            <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
+
+            <span class="c1"># Generate outputs</span>
+            <span class="n">html_file</span> <span class="o">=</span> <span class="n">generate_html_summary</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+            <span class="n">netcdf_files</span> <span class="o">=</span> <span class="n">generate_netcdf_outputs</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+            <span class="n">kml_file</span> <span class="o">=</span> <span class="n">generate_kml</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+            <span class="c1"># Verify coordinates match across formats</span>
+            <span class="c1"># (Implementation specific to each format)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify_html_coordinates</span><span class="p">(</span><span class="n">html_file</span><span class="p">,</span> <span class="n">ref_lat</span><span class="p">,</span> <span class="n">ref_lon</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify_netcdf_coordinates</span><span class="p">(</span><span class="n">netcdf_files</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">ref_lat</span><span class="p">,</span> <span class="n">ref_lon</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">verify_kml_coordinates</span><span class="p">(</span><span class="n">kml_file</span><span class="p">,</span> <span class="n">ref_lat</span><span class="p">,</span> <span class="n">ref_lon</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="cli-integration">
+<h2>CLI Integration<a class="headerlink" href="#cli-integration" title="Link to this heading"></a></h2>
+<section id="update-cli-module">
+<h3>Update CLI Module<a class="headerlink" href="#update-cli-module" title="Link to this heading"></a></h3>
+<p>Enhance <code class="docutils literal notranslate"><span class="pre">cruiseplan/cli/schedule.py</span></code> to support all Phase 3 outputs:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">schedule_command</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">validate_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate comprehensive cruise schedule from YAML configuration.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Load and validate cruise configuration</span>
+    <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">load_cruise_config</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">validate_depths</span><span class="p">:</span>
+        <span class="n">validate_station_depths</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">)</span>
+
+    <span class="c1"># Filter by leg if specified</span>
+    <span class="k">if</span> <span class="n">leg</span><span class="p">:</span>
+        <span class="n">cruise_data</span> <span class="o">=</span> <span class="n">filter_by_leg</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">leg</span><span class="p">)</span>
+
+    <span class="c1"># Generate outputs based on format selection</span>
+    <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">formats</span> <span class="ow">or</span> <span class="s1">&#39;latex&#39;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">latex_files</span> <span class="o">=</span> <span class="n">generate_latex_tables</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated LaTeX tables: </span><span class="si">{</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">latex_files</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">formats</span> <span class="ow">or</span> <span class="s1">&#39;html&#39;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">html_file</span> <span class="o">=</span> <span class="n">generate_html_summary</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated HTML summary: </span><span class="si">{</span><span class="n">html_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">formats</span> <span class="ow">or</span> <span class="s1">&#39;netcdf&#39;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">netcdf_files</span> <span class="o">=</span> <span class="n">generate_netcdf_outputs</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated NetCDF datasets: </span><span class="si">{</span><span class="p">[</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">f</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">netcdf_files</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">formats</span> <span class="ow">or</span> <span class="s1">&#39;kml&#39;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">kml_file</span> <span class="o">=</span> <span class="n">generate_kml</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated KML file: </span><span class="si">{</span><span class="n">kml_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s1">&#39;all&#39;</span> <span class="ow">in</span> <span class="n">formats</span> <span class="ow">or</span> <span class="s1">&#39;map&#39;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+        <span class="n">map_file</span> <span class="o">=</span> <span class="n">generate_interactive_map</span><span class="p">(</span><span class="n">cruise_data</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated interactive map: </span><span class="si">{</span><span class="n">map_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">All outputs saved to: </span><span class="si">{</span><span class="n">output_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="success-criteria">
+<h2>Success Criteria<a class="headerlink" href="#success-criteria" title="Link to this heading"></a></h2>
+<section id="phase-3a-success-criteria">
+<h3>Phase 3a Success Criteria<a class="headerlink" href="#phase-3a-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] LaTeX tables generate with proper booktabs formatting</p></li>
+<li><p>[ ] Coordinate formatting matches oceanographic standards (DD MM.mmm format)</p></li>
+<li><p>[ ] Page breaking works correctly for long tables</p></li>
+<li><p>[ ] Tables compile successfully in LaTeX engines</p></li>
+<li><p>[ ] All test cruises generate valid LaTeX output</p></li>
+</ul>
+</section>
+<section id="phase-3b-success-criteria">
+<h3>Phase 3b Success Criteria<a class="headerlink" href="#phase-3b-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] HTML reports display correctly in all major browsers</p></li>
+<li><p>[ ] Summary statistics calculate accurately for all test cases</p></li>
+<li><p>[ ] Navigation links function properly</p></li>
+<li><p>[ ] Tables are responsive and readable</p></li>
+<li><p>[ ] All cruise data aggregation works correctly</p></li>
+</ul>
+</section>
+<section id="phase-3c-success-criteria">
+<h3>Phase 3c Success Criteria<a class="headerlink" href="#phase-3c-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] NetCDF files pass CF-1.8 compliance validation</p></li>
+<li><p>[ ] All coordinate and depth data preserve precision</p></li>
+<li><p>[ ] Specialized datasets contain correct operation-specific data</p></li>
+<li><p>[ ] Files load successfully in common scientific software (xarray, Panoply)</p></li>
+<li><p>[ ] Global attributes contain complete metadata</p></li>
+</ul>
+</section>
+<section id="phase-3d-success-criteria">
+<h3>Phase 3d Success Criteria<a class="headerlink" href="#phase-3d-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] KML files display correctly in Google Earth</p></li>
+<li><p>[ ] Station icons use appropriate depth-based styling</p></li>
+<li><p>[ ] Cruise track shows complete route with transfers</p></li>
+<li><p>[ ] Popup descriptions contain all relevant information</p></li>
+<li><p>[ ] Folder organization improves navigation</p></li>
+</ul>
+</section>
+<section id="phase-3e-success-criteria">
+<h3>Phase 3e Success Criteria<a class="headerlink" href="#phase-3e-success-criteria" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] Interactive maps load and display correctly</p></li>
+<li><p>[ ] Bathymetry overlays integrate properly</p></li>
+<li><p>[ ] Station clustering works for dense operations</p></li>
+<li><p>[ ] Export functionality produces quality static images</p></li>
+<li><p>[ ] Backward compatibility maintained with existing API</p></li>
+</ul>
+</section>
+<section id="overall-phase-3-success">
+<h3>Overall Phase 3 Success<a class="headerlink" href="#overall-phase-3-success" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>[ ] All three test cruises generate outputs in all formats</p></li>
+<li><p>[ ] Data consistency maintained across all output formats</p></li>
+<li><p>[ ] CLI integration works seamlessly</p></li>
+<li><p>[ ] Performance meets requirements (&lt; 30 seconds for complex cruises)</p></li>
+<li><p>[ ] Documentation updated with examples and usage</p></li>
+<li><p>[ ] Test coverage &gt;= 85% for all output generators</p></li>
+</ul>
+<hr class="docutils" />
+<p>This comprehensive implementation plan provides detailed specifications for building a complete output generation system that meets the professional standards required for oceanographic cruise planning. Each sub-phase builds upon the previous ones while maintaining data consistency and quality across all output formats.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
