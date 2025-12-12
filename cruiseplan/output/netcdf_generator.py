@@ -22,7 +22,15 @@ logger = logging.getLogger(__name__)
 class NetCDFGenerator:
     """
     CF-1.8 compliant NetCDF generator using xarray.
+
     Generates CF-1.8 compliant NetCDF files organized by operation geometry type.
+    Implements discrete sampling geometries for scientific data management and
+    analysis as specified in the netcdf_outputs.md specification.
+
+    Attributes
+    ----------
+    cf_conventions : str
+        CF conventions version used for NetCDF files ("CF-1.8").
     """
 
     def __init__(self):
@@ -33,8 +41,24 @@ class NetCDFGenerator:
     ) -> List[Path]:
         """
         Generate all NetCDF files according to netcdf_outputs.md specification.
-        Uses master file approach: generate schedule.nc as master, then derive specialized files.
-        Returns list of generated file paths.
+
+        Uses master file approach: generate schedule.nc as master, then derive
+        specialized files for different operation types. Implements CF-1.8
+        compliant discrete sampling geometries.
+
+        Parameters
+        ----------
+        config : CruiseConfig
+            Cruise configuration object containing cruise metadata.
+        timeline : list of ActivityRecord
+            Timeline of scheduled activities from the scheduler.
+        output_dir : Path
+            Directory where NetCDF files will be written.
+
+        Returns
+        -------
+        list of Path
+            List of paths to all generated NetCDF files.
         """
         output_dir = Path(output_dir)
         output_dir.mkdir(exist_ok=True, parents=True)

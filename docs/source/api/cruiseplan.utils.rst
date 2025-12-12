@@ -6,7 +6,7 @@ General Utilities
 
 
 cruiseplan.utils.activity_utils module
------------------------------
+-----------------------------------------
 
 .. automodule:: cruiseplan.utils.activity_utils
    :members:
@@ -14,7 +14,7 @@ cruiseplan.utils.activity_utils module
    :show-inheritance:
 
 cruiseplan.utils.config module
---------------------------
+------------------------------
 
 .. automodule:: cruiseplan.utils.config
    :members:
@@ -30,7 +30,7 @@ cruiseplan.utils.constants module
    :show-inheritance:
 
 cruiseplan.utils.coordinates module
----------------------------------
+-----------------------------------
 
 .. automodule:: cruiseplan.utils.coordinates
    :members:

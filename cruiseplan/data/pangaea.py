@@ -18,14 +18,50 @@ logger = logging.getLogger(__name__)
 
 
 class PangaeaManager:
+    """
+    Manager for PANGAEA dataset search and retrieval.
+
+    Provides functionality to search PANGAEA datasets using spatial queries,
+    fetch metadata and coordinate data, and cache results for performance.
+    Integrates with the cruise planning system for incorporating existing
+    cruise tracks into planning workflows.
+
+    Attributes
+    ----------
+    cache : CacheManager
+        File-based cache for storing fetched dataset metadata.
+    """
+
     def __init__(self, cache_dir: str = ".cache"):
+        """
+        Initialize PANGAEA manager.
+
+        Parameters
+        ----------
+        cache_dir : str, optional
+            Directory for cache storage (default: ".cache").
+        """
         self.cache = CacheManager(cache_dir)
 
     def search(
         self, query: str, bbox: tuple = None, limit: int = 10
     ) -> List[Dict[str, Any]]:
         """
-        Search Pangaea using the native PanQuery bbox support.
+        Search PANGAEA using the native PanQuery bbox support.
+
+        Parameters
+        ----------
+        query : str
+            Search query string for PANGAEA datasets.
+        bbox : tuple, optional
+            Bounding box as (min_lon, min_lat, max_lon, max_lat).
+        limit : int, optional
+            Maximum number of results to return (default: 10).
+
+        Returns
+        -------
+        List[Dict[str, Any]]
+            List of dataset metadata dictionaries.
         """
         logger.info(f"Searching Pangaea: '{query}' (Limit: {limit})")
 
@@ -66,15 +102,21 @@ class PangaeaManager:
         """
         Process a list of DOIs and return standardized metadata objects.
 
-        Args:
-            doi_list: List of DOI strings to fetch
-            rate_limit: Optional requests per second limit (None = no rate limiting)
-            merge_campaigns: Whether to merge campaigns with same name
-            progress_callback: Optional function(current, total, message) for progress updates
+        Parameters
+        ----------
+        doi_list : List[str]
+            List of DOI strings to fetch.
+        rate_limit : Optional[float], optional
+            Optional requests per second limit (None = no rate limiting).
+        merge_campaigns : bool, optional
+            Whether to merge campaigns with same name (default: False).
+        progress_callback : Optional[Callable[[int, int, str], None]], optional
+            Optional function(current, total, message) for progress updates.
 
         Returns
         -------
-            List of dicts: [{'label': '...', 'latitude': [...], 'longitude': [...], 'doi': '...'}, ...]
+        List[Dict[str, Any]]
+            List of dataset dictionaries with standardized metadata.
         """
         import time
 
@@ -165,6 +207,18 @@ class PangaeaManager:
     ) -> Path:
         """
         Convenience wrapper to visualize datasets fetched by this manager.
+
+        Parameters
+        ----------
+        datasets : List[Dict[str, Any]]
+            List of dataset dictionaries with latitude/longitude data.
+        filename : str, optional
+            Output filename for the HTML map (default: "pangaea_map.html").
+
+        Returns
+        -------
+        Path
+            Path to the generated HTML map file.
         """
         # You might want to do a quick transformation here if your dataset dicts
         # don't exactly match what generate_cruise_map expects.
@@ -173,7 +227,19 @@ class PangaeaManager:
         return generate_cruise_map(datasets, output_file=filename)
 
     def _clean_doi(self, doi: str) -> str:
-        """Validate and clean DOI format (10.xxxx/xxxx)."""
+        """
+        Validate and clean DOI format (10.xxxx/xxxx).
+
+        Parameters
+        ----------
+        doi : str
+            DOI string to clean and validate.
+
+        Returns
+        -------
+        str
+            Cleaned DOI string or empty string if invalid.
+        """
         if not isinstance(doi, str):
             return ""
 
@@ -195,9 +261,21 @@ class PangaeaManager:
 
     def _fetch_from_api(self, doi: str) -> Optional[Dict[str, Any]]:
         """
+        Fetch dataset metadata from PANGAEA API.
+
         Strategy:
         1. Try extracting from `ds.events` (Metadata - Best for coordinates/campaigns)
         2. Fallback to `ds.data` (Main Table - Messy columns)
+
+        Parameters
+        ----------
+        doi : str
+            DOI identifier for the dataset.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            Standardized dataset metadata or None if fetch fails.
         """
         try:
             logger.info(f"Fetching PANGAEA dataset: {doi}")
@@ -220,7 +298,20 @@ class PangaeaManager:
     def _parse_events(self, events_data: Any, doi: str) -> Optional[Dict[str, Any]]:
         """
         Extracts lat/lon/label/campaign from the .events attribute.
+
         Returns a standardized Dictionary.
+
+        Parameters
+        ----------
+        events_data : Any
+            Events data from PANGAEA dataset.
+        doi : str
+            DOI identifier for the dataset.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            Standardized dataset metadata or None if parsing fails.
         """
         events_list = []
 
@@ -274,7 +365,21 @@ class PangaeaManager:
         }
 
     def _parse_data_table(self, ds: PanDataSet, doi: str) -> Optional[Dict[str, Any]]:
-        """Fallback: Scrape the main data table for coordinates."""
+        """
+        Fallback: Scrape the main data table for coordinates.
+
+        Parameters
+        ----------
+        ds : PanDataSet
+            PANGAEA dataset object.
+        doi : str
+            DOI identifier for the dataset.
+
+        Returns
+        -------
+        Optional[Dict[str, Any]]
+            Standardized dataset metadata or None if parsing fails.
+        """
         if ds.data is None or ds.data.empty:
             return None
 
@@ -312,7 +417,21 @@ class PangaeaManager:
         }
 
     def _safe_get(self, obj: Any, keys: List[str]) -> Any:
-        """Helper to get attributes safely from dicts or objects."""
+        """
+        Helper to get attributes safely from dicts or objects.
+
+        Parameters
+        ----------
+        obj : Any
+            Object to extract attribute from.
+        keys : List[str]
+            List of possible key/attribute names to try.
+
+        Returns
+        -------
+        Any
+            Value if found, None otherwise.
+        """
         for key in keys:
             # Try dictionary access
             if hasattr(obj, "get"):
@@ -343,7 +462,18 @@ class PangaeaManager:
 def _is_valid_doi(doi: any) -> bool:
     """
     Validates if the input string is a valid DOI format.
+
     Strictly checks for '10.XXXX/XXXX' format.
+
+    Parameters
+    ----------
+    doi : any
+        Input to validate as DOI.
+
+    Returns
+    -------
+    bool
+        True if valid DOI format, False otherwise.
     """
     if not isinstance(doi, str):
         return False
@@ -356,7 +486,18 @@ def _is_valid_doi(doi: any) -> bool:
 def merge_campaign_tracks(datasets: List[Dict]) -> List[Dict]:
     """
     Merges datasets by their 'label' (campaign).
+
     Aggregates coordinates into single arrays and collects all source DOIs.
+
+    Parameters
+    ----------
+    datasets : List[Dict]
+        List of dataset dictionaries to merge.
+
+    Returns
+    -------
+    List[Dict]
+        Merged campaign datasets with combined coordinates.
     """
     grouped = {}
 
@@ -411,15 +552,21 @@ def save_campaign_data(
     """
     Save PANGAEA datasets to pickle file.
 
-    Args:
-        datasets: List of dataset dictionaries
-        file_path: Output file path
-        progress_callback: Optional function(message) for progress updates
-        original_dataset_count: Optional count of datasets before merging
+    Parameters
+    ----------
+    datasets : List[Dict]
+        List of dataset dictionaries to save.
+    file_path : Union[str, Path]
+        Output file path for the pickle file.
+    progress_callback : Optional[Callable[[str], None]], optional
+        Optional function(message) for progress updates.
+    original_dataset_count : Optional[int], optional
+        Optional count of datasets before merging for summary.
 
     Raises
     ------
-        ValueError: If there's an error saving the file
+    ValueError
+        If there's an error saving the file.
     """
     import pickle
 

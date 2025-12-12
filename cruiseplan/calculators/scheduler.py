@@ -1,7 +1,9 @@
 """
-Core cruise scheduling and timeline generation logic (Phase 3a/3c).
+Core cruise scheduling and timeline generation logic.
 
-Implements sequential ordering logic and time/distance calculation.
+This module implements sequential ordering logic and time/distance calculation
+for generating complete cruise timelines. Provides the ActivityRecord data structure
+and scheduling algorithms that transform cruise configurations into executable plans.
 """
 
 import logging
@@ -27,22 +29,41 @@ logger = logging.getLogger(__name__)
 
 
 class ActivityRecord(Dict):
-    """Standardized output structure for a single scheduled activity."""
+    """
+    Standardized output structure for a single scheduled activity.
 
-    activity: str
-    label: str
-    lat: float
-    lon: float
-    depth: float
-    start_time: datetime
-    end_time: datetime
-    duration_minutes: float
-    transit_dist_nm: float  # Inter-operation distance (to reach this operation)
-    operation_dist_nm: float  # Distance traveled during this operation
-    vessel_speed_kt: float
-    leg_name: str
-    operation_type: str
-    # Reference to original object/definition for detailed export
+    This class represents a scheduled cruise activity with all relevant
+    timing, positioning, and operational information.
+
+    Attributes
+    ----------
+    activity : str
+        Type of activity (e.g., "Station", "Transit", "Mooring").
+    label : str
+        Human-readable label for the activity.
+    lat : float
+        Latitude in decimal degrees.
+    lon : float
+        Longitude in decimal degrees.
+    depth : float
+        Water depth in meters.
+    start_time : datetime
+        Activity start time.
+    end_time : datetime
+        Activity end time.
+    duration_minutes : float
+        Activity duration in minutes.
+    transit_dist_nm : float
+        Distance traveled to reach this activity in nautical miles.
+    operation_dist_nm : float
+        Distance traveled during this activity in nautical miles.
+    vessel_speed_kt : float
+        Vessel speed in knots.
+    leg_name : str
+        Name of the cruise leg.
+    operation_type : str
+        Type of scientific operation.
+    """
 
 
 # --- Core Scheduling Logic ---
@@ -175,12 +196,27 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
 
 def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
     """
-    Generates a flattened, time-ordered list of all cruise activities.
+    Generate a flattened, time-ordered list of all cruise activities.
 
-    Dummy Scheduler Logic (Phase 3a):
-    1. Order is strictly sequential based on YAML leg/sequence order.
-    2. Start time is calculated cumulatively: End Time (N) = Start Time (N) + Duration (N).
-    3. Start Time (N+1) = End Time (N) + Transit Time (N -> N+1).
+    This function implements sequential scheduling logic where activities are
+    processed in the order defined in the cruise configuration. Start times
+    are calculated cumulatively based on operation durations and transit times.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration object containing legs, operations, and parameters.
+
+    Returns
+    -------
+    list of ActivityRecord
+        Time-ordered list of all scheduled activities.
+
+    Notes
+    -----
+    Phase 3a implementation: Strict sequential ordering based on YAML leg/sequence.
+    Start time calculation: End Time (N) = Start Time (N) + Duration (N),
+    Start Time (N+1) = End Time (N) + Transit Time (N -> N+1).
     """
     timeline: List[ActivityRecord] = []
 
@@ -487,18 +523,25 @@ def generate_cruise_schedule(
     Generate comprehensive cruise schedules from YAML configuration.
 
     This is the main function called by the CLI that orchestrates the entire
-    schedule generation process.
+    schedule generation process, including timeline creation and output formatting.
 
-    Args:
-        config_path: Path to input YAML configuration
-        output_dir: Output directory for schedule files
-        formats: List of output formats to generate
-        validate_depths: Whether to validate depths during generation
-        selected_leg: If specified, only generate schedule for this leg
+    Parameters
+    ----------
+    config_path : str or Path
+        Path to input YAML configuration file.
+    output_dir : str or Path
+        Output directory for generated schedule files.
+    formats : list of str, optional
+        List of output formats to generate. Default is ["html", "csv"].
+    validate_depths : bool, optional
+        Whether to validate depths during generation. Default is False.
+    selected_leg : str, optional
+        If specified, only generate schedule for this leg. Default is None.
 
     Returns
     -------
-        Dictionary with generation summary and statistics
+    dict
+        Dictionary with generation summary and statistics.
     """
     from pathlib import Path
 

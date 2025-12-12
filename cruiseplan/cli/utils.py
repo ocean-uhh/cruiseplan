@@ -26,9 +26,12 @@ def setup_logging(verbose: bool = False, quiet: bool = False) -> None:
     """
     Setup logging configuration for CLI commands.
 
-    Args:
-        verbose: Enable verbose output
-        quiet: Suppress non-essential output
+    Parameters
+    ----------
+    verbose : bool, optional
+        Enable verbose output. Default is False.
+    quiet : bool, optional
+        Suppress non-essential output. Default is False.
     """
     if quiet:
         level = logging.WARNING
@@ -44,17 +47,22 @@ def validate_input_file(file_path: Path, must_exist: bool = True) -> Path:
     """
     Validate input file path and ensure it exists.
 
-    Args:
-        file_path: Path to validate
-        must_exist: Whether file must exist
+    Parameters
+    ----------
+    file_path : Path
+        Path to validate.
+    must_exist : bool, optional
+        Whether file must exist. Default is True.
 
     Returns
     -------
-        Resolved absolute path
+    Path
+        Resolved and validated file path.
 
     Raises
     ------
-        CLIError: If file doesn't exist or isn't readable
+    CLIError
+        If file path is invalid or file doesn't exist when required.
     """
     resolved_path = file_path.resolve()
 
@@ -261,13 +269,17 @@ def confirm_operation(message: str, default: bool = True) -> bool:
     """
     Prompt user for confirmation.
 
-    Args:
-        message: Confirmation message
-        default: Default response if user just presses enter
+    Parameters
+    ----------
+    message : str
+        Confirmation message.
+    default : bool, optional
+        Default response if user just presses enter. Default is True.
 
     Returns
     -------
-        True if user confirms, False otherwise
+    bool
+        True if user confirms, False otherwise.
     """
     suffix = " [Y/n]" if default else " [y/N]"
 

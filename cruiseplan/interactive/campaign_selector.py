@@ -15,10 +15,36 @@ logger = logging.getLogger(__name__)
 class CampaignSelector:
     """
     Manages PANGAEA campaign data loading and selection interface.
-    Provides checkbox interface for toggling campaign visibility.
+
+    Provides checkbox interface for toggling campaign visibility on interactive maps.
+    Allows users to selectively display or hide PANGAEA cruise tracks for better
+    visualization and planning.
+
+    Attributes
+    ----------
+    campaign_data : List[Dict]
+        List of campaign datasets with coordinate and metadata information.
+    selected_campaigns : Dict[str, bool]
+        Dictionary mapping campaign names to their visibility state.
+    campaign_artists : Dict[str, Any]
+        Dictionary mapping campaign names to their matplotlib artist objects.
+    ax_campaign : Optional[plt.Axes]
+        Matplotlib axes for the campaign selection interface.
+    check_buttons : Optional[CheckButtons]
+        Matplotlib CheckButtons widget for campaign selection.
+    map_ax : Optional[plt.Axes]
+        Reference to the main map axes for updating campaign display.
     """
 
     def __init__(self, campaign_data: Optional[List[Dict]] = None):
+        """
+        Initialize the campaign selector.
+
+        Parameters
+        ----------
+        campaign_data : Optional[List[Dict]], optional
+            Pre-loaded campaign track data from PANGAEA (default: None).
+        """
         self.campaign_data = campaign_data or []
         # Stores the name -> boolean state (True = visible)
         self.selected_campaigns: Dict[str, bool] = {}
@@ -36,7 +62,14 @@ class CampaignSelector:
             self.selected_campaigns[campaign_name] = True
 
     def setup_ui(self, ax_campaign: plt.Axes) -> None:
-        """Initialize the campaign selection interface."""
+        """
+        Initialize the campaign selection interface.
+
+        Parameters
+        ----------
+        ax_campaign : plt.Axes
+            Matplotlib axes where the campaign selector will be displayed.
+        """
         self.ax_campaign = ax_campaign
         self.ax_campaign.set_title("PANGAEA Campaigns", fontsize=10)
 
@@ -84,7 +117,14 @@ class CampaignSelector:
         self.check_buttons.on_clicked(self._on_campaign_toggle)
 
     def _on_campaign_toggle(self, label: str) -> None:
-        """Handle campaign visibility toggle."""
+        """
+        Handle campaign visibility toggle.
+
+        Parameters
+        ----------
+        label : str
+            Name of the campaign that was toggled.
+        """
         # Flip the state in the internal dictionary
         self.selected_campaigns[label] = not self.selected_campaigns.get(label, True)
 
@@ -107,7 +147,14 @@ class CampaignSelector:
             self.map_ax.figure.canvas.draw_idle()
 
     def get_selected_campaigns(self) -> List[Dict]:
-        """Return list of currently selected campaigns."""
+        """
+        Return list of currently selected campaigns.
+
+        Returns
+        -------
+        List[Dict]
+            List of campaign dictionaries that are currently visible/selected.
+        """
         selected = []
         for campaign in self.campaign_data:
             campaign_name = campaign.get("name", "Unknown")
@@ -117,7 +164,14 @@ class CampaignSelector:
         return selected
 
     def save_selection(self, file_path: str) -> None:
-        """Save current campaign selection (the filtered data) to a pickle file."""
+        """
+        Save current campaign selection to a pickle file.
+
+        Parameters
+        ----------
+        file_path : str
+            Path where the selected campaign data will be saved.
+        """
         selected_campaigns = self.get_selected_campaigns()
         try:
             with open(file_path, "wb") as f:
@@ -129,7 +183,14 @@ class CampaignSelector:
             logger.error(f"Failed to save campaign selection to {file_path}: {e}")
 
     def toggle_all(self, state: bool) -> None:
-        """Toggle all campaigns on/off."""
+        """
+        Toggle all campaigns on/off.
+
+        Parameters
+        ----------
+        state : bool
+            True to show all campaigns, False to hide all campaigns.
+        """
         for campaign_name in self.selected_campaigns:
             self.selected_campaigns[campaign_name] = state
 

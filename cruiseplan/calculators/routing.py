@@ -1,3 +1,11 @@
+"""
+Route optimization and spatial planning algorithms.
+
+This module provides algorithms for optimizing cruise routes and spatial planning.
+Currently implements placeholder functions for composite route optimization that
+will eventually solve constrained Traveling Salesman Problems (TSP).
+"""
+
 from typing import Any, List
 
 from cruiseplan.core.operations import BaseOperation
@@ -5,11 +13,28 @@ from cruiseplan.core.operations import BaseOperation
 
 def optimize_composite_route(children: List[BaseOperation], rules: Any) -> float:
     """
-    PHASE 1 PLACEHOLDER: Calculates the total duration for operations within a
-    CompositeOperation that uses a spatial optimization strategy.
+    Calculate total duration for operations within a CompositeOperation.
 
-    This function should eventually solve a Constrained Traveling Salesman Problem (TSP).
-    For now, it returns the simple sum of the children's durations.
+    This function should eventually solve a Constrained Traveling Salesman Problem (TSP)
+    to optimize the order and routing of operations. For now, it returns the simple
+    sum of the children's durations.
+
+    Parameters
+    ----------
+    children : list of BaseOperation
+        List of child operations to optimize.
+    rules : Any
+        Operational rules and constraints for optimization.
+
+    Returns
+    -------
+    float
+        Total duration in minutes for all operations.
+
+    Notes
+    -----
+    Phase 1 implementation: Simple sum of durations, ignoring routing complexity.
+    Actual TSP/routing logic will be added in a later phase.
     """
     if not children:
         return 0.0
@@ -23,5 +48,19 @@ def optimize_composite_route(children: List[BaseOperation], rules: Any) -> float
 
 # NOTE: Add a simple placeholder for route calculations if needed later
 def calculate_route_distance(start_point, end_point) -> float:
-    """Placeholder for Haversine/geodesic distance calculation."""
+    """
+    Placeholder for Haversine/geodesic distance calculation.
+
+    Parameters
+    ----------
+    start_point : Any
+        Starting point coordinates.
+    end_point : Any
+        Ending point coordinates.
+
+    Returns
+    -------
+    float
+        Distance between points (currently returns 0.0).
+    """
     return 0.0

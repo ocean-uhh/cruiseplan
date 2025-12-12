@@ -1,6 +1,9 @@
-#!/usr/bin/env python3
 """
 cruiseplan CLI - Modern subcommand architecture for oceanographic cruise planning.
+
+This module provides the main command-line interface for the cruiseplan system,
+implementing a git-style subcommand pattern with various operations for cruise
+planning, data processing, and output generation.
 """
 
 import argparse
@@ -12,34 +15,76 @@ from typing import Any  # Added Any for generic type hinting
 # Define placeholder main functions for dynamic imports
 # (These will be overwritten when the modules are implemented)
 def download_main(args: Any):
-    """Placeholder for download subcommand logic."""
+    """
+    Placeholder for download subcommand logic.
+
+    Parameters
+    ----------
+    args : Any
+        Parsed command-line arguments.
+    """
     print("Download logic will be implemented in cruiseplan.cli.download")
 
 
 def schedule_main(args: argparse.Namespace):
-    """Placeholder for schedule subcommand logic."""
+    """
+    Placeholder for schedule subcommand logic.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing config_file and output_dir.
+    """
     print(
         f"Schedule logic will process config: {args.config_file} and output to {args.output_dir}"
     )
 
 
 def stations_main(args: argparse.Namespace):
-    """Placeholder for stations subcommand logic."""
+    """
+    Placeholder for stations subcommand logic.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing lat, lon bounds.
+    """
     print(f"Stations logic will process bounds: {args.lat}, {args.lon}")
 
 
 def enrich_main(args: argparse.Namespace):
-    """Placeholder for enrich logic."""
+    """
+    Placeholder for enrich logic.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing config_file.
+    """
     print(f"Enrich logic for config: {args.config_file}")
 
 
 def validate_main(args: argparse.Namespace):
-    """Placeholder for validate logic."""
+    """
+    Placeholder for validate logic.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing config_file.
+    """
     print(f"Validate logic for config: {args.config_file}")
 
 
 def pangaea_main(args: argparse.Namespace):
-    """Placeholder for PANGAEA data processing logic."""
+    """
+    Placeholder for PANGAEA data processing logic.
+
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command-line arguments containing doi_file.
+    """
     print(f"PANGAEA logic for DOI file: {args.doi_file}")
 
 

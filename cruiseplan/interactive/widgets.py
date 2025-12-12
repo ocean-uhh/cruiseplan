@@ -11,12 +11,41 @@ from matplotlib.widgets import Widget
 class ModeIndicator(Widget):
     """
     Visual indicator for current interaction mode.
+
     Shows current mode (navigation/point/line/area) with clear styling.
+    Provides visual feedback to users about the current interaction state.
+
+    Attributes
+    ----------
+    ax : plt.Axes
+        Matplotlib axes for the widget display.
+    modes : List[str]
+        List of available interaction modes.
+    current_mode : str
+        Currently active interaction mode.
+    callbacks : Dict[str, Callable]
+        Dictionary of callback functions for mode changes.
+    colors : Dict[str, str]
+        Color mapping for different modes.
+    text_obj : Optional[plt.Text]
+        Matplotlib text object for mode display.
     """
 
     def __init__(
         self, ax: plt.Axes, modes: List[str], initial_mode: str = "navigation"
     ):
+        """
+        Initialize the mode indicator widget.
+
+        Parameters
+        ----------
+        ax : plt.Axes
+            Matplotlib axes for widget placement.
+        modes : List[str]
+            List of available interaction modes.
+        initial_mode : str, optional
+            Initial mode to display (default: "navigation").
+        """
         self.ax = ax
         self.modes = modes
         self.current_mode = initial_mode
@@ -70,7 +99,14 @@ class ModeIndicator(Widget):
         self.ax.figure.canvas.draw_idle()
 
     def set_mode(self, mode: str):
-        """Change the current mode."""
+        """
+        Change the current mode.
+
+        Parameters
+        ----------
+        mode : str
+            New mode to set. Must be one of the available modes.
+        """
         if mode in self.modes:
             old_mode = self.current_mode
             self.current_mode = mode
@@ -81,16 +117,43 @@ class ModeIndicator(Widget):
                 self.callbacks[mode](old_mode, mode)
 
     def on_mode_change(self, mode: str, callback: Callable):
-        """Register callback for mode changes."""
+        """
+        Register callback for mode changes.
+
+        Parameters
+        ----------
+        mode : str
+            Mode for which to register the callback.
+        callback : Callable
+            Function to call when mode changes to the specified mode.
+        """
         self.callbacks[mode] = callback
 
 
 class StatusDisplay(Widget):
     """
     Real-time status display for coordinates, depth, and operation counts.
+
+    Shows current mouse coordinates, bathymetric depth, and counts of
+    planned stations, transects, and areas.
+
+    Attributes
+    ----------
+    ax : plt.Axes
+        Matplotlib axes for the widget display.
+    status_lines : List[plt.Text]
+        List of matplotlib text objects for status display lines.
     """
 
     def __init__(self, ax: plt.Axes):
+        """
+        Initialize the status display widget.
+
+        Parameters
+        ----------
+        ax : plt.Axes
+            Matplotlib axes for widget placement.
+        """
         self.ax = ax
         self.status_lines: List[plt.Text] = []
         self._setup_display()
@@ -138,7 +201,16 @@ class StatusDisplay(Widget):
         ]
 
     def update_coordinates(self, lat: Optional[float], lon: Optional[float]):
-        """Update coordinate display, using Degrees Decimal Minutes format."""
+        """
+        Update coordinate display, using Degrees Decimal Minutes format.
+
+        Parameters
+        ----------
+        lat : Optional[float]
+            Latitude coordinate in decimal degrees.
+        lon : Optional[float]
+            Longitude coordinate in decimal degrees.
+        """
         if lat is not None and lon is not None:
             # Format: DD MM.mmm Dir, DDD MM.mmm Dir
 
@@ -159,7 +231,14 @@ class StatusDisplay(Widget):
             self.status_lines[0].set_text("Coordinates: --")
 
     def update_depth(self, depth: Optional[float]):
-        """Update depth display, handling positive elevation and negative depth."""
+        """
+        Update depth display, handling positive elevation and negative depth.
+
+        Parameters
+        ----------
+        depth : Optional[float]
+            Depth/elevation value in meters (negative for depth, positive for elevation).
+        """
         if depth is not None:
             if depth > 0:
                 self.status_lines[1].set_text(f"Elevation: +{depth:.0f} m")
@@ -169,7 +248,18 @@ class StatusDisplay(Widget):
             self.status_lines[1].set_text("Depth: --")
 
     def update_counts(self, stations: int, transects: int, areas: int):
-        """Update operation counters."""
+        """
+        Update operation counters.
+
+        Parameters
+        ----------
+        stations : int
+            Number of planned stations.
+        transects : int
+            Number of planned transects.
+        areas : int
+            Number of planned survey areas.
+        """
         self.status_lines[2].set_text(f"Stations: {stations}")
         self.status_lines[3].set_text(f"Transects: {transects}")
         self.status_lines[4].set_text(f"Areas: {areas}")

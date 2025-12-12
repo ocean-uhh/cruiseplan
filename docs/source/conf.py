@@ -5,7 +5,6 @@
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
-import datetime
 from datetime import date
 
 # -- Path setup --------------------------------------------------------------
@@ -13,27 +12,27 @@ from datetime import date
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here.
 # Critical for local builds to find the package without installation
-#import os
-#import sys
-#sys.path.insert(0, os.path.abspath('../..'))
+# import os
+# import sys
+# sys.path.insert(0, os.path.abspath('../..'))
 # sys.path.insert(0, os.path.abspath('..'))
 
 # -- Project information -----------------------------------------------------
-project = 'CruisePlan'
+project = "CruisePlan"
 author = "Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg"
-copyright = f'{date.today().year}, {author}'
-release = 'v0.0.0' 
+copyright = f"{date.today().year}, {author}"
+release = "v0.0.0"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 extensions = [
-    'sphinx.ext.autodoc',      # Core library for html generation from docstrings
-    'sphinx.ext.napoleon',     # Support for NumPy and Google style docstrings
-    'sphinx.ext.viewcode',     # Add links to highlighted source code
-    'sphinx.ext.todo',         # Support for todo items
-    'sphinx_rtd_theme',        # Read the Docs theme
-    'myst_parser',             # Markdown support (optional, for .md files)
-    'nbsphinx',                # Jupyter Notebook support
+    "sphinx.ext.autodoc",  # Core library for html generation from docstrings
+    "sphinx.ext.napoleon",  # Support for NumPy and Google style docstrings
+    "sphinx.ext.viewcode",  # Add links to highlighted source code
+    "sphinx.ext.todo",  # Support for todo items
+    "sphinx_rtd_theme",  # Read the Docs theme
+    "myst_parser",  # Markdown support (optional, for .md files)
+    "nbsphinx",  # Jupyter Notebook support
 ]
 
 # The name of the Pygments (syntax highlighting) style to use.
@@ -44,9 +43,9 @@ templates_path = ["_templates"]
 
 
 source_suffix = {
-    '.rst': 'restructuredtext',
-    '.txt': 'markdown',
-    '.md': 'markdown',
+    ".rst": "restructuredtext",
+    ".txt": "markdown",
+    ".md": "markdown",
 }
 
 # List of patterns, relative to source directory, that match files and
@@ -61,15 +60,14 @@ exclude_patterns = ["_build"]
 # add_module_names = True
 
 
-
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
-html_theme = 'sphinx_rtd_theme'
+html_theme = "sphinx_rtd_theme"
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ["_static"]
 
 # Custom styling and logo
 html_css_files = [
@@ -77,7 +75,7 @@ html_css_files = [
 ]
 # The name of an image file (relative to this directory) to place at the top
 # of the sidebar.
-html_logo = "_static/logo.png"
+html_logo = "_static/cruise_plan_logo.png"
 
 # The name for this set of Sphinx documents.  If None, it defaults to
 # "<project> v<release> documentation".
@@ -137,7 +135,7 @@ latex_elements = {
     # Additional stuff for the LaTeX preamble.
     # 'preamble': '',
 }
-    
+
 latex_documents = [
     (
         "index",

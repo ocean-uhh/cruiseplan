@@ -1,6 +1,15 @@
 """
 LaTeX Table Generation System (Phase 3a).
-Generates proposal-ready tables using Jinja2 templates.
+
+Generates proposal-ready tables using Jinja2 templates for LaTeX documents.
+Creates paginated tables with proper LaTeX formatting for scientific proposals
+and reports. Supports multiple table types with automatic page breaks.
+
+Notes
+-----
+Uses Jinja2 templating with custom delimiters to avoid LaTeX syntax conflicts.
+Templates are stored in the templates/ subdirectory. Tables are automatically
+paginated to fit within LaTeX float environments.
 """
 
 import logging
@@ -18,6 +27,17 @@ from cruiseplan.utils.coordinates import format_position_latex
 class LaTeXGenerator:
     """
     Manages the Jinja2 environment and template rendering for LaTeX outputs.
+
+    This class handles LaTeX table generation using Jinja2 templates with
+    custom delimiters to avoid conflicts with LaTeX syntax. Supports automatic
+    pagination of large tables.
+
+    Attributes
+    ----------
+    MAX_ROWS_PER_PAGE : int
+        Maximum number of rows per page for LaTeX table float environment (45).
+    env : jinja2.Environment
+        Jinja2 environment configured with LaTeX-safe delimiters.
     """
 
     # Max rows per page for LaTeX table float environment
@@ -45,6 +65,19 @@ class LaTeXGenerator:
     ) -> List[Dict[str, Any]]:
         """
         Splits data rows into pages and adds metadata (caption, header).
+
+        Parameters
+        ----------
+        data_rows : list of dict
+            Raw data rows to be paginated.
+        table_type : str
+            Type of table for generating appropriate captions and headers.
+
+        Returns
+        -------
+        list of dict
+            List of page dictionaries, each containing paginated data with
+            metadata for LaTeX rendering.
         """
         pages = []
         num_rows = len(data_rows)

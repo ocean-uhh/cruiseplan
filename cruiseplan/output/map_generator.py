@@ -1,3 +1,17 @@
+"""
+Interactive Map Generation System.
+
+Generates interactive Leaflet maps from cruise track data using Folium.
+Creates HTML files with embedded JavaScript for web-based geographic visualization
+of cruise operations and tracks.
+
+Notes
+-----
+Maps are centered on the first track's average position. Multiple tracks are
+displayed with different colors. Requires internet connection for tile loading
+when viewing the generated HTML files.
+"""
+
 import logging
 from pathlib import Path
 from typing import Any, Dict, List, Union
@@ -13,13 +27,23 @@ def generate_cruise_map(
     """
     Generates an interactive Leaflet map from merged cruise tracks.
 
-    Args:
-        tracks: List of dicts with 'latitude', 'longitude', 'label', 'dois'.
-        output_file: Path or string for the output HTML file.
+    Parameters
+    ----------
+    tracks : list of dict
+        List of track dictionaries with 'latitude', 'longitude', 'label', 'dois' keys.
+        Each track contains coordinate lists and metadata.
+    output_file : str or Path, optional
+        Path or string for the output HTML file. Default is "cruise_map.html".
 
     Returns
     -------
-        Path: The absolute path to the generated map file.
+    Path
+        The absolute path to the generated map file.
+
+    Notes
+    -----
+    Map is centered on the average position of the first track. Tracks are
+    displayed with different colors. Returns None if no valid tracks provided.
     """
     if not tracks:
         logger.warning("No tracks provided to generate map.")

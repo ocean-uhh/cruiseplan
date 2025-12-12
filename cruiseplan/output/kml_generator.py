@@ -1,6 +1,16 @@
 """
 KML Schedule Generation System.
+
 Generates Google Earth compatible KML files showing scientific operations only.
+Creates geospatial visualizations of cruise activities for geographic analysis
+and planning. Only includes scientific operations (stations, moorings, surveys)
+in the KML output, excluding navigation transits.
+
+Notes
+-----
+KML files can be opened directly in Google Earth or other GIS applications.
+Each operation type is styled differently for visual distinction. Point features
+include detailed metadata in popups.
 """
 
 import logging
@@ -17,6 +27,10 @@ logger = logging.getLogger(__name__)
 class KMLGenerator:
     """
     Manages KML generation for cruise schedules showing only scientific operations.
+
+    This class generates Google Earth compatible KML files containing geospatial
+    representations of scientific cruise activities. Only scientific operations
+    are included, with different styling for each operation type.
     """
 
     def __init__(self):

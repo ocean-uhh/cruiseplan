@@ -1,6 +1,16 @@
 """
 HTML Schedule Generation System.
-Generates comprehensive HTML reports with summary tables and detailed activity listings.
+
+Generates comprehensive HTML reports with summary tables and detailed activity listings
+for cruise planning and execution. Provides human-readable visualizations of cruise
+schedules including statistics, timelines, and operational details.
+
+Notes
+-----
+The HTML generator creates self-contained HTML files with embedded CSS styling,
+requiring no external dependencies for viewing. Output includes summary statistics
+for different activity types (moorings, stations, surveys, areas) and detailed
+tables for each operation type.
 """
 
 import logging
@@ -15,7 +25,26 @@ logger = logging.getLogger(__name__)
 
 
 def _convert_decimal_to_deg_min_html(decimal_degrees):
-    """Convert decimal degrees to DD MM.mmm format for HTML."""
+    """
+    Convert decimal degrees to DD MM.mmm format for HTML display.
+
+    Parameters
+    ----------
+    decimal_degrees : float
+        Latitude or longitude in decimal degrees.
+
+    Returns
+    -------
+    str
+        Formatted coordinate string in DD MM.mmm format with leading zeros.
+    """
+    degrees = int(abs(decimal_degrees))
+    minutes = abs((abs(decimal_degrees) - degrees) * 60)
+
+    if decimal_degrees >= 0:
+        return f"{degrees:02d} {minutes:06.3f}"
+    else:
+        return f"-{degrees:02d} {minutes:06.3f}"
     degrees = int(abs(decimal_degrees))
     minutes = abs((abs(decimal_degrees) - degrees) * 60)
 
@@ -26,7 +55,25 @@ def _convert_decimal_to_deg_min_html(decimal_degrees):
 
 
 def _calculate_summary_statistics(timeline):
-    """Calculate summary statistics for HTML output."""
+    """
+    Calculate summary statistics for HTML output from activity timeline.
+
+    Computes comprehensive statistics for different activity types including
+    counts, durations, distances, and averages. Separates activities into
+    scientific operations and navigation transits.
+
+    Parameters
+    ----------
+    timeline : list of dict
+        List of activity records from the scheduler.
+
+    Returns
+    -------
+    dict
+        Dictionary containing statistics for each activity type with keys:
+        'moorings', 'stations', 'surveys', 'areas', 'within_area', 'port_area',
+        and 'mooring_activities' (raw mooring data).
+    """
     # Separate activities by type
     station_activities = [a for a in timeline if a["activity"] == "Station"]
     mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
@@ -211,6 +258,9 @@ def _calculate_summary_statistics(timeline):
 class HTMLGenerator:
     """
     Manages HTML generation for cruise schedules with summary tables and detailed listings.
+
+    This class provides methods to generate comprehensive HTML reports from cruise
+    schedule data, including summary statistics and detailed activity breakdowns.
     """
 
     def __init__(self):

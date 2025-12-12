@@ -37,6 +37,7 @@ class StrategyEnum(str, Enum):
 
     Defines how operations within a cluster or composite should be executed.
     """
+
     SEQUENTIAL = "sequential"
     SPATIAL_INTERLEAVED = "spatial_interleaved"
     DAY_NIGHT_SPLIT = "day_night_split"
@@ -48,6 +49,7 @@ class OperationTypeEnum(str, Enum):
 
     Defines the type of scientific operation to be performed at a station.
     """
+
     CTD = "CTD"
     WATER_SAMPLING = "water_sampling"
     MOORING = "mooring"
@@ -60,6 +62,7 @@ class ActionEnum(str, Enum):
 
     Defines the specific scientific action to be taken for each operation type.
     """
+
     PROFILE = "profile"
     SAMPLING = "sampling"
     DEPLOYMENT = "deployment"
@@ -80,6 +83,7 @@ class LineOperationTypeEnum(str, Enum):
 
     Defines the type of operation performed along a route or transect.
     """
+
     UNDERWAY = "underway"
     TOWING = "towing"
 
@@ -90,6 +94,7 @@ class AreaOperationTypeEnum(str, Enum):
 
     Defines operations that cover defined geographic areas.
     """
+
     SURVEY = "survey"
 
 
@@ -234,6 +239,7 @@ class PortDefinition(FlexibleLocationModel):
     timezone : Optional[str]
         Timezone identifier (default: "UTC").
     """
+
     name: str
     timezone: Optional[str] = "UTC"
 

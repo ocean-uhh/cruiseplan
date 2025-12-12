@@ -24,8 +24,15 @@ def main(args: argparse.Namespace) -> None:
     """
     Main entry point for validate command.
 
-    Args:
-        args: Parsed command line arguments
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments containing config_file, check_depths, tolerance, etc.
+
+    Raises
+    ------
+    CLIError
+        If input validation fails or configuration validation encounters errors.
     """
     try:
         # Setup logging

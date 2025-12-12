@@ -30,7 +30,34 @@ class StationPicker:
     Interactive matplotlib-based tool for oceanographic cruise planning.
 
     Combines the original functionality with modern widget integration
-    for enhanced user experience and accessibility.
+    for enhanced user experience and accessibility. Provides interactive
+    tools for placing stations, drawing transects, and defining survey areas
+    on a bathymetric map with PANGAEA campaign data overlay.
+
+    Attributes
+    ----------
+    MODES : List[str]
+        Available interaction modes: navigation, point, line, area.
+    KEY_BINDINGS : Dict[str, str]
+        Keyboard shortcuts for mode switching and actions.
+    mode : str
+        Current interaction mode.
+    output_file : str
+        Path for saving cruise configuration.
+    stations : List[Dict]
+        List of planned sampling stations.
+    transects : List[Dict]
+        List of planned transects.
+    areas : List[Dict]
+        List of planned survey areas.
+    history : List[Tuple[str, Dict, any]]
+        Undo history for operations.
+    campaigns : List[Dict]
+        PANGAEA campaign data for visualization.
+    fig : plt.Figure
+        Main matplotlib figure.
+    ax_map : plt.Axes
+        Main map axes for bathymetry and planning elements.
     """
 
     # --- Class Attributes (Constants) ---
@@ -410,7 +437,14 @@ class StationPicker:
     # --- Mode and State Management ---
 
     def set_mode(self, new_mode: str):
-        """Change the current interaction mode and update the display."""
+        """
+        Change the current interaction mode and update the display.
+
+        Parameters
+        ----------
+        new_mode : str
+            New interaction mode. Must be one of MODES or "remove".
+        """
         if new_mode in self.MODES or new_mode == "remove":
             self.mode = new_mode
             self._update_mode_display()
@@ -438,7 +472,16 @@ class StationPicker:
     # --- Operation Management ---
 
     def _add_station(self, lon, lat):
-        """Add a new station at the specified coordinates."""
+        """
+        Add a new station at the specified coordinates.
+
+        Parameters
+        ----------
+        lon : float
+            Longitude coordinate.
+        lat : float
+            Latitude coordinate.
+        """
         depth = bathymetry.get_depth_at_point(lat, lon)
         (artist,) = self.ax_map.plot(
             lon, lat, "ro", markersize=8, markeredgecolor="k", zorder=10
@@ -582,7 +625,23 @@ class StationPicker:
         self.fig.canvas.draw_idle()
 
     def _find_nearest_station(self, target_lon, target_lat, threshold=2.0):
-        """Find the station closest to the click coordinates."""
+        """
+        Find the station closest to the click coordinates.
+
+        Parameters
+        ----------
+        target_lon : float
+            Target longitude coordinate.
+        target_lat : float
+            Target latitude coordinate.
+        threshold : float, optional
+            Maximum distance threshold for station detection (default: 2.0).
+
+        Returns
+        -------
+        Tuple[Optional[Dict], Optional[int]]
+            Tuple of (station_data, station_index) if found within threshold, (None, None) otherwise.
+        """
         if not self.stations:
             return None, None
 
@@ -771,12 +830,19 @@ class StationPicker:
     # --- Public Interface ---
 
     def show(self):
-        """Display the interface."""
+        """Display the interactive cruise planning interface."""
         plt.tight_layout()
         plt.show()
 
     def get_cruise_data(self) -> Dict:
-        """Get the current cruise plan data."""
+        """
+        Get the current cruise plan data.
+
+        Returns
+        -------
+        Dict
+            Dictionary containing current stations and transects data.
+        """
         return {
             "stations": self.stations,
             "transects": self.transects,

@@ -24,8 +24,15 @@ def main(args: argparse.Namespace) -> None:
     """
     Main entry point for schedule command.
 
-    Args:
-        args: Parsed command line arguments
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments containing config_file, output_dir, format, etc.
+
+    Raises
+    ------
+    CLIError
+        If input validation fails or schedule generation encounters errors.
     """
     try:
         # Setup logging

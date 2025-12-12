@@ -1,3 +1,16 @@
+"""
+Constants and default values for cruise planning.
+
+This module defines default parameters, conversion factors, and sentinel values
+used throughout the cruiseplan system. These constants provide fallback values
+for configuration parameters and standard conversion utilities.
+
+Notes
+-----
+All constants are defined at the module level for easy importing and use.
+Unit conversion functions are provided for common time conversions.
+"""
+
 # cruiseplan/utils/constants.py
 from datetime import datetime, timezone
 
@@ -40,10 +53,34 @@ DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 
 
 def minutes_to_hours(minutes: float) -> float:
-    """Converts minutes to hours."""
+    """
+    Convert minutes to hours.
+
+    Parameters
+    ----------
+    minutes : float
+        Time duration in minutes.
+
+    Returns
+    -------
+    float
+        Time duration in hours.
+    """
     return minutes / MINUTES_PER_HOUR
 
 
 def hours_to_minutes(hours: float) -> float:
-    """Converts hours to minutes."""
+    """
+    Convert hours to minutes.
+
+    Parameters
+    ----------
+    hours : float
+        Time duration in hours.
+
+    Returns
+    -------
+    float
+        Time duration in minutes.
+    """
     return hours * MINUTES_PER_HOUR

@@ -26,16 +26,20 @@ def load_pangaea_data(pangaea_file: Path) -> list:
     """
     Load PANGAEA campaign data from pickle file.
 
-    Args:
-        pangaea_file: Path to PANGAEA pickle file
+    Parameters
+    ----------
+    pangaea_file : Path
+        Path to PANGAEA pickle file.
 
     Returns
     -------
-        List of campaign datasets
+    list
+        List of campaign datasets.
 
     Raises
     ------
-        CLIError: If file cannot be loaded
+    CLIError
+        If file cannot be loaded or contains no data.
     """
     try:
         from cruiseplan.data.pangaea import load_campaign_data

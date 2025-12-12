@@ -13,4 +13,3 @@ The core package provides the fundamental building blocks for defining and manag
 oceanographic cruise plans, including station definitions, transit routes, and
 operational sequences.
 """
-

@@ -1,8 +1,8 @@
 .. CruisePlan documentation master file.
 
-=====================================
+=======================================
 CruisePlan: Oceanographic Planning Hub
-=====================================
+=======================================
 
 Welcome to the official documentation for **CruisePlan** — the comprehensive software tool designed for planning and documenting oceanographic research cruises.
 
@@ -13,13 +13,12 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    :caption: Getting Started
 
    installation.rst
-   usage.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Project Specifications
 
-   Development Roadmap <../../PROJECT_SPECS.md>
+   Development Roadmap <https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md>
    NetCDF Data Standards <netcdf_outputs.rst>
 
 .. toctree::
