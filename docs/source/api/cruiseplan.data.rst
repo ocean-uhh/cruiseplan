@@ -6,7 +6,7 @@ Data - Bathymetry & Pangaea
 
 
 cruiseplan.data.bathymetry module
------------------------------
+--------------------------------
 
 .. automodule:: cruiseplan.data.bathymetry
    :members:
@@ -14,7 +14,7 @@ cruiseplan.data.bathymetry module
    :show-inheritance:
 
 cruiseplan.data.cache module
---------------------------
+---------------------------
 
 .. automodule:: cruiseplan.data.cache
    :members:

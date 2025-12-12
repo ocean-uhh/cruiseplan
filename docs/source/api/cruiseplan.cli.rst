@@ -1,5 +1,5 @@
 Command-line-interface (CLI)
-=======================
+==========================
 
 .. automodule:: cruiseplan.cli
    :members:
@@ -14,7 +14,7 @@ cruiseplan.cli.main module
    :show-inheritance:
 
 cruiseplan.cli.pangaea module
---------------------------
+----------------------------
 
 .. automodule:: cruiseplan.cli.pangaea
    :members:

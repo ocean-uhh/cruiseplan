@@ -7,7 +7,7 @@ Interactive pickers
 
 
 cruiseplan.interactive.campaign_selector module
------------------------------
+--------------------------------------------
 
 .. automodule:: cruiseplan.interactive.campaign_selector
    :members:
@@ -15,7 +15,7 @@ cruiseplan.interactive.campaign_selector module
    :show-inheritance:
 
 cruiseplan.interactive.station_picker module
---------------------------
+-------------------------------------------
 
 .. automodule:: cruiseplan.interactive.station_picker
    :members:
@@ -23,7 +23,7 @@ cruiseplan.interactive.station_picker module
    :show-inheritance:
 
 cruiseplan.interactive.widgets module
----------------------------------
+------------------------------------
 
 .. automodule:: cruiseplan.interactive.widgets
    :members:

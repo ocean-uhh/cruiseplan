@@ -13,18 +13,20 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    :caption: Getting Started
 
    installation.rst
+   usage.rst
 
 .. toctree::
    :maxdepth: 2
    :caption: Project Specifications
 
    Development Roadmap <https://github.com/eleanorfrajka/cruiseplan/blob/main/PROJECT_SPECS.md>
-   NetCDF Data Standards <netcdf_outputs.rst>
+   NetCDF Data Standards <netcdf_outputs.md>
 
 .. toctree::
    :maxdepth: 2
    :caption: Help and Reference
 
+   Contributing Guidelines <https://github.com/eleanorfrajka/cruiseplan/blob/main/CONTRIBUTING.md>
    GitHub Repository <https://github.com/eleanorfrajka/cruiseplan>
    CLI Command Reference <cli_reference.rst>
    API Reference <api/modules.rst>
