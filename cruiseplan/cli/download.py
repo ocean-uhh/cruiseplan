@@ -7,9 +7,14 @@ from cruiseplan.data.bathymetry import download_bathymetry
 logging.basicConfig(level=logging.INFO, format="%(message)s")
 
 
-def main():
+def main(args=None):
     """
     Entry point for downloading cruiseplan data assets.
+
+    Parameters
+    ----------
+    args : argparse.Namespace, optional
+        Parsed command-line arguments (currently unused).
     """
     print("========================================")
     print("   CRUISEPLAN ASSET DOWNLOADER")

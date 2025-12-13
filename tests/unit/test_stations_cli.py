@@ -46,6 +46,7 @@ def mock_args(tmp_path):
         output_dir=tmp_path / "results",
         output_file=None,
         bathymetry_source="etopo2022",
+        high_resolution=False,
     )
     return args
 
@@ -70,6 +71,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
     MockPicker.assert_called_once_with(
         campaign_data=[{"name": "C1", "data": []}, {"name": "C2", "data": []}],
         output_file=output_file,
+        bathymetry_stride=10,  # Default stride since high_resolution=False
     )
 
     # 3. Assert map bounds were set

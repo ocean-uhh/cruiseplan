@@ -200,8 +200,8 @@ def test_sanitize_limits_explosion(picker):
     picker._sanitize_limits()
 
     # Should reset to North Atlantic defaults
-    picker.ax_map.set_xlim.assert_called_with(-60, -10)
-    picker.ax_map.set_ylim.assert_called_with(40, 65)
+    picker.ax_map.set_xlim.assert_called_with(-65, -5)
+    picker.ax_map.set_ylim.assert_called_with(45, 70)
 
 
 def test_undo_last_item(picker):
