@@ -209,7 +209,7 @@ def main(args: argparse.Namespace) -> None:
             from cruiseplan.interactive.station_picker import StationPicker
 
             # Initialize the picker
-            bathymetry_stride = 1 if args.high_resolution else 10
+            bathymetry_stride = 1 if getattr(args, "high_resolution", False) else 10
             picker = StationPicker(
                 campaign_data=campaign_data,
                 output_file=str(output_path),

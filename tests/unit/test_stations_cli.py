@@ -46,6 +46,7 @@ def mock_args(tmp_path):
         output_dir=tmp_path / "results",
         output_file=None,
         bathymetry_source="etopo2022",
+        high_resolution=False,
     )
     return args
 

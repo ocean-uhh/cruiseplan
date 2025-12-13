@@ -117,6 +117,7 @@ class TestStationsIntegration:
             output_dir=None,
             output_file=output_file,
             bathymetry_source="etopo2022",
+            high_resolution=False,
             verbose=False,
             quiet=False,
         )
@@ -154,6 +155,7 @@ class TestStationsIntegration:
             output_dir=None,
             output_file=output_file,
             bathymetry_source="etopo2022",
+            high_resolution=False,
             verbose=False,
             quiet=False,
         )

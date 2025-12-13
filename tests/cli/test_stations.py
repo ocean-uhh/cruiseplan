@@ -140,6 +140,7 @@ class TestMainCommand:
             output_dir=Path("output"),
             output_file=None,
             bathymetry_source="etopo2022",
+            high_resolution=False,
             verbose=False,
             quiet=False,
         )
@@ -172,6 +173,7 @@ class TestMainCommand:
             output_dir=Path("output"),
             output_file=None,
             bathymetry_source="etopo2022",
+            high_resolution=False,
             verbose=False,
             quiet=False,
         )
