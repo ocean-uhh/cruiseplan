@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, bathymetry
 from cruiseplan.data.pangaea import merge_campaign_tracks
 from cruiseplan.interactive.campaign_selector import CampaignSelector
+from cruiseplan.interactive.colormaps import get_colormap
 
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
@@ -79,6 +80,7 @@ class StationPicker:
         self,
         campaign_data: Optional[List[Dict]] = None,
         output_file: str = "stations.yaml",
+        bathymetry_stride: int = 10,
     ):
         """
         Initialize the station picker interface.
@@ -89,6 +91,8 @@ class StationPicker:
             Pre-loaded campaign track data from PANGAEA
         output_file : str
             Output filename for saving cruise plans
+        bathymetry_stride : int
+            Downsampling factor for bathymetry data (default: 10, higher = faster but less detailed)
         """
         # CRITICAL FIX: Unbind default Matplotlib shortcuts
         self._unbind_default_keys()
@@ -96,6 +100,8 @@ class StationPicker:
         # State Management
         self.mode = "navigation"
         self.output_file = output_file
+        self.bathymetry_stride = bathymetry_stride
+        self.bathymetry_colormap = get_colormap("bathymetry")
 
         # Data Storage
         self.stations: List[Dict] = []
@@ -134,9 +140,9 @@ class StationPicker:
         self._setup_widgets()
         self._setup_callbacks()
 
-        # Set initial view
-        self.ax_map.set_xlim(-60, -10)
-        self.ax_map.set_ylim(40, 65)
+        # Set initial view to CLI defaults (will be overridden by CLI args)
+        self.ax_map.set_xlim(-65, -5)
+        self.ax_map.set_ylim(45, 70)
 
         self._plot_bathymetry()
         self._plot_initial_campaigns()  # Fixed: Added missing call
@@ -270,17 +276,32 @@ class StationPicker:
         print("Rendering bathymetry layers...")
 
         xx, yy, zz = bathymetry.get_grid_subset(
-            lat_min, lat_max, lon_min, lon_max, stride=10
+            lat_min, lat_max, lon_min, lon_max, stride=self.bathymetry_stride
         )
 
         # 1. Filled Contours (The "Map" feel)
-        self.ax_map.contourf(
+        # Use levels that match the colormap segments for proper color assignment
+        cs = self.ax_map.contourf(
             xx,
             yy,
             zz,
-            levels=[-6000, -4000, -2000, -1000, -200, 0],
-            cmap="Blues_r",
+            levels=[
+                -8000,
+                -7000,
+                -6000,
+                -5000,
+                -4000,
+                -3000,
+                -2000,
+                -1000,
+                -500,
+                -200,
+                0,
+                200,
+            ],
+            cmap=self.bathymetry_colormap,
             alpha=0.4,
+            extend="both",  # Show under/over colors
         )
 
         # 2. Line Contours (The "Scientific" context)
@@ -753,8 +774,8 @@ class StationPicker:
         # Check for absurd values
         if abs(min_lat) > 180 or abs(max_lat) > 180:
             print(f"⚠️ Limits exploded ({min_lat:.1e}, {max_lat:.1e}). Resetting view.")
-            self.ax_map.set_xlim(-60, -10)
-            self.ax_map.set_ylim(40, 65)
+            self.ax_map.set_xlim(-65, -5)
+            self.ax_map.set_ylim(45, 70)
             self.ax_map.set_yscale("linear")
             self.ax_map.set_xscale("linear")
             return

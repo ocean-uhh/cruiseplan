@@ -183,6 +183,12 @@ def main(args: argparse.Namespace) -> None:
 
         logger.info(f"Output file: {output_path}")
         logger.info(f"Bathymetry source: {args.bathymetry_source}")
+        resolution_msg = (
+            "high resolution (no downsampling)"
+            if getattr(args, "high_resolution", False)
+            else "standard resolution (10x downsampled)"
+        )
+        logger.info(f"Bathymetry resolution: {resolution_msg}")
         logger.info("")
 
         # Display usage instructions
@@ -203,14 +209,20 @@ def main(args: argparse.Namespace) -> None:
             from cruiseplan.interactive.station_picker import StationPicker
 
             # Initialize the picker
+            bathymetry_stride = 1 if args.high_resolution else 10
             picker = StationPicker(
-                campaign_data=campaign_data, output_file=str(output_path)
+                campaign_data=campaign_data,
+                output_file=str(output_path),
+                bathymetry_stride=bathymetry_stride,
             )
 
             # Set coordinate bounds
             picker.ax_map.set_xlim(lon_bounds)
             picker.ax_map.set_ylim(lat_bounds)
             picker._update_aspect_ratio()
+
+            # Re-plot bathymetry with correct bounds
+            picker._plot_bathymetry()
 
             # Show the interactive interface (blocking call)
             picker.show()
