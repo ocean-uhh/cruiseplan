@@ -769,11 +769,19 @@ class StationPicker:
     def _sanitize_limits(self):
         """Prevents non-physical zooming."""
         min_lat, max_lat = self.ax_map.get_ylim()
+        min_lon, max_lon = self.ax_map.get_xlim()
         dirty = False
 
-        # Check for absurd values
-        if abs(min_lat) > 180 or abs(max_lat) > 180:
-            print(f"⚠️ Limits exploded ({min_lat:.1e}, {max_lat:.1e}). Resetting view.")
+        # Check for absurd values (latitude or longitude)
+        if (
+            abs(min_lat) > 180
+            or abs(max_lat) > 180
+            or abs(min_lon) > 360
+            or abs(max_lon) > 360
+        ):
+            print(
+                f"⚠️ Limits exploded (lat: {min_lat:.1e}, {max_lat:.1e}; lon: {min_lon:.1e}, {max_lon:.1e}). Resetting view."
+            )
             self.ax_map.set_xlim(-65, -5)
             self.ax_map.set_ylim(45, 70)
             self.ax_map.set_yscale("linear")
