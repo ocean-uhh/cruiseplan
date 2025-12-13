@@ -278,6 +278,12 @@
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">resolution_msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;high resolution (no downsampling)&quot;</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+            <span class="k">else</span> <span class="s2">&quot;standard resolution (10x downsampled)&quot;</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry resolution: </span><span class="si">{</span><span class="n">resolution_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="c1"># Display usage instructions</span>
@@ -298,14 +304,20 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.station_picker</span><span class="w"> </span><span class="kn">import</span> <span class="n">StationPicker</span>
 
             <span class="c1"># Initialize the picker</span>
+            <span class="n">bathymetry_stride</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="mi">10</span>
             <span class="n">picker</span> <span class="o">=</span> <span class="n">StationPicker</span><span class="p">(</span>
-                <span class="n">campaign_data</span><span class="o">=</span><span class="n">campaign_data</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+                <span class="n">campaign_data</span><span class="o">=</span><span class="n">campaign_data</span><span class="p">,</span>
+                <span class="n">output_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
+                <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathymetry_stride</span><span class="p">,</span>
             <span class="p">)</span>
 
             <span class="c1"># Set coordinate bounds</span>
             <span class="n">picker</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">lon_bounds</span><span class="p">)</span>
             <span class="n">picker</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">)</span>
             <span class="n">picker</span><span class="o">.</span><span class="n">_update_aspect_ratio</span><span class="p">()</span>
+
+            <span class="c1"># Re-plot bathymetry with correct bounds</span>
+            <span class="n">picker</span><span class="o">.</span><span class="n">_plot_bathymetry</span><span class="p">()</span>
 
             <span class="c1"># Show the interactive interface (blocking call)</span>
             <span class="n">picker</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>

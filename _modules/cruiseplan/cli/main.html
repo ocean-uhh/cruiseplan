@@ -225,9 +225,17 @@
 
     <span class="c1"># --- 1. Download Subcommand ---</span>
     <span class="n">download_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;download&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download required data assets (bathymetry, etc.)&quot;</span>
+        <span class="s2">&quot;download&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download required data assets (bathymetry, etc.)&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download ETOPO 2022 bathymetry dataset for cruise planning&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers.</span>
+<span class="s2">The data is required for depth calculations and bathymetric analysis in cruise planning.</span>
+
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan download    # Download to default data/bathymetry/ directory</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># The download command is simple and has no arguments for now, but will eventually take a source.</span>
 
     <span class="c1"># --- 2. Schedule Subcommand ---</span>
     <span class="n">schedule_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
@@ -293,6 +301,11 @@
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--high-resolution&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use full resolution bathymetry (slower but more detailed)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># --- 4. Enrich Subcommand ---</span>

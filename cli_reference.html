@@ -62,12 +62,12 @@
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Command Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#general-usage">General Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subcommands">Subcommands</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#download">download</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#schedule">schedule</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#stations">stations</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#enrich">enrich</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#validate">validate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#pangaea">pangaea</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#download">download</a></li>
 </ul>
 </li>
 </ul>
@@ -139,6 +139,31 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 <p class="admonition-title">Note</p>
 <p>For detailed help on any subcommand, use: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code></p>
 </div>
+<section id="download">
+<h3>download<a class="headerlink" href="#download" title="Link to this heading"></a></h3>
+<p>Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
+<td><p>Show this help message and exit.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Description:</strong></p>
+<p>This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers, which is required for depth calculations and bathymetric visualization in cruise planning. The dataset is cached locally in the <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code> directory.</p>
+<p><strong>Examples:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cruiseplan<span class="w"> </span>download
+</pre></div>
+</div>
+</section>
 <section id="schedule">
 <h3>schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h3>
 <p>Generate the cruise timeline and schedule outputs from a YAML configuration file.</p>
@@ -170,7 +195,7 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 <section id="stations">
 <h3>stations<a class="headerlink" href="#stations" title="Link to this heading"></a></h3>
 <p>Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--high-resolution<span class="o">]</span>
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>
@@ -197,6 +222,9 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
 <td><p>Bathymetry dataset to use for depth lookups (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code></p></td>
+<td><p>Use full resolution bathymetry in the interactive interface (slower but more detailed).</p></td>
 </tr>
 </tbody>
 </table>
@@ -291,45 +319,6 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 </tbody>
 </table>
 <p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
-<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">data/</span></code>).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--rate-limit</span> <span class="pre">RATE_LIMIT</span></code></p></td>
-<td><p>API request rate limit (requests per second, default: <code class="docutils literal notranslate"><span class="pre">1.0</span></code>).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--merge-campaigns</span></code></p></td>
-<td><p>Merge campaigns with the same name.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
-<td><p>Specific output file path for the pickled dataset.</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="download">
-<h3>download<a class="headerlink" href="#download" title="Link to this heading"></a></h3>
-<p>Download and manage external data assets required by CruisePlan (e.g., bathymetry grids).</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span>
-</pre></div>
-</div>
-<p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
-<td><p>Show this help message and exit.</p></td>
-</tr>
-</tbody>
-</table>
 </section>
 </section>
 </section>

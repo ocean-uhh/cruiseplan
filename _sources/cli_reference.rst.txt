@@ -39,6 +39,34 @@ Subcommands
 
 .. note:: For detailed help on any subcommand, use: ``cruiseplan <command> --help``
 
+download
+^^^^^^^^
+
+Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.
+
+.. code-block:: bash
+
+    usage: cruiseplan download [-h]  
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-h, --help``
+     - Show this help message and exit.
+
+**Description:**
+
+This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers, which is required for depth calculations and bathymetric visualization in cruise planning. The dataset is cached locally in the ``data/bathymetry/`` directory.
+
+**Examples:**
+
+.. code-block:: bash
+
+    $ cruiseplan download
+
+
 schedule
 ^^^^^^^^
 
@@ -69,7 +97,7 @@ Launch the interactive graphical interface for planning stations and transects w
 
 .. code-block:: bash
 
-    usage: cruiseplan stations [-h] [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}]
+    usage: cruiseplan stations [-h] [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}] [--high-resolution]
 
 **Options:**
 
@@ -88,6 +116,8 @@ Launch the interactive graphical interface for planning stations and transects w
      - Specific output file path for the generated YAML.
    * - ``--bathymetry-source {etopo2022,gebco2025}``
      - Bathymetry dataset to use for depth lookups (default: ``etopo2022``).
+   * - ``--high-resolution``
+     - Use full resolution bathymetry in the interactive interface (slower but more detailed).
 
 enrich
 ^^^^^^
@@ -173,22 +203,5 @@ Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and output
      - API request rate limit (requests per second, default: ``1.0``).
    * - ``--merge-campaigns``
      - Merge campaigns with the same name.
-   * - ``--output-file OUTPUT_FILE``
+   - ``--output-file OUTPUT_FILE``
      - Specific output file path for the pickled dataset.
-
-download
-^^^^^^^^
-
-Download and manage external data assets required by CruisePlan (e.g., bathymetry grids).
-
-.. code-block:: bash
-
-    usage: cruiseplan download [-h]
-
-**Options:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``-h, --help``
-     - Show this help message and exit.
