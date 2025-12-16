@@ -382,29 +382,28 @@
         <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
         <span class="n">last_position</span> <span class="o">=</span> <span class="n">end_pos</span>
 
-    <span class="c1"># --- Step 3: Iterate through Legs and Activities (Sequential Science) ---</span>
+    <span class="c1"># --- Step 3: Extract and process all activities from legs ---</span>
     <span class="n">all_activities</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
     <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
-        <span class="c1"># Check for sequence field first, then fall back to stations</span>
-        <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
-            <span class="n">activity_names</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Extract station names from station objects</span>
-            <span class="n">activity_names</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># Station object - extract name</span>
-                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Extract activities from leg, including clusters</span>
+        <span class="n">activity_names</span> <span class="o">=</span> <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">activity_names</span><span class="p">:</span>
+            <span class="c1"># First try to resolve as station</span>
             <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+                <span class="c1"># Then try to resolve as transit</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
             <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
                 <span class="c1"># Add leg name to activity details</span>
                 <span class="n">details</span><span class="p">[</span><span class="s2">&quot;leg_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span>
                 <span class="n">all_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">details</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Could not resolve activity &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; in leg &#39;</span><span class="si">{</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
 
     <span class="c1"># Process sequential activities (no complex Composite parsing yet)</span>
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_activities</span><span class="p">):</span>
@@ -833,6 +832,156 @@
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;NetCDF generator not available - skipping NetCDF output&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract all activity names from a leg, including those in clusters.</span>
+
+<span class="sd">    Processes:</span>
+<span class="sd">    - Direct sequence in leg.sequence</span>
+<span class="sd">    - Direct stations in leg.stations</span>
+<span class="sd">    - Clusters containing sequences or stations</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    leg : LegDefinition</span>
+<span class="sd">        Leg definition from configuration.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list of str</span>
+<span class="sd">        Ordered list of activity names to process.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">activity_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Priority 1: Direct sequence (only if not None/empty)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;sequence&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Priority 2: Process clusters (only if not None/empty)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;clusters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
+            <span class="c1"># Process cluster sequence</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;sequence&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">cluster</span><span class="o">.</span><span class="n">sequence</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">sequence</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="c1"># Process cluster stations</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Priority 3: Direct stations (fallback)</span>
+    <span class="k">elif</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+    <span class="p">):</span>
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">activity_names</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_transit_details</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="s2">&quot;CruiseConfig&quot;</span><span class="p">,</span> <span class="n">transit_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve transit details from configuration.</span>
+
+<span class="sd">    Similar to _resolve_station_details but for transits.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object.</span>
+<span class="sd">    transit_name : str</span>
+<span class="sd">        Name of the transit to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        Transit details dictionary or None if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;transits&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">transit</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">transit</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">transit_name</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">transit</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Process route if available</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">start</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                <span class="n">end</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+                <span class="c1"># Extract coordinates</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">latitude</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">longitude</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
+
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">latitude</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">longitude</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
+
+                <span class="c1"># Calculate route distance if needed</span>
+                <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">):</span>
+                    <span class="n">start_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                        <span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;start_lon&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">end_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                        <span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+                    <span class="p">)</span>
+                    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">)</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;route_distance_km&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance_km</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;route_distance_nm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+
+            <span class="c1"># Check if this needs expansion (CTD section)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span>
+                <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;section&quot;</span>
+            <span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Transit &#39;</span><span class="si">{</span><span class="n">transit_name</span><span class="si">}</span><span class="s2">&#39; is a CTD section that should be &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;expanded. Run &#39;cruiseplan enrich --expand-sections&#39; first.&quot;</span>
+                <span class="p">)</span>
+
+            <span class="k">return</span> <span class="n">details</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
 </pre></div>
 
            </div>

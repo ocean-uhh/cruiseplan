@@ -554,6 +554,12 @@
 
         <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    &lt;/table&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Add leg schedule section</span>
+        <span class="n">html_content</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_leg_schedules</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
+
+        <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">&lt;/body&gt;</span>
 <span class="s2">&lt;/html&gt;</span>
 <span class="s2">&quot;&quot;&quot;</span>
@@ -564,7 +570,333 @@
             <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_content</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">output_file</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_leg_schedules</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">stats</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate HTML section with per-leg schedule tables.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : CruiseConfig</span>
+<span class="sd">            Cruise configuration</span>
+<span class="sd">        timeline : List[ActivityRecord]</span>
+<span class="sd">            Complete timeline from scheduler</span>
+<span class="sd">        stats : dict</span>
+<span class="sd">            Statistics from summary calculation</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            HTML content for leg schedules section</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">html_content</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;h2&gt;3. Leg Schedules&lt;/h2&gt;</span>
+<span class="s2">    &lt;p&gt;Individual leg schedules including transit connections between legs.&lt;/p&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="c1"># Group activities by leg</span>
+        <span class="n">legs_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_group_activities_by_leg</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">)</span>
+
+        <span class="c1"># Generate table for each leg</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">leg_name</span><span class="p">,</span> <span class="n">leg_data</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">legs_data</span><span class="o">.</span><span class="n">items</span><span class="p">(),</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">leg_letter</span> <span class="o">=</span> <span class="nb">chr</span><span class="p">(</span><span class="nb">ord</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># a, b, c, ...</span>
+
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;h3&gt;3</span><span class="si">{</span><span class="n">leg_letter</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">leg_name</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">    &lt;table cellpadding=&quot;5&quot; cellspacing=&quot;0&quot; border=&quot;1&quot;&gt;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;th&gt;Activity&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Type&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Position&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Duration (hrs)&lt;/th&gt;</span>
+<span class="s2">            &lt;th&gt;Comments&lt;/th&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+            <span class="n">total_leg_duration</span> <span class="o">=</span> <span class="mi">0</span>
+
+            <span class="c1"># Add transit to leg start (from previous leg end or departure port)</span>
+            <span class="k">if</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;transit_to_start&quot;</span><span class="p">]:</span>
+                <span class="n">transit</span> <span class="o">=</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;transit_to_start&quot;</span><span class="p">]</span>
+                <span class="n">duration_hrs</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="n">total_leg_duration</span> <span class="o">+=</span> <span class="n">duration_hrs</span>
+
+                <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr style=&quot;background-color: #f0f8ff;&quot;&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Transit&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;Transit to leg start&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_pos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_pos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">duration_hrs</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Transit between legs&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+            <span class="c1"># Add leg activities</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;activities&quot;</span><span class="p">]:</span>
+                <span class="n">duration_hrs</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="n">total_leg_duration</span> <span class="o">+=</span> <span class="n">duration_hrs</span>
+
+                <span class="c1"># Format position</span>
+                <span class="k">if</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                    <span class="n">position</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">position</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+
+                <span class="c1"># Determine activity type using correct field names</span>
+                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">:</span>
+                    <span class="n">operation</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Station (</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">:</span>
+                    <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mooring (</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
+                    <span class="n">operation</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Transit (</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+                <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Unknown&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">activity_type</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">position</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">duration_hrs</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+            <span class="c1"># Add transit from leg end (for last leg only - to arrival port)</span>
+            <span class="k">if</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;transit_from_end&quot;</span><span class="p">]:</span>
+                <span class="n">transit</span> <span class="o">=</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;transit_from_end&quot;</span><span class="p">]</span>
+                <span class="n">duration_hrs</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="n">total_leg_duration</span> <span class="o">+=</span> <span class="n">duration_hrs</span>
+
+                <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr style=&quot;background-color: #f0f8ff;&quot;&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;label&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Transit&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;Transit to arrival port&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;start_pos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;end_pos&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">duration_hrs</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Transit to arrival port&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+            <span class="c1"># Add leg total row</span>
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">        &lt;tr style=&quot;font-weight: bold; background-color: #f2f2f2;&quot;&gt;</span>
+<span class="s2">            &lt;td&gt;Leg Total&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">leg_data</span><span class="p">[</span><span class="s1">&#39;activities&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_leg_duration</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">total_leg_duration</span><span class="o">/</span><span class="mi">24</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> days&lt;/td&gt;</span>
+<span class="s2">        &lt;/tr&gt;</span>
+<span class="s2">    &lt;/table&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+        <span class="k">return</span> <span class="n">html_content</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_group_activities_by_leg</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Group timeline activities by leg and add appropriate transit connections.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        config : CruiseConfig</span>
+<span class="sd">            Cruise configuration</span>
+<span class="sd">        timeline : List[ActivityRecord]</span>
+<span class="sd">            Complete timeline from scheduler</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        dict</span>
+<span class="sd">            Dictionary mapping leg names to leg data including activities and transits</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">legs_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="c1"># Get leg names from config</span>
+        <span class="n">leg_names</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;legs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">leg_names</span><span class="p">:</span>
+            <span class="c1"># If no legs defined, create a single &quot;Main Cruise&quot; leg</span>
+            <span class="n">main_activities</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">main_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;__dict__&quot;</span><span class="p">):</span>
+                    <span class="n">main_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">vars</span><span class="p">(</span><span class="n">activity</span><span class="p">))</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">main_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                                <span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;duration_minutes&quot;</span><span class="p">,</span> <span class="mi">0</span>
+                            <span class="p">),</span>
+                            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                                <span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span>
+                            <span class="p">),</span>
+                            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+
+            <span class="n">legs_data</span><span class="p">[</span><span class="s2">&quot;Main Cruise&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="n">main_activities</span><span class="p">,</span>
+                <span class="s2">&quot;transit_to_start&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;transit_from_end&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="n">legs_data</span>
+
+        <span class="c1"># Initialize legs</span>
+        <span class="k">for</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="n">leg_names</span><span class="p">:</span>
+            <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;transit_to_start&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                <span class="s2">&quot;transit_from_end&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="p">}</span>
+
+        <span class="c1"># Group activities by leg using leg_name field</span>
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
+            <span class="c1"># ActivityRecord is a dict, so use .get() instead of getattr()</span>
+            <span class="n">leg_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+                <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Convert activity to dict safely - ActivityRecord is already a dict</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">activity_dict</span> <span class="o">=</span> <span class="n">activity</span>
+            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;__dict__&quot;</span><span class="p">):</span>
+                <span class="n">activity_dict</span> <span class="o">=</span> <span class="nb">vars</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Fallback for objects without __dict__</span>
+                <span class="n">activity_dict</span> <span class="o">=</span> <span class="p">{</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;label&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                    <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;duration_minutes&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">leg_name</span> <span class="ow">and</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="n">legs_data</span><span class="p">:</span>
+                <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity_dict</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># If no leg_name, assign to first leg or create default</span>
+                <span class="k">if</span> <span class="n">leg_names</span><span class="p">:</span>
+                    <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity_dict</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">legs_data</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span>
+                        <span class="s2">&quot;Main Cruise&quot;</span><span class="p">,</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                            <span class="s2">&quot;transit_to_start&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                            <span class="s2">&quot;transit_from_end&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+                        <span class="p">},</span>
+                    <span class="p">)</span>
+                    <span class="n">legs_data</span><span class="p">[</span><span class="s2">&quot;Main Cruise&quot;</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity_dict</span><span class="p">)</span>
+
+        <span class="c1"># Add transit connections between legs</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_leg_transits</span><span class="p">(</span><span class="n">legs_data</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">legs_data</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_leg_transits</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">legs_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Add transit connections between legs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        legs_data : dict</span>
+<span class="sd">            Leg data dictionary to modify</span>
+<span class="sd">        config : CruiseConfig</span>
+<span class="sd">            Cruise configuration</span>
+<span class="sd">        timeline : List[ActivityRecord]</span>
+<span class="sd">            Complete timeline</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">leg_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">legs_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leg_names</span><span class="p">):</span>
+            <span class="c1"># Add transit to leg start (except for first leg, which gets departure port transit)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="c1"># First leg: transit from departure port to first station</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
+                    <span class="n">departure_pos</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">first_activity</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">first_activity</span> <span class="ow">and</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">first_activity</span><span class="p">:</span>
+                        <span class="n">first_pos</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">first_activity</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">first_activity</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;transit_to_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit from </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>  <span class="c1"># Placeholder - could calculate actual</span>
+                            <span class="s2">&quot;start_pos&quot;</span><span class="p">:</span> <span class="n">departure_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;end_pos&quot;</span><span class="p">:</span> <span class="n">first_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit from departure port (</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Subsequent legs: transit from previous leg end to this leg start</span>
+                <span class="n">prev_leg</span> <span class="o">=</span> <span class="n">leg_names</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="n">prev_activities</span> <span class="o">=</span> <span class="n">legs_data</span><span class="p">[</span><span class="n">prev_leg</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span>
+                <span class="n">current_activities</span> <span class="o">=</span> <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span>
+
+                <span class="k">if</span> <span class="n">prev_activities</span> <span class="ow">and</span> <span class="n">current_activities</span><span class="p">:</span>
+                    <span class="n">last_prev</span> <span class="o">=</span> <span class="n">prev_activities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">first_current</span> <span class="o">=</span> <span class="n">current_activities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+                    <span class="k">if</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">last_prev</span> <span class="ow">and</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">first_current</span><span class="p">:</span>
+                        <span class="n">start_pos</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_prev</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">last_prev</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="n">end_pos</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">first_current</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">first_current</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+
+                        <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;transit_to_start&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit </span><span class="si">{</span><span class="n">prev_leg</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">leg_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="mi">120</span><span class="p">,</span>  <span class="c1"># Placeholder - could calculate actual</span>
+                            <span class="s2">&quot;start_pos&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;end_pos&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit between legs&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+
+            <span class="c1"># Add transit from leg end (only for last leg - to arrival port)</span>
+            <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg_names</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
+                    <span class="n">arrival_pos</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">last_activity</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="k">if</span> <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;activities&quot;</span><span class="p">]</span>
+                        <span class="k">else</span> <span class="kc">None</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">last_activity</span> <span class="ow">and</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">last_activity</span><span class="p">:</span>
+                        <span class="n">last_pos</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">last_activity</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">last_activity</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">legs_data</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;transit_from_end&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span>  <span class="c1"># Placeholder - could calculate actual</span>
+                            <span class="s2">&quot;start_pos&quot;</span><span class="p">:</span> <span class="n">last_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;end_pos&quot;</span><span class="p">:</span> <span class="n">arrival_pos</span><span class="p">,</span>
+                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to arrival port (</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+                        <span class="p">}</span></div>
 
 
 

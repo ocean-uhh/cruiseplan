@@ -136,9 +136,10 @@
         <span class="p">)</span>
 
         <span class="c1"># Validate that at least one operation is requested</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">add_depths</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">add_coords</span><span class="p">):</span>
+        <span class="n">expand_sections</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_sections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">add_depths</span> <span class="ow">or</span> <span class="n">args</span><span class="o">.</span><span class="n">add_coords</span> <span class="ow">or</span> <span class="n">expand_sections</span><span class="p">):</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;At least one operation must be specified: --add-depths or --add-coords&quot;</span>
+                <span class="s2">&quot;At least one operation must be specified: --add-depths, --add-coords, or --expand-sections&quot;</span>
             <span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
@@ -167,6 +168,7 @@
             <span class="n">config_path</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
             <span class="n">add_depths</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">add_depths</span><span class="p">,</span>
             <span class="n">add_coords</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">add_coords</span><span class="p">,</span>
+            <span class="n">expand_sections</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_sections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
             <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">,</span>
             <span class="n">coord_format</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">coord_format</span><span class="p">,</span>
             <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
@@ -176,6 +178,7 @@
         <span class="n">total_enriched</span> <span class="o">=</span> <span class="p">(</span>
             <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">]</span>
             <span class="o">+</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sections_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">add_depths</span> <span class="ow">and</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -186,6 +189,11 @@
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">add_coords</span> <span class="ow">and</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;✓ Added coordinate fields to </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;stations_with_coords_added&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stations&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">expand_sections</span> <span class="ow">and</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sections_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;✓ Expanded </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;sections_expanded&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> CTD sections into </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stations_from_expansion&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations&quot;</span>
             <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">total_enriched</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -321,6 +329,9 @@
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--add-depths&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add missing depths&quot;</span><span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--add-coords&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add coordinate fields&quot;</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--expand-sections&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expand CTD sections&quot;</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">,</span> <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--output-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">)</span>

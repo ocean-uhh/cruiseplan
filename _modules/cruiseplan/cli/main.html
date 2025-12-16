@@ -379,6 +379,11 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;dmm&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Coordinate format (default: dmm)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--expand-sections&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expand CTD sections into individual station definitions&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="c1"># --- 5. Validate Subcommand ---</span>
     <span class="n">validate_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
