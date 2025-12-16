@@ -21,7 +21,7 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="NetCDF Output Specification for CruisePlan Phase 3c" href="netcdf_outputs.html" />
+    <link rel="next" title="Complete User Workflows" href="user_workflows.html" />
     <link rel="prev" title="Installation" href="installation.html" /> 
 </head>
 
@@ -57,6 +57,16 @@
 <li class="toctree-l2"><a class="reference internal" href="#output-formats">Output Formats</a></li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
@@ -108,14 +118,29 @@ cruiseplan<span class="w"> </span>--help
 </section>
 <section id="basic-workflow">
 <h2>Basic Workflow<a class="headerlink" href="#basic-workflow" title="Link to this heading"></a></h2>
+<p>CruisePlan follows a systematic workflow for cruise planning:</p>
 <ol class="arabic simple">
-<li><p><strong>Download bathymetry</strong>: Use <cite>cruiseplan download</cite> to download ETOPO bathymetry</p></li>
-<li><p><strong>Load PANGAEA past cruises (Optional)</strong>: Use <cite>cruiseplan pangaea</cite> to browse and select from PANGAEA datasets.</p></li>
-<li><p><strong>Pick stations, transects and areas</strong>: Use the interactive station picker, <cite>cruiseplan stations</cite> to choose waypoints and working areas.  This generates a cruiseplan configuration file (YAML).</p></li>
-<li><p><strong>Enrich YAML</strong>: The station picker only choses locations.  But the scheduler needs to know how deep they are (for CTDs).  Use <cite>cruiseplan enrich</cite> to add depth and other metadata to the YAML config.</p></li>
-<li><p><strong>Validate configuration</strong>: Use <cite>cruiseplan validate</cite> to check the configuration file for errors.</p></li>
-<li><p><strong>Generate schedule</strong>: Use <cite>cruiseplan schedule</cite> to create a detailed cruise schedule and generate outputs.</p></li>
+<li><p><strong>Download bathymetry data</strong> → 2. <strong>Plan stations interactively</strong> → 3. <strong>Configure operations</strong> → 4. <strong>Enrich with metadata</strong> → 5. <strong>Validate configuration</strong> → 6. <strong>Generate schedule &amp; outputs</strong></p></li>
 </ol>
+<p>For detailed step-by-step instructions, see the <a class="reference internal" href="user_workflows.html"><span class="doc">Complete User Workflows</span></a> guide, which provides comprehensive workflows for different planning scenarios.</p>
+<p><strong>Quick Start:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Download bathymetry data</span>
+cruiseplan<span class="w"> </span>download
+
+<span class="c1"># 2. Interactive station planning</span>
+cruiseplan<span class="w"> </span>stations<span class="w"> </span>--output-file<span class="w"> </span>my_cruise.yaml
+
+<span class="c1"># 3. Edit YAML to add operation types (CTD, mooring, etc.)</span>
+<span class="c1"># 4. Add depths and coordinates</span>
+cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
+
+<span class="c1"># 5. Validate configuration</span>
+cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml
+
+<span class="c1"># 6. Generate outputs</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml
+</pre></div>
+</div>
 </section>
 <section id="configuration-files">
 <h2>Configuration Files<a class="headerlink" href="#configuration-files" title="Link to this heading"></a></h2>
@@ -170,7 +195,7 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="installation.html" class="btn btn-neutral float-left" title="Installation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="netcdf_outputs.html" class="btn btn-neutral float-right" title="NetCDF Output Specification for CruisePlan Phase 3c" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_workflows.html" class="btn btn-neutral float-right" title="Complete User Workflows" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

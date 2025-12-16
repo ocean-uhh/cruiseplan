@@ -47,6 +47,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -165,10 +175,10 @@
         <span class="c1"># FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.</span>
         <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
         <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
-        <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">)),</span> <span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">9999</span><span class="p">))),</span> <span class="mi">1</span><span class="p">),</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive selection&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>  <span class="c1"># CTD | mooring | calibration</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>  <span class="c1"># profile | deploy | recover</span>
+        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -196,11 +206,11 @@
 <span class="sd">    Ensures coordinates are native Python floats for proper YAML serialization.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Section_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive transect&quot;</span><span class="p">,</span>
         <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;underway&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;ADCP&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="s2">&quot;10.0&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">transect_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
@@ -211,7 +221,6 @@
                 <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">transect_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">][</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
             <span class="p">},</span>
         <span class="p">],</span>
-        <span class="s2">&quot;reversible&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="p">}</span></div>
 
 
@@ -249,8 +258,8 @@
         <span class="p">],</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive area survey&quot;</span><span class="p">,</span>
         <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;survey&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;bathymetry&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-bathymetry-survey-etc&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">9999.0</span><span class="p">,</span>  <span class="c1"># Placeholder - update with planned survey duration (minutes)</span>
     <span class="p">}</span></div>
 
 

@@ -1,0 +1,1027 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Complete User Workflows &mdash; CruisePlan v0.0.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="NetCDF Output Specification for CruisePlan Phase 3c" href="netcdf_outputs.html" />
+    <link rel="prev" title="Usage Guide" href="usage.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Complete User Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quick-reference">Quick Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#prerequisites">Prerequisites</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#workflow-paths">Workflow Paths</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#step-1-download-bathymetry-data">Step 1: Download Bathymetry Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-interactive-station-planning">Step 2: Interactive Station Planning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-manual-configuration-editing">Step 3: Manual Configuration Editing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-enrich-configuration">Step 4: Enrich Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-validate-configuration">Step 5: Validate Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-6-generate-schedule-and-outputs">Step 6: Generate Schedule and Outputs</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#id1">Step 1: Download Bathymetry Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-2-collect-pangaea-dataset-information">Step 2: Collect PANGAEA Dataset Information</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-3-process-pangaea-data">Step 3: Process PANGAEA Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-4-interactive-station-planning-with-pangaea-context">Step 4: Interactive Station Planning with PANGAEA Context</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#step-5-7-complete-configuration-and-scheduling">Step 5-7: Complete Configuration and Scheduling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#start-with-step-4-enrichment">Start with Step 4: Enrichment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#continue-with-validation-and-scheduling">Continue with Validation and Scheduling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#advanced-topics">Advanced Topics</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#multi-leg-expeditions">Multi-Leg Expeditions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#bathymetry-source-selection">Bathymetry Source Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#duration-calculation-rules">Duration Calculation Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#common-configuration-patterns">Common Configuration Patterns</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#common-issues-and-solutions">Common Issues and Solutions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#planning-recommendations">Planning Recommendations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-management">Configuration Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#operational-efficiency">Operational Efficiency</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#data-management">Data Management</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Complete User Workflows</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/user_workflows.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="complete-user-workflows">
+<h1>Complete User Workflows<a class="headerlink" href="#complete-user-workflows" title="Link to this heading"></a></h1>
+<p>This guide provides step-by-step workflows for planning oceanographic cruises with CruisePlan, from initial setup through schedule generation.</p>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>CruisePlan follows a multi-step workflow where each command builds upon the previous step’s outputs. The system is designed to separate concerns: data preparation, station planning, configuration details, and scheduling.</p>
+<p><strong>Core Philosophy:</strong></p>
+<ul class="simple">
+<li><p><strong>Modular</strong>: Each step has a specific purpose and clear inputs/outputs</p></li>
+<li><p><strong>Flexible</strong>: Multiple workflow paths depending on your data needs</p></li>
+<li><p><strong>Manual Control</strong>: Key decisions require explicit user input</p></li>
+<li><p><strong>Validation</strong>: Built-in checks ensure data quality throughout</p></li>
+</ul>
+</section>
+<section id="quick-reference">
+<h2>Quick Reference<a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">Command Flow Summary</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 14.3%" />
+<col style="width: 23.8%" />
+<col style="width: 23.8%" />
+<col style="width: 23.8%" />
+<col style="width: 14.3%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Command</strong></p></th>
+<th class="head"><p><strong>Purpose</strong></p></th>
+<th class="head"><p><strong>Input</strong></p></th>
+<th class="head"><p><strong>Output</strong></p></th>
+<th class="head"><p><strong>File type</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">download</span></code></p></td>
+<td><p>Get bathymetry data</p></td>
+<td><p>User choice (ETOPO, GEBCO))</p></td>
+<td><p>NetCDF files in <code class="docutils literal notranslate"><span class="pre">data/</span></code></p></td>
+<td><p><cite>*.nc</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pangaea</span></code></p></td>
+<td><p>Process historical station information</p></td>
+<td><p>DOI list file</p></td>
+<td><p>Pickled station database</p></td>
+<td><p><cite>*.pkl</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stations</span></code></p></td>
+<td><p>Interactive planning</p></td>
+<td><p>Optional PANGAEA pickle</p></td>
+<td><p>Stub YAML configuration</p></td>
+<td><p><cite>*.yaml</cite></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">enrich</span></code></p></td>
+<td><p>Add metadata</p></td>
+<td><p>Stub YAML</p></td>
+<td><p>Complete YAML with depths</p></td>
+<td><p><cite>*.yaml</cite></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">validate</span></code></p></td>
+<td><p>Check configuration</p></td>
+<td><p>YAML file</p></td>
+<td><p>Validation report</p></td>
+<td><p>Text output</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">schedule</span></code></p></td>
+<td><p>Generate outputs</p></td>
+<td><p>Valid YAML</p></td>
+<td><p>Timeline &amp; deliverables</p></td>
+<td><p>Multiple formats</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading"></a></h2>
+<p>Before starting any workflow, ensure you have:</p>
+<ol class="arabic simple">
+<li><p><strong>CruisePlan installed</strong> with all dependencies</p></li>
+<li><p><strong>Internet connection</strong> for downloading bathymetry data</p></li>
+<li><p><strong>Sufficient disk space</strong>:</p>
+<ul class="simple">
+<li><p>ETOPO 2022: ~500MB (recommended to start)</p></li>
+<li><p>GEBCO 2025: ~7.5GB (high-resolution option)</p></li>
+</ul>
+</li>
+</ol>
+<p><strong>Initial Setup:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download default bathymetry (ETOPO 2022 - recommended)</span>
+cruiseplan<span class="w"> </span>download
+
+<span class="c1"># OR download high-resolution bathymetry (larger download)</span>
+cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
+</pre></div>
+</div>
+<p>⚠️ <strong>Important</strong>: Having a valid bathymetry file is an important step for all workflows.  While it is possible to operate without, this is used for determining station depths for CTDs and makes using the station picker much more straightforward.</p>
+<p>💡 <strong>Smart Fallback</strong>: Note that ETOPO 2022 is the default if not specified.   If you haven’t downloaded ETOPO 2022  but have GEBCO 2025 available, CruisePlan will automatically detect and use the available bathymetry source.</p>
+</section>
+<section id="workflow-paths">
+<h2>Workflow Paths<a class="headerlink" href="#workflow-paths" title="Link to this heading"></a></h2>
+<p>Choose your workflow based on your planning needs:</p>
+<dl class="simple">
+<dt><strong>Path 1: Basic Planning</strong> <em>(General use)</em></dt><dd><p>Use when you want to plan stations from scratch without historical context</p>
+</dd>
+<dt><strong>Path 2: PANGAEA-Enhanced Planning</strong> <em>(Historical context)</em></dt><dd><p>Use when you want to incorporate historical station positions from PANGAEA, i.e. to compare a section with past occupations</p>
+</dd>
+<dt><strong>Path 3: Configuration-Only</strong> <em>(Iterate and refine)</em></dt><dd><p>Use when you already have a YAML configuration and need to process it</p>
+</dd>
+</dl>
+<p>—</p>
+</section>
+</section>
+<section id="path-1-basic-planning-workflow">
+<h1>Path 1: Basic Planning Workflow<a class="headerlink" href="#path-1-basic-planning-workflow" title="Link to this heading"></a></h1>
+<p><strong>Best for:</strong> First-time users, simple cruises, when historical data is not needed</p>
+<p><strong>Time required:</strong> 30-60 minutes to create a first draft of a cruise</p>
+<section id="step-1-download-bathymetry-data">
+<h2>Step 1: Download Bathymetry Data<a class="headerlink" href="#step-1-download-bathymetry-data" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Provides depth information for station planning and automatic depth enrichment.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard resolution (recommended for most users)</span>
+cruiseplan<span class="w"> </span>download
+
+<span class="c1"># High resolution (for detailed work - coastal/slope areas)</span>
+cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
+</pre></div>
+</div>
+<p><strong>What this does:</strong></p>
+<ul class="simple">
+<li><p>Downloads global bathymetry dataset to <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code></p></li>
+<li><p>Enables depth lookups in subsequent steps</p></li>
+</ul>
+<p><strong>Storage requirements:</strong></p>
+<ul class="simple">
+<li><p>ETOPO 2022 (~500MB): 1-arc-minute resolution, suitable for most open ocean work</p></li>
+<li><p>GEBCO 2025 (~7.5GB): 15-arc-second resolution, better for coastal/slope areas</p></li>
+</ul>
+</section>
+<section id="step-2-interactive-station-planning">
+<h2>Step 2: Interactive Station Planning<a class="headerlink" href="#step-2-interactive-station-planning" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Visually select station locations using an interactive map interface.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">45</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-65<span class="w"> </span>-5<span class="w"> </span>-o<span class="w"> </span>output_dir
+</pre></div>
+</div>
+<p>This will plot a map within the region specified (or defaults to the subpolar North Atlantic if not specified), and add contours of bathymetry.  It has various input modes for cruise activities at fixed points (stations), along lines (transects) or within areas (box surveys).  The navigation mode allows panning and zooming to explore the map without accidently clicking to add stations.</p>
+<p><strong>Interactive Controls:</strong></p>
+<p>Four modes of inputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> or <code class="docutils literal notranslate"><span class="pre">w</span></code>: Place point stations (CTD stations, moorings)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">l</span></code> or <code class="docutils literal notranslate"><span class="pre">s</span></code>: Draw line transects (underway surveys)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code>: Define area operations (box surveys)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code>: Navigation mode (pan/zoom)</p></li>
+</ul>
+<p>Additional commands can be used anytime:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>: Undo last operation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code>: Remove operation (click to select)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code>: Save to YAML file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Escape</span></code>: Exit without saving</p></li>
+</ul>
+<p><strong>Note:</strong> If you don’t specify an output file, it will create <cite>stations.yaml</cite> in your root directory.  If you do this multiple times, it will overwrite the file.  There is a prompt to confirm overwriting, or you can run <cite>cruiseplan stations –overwrite</cite> to default to overwrite without prompting.</p>
+<p><strong>What this creates:</strong></p>
+<ul class="simple">
+<li><p>A stub YAML configuration file with station coordinates</p></li>
+<li><p>Basic structure for stations, transects, and areas</p></li>
+<li><p>Geographic positions without operational details</p></li>
+</ul>
+<p><strong>Example output structure:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-9999.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Interactive</span><span class="nv"> </span><span class="s">selection&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;UPDATE-CTD-mooring-etc&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;UPDATE-profile-sampling-etc&quot;</span>
+</pre></div>
+</div>
+<p>⚠️ <strong>Critical Next Step:</strong> The station picker creates placeholder values that will trigger validation warnings. You need to <strong>manually edit the YAML</strong> to specify actual operation types and actions before proceeding.</p>
+<p><strong>Operation Type Guide:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Operation</strong></p></th>
+<th class="head"><p><strong>Action</strong></p></th>
+<th class="head"><p><strong>Duration</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CTD</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">profile</span></code></p></td>
+<td><p>Auto-calculated</p></td>
+<td><p>Water column profiling, duration based on depth</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mooring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deployment</span></code>/<code class="docutils literal notranslate"><span class="pre">recovery</span></code></p></td>
+<td><p><strong>Manual required</strong></p></td>
+<td><p>Mooring operations, default 60 minutes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">water_sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code></p></td>
+<td><p>Auto-calculated</p></td>
+<td><p>Water/biological sampling</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p>Auto-calculated</p></td>
+<td><p>Equipment calibration</p></td>
+</tr>
+</tbody>
+</table>
+<p>⚠️ <strong>Important</strong>: Mooring operations require manual duration specification. CTD operations are automatically calculated based on depth.</p>
+</section>
+<section id="step-3-manual-configuration-editing">
+<h2>Step 3: Manual Configuration Editing<a class="headerlink" href="#step-3-manual-configuration-editing" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Define what scientific operations will happen at each location.</p>
+<p><strong>Required edits</strong> to the YAML file created in Step 2:</p>
+<ol class="arabic simple">
+<li><p><strong>Replace placeholder values</strong> for each station:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2847.3</span><span class="w">               </span><span class="c1"># Auto-populated from bathymetry</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Interactive</span><span class="nv"> </span><span class="s">selection&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span><span class="w">        </span><span class="c1"># REPLACE: UPDATE-CTD-mooring-etc</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span><span class="w">            </span><span class="c1"># REPLACE: UPDATE-profile-sampling-etc</span>
+<span class="w">    </span><span class="c1"># duration: 120              # OPTIONAL: manual override (minutes)</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>Define leg sequence</strong> (determines station visit order):</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Northern_Survey&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Visit order</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="3">
+<li><p><strong>Add cruise metadata</strong>:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;My_Research_Cruise_2024&quot;</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Oceanographic</span><span class="nv"> </span><span class="s">survey</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">North</span><span class="nv"> </span><span class="s">Atlantic&quot;</span>
+<span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2024-07-01T08:00:00Z&quot;</span>
+
+<span class="nt">departure_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Reykjavik&quot;</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">64.1466</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-21.9426</span>
+
+<span class="nt">arrival_port</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;St.</span><span class="nv"> </span><span class="s">Johns&quot;</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">47.5705</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-52.6979</span>
+</pre></div>
+</div>
+</section>
+<section id="step-4-enrich-configuration">
+<h2>Step 4: Enrich Configuration<a class="headerlink" href="#step-4-enrich-configuration" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Automatically add depth information and formatted coordinates to your stations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--add-depths</span></code>: Looks up seafloor depth using bathymetry data</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code>: Adds formatted coordinate strings (degrees/minutes)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">gebco2025</span></code>: Use high-resolution bathymetry if available</p></li>
+</ul>
+<p><strong>What this does:</strong></p>
+<ul class="simple">
+<li><p>Queries bathymetry database for depth at each station</p></li>
+<li><p>Adds <code class="docutils literal notranslate"><span class="pre">depth</span></code> field to stations that lack it</p></li>
+<li><p>Adds <code class="docutils literal notranslate"><span class="pre">position_string</span></code> field with formatted coordinates</p></li>
+<li><p>Preserves any manually specified depths</p></li>
+</ul>
+<p><strong>Example transformation:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before enrichment (from station picker):</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2</span>
+<span class="w">  </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-9999.0</span>
+<span class="w">  </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span><span class="w">                    </span><span class="c1"># User updated from placeholder</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span><span class="w">                        </span><span class="c1"># User updated from placeholder</span>
+
+<span class="c1"># After enrichment:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2</span>
+<span class="w">  </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">  </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2847.3</span><span class="w">                            </span><span class="c1"># Updated from bathymetry</span>
+<span class="w">  </span><span class="nt">position_string</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;60°30.0&#39;N</span><span class="nv"> </span><span class="s">30°12.0&#39;W&quot;</span><span class="w">  </span><span class="c1"># Added automatically</span>
+</pre></div>
+</div>
+</section>
+<section id="step-5-validate-configuration">
+<h2>Step 5: Validate Configuration<a class="headerlink" href="#step-5-validate-configuration" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Check for errors and inconsistencies before scheduling.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--check-depths
+</pre></div>
+</div>
+<p><strong>Validation checks:</strong></p>
+<ul class="simple">
+<li><p>Required fields are present</p></li>
+<li><p>Operation type/action combinations are valid</p></li>
+<li><p>Coordinates are within valid ranges</p></li>
+<li><p><strong>Duplicate detection</strong>: Station names, leg names must be unique</p></li>
+<li><p><strong>Potential duplicates</strong>: Warns about stations with identical coordinates and operations</p></li>
+<li><p>Depth values are reasonable (if <code class="docutils literal notranslate"><span class="pre">--check-depths</span></code> specified)</p></li>
+<li><p>Leg definitions reference existing stations</p></li>
+</ul>
+<p><strong>Common issues and solutions:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Error</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“Missing operation_type”</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">operation_type</span></code> field to all stations</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Invalid action for CTD”</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">action:</span> <span class="pre">&quot;profile&quot;</span></code> for CTD stations</p></td>
+</tr>
+<tr class="row-even"><td><p>“Mooring missing duration”</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">180</span></code> (or appropriate minutes) to mooring</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Station not found in leg”</p></td>
+<td><p>Check station names match exactly in leg definitions</p></td>
+</tr>
+<tr class="row-even"><td><p>“Duplicate station name ‘STN_X’ found N times”</p></td>
+<td><p>Rename duplicate stations to have unique names</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Duplicate leg name ‘LEG_X’ found N times”</p></td>
+<td><p>Rename duplicate legs to have unique names</p></td>
+</tr>
+<tr class="row-even"><td><p>“Potentially duplicate stations”</p></td>
+<td><p>Review stations with identical coordinates - may be intentional</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="step-6-generate-schedule-and-outputs">
+<h2>Step 6: Generate Schedule and Outputs<a class="headerlink" href="#step-6-generate-schedule-and-outputs" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Create detailed cruise timeline and export professional outputs.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate all output formats</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>all
+
+<span class="c1"># Or specific formats</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>netcdf
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>latex
+</pre></div>
+</div>
+<p><strong>Output formats:</strong></p>
+<ul class="simple">
+<li><p><strong>NetCDF</strong>: CF-compliant scientific data files for analysis</p></li>
+<li><p><strong>HTML</strong>: Interactive web summary with maps and tables</p></li>
+<li><p><strong>LaTeX</strong>: Professional tables for cruise proposals/reports</p></li>
+<li><p><strong>CSV</strong>: Tabular data for Excel/analysis</p></li>
+<li><p><strong>KML</strong>: Google Earth visualization</p></li>
+</ul>
+<p><strong>What you get:</strong></p>
+<ul class="simple">
+<li><p>Detailed timeline with arrival/departure times</p></li>
+<li><p>Transit distance and duration calculations</p></li>
+<li><p>Station operation durations</p></li>
+<li><p>Professional documentation ready for proposals</p></li>
+</ul>
+<p>—</p>
+</section>
+</section>
+<section id="path-2-pangaea-enhanced-workflow">
+<h1>Path 2: PANGAEA-Enhanced Workflow<a class="headerlink" href="#path-2-pangaea-enhanced-workflow" title="Link to this heading"></a></h1>
+<p><strong>Best for:</strong> Research cruises that benefit from historical data context, repeat surveys, comparative studies</p>
+<p><strong>Time required:</strong> 1-2 hours (including PANGAEA data collection)</p>
+<p>This workflow incorporates historical oceanographic station data from the PANGAEA database to inform your station planning.</p>
+<section id="id1">
+<h2>Step 1: Download Bathymetry Data<a class="headerlink" href="#id1" title="Link to this heading"></a></h2>
+<p><em>Same as Path 1, Step 1</em></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>download
+</pre></div>
+</div>
+</section>
+<section id="step-2-collect-pangaea-dataset-information">
+<h2>Step 2: Collect PANGAEA Dataset Information<a class="headerlink" href="#step-2-collect-pangaea-dataset-information" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Identify relevant historical cruises and datasets for your region.</p>
+<p><strong>Manual process</strong> (PanQuery integration not yet available):</p>
+<ol class="arabic simple">
+<li><p><strong>Visit PANGAEA database:</strong> <a class="reference external" href="https://www.pangaea.de">https://www.pangaea.de</a></p></li>
+<li><p><strong>Search by criteria:</strong></p>
+<ul class="simple">
+<li><p>Geographic region (lat/lon bounding box)</p></li>
+<li><p>Parameter keywords (e.g., “CTD”, “temperature”, “salinity”)</p></li>
+<li><p>Date ranges</p></li>
+<li><p>Research projects</p></li>
+</ul>
+</li>
+<li><p><strong>Collect DOI identifiers</strong> from relevant datasets</p></li>
+<li><p><strong>Create a DOI list file:</strong></p></li>
+</ol>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span># Example: north_atlantic_dois.txt
+10.1594/PANGAEA.12345
+10.1594/PANGAEA.67890
+10.1594/PANGAEA.11111
+10.1594/PANGAEA.22222
+</pre></div>
+</div>
+<p><strong>Tips for PANGAEA searching:</strong></p>
+<ul class="simple">
+<li><p>Use narrow geographic bounds initially</p></li>
+<li><p>Focus on similar research objectives (physical oceanography vs biogeochemistry)</p></li>
+</ul>
+</section>
+<section id="step-3-process-pangaea-data">
+<h2>Step 3: Process PANGAEA Data<a class="headerlink" href="#step-3-process-pangaea-data" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Convert PANGAEA datasets into a searchable station database.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR</span></code>: Directory for output files (default: <code class="docutils literal notranslate"><span class="pre">data/</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--rate-limit</span> <span class="pre">0.5</span></code>: Slower API requests for large datasets</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--merge-campaigns</span></code>: Combine stations from cruises with same name</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">specific_name.pickle</span></code>: Custom output filename</p></li>
+</ul>
+<p><strong>What this does:</strong></p>
+<ul class="simple">
+<li><p>Downloads metadata for each DOI</p></li>
+<li><p>Extracts station coordinates and event information</p></li>
+<li><p>Groups stations by campaign/cruise</p></li>
+<li><p>Creates a pickled database file: <code class="docutils literal notranslate"><span class="pre">campaigns.pickle</span></code></p></li>
+</ul>
+<p><strong>Output files:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">campaigns.pickle</span></code>: Station database for interactive picker</p></li>
+</ul>
+<p>⚠️ <strong>Note</strong>: This process can be slow for large DOI lists due to API rate limiting. Consider running overnight for extensive datasets.</p>
+</section>
+<section id="step-4-interactive-station-planning-with-pangaea-context">
+<h2>Step 4: Interactive Station Planning with PANGAEA Context<a class="headerlink" href="#step-4-interactive-station-planning-with-pangaea-context" title="Link to this heading"></a></h2>
+<p><strong>Purpose:</strong> Plan new stations while viewing historical data locations.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>-p<span class="w"> </span>pangaea_data/campaigns.pickle<span class="w"> </span>--lat<span class="w"> </span><span class="m">55</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>-o<span class="w"> </span>output_dir/
+</pre></div>
+</div>
+<p><strong>Enhanced interface features:</strong></p>
+<ul class="simple">
+<li><p>Historical stations displayed as background points</p></li>
+<li><p>Campaign information available on hover/click</p></li>
+<li><p>Filter historical data by cruise or time period</p></li>
+<li><p>Context for avoiding over-sampled areas or finding gaps</p></li>
+</ul>
+<p><strong>Same interactive controls as Path 1:</strong></p>
+<p>Four modes of inputs:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">p</span></code> or <code class="docutils literal notranslate"><span class="pre">w</span></code>: Place point stations (CTD stations, moorings)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">l</span></code> or <code class="docutils literal notranslate"><span class="pre">s</span></code>: Draw line transects (underway surveys)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code>: Define area operations (box surveys)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">n</span></code>: Navigation mode (pan/zoom)</p></li>
+</ul>
+<p>Additional commands can be used anytime:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">u</span></code>: Undo last operation</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code>: Remove operation (click to select)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">y</span></code>: Save to YAML file</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">Escape</span></code>: Exit without saving</p></li>
+</ul>
+<p><strong>Benefits:</strong> Including PANGAEA historical stations allows you to revisit identical locations, if desired, rather than selecting new positions blindly.</p>
+</section>
+<section id="step-5-7-complete-configuration-and-scheduling">
+<h2>Step 5-7: Complete Configuration and Scheduling<a class="headerlink" href="#step-5-7-complete-configuration-and-scheduling" title="Link to this heading"></a></h2>
+<p><em>Same as Path 1, Steps 3-6</em></p>
+<ol class="arabic simple">
+<li><p><strong>Manual editing</strong> to add operation types and cruise metadata</p></li>
+<li><p><strong>Enrichment</strong> to add depths and coordinates</p></li>
+<li><p><strong>Validation</strong> to check for errors</p></li>
+<li><p><strong>Schedule generation</strong> to create outputs</p></li>
+</ol>
+<p>The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.</p>
+<p>—</p>
+</section>
+</section>
+<section id="path-3-configuration-only-workflow">
+<h1>Path 3: Configuration-Only Workflow<a class="headerlink" href="#path-3-configuration-only-workflow" title="Link to this heading"></a></h1>
+<p><strong>Best for:</strong> Power users with existing YAML configurations, batch processing, automated workflows</p>
+<p><strong>Use cases:</strong></p>
+<ul class="simple">
+<li><p>Processing existing cruise configurations</p></li>
+<li><p>Updating configurations with new bathymetry data</p></li>
+<li><p>Re-running analysis with different parameters</p></li>
+<li><p>Integration with external planning tools</p></li>
+</ul>
+<section id="start-with-step-4-enrichment">
+<h2>Start with Step 4: Enrichment<a class="headerlink" href="#start-with-step-4-enrichment" title="Link to this heading"></a></h2>
+<p>If you have an existing YAML configuration (created manually or from external tools):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>existing_cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
+</pre></div>
+</div>
+</section>
+<section id="continue-with-validation-and-scheduling">
+<h2>Continue with Validation and Scheduling<a class="headerlink" href="#continue-with-validation-and-scheduling" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>enriched_cruise.yaml<span class="w"> </span>--check-depths
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>enriched_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>all
+</pre></div>
+</div>
+<p>—</p>
+</section>
+</section>
+<section id="advanced-topics">
+<h1>Advanced Topics<a class="headerlink" href="#advanced-topics" title="Link to this heading"></a></h1>
+<section id="multi-leg-expeditions">
+<h2>Multi-Leg Expeditions<a class="headerlink" href="#multi-leg-expeditions" title="Link to this heading"></a></h2>
+<p>For complex cruises with multiple operational phases, these can be separated into “legs”.  Each leg can have its own station sequence and strategy, and scheduling happens within a discrete leg.  This is also useful when combining main cruise activities with side user activities, to independently estimate timing.  (An alternative, if the stations are interspersed, is to create a schedule with only the main activities and then one with both main and side user activities.)</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Northern_Survey&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_Operations&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;MOOR_A_RECOVERY&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_B_DEPLOYMENT&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Southern_Transect&quot;</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_004&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Leg strategy options:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">sequential</span></code>: Visit stations in specified order</p></li>
+<li><p>(Future: <code class="docutils literal notranslate"><span class="pre">adaptive</span></code>, <code class="docutils literal notranslate"><span class="pre">opportunistic</span></code> strategies)</p></li>
+</ul>
+</section>
+<section id="bathymetry-source-selection">
+<h2>Bathymetry Source Selection<a class="headerlink" href="#bathymetry-source-selection" title="Link to this heading"></a></h2>
+<p><strong>When to use GEBCO 2025:</strong></p>
+<ul class="simple">
+<li><p>Coastal or slope areas (&lt; 1500m depth)</p></li>
+<li><p>Small-scale survey areas</p></li>
+<li><p>Detailed bathymetric mapping</p></li>
+</ul>
+<p><strong>When ETOPO 2022 is sufficient:</strong></p>
+<ul class="simple">
+<li><p>Deep ocean research (&gt; 1500m depth)</p></li>
+<li><p>Large-scale surveys</p></li>
+<li><p>Storage space is limited</p></li>
+<li><p>Standard precision is adequate</p></li>
+</ul>
+<p>GEBCO is generally considered to be more accurate.</p>
+<p><strong>Switching between sources:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Re-enrich with different bathymetry</span>
+cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
+</pre></div>
+</div>
+</section>
+<section id="duration-calculation-rules">
+<h2>Duration Calculation Rules<a class="headerlink" href="#duration-calculation-rules" title="Link to this heading"></a></h2>
+<p><strong>Automatic calculations:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Operation</strong></p></th>
+<th class="head"><p><strong>Duration Formula</strong></p></th>
+<th class="head"><p><strong>Typical Range</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>CTD Profile</p></td>
+<td><p>Depth-dependent</p></td>
+<td><p>30-180 minutes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Water Sampling</p></td>
+<td><p>Fixed + depth component</p></td>
+<td><p>45-90 minutes</p></td>
+</tr>
+<tr class="row-even"><td><p>Calibration</p></td>
+<td><p>Equipment-dependent</p></td>
+<td><p>30-60 minutes</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Manual overrides:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep_CTD&quot;</span>
+<span class="w">  </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">  </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000</span>
+<span class="w">  </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240</span><span class="w">  </span><span class="c1"># Override: 4 hours for very deep station</span>
+</pre></div>
+</div>
+<p><strong>Mooring operations</strong> (always manual):</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_Recovery&quot;</span>
+<span class="w">  </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mooring&quot;</span>
+<span class="w">  </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;recovery&quot;</span>
+<span class="w">  </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180</span><span class="w">  </span><span class="c1"># 3 hours - REQUIRED for moorings</span>
+</pre></div>
+</div>
+</section>
+<section id="common-configuration-patterns">
+<h2>Common Configuration Patterns<a class="headerlink" href="#common-configuration-patterns" title="Link to this heading"></a></h2>
+<p><strong>Simple CTD Survey:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_Survey_2024&quot;</span>
+
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_01&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Main_Survey&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_01&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_02&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_03&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Mixed Operations:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Site_A_CTD&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Site_A_Mooring&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mooring&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;deployment&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240</span><span class="w">  </span><span class="c1"># 4 hours</span>
+<span class="w">    </span><span class="nt">equipment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Full</span><span class="nv"> </span><span class="s">depth</span><span class="nv"> </span><span class="s">array</span><span class="nv"> </span><span class="s">with</span><span class="nv"> </span><span class="s">ADCP&quot;</span>
+</pre></div>
+</div>
+<p><strong>Survey Transects:</strong></p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">transits</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Line_1&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;underway&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ADCP&quot;</span>
+<span class="w">    </span><span class="nt">vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8.0</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-29.5</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="troubleshooting">
+<h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h1>
+<section id="common-issues-and-solutions">
+<h2>Common Issues and Solutions<a class="headerlink" href="#common-issues-and-solutions" title="Link to this heading"></a></h2>
+<p><strong>Installation and Setup:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Problem</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“Command not found: cruiseplan”</p></td>
+<td><p>Activate conda environment: <code class="docutils literal notranslate"><span class="pre">conda</span> <span class="pre">activate</span> <span class="pre">cruiseplan</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>“ModuleNotFoundError”</p></td>
+<td><p>Reinstall: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">-e</span> <span class="pre">.</span></code> in project directory</p></td>
+</tr>
+<tr class="row-even"><td><p>“Permission denied” downloading</p></td>
+<td><p>Check internet connection and disk space</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Bathymetry Issues:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Problem</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“MOCK mode” warnings</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> first</p></td>
+</tr>
+<tr class="row-odd"><td><p>“File too small” error</p></td>
+<td><p>Redownload: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span> <span class="pre">--bathymetry-source</span> <span class="pre">etopo2022</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Depths seem incorrect</p></td>
+<td><p>Check coordinate format (decimal degrees)</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Station Picker Issues:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Problem</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>GUI doesn’t open</p></td>
+<td><p>Install matplotlib: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">matplotlib</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>Can’t save YAML</p></td>
+<td><p>Check output directory permissions</p></td>
+</tr>
+<tr class="row-even"><td><p>Wrong map region</p></td>
+<td><p>Use <code class="docutils literal notranslate"><span class="pre">--lat</span></code> and <code class="docutils literal notranslate"><span class="pre">--lon</span></code> flags to set bounds</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Configuration Errors:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Problem</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“Invalid operation_type”</p></td>
+<td><p>Use: CTD, mooring, water_sampling, calibration</p></td>
+</tr>
+<tr class="row-odd"><td><p>“Missing duration” for mooring</p></td>
+<td><p>Add <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">180</span></code> (or appropriate minutes)</p></td>
+</tr>
+<tr class="row-even"><td><p>“Station not found in leg”</p></td>
+<td><p>Check exact spelling in leg station lists</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Scheduling Issues:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 50.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Problem</strong></p></th>
+<th class="head"><p><strong>Solution</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>“No valid path” error</p></td>
+<td><p>Check all stations have valid coordinates</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unrealistic transit times</p></td>
+<td><p>Verify vessel speed settings</p></td>
+</tr>
+<tr class="row-even"><td><p>Missing output files</p></td>
+<td><p>Check output directory permissions</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="getting-help">
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
+<p><strong>Error message interpretation:</strong></p>
+<ul class="simple">
+<li><p>Read error messages carefully - they often contain specific solutions</p></li>
+<li><p>Check line numbers in YAML files for syntax errors</p></li>
+<li><p>Validate YAML syntax with online validators if needed</p></li>
+</ul>
+<p><strong>Unrecognised arguments:</strong></p>
+<ul class="simple">
+<li><p>Check <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">--help</span></code> and <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code></p></li>
+</ul>
+<p><strong>Example configurations:</strong></p>
+<ul class="simple">
+<li><p>See <code class="docutils literal notranslate"><span class="pre">tests/fixtures/</span></code> directory for working examples</p></li>
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">cruise_simple.yaml</span></code> as a minimal template</p></li>
+<li><p>See <code class="docutils literal notranslate"><span class="pre">cruise_mixed_ops.yaml</span></code> for complex operations</p></li>
+</ul>
+<p><strong>Community support:</strong></p>
+<ul class="simple">
+<li><p>Report issues on GitHub</p></li>
+<li><p>Include error messages and configuration files</p></li>
+<li><p>Specify your operating system and Python version</p></li>
+</ul>
+</section>
+</section>
+<section id="best-practices">
+<h1>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h1>
+<section id="planning-recommendations">
+<h2>Planning Recommendations<a class="headerlink" href="#planning-recommendations" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Start simple:</strong> Begin with basic CTD stations before adding complex operations</p></li>
+<li><p><strong>Use PANGAEA data:</strong> Historical context improves station placement decisions</p></li>
+<li><p><strong>Plan for weather:</strong> Add alternative stations for flexibility</p></li>
+<li><p><strong>Consider logistics:</strong> Group nearby operations to minimize transit time</p></li>
+<li><p><strong>Document decisions:</strong> Use <code class="docutils literal notranslate"><span class="pre">comment</span></code> fields to explain station rationale</p></li>
+</ol>
+</section>
+<section id="configuration-management">
+<h2>Configuration Management<a class="headerlink" href="#configuration-management" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Version control:</strong> Keep YAML files in git repositories</p></li>
+<li><p><strong>Descriptive naming:</strong> Use clear, consistent station names</p></li>
+<li><p><strong>Backup configurations:</strong> Save multiple versions during development</p></li>
+<li><p><strong>Validate frequently:</strong> Run validation after each major edit</p></li>
+<li><p><strong>Test scheduling:</strong> Generate test schedules to check feasibility</p></li>
+</ol>
+</section>
+<section id="operational-efficiency">
+<h2>Operational Efficiency<a class="headerlink" href="#operational-efficiency" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Optimize routing:</strong> Use geographic clustering in leg definitions</p></li>
+<li><p><strong>Buffer time:</strong> Add extra duration for weather delays</p></li>
+</ol>
+</section>
+<section id="data-management">
+<h2>Data Management<a class="headerlink" href="#data-management" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Organized outputs:</strong> Use consistent naming for generated files</p></li>
+<li><p><strong>Archive originals:</strong> Keep original configurations before enrichment</p></li>
+<li><p><strong>Document changes:</strong> Use git commits to track configuration evolution</p></li>
+<li><p><strong>Share configurations:</strong> Export validated YAML for collaboration</p></li>
+</ol>
+<p>—</p>
+<p><strong>Next Steps:</strong></p>
+<ul class="simple">
+<li><p>See <a class="reference internal" href="cli_reference.html"><span class="doc">CLI Command Reference</span></a> for detailed command options</p></li>
+<li><p>Check <span class="xref std std-doc">api</span> for programmatic usage</p></li>
+<li><p>Review example configurations in <code class="docutils literal notranslate"><span class="pre">tests/fixtures/</span></code></p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="usage.html" class="btn btn-neutral float-left" title="Usage Guide" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="netcdf_outputs.html" class="btn btn-neutral float-right" title="NetCDF Output Specification for CruisePlan Phase 3c" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

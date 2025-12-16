@@ -47,6 +47,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -98,6 +108,7 @@
     <span class="n">DEFAULT_STATION_SPACING_KM</span><span class="p">,</span>
     <span class="n">DEFAULT_TURNAROUND_TIME_MIN</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dmm_comment</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -148,7 +159,9 @@
     <span class="n">CTD</span> <span class="o">=</span> <span class="s2">&quot;CTD&quot;</span>
     <span class="n">WATER_SAMPLING</span> <span class="o">=</span> <span class="s2">&quot;water_sampling&quot;</span>
     <span class="n">MOORING</span> <span class="o">=</span> <span class="s2">&quot;mooring&quot;</span>
-    <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span></div>
+    <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span>
+    <span class="c1"># Placeholder for user guidance</span>
+    <span class="n">UPDATE_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span></div>
 
 
 
@@ -172,7 +185,11 @@
     <span class="n">THERMOSALINOGRAPH</span> <span class="o">=</span> <span class="s2">&quot;thermosalinograph&quot;</span>
     <span class="n">TOW_YO</span> <span class="o">=</span> <span class="s2">&quot;tow_yo&quot;</span>
     <span class="n">SEISMIC</span> <span class="o">=</span> <span class="s2">&quot;seismic&quot;</span>
-    <span class="n">MICROSTRUCTURE</span> <span class="o">=</span> <span class="s2">&quot;microstructure&quot;</span></div>
+    <span class="n">MICROSTRUCTURE</span> <span class="o">=</span> <span class="s2">&quot;microstructure&quot;</span>
+    <span class="c1"># Placeholders for user guidance</span>
+    <span class="n">UPDATE_PROFILE_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span>
+    <span class="n">UPDATE_LINE_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span>
+    <span class="n">UPDATE_AREA_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-bathymetry-survey-etc&quot;</span></div>
 
 
 
@@ -199,7 +216,9 @@
 <span class="sd">    Defines operations that cover defined geographic areas.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">SURVEY</span> <span class="o">=</span> <span class="s2">&quot;survey&quot;</span></div>
+    <span class="n">SURVEY</span> <span class="o">=</span> <span class="s2">&quot;survey&quot;</span>
+    <span class="c1"># Placeholder for user guidance</span>
+    <span class="n">UPDATE_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-survey-mapping-etc&quot;</span></div>
 
 
 
@@ -325,8 +344,21 @@
 <span class="sd">            If position string cannot be parsed as &quot;lat, lon&quot;.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="c1"># Check for incomplete coordinate pairs</span>
+            <span class="n">has_lat</span> <span class="o">=</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+            <span class="n">has_lon</span> <span class="o">=</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+
+            <span class="k">if</span> <span class="n">has_lat</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_lon</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Both latitude and longitude must be provided together&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">has_lon</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_lat</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;Both latitude and longitude must be provided together&quot;</span>
+                <span class="p">)</span>
+
             <span class="c1"># Case A: Explicit Lat/Lon</span>
-            <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">has_lat</span> <span class="ow">and</span> <span class="n">has_lon</span><span class="p">:</span>
                 <span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
                     <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">),</span>
                     <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">),</span>
@@ -410,7 +442,7 @@
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_duration_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate that duration is positive.</span>
+<span class="sd">        Validate duration value, detecting placeholder values and issuing warnings.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -425,10 +457,96 @@
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
 <span class="sd">        ValueError</span>
-<span class="sd">            If duration is not positive.</span>
+<span class="sd">            If duration is negative (but not placeholder values).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duration must be positive&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="mf">9999.0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Duration is set to placeholder value 9999.0 minutes. &quot;</span>
+                    <span class="s2">&quot;Please update with your planned operation duration.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Duration is 0.0 minutes. This may indicate incomplete configuration. &quot;</span>
+                    <span class="s2">&quot;Consider updating the duration field or remove it to use automatic calculation.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duration cannot be negative&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_depth_positive">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_depth_positive">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_depth_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate depth value to ensure it&#39;s positive.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : Optional[float]</span>
+<span class="sd">            Depth value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[float]</span>
+<span class="sd">            Validated depth value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If depth is negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Station depth must be positive (depths should be given as positive values in meters)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_operation_type">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_operation_type">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_operation_type</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate operation_type value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : OperationTypeEnum</span>
+<span class="sd">            Operation type value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        OperationTypeEnum</span>
+<span class="sd">            Validated operation type value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Placeholder values are now valid enum values</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_action">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_action">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_action</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate action value.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : ActionEnum</span>
+<span class="sd">            Action value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ActionEnum</span>
+<span class="sd">            Validated action value.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Placeholder values are now valid enum values</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
@@ -449,7 +567,18 @@
 <span class="sd">        ValueError</span>
 <span class="sd">            If action is not compatible with operation_type.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure action is compatible with operation_type.&quot;&quot;&quot;</span>
+        <span class="c1"># Skip validation if either value is a placeholder</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">==</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">UPDATE_PLACEHOLDER</span>
+            <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span>
+            <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_PROFILE_PLACEHOLDER</span><span class="p">,</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_LINE_PLACEHOLDER</span><span class="p">,</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_AREA_PLACEHOLDER</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="bp">self</span>
+
         <span class="n">valid_combinations</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CTD</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">PROFILE</span><span class="p">],</span>
             <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WATER_SAMPLING</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">SAMPLING</span><span class="p">],</span>
@@ -557,6 +686,14 @@
 
         <span class="c1"># If this is a scientific transit, validate action matches operation_type</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="c1"># Skip validation if action is a placeholder</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">in</span> <span class="p">[</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_PROFILE_PLACEHOLDER</span><span class="p">,</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_LINE_PLACEHOLDER</span><span class="p">,</span>
+                <span class="n">ActionEnum</span><span class="o">.</span><span class="n">UPDATE_AREA_PLACEHOLDER</span><span class="p">,</span>
+            <span class="p">]:</span>
+                <span class="k">return</span> <span class="bp">self</span>
+
             <span class="n">valid_combinations</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">LineOperationTypeEnum</span><span class="o">.</span><span class="n">UNDERWAY</span><span class="p">:</span> <span class="p">[</span>
                     <span class="n">ActionEnum</span><span class="o">.</span><span class="n">ADCP</span><span class="p">,</span>
@@ -721,7 +858,7 @@
 <span class="sd">        List of corner points defining the area boundary.</span>
 <span class="sd">    comment : Optional[str]</span>
 <span class="sd">        Human-readable comment or description.</span>
-<span class="sd">    operation_type : Optional[str]</span>
+<span class="sd">    operation_type : Optional[AreaOperationTypeEnum]</span>
 <span class="sd">        Type of operation for the area (default: &quot;survey&quot;).</span>
 <span class="sd">    action : Optional[ActionEnum]</span>
 <span class="sd">        Specific action for the area operation.</span>
@@ -732,9 +869,51 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">corners</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span>
     <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">operation_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;survey&quot;</span>
+    <span class="n">operation_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">AreaOperationTypeEnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">AreaOperationTypeEnum</span><span class="o">.</span><span class="n">SURVEY</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ActionEnum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Duration in minutes</span></div>
+    <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Duration in minutes</span>
+
+<div class="viewcode-block" id="AreaDefinition.validate_duration_positive">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.AreaDefinition.validate_duration_positive">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_duration_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate duration value, detecting placeholder values and issuing warnings.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : Optional[float]</span>
+<span class="sd">            Duration value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[float]</span>
+<span class="sd">            Validated duration value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If duration is negative (but not placeholder values).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">v</span> <span class="o">==</span> <span class="mf">9999.0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Duration is set to placeholder value 9999.0 minutes. &quot;</span>
+                    <span class="s2">&quot;Please update with your planned operation duration.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                    <span class="s2">&quot;Duration is 0.0 minutes. This may indicate incomplete configuration. &quot;</span>
+                    <span class="s2">&quot;Consider updating the duration field or remove it to use automatic calculation.&quot;</span><span class="p">,</span>
+                    <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duration cannot be negative&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+</div>
 
 
 
@@ -1174,6 +1353,34 @@
 <span class="c1"># ===== Configuration Enrichment and Validation Functions =====</span>
 
 
+<div class="viewcode-block" id="replace_placeholder_values">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.replace_placeholder_values">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">replace_placeholder_values</span><span class="p">(</span>
+    <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Preserve placeholder values since they are now valid enum values.</span>
+
+<span class="sd">    This function no longer replaces placeholders, as they are treated as valid</span>
+<span class="sd">    enum values in the validation system. Users can continue using placeholders</span>
+<span class="sd">    throughout the workflow and only replace them when manually updating the configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_dict : Dict[str, Any]</span>
+<span class="sd">        Raw configuration dictionary from YAML</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[Dict[str, Any], bool]</span>
+<span class="sd">        Configuration dictionary unchanged and whether any replacements were made (always False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Placeholders are now valid enum values, so no replacement needed</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Preserving placeholder values as valid enum values&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">config_dict</span><span class="p">,</span> <span class="kc">False</span></div>
+
+
+
 <div class="viewcode-block" id="enrich_configuration">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.enrich_configuration">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">enrich_configuration</span><span class="p">(</span>
@@ -1213,13 +1420,48 @@
 <span class="sd">        - stations_with_coords_added: Number of coordinates added</span>
 <span class="sd">        - total_stations_processed: Total stations processed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml_config</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dmm_comment</span>
 
-    <span class="c1"># Load cruise configuration</span>
-    <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="c1"># Load and preprocess the YAML configuration to replace placeholders</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># Replace placeholder values with sensible defaults</span>
+    <span class="n">config_dict</span><span class="p">,</span> <span class="n">placeholders_replaced</span> <span class="o">=</span> <span class="n">replace_placeholder_values</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+
+    <span class="c1"># Create temporary file with processed config for Cruise loading</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">temp_file</span><span class="p">:</span>
+        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">temp_file</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">temp_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Capture Python warnings for better formatting</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">python_warnings</span>
+
+    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+    <span class="c1"># Set up warning capture</span>
+    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
+    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Load cruise configuration from preprocessed data</span>
+        <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">temp_config_path</span><span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Clean up temporary file</span>
+        <span class="n">temp_config_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="c1"># Restore original warning handler</span>
+        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span>
 
     <span class="n">enrichment_summary</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -1236,13 +1478,18 @@
 
     <span class="c1"># Process each station</span>
     <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="c1"># Add depths if requested</span>
-        <span class="k">if</span> <span class="n">add_depths</span> <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Add depths if requested (including replacing placeholder depths)</span>
+        <span class="n">should_add_depth</span> <span class="o">=</span> <span class="n">add_depths</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">depth</span> <span class="o">==</span> <span class="o">-</span><span class="mf">9999.0</span>  <span class="c1"># Replace placeholder depth</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">should_add_depth</span><span class="p">:</span>
             <span class="n">depth</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="o">.</span><span class="n">get_depth_at_point</span><span class="p">(</span>
                 <span class="n">station</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">station</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">station</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>
+                <span class="n">station</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>  <span class="c1"># Convert to positive depth</span>
                 <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="n">stations_with_depths_added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
@@ -1253,7 +1500,28 @@
     <span class="n">config_dict</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">raw_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="c1"># Process coordinate additions and other changes</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dmm_coordinates</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to add DMM coordinates to a data dictionary.&quot;&quot;&quot;</span>
+        <span class="k">nonlocal</span> <span class="n">coord_changes_made</span>
+        <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dmm&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">coord_field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">coord_field_name</span><span class="p">):</span>
+                <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+                <span class="n">data_dict</span><span class="p">[</span><span class="n">coord_field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmm_comment</span>
+                <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">return</span> <span class="n">dmm_comment</span>
+        <span class="k">elif</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dms&quot;</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;DMS coordinate format is not yet supported. No coordinates were added.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Unknown coordinate format &#39;</span><span class="si">{</span><span class="n">coord_format</span><span class="si">}</span><span class="s2">&#39; specified. No coordinates were added.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="c1"># Process coordinate additions for stations</span>
     <span class="k">if</span> <span class="s2">&quot;stations&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">station_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]:</span>
             <span class="n">station_name</span> <span class="o">=</span> <span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
@@ -1266,31 +1534,76 @@
 
                 <span class="c1"># Add coordinate fields if requested</span>
                 <span class="k">if</span> <span class="n">add_coords</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dmm&quot;</span><span class="p">:</span>
-                        <span class="k">if</span> <span class="p">(</span>
-                            <span class="s2">&quot;coordinates_dmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">station_data</span>
-                            <span class="ow">or</span> <span class="ow">not</span> <span class="n">station_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">)</span>
-                        <span class="p">):</span>
-                            <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span>
-                                <span class="n">station_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                                <span class="n">station_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                            <span class="p">)</span>
-                            <span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmm_comment</span>
-                            <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
-                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dmm_comment</span><span class="si">}</span><span class="s2">&quot;</span>
-                            <span class="p">)</span>
-                    <span class="k">elif</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dms&quot;</span><span class="p">:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                            <span class="s2">&quot;DMS coordinate format is not yet supported. No coordinates were added for station &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
-                            <span class="ne">UserWarning</span><span class="p">,</span>
+                    <span class="n">dmm_result</span> <span class="o">=</span> <span class="n">add_dmm_coordinates</span><span class="p">(</span>
+                        <span class="n">station_data</span><span class="p">,</span>
+                        <span class="n">station_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                        <span class="n">station_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                        <span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">dmm_result</span><span class="p">:</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dmm_result</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Unknown coordinate format &#39;</span><span class="si">{</span><span class="n">coord_format</span><span class="si">}</span><span class="s2">&#39; specified. No coordinates were added for station &quot;</span>
-                            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
-                            <span class="ne">UserWarning</span><span class="p">,</span>
+
+    <span class="c1"># Process coordinate additions for departure and arrival ports</span>
+    <span class="k">if</span> <span class="n">add_coords</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">port_key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">port_key</span> <span class="ow">in</span> <span class="n">config_dict</span> <span class="ow">and</span> <span class="n">config_dict</span><span class="p">[</span><span class="n">port_key</span><span class="p">]:</span>
+                <span class="n">port_data</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="n">port_key</span><span class="p">]</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">):</span>
+                    <span class="n">port_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+                        <span class="n">dmm_result</span> <span class="o">=</span> <span class="n">add_dmm_coordinates</span><span class="p">(</span>
+                            <span class="n">port_data</span><span class="p">,</span>
+                            <span class="n">port_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="n">port_obj</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">,</span>
+                        <span class="p">)</span>
+                        <span class="k">if</span> <span class="n">dmm_result</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to </span><span class="si">{</span><span class="n">port_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dmm_result</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+
+    <span class="c1"># Process coordinate additions for transit routes</span>
+    <span class="k">if</span> <span class="n">add_coords</span> <span class="ow">and</span> <span class="s2">&quot;transits&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">transit_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;transits&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;route&quot;</span> <span class="ow">in</span> <span class="n">transit_data</span> <span class="ow">and</span> <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">]:</span>
+                <span class="c1"># Add route_dmm field with list of position_dmm entries</span>
+                <span class="k">if</span> <span class="s2">&quot;route_dmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transit_data</span><span class="p">:</span>
+                    <span class="n">route_dmm_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">point</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">point</span><span class="p">:</span>
+                            <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span>
+                                <span class="n">point</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+                            <span class="n">route_dmm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_dmm&quot;</span><span class="p">:</span> <span class="n">dmm_comment</span><span class="p">})</span>
+                            <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="n">route_dmm_list</span><span class="p">:</span>
+                        <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route_dmm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">route_dmm_list</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to transit </span><span class="si">{</span><span class="n">transit_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> route: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">route_dmm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
+                        <span class="p">)</span>
+
+    <span class="c1"># Process coordinate additions for area corners</span>
+    <span class="k">if</span> <span class="n">add_coords</span> <span class="ow">and</span> <span class="s2">&quot;areas&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">area_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;corners&quot;</span> <span class="ow">in</span> <span class="n">area_data</span> <span class="ow">and</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]:</span>
+                <span class="c1"># Add corners_dmm field with list of position_dmm entries</span>
+                <span class="k">if</span> <span class="s2">&quot;corners_dmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">:</span>
+                    <span class="n">corners_dmm_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]:</span>
+                        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">corner</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">corner</span><span class="p">:</span>
+                            <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span>
+                                <span class="n">corner</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">corner</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
+                            <span class="p">)</span>
+                            <span class="n">corners_dmm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_dmm&quot;</span><span class="p">:</span> <span class="n">dmm_comment</span><span class="p">})</span>
+                            <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                    <span class="k">if</span> <span class="n">corners_dmm_list</span><span class="p">:</span>
+                        <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners_dmm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corners_dmm_list</span>
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to area </span><span class="si">{</span><span class="n">area_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> corners: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">corners_dmm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
                         <span class="p">)</span>
     <span class="c1"># Update the enrichment summary</span>
     <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_changes_made</span>
@@ -1299,8 +1612,18 @@
         <span class="o">+</span> <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">]</span>
     <span class="p">)</span>
 
-    <span class="c1"># Save enriched configuration if any changes were made</span>
-    <span class="k">if</span> <span class="n">total_enriched</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">output_path</span><span class="p">:</span>
+    <span class="c1"># Process captured warnings and display them in user-friendly format</span>
+    <span class="k">if</span> <span class="n">captured_warnings</span><span class="p">:</span>
+        <span class="n">formatted_warnings</span> <span class="o">=</span> <span class="n">_format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="n">cruise</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">warning_group</span> <span class="ow">in</span> <span class="n">formatted_warnings</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️ Configuration Warnings:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">warning_group</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># Add spacing between warning groups</span>
+
+    <span class="c1"># Save enriched configuration only if any changes were made OR if placeholders were replaced</span>
+    <span class="k">if</span> <span class="n">output_path</span> <span class="ow">and</span> <span class="p">(</span><span class="n">total_enriched</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">placeholders_replaced</span><span class="p">):</span>
         <span class="n">save_yaml_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">enrichment_summary</span></div>
@@ -1343,6 +1666,8 @@
 <span class="sd">        - errors: List of error messages</span>
 <span class="sd">        - warnings: List of warning messages</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">python_warnings</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
 
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
@@ -1351,12 +1676,40 @@
     <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
 
+    <span class="c1"># Capture Python warnings for better formatting</span>
+    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+    <span class="c1"># Set up warning capture</span>
+    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
+    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
+
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Load and validate configuration</span>
         <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
         <span class="c1"># Basic validation passed if we get here</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;✓ YAML structure and schema validation passed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Duplicate detection (always run)</span>
+        <span class="n">duplicate_errors</span><span class="p">,</span> <span class="n">duplicate_warnings</span> <span class="o">=</span> <span class="n">check_duplicate_names</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">duplicate_errors</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">duplicate_warnings</span><span class="p">)</span>
+
+        <span class="n">complete_dup_errors</span><span class="p">,</span> <span class="n">complete_dup_warnings</span> <span class="o">=</span> <span class="n">check_complete_duplicates</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">complete_dup_errors</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">complete_dup_warnings</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">duplicate_errors</span> <span class="ow">or</span> <span class="n">complete_dup_errors</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicate_errors</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">complete_dup_errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate-related errors&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">duplicate_warnings</span> <span class="ow">or</span> <span class="n">complete_dup_warnings</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicate_warnings</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">complete_dup_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate-related warnings&quot;</span>
+            <span class="p">)</span>
 
         <span class="c1"># Depth validation if requested</span>
         <span class="k">if</span> <span class="n">check_depths</span><span class="p">:</span>
@@ -1369,6 +1722,14 @@
 
         <span class="c1"># Additional validations can be added here</span>
 
+        <span class="c1"># Check for cruise metadata issues</span>
+        <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="n">_check_cruise_metadata</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">metadata_warnings</span><span class="p">)</span>
+
+        <span class="c1"># Process captured warnings and format them nicely</span>
+        <span class="n">formatted_warnings</span> <span class="o">=</span> <span class="n">_format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="n">cruise</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formatted_warnings</span><span class="p">)</span>
+
         <span class="n">success</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
         <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
 
@@ -1377,12 +1738,348 @@
             <span class="n">location</span> <span class="o">=</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
             <span class="n">message</span> <span class="o">=</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;msg&quot;</span><span class="p">]</span>
             <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Schema error at </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Still try to collect warnings even when validation fails</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Try to load the YAML directly for metadata checking</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">raw_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+            <span class="c1"># Check cruise metadata from raw YAML</span>
+            <span class="k">if</span> <span class="n">raw_config</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="n">_check_cruise_metadata_raw</span><span class="p">(</span><span class="n">raw_config</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">metadata_warnings</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># If we can&#39;t load raw YAML, just continue</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Process captured Pydantic warnings even on validation failure</span>
+        <span class="n">formatted_warnings</span> <span class="o">=</span> <span class="n">_format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formatted_warnings</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration loading error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span></div>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
 
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Restore original warning handler</span>
+        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_cruise_metadata</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check cruise metadata for placeholder values and default coordinates.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise : Cruise</span>
+<span class="sd">        Cruise object to check.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List of cruise metadata warning messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check for UPDATE- placeholders in cruise-level fields</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="c1"># Check start_date</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;start_date&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is set to placeholder &#39;UPDATE-YYYY-MM-DDTHH:MM:SSZ&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span> <span class="o">==</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is set to default &#39;1970-01-01T00:00:00Z&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check departure port</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">):</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Departure port name is set to placeholder &#39;UPDATE-departure-port-name&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">timezone</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Departure port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check arrival port</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">):</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Arrival port name is set to placeholder &#39;UPDATE-arrival-port-name&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">timezone</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Arrival port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Format warnings if any found</span>
+    <span class="k">if</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Cruise Metadata:&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_cruise_metadata_raw</span><span class="p">(</span><span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check cruise metadata for placeholder values and default coordinates from raw YAML.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_config : dict</span>
+<span class="sd">        Raw YAML configuration dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List of cruise metadata warning messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check for UPDATE- placeholders in cruise-level fields</span>
+
+    <span class="c1"># Check start_date</span>
+    <span class="k">if</span> <span class="s2">&quot;start_date&quot;</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">start_date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_config</span><span class="p">[</span><span class="s2">&quot;start_date&quot;</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">start_date</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is set to placeholder &#39;UPDATE-YYYY-MM-DDTHH:MM:SSZ&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">start_date</span> <span class="o">==</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is set to default &#39;1970-01-01T00:00:00Z&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check departure port</span>
+    <span class="k">if</span> <span class="s2">&quot;departure_port&quot;</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">raw_config</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Departure port name is set to placeholder &#39;UPDATE-departure-port-name&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">port</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Departure port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check arrival port</span>
+    <span class="k">if</span> <span class="s2">&quot;arrival_port&quot;</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">raw_config</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;UPDATE-&quot;</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Arrival port name is set to placeholder &#39;UPDATE-arrival-port-name&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="n">position</span> <span class="o">=</span> <span class="n">port</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Arrival port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Format warnings if any found</span>
+    <span class="k">if</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Cruise Metadata:&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format captured Pydantic warnings into user-friendly grouped messages.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    captured_warnings : List[str]</span>
+<span class="sd">        List of captured warning messages from Pydantic validators.</span>
+<span class="sd">    cruise : Cruise</span>
+<span class="sd">        Cruise object to map warnings to specific entities.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        Formatted warning messages grouped by type and sorted alphabetically.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">captured_warnings</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># Group warnings by type and entity</span>
+    <span class="n">warning_groups</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;Cruise Metadata&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;Stations&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;Transits&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;Areas&quot;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s2">&quot;Configuration&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Process each warning and try to associate it with specific entities</span>
+    <span class="k">for</span> <span class="n">warning_msg</span> <span class="ow">in</span> <span class="n">captured_warnings</span><span class="p">:</span>
+        <span class="c1"># Try to identify which entity this warning belongs to</span>
+        <span class="n">entity_found</span> <span class="o">=</span> <span class="kc">False</span>
+
+        <span class="c1"># Check stations</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;station_registry&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">_warning_relates_to_entity</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">station</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">station_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Stations&quot;</span><span class="p">]:</span>
+                        <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Stations&quot;</span><span class="p">][</span><span class="n">station_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Stations&quot;</span><span class="p">][</span><span class="n">station_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">_clean_warning_message</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">entity_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="c1"># Check transits</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_found</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;transit_registry&quot;</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">transit_name</span><span class="p">,</span> <span class="n">transit</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">transit_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">_warning_relates_to_entity</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">transit</span><span class="p">):</span>
+                    <span class="k">if</span> <span class="n">transit_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Transits&quot;</span><span class="p">]:</span>
+                        <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Transits&quot;</span><span class="p">][</span><span class="n">transit_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Transits&quot;</span><span class="p">][</span><span class="n">transit_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">_clean_warning_message</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">entity_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="c1"># Check areas</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">entity_found</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;areas&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">areas</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_warning_relates_to_entity</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">,</span> <span class="n">area</span><span class="p">):</span>
+                    <span class="n">area_name</span> <span class="o">=</span> <span class="n">area</span><span class="o">.</span><span class="n">name</span>
+                    <span class="k">if</span> <span class="n">area_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Areas&quot;</span><span class="p">]:</span>
+                        <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Areas&quot;</span><span class="p">][</span><span class="n">area_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Areas&quot;</span><span class="p">][</span><span class="n">area_name</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">_clean_warning_message</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
+                    <span class="p">)</span>
+                    <span class="n">entity_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">break</span>
+
+        <span class="c1"># If not found, add to general configuration warnings</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">entity_found</span><span class="p">:</span>
+            <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Configuration&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_clean_warning_message</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">))</span>
+
+    <span class="c1"># Format the grouped warnings</span>
+    <span class="n">formatted_sections</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">group_name</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Stations&quot;</span><span class="p">,</span> <span class="s2">&quot;Transits&quot;</span><span class="p">,</span> <span class="s2">&quot;Areas&quot;</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="n">warning_groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">]:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">group_name</span><span class="si">}</span><span class="s2">:&quot;</span><span class="p">]</span>
+            <span class="c1"># Sort entity names alphabetically</span>
+            <span class="k">for</span> <span class="n">entity_name</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">warning_groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">]</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+                <span class="n">entity_warnings</span> <span class="o">=</span> <span class="n">warning_groups</span><span class="p">[</span><span class="n">group_name</span><span class="p">][</span><span class="n">entity_name</span><span class="p">]</span>
+                <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">entity_warnings</span><span class="p">:</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">entity_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">formatted_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+
+    <span class="c1"># Add configuration warnings</span>
+    <span class="k">if</span> <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Configuration&quot;</span><span class="p">]:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Configuration:&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">warning_groups</span><span class="p">[</span><span class="s2">&quot;Configuration&quot;</span><span class="p">]:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">formatted_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">formatted_sections</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warning_relates_to_entity</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">entity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a warning message relates to a specific entity by examining field values.&quot;&quot;&quot;</span>
+    <span class="c1"># Check for placeholder values that would trigger warnings</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">operation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="n">warning_msg</span><span class="p">:</span>
+        <span class="c1"># Make sure this isn&#39;t a placeholder operation_type warning</span>
+        <span class="k">if</span> <span class="s2">&quot;placeholder&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warning_msg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># Check for placeholder operation_type values</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">operation_type</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;UPDATE_PLACEHOLDER&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">action</span><span class="p">)</span> <span class="ow">in</span> <span class="n">warning_msg</span><span class="p">:</span>
+        <span class="c1"># Make sure this isn&#39;t a placeholder action warning</span>
+        <span class="k">if</span> <span class="s2">&quot;placeholder&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warning_msg</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="c1"># Check for placeholder action values</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">entity</span><span class="o">.</span><span class="n">action</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
+            <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;UPDATE-bathymetry-survey-etc&quot;</span><span class="p">,</span>
+        <span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">entity</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">entity</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="ow">and</span> <span class="n">entity</span><span class="o">.</span><span class="n">duration</span> <span class="o">==</span> <span class="mf">9999.0</span>
+        <span class="ow">and</span> <span class="s2">&quot;9999.0&quot;</span> <span class="ow">in</span> <span class="n">warning_msg</span>
+    <span class="p">):</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_clean_warning_message</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean up warning message for user display.&quot;&quot;&quot;</span>
+    <span class="c1"># Remove redundant phrases and clean up the message</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">warning_msg</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot;Duration is set to placeholder value &quot;</span><span class="p">,</span> <span class="s2">&quot;Duration is set to placeholder &quot;</span>
+    <span class="p">)</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot;Operation type is set to placeholder &quot;</span><span class="p">,</span> <span class="s2">&quot;Operation type is set to placeholder &quot;</span>
+    <span class="p">)</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">cleaned</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s2">&quot;Action is set to placeholder &quot;</span><span class="p">,</span> <span class="s2">&quot;Action is set to placeholder &quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">cleaned</span>
 
 
 <div class="viewcode-block" id="validate_depth_accuracy">
@@ -1446,6 +2143,136 @@
                 <span class="n">warning_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">stations_checked</span><span class="p">,</span> <span class="n">warning_messages</span></div>
+
+
+
+<div class="viewcode-block" id="check_duplicate_names">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.check_duplicate_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_duplicate_names</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for duplicate names across different configuration sections.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise : Any</span>
+<span class="sd">        Loaded cruise configuration object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[List[str], List[str]]</span>
+<span class="sd">        Tuple of (errors, warnings) for duplicate detection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check for duplicate station names - use raw config to catch duplicates</span>
+    <span class="c1"># that were silently overwritten during station_registry creation</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="n">station_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">station</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">station_names</span><span class="p">)):</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">station_names</span> <span class="k">if</span> <span class="n">station_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="p">]</span>
+            <span class="n">unique_duplicates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">duplicates</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">dup_name</span> <span class="ow">in</span> <span class="n">unique_duplicates</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">station_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">dup_name</span><span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Duplicate station name &#39;</span><span class="si">{</span><span class="n">dup_name</span><span class="si">}</span><span class="s2">&#39; found </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> times - station names must be unique&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Check for duplicate leg names (if cruise has legs)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;legs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
+        <span class="n">leg_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">leg_names</span><span class="p">)):</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">leg_names</span> <span class="k">if</span> <span class="n">leg_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">unique_duplicates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">duplicates</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">dup_name</span> <span class="ow">in</span> <span class="n">unique_duplicates</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">leg_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">dup_name</span><span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Duplicate leg name &#39;</span><span class="si">{</span><span class="n">dup_name</span><span class="si">}</span><span class="s2">&#39; found </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> times - leg names must be unique&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Check for duplicate section names (if cruise has sections)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;sections&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">:</span>
+        <span class="n">section_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">section</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">sections</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">section_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">section_names</span><span class="p">)):</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">section_names</span> <span class="k">if</span> <span class="n">section_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="p">]</span>
+            <span class="n">unique_duplicates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">duplicates</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">dup_name</span> <span class="ow">in</span> <span class="n">unique_duplicates</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">section_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">dup_name</span><span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Duplicate section name &#39;</span><span class="si">{</span><span class="n">dup_name</span><span class="si">}</span><span class="s2">&#39; found </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> times - section names must be unique&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Check for duplicate mooring names (if cruise has moorings)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;moorings&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">:</span>
+        <span class="n">mooring_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">mooring</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_names</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">mooring_names</span><span class="p">)):</span>
+            <span class="n">duplicates</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">mooring_names</span> <span class="k">if</span> <span class="n">mooring_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span>
+            <span class="p">]</span>
+            <span class="n">unique_duplicates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">duplicates</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">dup_name</span> <span class="ow">in</span> <span class="n">unique_duplicates</span><span class="p">:</span>
+                <span class="n">count</span> <span class="o">=</span> <span class="n">mooring_names</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">dup_name</span><span class="p">)</span>
+                <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Duplicate mooring name &#39;</span><span class="si">{</span><span class="n">dup_name</span><span class="si">}</span><span class="s2">&#39; found </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2"> times - mooring names must be unique&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span></div>
+
+
+
+<div class="viewcode-block" id="check_complete_duplicates">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.check_complete_duplicates">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_complete_duplicates</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for completely identical entries (same name, position, operation, etc.).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise : Any</span>
+<span class="sd">        Loaded cruise configuration object.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[List[str], List[str]]</span>
+<span class="sd">        Tuple of (errors, warnings) for complete duplicate detection.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">warned_pairs</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># Track warned pairs to avoid duplicates</span>
+
+    <span class="c1"># Check for complete duplicate stations</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="n">stations</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">station1</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stations</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">j</span><span class="p">,</span> <span class="n">station2</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">stations</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="p">:],</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+                <span class="c1"># Check if all key attributes are identical</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">station1</span><span class="o">.</span><span class="n">name</span>
+                    <span class="o">!=</span> <span class="n">station2</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># Don&#39;t compare same names (handled above)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="p">):</span>
+
+                    <span class="c1"># Create a sorted pair to avoid duplicate warnings for same stations</span>
+                    <span class="n">pair</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">([</span><span class="n">station1</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">station2</span><span class="o">.</span><span class="n">name</span><span class="p">]))</span>
+                    <span class="k">if</span> <span class="n">pair</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">warned_pairs</span><span class="p">:</span>
+                        <span class="n">warned_pairs</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">pair</span><span class="p">)</span>
+                        <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Potentially duplicate stations &#39;</span><span class="si">{</span><span class="n">station1</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; and &#39;</span><span class="si">{</span><span class="n">station2</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;have identical coordinates and operations&quot;</span>
+                        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span></div>
 
 </pre></div>
 

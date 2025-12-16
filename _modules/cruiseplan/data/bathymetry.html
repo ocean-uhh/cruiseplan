@@ -47,6 +47,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -225,7 +235,8 @@
                 <span class="c1"># (These are 1D arrays, so they fit easily in memory)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">][:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">][:]</span>
-
+                <span class="c1"># Determine depth variable name based on source</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_depth_var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_depth_variable_name</span><span class="p">()</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Loaded bathymetry from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -552,13 +563,17 @@
 
                 <span class="c1"># Extract the first .nc file found (with path validation)</span>
                 <span class="n">nc_file_in_zip</span> <span class="o">=</span> <span class="n">nc_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                
+
                 <span class="c1"># Validate filename to prevent path traversal attacks</span>
-                <span class="n">nc_filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">nc_file_in_zip</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># Only get filename, no path components</span>
+                <span class="n">nc_filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span>
+                    <span class="n">nc_file_in_zip</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># Only get filename, no path components</span>
                 <span class="k">if</span> <span class="n">nc_filename</span> <span class="o">!=</span> <span class="n">nc_file_in_zip</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Suspicious filename in zip: </span><span class="si">{</span><span class="n">nc_file_in_zip</span><span class="si">}</span><span class="s2">. Expected flat structure.&quot;</span><span class="p">)</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;⚠️ Suspicious filename in zip: </span><span class="si">{</span><span class="n">nc_file_in_zip</span><span class="si">}</span><span class="s2">. Expected flat structure.&quot;</span>
+                    <span class="p">)</span>
                     <span class="k">return</span> <span class="kc">False</span>
-                
+
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><span class="n">nc_file_in_zip</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
 
                 <span class="c1"># Extract with progress (for large files)</span>
@@ -654,7 +669,7 @@
 <span class="sd">    source : str, optional</span>
 <span class="sd">        Bathymetry source to download (default: &quot;etopo2022&quot;).</span>
 <span class="sd">        Options: &quot;etopo2022&quot;, &quot;gebco2025&quot;.</span>
-<span class="sd">    </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    bool or None</span>

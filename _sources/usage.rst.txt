@@ -16,12 +16,31 @@ After installation, you can use CruisePlan via the command line:
 Basic Workflow
 --------------
 
-1. **Download bathymetry**: Use `cruiseplan download` to download ETOPO bathymetry 
-2. **Load PANGAEA past cruises (Optional)**: Use `cruiseplan pangaea` to browse and select from PANGAEA datasets.
-3. **Pick stations, transects and areas**: Use the interactive station picker, `cruiseplan stations` to choose waypoints and working areas.  This generates a cruiseplan configuration file (YAML).
-4. **Enrich YAML**: The station picker only choses locations.  But the scheduler needs to know how deep they are (for CTDs).  Use `cruiseplan enrich` to add depth and other metadata to the YAML config.
-5. **Validate configuration**: Use `cruiseplan validate` to check the configuration file for errors.
-6. **Generate schedule**: Use `cruiseplan schedule` to create a detailed cruise schedule and generate outputs.
+CruisePlan follows a systematic workflow for cruise planning:
+
+1. **Download bathymetry data** → 2. **Plan stations interactively** → 3. **Configure operations** → 4. **Enrich with metadata** → 5. **Validate configuration** → 6. **Generate schedule & outputs**
+
+For detailed step-by-step instructions, see the :doc:`user_workflows` guide, which provides comprehensive workflows for different planning scenarios.
+
+**Quick Start:**
+
+.. code-block:: bash
+
+   # 1. Download bathymetry data
+   cruiseplan download
+   
+   # 2. Interactive station planning
+   cruiseplan stations --output-file my_cruise.yaml
+   
+   # 3. Edit YAML to add operation types (CTD, mooring, etc.)
+   # 4. Add depths and coordinates
+   cruiseplan enrich -c my_cruise.yaml --add-depths --add-coords
+   
+   # 5. Validate configuration
+   cruiseplan validate -c my_cruise.yaml
+   
+   # 6. Generate outputs
+   cruiseplan schedule -c my_cruise.yaml
 
 Configuration Files
 -------------------

@@ -47,6 +47,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -691,7 +701,7 @@
             <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">selected_leg</span>
         <span class="p">]</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
 
     <span class="c1"># Calculate summary statistics</span>
     <span class="n">total_duration_hours</span> <span class="o">=</span> <span class="p">(</span>
@@ -702,8 +712,8 @@
         <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
     <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total schedule duration: </span><span class="si">{</span><span class="n">total_duration_hours</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total distance: </span><span class="si">{</span><span class="n">total_distance_nm</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Total schedule duration: </span><span class="si">{</span><span class="n">total_duration_hours</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    Total distance: </span><span class="si">{</span><span class="n">total_distance_nm</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm&quot;</span><span class="p">)</span>
 
     <span class="c1"># Generate output files</span>
     <span class="n">formats_generated</span> <span class="o">=</span> <span class="p">[]</span>
@@ -720,13 +730,14 @@
 
     <span class="k">for</span> <span class="n">format_name</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating </span><span class="si">{</span><span class="n">format_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> output...&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Generating </span><span class="si">{</span><span class="n">format_name</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2"> output...&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
                 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.html_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_html_schedule</span>
 
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.html&quot;</span>
                 <span class="n">generate_html_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    HTML schedule: </span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_summary.html&quot;</span><span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;html&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
@@ -735,6 +746,7 @@
 
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.csv&quot;</span>
                 <span class="n">generate_csv_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    CSV schedule: </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;csv&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
@@ -742,6 +754,7 @@
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">_generate_latex_schedule</span><span class="p">(</span>
                     <span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span>
                 <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    LaTeX tables: </span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_tables.tex&quot;</span><span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;latex&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
@@ -749,7 +762,13 @@
                 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.kml_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_kml_schedule</span>
 
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.kml&quot;</span>
+                <span class="n">scientific_operations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                    <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Area&quot;</span><span class="p">]]</span>
+                <span class="p">)</span>
                 <span class="n">generate_kml_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;    KML positions: </span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_positions.kml (</span><span class="si">{</span><span class="n">scientific_operations</span><span class="si">}</span><span class="s2"> operations)&quot;</span>
+                <span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;kml&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
@@ -757,6 +776,7 @@
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">_generate_netcdf_schedule</span><span class="p">(</span>
                     <span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span>
                 <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    netCDF output: </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;netcdf&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
@@ -790,9 +810,6 @@
         <span class="c1"># Use existing LaTeX generator function with correct parameters</span>
         <span class="n">latex_files</span> <span class="o">=</span> <span class="n">generate_latex_tables</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;LaTeX schedule files saved to: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">latex_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files)&quot;</span>
-        <span class="p">)</span>
         <span class="k">return</span> <span class="n">latex_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">latex_files</span> <span class="k">else</span> <span class="kc">None</span>
 
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
@@ -811,7 +828,6 @@
         <span class="n">netcdf_gen</span> <span class="o">=</span> <span class="n">NetCDFGenerator</span><span class="p">()</span>
         <span class="n">netcdf_gen</span><span class="o">.</span><span class="n">generate_master_schedule</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NetCDF schedule saved to: </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">output_file</span>
 
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>

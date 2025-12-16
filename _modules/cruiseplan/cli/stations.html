@@ -47,6 +47,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -107,6 +117,71 @@
 <span class="p">)</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="check_bathymetry_availability">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.stations.check_bathymetry_availability">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_bathymetry_availability</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if bathymetry files are available for the specified source.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    source : str</span>
+<span class="sd">        Bathymetry source (&quot;etopo2022&quot; or &quot;gebco2025&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if bathymetry files are available and valid, False otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
+
+        <span class="c1"># Create a temporary manager to check availability</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">)</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="n">manager</span><span class="o">.</span><span class="n">_is_mock</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+
+<div class="viewcode-block" id="determine_bathymetry_source">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.stations.determine_bathymetry_source">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">determine_bathymetry_source</span><span class="p">(</span><span class="n">requested_source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine the optimal bathymetry source with automatic fallback.</span>
+
+<span class="sd">    If the requested source is not available but an alternative is,</span>
+<span class="sd">    automatically switch to the available source.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    requested_source : str</span>
+<span class="sd">        The user&#39;s requested bathymetry source</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        The optimal available bathymetry source</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check if requested source is available</span>
+    <span class="k">if</span> <span class="n">check_bathymetry_availability</span><span class="p">(</span><span class="n">requested_source</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">requested_source</span>
+
+    <span class="c1"># Try alternative source</span>
+    <span class="n">alternative</span> <span class="o">=</span> <span class="s2">&quot;gebco2025&quot;</span> <span class="k">if</span> <span class="n">requested_source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span> <span class="k">else</span> <span class="s2">&quot;etopo2022&quot;</span>
+
+    <span class="k">if</span> <span class="n">check_bathymetry_availability</span><span class="p">(</span><span class="n">alternative</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;📁 Requested </span><span class="si">{</span><span class="n">requested_source</span><span class="si">}</span><span class="s2"> not available, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;automatically switching to </span><span class="si">{</span><span class="n">alternative</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">alternative</span>
+
+    <span class="c1"># Neither available - return requested (will trigger mock mode with appropriate warning)</span>
+    <span class="k">return</span> <span class="n">requested_source</span></div>
+
 
 
 <div class="viewcode-block" id="load_pangaea_data">
@@ -254,6 +329,9 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No PANGAEA data provided - using bathymetry only&quot;</span><span class="p">)</span>
 
+        <span class="c1"># Determine optimal bathymetry source (with automatic fallback)</span>
+        <span class="n">optimal_bathymetry_source</span> <span class="o">=</span> <span class="n">determine_bathymetry_source</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">)</span>
+
         <span class="c1"># Determine coordinate bounds</span>
         <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span> <span class="o">=</span> <span class="n">determine_coordinate_bounds</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">campaign_data</span><span class="p">)</span>
 
@@ -277,7 +355,7 @@
             <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">output_filename</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">optimal_bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">resolution_msg</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;high resolution (no downsampling)&quot;</span>
             <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
@@ -309,7 +387,8 @@
                 <span class="n">campaign_data</span><span class="o">=</span><span class="n">campaign_data</span><span class="p">,</span>
                 <span class="n">output_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
                 <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathymetry_stride</span><span class="p">,</span>
-                <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">,</span>
+                <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">optimal_bathymetry_source</span><span class="p">,</span>
+                <span class="n">overwrite</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
             <span class="p">)</span>
 
             <span class="c1"># Set coordinate bounds</span>

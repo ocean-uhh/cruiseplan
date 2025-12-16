@@ -50,6 +50,16 @@
 <li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Guide</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -80,6 +90,8 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.stations">cruiseplan.cli.stations module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.check_bathymetry_availability"><code class="docutils literal notranslate"><span class="pre">check_bathymetry_availability()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.determine_bathymetry_source"><code class="docutils literal notranslate"><span class="pre">determine_bathymetry_source()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.determine_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">determine_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.load_pangaea_data"><code class="docutils literal notranslate"><span class="pre">load_pangaea_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
@@ -100,6 +112,8 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.utils">cruiseplan.cli.utils module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.CLIError"><code class="docutils literal notranslate"><span class="pre">CLIError</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.confirm_operation"><code class="docutils literal notranslate"><span class="pre">confirm_operation()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.count_individual_warnings"><code class="docutils literal notranslate"><span class="pre">count_individual_warnings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.display_user_warnings"><code class="docutils literal notranslate"><span class="pre">display_user_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.format_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">format_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.generate_output_filename"><code class="docutils literal notranslate"><span class="pre">generate_output_filename()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.load_yaml_config"><code class="docutils literal notranslate"><span class="pre">load_yaml_config()</span></code></a></li>
@@ -312,6 +326,42 @@ CLI-friendly prefix cleanup.</p>
 <p>This module implements the ‘cruiseplan stations’ command for interactive
 station placement with PANGAEA background data and bathymetry visualization.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.stations.check_bathymetry_availability">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">check_bathymetry_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#check_bathymetry_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.check_bathymetry_availability" title="Link to this definition"></a></dt>
+<dd><p>Check if bathymetry files are available for the specified source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – Bathymetry source (“etopo2022” or “gebco2025”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if bathymetry files are available and valid, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.stations.determine_bathymetry_source">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">determine_bathymetry_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requested_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#determine_bathymetry_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.determine_bathymetry_source" title="Link to this definition"></a></dt>
+<dd><p>Determine the optimal bathymetry source with automatic fallback.</p>
+<p>If the requested source is not available but an alternative is,
+automatically switch to the available source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>requested_source</strong> (<em>str</em>) – The user’s requested bathymetry source</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The optimal available bathymetry source</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.stations.determine_coordinate_bounds">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">determine_coordinate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#determine_coordinate_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.determine_coordinate_bounds" title="Link to this definition"></a></dt>
 <dd><p>Determine coordinate bounds from arguments or PANGAEA data.</p>
@@ -443,6 +493,37 @@ and error message formatting.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.utils.count_individual_warnings">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">count_individual_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#count_individual_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.count_individual_warnings" title="Link to this definition"></a></dt>
+<dd><p>Count individual warning messages from formatted warning groups.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>warnings</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of formatted warning group strings.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total number of individual warning messages.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.utils.display_user_warnings">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">display_user_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Configuration</span> <span class="pre">Warnings'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#display_user_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.display_user_warnings" title="Link to this definition"></a></dt>
+<dd><p>Display validation or configuration warnings in a consistent, user-friendly format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>warnings</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of warning messages to display.</p></li>
+<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title for the warning section (default: “Configuration Warnings”).</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
