@@ -124,7 +124,9 @@ class CSVGenerator:
                     "Transit dist [nm]": transit_dist_nm,
                     "Vessel speed [kt]": vessel_speed,
                     "Duration [hrs]": duration_hours,
-                    "Depth [m]": round(activity.get("depth", 0)),  # Whole number
+                    "Depth [m]": round(
+                        abs(activity.get("depth", 0))
+                    ),  # Whole number, positive downward
                     "Lat [deg]": round(
                         lat_decimal, 6
                     ),  # High precision decimal degrees
@@ -140,7 +142,6 @@ class CSVGenerator:
 
                 writer.writerow(row)
 
-        logger.info(f"CSV schedule saved to: {output_file}")
         return output_file
 
 

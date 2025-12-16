@@ -32,6 +32,89 @@ legs: []
     assert "unrealistic" in str(exc.value)
 
 
+def test_incomplete_coordinates_errors(tmp_path):
+    """Test that missing latitude or longitude coordinates raise validation errors."""
+    # Test case 1: Missing longitude in station
+    missing_lon_yaml = tmp_path / "missing_longitude.yaml"
+    missing_lon_yaml.write_text(
+        """
+cruise_name: "Test Cruise"
+start_date: "2025-01-01"
+default_vessel_speed: 10
+default_distance_between_stations: 10
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port: {name: P1, position: "0,0"}
+arrival_port: {name: P1, position: "0,0"}
+first_station: "S1"
+last_station: "S1"
+stations:
+  - name: S1
+    latitude: 60.0
+    operation_type: CTD
+    action: profile
+legs: []
+    """
+    )
+    with pytest.raises(ValidationError) as exc:
+        Cruise(missing_lon_yaml)
+    assert "Both latitude and longitude must be provided together" in str(exc.value)
+
+    # Test case 2: Missing latitude in station
+    missing_lat_yaml = tmp_path / "missing_latitude.yaml"
+    missing_lat_yaml.write_text(
+        """
+cruise_name: "Test Cruise"
+start_date: "2025-01-01"
+default_vessel_speed: 10
+default_distance_between_stations: 10
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port: {name: P1, position: "0,0"}
+arrival_port: {name: P1, position: "0,0"}
+first_station: "S1"
+last_station: "S1"
+stations:
+  - name: S1
+    longitude: -50.0
+    operation_type: CTD
+    action: profile
+legs: []
+    """
+    )
+    with pytest.raises(ValidationError) as exc:
+        Cruise(missing_lat_yaml)
+    assert "Both latitude and longitude must be provided together" in str(exc.value)
+
+    # Test case 3: Missing longitude in departure port
+    missing_port_lon_yaml = tmp_path / "missing_port_longitude.yaml"
+    missing_port_lon_yaml.write_text(
+        """
+cruise_name: "Test Cruise"
+start_date: "2025-01-01"
+default_vessel_speed: 10
+default_distance_between_stations: 10
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+departure_port:
+  name: TestPort
+  latitude: 60.0
+arrival_port: {name: P1, position: "0,0"}
+first_station: "S1"
+last_station: "S1"
+stations:
+  - name: S1
+    position: "60.0,-50.0"
+    operation_type: CTD
+    action: profile
+legs: []
+    """
+    )
+    with pytest.raises(ValidationError) as exc:
+        Cruise(missing_port_lon_yaml)
+    assert "Both latitude and longitude must be provided together" in str(exc.value)
+
+
 def test_value_constraints_warnings(tmp_path):
     """Test SOFT limits (Warnings)."""
     warn_yaml = tmp_path / "warn_values.yaml"

@@ -11,6 +11,7 @@ from cruiseplan.utils.constants import (
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
 )
+from cruiseplan.utils.coordinates import format_dmm_comment
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,8 @@ class OperationTypeEnum(str, Enum):
     WATER_SAMPLING = "water_sampling"
     MOORING = "mooring"
     CALIBRATION = "calibration"
+    # Placeholder for user guidance
+    UPDATE_PLACEHOLDER = "UPDATE-CTD-mooring-etc"
 
 
 class ActionEnum(str, Enum):
@@ -75,6 +78,10 @@ class ActionEnum(str, Enum):
     TOW_YO = "tow_yo"
     SEISMIC = "seismic"
     MICROSTRUCTURE = "microstructure"
+    # Placeholders for user guidance
+    UPDATE_PROFILE_PLACEHOLDER = "UPDATE-profile-sampling-etc"
+    UPDATE_LINE_PLACEHOLDER = "UPDATE-ADCP-bathymetry-etc"
+    UPDATE_AREA_PLACEHOLDER = "UPDATE-bathymetry-survey-etc"
 
 
 class LineOperationTypeEnum(str, Enum):
@@ -96,6 +103,8 @@ class AreaOperationTypeEnum(str, Enum):
     """
 
     SURVEY = "survey"
+    # Placeholder for user guidance
+    UPDATE_PLACEHOLDER = "UPDATE-survey-mapping-etc"
 
 
 # --- Shared Models ---
@@ -207,8 +216,21 @@ class FlexibleLocationModel(BaseModel):
             If position string cannot be parsed as "lat, lon".
         """
         if isinstance(data, dict):
+            # Check for incomplete coordinate pairs
+            has_lat = "latitude" in data
+            has_lon = "longitude" in data
+
+            if has_lat and not has_lon:
+                raise ValueError(
+                    "Both latitude and longitude must be provided together"
+                )
+            if has_lon and not has_lat:
+                raise ValueError(
+                    "Both latitude and longitude must be provided together"
+                )
+
             # Case A: Explicit Lat/Lon
-            if "latitude" in data and "longitude" in data:
+            if has_lat and has_lon:
                 data["position"] = {
                     "latitude": data.pop("latitude"),
                     "longitude": data.pop("longitude"),
@@ -283,7 +305,7 @@ class StationDefinition(FlexibleLocationModel):
     @field_validator("duration")
     def validate_duration_positive(cls, v):
         """
-        Validate that duration is positive.
+        Validate duration value, detecting placeholder values and issuing warnings.
 
         Parameters
         ----------
@@ -298,10 +320,87 @@ class StationDefinition(FlexibleLocationModel):
         Raises
         ------
         ValueError
-            If duration is not positive.
+            If duration is negative (but not placeholder values).
         """
-        if v is not None and v <= 0:
-            raise ValueError("Duration must be positive")
+        if v is not None:
+            if v == 9999.0:
+                warnings.warn(
+                    "Duration is set to placeholder value 9999.0 minutes. "
+                    "Please update with your planned operation duration.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            elif v == 0.0:
+                warnings.warn(
+                    "Duration is 0.0 minutes. This may indicate incomplete configuration. "
+                    "Consider updating the duration field or remove it to use automatic calculation.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            elif v < 0:
+                raise ValueError("Duration cannot be negative")
+        return v
+
+    @field_validator("depth")
+    def validate_depth_positive(cls, v):
+        """
+        Validate depth value to ensure it's positive.
+
+        Parameters
+        ----------
+        v : Optional[float]
+            Depth value to validate.
+
+        Returns
+        -------
+        Optional[float]
+            Validated depth value.
+
+        Raises
+        ------
+        ValueError
+            If depth is negative.
+        """
+        if v is not None and v < 0:
+            raise ValueError(
+                "Station depth must be positive (depths should be given as positive values in meters)"
+            )
+        return v
+
+    @field_validator("operation_type")
+    def validate_operation_type(cls, v):
+        """
+        Validate operation_type value.
+
+        Parameters
+        ----------
+        v : OperationTypeEnum
+            Operation type value to validate.
+
+        Returns
+        -------
+        OperationTypeEnum
+            Validated operation type value.
+        """
+        # Placeholder values are now valid enum values
+        return v
+
+    @field_validator("action")
+    def validate_action(cls, v):
+        """
+        Validate action value.
+
+        Parameters
+        ----------
+        v : ActionEnum
+            Action value to validate.
+
+        Returns
+        -------
+        ActionEnum
+            Validated action value.
+        """
+        # Placeholder values are now valid enum values
         return v
 
     @model_validator(mode="after")
@@ -319,7 +418,18 @@ class StationDefinition(FlexibleLocationModel):
         ValueError
             If action is not compatible with operation_type.
         """
-        """Ensure action is compatible with operation_type."""
+        # Skip validation if either value is a placeholder
+        if (
+            self.operation_type == OperationTypeEnum.UPDATE_PLACEHOLDER
+            or self.action
+            in [
+                ActionEnum.UPDATE_PROFILE_PLACEHOLDER,
+                ActionEnum.UPDATE_LINE_PLACEHOLDER,
+                ActionEnum.UPDATE_AREA_PLACEHOLDER,
+            ]
+        ):
+            return self
+
         valid_combinations = {
             OperationTypeEnum.CTD: [ActionEnum.PROFILE],
             OperationTypeEnum.WATER_SAMPLING: [ActionEnum.SAMPLING],
@@ -418,6 +528,14 @@ class TransitDefinition(BaseModel):
 
         # If this is a scientific transit, validate action matches operation_type
         if self.operation_type is not None and self.action is not None:
+            # Skip validation if action is a placeholder
+            if self.action in [
+                ActionEnum.UPDATE_PROFILE_PLACEHOLDER,
+                ActionEnum.UPDATE_LINE_PLACEHOLDER,
+                ActionEnum.UPDATE_AREA_PLACEHOLDER,
+            ]:
+                return self
+
             valid_combinations = {
                 LineOperationTypeEnum.UNDERWAY: [
                     ActionEnum.ADCP,
@@ -566,7 +684,7 @@ class AreaDefinition(BaseModel):
         List of corner points defining the area boundary.
     comment : Optional[str]
         Human-readable comment or description.
-    operation_type : Optional[str]
+    operation_type : Optional[AreaOperationTypeEnum]
         Type of operation for the area (default: "survey").
     action : Optional[ActionEnum]
         Specific action for the area operation.
@@ -577,9 +695,48 @@ class AreaDefinition(BaseModel):
     name: str
     corners: List[GeoPoint]
     comment: Optional[str] = None
-    operation_type: Optional[str] = "survey"
+    operation_type: Optional[AreaOperationTypeEnum] = AreaOperationTypeEnum.SURVEY
     action: Optional[ActionEnum] = None
     duration: Optional[float] = None  # Duration in minutes
+
+    @field_validator("duration")
+    def validate_duration_positive(cls, v):
+        """
+        Validate duration value, detecting placeholder values and issuing warnings.
+
+        Parameters
+        ----------
+        v : Optional[float]
+            Duration value to validate.
+
+        Returns
+        -------
+        Optional[float]
+            Validated duration value.
+
+        Raises
+        ------
+        ValueError
+            If duration is negative (but not placeholder values).
+        """
+        if v is not None:
+            if v == 9999.0:
+                warnings.warn(
+                    "Duration is set to placeholder value 9999.0 minutes. "
+                    "Please update with your planned operation duration.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            elif v == 0.0:
+                warnings.warn(
+                    "Duration is 0.0 minutes. This may indicate incomplete configuration. "
+                    "Consider updating the duration field or remove it to use automatic calculation.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+            elif v < 0:
+                raise ValueError("Duration cannot be negative")
+        return v
 
 
 class ClusterDefinition(BaseModel):
@@ -988,6 +1145,31 @@ class CruiseConfig(BaseModel):
 # ===== Configuration Enrichment and Validation Functions =====
 
 
+def replace_placeholder_values(
+    config_dict: Dict[str, Any],
+) -> Tuple[Dict[str, Any], bool]:
+    """
+    Preserve placeholder values since they are now valid enum values.
+
+    This function no longer replaces placeholders, as they are treated as valid
+    enum values in the validation system. Users can continue using placeholders
+    throughout the workflow and only replace them when manually updating the configuration.
+
+    Parameters
+    ----------
+    config_dict : Dict[str, Any]
+        Raw configuration dictionary from YAML
+
+    Returns
+    -------
+    Tuple[Dict[str, Any], bool]
+        Configuration dictionary unchanged and whether any replacements were made (always False)
+    """
+    # Placeholders are now valid enum values, so no replacement needed
+    logger.debug("Preserving placeholder values as valid enum values")
+    return config_dict, False
+
+
 def enrich_configuration(
     config_path: Path,
     add_depths: bool = False,
@@ -1025,13 +1207,48 @@ def enrich_configuration(
         - stations_with_coords_added: Number of coordinates added
         - total_stations_processed: Total stations processed
     """
+    import yaml
+
     from cruiseplan.cli.utils import save_yaml_config
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.data.bathymetry import BathymetryManager
-    from cruiseplan.utils.coordinates import format_dmm_comment
 
-    # Load cruise configuration
-    cruise = Cruise(config_path)
+    # Load and preprocess the YAML configuration to replace placeholders
+    with open(config_path) as f:
+        config_dict = yaml.safe_load(f)
+
+    # Replace placeholder values with sensible defaults
+    config_dict, placeholders_replaced = replace_placeholder_values(config_dict)
+
+    # Create temporary file with processed config for Cruise loading
+    import tempfile
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".yaml", delete=False
+    ) as temp_file:
+        yaml.dump(config_dict, temp_file, default_flow_style=False, sort_keys=False)
+        temp_config_path = Path(temp_file.name)
+
+    # Capture Python warnings for better formatting
+    import warnings as python_warnings
+
+    captured_warnings = []
+
+    def warning_handler(message, category, filename, lineno, file=None, line=None):
+        captured_warnings.append(str(message))
+
+    # Set up warning capture
+    old_showwarning = python_warnings.showwarning
+    python_warnings.showwarning = warning_handler
+
+    try:
+        # Load cruise configuration from preprocessed data
+        cruise = Cruise(temp_config_path)
+    finally:
+        # Clean up temporary file
+        temp_config_path.unlink()
+        # Restore original warning handler
+        python_warnings.showwarning = old_showwarning
 
     enrichment_summary = {
         "stations_with_depths_added": 0,
@@ -1048,13 +1265,18 @@ def enrich_configuration(
 
     # Process each station
     for station_name, station in cruise.station_registry.items():
-        # Add depths if requested
-        if add_depths and (not hasattr(station, "depth") or station.depth is None):
+        # Add depths if requested (including replacing placeholder depths)
+        should_add_depth = add_depths and (
+            not hasattr(station, "depth")
+            or station.depth is None
+            or station.depth == -9999.0  # Replace placeholder depth
+        )
+        if should_add_depth:
             depth = bathymetry.get_depth_at_point(
                 station.position.latitude, station.position.longitude
             )
             if depth is not None and depth != 0:
-                station.depth = abs(depth)
+                station.depth = abs(depth)  # Convert to positive depth
                 enrichment_summary["stations_with_depths_added"] += 1
                 stations_with_depths_added.add(station_name)
                 logger.debug(
@@ -1065,7 +1287,28 @@ def enrich_configuration(
     config_dict = cruise.raw_data.copy()
     coord_changes_made = 0
 
-    # Process coordinate additions and other changes
+    def add_dmm_coordinates(data_dict, lat, lon, coord_field_name):
+        """Helper function to add DMM coordinates to a data dictionary."""
+        nonlocal coord_changes_made
+        if coord_format == "dmm":
+            if coord_field_name not in data_dict or not data_dict.get(coord_field_name):
+                dmm_comment = format_dmm_comment(lat, lon)
+                data_dict[coord_field_name] = dmm_comment
+                coord_changes_made += 1
+                return dmm_comment
+        elif coord_format == "dms":
+            warnings.warn(
+                "DMS coordinate format is not yet supported. No coordinates were added.",
+                UserWarning,
+            )
+        else:
+            warnings.warn(
+                f"Unknown coordinate format '{coord_format}' specified. No coordinates were added.",
+                UserWarning,
+            )
+        return None
+
+    # Process coordinate additions for stations
     if "stations" in config_dict:
         for station_data in config_dict["stations"]:
             station_name = station_data["name"]
@@ -1078,31 +1321,76 @@ def enrich_configuration(
 
                 # Add coordinate fields if requested
                 if add_coords:
-                    if coord_format == "dmm":
-                        if (
-                            "coordinates_dmm" not in station_data
-                            or not station_data.get("coordinates_dmm")
-                        ):
-                            dmm_comment = format_dmm_comment(
-                                station_obj.position.latitude,
-                                station_obj.position.longitude,
-                            )
-                            station_data["coordinates_dmm"] = dmm_comment
-                            coord_changes_made += 1
-                            logger.debug(
-                                f"Added DMM coordinates to station {station_name}: {dmm_comment}"
-                            )
-                    elif coord_format == "dms":
-                        warnings.warn(
-                            "DMS coordinate format is not yet supported. No coordinates were added for station "
-                            f"{station_name}.",
-                            UserWarning,
+                    dmm_result = add_dmm_coordinates(
+                        station_data,
+                        station_obj.position.latitude,
+                        station_obj.position.longitude,
+                        "coordinates_dmm",
+                    )
+                    if dmm_result:
+                        logger.debug(
+                            f"Added DMM coordinates to station {station_name}: {dmm_result}"
                         )
-                    else:
-                        warnings.warn(
-                            f"Unknown coordinate format '{coord_format}' specified. No coordinates were added for station "
-                            f"{station_name}.",
-                            UserWarning,
+
+    # Process coordinate additions for departure and arrival ports
+    if add_coords:
+        for port_key in ["departure_port", "arrival_port"]:
+            if port_key in config_dict and config_dict[port_key]:
+                port_data = config_dict[port_key]
+                if hasattr(cruise.config, port_key):
+                    port_obj = getattr(cruise.config, port_key)
+                    if hasattr(port_obj, "position") and port_obj.position:
+                        dmm_result = add_dmm_coordinates(
+                            port_data,
+                            port_obj.position.latitude,
+                            port_obj.position.longitude,
+                            "coordinates_dmm",
+                        )
+                        if dmm_result:
+                            logger.debug(
+                                f"Added DMM coordinates to {port_key}: {dmm_result}"
+                            )
+
+    # Process coordinate additions for transit routes
+    if add_coords and "transits" in config_dict:
+        for transit_data in config_dict["transits"]:
+            if "route" in transit_data and transit_data["route"]:
+                # Add route_dmm field with list of position_dmm entries
+                if "route_dmm" not in transit_data:
+                    route_dmm_list = []
+                    for point in transit_data["route"]:
+                        if "latitude" in point and "longitude" in point:
+                            dmm_comment = format_dmm_comment(
+                                point["latitude"], point["longitude"]
+                            )
+                            route_dmm_list.append({"position_dmm": dmm_comment})
+                            coord_changes_made += 1
+
+                    if route_dmm_list:
+                        transit_data["route_dmm"] = route_dmm_list
+                        logger.debug(
+                            f"Added DMM coordinates to transit {transit_data.get('name', 'unnamed')} route: {len(route_dmm_list)} points"
+                        )
+
+    # Process coordinate additions for area corners
+    if add_coords and "areas" in config_dict:
+        for area_data in config_dict["areas"]:
+            if "corners" in area_data and area_data["corners"]:
+                # Add corners_dmm field with list of position_dmm entries
+                if "corners_dmm" not in area_data:
+                    corners_dmm_list = []
+                    for corner in area_data["corners"]:
+                        if "latitude" in corner and "longitude" in corner:
+                            dmm_comment = format_dmm_comment(
+                                corner["latitude"], corner["longitude"]
+                            )
+                            corners_dmm_list.append({"position_dmm": dmm_comment})
+                            coord_changes_made += 1
+
+                    if corners_dmm_list:
+                        area_data["corners_dmm"] = corners_dmm_list
+                        logger.debug(
+                            f"Added DMM coordinates to area {area_data.get('name', 'unnamed')} corners: {len(corners_dmm_list)} points"
                         )
     # Update the enrichment summary
     enrichment_summary["stations_with_coords_added"] = coord_changes_made
@@ -1111,8 +1399,18 @@ def enrich_configuration(
         + enrichment_summary["stations_with_coords_added"]
     )
 
-    # Save enriched configuration if any changes were made
-    if total_enriched > 0 and output_path:
+    # Process captured warnings and display them in user-friendly format
+    if captured_warnings:
+        formatted_warnings = _format_validation_warnings(captured_warnings, cruise)
+        for warning_group in formatted_warnings:
+            logger.warning("⚠️ Configuration Warnings:")
+            for line in warning_group.split("\n"):
+                if line.strip():
+                    logger.warning(f"  {line}")
+            logger.warning("")  # Add spacing between warning groups
+
+    # Save enriched configuration only if any changes were made OR if placeholders were replaced
+    if output_path and (total_enriched > 0 or placeholders_replaced):
         save_yaml_config(config_dict, output_path, backup=True)
 
     return enrichment_summary
@@ -1152,6 +1450,8 @@ def validate_configuration_file(
         - errors: List of error messages
         - warnings: List of warning messages
     """
+    import warnings as python_warnings
+
     from pydantic import ValidationError
 
     from cruiseplan.core.cruise import Cruise
@@ -1160,12 +1460,40 @@ def validate_configuration_file(
     errors = []
     warnings = []
 
+    # Capture Python warnings for better formatting
+    captured_warnings = []
+
+    def warning_handler(message, category, filename, lineno, file=None, line=None):
+        captured_warnings.append(str(message))
+
+    # Set up warning capture
+    old_showwarning = python_warnings.showwarning
+    python_warnings.showwarning = warning_handler
+
     try:
         # Load and validate configuration
         cruise = Cruise(config_path)
 
         # Basic validation passed if we get here
         logger.debug("✓ YAML structure and schema validation passed")
+
+        # Duplicate detection (always run)
+        duplicate_errors, duplicate_warnings = check_duplicate_names(cruise)
+        errors.extend(duplicate_errors)
+        warnings.extend(duplicate_warnings)
+
+        complete_dup_errors, complete_dup_warnings = check_complete_duplicates(cruise)
+        errors.extend(complete_dup_errors)
+        warnings.extend(complete_dup_warnings)
+
+        if duplicate_errors or complete_dup_errors:
+            logger.debug(
+                f"Found {len(duplicate_errors + complete_dup_errors)} duplicate-related errors"
+            )
+        if duplicate_warnings or complete_dup_warnings:
+            logger.debug(
+                f"Found {len(duplicate_warnings + complete_dup_warnings)} duplicate-related warnings"
+            )
 
         # Depth validation if requested
         if check_depths:
@@ -1178,6 +1506,14 @@ def validate_configuration_file(
 
         # Additional validations can be added here
 
+        # Check for cruise metadata issues
+        metadata_warnings = _check_cruise_metadata(cruise)
+        warnings.extend(metadata_warnings)
+
+        # Process captured warnings and format them nicely
+        formatted_warnings = _format_validation_warnings(captured_warnings, cruise)
+        warnings.extend(formatted_warnings)
+
         success = len(errors) == 0
         return success, errors, warnings
 
@@ -1186,11 +1522,347 @@ def validate_configuration_file(
             location = " -> ".join(str(loc) for loc in error["loc"])
             message = error["msg"]
             errors.append(f"Schema error at {location}: {message}")
+
+        # Still try to collect warnings even when validation fails
+        try:
+            # Try to load the YAML directly for metadata checking
+            import yaml
+
+            with open(config_path) as f:
+                raw_config = yaml.safe_load(f)
+
+            # Check cruise metadata from raw YAML
+            if raw_config:
+                metadata_warnings = _check_cruise_metadata_raw(raw_config)
+                warnings.extend(metadata_warnings)
+        except Exception:
+            # If we can't load raw YAML, just continue
+            pass
+
+        # Process captured Pydantic warnings even on validation failure
+        formatted_warnings = _format_validation_warnings(captured_warnings, None)
+        warnings.extend(formatted_warnings)
+
         return False, errors, warnings
 
     except Exception as e:
         errors.append(f"Configuration loading error: {e}")
         return False, errors, warnings
+
+    finally:
+        # Restore original warning handler
+        python_warnings.showwarning = old_showwarning
+
+
+def _check_cruise_metadata(cruise) -> List[str]:
+    """
+    Check cruise metadata for placeholder values and default coordinates.
+
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object to check.
+
+    Returns
+    -------
+    List[str]
+        List of cruise metadata warning messages.
+    """
+    metadata_warnings = []
+
+    # Check for UPDATE- placeholders in cruise-level fields
+    config = cruise.config
+
+    # Check start_date
+    if hasattr(config, "start_date"):
+        if config.start_date.startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Start date is set to placeholder 'UPDATE-YYYY-MM-DDTHH:MM:SSZ'. Please update with actual cruise start date."
+            )
+        elif config.start_date == "1970-01-01T00:00:00Z":
+            metadata_warnings.append(
+                "Start date is set to default '1970-01-01T00:00:00Z'. Please update with actual cruise start date."
+            )
+
+    # Check departure port
+    if hasattr(config, "departure_port"):
+        port = config.departure_port
+        if hasattr(port, "name") and port.name.startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Departure port name is set to placeholder 'UPDATE-departure-port-name'. Please update with actual port name."
+            )
+
+        if hasattr(port, "position"):
+            if port.position.latitude == 0.0 and port.position.longitude == 0.0:
+                metadata_warnings.append(
+                    "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+                )
+
+        if hasattr(port, "timezone") and port.timezone == "GMT+0":
+            metadata_warnings.append(
+                "Departure port timezone is set to default 'GMT+0'. Please update with actual port timezone."
+            )
+
+    # Check arrival port
+    if hasattr(config, "arrival_port"):
+        port = config.arrival_port
+        if hasattr(port, "name") and port.name.startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Arrival port name is set to placeholder 'UPDATE-arrival-port-name'. Please update with actual port name."
+            )
+
+        if hasattr(port, "position"):
+            if port.position.latitude == 0.0 and port.position.longitude == 0.0:
+                metadata_warnings.append(
+                    "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+                )
+
+        if hasattr(port, "timezone") and port.timezone == "GMT+0":
+            metadata_warnings.append(
+                "Arrival port timezone is set to default 'GMT+0'. Please update with actual port timezone."
+            )
+
+    # Format warnings if any found
+    if metadata_warnings:
+        lines = ["Cruise Metadata:"]
+        for warning in metadata_warnings:
+            lines.append(f"  - {warning}")
+        return ["\n".join(lines)]
+
+    return []
+
+
+def _check_cruise_metadata_raw(raw_config: dict) -> List[str]:
+    """
+    Check cruise metadata for placeholder values and default coordinates from raw YAML.
+
+    Parameters
+    ----------
+    raw_config : dict
+        Raw YAML configuration dictionary.
+
+    Returns
+    -------
+    List[str]
+        List of cruise metadata warning messages.
+    """
+    metadata_warnings = []
+
+    # Check for UPDATE- placeholders in cruise-level fields
+
+    # Check start_date
+    if "start_date" in raw_config:
+        start_date = str(raw_config["start_date"])
+        if start_date.startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Start date is set to placeholder 'UPDATE-YYYY-MM-DDTHH:MM:SSZ'. Please update with actual cruise start date."
+            )
+        elif start_date == "1970-01-01T00:00:00Z":
+            metadata_warnings.append(
+                "Start date is set to default '1970-01-01T00:00:00Z'. Please update with actual cruise start date."
+            )
+
+    # Check departure port
+    if "departure_port" in raw_config:
+        port = raw_config["departure_port"]
+        if "name" in port and str(port["name"]).startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Departure port name is set to placeholder 'UPDATE-departure-port-name'. Please update with actual port name."
+            )
+
+        if "position" in port:
+            position = port["position"]
+            if position.get("latitude") == 0.0 and position.get("longitude") == 0.0:
+                metadata_warnings.append(
+                    "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+                )
+
+        if port.get("timezone") == "GMT+0":
+            metadata_warnings.append(
+                "Departure port timezone is set to default 'GMT+0'. Please update with actual port timezone."
+            )
+
+    # Check arrival port
+    if "arrival_port" in raw_config:
+        port = raw_config["arrival_port"]
+        if "name" in port and str(port["name"]).startswith("UPDATE-"):
+            metadata_warnings.append(
+                "Arrival port name is set to placeholder 'UPDATE-arrival-port-name'. Please update with actual port name."
+            )
+
+        if "position" in port:
+            position = port["position"]
+            if position.get("latitude") == 0.0 and position.get("longitude") == 0.0:
+                metadata_warnings.append(
+                    "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
+                )
+
+        if port.get("timezone") == "GMT+0":
+            metadata_warnings.append(
+                "Arrival port timezone is set to default 'GMT+0'. Please update with actual port timezone."
+            )
+
+    # Format warnings if any found
+    if metadata_warnings:
+        lines = ["Cruise Metadata:"]
+        for warning in metadata_warnings:
+            lines.append(f"  - {warning}")
+        return ["\n".join(lines)]
+
+    return []
+
+
+def _format_validation_warnings(captured_warnings: List[str], cruise) -> List[str]:
+    """
+    Format captured Pydantic warnings into user-friendly grouped messages.
+
+    Parameters
+    ----------
+    captured_warnings : List[str]
+        List of captured warning messages from Pydantic validators.
+    cruise : Cruise
+        Cruise object to map warnings to specific entities.
+
+    Returns
+    -------
+    List[str]
+        Formatted warning messages grouped by type and sorted alphabetically.
+    """
+    if not captured_warnings:
+        return []
+
+    # Group warnings by type and entity
+    warning_groups = {
+        "Cruise Metadata": [],
+        "Stations": {},
+        "Transits": {},
+        "Areas": {},
+        "Configuration": [],
+    }
+
+    # Process each warning and try to associate it with specific entities
+    for warning_msg in captured_warnings:
+        # Try to identify which entity this warning belongs to
+        entity_found = False
+
+        # Check stations
+        if hasattr(cruise, "station_registry"):
+            for station_name, station in cruise.station_registry.items():
+                if _warning_relates_to_entity(warning_msg, station):
+                    if station_name not in warning_groups["Stations"]:
+                        warning_groups["Stations"][station_name] = []
+                    warning_groups["Stations"][station_name].append(
+                        _clean_warning_message(warning_msg)
+                    )
+                    entity_found = True
+                    break
+
+        # Check transits
+        if not entity_found and hasattr(cruise, "transit_registry"):
+            for transit_name, transit in cruise.transit_registry.items():
+                if _warning_relates_to_entity(warning_msg, transit):
+                    if transit_name not in warning_groups["Transits"]:
+                        warning_groups["Transits"][transit_name] = []
+                    warning_groups["Transits"][transit_name].append(
+                        _clean_warning_message(warning_msg)
+                    )
+                    entity_found = True
+                    break
+
+        # Check areas
+        if (
+            not entity_found
+            and hasattr(cruise, "config")
+            and hasattr(cruise.config, "areas")
+            and cruise.config.areas
+        ):
+            for area in cruise.config.areas:
+                if _warning_relates_to_entity(warning_msg, area):
+                    area_name = area.name
+                    if area_name not in warning_groups["Areas"]:
+                        warning_groups["Areas"][area_name] = []
+                    warning_groups["Areas"][area_name].append(
+                        _clean_warning_message(warning_msg)
+                    )
+                    entity_found = True
+                    break
+
+        # If not found, add to general configuration warnings
+        if not entity_found:
+            warning_groups["Configuration"].append(_clean_warning_message(warning_msg))
+
+    # Format the grouped warnings
+    formatted_sections = []
+
+    for group_name in ["Stations", "Transits", "Areas"]:
+        if warning_groups[group_name]:
+            lines = [f"{group_name}:"]
+            # Sort entity names alphabetically
+            for entity_name in sorted(warning_groups[group_name].keys()):
+                entity_warnings = warning_groups[group_name][entity_name]
+                for warning in entity_warnings:
+                    lines.append(f"  - {entity_name}: {warning}")
+            formatted_sections.append("\n".join(lines))
+
+    # Add configuration warnings
+    if warning_groups["Configuration"]:
+        lines = ["Configuration:"]
+        for warning in warning_groups["Configuration"]:
+            lines.append(f"  - {warning}")
+        formatted_sections.append("\n".join(lines))
+
+    return formatted_sections
+
+
+def _warning_relates_to_entity(warning_msg: str, entity) -> bool:
+    """Check if a warning message relates to a specific entity by examining field values."""
+    # Check for placeholder values that would trigger warnings
+    if hasattr(entity, "operation_type") and str(entity.operation_type) in warning_msg:
+        # Make sure this isn't a placeholder operation_type warning
+        if "placeholder" not in warning_msg:
+            return True
+        # Check for placeholder operation_type values
+        if hasattr(entity, "operation_type") and str(entity.operation_type) in [
+            "UPDATE-CTD-mooring-etc",
+            "UPDATE_PLACEHOLDER",
+        ]:
+            return True
+
+    if hasattr(entity, "action") and str(entity.action) in warning_msg:
+        # Make sure this isn't a placeholder action warning
+        if "placeholder" not in warning_msg:
+            return True
+        # Check for placeholder action values
+        if hasattr(entity, "action") and str(entity.action) in [
+            "UPDATE-profile-sampling-etc",
+            "UPDATE-ADCP-bathymetry-etc",
+            "UPDATE-bathymetry-survey-etc",
+        ]:
+            return True
+
+    if (
+        hasattr(entity, "duration")
+        and entity.duration is not None
+        and entity.duration == 9999.0
+        and "9999.0" in warning_msg
+    ):
+        return True
+    return False
+
+
+def _clean_warning_message(warning_msg: str) -> str:
+    """Clean up warning message for user display."""
+    # Remove redundant phrases and clean up the message
+    cleaned = warning_msg.replace(
+        "Duration is set to placeholder value ", "Duration is set to placeholder "
+    )
+    cleaned = cleaned.replace(
+        "Operation type is set to placeholder ", "Operation type is set to placeholder "
+    )
+    cleaned = cleaned.replace(
+        "Action is set to placeholder ", "Action is set to placeholder "
+    )
+    return cleaned
 
 
 def validate_depth_accuracy(
@@ -1252,3 +1924,127 @@ def validate_depth_accuracy(
                 warning_messages.append(warning_msg)
 
     return stations_checked, warning_messages
+
+
+def check_duplicate_names(cruise) -> Tuple[List[str], List[str]]:
+    """
+    Check for duplicate names across different configuration sections.
+
+    Parameters
+    ----------
+    cruise : Any
+        Loaded cruise configuration object.
+
+    Returns
+    -------
+    Tuple[List[str], List[str]]
+        Tuple of (errors, warnings) for duplicate detection.
+    """
+    errors = []
+    warnings = []
+
+    # Check for duplicate station names - use raw config to catch duplicates
+    # that were silently overwritten during station_registry creation
+    if hasattr(cruise.config, "stations") and cruise.config.stations:
+        station_names = [station.name for station in cruise.config.stations]
+        if len(station_names) != len(set(station_names)):
+            duplicates = [
+                name for name in station_names if station_names.count(name) > 1
+            ]
+            unique_duplicates = list(set(duplicates))
+            for dup_name in unique_duplicates:
+                count = station_names.count(dup_name)
+                errors.append(
+                    f"Duplicate station name '{dup_name}' found {count} times - station names must be unique"
+                )
+
+    # Check for duplicate leg names (if cruise has legs)
+    if hasattr(cruise.config, "legs") and cruise.config.legs:
+        leg_names = [leg.name for leg in cruise.config.legs]
+        if len(leg_names) != len(set(leg_names)):
+            duplicates = [name for name in leg_names if leg_names.count(name) > 1]
+            unique_duplicates = list(set(duplicates))
+            for dup_name in unique_duplicates:
+                count = leg_names.count(dup_name)
+                errors.append(
+                    f"Duplicate leg name '{dup_name}' found {count} times - leg names must be unique"
+                )
+
+    # Check for duplicate section names (if cruise has sections)
+    if hasattr(cruise.config, "sections") and cruise.config.sections:
+        section_names = [section.name for section in cruise.config.sections]
+        if len(section_names) != len(set(section_names)):
+            duplicates = [
+                name for name in section_names if section_names.count(name) > 1
+            ]
+            unique_duplicates = list(set(duplicates))
+            for dup_name in unique_duplicates:
+                count = section_names.count(dup_name)
+                errors.append(
+                    f"Duplicate section name '{dup_name}' found {count} times - section names must be unique"
+                )
+
+    # Check for duplicate mooring names (if cruise has moorings)
+    if hasattr(cruise.config, "moorings") and cruise.config.moorings:
+        mooring_names = [mooring.name for mooring in cruise.config.moorings]
+        if len(mooring_names) != len(set(mooring_names)):
+            duplicates = [
+                name for name in mooring_names if mooring_names.count(name) > 1
+            ]
+            unique_duplicates = list(set(duplicates))
+            for dup_name in unique_duplicates:
+                count = mooring_names.count(dup_name)
+                errors.append(
+                    f"Duplicate mooring name '{dup_name}' found {count} times - mooring names must be unique"
+                )
+
+    return errors, warnings
+
+
+def check_complete_duplicates(cruise) -> Tuple[List[str], List[str]]:
+    """
+    Check for completely identical entries (same name, position, operation, etc.).
+
+    Parameters
+    ----------
+    cruise : Any
+        Loaded cruise configuration object.
+
+    Returns
+    -------
+    Tuple[List[str], List[str]]
+        Tuple of (errors, warnings) for complete duplicate detection.
+    """
+    errors = []
+    warnings = []
+    warned_pairs = set()  # Track warned pairs to avoid duplicates
+
+    # Check for complete duplicate stations
+    if hasattr(cruise.config, "stations") and cruise.config.stations:
+        stations = cruise.config.stations
+        for i, station1 in enumerate(stations):
+            for j, station2 in enumerate(stations[i + 1 :], i + 1):
+                # Check if all key attributes are identical
+                if (
+                    station1.name
+                    != station2.name  # Don't compare same names (handled above)
+                    and getattr(station1.position, "latitude", None)
+                    == getattr(station2.position, "latitude", None)
+                    and getattr(station1.position, "longitude", None)
+                    == getattr(station2.position, "longitude", None)
+                    and getattr(station1, "operation_type", None)
+                    == getattr(station2, "operation_type", None)
+                    and getattr(station1, "action", None)
+                    == getattr(station2, "action", None)
+                ):
+
+                    # Create a sorted pair to avoid duplicate warnings for same stations
+                    pair = tuple(sorted([station1.name, station2.name]))
+                    if pair not in warned_pairs:
+                        warned_pairs.add(pair)
+                        warnings.append(
+                            f"Potentially duplicate stations '{station1.name}' and '{station2.name}' "
+                            f"have identical coordinates and operations"
+                        )
+
+    return errors, warnings

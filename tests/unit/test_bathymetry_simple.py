@@ -10,7 +10,11 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 import cruiseplan.data.bathymetry as bathy_module
-from cruiseplan.data.bathymetry import ETOPO_FILENAME, BathymetryManager
+from cruiseplan.data.bathymetry import (
+    ETOPO_FILENAME,
+    BathymetryManager,
+    get_bathymetry_singleton,
+)
 
 
 class TestBathymetrySimpleCoverage:
@@ -156,8 +160,8 @@ class TestBathymetrySimpleCoverage:
         bathy_module._bathymetry_instance = None
 
         # Get singleton twice
-        instance1 = bathy_module.get_bathymetry_singleton()
-        instance2 = bathy_module.get_bathymetry_singleton()
+        instance1 = get_bathymetry_singleton()
+        instance2 = get_bathymetry_singleton()
 
         # Should be the same instance
         assert instance1 is instance2

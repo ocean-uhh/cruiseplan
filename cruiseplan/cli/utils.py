@@ -152,6 +152,25 @@ def load_yaml_config(file_path: Path) -> dict:
         raise CLIError(f"Error reading {file_path}: {e}")
 
 
+def _get_incremental_backup_path(file_path: Path) -> Path:
+    """
+    Get an incremental backup file path that doesn't already exist.
+
+    Args:
+        file_path: Original file path
+
+    Returns
+    -------
+        Path: Available backup path with incremental number
+    """
+    counter = 1
+    while True:
+        backup_path = file_path.with_name(f"{file_path.name}-{counter}")
+        if not backup_path.exists():
+            return backup_path
+        counter += 1
+
+
 def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None:
     """
     Save configuration to YAML file with optional backup.
@@ -168,7 +187,7 @@ def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None
     try:
         # Create backup if requested and file exists
         if backup and file_path.exists():
-            backup_path = file_path.with_suffix(f"{file_path.suffix}.backup")
+            backup_path = _get_incremental_backup_path(file_path)
             backup_path.write_text(file_path.read_text())
             logger.info(f"Created backup: {backup_path}")
 
@@ -294,3 +313,51 @@ def confirm_operation(message: str, default: bool = True) -> bool:
     except KeyboardInterrupt:
         print("\n\nOperation cancelled.")
         return False
+
+
+def count_individual_warnings(warnings: List[str]) -> int:
+    """
+    Count individual warning messages from formatted warning groups.
+
+    Parameters
+    ----------
+    warnings : List[str]
+        List of formatted warning group strings.
+
+    Returns
+    -------
+    int
+        Total number of individual warning messages.
+    """
+    total_count = 0
+    for warning_group in warnings:
+        for line in warning_group.split("\n"):
+            line = line.strip()
+            # Count lines that start with "- " (individual warning items)
+            if line.startswith("- "):
+                total_count += 1
+    return total_count
+
+
+def display_user_warnings(
+    warnings: List[str], title: str = "Configuration Warnings"
+) -> None:
+    """
+    Display validation or configuration warnings in a consistent, user-friendly format.
+
+    Parameters
+    ----------
+    warnings : List[str]
+        List of warning messages to display.
+    title : str, optional
+        Title for the warning section (default: "Configuration Warnings").
+    """
+    if not warnings:
+        return
+
+    logger.warning(f"⚠️ {title}:")
+    for warning_group in warnings:
+        for line in warning_group.split("\n"):
+            if line.strip():
+                logger.warning(f"  {line}")
+        logger.warning("")  # Add spacing between warning groups

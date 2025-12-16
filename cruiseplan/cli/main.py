@@ -211,6 +211,11 @@ Examples:
         action="store_true",
         help="Use full resolution bathymetry (slower but more detailed)",
     )
+    stations_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing output file without prompting",
+    )
 
     # --- 4. Enrich Subcommand ---
     enrich_parser = subparsers.add_parser(

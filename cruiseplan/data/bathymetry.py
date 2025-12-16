@@ -133,7 +133,8 @@ class BathymetryManager:
                 # (These are 1D arrays, so they fit easily in memory)
                 self._lats = self._dataset.variables["lat"][:]
                 self._lons = self._dataset.variables["lon"][:]
-
+                # Determine depth variable name based on source
+                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = False
                 logger.info(f"✅ Loaded bathymetry from {file_path}")
             except Exception as e:
@@ -451,13 +452,17 @@ class BathymetryManager:
 
                 # Extract the first .nc file found (with path validation)
                 nc_file_in_zip = nc_files[0]
-                
+
                 # Validate filename to prevent path traversal attacks
-                nc_filename = Path(nc_file_in_zip).name  # Only get filename, no path components
+                nc_filename = Path(
+                    nc_file_in_zip
+                ).name  # Only get filename, no path components
                 if nc_filename != nc_file_in_zip:
-                    logger.warning(f"⚠️ Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure.")
+                    logger.warning(
+                        f"⚠️ Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure."
+                    )
                     return False
-                
+
                 logger.info(f"Extracting {nc_file_in_zip}...")
 
                 # Extract with progress (for large files)
@@ -547,7 +552,7 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
     source : str, optional
         Bathymetry source to download (default: "etopo2022").
         Options: "etopo2022", "gebco2025".
-    
+
     Returns
     -------
     bool or None

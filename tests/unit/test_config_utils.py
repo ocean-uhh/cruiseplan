@@ -28,8 +28,8 @@ def test_format_station_standard():
         "longitude": -52.98765,  # Rounding check (5 decimals)
         "depth": 250.6,  # Depth rounding (1 decimal)
         "comment": "Interactive selection",
-        "operation_type": "CTD",
-        "action": "profile",
+        "operation_type": "UPDATE-CTD-mooring-etc",  # Now uses placeholders
+        "action": "UPDATE-profile-sampling-etc",  # Now uses placeholders
     }
 
     assert result == expected
@@ -42,8 +42,8 @@ def test_format_station_missing_depth():
 
     result = format_station_for_yaml(input_data, index)
 
-    # Should default to -9999
-    assert result["depth"] == -9999
+    # Should default to 9999.0 (absolute value of -9999)
+    assert result["depth"] == 9999.0
 
 
 def test_format_transect_standard():
@@ -57,11 +57,11 @@ def test_format_transect_standard():
     result = format_transect_for_yaml(input_data, index)
 
     expected_structure = {
-        "name": "Section_02",  # Padding check (02d)
+        "name": "Transit_02",  # Updated naming from Section to Transit
         "comment": "Interactive transect",
         "operation_type": "underway",
-        "action": "ADCP",
-        "vessel_speed": "10.0",
+        "action": "UPDATE-ADCP-bathymetry-etc",  # Now uses placeholder
+        "vessel_speed": 10.0,  # Number not string
         "route": [
             {
                 "latitude": 10.12346,
@@ -69,7 +69,6 @@ def test_format_transect_standard():
             },  # Rounding check (5 decimals)
             {"latitude": 30.98765, "longitude": 40.98765},
         ],
-        "reversible": True,
     }
 
     assert result == expected_structure
@@ -257,8 +256,8 @@ class TestConfigUtils:
         station_data = {"lat": 50.0, "lon": -10.0}
         formatted = format_station_for_yaml(station_data, 2)
 
-        # Test for the hardcoded depth fallback used in the formatter code
-        assert formatted["depth"] == -9999.0
+        # Test for the hardcoded depth fallback (now absolute value)
+        assert formatted["depth"] == 9999.0
 
     def test_format_transect_for_yaml(self):
         """Tests correct formatting for transect data."""
@@ -268,7 +267,7 @@ class TestConfigUtils:
         }
         formatted = format_transect_for_yaml(transect_data, 5)
 
-        assert formatted["name"] == "Section_05"
+        assert formatted["name"] == "Transit_05"  # Updated naming
         assert formatted["route"][0]["latitude"] == 50.12346
         assert formatted["route"][1]["longitude"] == -11.44444
-        assert formatted["reversible"] is True
+        # Note: reversible field removed from transit format

@@ -12,6 +12,8 @@ from pathlib import Path
 
 from cruiseplan.cli.utils import (
     CLIError,
+    count_individual_warnings,
+    display_user_warnings,
     setup_logging,
     validate_input_file,
     validate_output_path,
@@ -73,10 +75,32 @@ def main(args: argparse.Namespace) -> None:
         logger.info(f"Formats: {', '.join(formats)}")
         logger.info("")
 
+        # Run validation first to catch any issues and show warnings
+        from cruiseplan.core.validation import validate_configuration_file
+
+        success, errors, warnings = validate_configuration_file(
+            config_path=config_file,
+            check_depths=False,
+            strict=False,
+        )
+
+        if errors:
+            logger.error("❌ Configuration validation failed:")
+            for error in errors:
+                logger.error(f"  • {error}")
+            raise CLIError(
+                "Cannot proceed with schedule generation due to validation errors"
+            )
+
+        if warnings:
+            warning_count = count_individual_warnings(warnings)
+            logger.info(f"✅ Validation passed with {warning_count} warnings")
+            display_user_warnings(warnings, "")  # Empty title since we show it above
+            logger.info("")
+
         # Import and call core scheduling function
         from cruiseplan.calculators.scheduler import generate_cruise_schedule
 
-        logger.info("Generating cruise schedule...")
         schedule_result = generate_cruise_schedule(
             config_path=config_file,
             output_dir=output_dir,
@@ -84,7 +108,6 @@ def main(args: argparse.Namespace) -> None:
             selected_leg=getattr(args, "leg", None),
         )
 
-        # Report results
         logger.info("")
         logger.info("=" * 60)
         logger.info("Schedule Generation Complete")
@@ -93,18 +116,9 @@ def main(args: argparse.Namespace) -> None:
         logger.info(
             f"Total duration: {schedule_result['total_duration_hours']:.1f} hours"
         )
-        logger.info(
-            f"Generated formats: {', '.join(schedule_result['formats_generated'])}"
-        )
-
-        if schedule_result.get("warnings"):
-            logger.warning("⚠️ Warnings:")
-            for warning in schedule_result["warnings"]:
-                logger.warning(f"  • {warning}")
 
         logger.info("")
         logger.info("✅ Schedule generation successful!")
-        logger.info(f"📁 Output files saved to: {output_dir}")
 
     except CLIError as e:
         logger.error(f"❌ {e}")

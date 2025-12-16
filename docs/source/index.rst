@@ -17,6 +17,12 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
 
 .. toctree::
    :maxdepth: 2
+   :caption: User Workflows
+   
+   user_workflows.rst
+
+.. toctree::
+   :maxdepth: 2
    :caption: Project Specifications
 
    Development Roadmap <https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md>

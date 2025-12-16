@@ -14,7 +14,6 @@ import pytest
 import requests
 
 from cruiseplan.data.bathymetry import (
-    GEBCO_NC_FILENAME,
     BathymetryManager,
 )
 

@@ -289,8 +289,6 @@ class NetCDFGenerator:
         FeatureType: trajectory (ship's continuous path)
         This is the master file containing all data that other files derive from.
         """
-        logger.info(f"Generating master schedule NetCDF: {output_path}")
-
         if not timeline:
             # Create empty dataset with proper structure for derive methods
             ds = xr.Dataset(
@@ -692,7 +690,6 @@ class NetCDFGenerator:
 
         # Write to NetCDF file
         ds.to_netcdf(output_path, format="NETCDF4")
-        logger.info(f"Master schedule NetCDF written to: {output_path}")
 
     def _create_empty_derived_dataset(
         self, operation_type: str, config: CruiseConfig, comment: str = None
