@@ -1170,10 +1170,209 @@ def replace_placeholder_values(
     return config_dict, False
 
 
+def expand_ctd_sections(
+    config: Dict[str, Any],
+) -> Tuple[Dict[str, Any], Dict[str, int]]:
+    """
+    Expand CTD sections into individual station definitions.
+
+    This function finds transits with operation_type="CTD" and action="section",
+    expands them into individual stations along the route, and updates all
+    references in legs to point to the new stations.
+
+    Parameters
+    ----------
+    config : Dict[str, Any]
+        The cruise configuration dictionary
+
+    Returns
+    -------
+    Tuple[Dict[str, Any], Dict[str, int]]
+        Modified configuration and summary with sections_expanded and stations_from_expansion counts
+    """
+    import copy
+    import math
+
+    config = copy.deepcopy(config)
+
+    def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
+        """Calculate distance between two points in kilometers."""
+        R = 6371  # Earth's radius in kilometers
+        lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
+        dlat, dlon = lat2 - lat1, lon2 - lon1
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+        )
+        return R * 2 * math.asin(math.sqrt(a))
+
+    def interpolate_position(
+        start_lat: float,
+        start_lon: float,
+        end_lat: float,
+        end_lon: float,
+        fraction: float,
+    ) -> Tuple[float, float]:
+        """Interpolate position along route."""
+        lat = start_lat + (end_lat - start_lat) * fraction
+        lon = start_lon + (end_lon - start_lon) * fraction
+        return lat, lon
+
+    def expand_section(transit: Dict[str, Any]) -> List[Dict[str, Any]]:
+        """Expand a single CTD section transit into stations."""
+        if not transit.get("route") or len(transit["route"]) < 2:
+            logger.warning(
+                f"Transit {transit.get('name', 'unnamed')} has insufficient route points for expansion"
+            )
+            return []
+
+        start = transit["route"][0]
+        end = transit["route"][-1]
+
+        start_lat = start.get("latitude", start.get("lat"))
+        start_lon = start.get("longitude", start.get("lon"))
+        end_lat = end.get("latitude", end.get("lat"))
+        end_lon = end.get("longitude", end.get("lon"))
+
+        if any(coord is None for coord in [start_lat, start_lon, end_lat, end_lon]):
+            logger.warning(
+                f"Transit {transit.get('name', 'unnamed')} has missing coordinates"
+            )
+            return []
+
+        total_distance_km = haversine_distance(start_lat, start_lon, end_lat, end_lon)
+        spacing_km = transit.get("distance_between_stations", 20.0)
+        num_stations = max(2, int(total_distance_km / spacing_km) + 1)
+
+        stations = []
+        base_name = transit["name"].replace(" ", "_").replace("-", "_")
+
+        for i in range(num_stations):
+            fraction = i / (num_stations - 1) if num_stations > 1 else 0
+            lat, lon = interpolate_position(
+                start_lat, start_lon, end_lat, end_lon, fraction
+            )
+
+            station = {
+                "name": f"{base_name}_Stn{i+1:03d}",
+                "operation_type": "CTD",
+                "action": "profile",
+                "position": {"latitude": round(lat, 5), "longitude": round(lon, 5)},
+                "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
+                "depth": 3000.0,  # Default depth - will be updated during enrichment with bathymetry
+                "planned_duration_hours": 2.0,  # Default 2-hour CTD cast
+            }
+
+            # Copy additional fields if present
+            for field in ["max_depth", "planned_duration_hours"]:
+                if field in transit:
+                    if field == "max_depth":
+                        station["depth"] = transit[field]
+                    else:
+                        station[field] = transit[field]
+
+            stations.append(station)
+
+        logger.info(f"Expanded '{transit['name']}' into {len(stations)} stations")
+        return stations
+
+    # Find CTD sections in transits
+    ctd_sections = []
+    if "transits" in config:
+        for transit in config["transits"]:
+            if (
+                transit.get("operation_type") == "CTD"
+                and transit.get("action") == "section"
+            ):
+                ctd_sections.append(transit)
+
+    # Expand each section
+    expanded_stations = {}  # Map from section name to list of station names
+    total_stations_created = 0
+
+    for section in ctd_sections:
+        section_name = section["name"]
+        new_stations = expand_section(section)
+
+        if new_stations:
+            # Add to stations catalog
+            if "stations" not in config:
+                config["stations"] = []
+
+            station_names = []
+            for station in new_stations:
+                config["stations"].append(station)
+                station_names.append(station["name"])
+                total_stations_created += 1
+
+            expanded_stations[section_name] = station_names
+
+    # Remove expanded transits from the transits list
+    if "transits" in config and ctd_sections:
+        config["transits"] = [
+            t
+            for t in config["transits"]
+            if not (t.get("operation_type") == "CTD" and t.get("action") == "section")
+        ]
+
+    # Update first_station and last_station references if they point to expanded sections
+    if "first_station" in config and config["first_station"] in expanded_stations:
+        # Use the first station from the expansion
+        config["first_station"] = expanded_stations[config["first_station"]][0]
+        logger.info(f"Updated first_station to {config['first_station']}")
+
+    if "last_station" in config and config["last_station"] in expanded_stations:
+        # Use the last station from the expansion
+        config["last_station"] = expanded_stations[config["last_station"]][-1]
+        logger.info(f"Updated last_station to {config['last_station']}")
+
+    # Update leg references
+    for leg in config.get("legs", []):
+        # Check direct stations in leg
+        if leg.get("stations"):
+            new_stations = []
+            for item in leg["stations"]:
+                if isinstance(item, str) and item in expanded_stations:
+                    new_stations.extend(expanded_stations[item])
+                else:
+                    new_stations.append(item)
+            leg["stations"] = new_stations
+
+        # Check clusters
+        for cluster in leg.get("clusters", []):
+            # Check sequence field
+            if cluster.get("sequence"):
+                new_sequence = []
+                for item in cluster["sequence"]:
+                    if isinstance(item, str) and item in expanded_stations:
+                        new_sequence.extend(expanded_stations[item])
+                    else:
+                        new_sequence.append(item)
+                cluster["sequence"] = new_sequence
+
+            # Check stations field
+            if cluster.get("stations"):
+                new_stations = []
+                for item in cluster["stations"]:
+                    if isinstance(item, str) and item in expanded_stations:
+                        new_stations.extend(expanded_stations[item])
+                    else:
+                        new_stations.append(item)
+                cluster["stations"] = new_stations
+
+    summary = {
+        "sections_expanded": len(ctd_sections),
+        "stations_from_expansion": total_stations_created,
+    }
+
+    return config, summary
+
+
 def enrich_configuration(
     config_path: Path,
     add_depths: bool = False,
     add_coords: bool = False,
+    expand_sections: bool = False,
     bathymetry_source: str = "etopo2022",
     coord_format: str = "dmm",
     output_path: Optional[Path] = None,
@@ -1192,6 +1391,8 @@ def enrich_configuration(
         Whether to add missing depth values (default: False).
     add_coords : bool, optional
         Whether to add formatted coordinate fields (default: False).
+    expand_sections : bool, optional
+        Whether to expand CTD sections into individual stations (default: False).
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "etopo2022").
     coord_format : str, optional
@@ -1205,6 +1406,8 @@ def enrich_configuration(
         Dictionary with enrichment summary containing:
         - stations_with_depths_added: Number of depths added
         - stations_with_coords_added: Number of coordinates added
+        - sections_expanded: Number of CTD sections expanded
+        - stations_from_expansion: Number of stations generated from expansion
         - total_stations_processed: Total stations processed
     """
     import yaml
@@ -1219,6 +1422,14 @@ def enrich_configuration(
 
     # Replace placeholder values with sensible defaults
     config_dict, placeholders_replaced = replace_placeholder_values(config_dict)
+
+    # Expand CTD sections if requested
+    sections_expanded = 0
+    stations_from_expansion = 0
+    if expand_sections:
+        config_dict, expansion_summary = expand_ctd_sections(config_dict)
+        sections_expanded = expansion_summary["sections_expanded"]
+        stations_from_expansion = expansion_summary["stations_from_expansion"]
 
     # Create temporary file with processed config for Cruise loading
     import tempfile
@@ -1253,6 +1464,8 @@ def enrich_configuration(
     enrichment_summary = {
         "stations_with_depths_added": 0,
         "stations_with_coords_added": 0,
+        "sections_expanded": sections_expanded,
+        "stations_from_expansion": stations_from_expansion,
         "total_stations_processed": len(cruise.station_registry),
     }
 
@@ -1276,7 +1489,9 @@ def enrich_configuration(
                 station.position.latitude, station.position.longitude
             )
             if depth is not None and depth != 0:
-                station.depth = abs(depth)  # Convert to positive depth
+                station.depth = round(
+                    abs(depth)
+                )  # Convert to positive depth, rounded to nearest meter
                 enrichment_summary["stations_with_depths_added"] += 1
                 stations_with_depths_added.add(station_name)
                 logger.debug(
@@ -1397,6 +1612,7 @@ def enrich_configuration(
     total_enriched = (
         enrichment_summary["stations_with_depths_added"]
         + enrichment_summary["stations_with_coords_added"]
+        + enrichment_summary["sections_expanded"]
     )
 
     # Process captured warnings and display them in user-friendly format
@@ -1506,6 +1722,10 @@ def validate_configuration_file(
 
         # Additional validations can be added here
 
+        # Check for unexpanded CTD sections (raw YAML and cruise object)
+        ctd_section_warnings = _check_unexpanded_ctd_sections(cruise)
+        warnings.extend(ctd_section_warnings)
+
         # Check for cruise metadata issues
         metadata_warnings = _check_cruise_metadata(cruise)
         warnings.extend(metadata_warnings)
@@ -1535,6 +1755,10 @@ def validate_configuration_file(
             if raw_config:
                 metadata_warnings = _check_cruise_metadata_raw(raw_config)
                 warnings.extend(metadata_warnings)
+
+                # Check for unexpanded CTD sections from raw YAML
+                ctd_warnings = _check_unexpanded_ctd_sections_raw(raw_config)
+                warnings.extend(ctd_warnings)
         except Exception:
             # If we can't load raw YAML, just continue
             pass
@@ -1552,6 +1776,71 @@ def validate_configuration_file(
     finally:
         # Restore original warning handler
         python_warnings.showwarning = old_showwarning
+
+
+def _check_unexpanded_ctd_sections(cruise) -> List[str]:
+    """
+    Check for CTD sections that haven't been expanded yet.
+
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object to check.
+
+    Returns
+    -------
+    List[str]
+        List of warning messages about unexpanded CTD sections.
+    """
+    warnings = []
+
+    # Check if there are any transits with CTD sections
+    if hasattr(cruise.config, "transits") and cruise.config.transits:
+        for transit in cruise.config.transits:
+            if (
+                hasattr(transit, "operation_type")
+                and hasattr(transit, "action")
+                and transit.operation_type == "CTD"
+                and transit.action == "section"
+            ):
+                warnings.append(
+                    f"Transit '{transit.name}' is a CTD section that should be expanded. "
+                    f"Run 'cruiseplan enrich --expand-sections' to convert it to individual stations."
+                )
+
+    return warnings
+
+
+def _check_unexpanded_ctd_sections_raw(config_dict: Dict[str, Any]) -> List[str]:
+    """
+    Check for CTD sections that haven't been expanded yet from raw YAML.
+
+    Parameters
+    ----------
+    config_dict : Dict[str, Any]
+        Raw configuration dictionary from YAML.
+
+    Returns
+    -------
+    List[str]
+        List of warning messages about unexpanded CTD sections.
+    """
+    warnings = []
+
+    # Check if there are any transits with CTD sections
+    if "transits" in config_dict and config_dict["transits"]:
+        for transit in config_dict["transits"]:
+            if (
+                transit.get("operation_type") == "CTD"
+                and transit.get("action") == "section"
+            ):
+                name = transit.get("name", "unnamed")
+                warnings.append(
+                    f"Transit '{name}' is a CTD section that should be expanded. "
+                    f"Run 'cruiseplan enrich --expand-sections' to convert it to individual stations."
+                )
+
+    return warnings
 
 
 def _check_cruise_metadata(cruise) -> List[str]:

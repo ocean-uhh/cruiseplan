@@ -262,6 +262,11 @@ Examples:
         default="dmm",
         help="Coordinate format (default: dmm)",
     )
+    enrich_parser.add_argument(
+        "--expand-sections",
+        action="store_true",
+        help="Expand CTD sections into individual station definitions",
+    )
 
     # --- 5. Validate Subcommand ---
     validate_parser = subparsers.add_parser(
