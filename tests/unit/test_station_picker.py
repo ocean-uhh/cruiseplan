@@ -135,8 +135,8 @@ def test_station_placement(picker):
     assert picker.stations[0]["lat"] == 45.0
     assert picker.stations[0]["lon"] == -50.0
 
-    # This will now pass
-    assert picker.stations[0]["depth"] == -1000.0
+    # Station picker now uses absolute depth values (positive)
+    assert picker.stations[0]["depth"] == 1000.0
 
     assert len(picker.history) == 1
     assert picker.history[0][0] == "station"
@@ -288,7 +288,10 @@ def test_save_to_yaml_triggers_io(picker):
         patch("cruiseplan.interactive.station_picker.save_cruise_config") as mock_save,
     ):
 
-        mock_fmt.return_value = {"id": "STN_01", "lat": 10.0}
+        mock_fmt.return_value = {
+            "name": "STN_01",
+            "lat": 10.0,
+        }  # Include required 'name' field
 
         # 3. Action
         picker._save_to_yaml()
@@ -302,7 +305,7 @@ def test_save_to_yaml_triggers_io(picker):
 
         # specific check: Did it pass the right data structure?
         saved_data = mock_save.call_args[0][0]  # First arg of the call
-        assert saved_data["stations"][0]["id"] == "STN_01"
+        assert saved_data["stations"][0]["name"] == "STN_01"  # Use 'name' not 'id'
         assert saved_data["cruise_name"] == "Interactive_Session"  # or whatever default
 
         # Check filename

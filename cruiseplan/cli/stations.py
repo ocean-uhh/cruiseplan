@@ -22,6 +22,65 @@ from cruiseplan.cli.utils import (
 logger = logging.getLogger(__name__)
 
 
+def check_bathymetry_availability(source: str) -> bool:
+    """
+    Check if bathymetry files are available for the specified source.
+
+    Parameters
+    ----------
+    source : str
+        Bathymetry source ("etopo2022" or "gebco2025")
+
+    Returns
+    -------
+    bool
+        True if bathymetry files are available and valid, False otherwise
+    """
+    try:
+        from cruiseplan.data.bathymetry import BathymetryManager
+
+        # Create a temporary manager to check availability
+        manager = BathymetryManager(source=source)
+        return not manager._is_mock
+    except Exception:
+        return False
+
+
+def determine_bathymetry_source(requested_source: str) -> str:
+    """
+    Determine the optimal bathymetry source with automatic fallback.
+
+    If the requested source is not available but an alternative is,
+    automatically switch to the available source.
+
+    Parameters
+    ----------
+    requested_source : str
+        The user's requested bathymetry source
+
+    Returns
+    -------
+    str
+        The optimal available bathymetry source
+    """
+    # Check if requested source is available
+    if check_bathymetry_availability(requested_source):
+        return requested_source
+
+    # Try alternative source
+    alternative = "gebco2025" if requested_source == "etopo2022" else "etopo2022"
+
+    if check_bathymetry_availability(alternative):
+        logger.info(
+            f"📁 Requested {requested_source} not available, "
+            f"automatically switching to {alternative}"
+        )
+        return alternative
+
+    # Neither available - return requested (will trigger mock mode with appropriate warning)
+    return requested_source
+
+
 def load_pangaea_data(pangaea_file: Path) -> list:
     """
     Load PANGAEA campaign data from pickle file.
@@ -159,6 +218,9 @@ def main(args: argparse.Namespace) -> None:
         else:
             logger.info("No PANGAEA data provided - using bathymetry only")
 
+        # Determine optimal bathymetry source (with automatic fallback)
+        optimal_bathymetry_source = determine_bathymetry_source(args.bathymetry_source)
+
         # Determine coordinate bounds
         lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
 
@@ -182,7 +244,7 @@ def main(args: argparse.Namespace) -> None:
             output_path = output_dir / output_filename
 
         logger.info(f"Output file: {output_path}")
-        logger.info(f"Bathymetry source: {args.bathymetry_source}")
+        logger.info(f"Bathymetry source: {optimal_bathymetry_source}")
         resolution_msg = (
             "high resolution (no downsampling)"
             if getattr(args, "high_resolution", False)
@@ -214,7 +276,8 @@ def main(args: argparse.Namespace) -> None:
                 campaign_data=campaign_data,
                 output_file=str(output_path),
                 bathymetry_stride=bathymetry_stride,
-                bathymetry_source=args.bathymetry_source,
+                bathymetry_source=optimal_bathymetry_source,
+                overwrite=getattr(args, "overwrite", False),
             )
 
             # Set coordinate bounds

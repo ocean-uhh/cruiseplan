@@ -126,7 +126,8 @@ class TestYamlOperations:
         # Save updated with backup
         save_yaml_config(config2, yaml_file, backup=True)
 
-        backup_file = yaml_file.with_suffix(".yaml.backup")
+        # New incremental backup naming scheme: config.yaml-1
+        backup_file = yaml_file.with_name(f"{yaml_file.name}-1")
         assert backup_file.exists()
 
         original = load_yaml_config(backup_file)

@@ -12,6 +12,7 @@ from pathlib import Path
 
 from cruiseplan.cli.utils import (
     CLIError,
+    count_individual_warnings,
     setup_logging,
     validate_input_file,
 )
@@ -80,14 +81,16 @@ def main(args: argparse.Namespace) -> None:
             logger.info("✅ All validations passed - configuration is valid!")
             sys.exit(0)
         elif success and warnings:
-            logger.info(f"✅ Validation passed with {len(warnings)} warnings")
+            warning_count = count_individual_warnings(warnings)
+            logger.info(f"✅ Validation passed with {warning_count} warnings")
             if args.warnings_only:
                 logger.info("ℹ️ Treating warnings as informational only")
             sys.exit(0)
         else:
             logger.error(f"❌ Validation failed with {len(errors)} errors")
             if warnings:
-                logger.error(f"   and {len(warnings)} additional warnings")
+                warning_count = count_individual_warnings(warnings)
+                logger.error(f"   and {warning_count} additional warnings")
             sys.exit(1)
 
     except CLIError as e:

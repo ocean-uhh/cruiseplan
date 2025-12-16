@@ -20,16 +20,27 @@ class TestEnrichConfiguration:
     @patch("cruiseplan.cli.utils.save_yaml_config")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
+    @patch("builtins.open")
+    @patch("yaml.safe_load")
     def test_enrich_depths_only(
-        self, mock_cruise_class, mock_bathymetry_class, mock_save_yaml
+        self,
+        mock_yaml_load,
+        mock_open,
+        mock_cruise_class,
+        mock_bathymetry_class,
+        mock_save_yaml,
     ):
         """Test enriching depths only."""
+        # Setup file reading mocks
+        config_data = {
+            "stations": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
+        }
+        mock_yaml_load.return_value = config_data
+
         # Setup mocks
         mock_cruise = MagicMock()
         mock_cruise_class.return_value = mock_cruise
-        mock_cruise.raw_data = {
-            "stations": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
-        }
+        mock_cruise.raw_data = config_data
 
         # Mock station without depth
         mock_station = MagicMock()
@@ -60,18 +71,29 @@ class TestEnrichConfiguration:
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.cli.utils.save_yaml_config")
-    @patch("cruiseplan.utils.coordinates.format_dmm_comment")
+    @patch("cruiseplan.core.validation.format_dmm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
+    @patch("builtins.open")
+    @patch("yaml.safe_load")
     def test_enrich_coords_only(
-        self, mock_cruise_class, mock_format_dmm, mock_save_yaml
+        self,
+        mock_yaml_load,
+        mock_open,
+        mock_cruise_class,
+        mock_format_dmm,
+        mock_save_yaml,
     ):
         """Test enriching coordinates only."""
+        # Setup file reading mocks
+        config_data = {
+            "stations": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
+        }
+        mock_yaml_load.return_value = config_data
+
         # Setup mocks
         mock_cruise = MagicMock()
         mock_cruise_class.return_value = mock_cruise
-        mock_cruise.raw_data = {
-            "stations": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
-        }
+        mock_cruise.raw_data = config_data
 
         mock_station = MagicMock()
         mock_station.position.latitude = 50.0
@@ -96,12 +118,20 @@ class TestEnrichConfiguration:
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.core.cruise.Cruise")
-    def test_enrich_no_changes_needed(self, mock_cruise_class):
+    @patch("builtins.open")
+    @patch("yaml.safe_load")
+    def test_enrich_no_changes_needed(
+        self, mock_yaml_load, mock_open, mock_cruise_class
+    ):
         """Test when no enrichment is needed."""
+        # Setup file reading mocks
+        config_data = {"stations": []}
+        mock_yaml_load.return_value = config_data
+
         # Setup mocks
         mock_cruise = MagicMock()
         mock_cruise_class.return_value = mock_cruise
-        mock_cruise.raw_data = {"stations": []}
+        mock_cruise.raw_data = config_data
         mock_cruise.station_registry = {}
 
         # Test
@@ -121,16 +151,33 @@ class TestEnrichConfiguration:
 class TestValidateConfigurationFile:
     """Test the validate_configuration_file core function."""
 
+    @patch("cruiseplan.core.validation._check_cruise_metadata")
+    @patch("cruiseplan.core.validation._check_cruise_metadata_raw")
+    @patch("cruiseplan.core.validation.check_complete_duplicates")
+    @patch("cruiseplan.core.validation.check_duplicate_names")
     @patch("cruiseplan.core.validation.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_no_depth_check(
-        self, mock_cruise_class, mock_bathymetry_class, mock_validate_depth
+        self,
+        mock_cruise_class,
+        mock_bathymetry_class,
+        mock_validate_depth,
+        mock_check_duplicates,
+        mock_check_complete_duplicates,
+        mock_check_metadata_raw,
+        mock_check_metadata,
     ):
         """Test successful validation without depth checking."""
         # Setup mocks
         mock_cruise = MagicMock()
         mock_cruise_class.return_value = mock_cruise
+
+        # Mock all validation functions to return no errors/warnings
+        mock_check_duplicates.return_value = ([], [])
+        mock_check_complete_duplicates.return_value = ([], [])
+        mock_check_metadata.return_value = []
+        mock_check_metadata_raw.return_value = []
 
         # Test
         success, errors, warnings = validate_configuration_file(
@@ -143,11 +190,22 @@ class TestValidateConfigurationFile:
         assert warnings == []
         mock_validate_depth.assert_not_called()
 
+    @patch("cruiseplan.core.validation._check_cruise_metadata")
+    @patch("cruiseplan.core.validation._check_cruise_metadata_raw")
+    @patch("cruiseplan.core.validation.check_complete_duplicates")
+    @patch("cruiseplan.core.validation.check_duplicate_names")
     @patch("cruiseplan.core.validation.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_with_depth_check(
-        self, mock_cruise_class, mock_bathymetry_class, mock_validate_depth
+        self,
+        mock_cruise_class,
+        mock_bathymetry_class,
+        mock_validate_depth,
+        mock_check_duplicates,
+        mock_check_complete_duplicates,
+        mock_check_metadata_raw,
+        mock_check_metadata,
     ):
         """Test successful validation with depth checking."""
         # Setup mocks
@@ -157,6 +215,11 @@ class TestValidateConfigurationFile:
         mock_bathymetry = MagicMock()
         mock_bathymetry_class.return_value = mock_bathymetry
 
+        # Mock all validation functions
+        mock_check_duplicates.return_value = ([], [])
+        mock_check_complete_duplicates.return_value = ([], [])
+        mock_check_metadata.return_value = []
+        mock_check_metadata_raw.return_value = []
         mock_validate_depth.return_value = (2, ["Warning about Station A"])
 
         # Test

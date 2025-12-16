@@ -6,6 +6,7 @@ matplotlib-based interface for planning cruise stations, transects, and survey a
 """
 
 import sys
+from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
 import matplotlib.pyplot as plt
@@ -82,6 +83,7 @@ class StationPicker:
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
         bathymetry_source: str = "etopo2022",
+        overwrite: bool = False,
     ):
         """
         Initialize the station picker interface.
@@ -96,6 +98,8 @@ class StationPicker:
             Downsampling factor for bathymetry data (default: 10, higher = faster but less detailed)
         bathymetry_source : str
             Bathymetry data source: "etopo2022" or "gebco2025" (default: etopo2022)
+        overwrite : bool
+            Whether to overwrite existing files without prompting (default: False)
         """
         # CRITICAL FIX: Unbind default Matplotlib shortcuts
         self._unbind_default_keys()
@@ -103,6 +107,7 @@ class StationPicker:
         # State Management
         self.mode = "navigation"
         self.output_file = output_file
+        self.overwrite = overwrite
         self.bathymetry_stride = bathymetry_stride
         self.bathymetry_colormap = get_colormap("bathymetry")
 
@@ -189,14 +194,16 @@ class StationPicker:
 
         # Center: Map (same as before)
         self.ax_map = self.fig.add_subplot(gs[0, 1])
-        # Set title with bathymetry source information  
+        # Set title with bathymetry source information
         # Use a mapping dictionary for robust display name formatting
         BATHYMETRY_SOURCE_DISPLAY_NAMES = {
             "ETOPO2022": "ETOPO 2022",
             "GEBCO2025": "GEBCO 2025",
         }
         source_key = self.bathymetry.source.upper()
-        bathymetry_source_display = BATHYMETRY_SOURCE_DISPLAY_NAMES.get(source_key, source_key)
+        bathymetry_source_display = BATHYMETRY_SOURCE_DISPLAY_NAMES.get(
+            source_key, source_key
+        )
         self.ax_map.set_title(
             f"Cruise Planning Map ({bathymetry_source_display} bathymetry)"
         )
@@ -524,7 +531,7 @@ class StationPicker:
             lon, lat, "ro", markersize=8, markeredgecolor="k", zorder=10
         )
 
-        data = {"lat": lat, "lon": lon, "depth": depth}
+        data = {"lat": lat, "lon": lon, "depth": abs(depth)}
         self.stations.append(data)
         self.history.append(("station", data, artist))
         self._update_status_display(lat, lon, depth, message="Station added.")
@@ -857,20 +864,129 @@ class StationPicker:
 
         current_name = getattr(self, "cruise_name", "Interactive_Session")
 
+        # Add minimal defaults for required cruise configuration fields
+        # This allows the output to be used directly with 'cruiseplan enrich'
         output_data = {
             "cruise_name": current_name,
+            "description": "Cruise plan created with interactive station picker",
+            "default_vessel_speed": 10.0,
+            "default_distance_between_stations": 40.0,
+            "calculate_transfer_between_sections": True,
+            "calculate_depth_via_bathymetry": True,
+            "start_date": "1970-01-01T00:00:00Z",
+            "departure_port": {
+                "name": "UPDATE-departure-port-name",
+                "latitude": 0.0,
+                "longitude": 0.0,
+                "timezone": "GMT+0",
+            },
+            "arrival_port": {
+                "name": "UPDATE-arrival-port-name",
+                "latitude": 0.0,
+                "longitude": 0.0,
+                "timezone": "GMT+0",
+            },
+            "first_station": (
+                yaml_stations[0]["name"]
+                if yaml_stations
+                else "UPDATE-first-station-name"
+            ),
+            "last_station": (
+                yaml_stations[-1]["name"]
+                if yaml_stations
+                else "UPDATE-last-station-name"
+            ),
+            # Global catalog sections (stations, transits, areas) come BEFORE legs
             "stations": yaml_stations,
-            "sections": yaml_sections,
+            "transits": yaml_sections,  # Schema expects 'transits' not 'sections'
             "areas": yaml_areas,
+            # Scheduling/sequencing logic comes after catalog
+            "legs": (
+                [
+                    {
+                        "name": "Interactive_Survey",
+                        "strategy": "sequential",
+                        "sequence": (
+                            [station["name"] for station in yaml_stations]
+                            + [section["name"] for section in yaml_sections]
+                            + [area["name"] for area in yaml_areas]
+                        ),
+                    }
+                ]
+                if (yaml_stations or yaml_sections or yaml_areas)
+                else []
+            ),
         }
 
         try:
+            # Check if file exists and handle overwrite
+            output_path = Path(self.output_file)
+            if output_path.exists() and not self.overwrite:
+                response = self._prompt_overwrite(output_path)
+                if response == "rename":
+                    # Generate new filename with timestamp
+                    import datetime
+
+                    timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
+                    stem = output_path.stem
+                    suffix = output_path.suffix
+                    new_name = f"{stem}_backup_{timestamp}{suffix}"
+                    backup_path = output_path.parent / new_name
+                    self.output_file = str(backup_path)
+                    print(f"📁 Saving to new file: {backup_path}")
+                elif response == "cancel":
+                    print("💾 Save cancelled by user.")
+                    return
+                # If response is "overwrite", proceed with original filename
+
             save_cruise_config(output_data, self.output_file)
             print(
-                f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} sections."
+                f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} transits, {len(yaml_areas)} areas."
             )
         except Exception as e:
             print(f"❌ Save Error: {e}")
+
+    def _prompt_overwrite(self, file_path: Path) -> str:
+        """
+        Prompt user about overwriting existing file.
+
+        Parameters
+        ----------
+        file_path : Path
+            Path to the existing file.
+
+        Returns
+        -------
+        str
+            User choice: "overwrite", "rename", or "cancel"
+        """
+        import sys
+
+        print(f"⚠️  File {file_path} already exists.")
+        print("What would you like to do?")
+        print("  [o] Overwrite existing file")
+        print("  [r] Rename and save as backup")
+        print("  [c] Cancel save operation")
+
+        # Handle non-interactive environments
+        if not sys.stdin.isatty():
+            print("Non-interactive environment detected. Creating backup file...")
+            return "rename"
+
+        while True:
+            try:
+                choice = input("Enter choice (o/r/c): ").lower().strip()
+                if choice in ["o", "overwrite"]:
+                    return "overwrite"
+                elif choice in ["r", "rename"]:
+                    return "rename"
+                elif choice in ["c", "cancel"]:
+                    return "cancel"
+                else:
+                    print("Invalid choice. Please enter 'o', 'r', or 'c'.")
+            except (EOFError, KeyboardInterrupt):
+                print("\nOperation cancelled.")
+                return "cancel"
 
     # --- Public Interface ---
 

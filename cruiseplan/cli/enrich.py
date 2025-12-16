@@ -10,6 +10,8 @@ import logging
 import sys
 from pathlib import Path
 
+from pydantic import ValidationError
+
 from cruiseplan.cli.utils import (
     CLIError,
     setup_logging,
@@ -99,6 +101,104 @@ def main(args: argparse.Namespace) -> None:
 
     except CLIError as e:
         logger.error(f"❌ {e}")
+        sys.exit(1)
+
+    except ValidationError as e:
+        error_count = len(e.errors())
+        plural = "error" if error_count == 1 else "errors"
+        logger.error(f"❌ CruiseConfig: {error_count} validation {plural}")
+
+        # Group errors by field prefix for better organization
+        for error in e.errors():
+            field_path = ".".join(str(loc) for loc in error["loc"])
+            field_type = error["type"]
+            input_value = error.get("input", "")
+            msg = error["msg"]
+
+            # Extract entity type and name for better formatting
+            if field_path.startswith("stations."):
+                parts = field_path.split(".")
+                if len(parts) > 1 and parts[1].isdigit():
+                    logger.error("- Stations:")
+                    if field_type == "missing":
+                        field_name = parts[2] if len(parts) > 2 else "field"
+                        logger.error(
+                            f"    Station field missing: {field_name} (required field in yaml)"
+                        )
+                    else:
+                        logger.error(
+                            f"    STN_{int(parts[1])+1:02d} value error: {input_value}"
+                        )
+                        logger.error(f"    {msg}")
+                else:
+                    logger.error(f"- Stations: {msg}")
+            elif field_path.startswith("moorings."):
+                parts = field_path.split(".")
+                if len(parts) > 1 and parts[1].isdigit():
+                    logger.error("- Moorings:")
+                    if field_type == "missing":
+                        field_name = parts[2] if len(parts) > 2 else "field"
+                        logger.error(
+                            f"    Mooring field missing: {field_name} (required field in yaml)"
+                        )
+                    else:
+                        logger.error(
+                            f"    Mooring_{int(parts[1])+1:02d} value error: {input_value}"
+                        )
+                        logger.error(f"    {msg}")
+                else:
+                    logger.error(f"- Moorings: {msg}")
+            elif field_path.startswith("transits."):
+                parts = field_path.split(".")
+                if len(parts) > 1 and parts[1].isdigit():
+                    logger.error("- Transits:")
+                    if field_type == "missing":
+                        field_name = parts[2] if len(parts) > 2 else "field"
+                        logger.error(
+                            f"    Transit field missing: {field_name} (required field in yaml)"
+                        )
+                    else:
+                        logger.error(
+                            f"    Transit_{int(parts[1])+1:02d} value error: {input_value}"
+                        )
+                        logger.error(f"    {msg}")
+                else:
+                    logger.error(f"- Transits: {msg}")
+            elif field_path.startswith("legs."):
+                parts = field_path.split(".")
+                if len(parts) > 1 and parts[1].isdigit():
+                    logger.error("- Legs:")
+                    if field_type == "missing":
+                        field_name = parts[2] if len(parts) > 2 else "field"
+                        logger.error(
+                            f"    Leg field missing: {field_name} (required field in yaml)"
+                        )
+                    else:
+                        logger.error(
+                            f"    Leg_{int(parts[1])+1:02d} value error: {input_value}"
+                        )
+                        logger.error(f"    {msg}")
+                else:
+                    logger.error(f"- Legs: {msg}")
+            elif field_path.startswith("areas."):
+                parts = field_path.split(".")
+                if len(parts) > 1 and parts[1].isdigit():
+                    logger.error("- Areas:")
+                    if field_type == "missing":
+                        field_name = parts[2] if len(parts) > 2 else "field"
+                        logger.error(
+                            f"    Area field missing: {field_name} (required field in yaml)"
+                        )
+                    else:
+                        logger.error(
+                            f"    Area_{int(parts[1])+1:02d} value error: {input_value}"
+                        )
+                        logger.error(f"    {msg}")
+                else:
+                    logger.error(f"- Areas: {msg}")
+            else:
+                logger.error(f"- {field_path}: {msg}")
+
         sys.exit(1)
 
     except KeyboardInterrupt:

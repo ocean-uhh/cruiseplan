@@ -242,9 +242,6 @@ class KMLGenerator:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(kml_content)
 
-        logger.info(
-            f"KML schedule saved to: {output_file} ({len(scientific_activities)} scientific operations)"
-        )
         return output_file
 
 

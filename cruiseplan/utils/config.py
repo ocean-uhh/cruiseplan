@@ -73,10 +73,10 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
         # FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.
         "latitude": round(float(station_data["lat"]), 5),
         "longitude": round(float(station_data["lon"]), 5),
-        "depth": round(float(station_data.get("depth", -9999)), 1),
+        "depth": round(abs(float(station_data.get("depth", -9999))), 1),
         "comment": "Interactive selection",
-        "operation_type": "CTD",  # CTD | mooring | calibration
-        "action": "profile",  # profile | deploy | recover
+        "operation_type": "UPDATE-CTD-mooring-etc",
+        "action": "UPDATE-profile-sampling-etc",
     }
 
 
@@ -101,11 +101,11 @@ def format_transect_for_yaml(transect_data, index):
     Ensures coordinates are native Python floats for proper YAML serialization.
     """
     return {
-        "name": f"Section_{index:02d}",
+        "name": f"Transit_{index:02d}",
         "comment": "Interactive transect",
         "operation_type": "underway",
-        "action": "ADCP",
-        "vessel_speed": "10.0",
+        "action": "UPDATE-ADCP-bathymetry-etc",
+        "vessel_speed": 10.0,
         "route": [
             {
                 "latitude": round(float(transect_data["start"]["lat"]), 5),
@@ -116,7 +116,6 @@ def format_transect_for_yaml(transect_data, index):
                 "longitude": round(float(transect_data["end"]["lon"]), 5),
             },
         ],
-        "reversible": True,
     }
 
 
@@ -151,8 +150,8 @@ def format_area_for_yaml(area_data, index):
         ],
         "comment": "Interactive area survey",
         "operation_type": "survey",
-        "action": "bathymetry",
-        "duration": 0.0,
+        "action": "UPDATE-bathymetry-survey-etc",
+        "duration": 9999.0,  # Placeholder - update with planned survey duration (minutes)
     }
 
 

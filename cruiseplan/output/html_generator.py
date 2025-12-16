@@ -459,7 +459,6 @@ class HTMLGenerator:
         with open(output_file, "w", encoding="utf-8") as f:
             f.write(html_content)
 
-        logger.info(f"HTML schedule saved to: {output_file}")
         return output_file
 
 

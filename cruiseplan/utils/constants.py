@@ -45,7 +45,7 @@ DEFAULT_CTD_RATE_M_S = 1.0
 DEFAULT_STATION_SPACING_KM = 15.0
 
 
-DEFAULT_START_DATE_NUM = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 # Make this an ISO8601 string
 DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 
