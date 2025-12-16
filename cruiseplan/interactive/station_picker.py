@@ -898,6 +898,7 @@ class StationPicker:
 def __getattr__(name):
     if name == "bathymetry":
         from cruiseplan.data.bathymetry import bathymetry
+
         return bathymetry
     raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
