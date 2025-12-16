@@ -214,6 +214,7 @@ def main(args: argparse.Namespace) -> None:
                 campaign_data=campaign_data,
                 output_file=str(output_path),
                 bathymetry_stride=bathymetry_stride,
+                bathymetry_source=args.bathymetry_source,
             )
 
             # Set coordinate bounds

@@ -46,7 +46,7 @@ Download and manage external data assets required by CruisePlan, such as bathyme
 
 .. code-block:: bash
 
-    usage: cruiseplan download [-h]  
+    usage: cruiseplan download [-h] [--bathymetry-source {etopo2022,gebco2025}]
 
 **Options:**
 
@@ -55,16 +55,48 @@ Download and manage external data assets required by CruisePlan, such as bathyme
 
    * - ``-h, --help``
      - Show this help message and exit.
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset to download (default: ``etopo2022``).
 
 **Description:**
 
-This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers, which is required for depth calculations and bathymetric visualization in cruise planning. The dataset is cached locally in the ``data/bathymetry/`` directory.
+This command downloads bathymetry datasets required for depth calculations and bathymetric visualization in cruise planning. Two datasets are available:
+
+- **ETOPO 2022**: Global bathymetry at 60-second resolution (~500MB) - suitable for most applications
+- **GEBCO 2025**: High-resolution global bathymetry at 15-second resolution (~7.5GB) - provides enhanced detail for detailed planning
+
+The datasets are cached locally in the ``data/bathymetry/`` directory.
+
+**Available Sources:**
+
+.. list-table::
+   :widths: 20 20 20 40
+
+   * - **Source**
+     - **Resolution**
+     - **File Size**
+     - **Description**
+   * - ``etopo2022``
+     - 60 seconds
+     - ~500MB
+     - Standard resolution bathymetry (default)
+   * - ``gebco2025``
+     - 15 seconds
+     - ~7.5GB
+     - High-resolution bathymetry for detailed analysis
 
 **Examples:**
 
 .. code-block:: bash
 
+    # Download default ETOPO 2022 bathymetry
     $ cruiseplan download
+    
+    # Download ETOPO 2022 explicitly
+    $ cruiseplan download --bathymetry-source etopo2022
+    
+    # Download high-resolution GEBCO 2025 bathymetry
+    $ cruiseplan download --bathymetry-source gebco2025
 
 
 schedule

@@ -67,17 +67,21 @@ def real_mode_manager(mock_netcdf_data):
     """Returns a BathymetryManager forced into REAL mode."""
     # 1. Patch Path.exists() to return True
     with patch.object(Path, "exists", return_value=True):
-        # 2. Patch nc.Dataset to return our mock data
-        with patch(
-            "cruiseplan.data.bathymetry.nc.Dataset", return_value=mock_netcdf_data
-        ):
-            manager = BathymetryManager()
-            # 3. Manually set the internal state to the mock's arrays (since __init__ does this)
-            manager._lats = mock_netcdf_data.variables["lat"]
-            manager._lons = mock_netcdf_data.variables["lon"]
-            manager._is_mock = False
-            yield manager
-            manager.close()
+        # 2. Mock file size check to return a valid size
+        mock_stat = MagicMock()
+        mock_stat.st_size = 500 * 1024 * 1024  # 500 MB (valid ETOPO size)
+        with patch.object(Path, "stat", return_value=mock_stat):
+            # 3. Patch nc.Dataset to return our mock data
+            with patch(
+                "cruiseplan.data.bathymetry.nc.Dataset", return_value=mock_netcdf_data
+            ):
+                manager = BathymetryManager()
+                # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
+                manager._lats = mock_netcdf_data.variables["lat"]
+                manager._lons = mock_netcdf_data.variables["lon"]
+                manager._is_mock = False
+                yield manager
+                manager.close()
 
 
 @pytest.fixture

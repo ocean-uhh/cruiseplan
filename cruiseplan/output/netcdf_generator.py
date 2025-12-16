@@ -900,7 +900,7 @@ class NetCDFGenerator:
                 ds_lines = ds_lines.rename({"obs": "operations"})
 
             # For line operations, extract start/end coordinates from master schedule
-            n_operations = ds_lines.dims["operations"]
+            n_operations = ds_lines.sizes["operations"]
 
             # Create endpoints dimension
             ds_lines = ds_lines.assign_coords(endpoints=("endpoints", ["start", "end"]))

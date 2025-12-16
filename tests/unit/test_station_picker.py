@@ -125,7 +125,8 @@ def test_station_placement(picker):
     """Test adding a station updates data and history."""
     picker.mode = "point"
 
-    with patch(BATHY_MOCK_PATH, return_value=-1000.0):
+    # Mock the instance bathymetry method instead of the global one
+    with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
         # Run the method
         picker._add_station(-50.0, 45.0)
 
@@ -206,7 +207,7 @@ def test_sanitize_limits_explosion(picker):
 
 def test_undo_last_item(picker):
     """Test 'u' key removes the last added station (LIFO)."""
-    with patch(BATHY_MOCK_PATH, return_value=-1000.0):
+    with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
         picker._add_station(-50.0, 45.0)  # 1st
         picker._add_station(-60.0, 45.0)  # 2nd
 
@@ -238,7 +239,7 @@ def test_remove_last_item_empty_safe(picker):
 def test_remove_specific_station_by_click(picker):
     """Test clicking near a station in remove mode deletes it."""
     # 1. Setup: Add two stations
-    with patch(BATHY_MOCK_PATH, return_value=-1000.0):
+    with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
         picker._add_station(-50.0, 45.0)  # Station 0
         picker._add_station(-52.0, 46.0)  # Station 1
 

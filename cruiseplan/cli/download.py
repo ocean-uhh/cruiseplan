@@ -14,15 +14,29 @@ def main(args=None):
     Parameters
     ----------
     args : argparse.Namespace, optional
-        Parsed command-line arguments (currently unused).
+        Parsed command-line arguments containing bathymetry source selection.
     """
+    # Extract bathymetry source from args
+    source = getattr(args, "bathymetry_source", "etopo2022")
+
     print("========================================")
     print("   CRUISEPLAN ASSET DOWNLOADER")
     print("========================================")
-    print("This utility will fetch the required ETOPO 2022 bathymetry data (~1GB).\n")
+
+    if source == "etopo2022":
+        print("This utility will fetch the ETOPO 2022 bathymetry data (~500MB).\n")
+    elif source == "gebco2025":
+        print(
+            "This utility will fetch the GEBCO 2025 high-resolution bathymetry data (~7.5GB).\n"
+        )
+    else:
+        print(f"Unknown bathymetry source: {source}")
+        sys.exit(1)
 
     try:
-        download_bathymetry()
+        success = download_bathymetry(source=source)
+        if source == "gebco2025" and not success:
+            sys.exit(1)
     except KeyboardInterrupt:
         print("\n\n⚠️  Download cancelled by user.")
         sys.exit(1)

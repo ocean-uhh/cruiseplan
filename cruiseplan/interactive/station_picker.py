@@ -11,7 +11,7 @@ from typing import Dict, List, Optional, Tuple
 import matplotlib.pyplot as plt
 
 # Local Integrations
-from cruiseplan.data.bathymetry import DEPTH_CONTOURS, bathymetry
+from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
 from cruiseplan.data.pangaea import merge_campaign_tracks
 from cruiseplan.interactive.campaign_selector import CampaignSelector
 from cruiseplan.interactive.colormaps import get_colormap
@@ -81,6 +81,7 @@ class StationPicker:
         campaign_data: Optional[List[Dict]] = None,
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
+        bathymetry_source: str = "etopo2022",
     ):
         """
         Initialize the station picker interface.
@@ -93,6 +94,8 @@ class StationPicker:
             Output filename for saving cruise plans
         bathymetry_stride : int
             Downsampling factor for bathymetry data (default: 10, higher = faster but less detailed)
+        bathymetry_source : str
+            Bathymetry data source: "etopo2022" or "gebco2025" (default: etopo2022)
         """
         # CRITICAL FIX: Unbind default Matplotlib shortcuts
         self._unbind_default_keys()
@@ -102,6 +105,9 @@ class StationPicker:
         self.output_file = output_file
         self.bathymetry_stride = bathymetry_stride
         self.bathymetry_colormap = get_colormap("bathymetry")
+
+        # Initialize bathymetry manager with specified source
+        self.bathymetry = BathymetryManager(source=bathymetry_source)
 
         # Data Storage
         self.stations: List[Dict] = []
@@ -183,7 +189,17 @@ class StationPicker:
 
         # Center: Map (same as before)
         self.ax_map = self.fig.add_subplot(gs[0, 1])
-        self.ax_map.set_title("Cruise Planning Map")
+        # Set title with bathymetry source information  
+        # Use a mapping dictionary for robust display name formatting
+        BATHYMETRY_SOURCE_DISPLAY_NAMES = {
+            "ETOPO2022": "ETOPO 2022",
+            "GEBCO2025": "GEBCO 2025",
+        }
+        source_key = self.bathymetry.source.upper()
+        bathymetry_source_display = BATHYMETRY_SOURCE_DISPLAY_NAMES.get(source_key, source_key)
+        self.ax_map.set_title(
+            f"Cruise Planning Map ({bathymetry_source_display} bathymetry)"
+        )
         self.ax_map.set_xlabel("Longitude")
         self.ax_map.set_ylabel("Latitude")
         self.ax_map.grid(True, linestyle=":", alpha=0.3, color="black")
@@ -275,7 +291,7 @@ class StationPicker:
 
         print("Rendering bathymetry layers...")
 
-        xx, yy, zz = bathymetry.get_grid_subset(
+        xx, yy, zz = self.bathymetry.get_grid_subset(
             lat_min, lat_max, lon_min, lon_max, stride=self.bathymetry_stride
         )
 
@@ -419,7 +435,7 @@ class StationPicker:
             return
 
         # Get depth from bathymetry
-        depth = bathymetry.get_depth_at_point(lat, lon)
+        depth = self.bathymetry.get_depth_at_point(lat, lon)
 
         # Update status display with current coordinates
         status_msg = ""
@@ -503,7 +519,7 @@ class StationPicker:
         lat : float
             Latitude coordinate.
         """
-        depth = bathymetry.get_depth_at_point(lat, lon)
+        depth = self.bathymetry.get_depth_at_point(lat, lon)
         (artist,) = self.ax_map.plot(
             lon, lat, "ro", markersize=8, markeredgecolor="k", zorder=10
         )
@@ -540,7 +556,7 @@ class StationPicker:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
-        depth = bathymetry.get_depth_at_point(lat, lon)
+        depth = self.bathymetry.get_depth_at_point(lat, lon)
 
         # Draw a point marker
         (point_artist,) = self.ax_map.plot(
@@ -876,6 +892,14 @@ class StationPicker:
             "stations": self.stations,
             "transects": self.transects,
         }
+
+
+# Backward compatibility for tests: lazy import bathymetry when requested
+def __getattr__(name):
+    if name == "bathymetry":
+        from cruiseplan.data.bathymetry import bathymetry
+        return bathymetry
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 if __name__ == "__main__":
