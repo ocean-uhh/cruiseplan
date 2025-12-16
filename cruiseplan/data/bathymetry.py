@@ -123,7 +123,6 @@ class BathymetryManager:
                     f"⚠️ Bathymetry file at {file_path} is too small ({file_size_mb:.1f} MB). "
                     f"Expected at least {min_size_mb} MB. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
-                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = True
                 return
 
@@ -142,7 +141,6 @@ class BathymetryManager:
                 logger.warning(
                     f"❌ Failed to load bathymetry file: {e}. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
-                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = True
         else:
             # Don't log about mock mode if we're in a download context
@@ -161,7 +159,6 @@ class BathymetryManager:
                 logger.info(
                     "   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it."
                 )
-            self._depth_var_name = self._get_depth_variable_name()
             self._is_mock = True
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
@@ -461,6 +458,7 @@ class BathymetryManager:
                 if nc_filename != nc_file_in_zip:
                     logger.warning(f"⚠️ Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure.")
                     return False
+                
                 logger.info(f"Extracting {nc_file_in_zip}...")
 
                 # Extract with progress (for large files)
