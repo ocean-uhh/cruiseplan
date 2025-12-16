@@ -37,9 +37,10 @@ def main(args: argparse.Namespace) -> None:
         )
 
         # Validate that at least one operation is requested
-        if not (args.add_depths or args.add_coords):
+        expand_sections = getattr(args, "expand_sections", False)
+        if not (args.add_depths or args.add_coords or expand_sections):
             logger.error(
-                "At least one operation must be specified: --add-depths or --add-coords"
+                "At least one operation must be specified: --add-depths, --add-coords, or --expand-sections"
             )
             sys.exit(1)
 
@@ -68,6 +69,7 @@ def main(args: argparse.Namespace) -> None:
             config_path=config_file,
             add_depths=args.add_depths,
             add_coords=args.add_coords,
+            expand_sections=getattr(args, "expand_sections", False),
             bathymetry_source=args.bathymetry_source,
             coord_format=args.coord_format,
             output_path=output_path,
@@ -77,6 +79,7 @@ def main(args: argparse.Namespace) -> None:
         total_enriched = (
             summary["stations_with_depths_added"]
             + summary["stations_with_coords_added"]
+            + summary.get("sections_expanded", 0)
         )
 
         if args.add_depths and summary["stations_with_depths_added"] > 0:
@@ -87,6 +90,11 @@ def main(args: argparse.Namespace) -> None:
         if args.add_coords and summary["stations_with_coords_added"] > 0:
             logger.info(
                 f"✓ Added coordinate fields to {summary['stations_with_coords_added']} stations"
+            )
+
+        if expand_sections and summary.get("sections_expanded", 0) > 0:
+            logger.info(
+                f"✓ Expanded {summary['sections_expanded']} CTD sections into {summary.get('stations_from_expansion', 0)} stations"
             )
 
         if total_enriched > 0:
@@ -221,6 +229,9 @@ if __name__ == "__main__":
     parser.add_argument("--add-depths", action="store_true", help="Add missing depths")
     parser.add_argument(
         "--add-coords", action="store_true", help="Add coordinate fields"
+    )
+    parser.add_argument(
+        "--expand-sections", action="store_true", help="Expand CTD sections"
     )
     parser.add_argument("-o", "--output-dir", type=Path, default=Path("."))
     parser.add_argument("--output-file", type=Path)

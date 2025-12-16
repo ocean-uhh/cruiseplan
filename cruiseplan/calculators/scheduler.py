@@ -280,29 +280,28 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         current_time += timedelta(minutes=transit_time_min)
         last_position = end_pos
 
-    # --- Step 3: Iterate through Legs and Activities (Sequential Science) ---
+    # --- Step 3: Extract and process all activities from legs ---
     all_activities: List[Dict[str, Any]] = []
+
     for leg in config.legs:
-        # Check for sequence field first, then fall back to stations
-        if leg.sequence:
-            activity_names = leg.sequence
-        else:
-            # Extract station names from station objects
-            activity_names = []
-            if leg.stations:
-                for station in leg.stations:
-                    if isinstance(station, str):
-                        activity_names.append(station)
-                    else:
-                        # Station object - extract name
-                        activity_names.append(station.name)
+        # Extract activities from leg, including clusters
+        activity_names = _extract_activities_from_leg(leg)
 
         for name in activity_names:
+            # First try to resolve as station
             details = _resolve_station_details(config, name)
+            if not details:
+                # Then try to resolve as transit
+                details = _resolve_transit_details(config, name)
+
             if details:
                 # Add leg name to activity details
                 details["leg_name"] = leg.name
                 all_activities.append(details)
+            else:
+                logger.warning(
+                    f"Could not resolve activity '{name}' in leg '{leg.name}'"
+                )
 
     # Process sequential activities (no complex Composite parsing yet)
     for i, activity in enumerate(all_activities):
@@ -727,3 +726,153 @@ def _generate_netcdf_schedule(timeline, config, output_path, base_filename):
     except ImportError:
         logger.warning("NetCDF generator not available - skipping NetCDF output")
         return None
+
+
+def _extract_activities_from_leg(leg) -> List[str]:
+    """
+    Extract all activity names from a leg, including those in clusters.
+
+    Processes:
+    - Direct sequence in leg.sequence
+    - Direct stations in leg.stations
+    - Clusters containing sequences or stations
+
+    Parameters
+    ----------
+    leg : LegDefinition
+        Leg definition from configuration.
+
+    Returns
+    -------
+    list of str
+        Ordered list of activity names to process.
+    """
+    activity_names = []
+
+    # Priority 1: Direct sequence (only if not None/empty)
+    if hasattr(leg, "sequence") and leg.sequence is not None and len(leg.sequence) > 0:
+        for item in leg.sequence:
+            if isinstance(item, str):
+                activity_names.append(item)
+            elif hasattr(item, "name"):
+                activity_names.append(item.name)
+
+    # Priority 2: Process clusters (only if not None/empty)
+    elif (
+        hasattr(leg, "clusters") and leg.clusters is not None and len(leg.clusters) > 0
+    ):
+        for cluster in leg.clusters:
+            # Process cluster sequence
+            if (
+                hasattr(cluster, "sequence")
+                and cluster.sequence is not None
+                and len(cluster.sequence) > 0
+            ):
+                for item in cluster.sequence:
+                    if isinstance(item, str):
+                        activity_names.append(item)
+                    elif hasattr(item, "name"):
+                        activity_names.append(item.name)
+            # Process cluster stations
+            elif (
+                hasattr(cluster, "stations")
+                and cluster.stations is not None
+                and len(cluster.stations) > 0
+            ):
+                for station in cluster.stations:
+                    if isinstance(station, str):
+                        activity_names.append(station)
+                    elif hasattr(station, "name"):
+                        activity_names.append(station.name)
+
+    # Priority 3: Direct stations (fallback)
+    elif (
+        hasattr(leg, "stations") and leg.stations is not None and len(leg.stations) > 0
+    ):
+        for station in leg.stations:
+            if isinstance(station, str):
+                activity_names.append(station)
+            elif hasattr(station, "name"):
+                activity_names.append(station.name)
+
+    return activity_names
+
+
+def _resolve_transit_details(
+    config: "CruiseConfig", transit_name: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Resolve transit details from configuration.
+
+    Similar to _resolve_station_details but for transits.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration object.
+    transit_name : str
+        Name of the transit to resolve.
+
+    Returns
+    -------
+    dict or None
+        Transit details dictionary or None if not found.
+    """
+    if not hasattr(config, "transits") or not config.transits:
+        return None
+
+    for transit in config.transits:
+        if transit.name == transit_name:
+            details = {
+                "name": transit.name,
+                "op_type": "transit",
+                "operation_type": getattr(transit, "operation_type", "underway"),
+                "action": getattr(transit, "action", None),
+                "comment": getattr(transit, "comment", ""),
+            }
+
+            # Process route if available
+            if hasattr(transit, "route") and len(transit.route) >= 2:
+                start = transit.route[0]
+                end = transit.route[-1]
+
+                # Extract coordinates
+                if hasattr(start, "latitude"):
+                    details["start_lat"] = start.latitude
+                    details["start_lon"] = start.longitude
+                else:
+                    details["start_lat"] = start.get("latitude", start.get("lat"))
+                    details["start_lon"] = start.get("longitude", start.get("lon"))
+
+                if hasattr(end, "latitude"):
+                    details["lat"] = end.latitude
+                    details["lon"] = end.longitude
+                else:
+                    details["lat"] = end.get("latitude", end.get("lat"))
+                    details["lon"] = end.get("longitude", end.get("lon"))
+
+                # Calculate route distance if needed
+                if details.get("start_lat") and details.get("lat"):
+                    start_pos = GeoPoint(
+                        latitude=details["start_lat"], longitude=details["start_lon"]
+                    )
+                    end_pos = GeoPoint(
+                        latitude=details["lat"], longitude=details["lon"]
+                    )
+                    distance_km = haversine_distance(start_pos, end_pos)
+                    details["route_distance_km"] = distance_km
+                    details["route_distance_nm"] = km_to_nm(distance_km)
+
+            # Check if this needs expansion (CTD section)
+            if (
+                getattr(transit, "operation_type", None) == "CTD"
+                and getattr(transit, "action", None) == "section"
+            ):
+                logger.warning(
+                    f"Transit '{transit_name}' is a CTD section that should be "
+                    f"expanded. Run 'cruiseplan enrich --expand-sections' first."
+                )
+
+            return details
+
+    return None

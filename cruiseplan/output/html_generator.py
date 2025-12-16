@@ -450,6 +450,12 @@ class HTMLGenerator:
 
         html_content += """
     </table>
+"""
+
+        # Add leg schedule section
+        html_content += self._generate_leg_schedules(config, timeline, stats)
+
+        html_content += """
 </body>
 </html>
 """
@@ -460,6 +466,332 @@ class HTMLGenerator:
             f.write(html_content)
 
         return output_file
+
+    def _generate_leg_schedules(
+        self, config: CruiseConfig, timeline: List[ActivityRecord], stats: dict
+    ) -> str:
+        """
+        Generate HTML section with per-leg schedule tables.
+
+        Parameters
+        ----------
+        config : CruiseConfig
+            Cruise configuration
+        timeline : List[ActivityRecord]
+            Complete timeline from scheduler
+        stats : dict
+            Statistics from summary calculation
+
+        Returns
+        -------
+        str
+            HTML content for leg schedules section
+        """
+        html_content = """
+    <h2>3. Leg Schedules</h2>
+    <p>Individual leg schedules including transit connections between legs.</p>
+"""
+
+        # Group activities by leg
+        legs_data = self._group_activities_by_leg(config, timeline)
+
+        # Generate table for each leg
+        for i, (leg_name, leg_data) in enumerate(legs_data.items(), 1):
+            leg_letter = chr(ord("a") + i - 1)  # a, b, c, ...
+
+            html_content += f"""
+    <h3>3{leg_letter}. {leg_name}</h3>
+    <table cellpadding="5" cellspacing="0" border="1">
+        <tr>
+            <th>Activity</th>
+            <th>Type</th>
+            <th>Position</th>
+            <th>Duration (hrs)</th>
+            <th>Comments</th>
+        </tr>
+"""
+
+            total_leg_duration = 0
+
+            # Add transit to leg start (from previous leg end or departure port)
+            if leg_data["transit_to_start"]:
+                transit = leg_data["transit_to_start"]
+                duration_hrs = transit.get("duration_minutes", 0) / 60
+                total_leg_duration += duration_hrs
+
+                html_content += f"""
+        <tr style="background-color: #f0f8ff;">
+            <td>{transit.get('label', 'Transit')}</td>
+            <td>Transit to leg start</td>
+            <td>{transit.get('start_pos', '')} → {transit.get('end_pos', '')}</td>
+            <td class="number">{duration_hrs:.1f}</td>
+            <td>{transit.get('comment', 'Transit between legs')}</td>
+        </tr>
+"""
+
+            # Add leg activities
+            for activity in leg_data["activities"]:
+                duration_hrs = activity.get("duration_minutes", 0) / 60
+                total_leg_duration += duration_hrs
+
+                # Format position
+                if "lat" in activity and "lon" in activity:
+                    position = f"{activity['lat']:.4f}, {activity['lon']:.4f}"
+                else:
+                    position = "N/A"
+
+                # Determine activity type using correct field names
+                activity_type = activity.get("activity", "Unknown")
+                if activity_type == "Station":
+                    operation = activity.get("operation_type", "N/A")
+                    activity_type = f"Station ({operation})"
+                elif activity_type == "Mooring":
+                    action = activity.get("action", "N/A")
+                    activity_type = f"Mooring ({action})"
+                elif activity_type == "Transit":
+                    operation = activity.get("operation_type", "N/A")
+                    activity_type = f"Transit ({operation})"
+
+                html_content += f"""
+        <tr>
+            <td>{activity.get('label', 'Unknown')}</td>
+            <td>{activity_type}</td>
+            <td>{position}</td>
+            <td class="number">{duration_hrs:.1f}</td>
+            <td>{activity.get('comment', '')}</td>
+        </tr>
+"""
+
+            # Add transit from leg end (for last leg only - to arrival port)
+            if leg_data["transit_from_end"]:
+                transit = leg_data["transit_from_end"]
+                duration_hrs = transit.get("duration_minutes", 0) / 60
+                total_leg_duration += duration_hrs
+
+                html_content += f"""
+        <tr style="background-color: #f0f8ff;">
+            <td>{transit.get('label', 'Transit')}</td>
+            <td>Transit to arrival port</td>
+            <td>{transit.get('start_pos', '')} → {transit.get('end_pos', '')}</td>
+            <td class="number">{duration_hrs:.1f}</td>
+            <td>{transit.get('comment', 'Transit to arrival port')}</td>
+        </tr>
+"""
+
+            # Add leg total row
+            html_content += f"""
+        <tr style="font-weight: bold; background-color: #f2f2f2;">
+            <td>Leg Total</td>
+            <td>{len(leg_data['activities'])} operations</td>
+            <td></td>
+            <td class="number">{total_leg_duration:.1f}</td>
+            <td>{total_leg_duration/24:.1f} days</td>
+        </tr>
+    </table>
+"""
+
+        return html_content
+
+    def _group_activities_by_leg(
+        self, config: CruiseConfig, timeline: List[ActivityRecord]
+    ) -> dict:
+        """
+        Group timeline activities by leg and add appropriate transit connections.
+
+        Parameters
+        ----------
+        config : CruiseConfig
+            Cruise configuration
+        timeline : List[ActivityRecord]
+            Complete timeline from scheduler
+
+        Returns
+        -------
+        dict
+            Dictionary mapping leg names to leg data including activities and transits
+        """
+        legs_data = {}
+
+        # Get leg names from config
+        leg_names = (
+            [leg.name for leg in config.legs]
+            if hasattr(config, "legs") and config.legs
+            else []
+        )
+
+        if not leg_names:
+            # If no legs defined, create a single "Main Cruise" leg
+            main_activities = []
+            for activity in timeline:
+                if isinstance(activity, dict):
+                    main_activities.append(activity)
+                elif hasattr(activity, "__dict__"):
+                    main_activities.append(vars(activity))
+                else:
+                    main_activities.append(
+                        {
+                            "label": getattr(activity, "label", "Unknown"),
+                            "lat": getattr(activity, "lat", 0.0),
+                            "lon": getattr(activity, "lon", 0.0),
+                            "duration_minutes": getattr(
+                                activity, "duration_minutes", 0
+                            ),
+                            "activity": getattr(activity, "activity", "Unknown"),
+                            "operation_type": getattr(
+                                activity, "operation_type", "Unknown"
+                            ),
+                            "action": getattr(activity, "action", ""),
+                            "comment": getattr(activity, "comment", ""),
+                        }
+                    )
+
+            legs_data["Main Cruise"] = {
+                "activities": main_activities,
+                "transit_to_start": None,
+                "transit_from_end": None,
+            }
+            return legs_data
+
+        # Initialize legs
+        for leg_name in leg_names:
+            legs_data[leg_name] = {
+                "activities": [],
+                "transit_to_start": None,
+                "transit_from_end": None,
+            }
+
+        # Group activities by leg using leg_name field
+        for activity in timeline:
+            # ActivityRecord is a dict, so use .get() instead of getattr()
+            leg_name = (
+                activity.get("leg_name", None)
+                if isinstance(activity, dict)
+                else getattr(activity, "leg_name", None)
+            )
+
+            # Convert activity to dict safely - ActivityRecord is already a dict
+            if isinstance(activity, dict):
+                activity_dict = activity
+            elif hasattr(activity, "__dict__"):
+                activity_dict = vars(activity)
+            else:
+                # Fallback for objects without __dict__
+                activity_dict = {
+                    "label": getattr(activity, "label", "Unknown"),
+                    "lat": getattr(activity, "lat", 0.0),
+                    "lon": getattr(activity, "lon", 0.0),
+                    "duration_minutes": getattr(activity, "duration_minutes", 0),
+                    "activity": getattr(activity, "activity", "Unknown"),
+                    "operation_type": getattr(activity, "operation_type", "Unknown"),
+                    "action": getattr(activity, "action", ""),
+                    "comment": getattr(activity, "comment", ""),
+                }
+
+            if leg_name and leg_name in legs_data:
+                legs_data[leg_name]["activities"].append(activity_dict)
+            else:
+                # If no leg_name, assign to first leg or create default
+                if leg_names:
+                    legs_data[leg_names[0]]["activities"].append(activity_dict)
+                else:
+                    legs_data.setdefault(
+                        "Main Cruise",
+                        {
+                            "activities": [],
+                            "transit_to_start": None,
+                            "transit_from_end": None,
+                        },
+                    )
+                    legs_data["Main Cruise"]["activities"].append(activity_dict)
+
+        # Add transit connections between legs
+        self._add_leg_transits(legs_data, config, timeline)
+
+        return legs_data
+
+    def _add_leg_transits(
+        self, legs_data: dict, config: CruiseConfig, timeline: List[ActivityRecord]
+    ):
+        """
+        Add transit connections between legs.
+
+        Parameters
+        ----------
+        legs_data : dict
+            Leg data dictionary to modify
+        config : CruiseConfig
+            Cruise configuration
+        timeline : List[ActivityRecord]
+            Complete timeline
+        """
+        leg_names = list(legs_data.keys())
+
+        for i, leg_name in enumerate(leg_names):
+            # Add transit to leg start (except for first leg, which gets departure port transit)
+            if i == 0:
+                # First leg: transit from departure port to first station
+                if hasattr(config, "departure_port") and config.departure_port:
+                    departure_pos = f"{config.departure_port.position.latitude:.4f}, {config.departure_port.position.longitude:.4f}"
+                    first_activity = (
+                        legs_data[leg_name]["activities"][0]
+                        if legs_data[leg_name]["activities"]
+                        else None
+                    )
+                    if first_activity and "lat" in first_activity:
+                        first_pos = (
+                            f"{first_activity['lat']:.4f}, {first_activity['lon']:.4f}"
+                        )
+                        legs_data[leg_name]["transit_to_start"] = {
+                            "label": f"Transit from {config.departure_port.name}",
+                            "duration_minutes": 60,  # Placeholder - could calculate actual
+                            "start_pos": departure_pos,
+                            "end_pos": first_pos,
+                            "comment": f"Transit from departure port ({config.departure_port.name})",
+                        }
+            else:
+                # Subsequent legs: transit from previous leg end to this leg start
+                prev_leg = leg_names[i - 1]
+                prev_activities = legs_data[prev_leg]["activities"]
+                current_activities = legs_data[leg_name]["activities"]
+
+                if prev_activities and current_activities:
+                    last_prev = prev_activities[-1]
+                    first_current = current_activities[0]
+
+                    if "lat" in last_prev and "lat" in first_current:
+                        start_pos = f"{last_prev['lat']:.4f}, {last_prev['lon']:.4f}"
+                        end_pos = (
+                            f"{first_current['lat']:.4f}, {first_current['lon']:.4f}"
+                        )
+
+                        legs_data[leg_name]["transit_to_start"] = {
+                            "label": f"Transit {prev_leg} → {leg_name}",
+                            "duration_minutes": 120,  # Placeholder - could calculate actual
+                            "start_pos": start_pos,
+                            "end_pos": end_pos,
+                            "comment": "Transit between legs",
+                        }
+
+            # Add transit from leg end (only for last leg - to arrival port)
+            if i == len(leg_names) - 1:
+                if hasattr(config, "arrival_port") and config.arrival_port:
+                    arrival_pos = f"{config.arrival_port.position.latitude:.4f}, {config.arrival_port.position.longitude:.4f}"
+                    last_activity = (
+                        legs_data[leg_name]["activities"][-1]
+                        if legs_data[leg_name]["activities"]
+                        else None
+                    )
+                    if last_activity and "lat" in last_activity:
+                        last_pos = (
+                            f"{last_activity['lat']:.4f}, {last_activity['lon']:.4f}"
+                        )
+                        legs_data[leg_name]["transit_from_end"] = {
+                            "label": f"Transit to {config.arrival_port.name}",
+                            "duration_minutes": 60,  # Placeholder - could calculate actual
+                            "start_pos": last_pos,
+                            "end_pos": arrival_pos,
+                            "comment": f"Transit to arrival port ({config.arrival_port.name})",
+                        }
 
 
 def generate_html_schedule(
