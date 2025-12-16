@@ -68,6 +68,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.bathymetry">cruiseplan.data.bathymetry module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.BathymetryManager"><code class="docutils literal notranslate"><span class="pre">BathymetryManager</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.download_bathymetry"><code class="docutils literal notranslate"><span class="pre">download_bathymetry()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton"><code class="docutils literal notranslate"><span class="pre">get_bathymetry_singleton()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.cache">cruiseplan.data.cache module</a><ul>
@@ -224,6 +225,25 @@ to mock data when bathymetry files are unavailable.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025">
+<span class="sig-name descname"><span class="pre">ensure_gebco_2025</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">silent_if_exists</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.ensure_gebco_2025"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025" title="Link to this definition"></a></dt>
+<dd><p>Ensure GEBCO 2025 dataset is available for high-resolution bathymetry.</p>
+<p>Downloads and extracts GEBCO 2025 data if not present or corrupted.
+The full dataset is ~7.5GB uncompressed, downloaded as ~4GB zip.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>silent_if_exists</strong> (<em>bool</em><em>, </em><em>optional</em>) – If True, don’t log when file already exists (default: False).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if GEBCO 2025 is available, False if download failed or cancelled.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="cruiseplan.data.bathymetry.BathymetryManager.get_depth_at_point">
 <span class="sig-name descname"><span class="pre">get_depth_at_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#BathymetryManager.get_depth_at_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.BathymetryManager.get_depth_at_point" title="Link to this definition"></a></dt>
 <dd><p>Get depth at a specific geographic point.</p>
@@ -274,16 +294,33 @@ Supports downsampling with stride parameter for performance.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.data.bathymetry.download_bathymetry">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">download_bathymetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#download_bathymetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.download_bathymetry" title="Link to this definition"></a></dt>
-<dd><p>Download ETOPO 2022 bathymetry dataset with progress bar.</p>
-<p>Downloads the ETOPO 2022 60-second resolution bathymetry data
-from NOAA servers. Tries multiple mirror URLs if the primary fails.</p>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">download_bathymetry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">target_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#download_bathymetry"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.download_bathymetry" title="Link to this definition"></a></dt>
+<dd><p>Download bathymetry dataset with progress bar.</p>
+<p>Downloads either ETOPO 2022 (60s resolution) or GEBCO 2025 (15s resolution)
+bathymetry data based on the source parameter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>target_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Target directory relative to project root (default: “data”).
-The file will be saved in a “bathymetry” subdirectory.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>target_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Target directory relative to project root (default: “data”).
+The file will be saved in a “bathymetry” subdirectory.</p></li>
+<li><p><strong>source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry source to download (default: “etopo2022”).
+Options: “etopo2022”, “gebco2025”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>For GEBCO 2025: True if download/file check was successful, False if failed or cancelled.
+For ETOPO 2022: Returns None (legacy behavior).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool or None</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.get_bathymetry_singleton">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">get_bathymetry_singleton</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#get_bathymetry_singleton"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton" title="Link to this definition"></a></dt>
+<dd><p>Get the singleton BathymetryManager instance (lazy initialization).</p>
 </dd></dl>
 
 </section>

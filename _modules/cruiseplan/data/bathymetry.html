@@ -87,6 +87,8 @@
   <h1>Source code for cruiseplan.data.bathymetry</h1><div class="highlight"><pre>
 <span></span><span class="c1"># cruiseplan/data/bathymetry.py</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">zipfile</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">netCDF4</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">nc</span>
@@ -106,6 +108,11 @@
     <span class="s2">&quot;https://www.ncei.noaa.gov/thredds/fileServer/global/ETOPO2022/60s/60s_bed_elev_netcdf/ETOPO_2022_v1_60s_N90W180_bed.nc&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 <span class="n">ETOPO_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;ETOPO_2022_v1_60s_N90W180_bed.nc&quot;</span>
+
+<span class="c1"># GEBCO 2025 Constants</span>
+<span class="n">GEBCO_URL</span> <span class="o">=</span> <span class="s2">&quot;https://data.ceda.ac.uk/bodc/gebco/global/gebco_2025/ice_surface_elevation/netcdf/gebco_2025.zip&quot;</span>
+<span class="n">GEBCO_ZIP_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;gebco_2025.zip&quot;</span>
+<span class="n">GEBCO_NC_FILENAME</span> <span class="o">=</span> <span class="s2">&quot;GEBCO_2025.nc&quot;</span>
 
 <span class="c1"># Constants from Spec</span>
 <span class="n">DEPTH_CONTOURS</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">5000</span><span class="p">,</span> <span class="o">-</span><span class="mi">4000</span><span class="p">,</span> <span class="o">-</span><span class="mi">3000</span><span class="p">,</span> <span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="o">-</span><span class="mi">100</span><span class="p">,</span> <span class="o">-</span><span class="mi">50</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
@@ -159,22 +166,58 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_depth_var_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_depth_variable_name</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_data</span><span class="p">()</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_depth_variable_name</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the depth variable name for the current dataset.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            &#39;z&#39; for ETOPO, &#39;elevation&#39; for GEBCO</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;elevation&quot;</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="s2">&quot;z&quot;</span>  <span class="c1"># Default for ETOPO and other sources</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_initialize_data</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Attempt to load NetCDF data, falling back to mock mode on failure.</span>
 
 <span class="sd">        Tries to load the specified bathymetry dataset. If the file doesn&#39;t</span>
-<span class="sd">        exist or cannot be loaded, switches to mock mode for testing.</span>
+<span class="sd">        exist, is too small (corrupted/partial), or cannot be loaded, switches</span>
+<span class="sd">        to mock mode for testing. Offers user option to redownload corrupt files.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Map simple source name to actual filename</span>
-        <span class="n">filename</span> <span class="o">=</span> <span class="n">ETOPO_FILENAME</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+        <span class="c1"># Map source name to actual filename and expected size</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">ETOPO_FILENAME</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mi">450</span>  <span class="c1"># ETOPO is ~491 MB</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="n">GEBCO_NC_FILENAME</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mi">6900</span>  <span class="c1"># GEBCO is ~7.5 GB, use 6.9GB threshold</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">.nc&quot;</span>
+            <span class="n">min_size_mb</span> <span class="o">=</span> <span class="mi">10</span>  <span class="c1"># Generic minimum for custom sources</span>
+
         <span class="n">file_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">filename</span>
 
         <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Check file size based on source type</span>
+            <span class="n">file_size_mb</span> <span class="o">=</span> <span class="n">file_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">file_size_mb</span> <span class="o">&lt;</span> <span class="n">min_size_mb</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;⚠️ Bathymetry file at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2"> is too small (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB). &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Expected at least </span><span class="si">{</span><span class="n">min_size_mb</span><span class="si">}</span><span class="s2"> MB. Using MOCK mode. Run &#39;cruiseplan download&#39; to fix.&quot;</span>
+                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
+                <span class="k">return</span>
+
             <span class="k">try</span><span class="p">:</span>
                 <span class="c1"># Load using netCDF4 for efficient lazy slicing</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="n">nc</span><span class="o">.</span><span class="n">Dataset</span><span class="p">(</span><span class="n">file_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span>
@@ -182,18 +225,31 @@
                 <span class="c1"># (These are 1D arrays, so they fit easily in memory)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">][:]</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">][:]</span>
+
                 <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">False</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Loaded bathymetry from </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;❌ Failed to load bathymetry file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Using MOCK mode.&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;❌ Failed to load bathymetry file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">. Using MOCK mode. Run &#39;cruiseplan download&#39; to fix.&quot;</span>
                 <span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ No bathymetry file found at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">. Using MOCK mode.&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.&quot;</span>
+            <span class="c1"># Don&#39;t log about mock mode if we&#39;re in a download context</span>
+            <span class="c1"># (the download function will handle this better)</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+            <span class="n">stack</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">extract_stack</span><span class="p">()</span>
+            <span class="n">is_download_context</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="s2">&quot;download&quot;</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">stack</span><span class="p">[</span><span class="o">-</span><span class="mi">10</span><span class="p">:]</span>
             <span class="p">)</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">is_download_context</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;⚠️ No bathymetry file found at </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">. Using MOCK mode.&quot;</span>
+                <span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.&quot;</span>
+                <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
 
 <div class="viewcode-block" id="BathymetryManager.get_depth_at_point">
@@ -285,7 +341,7 @@
         <span class="n">lons</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[</span><span class="n">lon_idx_min</span><span class="p">:</span><span class="n">lon_idx_max</span><span class="p">:</span><span class="n">stride</span><span class="p">]</span>
 
         <span class="c1"># Read subset from disk</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">][</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_depth_var_name</span><span class="p">][</span>
             <span class="n">lat_idx_min</span><span class="p">:</span><span class="n">lat_idx_max</span><span class="p">:</span><span class="n">stride</span><span class="p">,</span> <span class="n">lon_idx_min</span><span class="p">:</span><span class="n">lon_idx_max</span><span class="p">:</span><span class="n">stride</span>
         <span class="p">]</span>
 
@@ -337,7 +393,9 @@
 
         <span class="c1"># 3. Extract 2x2 Grid (Lazy Load from Disk)</span>
         <span class="c1"># Note: z(lat, lon) -&gt; z(y, x)</span>
-        <span class="n">z_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="s2">&quot;z&quot;</span><span class="p">][[</span><span class="n">y0_idx</span><span class="p">,</span> <span class="n">y1_idx</span><span class="p">],</span> <span class="p">[</span><span class="n">x0_idx</span><span class="p">,</span> <span class="n">x1_idx</span><span class="p">]]</span>
+        <span class="n">z_grid</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span><span class="o">.</span><span class="n">variables</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_depth_var_name</span><span class="p">][</span>
+            <span class="p">[</span><span class="n">y0_idx</span><span class="p">,</span> <span class="n">y1_idx</span><span class="p">],</span> <span class="p">[</span><span class="n">x0_idx</span><span class="p">,</span> <span class="n">x1_idx</span><span class="p">]</span>
+        <span class="p">]</span>
         <span class="n">y_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lats</span><span class="p">[[</span><span class="n">y0_idx</span><span class="p">,</span> <span class="n">y1_idx</span><span class="p">]]</span>
         <span class="n">x_coords</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lons</span><span class="p">[[</span><span class="n">x0_idx</span><span class="p">,</span> <span class="n">x1_idx</span><span class="p">]]</span>
 
@@ -362,6 +420,186 @@
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="nb">float</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>
+
+<div class="viewcode-block" id="BathymetryManager.ensure_gebco_2025">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ensure_gebco_2025</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">silent_if_exists</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Ensure GEBCO 2025 dataset is available for high-resolution bathymetry.</span>
+
+<span class="sd">        Downloads and extracts GEBCO 2025 data if not present or corrupted.</span>
+<span class="sd">        The full dataset is ~7.5GB uncompressed, downloaded as ~4GB zip.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        silent_if_exists : bool, optional</span>
+<span class="sd">            If True, don&#39;t log when file already exists (default: False).</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if GEBCO 2025 is available, False if download failed or cancelled.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">gebco_nc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
+
+        <span class="c1"># Check if file exists and has correct size (~7.5GB)</span>
+        <span class="k">if</span> <span class="n">gebco_nc_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_size_gb</span> <span class="o">=</span> <span class="n">gebco_nc_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">file_size_gb</span> <span class="o">&gt;=</span> <span class="mf">6.9</span>
+            <span class="p">):</span>  <span class="c1"># 6.9GB threshold (allows for slight compression differences)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">silent_if_exists</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;✅ GEBCO 2025 already available at </span><span class="si">{</span><span class="n">gebco_nc_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;⚠️ GEBCO 2025 file is incomplete (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB). Re-downloading...&quot;</span>
+                <span class="p">)</span>
+                <span class="n">gebco_nc_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+
+        <span class="c1"># Check disk space (need ~12GB: 4GB zip + 7.5GB extracted + buffer)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">free_space_gb</span> <span class="o">=</span> <span class="n">shutil</span><span class="o">.</span><span class="n">disk_usage</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="p">)</span><span class="o">.</span><span class="n">free</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">free_space_gb</span> <span class="o">&lt;</span> <span class="mi">12</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;❌ Insufficient disk space. Need ~12GB, have </span><span class="si">{</span><span class="n">free_space_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">GB free.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Could not check disk space: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># User confirmation for large download</span>
+        <span class="c1"># Check if running in test environment</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+        <span class="k">if</span> <span class="s2">&quot;pytest&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span> <span class="ow">or</span> <span class="s2">&quot;unittest&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Test environment detected. Skipping GEBCO download.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="nb">input</span><span class="p">(</span>
+                    <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Download GEBCO 2025 high-resolution bathymetry?</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;  • Size: ~4GB download, ~7.5GB extracted</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;  • Time: May take 10-30 minutes depending on connection</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;  • Space: Requires ~12GB free disk space</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;Continue? (y/n): &quot;</span>
+                <span class="p">)</span>
+                <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">response</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Download cancelled by user.&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Download cancelled.&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># Download and extract</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_download_and_extract_gebco</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ GEBCO 2025 download completed successfully.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">success</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_download_and_extract_gebco</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Download GEBCO 2025 zip file and extract the NetCDF.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if successful, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">zip_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">GEBCO_ZIP_FILENAME</span>
+        <span class="n">nc_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Download zip file</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading GEBCO 2025 from </span><span class="si">{</span><span class="n">GEBCO_URL</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+            <span class="n">response</span> <span class="o">=</span> <span class="n">requests</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">GEBCO_URL</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+            <span class="n">response</span><span class="o">.</span><span class="n">raise_for_status</span><span class="p">()</span>
+
+            <span class="n">total_size</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">headers</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content-length&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">with</span> <span class="p">(</span>
+                <span class="nb">open</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">file</span><span class="p">,</span>
+                <span class="n">tqdm</span><span class="p">(</span>
+                    <span class="n">desc</span><span class="o">=</span><span class="s2">&quot;Downloading GEBCO 2025&quot;</span><span class="p">,</span>
+                    <span class="n">total</span><span class="o">=</span><span class="n">total_size</span><span class="p">,</span>
+                    <span class="n">unit</span><span class="o">=</span><span class="s2">&quot;B&quot;</span><span class="p">,</span>
+                    <span class="n">unit_scale</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                    <span class="n">unit_divisor</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+                <span class="p">)</span> <span class="k">as</span> <span class="n">bar</span><span class="p">,</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">iter_content</span><span class="p">(</span><span class="n">chunk_size</span><span class="o">=</span><span class="mi">8192</span><span class="p">):</span>
+                    <span class="n">file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">chunk</span><span class="p">)</span>
+                    <span class="n">bar</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chunk</span><span class="p">))</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ Download complete. Extracting...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Extract NetCDF from zip</span>
+            <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zip_ref</span><span class="p">:</span>
+                <span class="c1"># Find the .nc file in the zip</span>
+                <span class="n">nc_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">name</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">zip_ref</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span> <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.nc&quot;</span><span class="p">)]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">nc_files</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;❌ No NetCDF file found in GEBCO zip archive.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+                <span class="c1"># Extract the first .nc file found (with path validation)</span>
+                <span class="n">nc_file_in_zip</span> <span class="o">=</span> <span class="n">nc_files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                
+                <span class="c1"># Validate filename to prevent path traversal attacks</span>
+                <span class="n">nc_filename</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">nc_file_in_zip</span><span class="p">)</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># Only get filename, no path components</span>
+                <span class="k">if</span> <span class="n">nc_filename</span> <span class="o">!=</span> <span class="n">nc_file_in_zip</span><span class="p">:</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚠️ Suspicious filename in zip: </span><span class="si">{</span><span class="n">nc_file_in_zip</span><span class="si">}</span><span class="s2">. Expected flat structure.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+                
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Extracting </span><span class="si">{</span><span class="n">nc_file_in_zip</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
+
+                <span class="c1"># Extract with progress (for large files)</span>
+                <span class="k">with</span> <span class="p">(</span>
+                    <span class="n">zip_ref</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">nc_file_in_zip</span><span class="p">)</span> <span class="k">as</span> <span class="n">source</span><span class="p">,</span>
+                    <span class="nb">open</span><span class="p">(</span><span class="n">nc_path</span><span class="p">,</span> <span class="s2">&quot;wb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">target</span><span class="p">,</span>
+                <span class="p">):</span>
+                    <span class="n">shutil</span><span class="o">.</span><span class="n">copyfileobj</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+            <span class="c1"># Cleanup: remove zip file to save space</span>
+            <span class="n">zip_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ GEBCO 2025 ready at </span><span class="si">{</span><span class="n">nc_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Verify extracted file size</span>
+            <span class="n">file_size_gb</span> <span class="o">=</span> <span class="n">nc_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_size_gb</span> <span class="o">&lt;</span> <span class="mf">6.9</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;⚠️ Extracted file seems small (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB). May be corrupted.&quot;</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="kc">False</span>
+
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ GEBCO 2025 extraction complete (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">except</span> <span class="n">requests</span><span class="o">.</span><span class="n">RequestException</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Download failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">zip_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">zip_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Invalid zip file: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">zip_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">zip_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Cleanup on failure</span>
+            <span class="k">for</span> <span class="n">path</span> <span class="ow">in</span> <span class="p">[</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">nc_path</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                    <span class="n">path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">return</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_get_mock_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -401,19 +639,73 @@
 
 <div class="viewcode-block" id="download_bathymetry">
 <a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.download_bathymetry">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Download ETOPO 2022 bathymetry dataset with progress bar.</span>
+<span class="sd">    Download bathymetry dataset with progress bar.</span>
 
-<span class="sd">    Downloads the ETOPO 2022 60-second resolution bathymetry data</span>
-<span class="sd">    from NOAA servers. Tries multiple mirror URLs if the primary fails.</span>
+<span class="sd">    Downloads either ETOPO 2022 (60s resolution) or GEBCO 2025 (15s resolution)</span>
+<span class="sd">    bathymetry data based on the source parameter.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    target_dir : str, optional</span>
 <span class="sd">        Target directory relative to project root (default: &quot;data&quot;).</span>
 <span class="sd">        The file will be saved in a &quot;bathymetry&quot; subdirectory.</span>
+<span class="sd">    source : str, optional</span>
+<span class="sd">        Bathymetry source to download (default: &quot;etopo2022&quot;).</span>
+<span class="sd">        Options: &quot;etopo2022&quot;, &quot;gebco2025&quot;.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool or None</span>
+<span class="sd">        For GEBCO 2025: True if download/file check was successful, False if failed or cancelled.</span>
+<span class="sd">        For ETOPO 2022: Returns None (legacy behavior).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
+        <span class="c1"># Handle GEBCO 2025 download</span>
+        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">target_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+        <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">gebco_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
+
+        <span class="c1"># Check if file already exists and is complete</span>
+        <span class="k">if</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">file_size_gb</span> <span class="o">=</span> <span class="n">gebco_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span><span class="o">**</span><span class="mi">3</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">file_size_gb</span> <span class="o">&gt;=</span> <span class="mf">6.9</span><span class="p">:</span>  <span class="c1"># 6.9GB threshold for ~7.5GB file</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span><span class="p">)</span>
+                <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">gebco_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_gb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> GB)&quot;</span>
+                <span class="p">)</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+                        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/n): &quot;</span><span class="p">)</span>
+                        <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                        <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+                        <span class="n">gebco_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
+                        <span class="k">return</span> <span class="kc">False</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># File doesn&#39;t exist or is incomplete, need to download</span>
+        <span class="c1"># Use a fresh BathymetryManager instance for downloading</span>
+        <span class="c1"># Pass only the directory relative to the project root (e.g., &quot;data&quot;) as data_dir.</span>
+        <span class="c1"># BathymetryManager will append &quot;/bathymetry&quot; itself.</span>
+        <span class="n">manager</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">target_dir</span><span class="p">)</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">ensure_gebco_2025</span><span class="p">(</span><span class="n">silent_if_exists</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">success</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ GEBCO 2025 download failed.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">success</span>
+
+    <span class="c1"># Handle ETOPO 2022 download (existing logic)</span>
     <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
     <span class="n">output_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">target_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
     <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -421,8 +713,30 @@
     <span class="n">local_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ETOPO_FILENAME</span>
 
     <span class="k">if</span> <span class="n">local_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">return</span>
+        <span class="c1"># Check if existing file is complete (actual file is ~491 MB)</span>
+        <span class="n">file_size_mb</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="p">(</span><span class="mi">1024</span> <span class="o">*</span> <span class="mi">1024</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">file_size_mb</span> <span class="o">&gt;=</span> <span class="mi">450</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File already exists at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Existing file at </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2"> is incomplete (</span><span class="si">{</span><span class="n">file_size_mb</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> MB)&quot;</span>
+            <span class="p">)</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/n): &quot;</span><span class="p">)</span>
+                    <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">response</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">,</span> <span class="s2">&quot;yes&quot;</span><span class="p">):</span>
+                    <span class="n">local_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Deleted incomplete file. Starting download...&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Keeping incomplete file. Download cancelled.&quot;</span><span class="p">)</span>
+                    <span class="k">return</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">EOFError</span><span class="p">,</span> <span class="ne">KeyboardInterrupt</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Non-interactive environment. Keeping incomplete file.&quot;</span><span class="p">)</span>
+                <span class="k">return</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloading ETOPO dataset to </span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">...&quot;</span><span class="p">)</span>
 
@@ -469,8 +783,26 @@
 
 
 
-<span class="c1"># Singleton instance</span>
-<span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">()</span>
+<span class="c1"># Lazy singleton instance - only created when first accessed</span>
+<span class="n">_bathymetry_instance</span> <span class="o">=</span> <span class="kc">None</span>
+
+
+<div class="viewcode-block" id="get_bathymetry_singleton">
+<a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.get_bathymetry_singleton">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_bathymetry_singleton</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get the singleton BathymetryManager instance (lazy initialization).&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_bathymetry_instance</span>
+    <span class="k">if</span> <span class="n">_bathymetry_instance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_bathymetry_instance</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_bathymetry_instance</span></div>
+
+
+
+<span class="c1"># For backward compatibility, create the singleton on first access</span>
+<span class="k">def</span><span class="w"> </span><span class="fm">__getattr__</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">get_bathymetry_singleton</span><span class="p">()</span>
+    <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;module &#39;</span><span class="si">{</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&#39; has no attribute &#39;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
 </pre></div>
 
            </div>

@@ -1003,7 +1003,7 @@
                 <span class="n">ds_lines</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">rename</span><span class="p">({</span><span class="s2">&quot;obs&quot;</span><span class="p">:</span> <span class="s2">&quot;operations&quot;</span><span class="p">})</span>
 
             <span class="c1"># For line operations, extract start/end coordinates from master schedule</span>
-            <span class="n">n_operations</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">dims</span><span class="p">[</span><span class="s2">&quot;operations&quot;</span><span class="p">]</span>
+            <span class="n">n_operations</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">sizes</span><span class="p">[</span><span class="s2">&quot;operations&quot;</span><span class="p">]</span>
 
             <span class="c1"># Create endpoints dimension</span>
             <span class="n">ds_lines</span> <span class="o">=</span> <span class="n">ds_lines</span><span class="o">.</span><span class="n">assign_coords</span><span class="p">(</span><span class="n">endpoints</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;endpoints&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;end&quot;</span><span class="p">]))</span>

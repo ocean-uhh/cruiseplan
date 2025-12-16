@@ -227,14 +227,25 @@
     <span class="n">download_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;download&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download required data assets (bathymetry, etc.)&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download ETOPO 2022 bathymetry dataset for cruise planning&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download bathymetry datasets for cruise planning&quot;</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers.</span>
-<span class="s2">The data is required for depth calculations and bathymetric analysis in cruise planning.</span>
+<span class="s2">This command downloads bathymetry datasets for depth calculations and bathymetric analysis.</span>
+
+<span class="s2">Available sources:</span>
+<span class="s2">  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)</span>
+<span class="s2">  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)</span>
 
 <span class="s2">Examples:</span>
-<span class="s2">  cruiseplan download    # Download to default data/bathymetry/ directory</span>
+<span class="s2">  cruiseplan download                                    # Download ETOPO 2022 (default)</span>
+<span class="s2">  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly</span>
+<span class="s2">  cruiseplan download --bathymetry-source gebco2025     # Download high-res GEBCO 2025</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">download_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># --- 2. Schedule Subcommand ---</span>

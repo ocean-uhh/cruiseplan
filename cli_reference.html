@@ -142,7 +142,7 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 <section id="download">
 <h3>download<a class="headerlink" href="#download" title="Link to this heading"></a></h3>
 <p>Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span>
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>
@@ -155,12 +155,53 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-h,</span> <span class="pre">--help</span></code></p></td>
 <td><p>Show this help message and exit.</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<td><p>Bathymetry dataset to download (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
 </tbody>
 </table>
 <p><strong>Description:</strong></p>
-<p>This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers, which is required for depth calculations and bathymetric visualization in cruise planning. The dataset is cached locally in the <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code> directory.</p>
+<p>This command downloads bathymetry datasets required for depth calculations and bathymetric visualization in cruise planning. Two datasets are available:</p>
+<ul class="simple">
+<li><p><strong>ETOPO 2022</strong>: Global bathymetry at 60-second resolution (~500MB) - suitable for most applications</p></li>
+<li><p><strong>GEBCO 2025</strong>: High-resolution global bathymetry at 15-second resolution (~7.5GB) - provides enhanced detail for detailed planning</p></li>
+</ul>
+<p>The datasets are cached locally in the <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code> directory.</p>
+<p><strong>Available Sources:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 40.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Source</strong></p></td>
+<td><p><strong>Resolution</strong></p></td>
+<td><p><strong>File Size</strong></p></td>
+<td><p><strong>Description</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">etopo2022</span></code></p></td>
+<td><p>60 seconds</p></td>
+<td><p>~500MB</p></td>
+<td><p>Standard resolution bathymetry (default)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">gebco2025</span></code></p></td>
+<td><p>15 seconds</p></td>
+<td><p>~7.5GB</p></td>
+<td><p>High-resolution bathymetry for detailed analysis</p></td>
+</tr>
+</tbody>
+</table>
 <p><strong>Examples:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cruiseplan<span class="w"> </span>download
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download default ETOPO 2022 bathymetry</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>download
+
+<span class="c1"># Download ETOPO 2022 explicitly</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022
+
+<span class="c1"># Download high-resolution GEBCO 2025 bathymetry</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
 </pre></div>
 </div>
 </section>
