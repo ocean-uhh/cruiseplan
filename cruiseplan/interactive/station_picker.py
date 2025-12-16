@@ -894,6 +894,12 @@ class StationPicker:
         }
 
 
+# Backward compatibility for tests: lazy import bathymetry when requested
+def __getattr__(name):
+    if name == "bathymetry":
+        from cruiseplan.data.bathymetry import bathymetry
+        return bathymetry
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 if __name__ == "__main__":
