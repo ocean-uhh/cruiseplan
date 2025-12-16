@@ -123,7 +123,6 @@ class BathymetryManager:
                     f"⚠️ Bathymetry file at {file_path} is too small ({file_size_mb:.1f} MB). "
                     f"Expected at least {min_size_mb} MB. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
-                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = True
                 return
 
@@ -135,15 +134,12 @@ class BathymetryManager:
                 self._lats = self._dataset.variables["lat"][:]
                 self._lons = self._dataset.variables["lon"][:]
 
-                # Determine depth variable name based on source
-                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = False
                 logger.info(f"✅ Loaded bathymetry from {file_path}")
             except Exception as e:
                 logger.warning(
                     f"❌ Failed to load bathymetry file: {e}. Using MOCK mode. Run 'cruiseplan download' to fix."
                 )
-                self._depth_var_name = self._get_depth_variable_name()
                 self._is_mock = True
         else:
             # Don't log about mock mode if we're in a download context
@@ -162,7 +158,6 @@ class BathymetryManager:
                 logger.info(
                     "   Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it."
                 )
-            self._depth_var_name = self._get_depth_variable_name()
             self._is_mock = True
 
     def get_depth_at_point(self, lat: float, lon: float) -> float:
@@ -454,8 +449,15 @@ class BathymetryManager:
                     logger.error("❌ No NetCDF file found in GEBCO zip archive.")
                     return False
 
-                # Extract the first .nc file found
+                # Extract the first .nc file found (with path validation)
                 nc_file_in_zip = nc_files[0]
+                
+                # Validate filename to prevent path traversal attacks
+                nc_filename = Path(nc_file_in_zip).name  # Only get filename, no path components
+                if nc_filename != nc_file_in_zip:
+                    logger.warning(f"⚠️ Suspicious filename in zip: {nc_file_in_zip}. Expected flat structure.")
+                    return False
+                
                 logger.info(f"Extracting {nc_file_in_zip}...")
 
                 # Extract with progress (for large files)
@@ -545,6 +547,12 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
     source : str, optional
         Bathymetry source to download (default: "etopo2022").
         Options: "etopo2022", "gebco2025".
+    
+    Returns
+    -------
+    bool or None
+        For GEBCO 2025: True if download/file check was successful, False if failed or cancelled.
+        For ETOPO 2022: Returns None (legacy behavior).
     """
     if source == "gebco2025":
         # Handle GEBCO 2025 download
@@ -582,6 +590,8 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
 
         # File doesn't exist or is incomplete, need to download
         # Use a fresh BathymetryManager instance for downloading
+        # Pass only the directory relative to the project root (e.g., "data") as data_dir.
+        # BathymetryManager will append "/bathymetry" itself.
         manager = BathymetryManager(source="gebco2025", data_dir=target_dir)
         success = manager.ensure_gebco_2025(silent_if_exists=True)
         if not success:

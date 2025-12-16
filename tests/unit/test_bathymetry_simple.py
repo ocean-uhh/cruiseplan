@@ -9,11 +9,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.data.bathymetry import (
-    ETOPO_FILENAME,
-    BathymetryManager,
-    get_bathymetry_singleton,
-)
+import cruiseplan.data.bathymetry as bathy_module
+from cruiseplan.data.bathymetry import ETOPO_FILENAME, BathymetryManager
 
 
 class TestBathymetrySimpleCoverage:
@@ -156,13 +153,11 @@ class TestBathymetrySimpleCoverage:
     def test_get_bathymetry_singleton(self):
         """Test the singleton bathymetry instance getter."""
         # Clear any existing singleton
-        import cruiseplan.data.bathymetry as bathy_module
-
         bathy_module._bathymetry_instance = None
 
         # Get singleton twice
-        instance1 = get_bathymetry_singleton()
-        instance2 = get_bathymetry_singleton()
+        instance1 = bathy_module.get_bathymetry_singleton()
+        instance2 = bathy_module.get_bathymetry_singleton()
 
         # Should be the same instance
         assert instance1 is instance2
@@ -171,8 +166,6 @@ class TestBathymetrySimpleCoverage:
     def test_module_getattr_bathymetry(self):
         """Test the module __getattr__ for backwards compatibility."""
         # Clear any existing singleton
-        import cruiseplan.data.bathymetry as bathy_module
-
         bathy_module._bathymetry_instance = None
 
         # Access via __getattr__
@@ -183,8 +176,6 @@ class TestBathymetrySimpleCoverage:
 
     def test_module_getattr_invalid_attribute(self):
         """Test the module __getattr__ with invalid attribute."""
-        import cruiseplan.data.bathymetry as bathy_module
-
         # Should raise AttributeError for invalid attributes
         with pytest.raises(AttributeError):
             bathy_module.invalid_attribute

@@ -189,12 +189,14 @@ class StationPicker:
 
         # Center: Map (same as before)
         self.ax_map = self.fig.add_subplot(gs[0, 1])
-        # Set title with bathymetry source information
-        bathymetry_source_display = (
-            self.bathymetry.source.upper()
-            .replace("2022", " 2022")
-            .replace("2025", " 2025")
-        )
+        # Set title with bathymetry source information  
+        # Use a mapping dictionary for robust display name formatting
+        BATHYMETRY_SOURCE_DISPLAY_NAMES = {
+            "ETOPO2022": "ETOPO 2022",
+            "GEBCO2025": "GEBCO 2025",
+        }
+        source_key = self.bathymetry.source.upper()
+        bathymetry_source_display = BATHYMETRY_SOURCE_DISPLAY_NAMES.get(source_key, source_key)
         self.ax_map.set_title(
             f"Cruise Planning Map ({bathymetry_source_display} bathymetry)"
         )
@@ -892,13 +894,6 @@ class StationPicker:
         }
 
 
-# Backward compatibility: lazy import bathymetry singleton when requested
-def __getattr__(name):
-    if name == "bathymetry":
-        from cruiseplan.data.bathymetry import bathymetry
-
-        return bathymetry
-    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 if __name__ == "__main__":

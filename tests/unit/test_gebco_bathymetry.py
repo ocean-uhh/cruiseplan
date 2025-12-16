@@ -45,8 +45,6 @@ class TestGEBCO2025Functionality:
         Mock Path.exists() to return True and Path.stat().st_size to return 7.5 GB.
         Assert that requests.get is never called.
         """
-        gebco_path = test_bathymetry_dir / GEBCO_NC_FILENAME
-
         # Mock file existence and valid size (7.5 GB)
         with (
             patch.object(Path, "exists") as mock_exists,
