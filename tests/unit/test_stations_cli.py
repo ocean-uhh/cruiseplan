@@ -72,6 +72,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         campaign_data=[{"name": "C1", "data": []}, {"name": "C2", "data": []}],
         output_file=output_file,
         bathymetry_stride=10,  # Default stride since high_resolution=False
+        bathymetry_source="etopo2022",  # Default bathymetry source
     )
 
     # 3. Assert map bounds were set

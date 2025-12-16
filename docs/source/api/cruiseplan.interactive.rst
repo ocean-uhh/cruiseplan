@@ -31,3 +31,10 @@ cruiseplan.interactive.widgets module
    :undoc-members:
    :show-inheritance:
 
+cruiseplan.interactive.colormaps module
+-------------------------------------
+
+.. automodule:: cruiseplan.interactive.colormaps
+   :members:
+   :undoc-members:
+   :show-inheritance:

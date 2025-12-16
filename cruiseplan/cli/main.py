@@ -120,14 +120,25 @@ For detailed help on a subcommand:
     download_parser = subparsers.add_parser(
         "download",
         help="Download required data assets (bathymetry, etc.)",
-        description="Download ETOPO 2022 bathymetry dataset for cruise planning",
+        description="Download bathymetry datasets for cruise planning",
         epilog="""
-This command downloads the ETOPO 2022 bathymetry dataset (~1GB) from NOAA servers.
-The data is required for depth calculations and bathymetric analysis in cruise planning.
+This command downloads bathymetry datasets for depth calculations and bathymetric analysis.
+
+Available sources:
+  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
+  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
 
 Examples:
-  cruiseplan download    # Download to default data/bathymetry/ directory
+  cruiseplan download                                    # Download ETOPO 2022 (default)
+  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly
+  cruiseplan download --bathymetry-source gebco2025     # Download high-res GEBCO 2025
         """,
+    )
+    download_parser.add_argument(
+        "--bathymetry-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset to download (default: etopo2022)",
     )
 
     # --- 2. Schedule Subcommand ---
