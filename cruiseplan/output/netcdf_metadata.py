@@ -75,7 +75,7 @@ COORDINATE_VARIABLES = {
 # Updated depth variables with semantic clarity
 DEPTH_VARIABLES = {
     "water_depth": {
-        "standard_name": "sea_floor_depth_below_sea_level",
+        "standard_name": "sea_floor_depth_below_sea_surface",
         "long_name": "water depth at station location",
         "units": "meters",
         "positive": "down",
@@ -215,10 +215,12 @@ def create_coordinate_variables(times, lats, lons, depths=None, operation_depths
         Dictionary of coordinate variable definitions for xarray.Dataset
     """
     coord_vars = {
-        "time": (["obs"], times, get_variable_attributes("time")),
         "latitude": (["obs"], lats, get_variable_attributes("latitude")),
         "longitude": (["obs"], lons, get_variable_attributes("longitude")),
     }
+    
+    if times is not None:
+        coord_vars["time"] = (["obs"], times, get_variable_attributes("time"))
     
     if depths is not None:
         coord_vars["water_depth"] = (["obs"], depths, get_variable_attributes("water_depth"))

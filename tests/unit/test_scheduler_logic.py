@@ -199,7 +199,7 @@ def test_timeline_generation_simple_sequential(mock_calculations, config_simple)
     # --- ASSERTIONS ---
 
     # Expected Timeline Length: Mobilization + STN_001 + STN_002 + Demobilization = 4
-    # Note: No inter-transit between close stations (optimization)
+    # Note: No transit activities generated between close stations in this test case
     assert len(timeline) == 4
 
     start_time = datetime(2028, 6, 1, 8, 0, 0)

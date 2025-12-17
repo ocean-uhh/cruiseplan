@@ -15,6 +15,9 @@ from cruiseplan.utils.coordinates import format_dmm_comment
 
 logger = logging.getLogger(__name__)
 
+# Track deprecation warnings to show only once per session
+_shown_warnings = set()
+
 # cruiseplan/core/validation.py
 
 
@@ -472,13 +475,17 @@ class StationDefinition(FlexibleLocationModel):
             If depth is negative.
         """
         if v is not None:
-            warnings.warn(
-                "The 'depth' field is deprecated. Use 'operation_depth' for target operation depth "
-                "or 'water_depth' for seafloor depth. This distinction improves scientific accuracy "
-                "and duration calculations.",
-                UserWarning,
-                stacklevel=2,
-            )
+            # Show deprecation warning only once per session
+            warning_key = "depth_field_deprecated"
+            if warning_key not in _shown_warnings:
+                warnings.warn(
+                    "The 'depth' field is deprecated. Use 'operation_depth' for target operation depth "
+                    "or 'water_depth' for seafloor depth. This distinction improves scientific accuracy "
+                    "and duration calculations.",
+                    UserWarning,
+                    stacklevel=2,
+                )
+                _shown_warnings.add(warning_key)
             if v < 0:
                 raise ValueError(
                     "Station depth must be positive (depths should be given as positive values in meters)"
@@ -635,6 +642,11 @@ class StationDefinition(FlexibleLocationModel):
             self.operation_depth = self.depth
             # Also set water_depth to same value unless enrichment fills it from bathymetry
             self.water_depth = self.depth
+            logger.warning(
+                f"Station '{self.name}': Migrating deprecated 'depth' field ({self.depth}m) to both "
+                f"operation_depth and water_depth. For CTD operations, operation_depth and water_depth "
+                f"may differ. Please review and update your configuration to use explicit depth fields."
+            )
         elif self.depth is not None:
             # If new fields are specified, the depth field should not be used
             # This prevents conflicting depth information
