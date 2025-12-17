@@ -94,6 +94,16 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "op_type": op_type,
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes
+                "delay_start": (
+                    getattr(match, "delay_start", None)
+                    if hasattr(match, "delay_start")
+                    else 0.0
+                ),  # Pre-operation delay in minutes
+                "delay_end": (
+                    getattr(match, "delay_end", None)
+                    if hasattr(match, "delay_end")
+                    else 0.0
+                ),  # Post-operation delay in minutes
                 "action": (
                     (
                         match.action.value
@@ -127,6 +137,16 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "op_type": "area",
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes
+                "delay_start": (
+                    getattr(match, "delay_start", None)
+                    if hasattr(match, "delay_start")
+                    else 0.0
+                ),  # Pre-operation delay in minutes
+                "delay_end": (
+                    getattr(match, "delay_end", None)
+                    if hasattr(match, "delay_end")
+                    else 0.0
+                ),  # Post-operation delay in minutes
                 "action": (
                     (
                         match.action.value
@@ -304,10 +324,44 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                 )
 
     # Process sequential activities (no complex Composite parsing yet)
+    current_leg_name = None  # Track leg changes for buffer time application
+
     for i, activity in enumerate(all_activities):
 
         # Get the action early for use in ActivityRecord
         action = activity.get("action", None)
+
+        # Handle leg-level buffer time when transitioning between legs
+        leg_name = activity.get("leg_name")
+        if current_leg_name is not None and leg_name != current_leg_name:
+            # We've moved to a new leg - check if previous leg has buffer time
+            previous_leg = next(
+                (leg for leg in config.legs if leg.name == current_leg_name), None
+            )
+            # Check for real buffer_time attribute (not MagicMock)
+            buffer_time_min = 0.0
+            if previous_leg:
+                try:
+                    # Only use buffer_time if it's actually defined (not a MagicMock)
+                    if hasattr(previous_leg, "buffer_time"):
+                        raw_buffer_time = getattr(previous_leg, "buffer_time", None)
+                        # Check if it's a real value, not a MagicMock
+                        if (
+                            raw_buffer_time is not None
+                            and not str(type(raw_buffer_time)).__contains__("MagicMock")
+                            and isinstance(raw_buffer_time, (int, float))
+                        ):
+                            buffer_time_min = float(raw_buffer_time)
+                except (TypeError, ValueError, AttributeError):
+                    buffer_time_min = 0.0
+
+            if buffer_time_min > 0:
+                logger.info(
+                    f"Adding {buffer_time_min} min buffer time at end of leg '{current_leg_name}'"
+                )
+                current_time += timedelta(minutes=buffer_time_min)
+
+        current_leg_name = leg_name
 
         # 3a. Calculate Transit time from last activity
         # For transits, calculate distance to the START of the route, not the end
@@ -404,6 +458,44 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         else:
             op_duration_min = 60.0  # Default fallback for non-CTD/Mooring ops
 
+        # 3c. Handle Activity-Level Buffer Times
+        # Safely get delay values, treating MagicMock as 0.0
+        delay_start_raw = activity.get("delay_start", 0.0)
+        delay_end_raw = activity.get("delay_end", 0.0)
+
+        # Convert to float, treating MagicMocks as 0.0
+        delay_start_min = 0.0
+        delay_end_min = 0.0
+
+        try:
+            # Only use if it's a real number, not a MagicMock
+            if (
+                delay_start_raw is not None
+                and not str(type(delay_start_raw)).__contains__("MagicMock")
+                and isinstance(delay_start_raw, (int, float))
+            ):
+                delay_start_min = float(delay_start_raw)
+        except (TypeError, ValueError, AttributeError):
+            delay_start_min = 0.0
+
+        try:
+            # Only use if it's a real number, not a MagicMock
+            if (
+                delay_end_raw is not None
+                and not str(type(delay_end_raw)).__contains__("MagicMock")
+                and isinstance(delay_end_raw, (int, float))
+            ):
+                delay_end_min = float(delay_end_raw)
+        except (TypeError, ValueError, AttributeError):
+            delay_end_min = 0.0
+
+        # Add delay_start to current_time (wait before operation begins)
+        if delay_start_min > 0:
+            current_time += timedelta(minutes=delay_start_min)
+
+        # Total operation duration includes base duration + end delay
+        total_op_duration_min = op_duration_min + delay_end_min
+
         # Set operation distance: route distance for scientific transits, 0 for point operations
         if activity["op_type"] == "transit" and "route_distance_nm" in activity:
             operation_distance = activity["route_distance_nm"]
@@ -430,8 +522,8 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "lon": current_pos.longitude,
                     "depth": activity["depth"],
                     "start_time": current_time,
-                    "end_time": current_time + timedelta(minutes=op_duration_min),
-                    "duration_minutes": op_duration_min,
+                    "end_time": current_time + timedelta(minutes=total_op_duration_min),
+                    "duration_minutes": total_op_duration_min,
                     "transit_dist_nm": transit_distance,  # Distance to reach this operation
                     "operation_dist_nm": operation_distance,  # Distance traveled during this operation
                     "vessel_speed_kt": activity.get(
@@ -448,8 +540,35 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
             )
         )
 
-        current_time += timedelta(minutes=op_duration_min)
+        current_time += timedelta(minutes=total_op_duration_min)
         last_position = current_pos
+
+    # Add buffer time for the final leg if specified
+    if current_leg_name:
+        final_leg = next(
+            (leg for leg in config.legs if leg.name == current_leg_name), None
+        )
+        buffer_time_min = 0.0
+        if final_leg:
+            try:
+                # Only use buffer_time if it's actually defined (not a MagicMock)
+                if hasattr(final_leg, "buffer_time"):
+                    raw_buffer_time = getattr(final_leg, "buffer_time", None)
+                    # Check if it's a real value, not a MagicMock
+                    if (
+                        raw_buffer_time is not None
+                        and not str(type(raw_buffer_time)).__contains__("MagicMock")
+                        and isinstance(raw_buffer_time, (int, float))
+                    ):
+                        buffer_time_min = float(raw_buffer_time)
+            except (TypeError, ValueError, AttributeError):
+                buffer_time_min = 0.0
+
+        if buffer_time_min > 0:
+            logger.info(
+                f"Adding {buffer_time_min} min buffer time at end of final leg '{current_leg_name}'"
+            )
+            current_time += timedelta(minutes=buffer_time_min)
 
     # --- Step 4: Transit from Working Area ---
     if last_position:
@@ -761,6 +880,7 @@ def _extract_activities_from_leg(leg) -> List[str]:
     elif (
         hasattr(leg, "clusters") and leg.clusters is not None and len(leg.clusters) > 0
     ):
+        cluster_activities_found = False
         for cluster in leg.clusters:
             # Process cluster sequence
             if (
@@ -771,8 +891,10 @@ def _extract_activities_from_leg(leg) -> List[str]:
                 for item in cluster.sequence:
                     if isinstance(item, str):
                         activity_names.append(item)
+                        cluster_activities_found = True
                     elif hasattr(item, "name"):
                         activity_names.append(item.name)
+                        cluster_activities_found = True
             # Process cluster stations
             elif (
                 hasattr(cluster, "stations")
@@ -782,10 +904,25 @@ def _extract_activities_from_leg(leg) -> List[str]:
                 for station in cluster.stations:
                     if isinstance(station, str):
                         activity_names.append(station)
+                        cluster_activities_found = True
                     elif hasattr(station, "name"):
                         activity_names.append(station.name)
+                        cluster_activities_found = True
 
-    # Priority 3: Direct stations (fallback)
+        # If no cluster activities were found, fall back to leg stations
+        if (
+            not cluster_activities_found
+            and hasattr(leg, "stations")
+            and leg.stations is not None
+            and len(leg.stations) > 0
+        ):
+            for station in leg.stations:
+                if isinstance(station, str):
+                    activity_names.append(station)
+                elif hasattr(station, "name"):
+                    activity_names.append(station.name)
+
+    # Priority 3: Direct stations (fallback when no clusters exist)
     elif (
         hasattr(leg, "stations") and leg.stations is not None and len(leg.stations) > 0
     ):

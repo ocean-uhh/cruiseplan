@@ -9,6 +9,17 @@ logging.basicConfig(level=logging.INFO, format="%(name)s - %(levelname)s - %(mes
 
 
 def main():
+    """
+    Interactive demonstration of CruisePlan functionality.
+
+    Provides a guided demo that:
+    1. Tests bathymetry data access
+    2. Demonstrates PANGAEA data fetching
+    3. Launches the interactive station picker UI
+
+    This function is primarily for testing and demonstration purposes,
+    showing how the main components of CruisePlan work together.
+    """
     print("========================================")
     print("   CRUISEPLAN - INTERACTIVE DEMO")
     print("========================================")

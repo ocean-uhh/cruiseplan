@@ -154,11 +154,11 @@ Launch the interactive graphical interface for planning stations and transects w
 enrich
 ^^^^^^
 
-Adds missing or computed data (like depth or formatted coordinates) to a configuration file.
+Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.
 
 .. code-block:: bash
 
-    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
+    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
 
 **Options:**
 
@@ -171,6 +171,8 @@ Adds missing or computed data (like depth or formatted coordinates) to a configu
      - Add missing ``depth`` values to stations using bathymetry data.
    * - ``--add-coords``
      - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
+   * - ``--expand-sections``
+     - Expand CTD sections defined in ``transits`` into individual station definitions with spherical interpolation.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
      - Output directory (default: ``current``).
    * - ``--output-file OUTPUT_FILE``
@@ -179,6 +181,49 @@ Adds missing or computed data (like depth or formatted coordinates) to a configu
      - Bathymetry dataset (default: ``etopo2022``).
    * - ``--coord-format {dmm,dms}``
      - Format for adding coordinates.
+
+**CTD Section Expansion:**
+
+The ``--expand-sections`` option processes CTD section transits and converts them into individual station definitions:
+
+.. code-block:: yaml
+
+    # Input: CTD section definition
+    transits:
+      - name: "Arctic_Section_1"
+        operation_type: "ctd_section"
+        spacing_km: 25.0
+        max_depth: 4000.0
+        route:
+          - latitude: 75.0
+            longitude: -15.0
+          - latitude: 78.0  
+            longitude: -8.0
+
+    # Output: Individual stations created
+    stations:
+      - name: "Arctic_Section_1_001"
+        position:
+          latitude: 75.0
+          longitude: -15.0
+        operation_type: "CTD"
+        action: "profile"
+        depth: 4000.0
+      - name: "Arctic_Section_1_002"
+        position:
+          latitude: 75.59  # Spherical interpolation
+          longitude: -13.68
+        operation_type: "CTD" 
+        action: "profile"
+        depth: 4000.0
+      # ... additional stations along the route
+
+**Key Features:**
+- Uses great circle interpolation for accurate positioning along curved Earth surface
+- Automatically generates unique station names with sequential numbering
+- Preserves original transit metadata (max_depth becomes station depth)
+- Handles name collisions by appending incremental suffixes
+- Updates leg definitions to reference the newly created stations
 
 validate
 ^^^^^^^^

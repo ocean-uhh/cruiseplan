@@ -497,9 +497,7 @@ class NetCDFGenerator:
             times = np.array(times, dtype=np.float64)
             lats = np.array(lats, dtype=np.float32)
             lons = np.array(lons, dtype=np.float32)
-            waterdepths = np.array(
-                waterdepths, dtype=np.float32
-            )  # New: waterdepth array
+            waterdepths = np.array(waterdepths, dtype=np.float32)
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
             # Convert start/end coordinates to numpy arrays
@@ -542,7 +540,7 @@ class NetCDFGenerator:
                     "waterdepth": (
                         ["obs"],
                         waterdepths,
-                        {  # New: waterdepth in master schedule
+                        {
                             "long_name": "water depth at operation location",
                             "standard_name": "sea_floor_depth_below_sea_surface",
                             "vocabulary": "http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/",
@@ -1460,7 +1458,6 @@ class NetCDFGenerator:
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
                 "creation_date": datetime.now().isoformat(),
-                "comment": "Placeholder implementation - area operations not yet supported",
             }
         )
 

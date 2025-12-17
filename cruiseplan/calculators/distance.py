@@ -118,7 +118,7 @@ def km_to_nm(km: float) -> float:
 
 def nm_to_km(nm: float) -> float:
     """
-    Convert nautical miles to kilometers.
+    Convert nautical miles to kilometers by multiplying nm * KM_PER_NM.
 
     Parameters
     ----------

@@ -285,6 +285,10 @@ class StationDefinition(FlexibleLocationModel):
         Water depth at the station in meters.
     duration : Optional[float]
         Manual duration override in minutes.
+    delay_start : Optional[float]
+        Time to wait before operation begins in minutes (e.g., for daylight).
+    delay_end : Optional[float]
+        Time to wait after operation ends in minutes (e.g., for equipment settling).
     comment : Optional[str]
         Human-readable comment or description.
     equipment : Optional[str]
@@ -298,6 +302,10 @@ class StationDefinition(FlexibleLocationModel):
     action: ActionEnum
     depth: Optional[float] = None
     duration: Optional[float] = None
+    delay_start: Optional[float] = (
+        None  # Time to wait before operation begins (minutes)
+    )
+    delay_end: Optional[float] = None  # Time to wait after operation ends (minutes)
     comment: Optional[str] = None
     equipment: Optional[str] = None
     position_string: Optional[str] = None
@@ -339,6 +347,54 @@ class StationDefinition(FlexibleLocationModel):
                 )
             elif v < 0:
                 raise ValueError("Duration cannot be negative")
+        return v
+
+    @field_validator("delay_start")
+    def validate_delay_start_positive(cls, v):
+        """
+        Validate delay_start value to ensure it's non-negative.
+
+        Parameters
+        ----------
+        v : Optional[float]
+            Delay start value to validate.
+
+        Returns
+        -------
+        Optional[float]
+            Validated delay start value.
+
+        Raises
+        ------
+        ValueError
+            If delay_start is negative.
+        """
+        if v is not None and v < 0:
+            raise ValueError("delay_start cannot be negative")
+        return v
+
+    @field_validator("delay_end")
+    def validate_delay_end_positive(cls, v):
+        """
+        Validate delay_end value to ensure it's non-negative.
+
+        Parameters
+        ----------
+        v : Optional[float]
+            Delay end value to validate.
+
+        Returns
+        -------
+        Optional[float]
+            Validated delay end value.
+
+        Raises
+        ------
+        ValueError
+            If delay_end is negative.
+        """
+        if v is not None and v < 0:
+            raise ValueError("delay_end cannot be negative")
         return v
 
     @field_validator("depth")
@@ -789,6 +845,8 @@ class LegDefinition(BaseModel):
         Default scheduling strategy for the leg.
     ordered : Optional[bool]
         Whether the leg operations should be ordered.
+    buffer_time : Optional[float]
+        Contingency time for entire leg operations in minutes (e.g., weather delays).
     stations : Optional[List[Union[str, StationDefinition]]]
         List of stations in the leg.
     clusters : Optional[List[ClusterDefinition]]
@@ -803,10 +861,37 @@ class LegDefinition(BaseModel):
     description: Optional[str] = None
     strategy: Optional[StrategyEnum] = None
     ordered: Optional[bool] = None
+    buffer_time: Optional[float] = (
+        None  # Contingency time for entire leg operations (minutes)
+    )
     stations: Optional[List[Union[str, StationDefinition]]] = []
     clusters: Optional[List[ClusterDefinition]] = []
     sections: Optional[List[SectionDefinition]] = []
     sequence: Optional[List[Union[str, StationDefinition]]] = []
+
+    @field_validator("buffer_time")
+    def validate_buffer_time_positive(cls, v):
+        """
+        Validate buffer_time value to ensure it's non-negative.
+
+        Parameters
+        ----------
+        v : Optional[float]
+            Buffer time value to validate.
+
+        Returns
+        -------
+        Optional[float]
+            Validated buffer time value.
+
+        Raises
+        ------
+        ValueError
+            If buffer_time is negative.
+        """
+        if v is not None and v < 0:
+            raise ValueError("buffer_time cannot be negative")
+        return v
 
 
 # --- Root Config ---
@@ -1172,6 +1257,7 @@ def replace_placeholder_values(
 
 def expand_ctd_sections(
     config: Dict[str, Any],
+    default_depth: float = 1000.0,
 ) -> Tuple[Dict[str, Any], Dict[str, int]]:
     """
     Expand CTD sections into individual station definitions.
@@ -1191,20 +1277,10 @@ def expand_ctd_sections(
         Modified configuration and summary with sections_expanded and stations_from_expansion counts
     """
     import copy
-    import math
+
+    from cruiseplan.calculators.distance import haversine_distance
 
     config = copy.deepcopy(config)
-
-    def haversine_distance(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
-        """Calculate distance between two points in kilometers."""
-        R = 6371  # Earth's radius in kilometers
-        lat1, lon1, lat2, lon2 = map(math.radians, [lat1, lon1, lat2, lon2])
-        dlat, dlon = lat2 - lat1, lon2 - lon1
-        a = (
-            math.sin(dlat / 2) ** 2
-            + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
-        )
-        return R * 2 * math.asin(math.sqrt(a))
 
     def interpolate_position(
         start_lat: float,
@@ -1213,10 +1289,41 @@ def expand_ctd_sections(
         end_lon: float,
         fraction: float,
     ) -> Tuple[float, float]:
-        """Interpolate position along route."""
-        lat = start_lat + (end_lat - start_lat) * fraction
-        lon = start_lon + (end_lon - start_lon) * fraction
-        return lat, lon
+        """Interpolate position along great circle route."""
+        import math
+
+        # Convert degrees to radians
+        lat1 = math.radians(start_lat)
+        lon1 = math.radians(start_lon)
+        lat2 = math.radians(end_lat)
+        lon2 = math.radians(end_lon)
+
+        # Calculate angular distance
+        d = math.acos(
+            min(
+                1,
+                math.sin(lat1) * math.sin(lat2)
+                + math.cos(lat1) * math.cos(lat2) * math.cos(lon2 - lon1),
+            )
+        )
+
+        # Handle edge case for very short distances
+        if d < 1e-9:
+            return start_lat, start_lon
+
+        # Spherical interpolation
+        A = math.sin((1 - fraction) * d) / math.sin(d)
+        B = math.sin(fraction * d) / math.sin(d)
+
+        x = A * math.cos(lat1) * math.cos(lon1) + B * math.cos(lat2) * math.cos(lon2)
+        y = A * math.cos(lat1) * math.sin(lon1) + B * math.cos(lat2) * math.sin(lon2)
+        z = A * math.sin(lat1) + B * math.sin(lat2)
+
+        # Convert back to lat/lon
+        lat_result = math.atan2(z, math.sqrt(x * x + y * y))
+        lon_result = math.atan2(y, x)
+
+        return math.degrees(lat_result), math.degrees(lon_result)
 
     def expand_section(transit: Dict[str, Any]) -> List[Dict[str, Any]]:
         """Expand a single CTD section transit into stations."""
@@ -1240,12 +1347,19 @@ def expand_ctd_sections(
             )
             return []
 
-        total_distance_km = haversine_distance(start_lat, start_lon, end_lat, end_lon)
+        total_distance_km = haversine_distance(
+            (start_lat, start_lon), (end_lat, end_lon)
+        )
         spacing_km = transit.get("distance_between_stations", 20.0)
         num_stations = max(2, int(total_distance_km / spacing_km) + 1)
 
         stations = []
-        base_name = transit["name"].replace(" ", "_").replace("-", "_")
+        import re
+
+        # Robust sanitization of station names - replace all non-alphanumeric with underscores
+        base_name = re.sub(r"[^a-zA-Z0-9_]", "_", transit["name"])
+        # Remove duplicate underscores and strip leading/trailing underscores
+        base_name = re.sub(r"_+", "_", base_name).strip("_")
 
         for i in range(num_stations):
             fraction = i / (num_stations - 1) if num_stations > 1 else 0
@@ -1259,7 +1373,7 @@ def expand_ctd_sections(
                 "action": "profile",
                 "position": {"latitude": round(lat, 5), "longitude": round(lon, 5)},
                 "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
-                "depth": 3000.0,  # Default depth - will be updated during enrichment with bathymetry
+                "depth": default_depth,  # Default depth - will be updated during enrichment with bathymetry
                 "planned_duration_hours": 2.0,  # Default 2-hour CTD cast
             }
 
@@ -1299,10 +1413,26 @@ def expand_ctd_sections(
             if "stations" not in config:
                 config["stations"] = []
 
+            # Check for existing station names to avoid duplicates
+            existing_names = {
+                s.get("name") for s in config["stations"] if s.get("name")
+            }
+
             station_names = []
             for station in new_stations:
+                station_name = station["name"]
+                # Add unique suffix if name already exists
+                counter = 1
+                original_name = station_name
+                while station_name in existing_names:
+                    station_name = f"{original_name}_{counter:02d}"
+                    counter += 1
+
+                station["name"] = station_name
+                existing_names.add(station_name)
+
                 config["stations"].append(station)
-                station_names.append(station["name"])
+                station_names.append(station_name)
                 total_stations_created += 1
 
             expanded_stations[section_name] = station_names
@@ -1314,6 +1444,9 @@ def expand_ctd_sections(
             for t in config["transits"]
             if not (t.get("operation_type") == "CTD" and t.get("action") == "section")
         ]
+        # Clean up empty transits list
+        if not config["transits"]:
+            del config["transits"]
 
     # Update first_station and last_station references if they point to expanded sections
     if "first_station" in config and config["first_station"] in expanded_stations:

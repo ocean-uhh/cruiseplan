@@ -20,22 +20,23 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    :caption: User Workflows
    
    user_workflows.rst
+   CLI Command Reference <cli_reference.rst>
 
 .. toctree::
    :maxdepth: 2
    :caption: Project Specifications
 
    Development Roadmap <https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md>
+   YAML Configuration Reference <yaml_reference.rst>
    NetCDF Data Standards <netcdf_outputs.md>
 
 .. toctree::
    :maxdepth: 2
    :caption: Help and Reference
 
-   Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
    GitHub Repository <https://github.com/ocean-uhh/cruiseplan>
-   CLI Command Reference <cli_reference.rst>
    API Reference <api/modules.rst>
+   Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
 
 Indices and tables
 ==================

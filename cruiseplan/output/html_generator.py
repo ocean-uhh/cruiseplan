@@ -705,13 +705,11 @@ class HTMLGenerator:
                     legs_data["Main Cruise"]["activities"].append(activity_dict)
 
         # Add transit connections between legs
-        self._add_leg_transits(legs_data, config, timeline)
+        self._add_leg_transits(legs_data, config)
 
         return legs_data
 
-    def _add_leg_transits(
-        self, legs_data: dict, config: CruiseConfig, timeline: List[ActivityRecord]
-    ):
+    def _add_leg_transits(self, legs_data: dict, config: CruiseConfig):
         """
         Add transit connections between legs.
 
@@ -721,9 +719,34 @@ class HTMLGenerator:
             Leg data dictionary to modify
         config : CruiseConfig
             Cruise configuration
-        timeline : List[ActivityRecord]
-            Complete timeline
         """
+        from cruiseplan.calculators.distance import haversine_distance
+
+        def calculate_transit_duration(
+            start_pos: str, end_pos: str, vessel_speed_knots: float = 8.0
+        ) -> float:
+            """Calculate transit duration in minutes based on distance and vessel speed."""
+            try:
+                # Parse position strings like "12.3456, -67.8901"
+                start_lat, start_lon = map(float, start_pos.split(", "))
+                end_lat, end_lon = map(float, end_pos.split(", "))
+
+                # Calculate distance in km
+                distance_km = haversine_distance(
+                    (start_lat, start_lon), (end_lat, end_lon)
+                )
+
+                # Convert to nautical miles and calculate duration
+                distance_nm = distance_km * 0.539957  # km to nautical miles
+                duration_hours = distance_nm / vessel_speed_knots
+                return duration_hours * 60  # convert to minutes
+            except (ValueError, AttributeError):
+                # Fallback to reasonable default if parsing fails
+                return 120.0  # 2 hours default
+
+        # Use vessel speed from config if available, otherwise default
+        vessel_speed = getattr(config, "vessel_speed_knots", 8.0)
+
         leg_names = list(legs_data.keys())
 
         for i, leg_name in enumerate(leg_names):
@@ -743,7 +766,9 @@ class HTMLGenerator:
                         )
                         legs_data[leg_name]["transit_to_start"] = {
                             "label": f"Transit from {config.departure_port.name}",
-                            "duration_minutes": 60,  # Placeholder - could calculate actual
+                            "duration_minutes": calculate_transit_duration(
+                                departure_pos, first_pos, vessel_speed
+                            ),
                             "start_pos": departure_pos,
                             "end_pos": first_pos,
                             "comment": f"Transit from departure port ({config.departure_port.name})",
@@ -758,7 +783,12 @@ class HTMLGenerator:
                     last_prev = prev_activities[-1]
                     first_current = current_activities[0]
 
-                    if "lat" in last_prev and "lat" in first_current:
+                    if (
+                        last_prev
+                        and first_current
+                        and "lat" in last_prev
+                        and "lat" in first_current
+                    ):
                         start_pos = f"{last_prev['lat']:.4f}, {last_prev['lon']:.4f}"
                         end_pos = (
                             f"{first_current['lat']:.4f}, {first_current['lon']:.4f}"
@@ -766,7 +796,9 @@ class HTMLGenerator:
 
                         legs_data[leg_name]["transit_to_start"] = {
                             "label": f"Transit {prev_leg} → {leg_name}",
-                            "duration_minutes": 120,  # Placeholder - could calculate actual
+                            "duration_minutes": calculate_transit_duration(
+                                start_pos, end_pos, vessel_speed
+                            ),
                             "start_pos": start_pos,
                             "end_pos": end_pos,
                             "comment": "Transit between legs",
@@ -787,7 +819,9 @@ class HTMLGenerator:
                         )
                         legs_data[leg_name]["transit_from_end"] = {
                             "label": f"Transit to {config.arrival_port.name}",
-                            "duration_minutes": 60,  # Placeholder - could calculate actual
+                            "duration_minutes": calculate_transit_duration(
+                                last_pos, arrival_pos, vessel_speed
+                            ),
                             "start_pos": last_pos,
                             "end_pos": arrival_pos,
                             "comment": f"Transit to arrival port ({config.arrival_port.name})",
