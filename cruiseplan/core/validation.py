@@ -1543,15 +1543,13 @@ def enrich_configuration(
         - stations_from_expansion: Number of stations generated from expansion
         - total_stations_processed: Total stations processed
     """
-    import yaml
-
     from cruiseplan.cli.utils import save_yaml_config
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.data.bathymetry import BathymetryManager
+    from cruiseplan.utils.yaml_io import dump_yaml_simple, load_yaml
 
-    # Load and preprocess the YAML configuration to replace placeholders
-    with open(config_path) as f:
-        config_dict = yaml.safe_load(f)
+    # Load and preprocess the YAML configuration to replace placeholders  
+    config_dict = load_yaml(config_path)
 
     # Replace placeholder values with sensible defaults
     config_dict, placeholders_replaced = replace_placeholder_values(config_dict)
@@ -1570,7 +1568,8 @@ def enrich_configuration(
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".yaml", delete=False
     ) as temp_file:
-        yaml.dump(config_dict, temp_file, default_flow_style=False, sort_keys=False)
+        # Use basic YAML dumping for temp file (comment preservation not needed)
+        dump_yaml_simple(config_dict, temp_file)
         temp_config_path = Path(temp_file.name)
 
     # Capture Python warnings for better formatting
@@ -1632,7 +1631,7 @@ def enrich_configuration(
                 )
 
     # Update YAML configuration with any changes
-    config_dict = cruise.raw_data.copy()
+    # Note: Keep using original config_dict to preserve comments, don't overwrite with cruise.raw_data
     coord_changes_made = 0
 
     def add_dmm_coordinates(data_dict, lat, lon, coord_field_name):
@@ -1879,10 +1878,9 @@ def validate_configuration_file(
         # Still try to collect warnings even when validation fails
         try:
             # Try to load the YAML directly for metadata checking
-            import yaml
+            from cruiseplan.utils.yaml_io import load_yaml_safe
 
-            with open(config_path) as f:
-                raw_config = yaml.safe_load(f)
+            raw_config = load_yaml_safe(config_path)
 
             # Check cruise metadata from raw YAML
             if raw_config:

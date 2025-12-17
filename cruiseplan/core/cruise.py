@@ -2,13 +2,12 @@
 from pathlib import Path
 from typing import Any, Dict, List, Union
 
-import yaml
-
 from cruiseplan.core.validation import (
     CruiseConfig,
     StationDefinition,
     TransitDefinition,
 )
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class ReferenceError(Exception):
@@ -61,7 +60,7 @@ class Cruise:
         ------
         FileNotFoundError
             If the configuration file does not exist.
-        yaml.YAMLError
+        YAMLIOError
             If the YAML file cannot be parsed.
         ValidationError
             If the configuration does not match the expected schema.
@@ -98,11 +97,10 @@ class Cruise:
         ------
         FileNotFoundError
             If the configuration file does not exist.
-        yaml.YAMLError
+        YAMLIOError
             If the YAML file cannot be parsed.
         """
-        with open(self.config_path) as f:
-            return yaml.safe_load(f)
+        return load_yaml(self.config_path)
 
     def _resolve_references(self):
         """

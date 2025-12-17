@@ -21,7 +21,7 @@ class TestEnrichConfiguration:
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("yaml.safe_load")
+    @patch("cruiseplan.utils.yaml_io.load_yaml")
     def test_enrich_depths_only(
         self,
         mock_yaml_load,
@@ -74,7 +74,7 @@ class TestEnrichConfiguration:
     @patch("cruiseplan.core.validation.format_dmm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("yaml.safe_load")
+    @patch("cruiseplan.utils.yaml_io.load_yaml")
     def test_enrich_coords_only(
         self,
         mock_yaml_load,
@@ -119,7 +119,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("yaml.safe_load")
+    @patch("cruiseplan.utils.yaml_io.load_yaml")
     def test_enrich_no_changes_needed(
         self, mock_yaml_load, mock_open, mock_cruise_class
     ):

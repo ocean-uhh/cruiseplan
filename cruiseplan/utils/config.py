@@ -3,11 +3,11 @@ import logging
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-import yaml
 from pydantic import ValidationError
 
 # Centralized imports for configuration models and the custom error
 from cruiseplan.core.validation import CruiseConfig, CruiseConfigurationError
+from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml, save_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -37,13 +37,9 @@ def save_cruise_config(data: Dict, filepath: Union[str, Path]) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
     try:
-        with open(path, "w") as f:
-            # sort_keys=False preserves insertion order (vital for ordered cruise tracks)
-            yaml.dump(
-                data, f, sort_keys=False, default_flow_style=False, allow_unicode=True
-            )
+        save_yaml(data, path, backup=False)  # No backup for new configs
         logger.info(f"✅ Configuration saved to {path}")
-    except Exception as e:
+    except YAMLIOError as e:
         logger.error(f"❌ Failed to save configuration: {e}")
         raise
 
@@ -209,10 +205,9 @@ class ConfigLoader:
             )
 
         try:
-            with open(self.config_path, encoding="utf-8") as f:
-                raw_data = yaml.safe_load(f)
-        except Exception as e:
-            # Catch I/O errors and generic YAML parsing errors (not validation errors)
+            raw_data = load_yaml(self.config_path)
+        except YAMLIOError as e:
+            # Catch YAML I/O and parsing errors (not validation errors)
             raise CruiseConfigurationError(
                 f"Failed to load or parse YAML file {self.config_path}: {e}"
             ) from e
