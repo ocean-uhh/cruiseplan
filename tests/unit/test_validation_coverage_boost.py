@@ -207,7 +207,8 @@ class TestDepthValidation:
         station.name = "STN_001"
         station.position.latitude = 50.0
         station.position.longitude = -30.0
-        station.depth = 2000.0  # Station reported depth
+        station.water_depth = 2000.0  # Station reported water depth (new field)
+        station.depth = None  # Legacy field not used
 
         cruise.station_registry = {"STN_001": station}
 
@@ -233,7 +234,8 @@ class TestDepthValidation:
         station.name = "STN_002"
         station.position.latitude = 50.0
         station.position.longitude = -30.0
-        station.depth = 1000.0  # Station reported depth
+        station.water_depth = 1000.0  # Station reported water depth (new field)
+        station.depth = None  # Legacy field not used
 
         cruise.station_registry = {"STN_002": station}
 
@@ -294,9 +296,10 @@ class TestDepthValidation:
 
         station = MagicMock()
         station.name = "STN_NO_DEPTH"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.depth = None  # No depth specified
+        station.water_depth = None  # New field also not specified
 
         cruise.station_registry = {"STN_NO_DEPTH": station}
 
