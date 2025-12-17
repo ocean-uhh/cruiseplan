@@ -60,6 +60,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#best-practices">Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
@@ -226,7 +227,7 @@ from the catalog registries.</p>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><ul class="simple">
 <li><p><strong>FileNotFoundError</strong> – If the configuration file does not exist.</p></li>
-<li><p><strong>yaml.YAMLError</strong> – If the YAML file cannot be parsed.</p></li>
+<li><p><strong>YAMLIOError</strong> – If the YAML file cannot be parsed.</p></li>
 <li><p><strong>ValidationError</strong> – If the configuration does not match the expected schema.</p></li>
 <li><p><a class="reference internal" href="#cruiseplan.core.cruise.ReferenceError" title="cruiseplan.core.cruise.ReferenceError"><strong>ReferenceError</strong></a> – If referenced stations or transits are not found in the catalog.</p></li>
 </ul>

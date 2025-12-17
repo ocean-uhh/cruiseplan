@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
@@ -1769,15 +1770,13 @@
 <span class="sd">        - stations_from_expansion: Number of stations generated from expansion</span>
 <span class="sd">        - total_stations_processed: Total stations processed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml_config</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">dump_yaml_simple</span><span class="p">,</span> <span class="n">load_yaml</span>
 
-    <span class="c1"># Load and preprocess the YAML configuration to replace placeholders</span>
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-        <span class="n">config_dict</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+    <span class="c1"># Load and preprocess the YAML configuration to replace placeholders  </span>
+    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
     <span class="c1"># Replace placeholder values with sensible defaults</span>
     <span class="n">config_dict</span><span class="p">,</span> <span class="n">placeholders_replaced</span> <span class="o">=</span> <span class="n">replace_placeholder_values</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
@@ -1796,7 +1795,8 @@
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>
         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">temp_file</span><span class="p">:</span>
-        <span class="n">yaml</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">temp_file</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="c1"># Use basic YAML dumping for temp file (comment preservation not needed)</span>
+        <span class="n">dump_yaml_simple</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">temp_file</span><span class="p">)</span>
         <span class="n">temp_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">temp_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
 
     <span class="c1"># Capture Python warnings for better formatting</span>
@@ -1858,7 +1858,7 @@
                 <span class="p">)</span>
 
     <span class="c1"># Update YAML configuration with any changes</span>
-    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">raw_data</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+    <span class="c1"># Note: Keep using original config_dict to preserve comments, don&#39;t overwrite with cruise.raw_data</span>
     <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="mi">0</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">add_dmm_coordinates</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">):</span>
@@ -2108,10 +2108,9 @@
         <span class="c1"># Still try to collect warnings even when validation fails</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="c1"># Try to load the YAML directly for metadata checking</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml_safe</span>
 
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">raw_config</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+            <span class="n">raw_config</span> <span class="o">=</span> <span class="n">load_yaml_safe</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
             <span class="c1"># Check cruise metadata from raw YAML</span>
             <span class="k">if</span> <span class="n">raw_config</span><span class="p">:</span>

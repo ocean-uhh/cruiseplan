@@ -57,6 +57,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
@@ -100,13 +101,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CruiseConfig</span><span class="p">,</span>
     <span class="n">StationDefinition</span><span class="p">,</span>
     <span class="n">TransitDefinition</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span>
 
 
 <div class="viewcode-block" id="ReferenceError">
@@ -166,7 +166,7 @@
 <span class="sd">        ------</span>
 <span class="sd">        FileNotFoundError</span>
 <span class="sd">            If the configuration file does not exist.</span>
-<span class="sd">        yaml.YAMLError</span>
+<span class="sd">        YAMLIOError</span>
 <span class="sd">            If the YAML file cannot be parsed.</span>
 <span class="sd">        ValidationError</span>
 <span class="sd">            If the configuration does not match the expected schema.</span>
@@ -204,11 +204,10 @@
 <span class="sd">        ------</span>
 <span class="sd">        FileNotFoundError</span>
 <span class="sd">            If the configuration file does not exist.</span>
-<span class="sd">        yaml.YAMLError</span>
+<span class="sd">        YAMLIOError</span>
 <span class="sd">            If the YAML file cannot be parsed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config_path</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_references</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
