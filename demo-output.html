@@ -315,6 +315,7 @@ PosixPath(&#39;../data/bathymetry&#39;)
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">indir</span> <span class="o">=</span> <span class="s1">&#39;../tests_output/coldsnap/SPP2025-Subpolar-2028_schedule.nc&#39;</span>
+<span class="n">indir</span> <span class="o">=</span> <span class="s1">&#39;../SPP2025-Subpolar-2028_schedule.nc&#39;</span>
 <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">indir</span><span class="p">)</span>
 <span class="n">ds</span>
 </pre></div>
@@ -337,15 +338,16 @@ PosixPath(&#39;../data/bathymetry&#39;)
 <span class="ansi-green-fg">---&gt; </span><span class="ansi-green-fg">56</span>     value = <span class="ansi-yellow-bg" style="color: rgb(0,135,0)">self</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">_cache</span><span class="ansi-yellow-bg">[</span><span class="ansi-yellow-bg">key</span><span class="ansi-yellow-bg">]</span>
 <span class="ansi-green-fg">     57</span>     <span style="color: rgb(0,135,0)">self</span>._cache.move_to_end(key)
 
-<span class="ansi-red-fg">KeyError</span>: [&lt;class &#39;netCDF4._netCDF4.Dataset&#39;&gt;, (&#39;/home/runner/work/cruiseplan/cruiseplan/tests_output/coldsnap/SPP2025-Subpolar-2028_schedule.nc&#39;,), &#39;r&#39;, ((&#39;clobber&#39;, True), (&#39;diskless&#39;, False), (&#39;format&#39;, &#39;NETCDF4&#39;), (&#39;persist&#39;, False)), &#39;bc2831b5-f2c1-4213-b015-7e76b5048f56&#39;]
+<span class="ansi-red-fg">KeyError</span>: [&lt;class &#39;netCDF4._netCDF4.Dataset&#39;&gt;, (&#39;/home/runner/work/cruiseplan/cruiseplan/SPP2025-Subpolar-2028_schedule.nc&#39;,), &#39;r&#39;, ((&#39;clobber&#39;, True), (&#39;diskless&#39;, False), (&#39;format&#39;, &#39;NETCDF4&#39;), (&#39;persist&#39;, False)), &#39;a8d82381-8d33-4bbc-8dd3-95e44b2ed377&#39;]
 
 During handling of the above exception, another exception occurred:
 
 <span class="ansi-red-fg">FileNotFoundError</span>                         Traceback (most recent call last)
-<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[8]</span><span class="ansi-green-fg">, line 2</span>
+<span class="ansi-cyan-fg">Cell</span><span class="ansi-cyan-fg"> </span><span class="ansi-green-fg">In[8]</span><span class="ansi-green-fg">, line 3</span>
 <span class="ansi-green-fg">      1</span> indir = <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">../tests_output/coldsnap/SPP2025-Subpolar-2028_schedule.nc</span><span class="ansi-yellow-fg">&#39;</span>
-<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">2</span> ds = <span class="ansi-yellow-bg">xr</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">open_dataset</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">indir</span><span class="ansi-yellow-bg">)</span>
-<span class="ansi-green-fg">      3</span> ds
+<span class="ansi-green-fg">      2</span> indir = <span class="ansi-yellow-fg">&#39;</span><span class="ansi-yellow-fg">../SPP2025-Subpolar-2028_schedule.nc</span><span class="ansi-yellow-fg">&#39;</span>
+<span class="ansi-green-fg">----&gt; </span><span class="ansi-green-fg">3</span> ds = <span class="ansi-yellow-bg">xr</span><span class="ansi-yellow-bg">.</span><span class="ansi-yellow-bg">open_dataset</span><span class="ansi-yellow-bg">(</span><span class="ansi-yellow-bg">indir</span><span class="ansi-yellow-bg">)</span>
+<span class="ansi-green-fg">      4</span> ds
 
 <span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/api.py:606</span>, in <span class="ansi-cyan-fg">open_dataset</span><span class="ansi-blue-fg">(filename_or_obj, engine, chunks, cache, decode_cf, mask_and_scale, decode_times, decode_timedelta, use_cftime, concat_characters, decode_coords, drop_variables, create_default_indexes, inline_array, chunked_array_type, from_array_kwargs, backend_kwargs, **kwargs)</span>
 <span class="ansi-green-fg">    594</span> decoders = _resolve_decoders_kwargs(
@@ -441,7 +443,7 @@ During handling of the above exception, another exception occurred:
 
 <span class="ansi-cyan-fg">File </span><span class="ansi-green-fg">src/netCDF4/_netCDF4.pyx:2154</span>, in <span class="ansi-cyan-fg">netCDF4._netCDF4._ensure_nc_success</span><span class="ansi-blue-fg">()</span>
 
-<span class="ansi-red-fg">FileNotFoundError</span>: [Errno 2] No such file or directory: &#39;/home/runner/work/cruiseplan/cruiseplan/tests_output/coldsnap/SPP2025-Subpolar-2028_schedule.nc&#39;
+<span class="ansi-red-fg">FileNotFoundError</span>: [Errno 2] No such file or directory: &#39;/home/runner/work/cruiseplan/cruiseplan/SPP2025-Subpolar-2028_schedule.nc&#39;
 </pre></div></div>
 </div>
 <div class="nbinput nblast docutils container">
