@@ -102,6 +102,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.coordinates">cruiseplan.utils.coordinates module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.UnitConverter"><code class="docutils literal notranslate"><span class="pre">UnitConverter</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_dmm_comment"><code class="docutils literal notranslate"><span class="pre">format_dmm_comment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_geographic_bounds"><code class="docutils literal notranslate"><span class="pre">format_geographic_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_position_latex"><code class="docutils literal notranslate"><span class="pre">format_position_latex()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_position_string"><code class="docutils literal notranslate"><span class="pre">format_position_string()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.parse_dmm_format"><code class="docutils literal notranslate"><span class="pre">parse_dmm_format()</span></code></a></li>
@@ -556,6 +557,40 @@ coordinate representations commonly used in maritime and scientific contexts.</p
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_dmm_comment</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">)</span>
 <span class="go">&quot;65 44.75&#39;N, 024 28.75&#39;W&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.format_geographic_bounds">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">format_geographic_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#format_geographic_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.format_geographic_bounds" title="Link to this definition"></a></dt>
+<dd><p>Format geographic bounding box coordinates with proper hemisphere indicators.</p>
+<p>Uses hemisphere indicators for non-zero coordinates:
+- W for negative longitude, E for positive longitude (nothing for 0° or 180°)
+- S for negative latitude, N for positive latitude (nothing for 0°)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_lon</strong> (<em>float</em>) – Minimum longitude in decimal degrees</p></li>
+<li><p><strong>min_lat</strong> (<em>float</em>) – Minimum latitude in decimal degrees</p></li>
+<li><p><strong>max_lon</strong> (<em>float</em>) – Maximum longitude in decimal degrees</p></li>
+<li><p><strong>max_lat</strong> (<em>float</em>) – Maximum latitude in decimal degrees</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Formatted bounds string with hemisphere indicators</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_geographic_bounds</span><span class="p">(</span><span class="o">-</span><span class="mi">90</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="go">&quot;50.00°N to 60.00°N, 90.00°W to 30.00°W&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_geographic_bounds</span><span class="p">(</span><span class="mi">270</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">330</span><span class="p">,</span> <span class="mi">60</span><span class="p">)</span>
+<span class="go">&quot;50.00°N to 60.00°N, 270.00°E to 330.00°E&quot;</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">format_geographic_bounds</span><span class="p">(</span><span class="o">-</span><span class="mi">180</span><span class="p">,</span> <span class="o">-</span><span class="mi">45</span><span class="p">,</span> <span class="mi">180</span><span class="p">,</span> <span class="mi">45</span><span class="p">)</span>
+<span class="go">&quot;45.00°S to 45.00°N, 180.00° to 180.00°&quot;</span>
 </pre></div>
 </div>
 </dd></dl>

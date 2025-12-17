@@ -14,10 +14,10 @@
    "id": "6a1920f3",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.020066Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.019841Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.368406Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.367509Z"
+     "iopub.execute_input": "2025-12-17T11:30:37.927188Z",
+     "iopub.status.busy": "2025-12-17T11:30:37.927020Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.293719Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.292882Z"
     }
    },
    "outputs": [
@@ -85,10 +85,10 @@
    "id": "6e038dcb",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.370145Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.369854Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.372871Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.372175Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.295441Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.295166Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.298185Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.297534Z"
     }
    },
    "outputs": [
@@ -116,10 +116,10 @@
    "id": "432da19f",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.374353Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.374201Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.376937Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.376341Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.299773Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.299614Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.302463Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.301866Z"
     }
    },
    "outputs": [
@@ -145,10 +145,10 @@
    "id": "d2f3086a",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.378789Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.378539Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.381046Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.380413Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.304210Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.304046Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.306688Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.306035Z"
     }
    },
    "outputs": [],
@@ -165,10 +165,10 @@
    "id": "2285d2b2",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.382648Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.382495Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.618405Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.617593Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.308344Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.308195Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.554129Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.553390Z"
     }
    },
    "outputs": [
@@ -204,10 +204,10 @@
    "id": "ca204e72",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.620137Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.619931Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.624332Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.623689Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.555964Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.555801Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.560212Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.559560Z"
     }
    },
    "outputs": [
@@ -247,10 +247,10 @@
    "id": "53beabc8",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.625911Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.625752Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.630758Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.630047Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.561756Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.561596Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.566672Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.566040Z"
     }
    },
    "outputs": [
@@ -275,10 +275,10 @@
    "id": "d517ba5c",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-17T10:04:00.632257Z",
-     "iopub.status.busy": "2025-12-17T10:04:00.632090Z",
-     "iopub.status.idle": "2025-12-17T10:04:00.854197Z",
-     "shell.execute_reply": "2025-12-17T10:04:00.853331Z"
+     "iopub.execute_input": "2025-12-17T11:30:38.568382Z",
+     "iopub.status.busy": "2025-12-17T11:30:38.568231Z",
+     "iopub.status.idle": "2025-12-17T11:30:38.789243Z",
+     "shell.execute_reply": "2025-12-17T11:30:38.788346Z"
     }
    },
    "outputs": [
@@ -291,7 +291,7 @@
       "\u001b[31mKeyError\u001b[39m                                  Traceback (most recent call last)",
       "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/file_manager.py:219\u001b[39m, in \u001b[36mCachingFileManager._acquire_with_cache_info\u001b[39m\u001b[34m(self, needs_lock)\u001b[39m\n\u001b[32m    218\u001b[39m \u001b[38;5;28;01mtry\u001b[39;00m:\n\u001b[32m--> \u001b[39m\u001b[32m219\u001b[39m     file = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_cache\u001b[49m\u001b[43m[\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_key\u001b[49m\u001b[43m]\u001b[49m\n\u001b[32m    220\u001b[39m \u001b[38;5;28;01mexcept\u001b[39;00m \u001b[38;5;167;01mKeyError\u001b[39;00m:\n",
       "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/lru_cache.py:56\u001b[39m, in \u001b[36mLRUCache.__getitem__\u001b[39m\u001b[34m(self, key)\u001b[39m\n\u001b[32m     55\u001b[39m \u001b[38;5;28;01mwith\u001b[39;00m \u001b[38;5;28mself\u001b[39m._lock:\n\u001b[32m---> \u001b[39m\u001b[32m56\u001b[39m     value = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_cache\u001b[49m\u001b[43m[\u001b[49m\u001b[43mkey\u001b[49m\u001b[43m]\u001b[49m\n\u001b[32m     57\u001b[39m     \u001b[38;5;28mself\u001b[39m._cache.move_to_end(key)\n",
-      "\u001b[31mKeyError\u001b[39m: [<class 'netCDF4._netCDF4.Dataset'>, ('/home/runner/work/cruiseplan/cruiseplan/SPP2025-Subpolar-2028_schedule.nc',), 'r', (('clobber', True), ('diskless', False), ('format', 'NETCDF4'), ('persist', False)), 'a8d82381-8d33-4bbc-8dd3-95e44b2ed377']",
+      "\u001b[31mKeyError\u001b[39m: [<class 'netCDF4._netCDF4.Dataset'>, ('/home/runner/work/cruiseplan/cruiseplan/SPP2025-Subpolar-2028_schedule.nc',), 'r', (('clobber', True), ('diskless', False), ('format', 'NETCDF4'), ('persist', False)), 'f1c6b13a-9878-4640-b4d6-e55252613c18']",
       "\nDuring handling of the above exception, another exception occurred:\n",
       "\u001b[31mFileNotFoundError\u001b[39m                         Traceback (most recent call last)",
       "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[8]\u001b[39m\u001b[32m, line 3\u001b[39m\n\u001b[32m      1\u001b[39m indir = \u001b[33m'\u001b[39m\u001b[33m../tests_output/coldsnap/SPP2025-Subpolar-2028_schedule.nc\u001b[39m\u001b[33m'\u001b[39m\n\u001b[32m      2\u001b[39m indir = \u001b[33m'\u001b[39m\u001b[33m../SPP2025-Subpolar-2028_schedule.nc\u001b[39m\u001b[33m'\u001b[39m\n\u001b[32m----> \u001b[39m\u001b[32m3\u001b[39m ds = \u001b[43mxr\u001b[49m\u001b[43m.\u001b[49m\u001b[43mopen_dataset\u001b[49m\u001b[43m(\u001b[49m\u001b[43mindir\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m      4\u001b[39m ds\n",

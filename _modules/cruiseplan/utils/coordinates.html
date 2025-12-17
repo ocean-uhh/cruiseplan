@@ -335,6 +335,70 @@
 
     <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
 
+
+
+<div class="viewcode-block" id="format_geographic_bounds">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.format_geographic_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">format_geographic_bounds</span><span class="p">(</span>
+    <span class="n">min_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format geographic bounding box coordinates with proper hemisphere indicators.</span>
+
+<span class="sd">    Uses hemisphere indicators for non-zero coordinates:</span>
+<span class="sd">    - W for negative longitude, E for positive longitude (nothing for 0° or 180°)</span>
+<span class="sd">    - S for negative latitude, N for positive latitude (nothing for 0°)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    min_lon : float</span>
+<span class="sd">        Minimum longitude in decimal degrees</span>
+<span class="sd">    min_lat : float</span>
+<span class="sd">        Minimum latitude in decimal degrees</span>
+<span class="sd">    max_lon : float</span>
+<span class="sd">        Maximum longitude in decimal degrees</span>
+<span class="sd">    max_lat : float</span>
+<span class="sd">        Maximum latitude in decimal degrees</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Formatted bounds string with hemisphere indicators</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(-90, 50, -30, 60)</span>
+<span class="sd">    &quot;50.00°N to 60.00°N, 90.00°W to 30.00°W&quot;</span>
+<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(270, 50, 330, 60)</span>
+<span class="sd">    &quot;50.00°N to 60.00°N, 270.00°E to 330.00°E&quot;</span>
+<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(-180, -45, 180, 45)</span>
+<span class="sd">    &quot;45.00°S to 45.00°N, 180.00° to 180.00°&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_coord</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format single coordinate with hemisphere indicator.&quot;&quot;&quot;</span>
+        <span class="n">abs_val</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°N&quot;</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°S&quot;</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># value == 0</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°&quot;</span>
+        <span class="k">else</span><span class="p">:</span>  <span class="c1"># longitude</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="mi">180</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°E&quot;</span>
+            <span class="k">elif</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">180</span><span class="p">:</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°W&quot;</span>
+            <span class="k">else</span><span class="p">:</span>  <span class="c1"># value == 0, 180, or -180</span>
+                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°&quot;</span>
+
+    <span class="n">lat_bounds</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lat&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">max_lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lat&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="n">lon_bounds</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">min_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">max_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
 </pre></div>
 
            </div>

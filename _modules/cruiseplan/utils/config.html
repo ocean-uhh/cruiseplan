@@ -114,29 +114,30 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">_add_yaml_documentation</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Add comprehensive documentation headers to YAML configuration data.</span>
-<span class="sd">    </span>
+
 <span class="sd">    This function enhances generated YAML files with rich documentation including:</span>
 <span class="sd">    - Field descriptions and validation requirements</span>
 <span class="sd">    - Operation type and action examples</span>
 <span class="sd">    - Cruise planning workflow guidance</span>
 <span class="sd">    - Required vs optional field indicators</span>
-<span class="sd">    </span>
+
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    data : dict</span>
 <span class="sd">        Original configuration dictionary</span>
-<span class="sd">        </span>
+
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    dict</span>
 <span class="sd">        Enhanced dictionary with documentation headers using ruamel.yaml comments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
     <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span>
-    
+
     <span class="c1"># Convert to CommentedMap for comment support</span>
     <span class="n">documented_data</span> <span class="o">=</span> <span class="n">CommentedMap</span><span class="p">()</span>
-    
+
     <span class="c1"># Add file header documentation</span>
     <span class="n">header_comment</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">CruisePlan YAML Configuration</span>
@@ -164,11 +165,11 @@
 <span class="s2">https://ocean-uhh.github.io/cruiseplan/yaml_reference.html</span>
 <span class="s2">&quot;&quot;&quot;</span>
     <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_start_comment</span><span class="p">(</span><span class="n">header_comment</span><span class="p">)</span>
-    
+
     <span class="c1"># Copy data with field-specific documentation</span>
     <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="n">documented_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
-        
+
         <span class="c1"># Add field-specific comments</span>
         <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
@@ -180,23 +181,27 @@
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;start_date&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)&quot;</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Departure port details</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Departure port details</span>
 <span class="s2">Update &#39;UPDATE-departure-port-name&#39; with actual port name</span>
-<span class="s2">Update coordinates with actual port location&quot;&quot;&quot;</span>
+<span class="s2">Update coordinates with actual port location&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Arrival port details  </span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Arrival port details  </span>
 <span class="s2">Update &#39;UPDATE-arrival-port-name&#39; with actual port name</span>
-<span class="s2">Update coordinates with actual port location&quot;&quot;&quot;</span>
+<span class="s2">Update coordinates with actual port location&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;stations&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Station catalog - Point operations (CTD, moorings, sampling)</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Station catalog - Point operations (CTD, moorings, sampling)</span>
 <span class="s2">Each station must have:</span>
 <span class="s2">  - name: Unique identifier (e.g., STN_001, MOOR_A)</span>
 <span class="s2">  - latitude/longitude: Decimal degrees (WGS84)</span>
@@ -206,39 +211,44 @@
 <span class="s2">  - water_depth: Seafloor depth in meters (auto-enriched if not provided)</span>
 <span class="s2">  - operation_depth: Target operation depth for CTD casts</span>
 <span class="s2">  - duration: Operation duration in minutes (calculated if not provided)</span>
-<span class="s2">  - comment: Free-text description&quot;&quot;&quot;</span>
+<span class="s2">  - comment: Free-text description&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;transits&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[OPTIONAL] Transit catalog - Line operations and scientific transects</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[OPTIONAL] Transit catalog - Line operations and scientific transects</span>
 <span class="s2">For transit legs between stations, these are auto-generated</span>
 <span class="s2">Define custom transits for:</span>
 <span class="s2">  - Underway scientific operations (ADCP, multibeam)</span>
 <span class="s2">  - Specific route requirements</span>
-<span class="s2">  - Non-standard vessel speeds&quot;&quot;&quot;</span>
+<span class="s2">  - Non-standard vessel speeds&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;areas&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[OPTIONAL] Area survey catalog - Survey boxes and polygons</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[OPTIONAL] Area survey catalog - Survey boxes and polygons</span>
 <span class="s2">Define survey areas for:</span>
 <span class="s2">  - Multibeam bathymetry surveys</span>
 <span class="s2">  - Side-scan sonar operations</span>
-<span class="s2">  - Systematic sampling grids&quot;&quot;&quot;</span>
+<span class="s2">  - Systematic sampling grids&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;legs&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Operational sequence definition</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Operational sequence definition</span>
 <span class="s2">Legs define the order and grouping of operations</span>
 <span class="s2">Strategy options: sequential, cluster, nearest_neighbor</span>
-<span class="s2">Each leg can override default vessel speeds and routing&quot;&quot;&quot;</span>
+<span class="s2">Each leg can override default vessel speeds and routing&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;first_station&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Name of first station (must match a station name above)&quot;</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Name of first station (must match a station name above)&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;last_station&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Name of last station (must match a station name above)&quot;</span>
+                <span class="n">key</span><span class="p">,</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Name of last station (must match a station name above)&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
@@ -248,7 +258,7 @@
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Default distance between stations in kilometers&quot;</span>
             <span class="p">)</span>
-    
+
     <span class="k">return</span> <span class="n">documented_data</span>
 
 
@@ -257,7 +267,9 @@
 
 <div class="viewcode-block" id="save_cruise_config">
 <a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.config.save_cruise_config">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">save_cruise_config</span><span class="p">(</span><span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">add_documentation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">save_cruise_config</span><span class="p">(</span>
+    <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span> <span class="n">add_documentation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Save a dictionary to a YAML file with standard formatting and optional documentation headers.</span>
 
@@ -285,7 +297,7 @@
         <span class="k">if</span> <span class="n">add_documentation</span><span class="p">:</span>
             <span class="c1"># Enhance data with rich documentation headers</span>
             <span class="n">data</span> <span class="o">=</span> <span class="n">_add_yaml_documentation</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        
+
         <span class="n">save_yaml</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>  <span class="c1"># No backup for new configs</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Configuration saved to </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">except</span> <span class="n">YAMLIOError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -323,7 +335,7 @@
         <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">water_depth</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
-        
+
     <span class="n">station_dict</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;STN_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="c1"># FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.</span>
@@ -333,11 +345,11 @@
         <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span><span class="p">,</span>  <span class="c1"># CTD, mooring, water_sampling, calibration</span>
         <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span><span class="p">,</span>  <span class="c1"># profile, deployment, recovery, sampling</span>
     <span class="p">}</span>
-    
+
     <span class="c1"># Add water_depth only if we have valid bathymetry data</span>
     <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">station_dict</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth</span>
-        
+
     <span class="k">return</span> <span class="n">station_dict</span></div>
 
 
@@ -368,8 +380,8 @@
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive transect - Review route and update operation details&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;underway&quot;</span><span class="p">,</span>  <span class="c1"># underway, survey_line  </span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span><span class="p">,</span>   <span class="c1"># transit, ADCP, multibeam, bathymetry</span>
+        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;underway&quot;</span><span class="p">,</span>  <span class="c1"># underway, survey_line</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span><span class="p">,</span>  <span class="c1"># transit, ADCP, multibeam, bathymetry</span>
         <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>

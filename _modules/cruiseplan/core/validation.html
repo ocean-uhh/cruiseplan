@@ -419,7 +419,7 @@
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
 <span class="sd">        &gt;&gt;&gt; station = StationDefinition(name=&quot;CTD_001&quot;, latitude=60.0, longitude=-20.0, ...)</span>
-<span class="sd">        &gt;&gt;&gt; station.longitude  # Direct access  </span>
+<span class="sd">        &gt;&gt;&gt; station.longitude  # Direct access</span>
 <span class="sd">        -20.0</span>
 <span class="sd">        &gt;&gt;&gt; station.position.longitude  # Traditional access (still works)</span>
 <span class="sd">        -20.0</span>
@@ -490,9 +490,15 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">operation_type</span><span class="p">:</span> <span class="n">OperationTypeEnum</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">ActionEnum</span>
-    <span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DEPRECATED: Use operation_depth or water_depth for clarity&quot;</span><span class="p">)</span>
-    <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Target operation depth (e.g., CTD cast depth)&quot;</span><span class="p">)</span>
-    <span class="n">water_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Water depth at location (seafloor depth)&quot;</span><span class="p">)</span>
+    <span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DEPRECATED: Use operation_depth or water_depth for clarity&quot;</span>
+    <span class="p">)</span>
+    <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Target operation depth (e.g., CTD cast depth)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">water_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Water depth at location (seafloor depth)&quot;</span>
+    <span class="p">)</span>
     <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
         <span class="kc">None</span>  <span class="c1"># Time to wait before operation begins (minutes)</span>
@@ -664,7 +670,9 @@
 <span class="sd">            If operation_depth is negative.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Operation depth must be positive (depths should be given as positive values in meters)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Operation depth must be positive (depths should be given as positive values in meters)&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
@@ -691,7 +699,9 @@
 <span class="sd">            If water_depth is negative.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Water depth must be positive (depths should be given as positive values in meters)&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Water depth must be positive (depths should be given as positive values in meters)&quot;</span>
+            <span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
@@ -802,7 +812,11 @@
 <span class="sd">            Self for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Migration logic: if depth is specified but new fields aren&#39;t, infer them</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="kc">None</span>
+        <span class="p">):</span>
             <span class="c1"># For most operations, assume the specified depth is the operation target</span>
             <span class="c1"># This matches existing behavior where depth was used for duration calculations</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span>
@@ -1669,12 +1683,13 @@
 
     <span class="c1"># Preserve comments by avoiding deepcopy - modify config in place if it&#39;s a CommentedMap</span>
     <span class="c1"># or create a shallow working copy for plain dictionaries</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s1">&#39;copy&#39;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;copy&quot;</span><span class="p">):</span>
         <span class="c1"># This is likely a CommentedMap - use its copy method to preserve structure</span>
         <span class="n">config</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="c1"># Regular dictionary - use shallow copy and convert to plain dict</span>
         <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
+
         <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_position</span><span class="p">(</span>
@@ -1776,12 +1791,14 @@
 
             <span class="c1"># Copy additional fields if present, converting to modern field names</span>
             <span class="k">if</span> <span class="s2">&quot;max_depth&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="p">:</span>
-                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span>  <span class="c1"># Use semantic water_depth</span>
+                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span>
+                    <span class="s2">&quot;max_depth&quot;</span>
+                <span class="p">]</span>  <span class="c1"># Use semantic water_depth</span>
             <span class="k">elif</span> <span class="n">default_depth</span> <span class="o">!=</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">:</span>
                 <span class="c1"># Use provided default depth if valid (not the placeholder value)</span>
                 <span class="n">station</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_depth</span>
             <span class="c1"># If no depth is specified, let enrichment process handle bathymetry lookup</span>
-            
+
             <span class="k">if</span> <span class="s2">&quot;planned_duration_hours&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="p">:</span>
                 <span class="c1"># Convert hours to minutes for consistency</span>
                 <span class="n">station</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">transit</span><span class="p">[</span><span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">60.0</span>
@@ -1954,7 +1971,7 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">save_yaml</span>
 
-    <span class="c1"># Load and preprocess the YAML configuration to replace placeholders  </span>
+    <span class="c1"># Load and preprocess the YAML configuration to replace placeholders</span>
     <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
     <span class="c1"># Replace placeholder values with sensible defaults</span>
@@ -1984,9 +2001,11 @@
     <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
 
     <span class="c1"># Use context manager for safe temporary file handling</span>
-    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>
+        <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
         <span class="n">temp_config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp_file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-    
+
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Use comment-preserving YAML save for temp file</span>
         <span class="n">save_yaml</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">temp_config_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -2023,9 +2042,7 @@
             <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">==</span> <span class="o">-</span><span class="mf">9999.0</span>  <span class="c1"># Replace placeholder depth</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="n">should_add_water_depth</span><span class="p">:</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="o">.</span><span class="n">get_depth_at_point</span><span class="p">(</span>
-                <span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">station</span><span class="o">.</span><span class="n">longitude</span>
-            <span class="p">)</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="o">.</span><span class="n">get_depth_at_point</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">depth</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">station</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span>
                     <span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)</span>
@@ -2046,23 +2063,25 @@
         <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dmm&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">coord_field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">coord_field_name</span><span class="p">):</span>
                 <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
-                
+
                 <span class="c1"># For ruamel.yaml CommentedMap, insert coordinates right after the name field</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="s1">&#39;insert&#39;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="s2">&quot;insert&quot;</span><span class="p">):</span>
                     <span class="c1"># Strategy: Insert coordinates_dmm right after the &#39;name&#39; field (which is required)</span>
-                    <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
-                        <span class="n">name_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
+                        <span class="n">name_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
                         <span class="n">insert_pos</span> <span class="o">=</span> <span class="n">name_pos</span> <span class="o">+</span> <span class="mi">1</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># Fallback to beginning if no name field (shouldn&#39;t happen)</span>
                         <span class="n">insert_pos</span> <span class="o">=</span> <span class="mi">0</span>
-                    
-                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserting </span><span class="si">{</span><span class="n">coord_field_name</span><span class="si">}</span><span class="s2"> at position </span><span class="si">{</span><span class="n">insert_pos</span><span class="si">}</span><span class="s2"> after &#39;name&#39; field in </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+                    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Inserting </span><span class="si">{</span><span class="n">coord_field_name</span><span class="si">}</span><span class="s2"> at position </span><span class="si">{</span><span class="n">insert_pos</span><span class="si">}</span><span class="s2"> after &#39;name&#39; field in </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
                     <span class="n">data_dict</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_pos</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">,</span> <span class="n">dmm_comment</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Fallback for regular dict</span>
                     <span class="n">data_dict</span><span class="p">[</span><span class="n">coord_field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmm_comment</span>
-                
+
                 <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
                 <span class="k">return</span> <span class="n">dmm_comment</span>
         <span class="k">elif</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dms&quot;</span><span class="p">:</span>
@@ -2088,17 +2107,21 @@
                 <span class="k">if</span> <span class="n">station_name</span> <span class="ow">in</span> <span class="n">stations_with_depths_added</span><span class="p">:</span>
                     <span class="c1"># Add water_depth field with careful placement after name field</span>
                     <span class="n">water_depth_value</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">station_obj</span><span class="o">.</span><span class="n">water_depth</span><span class="p">)</span>
-                    
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station_data</span><span class="p">,</span> <span class="s1">&#39;insert&#39;</span><span class="p">):</span>
+
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station_data</span><span class="p">,</span> <span class="s2">&quot;insert&quot;</span><span class="p">):</span>
                         <span class="c1"># Position water_depth after the &#39;name&#39; field for consistent structure</span>
-                        <span class="k">if</span> <span class="s1">&#39;name&#39;</span> <span class="ow">in</span> <span class="n">station_data</span><span class="p">:</span>
-                            <span class="n">name_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">station_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">station_data</span><span class="p">:</span>
+                            <span class="n">name_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">station_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
                             <span class="n">insert_pos</span> <span class="o">=</span> <span class="n">name_pos</span> <span class="o">+</span> <span class="mi">1</span>
                         <span class="k">else</span><span class="p">:</span>
                             <span class="n">insert_pos</span> <span class="o">=</span> <span class="mi">0</span>
-                        
-                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Inserting water_depth at position </span><span class="si">{</span><span class="n">insert_pos</span><span class="si">}</span><span class="s2"> after &#39;name&#39; field&quot;</span><span class="p">)</span>
-                        <span class="n">station_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_pos</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="n">water_depth_value</span><span class="p">)</span>
+
+                        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Inserting water_depth at position </span><span class="si">{</span><span class="n">insert_pos</span><span class="si">}</span><span class="s2"> after &#39;name&#39; field&quot;</span>
+                        <span class="p">)</span>
+                        <span class="n">station_data</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span>
+                            <span class="n">insert_pos</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="n">water_depth_value</span>
+                        <span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># Fallback for regular dict</span>
                         <span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth_value</span>
@@ -2757,7 +2780,9 @@
 
     <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
         <span class="c1"># Check water_depth field first (new), then fall back to legacy depth field</span>
-        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+            <span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
+        <span class="p">)</span>
         <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">stations_checked</span> <span class="o">+=</span> <span class="mi">1</span>
 
@@ -2787,17 +2812,19 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">warning_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: could not verify depth (no bathymetry data)&quot;</span>
                 <span class="n">warning_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warning_msg</span><span class="p">)</span>
-                
+
         <span class="c1"># Additional validation for moorings: operation_depth should match water_depth (both sit on seafloor)</span>
         <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
-            <span class="n">operation_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> 
-            <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            
+            <span class="n">operation_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
             <span class="k">if</span> <span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="c1"># For moorings, operation_depth and water_depth should be very close</span>
                 <span class="n">diff_percent</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">operation_depth</span> <span class="o">-</span> <span class="n">water_depth</span><span class="p">)</span> <span class="o">/</span> <span class="n">water_depth</span> <span class="o">*</span> <span class="mi">100</span>
-                
+
                 <span class="k">if</span> <span class="n">diff_percent</span> <span class="o">&gt;</span> <span class="n">tolerance</span><span class="p">:</span>
                     <span class="n">warning_msg</span> <span class="o">=</span> <span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2"> (mooring): operation_depth and water_depth mismatch of &quot;</span>

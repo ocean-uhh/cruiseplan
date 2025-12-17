@@ -538,7 +538,61 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <section id="step-2-collect-pangaea-dataset-information">
 <h2>Step 2: Collect PANGAEA Dataset Information<a class="headerlink" href="#step-2-collect-pangaea-dataset-information" title="Link to this heading"></a></h2>
 <p><strong>Purpose:</strong> Identify relevant historical cruises and datasets for your region.</p>
-<p><strong>Manual process</strong> (PanQuery integration not yet available):</p>
+<p><strong>Option A: Automated Search (Recommended):</strong></p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">pandoi</span></code> command to query the PANGAEA database:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic search by instrument/parameter (saves to data/ directory by default)</span>
+cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span>
+
+<span class="c1"># Geographic search with lat/lon bounds</span>
+cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">25</span>
+
+<span class="c1"># Combined search terms</span>
+cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD temperature North Atlantic&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">50</span>
+</pre></div>
+</div>
+<p><strong>Search Examples by Use Case:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Research Focus</strong></p></th>
+<th class="head"><p><strong>Search Command</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Arctic physical oceanography</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;CTD</span> <span class="pre">Arctic</span> <span class="pre">Ocean&quot;</span> <span class="pre">--lat</span> <span class="pre">70</span> <span class="pre">90</span> <span class="pre">--lon</span> <span class="pre">-180</span> <span class="pre">180</span> <span class="pre">--limit</span> <span class="pre">30</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p>North Atlantic deep water</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;CTD</span> <span class="pre">deep</span> <span class="pre">water&quot;</span> <span class="pre">--lat</span> <span class="pre">50</span> <span class="pre">70</span> <span class="pre">--lon</span> <span class="pre">-50</span> <span class="pre">-10</span> <span class="pre">--limit</span> <span class="pre">40</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>Specific expedition data</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;Polarstern</span> <span class="pre">PS122&quot;</span> <span class="pre">--limit</span> <span class="pre">20</span></code></p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Geographic Bounds Format:</strong></p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code> and <code class="docutils literal notranslate"><span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code> to specify search regions:</p>
+<ul class="simple">
+<li><p>West longitudes are negative (e.g., -50°W = -50)</p></li>
+<li><p>East longitudes are positive (e.g., 20°E = 20)</p></li>
+<li><p>South latitudes are negative (e.g., -30°S = -30)</p></li>
+<li><p>North latitudes are positive (e.g., 60°N = 60)</p></li>
+</ul>
+<p><strong>Common Regional Bounds:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># North Atlantic subpolar gyre</span>
+--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-10
+
+<span class="c1"># Nordic Seas</span>
+--lat<span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="m">80</span><span class="w"> </span>--lon<span class="w"> </span>-10<span class="w"> </span><span class="m">20</span>
+
+<span class="c1"># Arctic Ocean</span>
+--lat<span class="w"> </span><span class="m">70</span><span class="w"> </span><span class="m">90</span><span class="w"> </span>--lon<span class="w"> </span>-180<span class="w"> </span><span class="m">180</span>
+</pre></div>
+</div>
+<p><strong>Option B: Manual Collection (Alternative):</strong></p>
 <ol class="arabic simple">
 <li><p><strong>Visit PANGAEA database:</strong> <a class="reference external" href="https://www.pangaea.de">https://www.pangaea.de</a></p></li>
 <li><p><strong>Search by criteria:</strong></p>
@@ -568,7 +622,11 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <section id="step-3-process-pangaea-data">
 <h2>Step 3: Process PANGAEA Data<a class="headerlink" href="#step-3-process-pangaea-data" title="Link to this heading"></a></h2>
 <p><strong>Purpose:</strong> Convert PANGAEA datasets into a searchable station database.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using file from automated search</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_ctd_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
+
+<span class="c1"># Or using manually created DOI list</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>

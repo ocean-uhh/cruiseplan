@@ -219,7 +219,8 @@
 <span class="s2">  cruiseplan stations --lat 50 65 --lon -60 -30</span>
 <span class="s2">  cruiseplan enrich -c cruise.yaml --add-depths --add-coords</span>
 <span class="s2">  cruiseplan validate -c cruise.yaml --check-depths</span>
-<span class="s2">  cruiseplan pangaea doi_list.txt -o pangaea_data/</span>
+<span class="s2">  cruiseplan pandoi &quot;CTD&quot; --lat 50 60 --lon -50 -40 --limit 20</span>
+<span class="s2">  cruiseplan pangaea doi_list.txt</span>
 
 <span class="s2">For detailed help on a subcommand:</span>
 <span class="s2">  cruiseplan &lt;subcommand&gt; --help</span>
@@ -313,8 +314,8 @@
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: current)&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path&quot;</span>
@@ -426,7 +427,50 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># --- 6. Pangaea Subcommand ---</span>
+    <span class="c1"># --- 6. PANDOI Subcommand ---</span>
+    <span class="n">pandoi_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;pandoi&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search PANGAEA datasets by query and geographic bounds&quot;</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search query string (e.g., &#39;CTD&#39;, &#39;temperature&#39;, &#39;Arctic Ocean&#39;)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds (e.g., --lat 50 70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds (e.g., --lon -60 -30)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum number of results to return (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path (overrides -o/--output-dir)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- 7. Pangaea Subcommand ---</span>
     <span class="n">pangaea_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;pangaea&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process PANGAEA DOI lists into campaign datasets&quot;</span>
     <span class="p">)</span>
@@ -491,6 +535,10 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">validate_main</span>
 
             <span class="n">validate_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;pandoi&quot;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pandoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pandoi_main</span>
+
+            <span class="n">pandoi_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;pangaea&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pangaea_main</span>
 
