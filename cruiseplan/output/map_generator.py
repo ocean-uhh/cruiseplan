@@ -195,7 +195,7 @@ def plot_bathymetry(
                 200,
             ],
             cmap=cmap,
-            alpha=.7,
+            alpha=0.7,
             extend="both",
         )
 
@@ -326,7 +326,7 @@ def plot_cruise_elements(
             s=100,
             marker="P",
             edgecolors="black",
-            alpha=.7,
+            alpha=0.7,
             linewidth=1,
             zorder=10,
             label="Departure Port",
@@ -350,7 +350,7 @@ def plot_cruise_elements(
             c="darkmagenta",
             s=100,
             marker="H",
-            alpha=.7,
+            alpha=0.7,
             edgecolors="black",
             linewidth=1,
             zorder=10,
@@ -407,7 +407,7 @@ def plot_cruise_elements(
                 marker="*",
                 alpha=0.9,
                 edgecolors="black",
-                linewidth=.5,
+                linewidth=0.5,
                 zorder=15,
                 label="Moorings",
             )
