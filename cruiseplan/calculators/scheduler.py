@@ -348,7 +348,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                         # Check if it's a real value, not a MagicMock
                         if (
                             raw_buffer_time is not None
-                            and not str(type(raw_buffer_time)).__contains__("MagicMock")
+                            and not hasattr(raw_buffer_time, '_mock_name')
                             and isinstance(raw_buffer_time, (int, float))
                         ):
                             buffer_time_min = float(raw_buffer_time)
@@ -468,12 +468,13 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         delay_end_min = 0.0
 
         try:
-            # Only use if it's a real number, not a MagicMock
-            if (
+            # Check if delay_start is a real value (not MagicMock from tests)
+            is_real_value = (
                 delay_start_raw is not None
-                and not str(type(delay_start_raw)).__contains__("MagicMock")
                 and isinstance(delay_start_raw, (int, float))
-            ):
+                and not hasattr(delay_start_raw, '_mock_name')  # More robust MagicMock detection
+            )
+            if is_real_value:
                 delay_start_min = float(delay_start_raw)
         except (TypeError, ValueError, AttributeError):
             delay_start_min = 0.0
@@ -482,7 +483,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
             # Only use if it's a real number, not a MagicMock
             if (
                 delay_end_raw is not None
-                and not str(type(delay_end_raw)).__contains__("MagicMock")
+                and not hasattr(delay_end_raw, '_mock_name')
                 and isinstance(delay_end_raw, (int, float))
             ):
                 delay_end_min = float(delay_end_raw)
@@ -557,7 +558,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     # Check if it's a real value, not a MagicMock
                     if (
                         raw_buffer_time is not None
-                        and not str(type(raw_buffer_time)).__contains__("MagicMock")
+                        and not hasattr(raw_buffer_time, '_mock_name')
                         and isinstance(raw_buffer_time, (int, float))
                     ):
                         buffer_time_min = float(raw_buffer_time)

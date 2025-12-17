@@ -745,7 +745,7 @@ class HTMLGenerator:
                 return 120.0  # 2 hours default
 
         # Use vessel speed from config if available, otherwise default
-        vessel_speed = getattr(config, "vessel_speed_knots", 8.0)
+        vessel_speed = getattr(config, "default_vessel_speed", 8.0)
 
         leg_names = list(legs_data.keys())
 

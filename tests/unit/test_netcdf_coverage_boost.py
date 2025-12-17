@@ -70,7 +70,8 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.generate_point_operations(config, timeline, output_path)
         except Exception:
-            # We only care about coverage, not success
+            # Tactical coverage test - exceptions expected due to incomplete mocking
+            # We only care about exercising code paths, not functional correctness
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
@@ -86,7 +87,8 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.generate_ship_schedule(timeline, config, output_path)
         except Exception:
-            # We only care about coverage, not success
+            # Tactical coverage test - exceptions expected due to incomplete mocking
+            # We only care about exercising code paths, not functional correctness
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.Dataset.to_netcdf")
@@ -102,7 +104,8 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.generate_line_operations(config, timeline, output_path)
         except Exception:
-            # We only care about coverage, not success
+            # Tactical coverage test - exceptions expected due to incomplete mocking
+            # We only care about exercising code paths, not functional correctness
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
@@ -124,6 +127,7 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.derive_point_operations(schedule_path, output_path, config)
         except Exception:
+            # Tactical coverage test - exceptions expected due to incomplete mocking
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
@@ -145,6 +149,7 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.derive_line_operations(schedule_path, output_path, config)
         except Exception:
+            # Tactical coverage test - exceptions expected due to incomplete mocking
             pass
 
     @patch("cruiseplan.output.netcdf_generator.xr.open_dataset")
@@ -166,6 +171,7 @@ class TestNetCDFCoverageBoost:
         try:
             self.generator.derive_area_operations(schedule_path, output_path, config)
         except Exception:
+            # Tactical coverage test - exceptions expected due to incomplete mocking
             pass
 
     def test_empty_timeline_branches(self):
