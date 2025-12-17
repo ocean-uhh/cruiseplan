@@ -15,29 +15,30 @@ logger = logging.getLogger(__name__)
 def _add_yaml_documentation(data: Dict) -> Dict:
     """
     Add comprehensive documentation headers to YAML configuration data.
-    
+
     This function enhances generated YAML files with rich documentation including:
     - Field descriptions and validation requirements
     - Operation type and action examples
     - Cruise planning workflow guidance
     - Required vs optional field indicators
-    
+
     Parameters
     ----------
     data : dict
         Original configuration dictionary
-        
+
     Returns
     -------
     dict
         Enhanced dictionary with documentation headers using ruamel.yaml comments
     """
     from datetime import datetime
+
     from ruamel.yaml.comments import CommentedMap
-    
+
     # Convert to CommentedMap for comment support
     documented_data = CommentedMap()
-    
+
     # Add file header documentation
     header_comment = f"""
 CruisePlan YAML Configuration
@@ -65,11 +66,11 @@ For complete field reference, see:
 https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
 """
     documented_data.yaml_set_start_comment(header_comment)
-    
+
     # Copy data with field-specific documentation
     for key, value in data.items():
         documented_data[key] = value
-        
+
         # Add field-specific comments
         if key == "cruise_name":
             documented_data.yaml_set_comment_before_after_key(
@@ -81,23 +82,27 @@ https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
             )
         elif key == "start_date":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)"
+                key,
+                before="[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)",
             )
         elif key == "departure_port":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[REQUIRED] Departure port details
+                key,
+                before="""[REQUIRED] Departure port details
 Update 'UPDATE-departure-port-name' with actual port name
-Update coordinates with actual port location"""
+Update coordinates with actual port location""",
             )
         elif key == "arrival_port":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[REQUIRED] Arrival port details  
+                key,
+                before="""[REQUIRED] Arrival port details  
 Update 'UPDATE-arrival-port-name' with actual port name
-Update coordinates with actual port location"""
+Update coordinates with actual port location""",
             )
         elif key == "stations":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[REQUIRED] Station catalog - Point operations (CTD, moorings, sampling)
+                key,
+                before="""[REQUIRED] Station catalog - Point operations (CTD, moorings, sampling)
 Each station must have:
   - name: Unique identifier (e.g., STN_001, MOOR_A)
   - latitude/longitude: Decimal degrees (WGS84)
@@ -107,39 +112,44 @@ Optional fields:
   - water_depth: Seafloor depth in meters (auto-enriched if not provided)
   - operation_depth: Target operation depth for CTD casts
   - duration: Operation duration in minutes (calculated if not provided)
-  - comment: Free-text description"""
+  - comment: Free-text description""",
             )
         elif key == "transits":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[OPTIONAL] Transit catalog - Line operations and scientific transects
+                key,
+                before="""[OPTIONAL] Transit catalog - Line operations and scientific transects
 For transit legs between stations, these are auto-generated
 Define custom transits for:
   - Underway scientific operations (ADCP, multibeam)
   - Specific route requirements
-  - Non-standard vessel speeds"""
+  - Non-standard vessel speeds""",
             )
         elif key == "areas":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[OPTIONAL] Area survey catalog - Survey boxes and polygons
+                key,
+                before="""[OPTIONAL] Area survey catalog - Survey boxes and polygons
 Define survey areas for:
   - Multibeam bathymetry surveys
   - Side-scan sonar operations
-  - Systematic sampling grids"""
+  - Systematic sampling grids""",
             )
         elif key == "legs":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="""[REQUIRED] Operational sequence definition
+                key,
+                before="""[REQUIRED] Operational sequence definition
 Legs define the order and grouping of operations
 Strategy options: sequential, cluster, nearest_neighbor
-Each leg can override default vessel speeds and routing"""
+Each leg can override default vessel speeds and routing""",
             )
         elif key == "first_station":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="[REQUIRED] Name of first station (must match a station name above)"
+                key,
+                before="[REQUIRED] Name of first station (must match a station name above)",
             )
         elif key == "last_station":
             documented_data.yaml_set_comment_before_after_key(
-                key, before="[REQUIRED] Name of last station (must match a station name above)"
+                key,
+                before="[REQUIRED] Name of last station (must match a station name above)",
             )
         elif key == "default_vessel_speed":
             documented_data.yaml_set_comment_before_after_key(
@@ -149,14 +159,16 @@ Each leg can override default vessel speeds and routing"""
             documented_data.yaml_set_comment_before_after_key(
                 key, before="[REQUIRED] Default distance between stations in kilometers"
             )
-    
+
     return documented_data
 
 
 # --- YAML SAVING UTILITIES (Existing Functions) ---
 
 
-def save_cruise_config(data: Dict, filepath: Union[str, Path], add_documentation: bool = True) -> None:
+def save_cruise_config(
+    data: Dict, filepath: Union[str, Path], add_documentation: bool = True
+) -> None:
     """
     Save a dictionary to a YAML file with standard formatting and optional documentation headers.
 
@@ -184,7 +196,7 @@ def save_cruise_config(data: Dict, filepath: Union[str, Path], add_documentation
         if add_documentation:
             # Enhance data with rich documentation headers
             data = _add_yaml_documentation(data)
-        
+
         save_yaml(data, path, backup=False)  # No backup for new configs
         logger.info(f"✅ Configuration saved to {path}")
     except YAMLIOError as e:
@@ -219,7 +231,7 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
         water_depth = round(abs(float(water_depth)), 1)
     else:
         water_depth = None
-        
+
     station_dict = {
         "name": f"STN_{index:03d}",
         # FIX: Cast to float() BEFORE rounding. Rounding alone may not be enough.
@@ -229,11 +241,11 @@ def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
         "operation_type": "UPDATE-CTD-mooring-etc",  # CTD, mooring, water_sampling, calibration
         "action": "UPDATE-profile-sampling-etc",  # profile, deployment, recovery, sampling
     }
-    
+
     # Add water_depth only if we have valid bathymetry data
     if water_depth is not None:
         station_dict["water_depth"] = water_depth
-        
+
     return station_dict
 
 
@@ -261,8 +273,8 @@ def format_transect_for_yaml(transect_data, index):
     return {
         "name": f"Transit_{index:02d}",
         "comment": "Interactive transect - Review route and update operation details",
-        "operation_type": "underway",  # underway, survey_line  
-        "action": "UPDATE-ADCP-bathymetry-etc",   # transit, ADCP, multibeam, bathymetry
+        "operation_type": "underway",  # underway, survey_line
+        "action": "UPDATE-ADCP-bathymetry-etc",  # transit, ADCP, multibeam, bathymetry
         "vessel_speed": 10.0,
         "route": [
             {

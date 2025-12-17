@@ -288,7 +288,7 @@ class FlexibleLocationModel(BaseModel):
         Examples
         --------
         >>> station = StationDefinition(name="CTD_001", latitude=60.0, longitude=-20.0, ...)
-        >>> station.longitude  # Direct access  
+        >>> station.longitude  # Direct access
         -20.0
         >>> station.position.longitude  # Traditional access (still works)
         -20.0
@@ -353,9 +353,15 @@ class StationDefinition(FlexibleLocationModel):
     name: str
     operation_type: OperationTypeEnum
     action: ActionEnum
-    depth: Optional[float] = Field(None, description="DEPRECATED: Use operation_depth or water_depth for clarity")
-    operation_depth: Optional[float] = Field(None, description="Target operation depth (e.g., CTD cast depth)")
-    water_depth: Optional[float] = Field(None, description="Water depth at location (seafloor depth)")
+    depth: Optional[float] = Field(
+        None, description="DEPRECATED: Use operation_depth or water_depth for clarity"
+    )
+    operation_depth: Optional[float] = Field(
+        None, description="Target operation depth (e.g., CTD cast depth)"
+    )
+    water_depth: Optional[float] = Field(
+        None, description="Water depth at location (seafloor depth)"
+    )
     duration: Optional[float] = None
     delay_start: Optional[float] = (
         None  # Time to wait before operation begins (minutes)
@@ -513,7 +519,9 @@ class StationDefinition(FlexibleLocationModel):
             If operation_depth is negative.
         """
         if v is not None and v < 0:
-            raise ValueError("Operation depth must be positive (depths should be given as positive values in meters)")
+            raise ValueError(
+                "Operation depth must be positive (depths should be given as positive values in meters)"
+            )
         return v
 
     @field_validator("water_depth")
@@ -537,7 +545,9 @@ class StationDefinition(FlexibleLocationModel):
             If water_depth is negative.
         """
         if v is not None and v < 0:
-            raise ValueError("Water depth must be positive (depths should be given as positive values in meters)")
+            raise ValueError(
+                "Water depth must be positive (depths should be given as positive values in meters)"
+            )
         return v
 
     @field_validator("operation_type")
@@ -636,7 +646,11 @@ class StationDefinition(FlexibleLocationModel):
             Self for chaining.
         """
         # Migration logic: if depth is specified but new fields aren't, infer them
-        if self.depth is not None and self.operation_depth is None and self.water_depth is None:
+        if (
+            self.depth is not None
+            and self.operation_depth is None
+            and self.water_depth is None
+        ):
             # For most operations, assume the specified depth is the operation target
             # This matches existing behavior where depth was used for duration calculations
             self.operation_depth = self.depth
@@ -1436,12 +1450,13 @@ def expand_ctd_sections(
 
     # Preserve comments by avoiding deepcopy - modify config in place if it's a CommentedMap
     # or create a shallow working copy for plain dictionaries
-    if hasattr(config, 'copy'):
+    if hasattr(config, "copy"):
         # This is likely a CommentedMap - use its copy method to preserve structure
         config = config.copy()
     else:
         # Regular dictionary - use shallow copy and convert to plain dict
         import copy
+
         config = copy.copy(config)
 
     def interpolate_position(
@@ -1543,12 +1558,14 @@ def expand_ctd_sections(
 
             # Copy additional fields if present, converting to modern field names
             if "max_depth" in transit:
-                station["water_depth"] = transit["max_depth"]  # Use semantic water_depth
+                station["water_depth"] = transit[
+                    "max_depth"
+                ]  # Use semantic water_depth
             elif default_depth != -9999.0:
                 # Use provided default depth if valid (not the placeholder value)
                 station["water_depth"] = default_depth
             # If no depth is specified, let enrichment process handle bathymetry lookup
-            
+
             if "planned_duration_hours" in transit:
                 # Convert hours to minutes for consistency
                 station["duration"] = float(transit["planned_duration_hours"]) * 60.0
@@ -1718,7 +1735,7 @@ def enrich_configuration(
     from cruiseplan.data.bathymetry import BathymetryManager
     from cruiseplan.utils.yaml_io import load_yaml, save_yaml
 
-    # Load and preprocess the YAML configuration to replace placeholders  
+    # Load and preprocess the YAML configuration to replace placeholders
     config_dict = load_yaml(config_path)
 
     # Replace placeholder values with sensible defaults
@@ -1748,9 +1765,11 @@ def enrich_configuration(
     python_warnings.showwarning = warning_handler
 
     # Use context manager for safe temporary file handling
-    with tempfile.NamedTemporaryFile(mode='w', suffix=".yaml", delete=False) as tmp_file:
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".yaml", delete=False
+    ) as tmp_file:
         temp_config_path = Path(tmp_file.name)
-    
+
     try:
         # Use comment-preserving YAML save for temp file
         save_yaml(config_dict, temp_config_path, backup=False)
@@ -1787,9 +1806,7 @@ def enrich_configuration(
             or station.water_depth == -9999.0  # Replace placeholder depth
         )
         if should_add_water_depth:
-            depth = bathymetry.get_depth_at_point(
-                station.latitude, station.longitude
-            )
+            depth = bathymetry.get_depth_at_point(station.latitude, station.longitude)
             if depth is not None and depth != 0:
                 station.water_depth = round(
                     abs(depth)
@@ -1810,23 +1827,25 @@ def enrich_configuration(
         if coord_format == "dmm":
             if coord_field_name not in data_dict or not data_dict.get(coord_field_name):
                 dmm_comment = format_dmm_comment(lat, lon)
-                
+
                 # For ruamel.yaml CommentedMap, insert coordinates right after the name field
-                if hasattr(data_dict, 'insert'):
+                if hasattr(data_dict, "insert"):
                     # Strategy: Insert coordinates_dmm right after the 'name' field (which is required)
-                    if 'name' in data_dict:
-                        name_pos = list(data_dict.keys()).index('name')
+                    if "name" in data_dict:
+                        name_pos = list(data_dict.keys()).index("name")
                         insert_pos = name_pos + 1
                     else:
                         # Fallback to beginning if no name field (shouldn't happen)
                         insert_pos = 0
-                    
-                    logger.debug(f"Inserting {coord_field_name} at position {insert_pos} after 'name' field in {type(data_dict).__name__}")
+
+                    logger.debug(
+                        f"Inserting {coord_field_name} at position {insert_pos} after 'name' field in {type(data_dict).__name__}"
+                    )
                     data_dict.insert(insert_pos, coord_field_name, dmm_comment)
                 else:
                     # Fallback for regular dict
                     data_dict[coord_field_name] = dmm_comment
-                
+
                 coord_changes_made += 1
                 return dmm_comment
         elif coord_format == "dms":
@@ -1852,17 +1871,21 @@ def enrich_configuration(
                 if station_name in stations_with_depths_added:
                     # Add water_depth field with careful placement after name field
                     water_depth_value = float(station_obj.water_depth)
-                    
-                    if hasattr(station_data, 'insert'):
+
+                    if hasattr(station_data, "insert"):
                         # Position water_depth after the 'name' field for consistent structure
-                        if 'name' in station_data:
-                            name_pos = list(station_data.keys()).index('name')
+                        if "name" in station_data:
+                            name_pos = list(station_data.keys()).index("name")
                             insert_pos = name_pos + 1
                         else:
                             insert_pos = 0
-                        
-                        logger.debug(f"Inserting water_depth at position {insert_pos} after 'name' field")
-                        station_data.insert(insert_pos, "water_depth", water_depth_value)
+
+                        logger.debug(
+                            f"Inserting water_depth at position {insert_pos} after 'name' field"
+                        )
+                        station_data.insert(
+                            insert_pos, "water_depth", water_depth_value
+                        )
                     else:
                         # Fallback for regular dict
                         station_data["water_depth"] = water_depth_value
@@ -2515,7 +2538,9 @@ def validate_depth_accuracy(
 
     for station_name, station in cruise.station_registry.items():
         # Check water_depth field first (new), then fall back to legacy depth field
-        water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
+        water_depth = getattr(station, "water_depth", None) or getattr(
+            station, "depth", None
+        )
         if water_depth is not None:
             stations_checked += 1
 
@@ -2545,17 +2570,19 @@ def validate_depth_accuracy(
             else:
                 warning_msg = f"Station {station_name}: could not verify depth (no bathymetry data)"
                 warning_messages.append(warning_msg)
-                
+
         # Additional validation for moorings: operation_depth should match water_depth (both sit on seafloor)
         operation_type = getattr(station, "operation_type", None)
         if operation_type == "mooring":
-            operation_depth = getattr(station, "operation_depth", None) 
-            water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
-            
+            operation_depth = getattr(station, "operation_depth", None)
+            water_depth = getattr(station, "water_depth", None) or getattr(
+                station, "depth", None
+            )
+
             if operation_depth is not None and water_depth is not None:
                 # For moorings, operation_depth and water_depth should be very close
                 diff_percent = abs(operation_depth - water_depth) / water_depth * 100
-                
+
                 if diff_percent > tolerance:
                     warning_msg = (
                         f"Station {station_name} (mooring): operation_depth and water_depth mismatch of "

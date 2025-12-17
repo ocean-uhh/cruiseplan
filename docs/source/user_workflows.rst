@@ -401,7 +401,59 @@ Step 2: Collect PANGAEA Dataset Information
 
 **Purpose:** Identify relevant historical cruises and datasets for your region.
 
-**Manual process** (PanQuery integration not yet available):
+**Option A: Automated Search (Recommended):**
+
+Use the ``pandoi`` command to query the PANGAEA database:
+
+.. code-block:: bash
+
+   # Basic search by instrument/parameter (saves to data/ directory by default)
+   cruiseplan pandoi "CTD"
+   
+   # Geographic search with lat/lon bounds
+   cruiseplan pandoi "CTD" --lat 50 70 --lon -60 -20 --limit 25
+   
+   # Combined search terms
+   cruiseplan pandoi "CTD temperature North Atlantic" --lat 50 70 --lon -60 -20 --limit 50
+
+**Search Examples by Use Case:**
+
+.. list-table::
+   :widths: 30 70
+   :header-rows: 1
+   
+   * - **Research Focus**
+     - **Search Command**
+   * - Arctic physical oceanography
+     - ``cruiseplan pandoi "CTD Arctic Ocean" --lat 70 90 --lon -180 180 --limit 30``
+   * - North Atlantic deep water
+     - ``cruiseplan pandoi "CTD deep water" --lat 50 70 --lon -50 -10 --limit 40``
+   * - Specific expedition data
+     - ``cruiseplan pandoi "Polarstern PS122" --limit 20``
+
+**Geographic Bounds Format:**
+
+Use ``--lat MIN MAX`` and ``--lon MIN MAX`` to specify search regions:
+
+- West longitudes are negative (e.g., -50°W = -50)
+- East longitudes are positive (e.g., 20°E = 20)
+- South latitudes are negative (e.g., -30°S = -30)
+- North latitudes are positive (e.g., 60°N = 60)
+
+**Common Regional Bounds:**
+
+.. code-block:: bash
+
+   # North Atlantic subpolar gyre
+   --lat 50 70 --lon -60 -10
+   
+   # Nordic Seas  
+   --lat 60 80 --lon -10 20
+   
+   # Arctic Ocean
+   --lat 70 90 --lon -180 180
+
+**Option B: Manual Collection (Alternative):**
 
 1. **Visit PANGAEA database:** https://www.pangaea.de
 2. **Search by criteria:**
@@ -434,6 +486,10 @@ Step 3: Process PANGAEA Data
 
 .. code-block:: bash
 
+   # Using file from automated search
+   cruiseplan pangaea north_atlantic_ctd_dois.txt -o pangaea_data/
+   
+   # Or using manually created DOI list
    cruiseplan pangaea north_atlantic_dois.txt -o pangaea_data/
 
 **Options:**
