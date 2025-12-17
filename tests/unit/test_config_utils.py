@@ -245,10 +245,18 @@ class TestConfigUtils:
         assert formatted["name"] == "STN_001"
         assert formatted["latitude"] == 50.12346  # Rounded to 5 places
         assert formatted["longitude"] == -10.98765  # Rounded to 5 places
-        assert formatted["water_depth"] == 2000.1  # New semantic depth field - rounded to 1 place
-        assert formatted["operation_type"] == "UPDATE-CTD-mooring-etc"  # Reverted placeholder
-        assert formatted["action"] == "UPDATE-profile-sampling-etc"  # Reverted placeholder
-        assert "Interactive selection" in formatted["comment"]  # Enhanced comment contains original
+        assert (
+            formatted["water_depth"] == 2000.1
+        )  # New semantic depth field - rounded to 1 place
+        assert (
+            formatted["operation_type"] == "UPDATE-CTD-mooring-etc"
+        )  # Reverted placeholder
+        assert (
+            formatted["action"] == "UPDATE-profile-sampling-etc"
+        )  # Reverted placeholder
+        assert (
+            "Interactive selection" in formatted["comment"]
+        )  # Enhanced comment contains original
 
     def test_format_station_for_yaml_missing_depth(self):
         """Tests fallback depth handling with new enhanced format."""

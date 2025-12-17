@@ -16,10 +16,9 @@ import xarray as xr
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.output.netcdf_metadata import (
-    create_global_attributes,
     create_coordinate_variables,
+    create_global_attributes,
     create_operation_variables,
-    get_variable_attributes,
 )
 
 logger = logging.getLogger(__name__)
@@ -139,8 +138,12 @@ class NetCDFGenerator:
                             "name": station.name,
                             "latitude": station.latitude,
                             "longitude": station.longitude,
-                            "waterdepth": getattr(station, "water_depth", None) or getattr(station, "depth", 0.0) or 0.0,
-                            "operation_depth": getattr(station, "operation_depth", None),
+                            "waterdepth": getattr(station, "water_depth", None)
+                            or getattr(station, "depth", 0.0)
+                            or 0.0,
+                            "operation_depth": getattr(
+                                station, "operation_depth", None
+                            ),
                             "category": "point_operation",
                             "type": cf_operation,
                             "action": getattr(station, "action", "unknown"),
@@ -168,8 +171,15 @@ class NetCDFGenerator:
                 [op["waterdepth"] for op in point_operations], dtype=np.float32
             )
             operation_depths = np.array(
-                [op["operation_depth"] if op["operation_depth"] is not None else np.nan 
-                 for op in point_operations], dtype=np.float32
+                [
+                    (
+                        op["operation_depth"]
+                        if op["operation_depth"] is not None
+                        else np.nan
+                    )
+                    for op in point_operations
+                ],
+                dtype=np.float32,
             )
 
             # Create data arrays
@@ -188,18 +198,18 @@ class NetCDFGenerator:
                 lats=lats,
                 lons=lons,
                 depths=depths,
-                operation_depths=operation_depths
+                operation_depths=operation_depths,
             )
-            
+
             # Create operation variables using centralized metadata
             op_vars = create_operation_variables(
                 names=names,
                 types=types,
                 actions=actions,
                 durations=durations,
-                comments=comments
+                comments=comments,
             )
-            
+
             # Add category variable with specialized metadata
             category_attrs = {
                 "long_name": "operation category",
@@ -207,12 +217,12 @@ class NetCDFGenerator:
                 "coordinates": "latitude longitude water_depth",
             }
             op_vars["category"] = (["obs"], categories, category_attrs)
-            
+
             # Create xarray Dataset from standardized variables
             data_vars = {}
             data_vars.update(coord_vars)
             data_vars.update(op_vars)
-            
+
             ds = xr.Dataset(data_vars)
 
         # Set global attributes using centralized metadata
@@ -220,7 +230,7 @@ class NetCDFGenerator:
             feature_type="point",
             config=config,
             title_template="Point Operations: {cruise_name}",
-            source="YAML configuration file"
+            source="YAML configuration file",
         )
         ds.attrs.update(global_attrs)
 
@@ -309,14 +319,16 @@ class NetCDFGenerator:
                 if activity in ["Station", "Mooring"]:
                     station_name = event["label"]
                     station = station_lookup.get(station_name)
-                    water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
+                    water_depth = getattr(station, "water_depth", None) or getattr(
+                        station, "depth", None
+                    )
                     operation_depth = getattr(station, "operation_depth", None)
-                    
+
                     if station and water_depth is not None:
                         waterdepths.append(float(water_depth))
                     else:
                         waterdepths.append(np.nan)
-                        
+
                     if station and operation_depth is not None:
                         operation_depths.append(float(operation_depth))
                     else:

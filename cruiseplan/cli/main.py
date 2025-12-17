@@ -100,7 +100,8 @@ Examples:
   cruiseplan stations --lat 50 65 --lon -60 -30
   cruiseplan enrich -c cruise.yaml --add-depths --add-coords
   cruiseplan validate -c cruise.yaml --check-depths
-  cruiseplan pangaea doi_list.txt -o pangaea_data/
+  cruiseplan pandoi "CTD" --lat 50 60 --lon -50 -40 --limit 20
+  cruiseplan pangaea doi_list.txt
 
 For detailed help on a subcommand:
   cruiseplan <subcommand> --help
@@ -194,8 +195,8 @@ Examples:
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
-        help="Output directory (default: current)",
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
     stations_parser.add_argument(
         "--output-file", type=Path, help="Specific output file path"
@@ -307,7 +308,50 @@ Examples:
         help="Bathymetry dataset (default: etopo2022)",
     )
 
-    # --- 6. Pangaea Subcommand ---
+    # --- 6. PANDOI Subcommand ---
+    panquery_parser = subparsers.add_parser(
+        "pandoi", help="Search PANGAEA datasets by query and geographic bounds"
+    )
+    panquery_parser.add_argument(
+        "query", help="Search query string (e.g., 'CTD', 'temperature', 'Arctic Ocean')"
+    )
+    panquery_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds (e.g., --lat 50 70)",
+    )
+    panquery_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds (e.g., --lon -60 -30)",
+    )
+    panquery_parser.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Maximum number of results to return (default: 10)",
+    )
+    panquery_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
+    )
+    panquery_parser.add_argument(
+        "--output-file",
+        type=Path,
+        help="Specific output file path (overrides -o/--output-dir)",
+    )
+    panquery_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+
+    # --- 7. Pangaea Subcommand ---
     pangaea_parser = subparsers.add_parser(
         "pangaea", help="Process PANGAEA DOI lists into campaign datasets"
     )
@@ -372,6 +416,10 @@ Examples:
             from cruiseplan.cli.validate import main as validate_main
 
             validate_main(args)
+        elif args.subcommand == "pandoi":
+            from cruiseplan.cli.pandoi import main as pandoi_main
+
+            pandoi_main(args)
         elif args.subcommand == "pangaea":
             from cruiseplan.cli.pangaea import main as pangaea_main
 

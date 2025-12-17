@@ -8,21 +8,21 @@ to CF conventions.
 """
 
 from datetime import datetime
-from typing import Dict, Any
+from typing import Any, Dict
 
 from cruiseplan.core.validation import CruiseConfig
 
 
 # Global attributes factory functions
 def create_global_attributes(
-    feature_type: str, 
-    config: CruiseConfig, 
+    feature_type: str,
+    config: CruiseConfig,
     title_template: str,
-    source: str = "YAML configuration file"
+    source: str = "YAML configuration file",
 ) -> Dict[str, Any]:
     """
     Create standardized global attributes for NetCDF files.
-    
+
     Parameters
     ----------
     feature_type : str
@@ -33,7 +33,7 @@ def create_global_attributes(
         Template for the title (e.g., "Point Operations: {cruise_name}")
     source : str, optional
         Data source description
-        
+
     Returns
     -------
     Dict[str, Any]
@@ -60,7 +60,7 @@ COORDINATE_VARIABLES = {
         "units": "degrees_east",
     },
     "latitude": {
-        "standard_name": "latitude", 
+        "standard_name": "latitude",
         "long_name": "ship latitude",
         "units": "degrees_north",
     },
@@ -83,7 +83,7 @@ DEPTH_VARIABLES = {
     },
     "operation_depth": {
         "standard_name": "depth",
-        "long_name": "target operation depth", 
+        "long_name": "target operation depth",
         "units": "meters",
         "positive": "down",
         "description": "Target depth for operation (e.g., CTD cast depth)",
@@ -91,7 +91,7 @@ DEPTH_VARIABLES = {
     # Legacy depth variable for backward compatibility
     "waterdepth": {
         "long_name": "water depth",
-        "units": "meters", 
+        "units": "meters",
         "positive": "down",
         "description": "DEPRECATED: Use water_depth for seafloor depth or operation_depth for target operation depth",
     },
@@ -127,7 +127,7 @@ SCHEDULE_VARIABLES = {
         "description": "Type of cruise activity (Station, Transit, etc.)",
     },
     "label": {
-        "long_name": "activity label", 
+        "long_name": "activity label",
         "description": "Human-readable label for the activity",
     },
     "start_time": {
@@ -137,7 +137,7 @@ SCHEDULE_VARIABLES = {
         "calendar": "gregorian",
     },
     "end_time": {
-        "standard_name": "time", 
+        "standard_name": "time",
         "long_name": "activity end time",
         "units": "days since 1970-01-01 00:00:00",
         "calendar": "gregorian",
@@ -149,7 +149,7 @@ SCHEDULE_VARIABLES = {
     },
     "transit_dist_nm": {
         "long_name": "transit distance",
-        "units": "nautical_miles", 
+        "units": "nautical_miles",
         "description": "Distance traveled to reach this operation",
     },
 }
@@ -171,31 +171,38 @@ TRANSIT_VARIABLES = {
 def get_variable_attributes(variable_name: str) -> Dict[str, Any]:
     """
     Get standardized attributes for a variable name.
-    
+
     Parameters
     ----------
     variable_name : str
         Name of the variable to get attributes for
-        
+
     Returns
     -------
     Dict[str, Any]
         Dictionary of variable attributes, empty dict if not found
     """
     # Check all variable dictionaries for the variable name
-    for var_dict in [COORDINATE_VARIABLES, DEPTH_VARIABLES, STATION_VARIABLES, 
-                     SCHEDULE_VARIABLES, TRANSIT_VARIABLES]:
+    for var_dict in [
+        COORDINATE_VARIABLES,
+        DEPTH_VARIABLES,
+        STATION_VARIABLES,
+        SCHEDULE_VARIABLES,
+        TRANSIT_VARIABLES,
+    ]:
         if variable_name in var_dict:
             return var_dict[variable_name].copy()
-    
+
     # Return empty dict for unknown variables (will use defaults)
     return {}
 
 
-def create_coordinate_variables(times, lats, lons, depths=None, operation_depths=None) -> Dict[str, tuple]:
+def create_coordinate_variables(
+    times, lats, lons, depths=None, operation_depths=None
+) -> Dict[str, tuple]:
     """
     Create standardized coordinate variable definitions for xarray Dataset.
-    
+
     Parameters
     ----------
     times : array_like
@@ -203,12 +210,12 @@ def create_coordinate_variables(times, lats, lons, depths=None, operation_depths
     lats : array_like
         Latitude values
     lons : array_like
-        Longitude values  
+        Longitude values
     depths : array_like, optional
         Water depth values (seafloor depth)
     operation_depths : array_like, optional
         Operation depth values (target depth for operations)
-        
+
     Returns
     -------
     Dict[str, tuple]
@@ -218,16 +225,24 @@ def create_coordinate_variables(times, lats, lons, depths=None, operation_depths
         "latitude": (["obs"], lats, get_variable_attributes("latitude")),
         "longitude": (["obs"], lons, get_variable_attributes("longitude")),
     }
-    
+
     if times is not None:
         coord_vars["time"] = (["obs"], times, get_variable_attributes("time"))
-    
+
     if depths is not None:
-        coord_vars["water_depth"] = (["obs"], depths, get_variable_attributes("water_depth"))
-        
+        coord_vars["water_depth"] = (
+            ["obs"],
+            depths,
+            get_variable_attributes("water_depth"),
+        )
+
     if operation_depths is not None:
-        coord_vars["operation_depth"] = (["obs"], operation_depths, get_variable_attributes("operation_depth"))
-    
+        coord_vars["operation_depth"] = (
+            ["obs"],
+            operation_depths,
+            get_variable_attributes("operation_depth"),
+        )
+
     return coord_vars
 
 
@@ -236,7 +251,7 @@ def create_operation_variables(
 ) -> Dict[str, tuple]:
     """
     Create standardized operation variable definitions for xarray Dataset.
-    
+
     Parameters
     ----------
     names : array_like
@@ -249,7 +264,7 @@ def create_operation_variables(
         Operation durations
     comments : array_like, optional
         Operation comments
-        
+
     Returns
     -------
     Dict[str, tuple]
@@ -261,8 +276,8 @@ def create_operation_variables(
         "action": (["obs"], actions, get_variable_attributes("action")),
         "duration": (["obs"], durations, get_variable_attributes("duration")),
     }
-    
+
     if comments is not None:
         op_vars["comment"] = (["obs"], comments, get_variable_attributes("comment"))
-    
+
     return op_vars
