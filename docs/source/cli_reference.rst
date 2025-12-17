@@ -30,7 +30,7 @@ The `cruiseplan` CLI uses a "git-style" subcommand architecture.
     $ cruiseplan stations --lat 50 65 --lon -60 -30
     $ cruiseplan enrich -c cruise.yaml --add-depths --add-coords
     $ cruiseplan validate -c cruise.yaml --check-depths
-    $ cruiseplan pandoi "CTD" --bbox "-50,50,-40,60" --limit 20
+    $ cruiseplan pandoi "CTD" --lat 50 60 --lon -50 -40 --limit 20
     $ cruiseplan pangaea doi_list.txt -o pangaea_data/
 
 ---

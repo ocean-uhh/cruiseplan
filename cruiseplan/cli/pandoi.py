@@ -1,7 +1,7 @@
 """
 PANGAEA search command using PanQuery.
 
-This module implements the 'cruiseplan panquery' command for searching
+This module implements the 'cruiseplan pandoi' command for searching
 PANGAEA datasets by query terms and geographic bounding box, outputting
 DOI lists that can be used with 'cruiseplan pangaea'.
 """
@@ -14,6 +14,7 @@ from typing import List, Optional, Tuple
 
 from cruiseplan.cli.utils import CLIError, setup_logging
 from cruiseplan.data.pangaea import PangaeaManager
+from cruiseplan.utils.coordinates import format_geographic_bounds
 
 logger = logging.getLogger(__name__)
 
@@ -115,9 +116,8 @@ def search_pangaea_datasets(
 
         if bbox:
             min_lon, min_lat, max_lon, max_lat = bbox
-            logger.info(
-                f"Geographic bounds: {min_lon:.2f}°W to {max_lon:.2f}°E, {min_lat:.2f}°N to {max_lat:.2f}°N"
-            )
+            bounds_str = format_geographic_bounds(min_lon, min_lat, max_lon, max_lat)
+            logger.info(f"Geographic bounds: {bounds_str}")
 
         # Use the existing search method
         datasets = manager.search(query=query, bbox=bbox, limit=limit)
@@ -171,13 +171,18 @@ def save_doi_list(dois: List[str], output_path: Path) -> None:
 
 
 def main(args: argparse.Namespace) -> None:
-    """Main entry point for panquery CLI command."""
+    """Main entry point for pandoi CLI command."""
     # Setup logging
     setup_logging(verbose=args.verbose)
 
     try:
         # Parse lat/lon bounds if provided
         bbox = None
+        # Ensure lat and lon bounds are specified together
+        if (args.lat and not args.lon) or (args.lon and not args.lat):
+            raise CLIError(
+                "Both --lat and --lon must be specified together for geographic filtering."
+            )
         if args.lat and args.lon:
             bbox = validate_lat_lon_bounds(args.lat, args.lon)
 
@@ -201,7 +206,11 @@ def main(args: argparse.Namespace) -> None:
             output_path = args.output_file
         else:
             # Create default filename from query and use output directory
+            import re
+
             safe_query = "".join(c if c.isalnum() else "_" for c in args.query)
+            # Collapse multiple consecutive underscores
+            safe_query = re.sub(r"_+", "_", safe_query).strip("_")
             output_path = args.output_dir / f"{safe_query}_dois.txt"
 
         # Ensure parent directory exists
@@ -239,4 +248,19 @@ def main(args: argparse.Namespace) -> None:
 
 
 if __name__ == "__main__":
-    main()
+    import argparse
+    import sys
+
+    parser = argparse.ArgumentParser(description="PANGAEA dataset search")
+    parser.add_argument("query", help="Search query string")
+    parser.add_argument("--lat", nargs=2, type=float, help="Latitude bounds")
+    parser.add_argument("--lon", nargs=2, type=float, help="Longitude bounds")
+    parser.add_argument("--limit", type=int, default=10, help="Result limit")
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=Path("data"), help="Output directory"
+    )
+    parser.add_argument("--output-file", type=Path, help="Output file path")
+    parser.add_argument("--verbose", action="store_true", help="Verbose output")
+
+    args = parser.parse_args()
+    main(args)

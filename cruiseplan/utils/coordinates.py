@@ -218,3 +218,64 @@ def parse_dmm_format(coords_str: str) -> Tuple[float, float]:
         lon = -lon
 
     return lat, lon
+
+
+def format_geographic_bounds(
+    min_lon: float, min_lat: float, max_lon: float, max_lat: float
+) -> str:
+    """
+    Format geographic bounding box coordinates with proper hemisphere indicators.
+
+    Uses hemisphere indicators for non-zero coordinates:
+    - W for negative longitude, E for positive longitude (nothing for 0° or 180°)
+    - S for negative latitude, N for positive latitude (nothing for 0°)
+
+    Parameters
+    ----------
+    min_lon : float
+        Minimum longitude in decimal degrees
+    min_lat : float
+        Minimum latitude in decimal degrees
+    max_lon : float
+        Maximum longitude in decimal degrees
+    max_lat : float
+        Maximum latitude in decimal degrees
+
+    Returns
+    -------
+    str
+        Formatted bounds string with hemisphere indicators
+
+    Examples
+    --------
+    >>> format_geographic_bounds(-90, 50, -30, 60)
+    "50.00°N to 60.00°N, 90.00°W to 30.00°W"
+    >>> format_geographic_bounds(270, 50, 330, 60)
+    "50.00°N to 60.00°N, 270.00°E to 330.00°E"
+    >>> format_geographic_bounds(-180, -45, 180, 45)
+    "45.00°S to 45.00°N, 180.00° to 180.00°"
+    """
+
+    def format_coord(value: float, coord_type: str) -> str:
+        """Format single coordinate with hemisphere indicator."""
+        abs_val = abs(value)
+
+        if coord_type == "lat":
+            if value > 0:
+                return f"{abs_val:.2f}°N"
+            elif value < 0:
+                return f"{abs_val:.2f}°S"
+            else:  # value == 0
+                return f"{abs_val:.2f}°"
+        else:  # longitude
+            if value > 0 and value != 180:
+                return f"{abs_val:.2f}°E"
+            elif value < 0 and value != -180:
+                return f"{abs_val:.2f}°W"
+            else:  # value == 0, 180, or -180
+                return f"{abs_val:.2f}°"
+
+    lat_bounds = f"{format_coord(min_lat, 'lat')} to {format_coord(max_lat, 'lat')}"
+    lon_bounds = f"{format_coord(min_lon, 'lon')} to {format_coord(max_lon, 'lon')}"
+
+    return f"{lat_bounds}, {lon_bounds}"

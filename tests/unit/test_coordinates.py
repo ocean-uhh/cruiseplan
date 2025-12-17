@@ -7,6 +7,7 @@ import pytest
 from cruiseplan.utils.coordinates import (
     UnitConverter,
     format_dmm_comment,
+    format_geographic_bounds,
     format_position_latex,
     format_position_string,
     parse_dmm_format,
@@ -351,3 +352,62 @@ class TestCoordinateParsingIntegration:
             assert "'" in dmm  # Contains minute symbol
             assert "$" in latex  # Contains LaTeX formatting
             assert "°" in decimal  # Contains degree symbol
+
+
+class TestFormatGeographicBounds:
+    """Test geographic bounds formatting with hemisphere indicators."""
+
+    def test_standard_negative_positive_longitude(self):
+        """Test standard -180/180 format with negative to positive longitude."""
+        result = format_geographic_bounds(-90, 50, -30, 60)
+        assert result == "50.00°N to 60.00°N, 90.00°W to 30.00°W"
+
+    def test_positive_longitude_360_format(self):
+        """Test 0-360 format with positive longitudes."""
+        result = format_geographic_bounds(270, 50, 330, 60)
+        assert result == "50.00°N to 60.00°N, 270.00°E to 330.00°E"
+
+    def test_crossing_prime_meridian(self):
+        """Test bounds crossing the prime meridian."""
+        result = format_geographic_bounds(-10, -20, 10, 20)
+        assert result == "20.00°S to 20.00°N, 10.00°W to 10.00°E"
+
+    def test_edge_case_180_degrees(self):
+        """Test 180°/-180° longitude edge case."""
+        result = format_geographic_bounds(-180, -45, 180, 45)
+        assert result == "45.00°S to 45.00°N, 180.00° to 180.00°"
+
+    def test_zero_coordinates(self):
+        """Test zero latitude and longitude."""
+        result = format_geographic_bounds(0, 0, 0, 0)
+        assert result == "0.00° to 0.00°, 0.00° to 0.00°"
+
+    def test_southern_hemisphere(self):
+        """Test coordinates entirely in southern hemisphere."""
+        result = format_geographic_bounds(120, -60, 150, -30)
+        assert result == "60.00°S to 30.00°S, 120.00°E to 150.00°E"
+
+    def test_western_hemisphere(self):
+        """Test coordinates entirely in western hemisphere."""
+        result = format_geographic_bounds(-150, 20, -120, 50)
+        assert result == "20.00°N to 50.00°N, 150.00°W to 120.00°W"
+
+    def test_crossing_equator(self):
+        """Test bounds crossing the equator."""
+        result = format_geographic_bounds(-50, -10, -30, 10)
+        assert result == "10.00°S to 10.00°N, 50.00°W to 30.00°W"
+
+    def test_single_point(self):
+        """Test bounds representing a single point."""
+        result = format_geographic_bounds(-75.5, 45.25, -75.5, 45.25)
+        assert result == "45.25°N to 45.25°N, 75.50°W to 75.50°W"
+
+    def test_zero_longitude_exactly(self):
+        """Test exactly 0° longitude."""
+        result = format_geographic_bounds(0, 30, 0, 40)
+        assert result == "30.00°N to 40.00°N, 0.00° to 0.00°"
+
+    def test_zero_latitude_exactly(self):
+        """Test exactly 0° latitude."""
+        result = format_geographic_bounds(-10, 0, 10, 0)
+        assert result == "0.00° to 0.00°, 10.00°W to 10.00°E"

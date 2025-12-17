@@ -274,7 +274,7 @@ class TestSaveDoiList:
         assert "Failed to save DOI list: Cannot create directory" in str(excinfo.value)
 
 
-class TestPanqueryMain:
+class TestPandoiMain:
     """Test suite for main CLI function."""
 
     def _create_mock_args(
@@ -420,8 +420,8 @@ class TestPanqueryMain:
 
         main(mock_args)
 
-        # Special characters should be replaced with underscores
-        expected_path = Path("data") / "CTD_temperature___salinity__dois.txt"
+        # Special characters should be replaced with single underscores (collapsed)
+        expected_path = Path("data") / "CTD_temperature_salinity_dois.txt"
         mock_save.assert_called_once_with(["10.1594/PANGAEA.123456"], expected_path)
 
     @patch("cruiseplan.cli.pandoi.setup_logging")
@@ -432,6 +432,21 @@ class TestPanqueryMain:
         with pytest.raises(SystemExit) as excinfo:
             main(mock_args)
 
+        assert excinfo.value.code == 1
+
+    @patch("cruiseplan.cli.pandoi.setup_logging")
+    def test_main_incomplete_lat_lon_bounds(self, mock_setup_logging):
+        """Test main with only lat or only lon provided."""
+        # Test with only lat provided
+        mock_args = self._create_mock_args(lat=[50, 60], lon=None)
+        with pytest.raises(SystemExit) as excinfo:
+            main(mock_args)
+        assert excinfo.value.code == 1
+
+        # Test with only lon provided
+        mock_args = self._create_mock_args(lat=None, lon=[-90, -30])
+        with pytest.raises(SystemExit) as excinfo:
+            main(mock_args)
         assert excinfo.value.code == 1
 
     @patch("cruiseplan.cli.pandoi.setup_logging")

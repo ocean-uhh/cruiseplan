@@ -309,45 +309,45 @@ Examples:
     )
 
     # --- 6. PANDOI Subcommand ---
-    panquery_parser = subparsers.add_parser(
+    pandoi_parser = subparsers.add_parser(
         "pandoi", help="Search PANGAEA datasets by query and geographic bounds"
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "query", help="Search query string (e.g., 'CTD', 'temperature', 'Arctic Ocean')"
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "--lat",
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
         help="Latitude bounds (e.g., --lat 50 70)",
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "--lon",
         nargs=2,
         type=float,
         metavar=("MIN", "MAX"),
         help="Longitude bounds (e.g., --lon -60 -30)",
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "--limit",
         type=int,
         default=10,
         help="Maximum number of results to return (default: 10)",
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("data"),
         help="Output directory (default: data)",
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "--output-file",
         type=Path,
         help="Specific output file path (overrides -o/--output-dir)",
     )
-    panquery_parser.add_argument(
+    pandoi_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
