@@ -223,7 +223,7 @@ Unit Conversion Reference
 CruisePlan stores coordinates with 5 decimal place precision:
 
 - **Latitude**: ±XX.XXXXX° (e.g., ``75.58333``)
-- **longitude**: ±XXX.XXXXX° (e.g., ``-15.25000``)
+- **Longitude**: ±XXX.XXXXX° (e.g., ``-15.25000``)
 - **Accuracy**: ~1.1 meter precision at equator, better at higher latitudes
 - **Display formats**: May show 4 decimal places in some outputs for readability
 
@@ -247,7 +247,7 @@ Best Practices
     speed: 22                # km/h? knots? m/s? Unknown!
 
 .. warning::
-   **Comments in YAML are not preserved**: The ``cruiseplan enrich`` command uses standard YAML processing which strips comments when reading and writing files. Do not rely on comments to clarify units - instead use the standard units documented here.
+  **Comments in YAML are preserved**: The ``cruiseplan enrich`` command uses ``ruamel.yaml``, which maintains comments when reading and writing files. You can rely on comments remaining in your YAML, but you should still use the standard units documented here to avoid ambiguity.
 
 .. note::
    When in doubt about units, refer to this page or check the field validation messages in CruisePlan's error output, which will specify expected units for each parameter.
