@@ -21,8 +21,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CruisePlan API" href="api/modules.html" />
-    <link rel="prev" title="NetCDF Output Specification for CruisePlan Phase 3c" href="netcdf_outputs.html" /> 
+    <link rel="next" title="YAML Configuration Reference" href="yaml_reference.html" />
+    <link rel="prev" title="Complete User Workflows" href="user_workflows.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -51,7 +51,7 @@
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
@@ -59,16 +59,6 @@
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Command Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#general-usage">General Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subcommands">Subcommands</a><ul>
@@ -82,7 +72,18 @@
 </li>
 </ul>
 </li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 </ul>
 
         </div>
@@ -282,8 +283,8 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="
 </section>
 <section id="enrich">
 <h3>enrich<a class="headerlink" href="#enrich" title="Link to this heading"></a></h3>
-<p>Adds missing or computed data (like depth or formatted coordinates) to a configuration file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--add-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--add-coords<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
+<p>Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--add-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--add-coords<span class="o">]</span><span class="w"> </span><span class="o">[</span>--expand-sections<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>
@@ -302,20 +303,62 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code></p></td>
 <td><p>Add formatted coordinate fields (currently DMM; DMS not yet implemented).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code></p></td>
+<td><p>Expand CTD sections defined in <code class="docutils literal notranslate"><span class="pre">transits</span></code> into individual station definitions with spherical interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
 <td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">current</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
 <td><p>Specific output file path.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
 <td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--coord-format</span> <span class="pre">{dmm,dms}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--coord-format</span> <span class="pre">{dmm,dms}</span></code></p></td>
 <td><p>Format for adding coordinates.</p></td>
 </tr>
 </tbody>
 </table>
+<p><strong>CTD Section Expansion:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code> option processes CTD section transits and converts them into individual station definitions:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: CTD section definition</span>
+<span class="nt">transits</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ctd_section&quot;</span>
+<span class="w">    </span><span class="nt">spacing_km</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.0</span>
+<span class="w">    </span><span class="nt">max_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">78.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-8.0</span>
+
+<span class="c1"># Output: Individual stations created</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_001&quot;</span>
+<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
+<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_002&quot;</span>
+<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.59</span><span class="w">  </span><span class="c1"># Spherical interpolation</span>
+<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-13.68</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">  </span><span class="c1"># ... additional stations along the route</span>
+</pre></div>
+</div>
+<p><strong>Key Features:</strong>
+- Uses great circle interpolation for accurate positioning along curved Earth surface
+- Automatically generates unique station names with sequential numbering
+- Preserves original transit metadata (max_depth becomes station depth)
+- Handles name collisions by appending incremental suffixes
+- Updates leg definitions to reference the newly created stations</p>
 </section>
 <section id="validate">
 <h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
@@ -378,8 +421,8 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="netcdf_outputs.html" class="btn btn-neutral float-left" title="NetCDF Output Specification for CruisePlan Phase 3c" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="api/modules.html" class="btn btn-neutral float-right" title="CruisePlan API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="user_workflows.html" class="btn btn-neutral float-left" title="Complete User Workflows" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="yaml_reference.html" class="btn btn-neutral float-right" title="YAML Configuration Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

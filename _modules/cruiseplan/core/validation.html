@@ -56,18 +56,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 </ul>
 
         </div>
@@ -420,6 +421,10 @@
 <span class="sd">        Water depth at the station in meters.</span>
 <span class="sd">    duration : Optional[float]</span>
 <span class="sd">        Manual duration override in minutes.</span>
+<span class="sd">    delay_start : Optional[float]</span>
+<span class="sd">        Time to wait before operation begins in minutes (e.g., for daylight).</span>
+<span class="sd">    delay_end : Optional[float]</span>
+<span class="sd">        Time to wait after operation ends in minutes (e.g., for equipment settling).</span>
 <span class="sd">    comment : Optional[str]</span>
 <span class="sd">        Human-readable comment or description.</span>
 <span class="sd">    equipment : Optional[str]</span>
@@ -433,6 +438,10 @@
     <span class="n">action</span><span class="p">:</span> <span class="n">ActionEnum</span>
     <span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">delay_start</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>  <span class="c1"># Time to wait before operation begins (minutes)</span>
+    <span class="p">)</span>
+    <span class="n">delay_end</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Time to wait after operation ends (minutes)</span>
     <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">equipment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">position_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
@@ -476,6 +485,60 @@
                 <span class="p">)</span>
             <span class="k">elif</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Duration cannot be negative&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_delay_start_positive">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_delay_start_positive">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;delay_start&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_delay_start_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate delay_start value to ensure it&#39;s non-negative.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : Optional[float]</span>
+<span class="sd">            Delay start value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[float]</span>
+<span class="sd">            Validated delay start value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If delay_start is negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;delay_start cannot be negative&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_delay_end_positive">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_delay_end_positive">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;delay_end&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_delay_end_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate delay_end value to ensure it&#39;s non-negative.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : Optional[float]</span>
+<span class="sd">            Delay end value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[float]</span>
+<span class="sd">            Validated delay end value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If delay_end is negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;delay_end cannot be negative&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
@@ -972,6 +1035,8 @@
 <span class="sd">        Default scheduling strategy for the leg.</span>
 <span class="sd">    ordered : Optional[bool]</span>
 <span class="sd">        Whether the leg operations should be ordered.</span>
+<span class="sd">    buffer_time : Optional[float]</span>
+<span class="sd">        Contingency time for entire leg operations in minutes (e.g., weather delays).</span>
 <span class="sd">    stations : Optional[List[Union[str, StationDefinition]]]</span>
 <span class="sd">        List of stations in the leg.</span>
 <span class="sd">    clusters : Optional[List[ClusterDefinition]]</span>
@@ -986,10 +1051,40 @@
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">strategy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StrategyEnum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">ordered</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">buffer_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="kc">None</span>  <span class="c1"># Contingency time for entire leg operations (minutes)</span>
+    <span class="p">)</span>
     <span class="n">stations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">clusters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">ClusterDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">sections</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">SectionDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">sequence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span></div>
+    <span class="n">sequence</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<div class="viewcode-block" id="LegDefinition.validate_buffer_time_positive">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.LegDefinition.validate_buffer_time_positive">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;buffer_time&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_buffer_time_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate buffer_time value to ensure it&#39;s non-negative.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        v : Optional[float]</span>
+<span class="sd">            Buffer time value to validate.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Optional[float]</span>
+<span class="sd">            Validated buffer time value.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If buffer_time is negative.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;buffer_time cannot be negative&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+</div>
 
 
 
@@ -1385,6 +1480,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.expand_ctd_sections">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">expand_ctd_sections</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">default_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1000.0</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Expand CTD sections into individual station definitions.</span>
@@ -1404,20 +1500,10 @@
 <span class="sd">        Modified configuration and summary with sections_expanded and stations_from_expansion counts</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
 
     <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">deepcopy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">haversine_distance</span><span class="p">(</span><span class="n">lat1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon1</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lat2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon2</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate distance between two points in kilometers.&quot;&quot;&quot;</span>
-        <span class="n">R</span> <span class="o">=</span> <span class="mi">6371</span>  <span class="c1"># Earth&#39;s radius in kilometers</span>
-        <span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">,</span> <span class="p">[</span><span class="n">lat1</span><span class="p">,</span> <span class="n">lon1</span><span class="p">,</span> <span class="n">lat2</span><span class="p">,</span> <span class="n">lon2</span><span class="p">])</span>
-        <span class="n">dlat</span><span class="p">,</span> <span class="n">dlon</span> <span class="o">=</span> <span class="n">lat2</span> <span class="o">-</span> <span class="n">lat1</span><span class="p">,</span> <span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span>
-        <span class="n">a</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlat</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-            <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">dlon</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">R</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">asin</span><span class="p">(</span><span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">a</span><span class="p">))</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_position</span><span class="p">(</span>
         <span class="n">start_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
@@ -1426,10 +1512,41 @@
         <span class="n">end_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate position along route.&quot;&quot;&quot;</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="n">start_lat</span> <span class="o">+</span> <span class="p">(</span><span class="n">end_lat</span> <span class="o">-</span> <span class="n">start_lat</span><span class="p">)</span> <span class="o">*</span> <span class="n">fraction</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="n">start_lon</span> <span class="o">+</span> <span class="p">(</span><span class="n">end_lon</span> <span class="o">-</span> <span class="n">start_lon</span><span class="p">)</span> <span class="o">*</span> <span class="n">fraction</span>
-        <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate position along great circle route.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+
+        <span class="c1"># Convert degrees to radians</span>
+        <span class="n">lat1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lat</span><span class="p">)</span>
+        <span class="n">lon1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lon</span><span class="p">)</span>
+        <span class="n">lat2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lat</span><span class="p">)</span>
+        <span class="n">lon2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lon</span><span class="p">)</span>
+
+        <span class="c1"># Calculate angular distance</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span>
+            <span class="nb">min</span><span class="p">(</span>
+                <span class="mi">1</span><span class="p">,</span>
+                <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
+                <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Handle edge case for very short distances</span>
+        <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span>
+
+        <span class="c1"># Spherical interpolation</span>
+        <span class="n">A</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fraction</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+        <span class="n">B</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">fraction</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+        <span class="n">x</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
+        <span class="n">y</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
+        <span class="n">z</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
+
+        <span class="c1"># Convert back to lat/lon</span>
+        <span class="n">lat_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">))</span>
+        <span class="n">lon_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lat_result</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lon_result</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">expand_section</span><span class="p">(</span><span class="n">transit</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Expand a single CTD section transit into stations.&quot;&quot;&quot;</span>
@@ -1453,12 +1570,19 @@
             <span class="p">)</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="n">total_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+        <span class="n">total_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">),</span> <span class="p">(</span><span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+        <span class="p">)</span>
         <span class="n">spacing_km</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;distance_between_stations&quot;</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
         <span class="n">num_stations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_distance_km</span> <span class="o">/</span> <span class="n">spacing_km</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 
         <span class="n">stations</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">base_name</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+        <span class="c1"># Robust sanitization of station names - replace all non-alphanumeric with underscores</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9_]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+        <span class="c1"># Remove duplicate underscores and strip leading/trailing underscores</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stations</span><span class="p">):</span>
             <span class="n">fraction</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_stations</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_stations</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
@@ -1472,7 +1596,7 @@
                 <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">5</span><span class="p">)},</span>
                 <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_stations</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">transit</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> section&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">3000.0</span><span class="p">,</span>  <span class="c1"># Default depth - will be updated during enrichment with bathymetry</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">default_depth</span><span class="p">,</span>  <span class="c1"># Default depth - will be updated during enrichment with bathymetry</span>
                 <span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">:</span> <span class="mf">2.0</span><span class="p">,</span>  <span class="c1"># Default 2-hour CTD cast</span>
             <span class="p">}</span>
 
@@ -1512,10 +1636,26 @@
             <span class="k">if</span> <span class="s2">&quot;stations&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config</span><span class="p">:</span>
                 <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
+            <span class="c1"># Check for existing station names to avoid duplicates</span>
+            <span class="n">existing_names</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="p">}</span>
+
             <span class="n">station_names</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">new_stations</span><span class="p">:</span>
+                <span class="n">station_name</span> <span class="o">=</span> <span class="n">station</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+                <span class="c1"># Add unique suffix if name already exists</span>
+                <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="n">original_name</span> <span class="o">=</span> <span class="n">station_name</span>
+                <span class="k">while</span> <span class="n">station_name</span> <span class="ow">in</span> <span class="n">existing_names</span><span class="p">:</span>
+                    <span class="n">station_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">original_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">counter</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">station_name</span>
+                <span class="n">existing_names</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+
                 <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
-                <span class="n">station_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                <span class="n">station_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
                 <span class="n">total_stations_created</span> <span class="o">+=</span> <span class="mi">1</span>
 
             <span class="n">expanded_stations</span><span class="p">[</span><span class="n">section_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">station_names</span>
@@ -1527,6 +1667,9 @@
             <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;transits&quot;</span><span class="p">]</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span> <span class="ow">and</span> <span class="n">t</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;section&quot;</span><span class="p">)</span>
         <span class="p">]</span>
+        <span class="c1"># Clean up empty transits list</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;transits&quot;</span><span class="p">]:</span>
+            <span class="k">del</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;transits&quot;</span><span class="p">]</span>
 
     <span class="c1"># Update first_station and last_station references if they point to expanded sections</span>
     <span class="k">if</span> <span class="s2">&quot;first_station&quot;</span> <span class="ow">in</span> <span class="n">config</span> <span class="ow">and</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;first_station&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="n">expanded_stations</span><span class="p">:</span>

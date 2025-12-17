@@ -59,17 +59,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#best-practices">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul class="current">
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="modules.html">API Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.cli.html">Command-line-interface (CLI)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.core.html">Core Classes</a></li>
@@ -105,6 +105,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.utils.html">General Utilities</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 </ul>
 
         </div>
@@ -191,7 +192,7 @@ kilometers and nautical miles.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.calculators.distance.nm_to_km">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.distance.</span></span><span class="sig-name descname"><span class="pre">nm_to_km</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/distance.html#nm_to_km"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.distance.nm_to_km" title="Link to this definition"></a></dt>
-<dd><p>Convert nautical miles to kilometers.</p>
+<dd><p>Convert nautical miles to kilometers by multiplying nm * KM_PER_NM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>nm</strong> (<em>float</em>) – Distance in nautical miles.</p>

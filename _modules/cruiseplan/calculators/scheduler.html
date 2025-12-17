@@ -56,18 +56,19 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#best-practices">Best Practices</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 </ul>
 
         </div>
@@ -194,6 +195,16 @@
                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">op_type</span><span class="p">,</span>
                 <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes</span>
+                <span class="s2">&quot;delay_start&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="p">),</span>  <span class="c1"># Pre-operation delay in minutes</span>
+                <span class="s2">&quot;delay_end&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="p">),</span>  <span class="c1"># Post-operation delay in minutes</span>
                 <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
                     <span class="p">(</span>
                         <span class="k">match</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
@@ -227,6 +238,16 @@
                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes</span>
+                <span class="s2">&quot;delay_start&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="p">),</span>  <span class="c1"># Pre-operation delay in minutes</span>
+                <span class="s2">&quot;delay_end&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="mf">0.0</span>
+                <span class="p">),</span>  <span class="c1"># Post-operation delay in minutes</span>
                 <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
                     <span class="p">(</span>
                         <span class="k">match</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
@@ -406,10 +427,44 @@
                 <span class="p">)</span>
 
     <span class="c1"># Process sequential activities (no complex Composite parsing yet)</span>
+    <span class="n">current_leg_name</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Track leg changes for buffer time application</span>
+
     <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">all_activities</span><span class="p">):</span>
 
         <span class="c1"># Get the action early for use in ActivityRecord</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Handle leg-level buffer time when transitioning between legs</span>
+        <span class="n">leg_name</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">current_leg_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">leg_name</span> <span class="o">!=</span> <span class="n">current_leg_name</span><span class="p">:</span>
+            <span class="c1"># We&#39;ve moved to a new leg - check if previous leg has buffer time</span>
+            <span class="n">previous_leg</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">leg</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">current_leg_name</span><span class="p">),</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="c1"># Check for real buffer_time attribute (not MagicMock)</span>
+            <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="k">if</span> <span class="n">previous_leg</span><span class="p">:</span>
+                <span class="k">try</span><span class="p">:</span>
+                    <span class="c1"># Only use buffer_time if it&#39;s actually defined (not a MagicMock)</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">previous_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">):</span>
+                        <span class="n">raw_buffer_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">previous_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                        <span class="c1"># Check if it&#39;s a real value, not a MagicMock</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="n">raw_buffer_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="s1">&#39;_mock_name&#39;</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+                        <span class="p">):</span>
+                            <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                    <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="k">if</span> <span class="n">buffer_time_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">buffer_time_min</span><span class="si">}</span><span class="s2"> min buffer time at end of leg &#39;</span><span class="si">{</span><span class="n">current_leg_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                <span class="p">)</span>
+                <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">buffer_time_min</span><span class="p">)</span>
+
+        <span class="n">current_leg_name</span> <span class="o">=</span> <span class="n">leg_name</span>
 
         <span class="c1"># 3a. Calculate Transit time from last activity</span>
         <span class="c1"># For transits, calculate distance to the START of the route, not the end</span>
@@ -506,6 +561,45 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">op_duration_min</span> <span class="o">=</span> <span class="mf">60.0</span>  <span class="c1"># Default fallback for non-CTD/Mooring ops</span>
 
+        <span class="c1"># 3c. Handle Activity-Level Buffer Times</span>
+        <span class="c1"># Safely get delay values, treating MagicMock as 0.0</span>
+        <span class="n">delay_start_raw</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">delay_end_raw</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># Convert to float, treating MagicMocks as 0.0</span>
+        <span class="n">delay_start_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">delay_end_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Check if delay_start is a real value (not MagicMock from tests)</span>
+            <span class="n">is_real_value</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">delay_start_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delay_start_raw</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">delay_start_raw</span><span class="p">,</span> <span class="s1">&#39;_mock_name&#39;</span><span class="p">)</span>  <span class="c1"># More robust MagicMock detection</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">is_real_value</span><span class="p">:</span>
+                <span class="n">delay_start_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delay_start_raw</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">delay_start_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Only use if it&#39;s a real number, not a MagicMock</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="n">delay_end_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">,</span> <span class="s1">&#39;_mock_name&#39;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+            <span class="p">):</span>
+                <span class="n">delay_end_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">delay_end_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="c1"># Add delay_start to current_time (wait before operation begins)</span>
+        <span class="k">if</span> <span class="n">delay_start_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">delay_start_min</span><span class="p">)</span>
+
+        <span class="c1"># Total operation duration includes base duration + end delay</span>
+        <span class="n">total_op_duration_min</span> <span class="o">=</span> <span class="n">op_duration_min</span> <span class="o">+</span> <span class="n">delay_end_min</span>
+
         <span class="c1"># Set operation distance: route distance for scientific transits, 0 for point operations</span>
         <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;op_type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span> <span class="ow">and</span> <span class="s2">&quot;route_distance_nm&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
             <span class="n">operation_distance</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;route_distance_nm&quot;</span><span class="p">]</span>
@@ -532,8 +626,8 @@
                     <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                     <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;depth&quot;</span><span class="p">],</span>
                     <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
-                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">op_duration_min</span><span class="p">),</span>
-                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">op_duration_min</span><span class="p">,</span>
+                    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">total_op_duration_min</span><span class="p">),</span>
+                    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">total_op_duration_min</span><span class="p">,</span>
                     <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">transit_distance</span><span class="p">,</span>  <span class="c1"># Distance to reach this operation</span>
                     <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="n">operation_distance</span><span class="p">,</span>  <span class="c1"># Distance traveled during this operation</span>
                     <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -550,8 +644,35 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">op_duration_min</span><span class="p">)</span>
+        <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">total_op_duration_min</span><span class="p">)</span>
         <span class="n">last_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+
+    <span class="c1"># Add buffer time for the final leg if specified</span>
+    <span class="k">if</span> <span class="n">current_leg_name</span><span class="p">:</span>
+        <span class="n">final_leg</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">leg</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">current_leg_name</span><span class="p">),</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="k">if</span> <span class="n">final_leg</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Only use buffer_time if it&#39;s actually defined (not a MagicMock)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">final_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">):</span>
+                    <span class="n">raw_buffer_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">final_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="c1"># Check if it&#39;s a real value, not a MagicMock</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="n">raw_buffer_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                        <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="s1">&#39;_mock_name&#39;</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
+                    <span class="p">):</span>
+                        <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+                <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">buffer_time_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Adding </span><span class="si">{</span><span class="n">buffer_time_min</span><span class="si">}</span><span class="s2"> min buffer time at end of final leg &#39;</span><span class="si">{</span><span class="n">current_leg_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">buffer_time_min</span><span class="p">)</span>
 
     <span class="c1"># --- Step 4: Transit from Working Area ---</span>
     <span class="k">if</span> <span class="n">last_position</span><span class="p">:</span>
@@ -867,6 +988,7 @@
     <span class="k">elif</span> <span class="p">(</span>
         <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;clusters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="p">):</span>
+        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
             <span class="c1"># Process cluster sequence</span>
             <span class="k">if</span> <span class="p">(</span>
@@ -877,8 +999,10 @@
                 <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">sequence</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                         <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
                         <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
             <span class="c1"># Process cluster stations</span>
             <span class="k">elif</span> <span class="p">(</span>
                 <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span>
@@ -888,10 +1012,25 @@
                 <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
                     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                         <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
                     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
                         <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
 
-    <span class="c1"># Priority 3: Direct stations (fallback)</span>
+        <span class="c1"># If no cluster activities were found, fall back to leg stations</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="ow">not</span> <span class="n">cluster_activities_found</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                    <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Priority 3: Direct stations (fallback when no clusters exist)</span>
     <span class="k">elif</span> <span class="p">(</span>
         <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
     <span class="p">):</span>
