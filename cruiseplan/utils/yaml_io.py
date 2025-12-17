@@ -38,6 +38,7 @@ def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML
     yaml.preserve_quotes = preserve_quotes
     yaml.width = width  # Prevent unwanted line wrapping
     yaml.indent(mapping=2, sequence=4, offset=2)  # Match existing formatting
+    yaml.sort_keys = False  # Preserve insertion order (equivalent to PyYAML sort_keys=False)
     return yaml
 
 
@@ -99,8 +100,10 @@ def dump_yaml_simple(data: Dict[str, Any], file_handle) -> None:
     try:
         from ruamel.yaml import YAML
 
-        yaml = YAML(typ="safe")
+        # Use regular YAML instead of safe mode to handle CommentedMap objects
+        yaml = YAML()
         yaml.default_flow_style = False
+        yaml.sort_keys = False  # Preserve insertion order
         yaml.dump(data, file_handle)
     except Exception as e:
         raise YAMLIOError(f"Error dumping YAML: {e}") from e
@@ -194,6 +197,7 @@ def load_yaml_safe(file_path: Union[str, Path]) -> Dict[str, Any]:
 
     try:
         yaml = YAML(typ="safe")  # Use safe mode, returns plain Python objects
+        yaml.sort_keys = False  # Preserve insertion order
         with open(file_path, encoding="utf-8") as f:
             config = yaml.load(f)
 

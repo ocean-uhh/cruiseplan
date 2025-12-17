@@ -1546,10 +1546,10 @@ def enrich_configuration(
     from cruiseplan.cli.utils import save_yaml_config
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.data.bathymetry import BathymetryManager
-    from cruiseplan.utils.yaml_io import dump_yaml_simple, load_yaml_safe
+    from cruiseplan.utils.yaml_io import dump_yaml_simple, load_yaml
 
-    # Load and preprocess the YAML configuration to replace placeholders
-    config_dict = load_yaml_safe(config_path)
+    # Load and preprocess the YAML configuration to replace placeholders  
+    config_dict = load_yaml(config_path)
 
     # Replace placeholder values with sensible defaults
     config_dict, placeholders_replaced = replace_placeholder_values(config_dict)
@@ -1631,7 +1631,7 @@ def enrich_configuration(
                 )
 
     # Update YAML configuration with any changes
-    config_dict = cruise.raw_data.copy()
+    # Note: Keep using original config_dict to preserve comments, don't overwrite with cruise.raw_data
     coord_changes_made = 0
 
     def add_dmm_coordinates(data_dict, lat, lon, coord_field_name):
