@@ -627,7 +627,7 @@ def generate_netcdf_outputs(cruise_data: Dict, output_dir: Path) -> List[Path]:
    ```python
    def enhance_existing_map_generator():
        """Maintain backward compatibility while adding new features."""
-       # Keep existing generate_cruise_map() function
+       # Keep existing generate_folium_map() function
        # Add new generate_interactive_map() function
        # Share common coordinate transformation logic
    ```
@@ -1068,7 +1068,7 @@ def generate_kml(cruise_data: Dict, output_dir: Path) -> Path:
 
 ### Integration Requirements
 
-1. **Maintain Backward Compatibility**: Ensure existing `generate_cruise_map()` function continues to work
+1. **Maintain Backward Compatibility**: Ensure existing `generate_folium_map()` function continues to work
 2. **Enhance API**: Add new optional parameters for interactive features
 3. **Template System**: Create HTML templates with embedded Leaflet maps
 4. **Asset Management**: Handle CSS/JS dependencies efficiently

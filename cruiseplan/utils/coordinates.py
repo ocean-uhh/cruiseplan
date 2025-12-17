@@ -3,7 +3,8 @@ Coordinate formatting utilities for scientific and maritime applications.
 
 This module provides functions to format coordinates in various standard formats
 used in oceanographic and maritime contexts, including decimal degrees, degrees
-and decimal minutes (DMM), and LaTeX-formatted output.
+and decimal minutes (DMM), and LaTeX-formatted output. Also includes utilities
+for extracting coordinates from cruise configurations and calculating map bounds.
 
 Notes
 -----
@@ -12,8 +13,9 @@ northern/eastern (positive) and southern/western (negative) coordinates.
 The UnitConverter class provides static methods for coordinate conversions.
 """
 
+import math
 import re
-from typing import Tuple
+from typing import List, Optional, Tuple
 
 
 class UnitConverter:
@@ -279,3 +281,188 @@ def format_geographic_bounds(
     lon_bounds = f"{format_coord(min_lon, 'lon')} to {format_coord(max_lon, 'lon')}"
 
     return f"{lat_bounds}, {lon_bounds}"
+
+
+def extract_coordinates_from_cruise(
+    cruise,
+) -> Tuple[List[float], List[float], List[str], Optional[Tuple], Optional[Tuple]]:
+    """
+    Extract coordinates from cruise configuration.
+
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object with station registry and configuration
+
+    Returns
+    -------
+    tuple
+        (all_lats, all_lons, station_names, departure_port, arrival_port)
+        departure_port and arrival_port are tuples of (lat, lon, name) or None
+    """
+    all_lats = []
+    all_lons = []
+    station_names = []
+
+    # Extract coordinates from all stations
+    for station_name, station in cruise.station_registry.items():
+        lat = (
+            station.latitude
+            if hasattr(station, "latitude")
+            else station.position.latitude
+        )
+        lon = (
+            station.longitude
+            if hasattr(station, "longitude")
+            else station.position.longitude
+        )
+        all_lats.append(lat)
+        all_lons.append(lon)
+        station_names.append(station_name)
+
+    # Add departure and arrival ports if they exist
+    departure_port = None
+    arrival_port = None
+
+    if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
+        dep_lat = cruise.config.departure_port.position.latitude
+        dep_lon = cruise.config.departure_port.position.longitude
+        departure_port = (dep_lat, dep_lon, cruise.config.departure_port.name)
+
+    if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
+        arr_lat = cruise.config.arrival_port.position.latitude
+        arr_lon = cruise.config.arrival_port.position.longitude
+        arrival_port = (arr_lat, arr_lon, cruise.config.arrival_port.name)
+
+    return all_lats, all_lons, station_names, departure_port, arrival_port
+
+
+def calculate_map_bounds(
+    all_lats: List[float],
+    all_lons: List[float],
+    padding_percent: float = 0.05,
+    padding_degrees: Optional[float] = None,
+    apply_aspect_ratio: bool = True,
+    round_to_degrees: bool = True,
+) -> Tuple[float, float, float, float]:
+    """
+    Calculate map bounds with flexible padding and aspect ratio correction.
+
+    Parameters
+    ----------
+    all_lats : list of float
+        All latitude values to include
+    all_lons : list of float
+        All longitude values to include
+    padding_percent : float, optional
+        Padding as fraction of range (default 0.10 = 10%). Ignored if padding_degrees is set.
+    padding_degrees : float, optional
+        Fixed padding in degrees. If set, overrides padding_percent.
+    apply_aspect_ratio : bool, optional
+        Whether to apply geographic aspect ratio correction (default True)
+    round_to_degrees : bool, optional
+        Whether to round bounds outward to whole degrees (default True)
+
+    Returns
+    -------
+    tuple
+        (final_min_lon, final_max_lon, final_min_lat, final_max_lat)
+    """
+    if not all_lats or not all_lons:
+        raise ValueError("No coordinates provided")
+
+    # Calculate padding
+    if padding_degrees is not None:
+        padding = padding_degrees
+    else:
+        lat_range = max(all_lats) - min(all_lats)
+        lon_range = max(all_lons) - min(all_lons)
+        padding = max(lat_range, lon_range) * padding_percent
+
+    # Apply padding
+    min_lat_padded = min(all_lats) - padding
+    max_lat_padded = max(all_lats) + padding
+    min_lon_padded = min(all_lons) - padding
+    max_lon_padded = max(all_lons) + padding
+
+    # Round outwards to whole degrees (optional)
+    if round_to_degrees:
+        min_lat = math.floor(min_lat_padded)
+        max_lat = math.ceil(max_lat_padded)
+        min_lon = math.floor(min_lon_padded)
+        max_lon = math.ceil(max_lon_padded)
+    else:
+        min_lat = min_lat_padded
+        max_lat = max_lat_padded
+        min_lon = min_lon_padded
+        max_lon = max_lon_padded
+
+    # Apply aspect ratio correction (optional)
+    if apply_aspect_ratio:
+        final_min_lon, final_max_lon, final_min_lat, final_max_lat = (
+            compute_final_limits(min_lon, max_lon, min_lat, max_lat)
+        )
+    else:
+        final_min_lon, final_max_lon, final_min_lat, final_max_lat = (
+            min_lon,
+            max_lon,
+            min_lat,
+            max_lat,
+        )
+
+    return final_min_lon, final_max_lon, final_min_lat, final_max_lat
+
+
+def compute_final_limits(
+    lon_min: float, lon_max: float, lat_min: float, lat_max: float
+) -> Tuple[float, float, float, float]:
+    """
+    Compute final map limits accounting for geographic aspect ratio.
+
+    Parameters
+    ----------
+    lon_min, lon_max : float
+        Initial longitude bounds
+    lat_min, lat_max : float
+        Initial latitude bounds
+
+    Returns
+    -------
+    tuple
+        (final_lon_min, final_lon_max, final_lat_min, final_lat_max)
+    """
+    mid_lat_deg = (lat_min + lat_max) / 2
+    mid_lat_deg = max(-85.0, min(85.0, mid_lat_deg))
+    mid_lat_rad = math.radians(mid_lat_deg)
+
+    try:
+        aspect = 1.0 / math.cos(mid_lat_rad)
+    except ZeroDivisionError:
+        aspect = 1.0
+    aspect = max(1.0, min(aspect, 10.0))
+
+    # Current ranges
+    lat_range = lat_max - lat_min
+    lon_range = lon_max - lon_min
+
+    # Required ranges for proper aspect ratio
+    required_lon_range = lat_range * aspect
+    required_lat_range = lon_range / aspect
+
+    # Expand whichever dimension needs it
+    if required_lon_range > lon_range:
+        # Need to expand longitude
+        lon_center = (lon_min + lon_max) / 2
+        final_lon_min = lon_center - required_lon_range / 2
+        final_lon_max = lon_center + required_lon_range / 2
+        final_lat_min = lat_min
+        final_lat_max = lat_max
+    else:
+        # Need to expand latitude
+        lat_center = (lat_min + lat_max) / 2
+        final_lat_min = lat_center - required_lat_range / 2
+        final_lat_max = lat_center + required_lat_range / 2
+        final_lon_min = lon_min
+        final_lon_max = lon_max
+
+    return final_lon_min, final_lon_max, final_lat_min, final_lat_max

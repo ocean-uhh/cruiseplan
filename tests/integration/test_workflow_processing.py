@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from cruiseplan.data.pangaea import PangaeaManager, merge_campaign_tracks
-from cruiseplan.output.map_generator import generate_cruise_map
+from cruiseplan.output.map_generator import generate_folium_map
 
 
 # --------------------------------------------------------------------------
@@ -173,7 +173,7 @@ def test_real_pangaea_workflow(caplog):
     output_path = output_dir / "test_map_VA176.html"
 
     # Generate
-    result_path = generate_cruise_map(merged, output_path)
+    result_path = generate_folium_map(merged, output_path)
 
     # Verify
     assert result_path is not None

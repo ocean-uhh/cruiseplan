@@ -81,6 +81,7 @@ class ActionEnum(str, Enum):
     TOW_YO = "tow_yo"
     SEISMIC = "seismic"
     MICROSTRUCTURE = "microstructure"
+    SECTION = "section"  # For CTD sections that can be expanded
     # Placeholders for user guidance
     UPDATE_PROFILE_PLACEHOLDER = "UPDATE-profile-sampling-etc"
     UPDATE_LINE_PLACEHOLDER = "UPDATE-ADCP-bathymetry-etc"
@@ -96,6 +97,7 @@ class LineOperationTypeEnum(str, Enum):
 
     UNDERWAY = "underway"
     TOWING = "towing"
+    CTD = "CTD"  # Support for CTD sections that can be expanded
 
 
 class AreaOperationTypeEnum(str, Enum):

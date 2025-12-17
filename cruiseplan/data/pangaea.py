@@ -12,7 +12,7 @@ from pangaeapy.panquery import PanQuery
 
 # Local Imports
 from cruiseplan.data.cache import CacheManager
-from cruiseplan.output.map_generator import generate_cruise_map
+from cruiseplan.output.map_generator import generate_folium_map
 
 logger = logging.getLogger(__name__)
 
@@ -221,10 +221,10 @@ class PangaeaManager:
             Path to the generated HTML map file.
         """
         # You might want to do a quick transformation here if your dataset dicts
-        # don't exactly match what generate_cruise_map expects.
+        # don't exactly match what generate_folium_map expects.
         # But if they match (latitude, longitude, label), just pass them through:
 
-        return generate_cruise_map(datasets, output_file=filename)
+        return generate_folium_map(datasets, output_file=filename)
 
     def _clean_doi(self, doi: str) -> str:
         """

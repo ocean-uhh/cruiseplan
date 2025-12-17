@@ -797,6 +797,15 @@ def generate_cruise_schedule(
                 formats_generated.append("netcdf")
                 output_files.append(output_file)
 
+            elif format_name == "png":
+                output_file = _generate_timeline_png_map(
+                    timeline, config, output_path, base_filename
+                )
+                if output_file:
+                    logger.info(f"    PNG map: {output_file.name}")
+                    formats_generated.append("png")
+                    output_files.append(output_file)
+
             else:
                 logger.warning(f"Unknown format '{format_name}' - skipping")
 
@@ -848,6 +857,30 @@ def _generate_netcdf_schedule(timeline, config, output_path, base_filename):
 
     except ImportError:
         logger.warning("NetCDF generator not available - skipping NetCDF output")
+        return None
+
+
+def _generate_timeline_png_map(timeline, config, output_path, base_filename):
+    """Generate PNG map from timeline data showing scheduled sequence."""
+    try:
+        from cruiseplan.output.map_generator import generate_map_from_timeline
+
+        output_file = output_path / f"{base_filename}_map.png"
+
+        return generate_map_from_timeline(
+            timeline=timeline,
+            output_file=output_file,
+            bathymetry_source="gebco2025",
+            bathymetry_stride=5,
+            figsize=(12, 10),
+            config=config,
+        )
+
+    except ImportError:
+        logger.warning("PNG map generator not available - skipping PNG output")
+        return None
+    except Exception as e:
+        logger.warning(f"PNG map generation failed: {e}")
         return None
 
 

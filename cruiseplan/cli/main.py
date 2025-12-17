@@ -97,6 +97,7 @@ def main():
         epilog="""
 Examples:
   cruiseplan schedule -c cruise.yaml -o results/
+  cruiseplan map -c cruise.yaml --figsize 14 10
   cruiseplan stations --lat 50 65 --lon -60 -30
   cruiseplan enrich -c cruise.yaml --add-depths --add-coords
   cruiseplan validate -c cruise.yaml --check-depths
@@ -162,7 +163,7 @@ Examples:
     )
     schedule_parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "kml", "netcdf", "all"],
+        choices=["html", "latex", "csv", "kml", "netcdf", "png", "all"],
         default="all",
         help="Output formats (default: all)",
     )
@@ -351,7 +352,71 @@ Examples:
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-    # --- 7. Pangaea Subcommand ---
+    # --- 7. Map Subcommand ---
+    map_parser = subparsers.add_parser(
+        "map",
+        help="Generate PNG cruise track map from YAML configuration",
+        description="Create a static PNG map showing cruise track, stations, and bathymetry",
+        epilog="""
+This command generates a standalone PNG map from a cruise configuration file,
+showing stations, cruise tracks, ports, and bathymetric background.
+
+Examples:
+  cruiseplan map -c cruise.yaml                                # Generate map with default settings
+  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10      # Custom output dir and size  
+  cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 # High-resolution bathymetry
+  cruiseplan map -c cruise.yaml --output-file track_map.png   # Specific output file
+        """,
+    )
+    map_parser.add_argument(
+        "-c",
+        "--config-file",
+        required=True,
+        type=Path,
+        help="YAML cruise configuration file",
+    )
+    map_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("."),
+        help="Output directory (default: current)",
+    )
+    map_parser.add_argument(
+        "--output-file",
+        type=Path,
+        help="Specific output file path (overrides auto-generated name)",
+    )
+    map_parser.add_argument(
+        "--bathymetry-source",
+        choices=["etopo2022", "gebco2025"],
+        default="gebco2025",
+        help="Bathymetry dataset (default: gebco2025)",
+    )
+    map_parser.add_argument(
+        "--bathymetry-stride",
+        type=int,
+        default=5,
+        help="Bathymetry downsampling factor (default: 5, higher=faster/less detailed)",
+    )
+    map_parser.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[12, 10],
+        help="Figure size in inches (default: 12 10)",
+    )
+    map_parser.add_argument(
+        "--show-plot",
+        action="store_true",
+        help="Display plot interactively instead of saving to file",
+    )
+    map_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+
+    # --- 8. Pangaea Subcommand ---
     pangaea_parser = subparsers.add_parser(
         "pangaea", help="Process PANGAEA DOI lists into campaign datasets"
     )
@@ -420,6 +485,10 @@ Examples:
             from cruiseplan.cli.pandoi import main as pandoi_main
 
             pandoi_main(args)
+        elif args.subcommand == "map":
+            from cruiseplan.cli.map import main as map_main
+
+            map_main(args)
         elif args.subcommand == "pangaea":
             from cruiseplan.cli.pangaea import main as pangaea_main
 
