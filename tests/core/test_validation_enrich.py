@@ -42,9 +42,10 @@ class TestEnrichConfiguration:
         mock_cruise_class.return_value = mock_cruise
         mock_cruise.raw_data = config_data
 
-        # Mock station without depth
+        # Mock station without water_depth
         mock_station = MagicMock()
         mock_station.depth = None
+        mock_station.water_depth = None
         mock_station.position.latitude = 50.0
         mock_station.position.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
@@ -67,7 +68,7 @@ class TestEnrichConfiguration:
         # Verify
         assert result["stations_with_depths_added"] == 1
         assert result["stations_with_coords_added"] == 0
-        assert mock_station.depth == 1000.0  # Should be converted to positive
+        assert mock_station.water_depth == 1000.0  # Should be converted to positive
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.cli.utils.save_yaml_config")
@@ -96,8 +97,8 @@ class TestEnrichConfiguration:
         mock_cruise.raw_data = config_data
 
         mock_station = MagicMock()
-        mock_station.position.latitude = 50.0
-        mock_station.position.longitude = -40.0
+        mock_station.latitude = 50.0
+        mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
         mock_format_dmm.return_value = "50 00.00'N, 040 00.00'W"
@@ -290,9 +291,10 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.depth = 1000.0
-        mock_station.position.latitude = 50.0
-        mock_station.position.longitude = -40.0
+        mock_station.water_depth = 1000.0
+        mock_station.depth = None
+        mock_station.latitude = 50.0
+        mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager
@@ -313,9 +315,10 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.depth = 1000.0
-        mock_station.position.latitude = 50.0
-        mock_station.position.longitude = -40.0
+        mock_station.water_depth = 1000.0
+        mock_station.depth = None
+        mock_station.latitude = 50.0
+        mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager
@@ -338,9 +341,10 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station
         mock_cruise = MagicMock()
         mock_station = MagicMock()
-        mock_station.depth = 1000.0
-        mock_station.position.latitude = 50.0
-        mock_station.position.longitude = -40.0
+        mock_station.water_depth = 1000.0
+        mock_station.depth = None
+        mock_station.latitude = 50.0
+        mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager with no data
@@ -362,6 +366,7 @@ class TestValidateDepthAccuracy:
         # Setup mock cruise and station without depth
         mock_cruise = MagicMock()
         mock_station = MagicMock()
+        mock_station.water_depth = None
         mock_station.depth = None
         mock_cruise.station_registry = {"STN_001": mock_station}
 

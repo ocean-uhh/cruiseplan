@@ -83,12 +83,12 @@ class TestCTDSectionExpansion:
         last_station = stations[-1]
 
         # First station should be at start point
-        assert abs(first_station["position"]["latitude"] - 45.0) < 1e-5
-        assert abs(first_station["position"]["longitude"] - (-20.0)) < 1e-5
+        assert abs(first_station["latitude"] - 45.0) < 1e-5
+        assert abs(first_station["longitude"] - (-20.0)) < 1e-5
 
         # Last station should be at end point
-        assert abs(last_station["position"]["latitude"] - 47.0) < 1e-5
-        assert abs(last_station["position"]["longitude"] - (-22.0)) < 1e-5
+        assert abs(last_station["latitude"] - 47.0) < 1e-5
+        assert abs(last_station["longitude"] - (-22.0)) < 1e-5
 
     def test_expand_section_with_special_characters(self):
         """Test CTD section expansion with special characters in names."""
@@ -179,7 +179,7 @@ class TestCTDSectionExpansion:
 
         # All stations should have the custom default depth
         for station in result_config["stations"]:
-            assert station["depth"] == 2000.0
+            assert station["water_depth"] == 2000.0
 
     def test_expand_section_with_max_depth_override(self):
         """Test CTD section expansion with max_depth override from transit."""
@@ -202,7 +202,7 @@ class TestCTDSectionExpansion:
 
         # All stations should have the overridden depth
         for station in result_config["stations"]:
-            assert station["depth"] == 3500.0
+            assert station["water_depth"] == 3500.0
 
     def test_expand_section_insufficient_route_points(self):
         """Test CTD section expansion with insufficient route points."""
@@ -339,7 +339,7 @@ class TestCTDSectionExpansion:
 
         # Check that custom fields were copied to all stations
         for station in result_config["stations"]:
-            assert station["planned_duration_hours"] == 3.0
+            assert station["duration"] == 180.0  # 3.0 hours converted to 180 minutes
 
     def test_expand_section_spherical_interpolation(self):
         """Test that proper spherical interpolation is used for great circle routes."""
@@ -368,8 +368,8 @@ class TestCTDSectionExpansion:
         # Check that intermediate stations follow great circle path
         # For this case (along equator), intermediate points should maintain latitude ≈ 0
         for station in stations:
-            lat = station["position"]["latitude"]
-            lon = station["position"]["longitude"]
+            lat = station["latitude"]
+            lon = station["longitude"]
             assert abs(lat) < 1e-5, f"Station not on equator: lat={lat}, lon={lon}"
             assert 0.0 <= lon <= 90.0, f"Longitude out of range: {lon}"
 

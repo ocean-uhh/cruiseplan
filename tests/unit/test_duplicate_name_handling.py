@@ -437,8 +437,8 @@ class TestSphericalInterpolation:
 
         # For great circle along equator, all intermediate points should have lat ≈ 0
         for station in stations:
-            lat = station["position"]["latitude"]
-            lon = station["position"]["longitude"]
+            lat = station["latitude"]
+            lon = station["longitude"]
 
             # Latitude should remain close to 0 (equator)
             assert abs(lat) < 1e-5, f"Station not on equator: lat={lat}, lon={lon}"
@@ -472,13 +472,13 @@ class TestSphericalInterpolation:
 
         # First station should be at start
         first = stations[0]
-        assert abs(first["position"]["latitude"] - 50.0000) < 1e-6
-        assert abs(first["position"]["longitude"] - (-30.0000)) < 1e-6
+        assert abs(first["latitude"] - 50.0000) < 1e-6
+        assert abs(first["longitude"] - (-30.0000)) < 1e-6
 
         # Last station should be at end
         last = stations[-1]
-        assert abs(last["position"]["latitude"] - 50.0001) < 1e-6
-        assert abs(last["position"]["longitude"] - (-30.0001)) < 1e-6
+        assert abs(last["latitude"] - 50.0001) < 1e-6
+        assert abs(last["longitude"] - (-30.0001)) < 1e-6
 
     def test_polar_region_interpolation(self):
         """Test interpolation near polar regions where spherical effects are more pronounced."""
@@ -509,10 +509,10 @@ class TestSphericalInterpolation:
 
         # All stations should have high latitude
         for station in stations:
-            lat = station["position"]["latitude"]
+            lat = station["latitude"]
             assert lat > 88.0, f"Station latitude too low for Arctic test: {lat}"
 
         # Longitudes should span from 0 to 180
-        longitudes = [s["position"]["longitude"] for s in stations]
+        longitudes = [s["longitude"] for s in stations]
         assert min(longitudes) <= 5.0, "Starting longitude not near 0"
         assert max(longitudes) >= 175.0, "Ending longitude not near 180"

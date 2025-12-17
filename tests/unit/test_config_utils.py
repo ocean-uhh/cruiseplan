@@ -20,7 +20,7 @@ from cruiseplan.utils.config import ConfigLoader
 
 
 def test_format_station_standard():
-    """Test standard station formatting with depth."""
+    """Test standard station formatting with depth using new enhanced format."""
     input_data = {"lat": 47.1234567, "lon": -52.9876543, "depth": 250.55}
     index = 5
 
@@ -30,10 +30,10 @@ def test_format_station_standard():
         "name": "STN_005",  # Padding check (03d)
         "latitude": 47.12346,  # Rounding check (5 decimals)
         "longitude": -52.98765,  # Rounding check (5 decimals)
-        "depth": 250.6,  # Depth rounding (1 decimal)
-        "comment": "Interactive selection",
-        "operation_type": "UPDATE-CTD-mooring-etc",  # Now uses placeholders
-        "action": "UPDATE-profile-sampling-etc",  # Now uses placeholders
+        "water_depth": 250.6,  # New semantic depth field - rounding (1 decimal)
+        "comment": "Interactive selection - Review coordinates and update operation details",  # Enhanced comment
+        "operation_type": "UPDATE-CTD-mooring-etc",  # Reverted placeholder
+        "action": "UPDATE-profile-sampling-etc",  # Reverted placeholder
     }
 
     assert result == expected
@@ -46,8 +46,11 @@ def test_format_station_missing_depth():
 
     result = format_station_for_yaml(input_data, index)
 
-    # Should default to 9999.0 (absolute value of -9999)
-    assert result["depth"] == 9999.0
+    # Should not include water_depth field when no depth data available
+    assert "water_depth" not in result
+    assert "depth" not in result  # Ensure legacy field is not present
+    assert result["name"] == "STN_001"
+    assert result["operation_type"] == "UPDATE-CTD-mooring-etc"
 
 
 def test_format_transect_standard():
@@ -62,9 +65,9 @@ def test_format_transect_standard():
 
     expected_structure = {
         "name": "Transit_02",  # Updated naming from Section to Transit
-        "comment": "Interactive transect",
+        "comment": "Interactive transect - Review route and update operation details",  # Enhanced comment
         "operation_type": "underway",
-        "action": "UPDATE-ADCP-bathymetry-etc",  # Now uses placeholder
+        "action": "UPDATE-ADCP-bathymetry-etc",  # Reverted placeholder
         "vessel_speed": 10.0,  # Number not string
         "route": [
             {
@@ -235,23 +238,28 @@ class TestConfigUtils:
             save_cruise_config({}, Path("output/test.yaml"))
 
     def test_format_station_for_yaml(self):
-        """Tests correct formatting and coordinate/depth rounding."""
+        """Tests correct formatting and coordinate/depth rounding with new enhanced format."""
         station_data = {"lat": 50.1234567, "lon": -10.9876543, "depth": 2000.123}
         formatted = format_station_for_yaml(station_data, 1)
 
         assert formatted["name"] == "STN_001"
         assert formatted["latitude"] == 50.12346  # Rounded to 5 places
         assert formatted["longitude"] == -10.98765  # Rounded to 5 places
-        assert formatted["depth"] == 2000.1  # Rounded to 1 place
-        assert formatted["comment"] == "Interactive selection"
+        assert formatted["water_depth"] == 2000.1  # New semantic depth field - rounded to 1 place
+        assert formatted["operation_type"] == "UPDATE-CTD-mooring-etc"  # Reverted placeholder
+        assert formatted["action"] == "UPDATE-profile-sampling-etc"  # Reverted placeholder
+        assert "Interactive selection" in formatted["comment"]  # Enhanced comment contains original
 
     def test_format_station_for_yaml_missing_depth(self):
-        """Tests fallback depth handling."""
+        """Tests fallback depth handling with new enhanced format."""
         station_data = {"lat": 50.0, "lon": -10.0}
         formatted = format_station_for_yaml(station_data, 2)
 
-        # Test for the hardcoded depth fallback (now absolute value)
-        assert formatted["depth"] == 9999.0
+        # Should not include water_depth field when no depth data available
+        assert "water_depth" not in formatted
+        assert "depth" not in formatted  # Ensure legacy field is not present
+        assert formatted["name"] == "STN_002"
+        assert formatted["operation_type"] == "UPDATE-CTD-mooring-etc"
 
     def test_format_transect_for_yaml(self):
         """Tests correct formatting for transect data."""

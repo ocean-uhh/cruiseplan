@@ -50,8 +50,8 @@ class TestEnrichCommand:
 
         # Check that stations now have depth values
         for station in enriched_data["stations"]:
-            assert "depth" in station
-            assert station["depth"] > 0  # Should have positive depth values
+            assert "water_depth" in station
+            assert station["water_depth"] > 0  # Should have positive depth values
 
     def test_enrich_coords_only_real_file(self, tmp_path):
         """Test enriching with coordinates only using real fixture file."""
@@ -117,8 +117,8 @@ class TestEnrichCommand:
             enriched_data = yaml.safe_load(f)
 
         for station in enriched_data["stations"]:
-            assert "depth" in station
-            assert station["depth"] > 0
+            assert "water_depth" in station
+            assert station["water_depth"] > 0
             assert "coordinates_dmm" in station
             assert "'" in station["coordinates_dmm"]
 

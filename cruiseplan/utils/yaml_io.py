@@ -39,6 +39,9 @@ def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML
     yaml.width = width  # Prevent unwanted line wrapping
     yaml.indent(mapping=2, sequence=4, offset=2)  # Match existing formatting
     yaml.sort_keys = False  # Preserve insertion order (equivalent to PyYAML sort_keys=False)
+    yaml.map_indent = 2  # Control mapping indentation
+    yaml.sequence_indent = 4  # Control sequence indentation
+    yaml.sequence_dash_offset = 2  # Control dash offset
     return yaml
 
 

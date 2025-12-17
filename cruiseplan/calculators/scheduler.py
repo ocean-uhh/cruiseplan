@@ -88,9 +88,9 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
 
             return {
                 "name": match.name,
-                "lat": match.position.latitude,
-                "lon": match.position.longitude,
-                "depth": getattr(match, "depth", 0.0),
+                "lat": match.latitude,
+                "lon": match.longitude,
+                "depth": getattr(match, "operation_depth", None) or getattr(match, "depth", 0.0),
                 "op_type": op_type,
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes

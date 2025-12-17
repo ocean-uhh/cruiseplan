@@ -15,6 +15,12 @@ import xarray as xr
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.output.netcdf_metadata import (
+    create_global_attributes,
+    create_coordinate_variables,
+    create_operation_variables,
+    get_variable_attributes,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -131,9 +137,10 @@ class NetCDFGenerator:
                     point_operations.append(
                         {
                             "name": station.name,
-                            "latitude": station.position.latitude,
-                            "longitude": station.position.longitude,
-                            "waterdepth": getattr(station, "depth", 0.0) or 0.0,
+                            "latitude": station.latitude,
+                            "longitude": station.longitude,
+                            "waterdepth": getattr(station, "water_depth", None) or getattr(station, "depth", 0.0) or 0.0,
+                            "operation_depth": getattr(station, "operation_depth", None),
                             "category": "point_operation",
                             "type": cf_operation,
                             "action": getattr(station, "action", "unknown"),
@@ -160,6 +167,10 @@ class NetCDFGenerator:
             depths = np.array(
                 [op["waterdepth"] for op in point_operations], dtype=np.float32
             )
+            operation_depths = np.array(
+                [op["operation_depth"] if op["operation_depth"] is not None else np.nan 
+                 for op in point_operations], dtype=np.float32
+            )
 
             # Create data arrays
             names = [op["name"] for op in point_operations]
@@ -171,111 +182,47 @@ class NetCDFGenerator:
             )
             comments = [op["comment"] for op in point_operations]
 
-            # Create xarray Dataset
-            ds = xr.Dataset(
-                {
-                    # Coordinate variables
-                    "longitude": (
-                        ["obs"],
-                        lons,
-                        {
-                            "standard_name": "longitude",
-                            "long_name": "longitude of the operation",
-                            "units": "degrees_east",
-                        },
-                    ),
-                    "latitude": (
-                        ["obs"],
-                        lats,
-                        {
-                            "standard_name": "latitude",
-                            "long_name": "latitude of the operation",
-                            "units": "degrees_north",
-                        },
-                    ),
-                    "waterdepth": (
-                        ["obs"],
-                        depths,
-                        {
-                            "long_name": "water depth at operation location",
-                            "standard_name": "sea_floor_depth_below_sea_surface",
-                            "vocabulary": "http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/",
-                            "units": "m",
-                            "positive": "down",
-                            "axis": "Z",
-                            "_FillValue": -9999.0,
-                        },
-                    ),
-                    # Operation metadata
-                    "name": (
-                        ["obs"],
-                        names,
-                        {
-                            "long_name": "operation identifier from cruise plan",
-                            "coordinates": "latitude longitude waterdepth",
-                        },
-                    ),
-                    "category": (
-                        ["obs"],
-                        categories,
-                        {
-                            "long_name": "operation category",
-                            "flag_values": "point_operation line_operation area_operation transit",
-                            "coordinates": "latitude longitude waterdepth",
-                        },
-                    ),
-                    "type": (
-                        ["obs"],
-                        types,
-                        {
-                            "long_name": "specific type of oceanographic operation",
-                            "flag_values": "CTD_profile water_sampling calibration Mooring_deployment Mooring_recovery",
-                            "coordinates": "latitude longitude waterdepth",
-                        },
-                    ),
-                    "action": (
-                        ["obs"],
-                        actions,
-                        {
-                            "long_name": "specific action or method from cruise plan",
-                            "coordinates": "latitude longitude waterdepth",
-                        },
-                    ),
-                    "duration": (
-                        ["obs"],
-                        durations,
-                        {
-                            "long_name": "planned operation duration",
-                            "units": "hour",
-                            "coordinates": "latitude longitude waterdepth",
-                            "_FillValue": -1.0,
-                        },
-                    ),
-                    "comment": (
-                        ["obs"],
-                        comments,
-                        {
-                            "long_name": "operation comments from cruise plan",
-                            "coordinates": "latitude longitude waterdepth",
-                        },
-                    ),
-                }
+            # Create coordinate variables using centralized metadata
+            coord_vars = create_coordinate_variables(
+                times=None,  # Point operations don't have time dimension
+                lats=lats,
+                lons=lons,
+                depths=depths,
+                operation_depths=operation_depths
             )
-
-        # Set global attributes
-        ds.attrs.update(
-            {
-                "featureType": "point",
-                "title": f"Point Operations: {config.cruise_name}",
-                "institution": "Generated by CruisePlan software",
-                "source": "YAML configuration file",
-                "Conventions": self.cf_conventions,
-                "cruise_name": config.cruise_name,
-                "creation_date": datetime.now().isoformat(),
-                "coordinate_system": "WGS84",
-                "depth_datum": "Mean Sea Level",
+            
+            # Create operation variables using centralized metadata
+            op_vars = create_operation_variables(
+                names=names,
+                types=types,
+                actions=actions,
+                durations=durations,
+                comments=comments
+            )
+            
+            # Add category variable with specialized metadata
+            category_attrs = {
+                "long_name": "operation category",
+                "flag_values": "point_operation line_operation area_operation transit",
+                "coordinates": "latitude longitude water_depth",
             }
+            op_vars["category"] = (["obs"], categories, category_attrs)
+            
+            # Create xarray Dataset from standardized variables
+            data_vars = {}
+            data_vars.update(coord_vars)
+            data_vars.update(op_vars)
+            
+            ds = xr.Dataset(data_vars)
+
+        # Set global attributes using centralized metadata
+        global_attrs = create_global_attributes(
+            feature_type="point",
+            config=config,
+            title_template="Point Operations: {cruise_name}",
+            source="YAML configuration file"
         )
+        ds.attrs.update(global_attrs)
 
         # Write to NetCDF file
         ds.to_netcdf(output_path, format="NETCDF4")
@@ -327,6 +274,7 @@ class NetCDFGenerator:
             leg_names = []
             durations = []
             vessel_speeds = []
+            operation_depths = []
             # Additional coordinates for line operations
             start_lats = []
             start_lons = []
@@ -356,21 +304,26 @@ class NetCDFGenerator:
                     event.get("vessel_speed_kt", config.default_vessel_speed)
                 )
 
-                # Determine waterdepth: real depth for point operations, NaN for others
+                # Determine waterdepth and operation_depth: real depths for point operations, NaN for others
                 activity = event["activity"]
                 if activity in ["Station", "Mooring"]:
                     station_name = event["label"]
                     station = station_lookup.get(station_name)
-                    if (
-                        station
-                        and hasattr(station, "depth")
-                        and station.depth is not None
-                    ):
-                        waterdepths.append(float(station.depth))
+                    water_depth = getattr(station, "water_depth", None) or getattr(station, "depth", None)
+                    operation_depth = getattr(station, "operation_depth", None)
+                    
+                    if station and water_depth is not None:
+                        waterdepths.append(float(water_depth))
                     else:
                         waterdepths.append(np.nan)
+                        
+                    if station and operation_depth is not None:
+                        operation_depths.append(float(operation_depth))
+                    else:
+                        operation_depths.append(np.nan)
                 else:
                     waterdepths.append(np.nan)
+                    operation_depths.append(np.nan)
 
                 # Map activity details to standardized fields
                 if activity in ["Station", "Mooring"]:
@@ -498,6 +451,7 @@ class NetCDFGenerator:
             lats = np.array(lats, dtype=np.float32)
             lons = np.array(lons, dtype=np.float32)
             waterdepths = np.array(waterdepths, dtype=np.float32)
+            operation_depths = np.array(operation_depths, dtype=np.float32)
             durations = np.array(durations, dtype=np.float32)
             vessel_speeds = np.array(vessel_speeds, dtype=np.float32)
             # Convert start/end coordinates to numpy arrays
@@ -549,6 +503,19 @@ class NetCDFGenerator:
                             "axis": "Z",
                             "_FillValue": -9999.0,
                             "comment": "Available for point operations only, NaN for transits and line operations",
+                        },
+                    ),
+                    "operation_depth": (
+                        ["obs"],
+                        operation_depths,
+                        {
+                            "long_name": "target operation depth",
+                            "standard_name": "depth",
+                            "units": "m",
+                            "positive": "down",
+                            "axis": "Z",
+                            "_FillValue": -9999.0,
+                            "comment": "Target depth for operation (e.g., CTD cast depth), NaN if not specified",
                         },
                     ),
                     # Schedule metadata
@@ -671,7 +638,11 @@ class NetCDFGenerator:
         if not timeline:
             total_duration_days = 0.0
         else:
-            total_duration_days = (times[-1] - times[0]) if len(times) > 1 else 0.0
+            # Calculate total cruise duration in days, handling edge cases
+            if len(times) > 1:
+                total_duration_days = max(0.0, times[-1] - times[0])
+            else:
+                total_duration_days = 0.0
         ds.attrs.update(
             {
                 "featureType": "trajectory",
@@ -681,7 +652,7 @@ class NetCDFGenerator:
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
                 "total_duration_days": total_duration_days,
-                "creation_date": datetime.now().isoformat(),
+                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
                 "comment": "Master file containing all cruise data - specialized files derived from this",
             }
         )
@@ -854,7 +825,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().isoformat(),
+                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
                     "coordinate_system": "WGS84",
                     "depth_datum": "Mean Sea Level",
                 }
@@ -938,7 +909,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().isoformat(),
+                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
                     "coordinate_system": "WGS84",
                 }
             )
@@ -998,7 +969,7 @@ class NetCDFGenerator:
                     "source": "YAML configuration file",
                     "Conventions": self.cf_conventions,
                     "cruise_name": config.cruise_name,
-                    "creation_date": datetime.now().isoformat(),
+                    "creation_date": datetime.now().replace(microsecond=0).isoformat(),
                     "coordinate_system": "WGS84",
                 }
             )
@@ -1215,7 +1186,11 @@ class NetCDFGenerator:
         if not timeline:
             total_duration_days = 0.0
         else:
-            total_duration_days = (times[-1] - times[0]) if len(times) > 1 else 0.0
+            # Calculate total cruise duration in days, handling edge cases
+            if len(times) > 1:
+                total_duration_days = max(0.0, times[-1] - times[0])
+            else:
+                total_duration_days = 0.0
         ds.attrs.update(
             {
                 "featureType": "trajectory",
@@ -1225,7 +1200,7 @@ class NetCDFGenerator:
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
                 "total_duration_days": total_duration_days,
-                "creation_date": datetime.now().isoformat(),
+                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
             }
         )
 
@@ -1430,7 +1405,7 @@ class NetCDFGenerator:
                 "source": "YAML configuration file",
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
-                "creation_date": datetime.now().isoformat(),
+                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
             }
         )
 
@@ -1457,7 +1432,7 @@ class NetCDFGenerator:
                 "source": "YAML configuration file",
                 "Conventions": self.cf_conventions,
                 "cruise_name": config.cruise_name,
-                "creation_date": datetime.now().isoformat(),
+                "creation_date": datetime.now().replace(microsecond=0).isoformat(),
             }
         )
 

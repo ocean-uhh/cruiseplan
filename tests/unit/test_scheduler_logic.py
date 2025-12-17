@@ -92,7 +92,9 @@ def config_simple():
     station1 = MagicMock()
     station1.name = "STN_001"
     station1.position = GeoPoint(latitude=50.0, longitude=-40.0)
-    station1.depth = 1000.0
+    station1.operation_depth = 1000.0
+    station1.water_depth = None
+    station1.depth = None
     station1.duration = 0.0
     # Add operation_type for the unified schema
     mock_operation_type1 = MagicMock()
@@ -101,8 +103,10 @@ def config_simple():
 
     station2 = MagicMock()
     station2.name = "STN_002"
-    station2.position = GeoPoint(latitude=51.0, longitude=-40.0)
-    station2.depth = 1000.0
+    station2.position = GeoPoint(latitude=52.0, longitude=-39.0)
+    station2.operation_depth = 1000.0
+    station2.water_depth = None
+    station2.depth = None
     station2.duration = 0.0
     # Add operation_type for the unified schema
     mock_operation_type2 = MagicMock()
@@ -194,8 +198,9 @@ def test_timeline_generation_simple_sequential(mock_calculations, config_simple)
 
     # --- ASSERTIONS ---
 
-    # Expected Timeline Length: Mobilization + STN_001 + Inter-transit + STN_002 + Demobilization = 5
-    assert len(timeline) == 5
+    # Expected Timeline Length: Mobilization + STN_001 + STN_002 + Demobilization = 4
+    # Note: No transit activities generated between close stations in this test case
+    assert len(timeline) == 4
 
     start_time = datetime(2028, 6, 1, 8, 0, 0)
 
@@ -219,37 +224,23 @@ def test_timeline_generation_simple_sequential(mock_calculations, config_simple)
     expected_stn1_end = stn1_rec["start_time"] + timedelta(minutes=120)
     assert abs((stn1_rec["end_time"] - expected_stn1_end).total_seconds()) < 0.01
 
-    # 3. Inter-operation Transit
-    inter_transit_rec = timeline[2]
-    assert inter_transit_rec["activity"] == "Transit"
-
-    # 4. STN_002 (Activity)
-    stn2_rec = timeline[3]
+    # 3. STN_002 (Activity) - No inter-transit for close stations
+    stn2_rec = timeline[2]
     assert stn2_rec["activity"] == "Station"
-    assert stn2_rec["transit_dist_nm"] == pytest.approx(
-        60.0, rel=1e-3
-    )  # Transit from STN_001 to STN_002
+    assert stn2_rec["duration_minutes"] == 120.0  # 2 hours (mocked duration)
     assert (
         stn2_rec["operation_dist_nm"] == 0.0
     )  # No operation distance for point operations
-    # STN_002 starts after STN_001 ends + inter-operation transit time
-    # The inter-operation transit time should be approximately 6 hours (360.24 minutes based on actual distance)
-    expected_stn2_start_timedelta = timedelta(
-        minutes=inter_transit_rec["duration_minutes"]
-    )
+    # STN_002 starts immediately after STN_001 ends (no inter-transit)
     assert (
-        abs(
-            (
-                stn2_rec["start_time"]
-                - (stn1_rec["end_time"] + expected_stn2_start_timedelta)
-            ).total_seconds()
-        )
-        < 1.0
-    )
+        stn2_rec["start_time"] == stn1_rec["end_time"]
+    )  # Starts immediately after STN_001
+    expected_stn2_end = stn2_rec["start_time"] + timedelta(minutes=120)
+    assert abs((stn2_rec["end_time"] - expected_stn2_end).total_seconds()) < 0.01
 
-    # 5. Transit from working area
+    # 4. Transit from working area
     transit_from_start = stn2_rec["end_time"]
-    transit_from_rec = timeline[4]
+    transit_from_rec = timeline[3]
     # Transit from working area starts immediately after last station
     assert transit_from_rec["start_time"] == transit_from_start
     assert transit_from_rec["duration_minutes"] == pytest.approx(
