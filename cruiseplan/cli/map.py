@@ -14,7 +14,7 @@ from cruiseplan.output.map_generator import generate_map_from_yaml
 logger = logging.getLogger(__name__)
 
 
-def main(args: argparse.Namespace):
+def main(args: argparse.Namespace) -> int:
     """
     Generate PNG map from cruise configuration.
 

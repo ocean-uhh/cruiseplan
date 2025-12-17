@@ -355,7 +355,7 @@ def calculate_map_bounds(
     all_lons : list of float
         All longitude values to include
     padding_percent : float, optional
-        Padding as fraction of range (default 0.10 = 10%). Ignored if padding_degrees is set.
+        Padding as fraction of range (default 0.05 = 5%). Ignored if padding_degrees is set.
     padding_degrees : float, optional
         Fixed padding in degrees. If set, overrides padding_percent.
     apply_aspect_ratio : bool, optional

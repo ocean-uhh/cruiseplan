@@ -602,7 +602,7 @@ def generate_map_from_timeline(
     bathymetry_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     figsize : tuple of float, optional
-        Figure size as (width, height) in inches. Default is (12, 10).
+        Figure size as (width, height) in inches. Default is (10, 8).
     config : CruiseConfig, optional
         Cruise configuration object to extract port information
 
@@ -627,7 +627,7 @@ def generate_map_from_timeline(
 
 def generate_folium_map(
     tracks: List[Dict[str, Any]], output_file: Union[str, Path] = "cruise_map.html"
-) -> Path:
+) -> Optional[Path]:
     """
     Generates an interactive Leaflet map from merged cruise tracks.
 

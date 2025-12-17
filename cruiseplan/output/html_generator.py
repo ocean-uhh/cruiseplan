@@ -523,7 +523,7 @@ class HTMLGenerator:
         <tr style="background-color: #f0f8ff;">
             <td>{transit.get('label', 'Transit')}</td>
             <td>Transit to leg start</td>
-            <td>{transit.get('start_pos', '')} to {transit.get('end_pos', '')}</td>
+            <td>{transit.get('start_pos', '')} &rarr; {transit.get('end_pos', '')}</td>
             <td class="number">{duration_hrs:.1f}</td>
             <td>{transit.get('comment', 'Transit between legs')}</td>
         </tr>
@@ -572,7 +572,7 @@ class HTMLGenerator:
         <tr style="background-color: #f0f8ff;">
             <td>{transit.get('label', 'Transit')}</td>
             <td>Transit to arrival port</td>
-            <td>{transit.get('start_pos', '')} to {transit.get('end_pos', '')}</td>
+            <td>{transit.get('start_pos', '')} &rarr; {transit.get('end_pos', '')}</td>
             <td class="number">{duration_hrs:.1f}</td>
             <td>{transit.get('comment', 'Transit to arrival port')}</td>
         </tr>

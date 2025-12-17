@@ -392,7 +392,7 @@ class TestGenerateMap:
         mock_calc_bounds.return_value = (-25, -15, 55, 65)
         mock_plot_bathy.return_value = True
 
-        result = generate_map(MagicMock(), "cruise", show_plot=True)
+        generate_map(MagicMock(), "cruise", show_plot=True)
 
         mock_show.assert_called_once()
         # Should not call savefig when showing
