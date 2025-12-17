@@ -59,6 +59,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -102,7 +106,8 @@
 
 <span class="sd">This module provides functions to format coordinates in various standard formats</span>
 <span class="sd">used in oceanographic and maritime contexts, including decimal degrees, degrees</span>
-<span class="sd">and decimal minutes (DMM), and LaTeX-formatted output.</span>
+<span class="sd">and decimal minutes (DMM), and LaTeX-formatted output. Also includes utilities</span>
+<span class="sd">for extracting coordinates from cruise configurations and calculating map bounds.</span>
 
 <span class="sd">Notes</span>
 <span class="sd">-----</span>
@@ -111,8 +116,9 @@
 <span class="sd">The UnitConverter class provides static methods for coordinate conversions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Tuple</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
 
 <div class="viewcode-block" id="UnitConverter">
@@ -398,6 +404,200 @@
     <span class="n">lon_bounds</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">min_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">max_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="s2">&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="extract_coordinates_from_cruise">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.extract_coordinates_from_cruise">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_coordinates_from_cruise</span><span class="p">(</span>
+    <span class="n">cruise</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">],</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract coordinates from cruise configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise : Cruise</span>
+<span class="sd">        Cruise object with station registry and configuration</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        (all_lats, all_lons, station_names, departure_port, arrival_port)</span>
+<span class="sd">        departure_port and arrival_port are tuples of (lat, lon, name) or None</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_lats</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_lons</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">station_names</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Extract coordinates from all stations</span>
+    <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">lat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">station</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">station</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="p">)</span>
+        <span class="n">lon</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">station</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">)</span>
+            <span class="k">else</span> <span class="n">station</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="p">)</span>
+        <span class="n">all_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+        <span class="n">all_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+        <span class="n">station_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+
+    <span class="c1"># Add departure and arrival ports if they exist</span>
+    <span class="n">departure_port</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">arrival_port</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
+        <span class="n">dep_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="n">dep_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="n">departure_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">dep_lat</span><span class="p">,</span> <span class="n">dep_lon</span><span class="p">,</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
+        <span class="n">arr_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="n">arr_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="n">arrival_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr_lat</span><span class="p">,</span> <span class="n">arr_lon</span><span class="p">,</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">all_lats</span><span class="p">,</span> <span class="n">all_lons</span><span class="p">,</span> <span class="n">station_names</span><span class="p">,</span> <span class="n">departure_port</span><span class="p">,</span> <span class="n">arrival_port</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_map_bounds">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.calculate_map_bounds">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_map_bounds</span><span class="p">(</span>
+    <span class="n">all_lats</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">all_lons</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">padding_percent</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.05</span><span class="p">,</span>
+    <span class="n">padding_degrees</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">apply_aspect_ratio</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">round_to_degrees</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate map bounds with flexible padding and aspect ratio correction.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    all_lats : list of float</span>
+<span class="sd">        All latitude values to include</span>
+<span class="sd">    all_lons : list of float</span>
+<span class="sd">        All longitude values to include</span>
+<span class="sd">    padding_percent : float, optional</span>
+<span class="sd">        Padding as fraction of range (default 0.05 = 5%). Ignored if padding_degrees is set.</span>
+<span class="sd">    padding_degrees : float, optional</span>
+<span class="sd">        Fixed padding in degrees. If set, overrides padding_percent.</span>
+<span class="sd">    apply_aspect_ratio : bool, optional</span>
+<span class="sd">        Whether to apply geographic aspect ratio correction (default True)</span>
+<span class="sd">    round_to_degrees : bool, optional</span>
+<span class="sd">        Whether to round bounds outward to whole degrees (default True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        (final_min_lon, final_max_lon, final_min_lat, final_max_lat)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">all_lats</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">all_lons</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;No coordinates provided&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Calculate padding</span>
+    <span class="k">if</span> <span class="n">padding_degrees</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="n">padding_degrees</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lat_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span>
+        <span class="n">lon_range</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span>
+        <span class="n">padding</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">lat_range</span><span class="p">,</span> <span class="n">lon_range</span><span class="p">)</span> <span class="o">*</span> <span class="n">padding_percent</span>
+
+    <span class="c1"># Apply padding</span>
+    <span class="n">min_lat_padded</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">-</span> <span class="n">padding</span>
+    <span class="n">max_lat_padded</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">+</span> <span class="n">padding</span>
+    <span class="n">min_lon_padded</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">-</span> <span class="n">padding</span>
+    <span class="n">max_lon_padded</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">+</span> <span class="n">padding</span>
+
+    <span class="c1"># Round outwards to whole degrees (optional)</span>
+    <span class="k">if</span> <span class="n">round_to_degrees</span><span class="p">:</span>
+        <span class="n">min_lat</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">min_lat_padded</span><span class="p">)</span>
+        <span class="n">max_lat</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">max_lat_padded</span><span class="p">)</span>
+        <span class="n">min_lon</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">floor</span><span class="p">(</span><span class="n">min_lon_padded</span><span class="p">)</span>
+        <span class="n">max_lon</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">ceil</span><span class="p">(</span><span class="n">max_lon_padded</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">min_lat</span> <span class="o">=</span> <span class="n">min_lat_padded</span>
+        <span class="n">max_lat</span> <span class="o">=</span> <span class="n">max_lat_padded</span>
+        <span class="n">min_lon</span> <span class="o">=</span> <span class="n">min_lon_padded</span>
+        <span class="n">max_lon</span> <span class="o">=</span> <span class="n">max_lon_padded</span>
+
+    <span class="c1"># Apply aspect ratio correction (optional)</span>
+    <span class="k">if</span> <span class="n">apply_aspect_ratio</span><span class="p">:</span>
+        <span class="n">final_min_lon</span><span class="p">,</span> <span class="n">final_max_lon</span><span class="p">,</span> <span class="n">final_min_lat</span><span class="p">,</span> <span class="n">final_max_lat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">compute_final_limits</span><span class="p">(</span><span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">)</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">final_min_lon</span><span class="p">,</span> <span class="n">final_max_lon</span><span class="p">,</span> <span class="n">final_min_lat</span><span class="p">,</span> <span class="n">final_max_lat</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">min_lon</span><span class="p">,</span>
+            <span class="n">max_lon</span><span class="p">,</span>
+            <span class="n">min_lat</span><span class="p">,</span>
+            <span class="n">max_lat</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_min_lon</span><span class="p">,</span> <span class="n">final_max_lon</span><span class="p">,</span> <span class="n">final_min_lat</span><span class="p">,</span> <span class="n">final_max_lat</span></div>
+
+
+
+<div class="viewcode-block" id="compute_final_limits">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.compute_final_limits">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_final_limits</span><span class="p">(</span>
+    <span class="n">lon_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon_max</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lat_min</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lat_max</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute final map limits accounting for geographic aspect ratio.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lon_min, lon_max : float</span>
+<span class="sd">        Initial longitude bounds</span>
+<span class="sd">    lat_min, lat_max : float</span>
+<span class="sd">        Initial latitude bounds</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple</span>
+<span class="sd">        (final_lon_min, final_lon_max, final_lat_min, final_lat_max)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">mid_lat_deg</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_min</span> <span class="o">+</span> <span class="n">lat_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+    <span class="n">mid_lat_deg</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="o">-</span><span class="mf">85.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="mf">85.0</span><span class="p">,</span> <span class="n">mid_lat_deg</span><span class="p">))</span>
+    <span class="n">mid_lat_rad</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">mid_lat_deg</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">aspect</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">mid_lat_rad</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ZeroDivisionError</span><span class="p">:</span>
+        <span class="n">aspect</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">aspect</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mf">1.0</span><span class="p">,</span> <span class="nb">min</span><span class="p">(</span><span class="n">aspect</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">))</span>
+
+    <span class="c1"># Current ranges</span>
+    <span class="n">lat_range</span> <span class="o">=</span> <span class="n">lat_max</span> <span class="o">-</span> <span class="n">lat_min</span>
+    <span class="n">lon_range</span> <span class="o">=</span> <span class="n">lon_max</span> <span class="o">-</span> <span class="n">lon_min</span>
+
+    <span class="c1"># Required ranges for proper aspect ratio</span>
+    <span class="n">required_lon_range</span> <span class="o">=</span> <span class="n">lat_range</span> <span class="o">*</span> <span class="n">aspect</span>
+    <span class="n">required_lat_range</span> <span class="o">=</span> <span class="n">lon_range</span> <span class="o">/</span> <span class="n">aspect</span>
+
+    <span class="c1"># Expand whichever dimension needs it</span>
+    <span class="k">if</span> <span class="n">required_lon_range</span> <span class="o">&gt;</span> <span class="n">lon_range</span><span class="p">:</span>
+        <span class="c1"># Need to expand longitude</span>
+        <span class="n">lon_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">lon_min</span> <span class="o">+</span> <span class="n">lon_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lon_min</span> <span class="o">=</span> <span class="n">lon_center</span> <span class="o">-</span> <span class="n">required_lon_range</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lon_max</span> <span class="o">=</span> <span class="n">lon_center</span> <span class="o">+</span> <span class="n">required_lon_range</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lat_min</span> <span class="o">=</span> <span class="n">lat_min</span>
+        <span class="n">final_lat_max</span> <span class="o">=</span> <span class="n">lat_max</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Need to expand latitude</span>
+        <span class="n">lat_center</span> <span class="o">=</span> <span class="p">(</span><span class="n">lat_min</span> <span class="o">+</span> <span class="n">lat_max</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lat_min</span> <span class="o">=</span> <span class="n">lat_center</span> <span class="o">-</span> <span class="n">required_lat_range</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lat_max</span> <span class="o">=</span> <span class="n">lat_center</span> <span class="o">+</span> <span class="n">required_lat_range</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">final_lon_min</span> <span class="o">=</span> <span class="n">lon_min</span>
+        <span class="n">final_lon_max</span> <span class="o">=</span> <span class="n">lon_max</span>
+
+    <span class="k">return</span> <span class="n">final_lon_min</span><span class="p">,</span> <span class="n">final_lon_max</span><span class="p">,</span> <span class="n">final_lat_min</span><span class="p">,</span> <span class="n">final_lat_max</span></div>
 
 </pre></div>
 

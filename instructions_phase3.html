@@ -60,6 +60,10 @@
 <li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -780,7 +784,7 @@ Transit from working area <span class="nb">&amp;</span> <span class="nb">&amp;</
 <li><p><strong>Integration with Existing System</strong>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">enhance_existing_map_generator</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Maintain backward compatibility while adding new features.&quot;&quot;&quot;</span>
-    <span class="c1"># Keep existing generate_cruise_map() function</span>
+    <span class="c1"># Keep existing generate_folium_map() function</span>
     <span class="c1"># Add new generate_interactive_map() function</span>
     <span class="c1"># Share common coordinate transformation logic</span>
 </pre></div>
@@ -1238,7 +1242,7 @@ Transit from working area <span class="nb">&amp;</span> <span class="nb">&amp;</
 <section id="integration-requirements">
 <h3>Integration Requirements<a class="headerlink" href="#integration-requirements" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
-<li><p><strong>Maintain Backward Compatibility</strong>: Ensure existing <code class="docutils literal notranslate"><span class="pre">generate_cruise_map()</span></code> function continues to work</p></li>
+<li><p><strong>Maintain Backward Compatibility</strong>: Ensure existing <code class="docutils literal notranslate"><span class="pre">generate_folium_map()</span></code> function continues to work</p></li>
 <li><p><strong>Enhance API</strong>: Add new optional parameters for interactive features</p></li>
 <li><p><strong>Template System</strong>: Create HTML templates with embedded Leaflet maps</p></li>
 <li><p><strong>Asset Management</strong>: Handle CSS/JS dependencies efficiently</p></li>

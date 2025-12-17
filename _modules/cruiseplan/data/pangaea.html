@@ -59,6 +59,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -111,7 +115,7 @@
 
 <span class="c1"># Local Imports</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">CacheManager</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_cruise_map</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_folium_map</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -333,10 +337,10 @@
 <span class="sd">            Path to the generated HTML map file.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># You might want to do a quick transformation here if your dataset dicts</span>
-        <span class="c1"># don&#39;t exactly match what generate_cruise_map expects.</span>
+        <span class="c1"># don&#39;t exactly match what generate_folium_map expects.</span>
         <span class="c1"># But if they match (latitude, longitude, label), just pass them through:</span>
 
-        <span class="k">return</span> <span class="n">generate_cruise_map</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">generate_folium_map</span><span class="p">(</span><span class="n">datasets</span><span class="p">,</span> <span class="n">output_file</span><span class="o">=</span><span class="n">filename</span><span class="p">)</span></div>
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_clean_doi</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">doi</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>

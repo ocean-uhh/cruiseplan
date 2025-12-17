@@ -61,6 +61,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
@@ -101,6 +105,9 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.coordinates">cruiseplan.utils.coordinates module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.UnitConverter"><code class="docutils literal notranslate"><span class="pre">UnitConverter</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.calculate_map_bounds"><code class="docutils literal notranslate"><span class="pre">calculate_map_bounds()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.compute_final_limits"><code class="docutils literal notranslate"><span class="pre">compute_final_limits()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.extract_coordinates_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_coordinates_from_cruise()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_dmm_comment"><code class="docutils literal notranslate"><span class="pre">format_dmm_comment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_geographic_bounds"><code class="docutils literal notranslate"><span class="pre">format_geographic_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_position_latex"><code class="docutils literal notranslate"><span class="pre">format_position_latex()</span></code></a></li>
@@ -495,7 +502,8 @@ Unit conversion functions are provided for common time conversions.</p>
 <p>Coordinate formatting utilities for scientific and maritime applications.</p>
 <p>This module provides functions to format coordinates in various standard formats
 used in oceanographic and maritime contexts, including decimal degrees, degrees
-and decimal minutes (DMM), and LaTeX-formatted output.</p>
+and decimal minutes (DMM), and LaTeX-formatted output. Also includes utilities
+for extracting coordinates from cruise configurations and calculating map bounds.</p>
 <p class="rubric">Notes</p>
 <p>All coordinate functions expect input in decimal degrees and handle both
 northern/eastern (positive) and southern/western (negative) coordinates.
@@ -529,6 +537,70 @@ coordinate representations commonly used in maritime and scientific contexts.</p
 </div>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.calculate_map_bounds">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">calculate_map_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_lats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_lons</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_percent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.05</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">padding_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apply_aspect_ratio</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">round_to_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#calculate_map_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.calculate_map_bounds" title="Link to this definition"></a></dt>
+<dd><p>Calculate map bounds with flexible padding and aspect ratio correction.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_lats</strong> (<em>list</em><em> of </em><em>float</em>) – All latitude values to include</p></li>
+<li><p><strong>all_lons</strong> (<em>list</em><em> of </em><em>float</em>) – All longitude values to include</p></li>
+<li><p><strong>padding_percent</strong> (<em>float</em><em>, </em><em>optional</em>) – Padding as fraction of range (default 0.05 = 5%). Ignored if padding_degrees is set.</p></li>
+<li><p><strong>padding_degrees</strong> (<em>float</em><em>, </em><em>optional</em>) – Fixed padding in degrees. If set, overrides padding_percent.</p></li>
+<li><p><strong>apply_aspect_ratio</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to apply geographic aspect ratio correction (default True)</p></li>
+<li><p><strong>round_to_degrees</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to round bounds outward to whole degrees (default True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(final_min_lon, final_max_lon, final_min_lat, final_max_lat)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.compute_final_limits">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">compute_final_limits</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lon_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_min</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat_max</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#compute_final_limits"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.compute_final_limits" title="Link to this definition"></a></dt>
+<dd><p>Compute final map limits accounting for geographic aspect ratio.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lon_min</strong> (<em>float</em>) – Initial longitude bounds</p></li>
+<li><p><strong>lon_max</strong> (<em>float</em>) – Initial longitude bounds</p></li>
+<li><p><strong>lat_min</strong> (<em>float</em>) – Initial latitude bounds</p></li>
+<li><p><strong>lat_max</strong> (<em>float</em>) – Initial latitude bounds</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(final_lon_min, final_lon_max, final_lat_min, final_lat_max)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.extract_coordinates_from_cruise">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">extract_coordinates_from_cruise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#extract_coordinates_from_cruise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.extract_coordinates_from_cruise" title="Link to this definition"></a></dt>
+<dd><p>Extract coordinates from cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with station registry and configuration</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(all_lats, all_lons, station_names, departure_port, arrival_port)
+departure_port and arrival_port are tuples of (lat, lon, name) or None</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
