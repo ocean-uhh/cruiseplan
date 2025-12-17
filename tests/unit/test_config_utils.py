@@ -2,17 +2,21 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import pytest
-import yaml
 
 from cruiseplan.core.validation import CruiseConfigurationError
-from cruiseplan.utils.config import format_station_for_yaml, format_transect_for_yaml
+from cruiseplan.utils.config import (
+    format_station_for_yaml,
+    format_transect_for_yaml,
+    save_cruise_config,
+)
+from cruiseplan.utils.yaml_io import YAMLIOError
 
 # Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
 # Assuming FALLBACK_DEPTH is -9999.0 for testing the formatters.
 FALLBACK_DEPTH = -9999.0
 
 # Import the system under test
-from cruiseplan.utils.config import ConfigLoader, save_cruise_config
+from cruiseplan.utils.config import ConfigLoader
 
 
 def test_format_station_standard():
@@ -132,9 +136,7 @@ class TestConfigLoader:
 
     @patch.object(Path, "exists", return_value=True)
     @patch("builtins.open", mock_open(read_data=""))
-    @patch(
-        "cruiseplan.utils.config.yaml.safe_load", side_effect=yaml.YAMLError("Bad YAML")
-    )
+    @patch("cruiseplan.utils.config.load_yaml", side_effect=YAMLIOError("Bad YAML"))
     def test_load_raw_data_yaml_error(self, mock_load, mock_exists):
         """Tests the generic YAML parsing error path."""
         loader = ConfigLoader(self.mock_path)
@@ -143,7 +145,7 @@ class TestConfigLoader:
 
     @patch.object(Path, "exists", return_value=True)
     @patch(
-        "cruiseplan.utils.config.yaml.safe_load", return_value=[]
+        "cruiseplan.utils.config.load_yaml", return_value=[]
     )  # Invalid root structure
     def test_load_raw_data_invalid_root_structure(self, mock_load, mock_exists):
         """Tests the path where the YAML file root is not a dict."""
@@ -155,7 +157,7 @@ class TestConfigLoader:
                 loader.load_raw_data()
 
     @patch.object(Path, "exists", return_value=True)
-    @patch("cruiseplan.utils.config.yaml.safe_load")
+    @patch("cruiseplan.utils.config.load_yaml")
     def test_load_raw_data_success(self, mock_load, mock_exists):
         """Tests successful loading of raw data."""
         mock_load.return_value = self.valid_data
@@ -213,31 +215,23 @@ class TestConfigLoader:
 
 class TestConfigUtils:
 
-    @patch("cruiseplan.utils.config.Path.mkdir")
-    @patch("builtins.open", new_callable=mock_open)
-    @patch("cruiseplan.utils.config.yaml.dump")
-    def test_save_cruise_config_success(self, mock_dump, mock_file, mock_mkdir):
-        """Tests successful file saving and correct yaml.dump parameters."""
+    @patch("cruiseplan.utils.config.save_yaml")
+    def test_save_cruise_config_success(self, mock_save_yaml):
+        """Tests successful file saving with correct parameters."""
         data = {"key": "value"}
         filepath = Path("output/test.yaml")
 
         save_cruise_config(data, filepath)
 
-        mock_mkdir.assert_called_once()
-        mock_file.assert_called_once_with(filepath, "w")
-        mock_dump.assert_called_once_with(
-            data,
-            mock_file(),
-            sort_keys=False,
-            default_flow_style=False,
-            allow_unicode=True,
-        )
+        mock_save_yaml.assert_called_once_with(data, filepath, backup=False)
 
-    @patch("cruiseplan.utils.config.Path.mkdir")
-    @patch("builtins.open", side_effect=OSError("Permission denied"))
-    def test_save_cruise_config_io_error(self, mock_file, mock_mkdir):
+    @patch(
+        "cruiseplan.utils.config.save_yaml",
+        side_effect=YAMLIOError("Permission denied"),
+    )
+    def test_save_cruise_config_io_error(self, mock_save_yaml):
         """Tests that file saving exceptions are caught and raised."""
-        with pytest.raises(IOError, match="Permission denied"):
+        with pytest.raises(YAMLIOError, match="Permission denied"):
             save_cruise_config({}, Path("output/test.yaml"))
 
     def test_format_station_for_yaml(self):

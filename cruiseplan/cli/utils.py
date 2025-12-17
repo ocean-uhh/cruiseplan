@@ -11,7 +11,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional
 
-import yaml
+from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -138,37 +138,9 @@ def load_yaml_config(file_path: Path) -> dict:
         CLIError: If file cannot be loaded or parsed
     """
     try:
-        with open(file_path, encoding="utf-8") as f:
-            config = yaml.safe_load(f)
-
-        if config is None:
-            raise CLIError(f"YAML file is empty: {file_path}")
-
-        return config
-
-    except yaml.YAMLError as e:
-        raise CLIError(f"Invalid YAML syntax in {file_path}: {e}")
-    except Exception as e:
-        raise CLIError(f"Error reading {file_path}: {e}")
-
-
-def _get_incremental_backup_path(file_path: Path) -> Path:
-    """
-    Get an incremental backup file path that doesn't already exist.
-
-    Args:
-        file_path: Original file path
-
-    Returns
-    -------
-        Path: Available backup path with incremental number
-    """
-    counter = 1
-    while True:
-        backup_path = file_path.with_name(f"{file_path.name}-{counter}")
-        if not backup_path.exists():
-            return backup_path
-        counter += 1
+        return load_yaml(file_path)
+    except YAMLIOError as e:
+        raise CLIError(str(e)) from e
 
 
 def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None:
@@ -184,24 +156,12 @@ def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None
     ------
         CLIError: If file cannot be written
     """
+    from cruiseplan.utils.yaml_io import save_yaml
+
     try:
-        # Create backup if requested and file exists
-        if backup and file_path.exists():
-            backup_path = _get_incremental_backup_path(file_path)
-            backup_path.write_text(file_path.read_text())
-            logger.info(f"Created backup: {backup_path}")
-
-        # Ensure parent directory exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Write YAML file
-        with open(file_path, "w", encoding="utf-8") as f:
-            yaml.dump(config, f, default_flow_style=False, sort_keys=False, indent=2)
-
-        logger.info(f"Saved configuration to: {file_path}")
-
-    except Exception as e:
-        raise CLIError(f"Error writing {file_path}: {e}")
+        save_yaml(config, file_path, backup=backup)
+    except YAMLIOError as e:
+        raise CLIError(str(e)) from e
 
 
 def generate_output_filename(

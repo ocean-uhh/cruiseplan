@@ -21,6 +21,7 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    
    user_workflows.rst
    CLI Command Reference <cli_reference.rst>
+   Units and defaults <units_and_defaults.rst>
 
 .. toctree::
    :maxdepth: 2
