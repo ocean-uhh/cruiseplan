@@ -2109,6 +2109,7 @@ def validate_configuration_file(
 
             raw_config = load_yaml_safe(config_path)
         except Exception:
+            # Best-effort: if we cannot load raw YAML, continue with basic error reporting
             pass
 
         for error in e.errors():

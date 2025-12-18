@@ -207,7 +207,8 @@ class TestVersionAndHelp:
                     main()
                     output = mock_stdout.getvalue()
                     assert "cruiseplan" in output
-                    assert "0.1." in output  # Match development version pattern
+                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.1.x)
+                    assert ("0.1." in output or "0.0.post" in output or "0.0.dev" in output)
 
     def test_subcommand_help(self):
         """Test subcommand help works."""
