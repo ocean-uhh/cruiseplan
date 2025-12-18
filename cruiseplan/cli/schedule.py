@@ -56,7 +56,7 @@ def main(args: argparse.Namespace) -> None:
         formats = []
         if args.format:
             if args.format == "all":
-                formats = ["html", "csv", "latex", "kml", "netcdf"]
+                formats = ["html", "csv", "latex", "kml", "netcdf", "png"]
             elif isinstance(args.format, str):
                 formats = [f.strip().lower() for f in args.format.split(",")]
             elif isinstance(args.format, list):
@@ -66,6 +66,14 @@ def main(args: argparse.Namespace) -> None:
         else:
             # Default formats
             formats = ["html", "csv"]
+
+        # Check --derive-netcdf flag compatibility
+        derive_netcdf = getattr(args, "derive_netcdf", False)
+        if derive_netcdf and "netcdf" not in formats:
+            logger.warning("⚠️  --derive-netcdf flag requires NetCDF output format")
+            logger.warning("   Either add 'netcdf' to --format or use --format all")
+            logger.warning("   Ignoring --derive-netcdf flag.")
+            derive_netcdf = False
 
         logger.info("=" * 60)
         logger.info("Cruise Schedule Generation")
@@ -106,6 +114,7 @@ def main(args: argparse.Namespace) -> None:
             output_dir=output_dir,
             formats=formats,
             selected_leg=getattr(args, "leg", None),
+            derive_netcdf=derive_netcdf,
         )
 
         logger.info("")

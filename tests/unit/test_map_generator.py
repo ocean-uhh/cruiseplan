@@ -159,10 +159,12 @@ class TestPlotBathymetry:
         mock_cbar = MagicMock()
         mock_colorbar.return_value = mock_cbar
 
-        result = plot_bathymetry(mock_ax, -25, -15, 55, 65, "gebco2025", 5)
+        result = plot_bathymetry(mock_ax, -25, -15, 55, 65, "gebco2025", 5, "data")
 
         assert result is True
-        mock_bathymetry_manager.assert_called_once_with(source="gebco2025")
+        mock_bathymetry_manager.assert_called_once_with(
+            source="gebco2025", data_dir="data"
+        )
         mock_bathy_instance.get_grid_subset.assert_called_once()
         mock_ax.contourf.assert_called_once()
         mock_colorbar.assert_called_once()
@@ -425,6 +427,7 @@ class TestGenerateMapFromYaml:
             output_file=output_file,
             bathymetry_source="etopo2022",
             bathymetry_stride=10,
+            bathymetry_dir="data",
             show_plot=True,
             figsize=(14, 12),
         )

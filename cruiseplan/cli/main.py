@@ -11,6 +11,11 @@ import sys
 from pathlib import Path
 from typing import Any  # Added Any for generic type hinting
 
+try:
+    from cruiseplan._version import __version__
+except ImportError:
+    __version__ = "unknown"
+
 
 # Define placeholder main functions for dynamic imports
 # (These will be overwritten when the modules are implemented)
@@ -109,7 +114,9 @@ For detailed help on a subcommand:
         """,
     )
 
-    parser.add_argument("--version", action="version", version="%(prog)s 1.0.0")
+    parser.add_argument(
+        "--version", action="version", version=f"%(prog)s {__version__}"
+    )
 
     subparsers = parser.add_subparsers(
         dest="subcommand",
@@ -132,8 +139,9 @@ Available sources:
 
 Examples:
   cruiseplan download                                    # Download ETOPO 2022 (default)
-  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly
+  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly  
   cruiseplan download --bathymetry-source gebco2025     # Download high-res GEBCO 2025
+  cruiseplan download --bathymetry-source etopo2022 --citation  # Show citation info only
         """,
     )
     download_parser.add_argument(
@@ -141,6 +149,18 @@ Examples:
         choices=["etopo2022", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
+    )
+    download_parser.add_argument(
+        "--citation",
+        action="store_true",
+        help="Show citation information for the bathymetry source without downloading",
+    )
+    download_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data/bathymetry"),
+        help="Output directory for bathymetry files (default: data/bathymetry)",
     )
 
     # --- 2. Schedule Subcommand ---
@@ -158,8 +178,8 @@ Examples:
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
-        help="Output directory (default: current)",
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
     schedule_parser.add_argument(
         "--format",
@@ -168,6 +188,11 @@ Examples:
         help="Output formats (default: all)",
     )
     schedule_parser.add_argument("--leg", help="Process specific leg only")
+    schedule_parser.add_argument(
+        "--derive-netcdf",
+        action="store_true",
+        help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
+    )
 
     # --- 3. Stations Subcommand ---
     stations_parser = subparsers.add_parser(
@@ -209,6 +234,12 @@ Examples:
         help="Bathymetry dataset (default: etopo2022)",
     )
     stations_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+    stations_parser.add_argument(
         "--high-resolution",
         action="store_true",
         help="Use full resolution bathymetry (slower but more detailed)",
@@ -244,8 +275,8 @@ Examples:
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
-        help="Output directory (default: current)",
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
     enrich_parser.add_argument(
         "--output-file",
@@ -259,6 +290,12 @@ Examples:
         help="Bathymetry dataset (default: etopo2022)",
     )
     enrich_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+    enrich_parser.add_argument(
         "--coord-format",
         choices=["dmm", "dms"],
         default="dmm",
@@ -268,6 +305,9 @@ Examples:
         "--expand-sections",
         action="store_true",
         help="Expand CTD sections into individual station definitions",
+    )
+    enrich_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     # --- 5. Validate Subcommand ---
@@ -307,6 +347,12 @@ Examples:
         choices=["etopo2022", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
+    )
+    validate_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
     )
 
     # --- 6. PANDOI Subcommand ---
@@ -392,6 +438,12 @@ Examples:
         choices=["etopo2022", "gebco2025"],
         default="gebco2025",
         help="Bathymetry dataset (default: gebco2025)",
+    )
+    map_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
     )
     map_parser.add_argument(
         "--bathymetry-stride",

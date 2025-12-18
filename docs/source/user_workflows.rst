@@ -1,10 +1,7 @@
-Complete User Workflows
-=======================
+Overview
+========
 
 This guide provides step-by-step workflows for planning oceanographic cruises with CruisePlan, from initial setup through schedule generation.
-
-Overview
---------
 
 CruisePlan follows a multi-step workflow where each command builds upon the previous step's outputs. The system is designed to separate concerns: data preparation, station planning, configuration details, and scheduling.
 
@@ -32,6 +29,11 @@ Quick Reference
      - User choice (ETOPO, GEBCO))
      - NetCDF files in ``data/``
      - `*.nc`
+   * - ``pandoi``
+     - Search PANGAEA
+     - Search terms + bounds
+     - DOI list file
+     - Text file
    * - ``pangaea``
      - Process historical station information
      - DOI list file
@@ -52,6 +54,11 @@ Quick Reference
      - YAML file
      - Validation report
      - Text output     
+   * - ``map``
+     - Visualize cruise plan
+     - YAML file
+     - Map figure
+     - `*.png`, `*.pdf`
    * - ``schedule``
      - Generate outputs
      - Valid YAML
@@ -70,7 +77,10 @@ Before starting any workflow, ensure you have:
    - ETOPO 2022: ~500MB (recommended to start)
    - GEBCO 2025: ~7.5GB (high-resolution option)
 
-**Initial Setup:**
+  .. _download_bathymetry:
+
+Download bathymetry
+...................
 
 .. code-block:: bash
 
@@ -79,6 +89,24 @@ Before starting any workflow, ensure you have:
    
    # OR download high-resolution bathymetry (larger download)
    cruiseplan download --bathymetry-source gebco2025
+
+
+**What this does:**
+
+- Downloads global bathymetry dataset to ``data/bathymetry/`` (or specified directory, using `-o` flag)
+- Enables depth lookups in subsequent steps
+
+**Storage requirements:**
+
+- ETOPO 2022 (~500MB): 1-arc-minute resolution, suitable for most open ocean work
+- GEBCO 2025 (~7.5GB): 15-arc-second resolution, better for coastal/slope areas
+
+.. figure:: _static/screenshots/download_bathymetry.png
+   :alt: Bathymetry download progress with citation information
+   :width: 600px
+   :align: center
+   
+   Bathymetry download process showing progress bars
 
 
 ⚠️ **Important**: Having a valid bathymetry file is an important step for all workflows.  While it is possible to operate without, this is used for determining station depths for CTDs and makes using the station picker much more straightforward.
@@ -90,16 +118,27 @@ Workflow Paths
 
 Choose your workflow based on your planning needs:
 
-**Path 1: Basic Planning** *(General use)*
+:ref:`user_workflow_path_1` (General usage)
    Use when you want to plan stations from scratch without historical context
 
-**Path 2: PANGAEA-Enhanced Planning** *(Historical context)*
+:ref:`user_workflow_path_2` (PANGAEA-enhanced for historical context)
    Use when you want to incorporate historical station positions from PANGAEA, i.e. to compare a section with past occupations
 
-**Path 3: Configuration-Only** *(Iterate and refine)*
+:ref:`user_workflow_path_3` (Configuration-only to iterate & refine)
    Use when you already have a YAML configuration and need to process it
 
----
+
+Best Practices
+--------------
+
+1. **Start simple:** Begin with basic CTD stations before adding complex operations
+2. **Use PANGAEA data:** Historical context improves station placement decisions  
+3. **Validate often:** Run validation after each major edit to catch issues early
+4. **Test scheduling:** Generate test schedules to check feasibility
+
+----
+
+.. _user_workflow_path_1:
 
 Path 1: Basic Planning Workflow
 ================================
@@ -108,28 +147,26 @@ Path 1: Basic Planning Workflow
 
 **Time required:** 30-60 minutes to create a first draft of a cruise
 
+---- 
+
 Step 1: Download Bathymetry Data
 ---------------------------------
 
 **Purpose:** Provides depth information for station planning and automatic depth enrichment.
 
-.. code-block:: bash
+Essential first step:  :ref:`download_bathymetry`.  You've succeeeded when you have the file ``data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc`` available.  When in doubt, start with the ETOPO (default) only. 
 
-   # Standard resolution (recommended for most users)
-   cruiseplan download
+.. figure:: _static/screenshots/data_directory_structure.png
+   :alt: Bathymetry data directory structure showing downloaded files
+   :width: 600px
+   :align: center
    
-   # High resolution (for detailed work - coastal/slope areas)
-   cruiseplan download --bathymetry-source gebco2025
+   Directory structure (Mac OS Finder) showing bathymetry files in ``data/bathymetry/``
 
-**What this does:**
+.. note::
+  See :ref:`Download subcommand CLI reference <subcommand-download>` in :doc:`cli_reference` for full options and examples.
 
-- Downloads global bathymetry dataset to ``data/bathymetry/``
-- Enables depth lookups in subsequent steps
-
-**Storage requirements:**
-
-- ETOPO 2022 (~500MB): 1-arc-minute resolution, suitable for most open ocean work
-- GEBCO 2025 (~7.5GB): 15-arc-second resolution, better for coastal/slope areas
+----
 
 Step 2: Interactive Station Planning
 ------------------------------------
@@ -140,7 +177,14 @@ Step 2: Interactive Station Planning
 
    cruiseplan stations --lat 45 70 --lon -65 -5 -o output_dir
    
-This will plot a map within the region specified (or defaults to the subpolar North Atlantic if not specified), and add contours of bathymetry.  It has various input modes for cruise activities at fixed points (stations), along lines (transects) or within areas (box surveys).  The navigation mode allows panning and zooming to explore the map without accidently clicking to add stations.  
+This will plot a map within the region specified (or defaults to the subpolar North Atlantic if not specified), and add contours of bathymetry.  It has various input modes for cruise activities at fixed points (stations), along lines (transects) or within areas (box surveys).  The navigation mode allows panning and zooming to explore the map without accidently clicking to add stations.
+
+.. figure:: _static/screenshots/station_picker_startup.png
+   :alt: Station picker interface showing three-panel layout
+   :width: 800px
+   :align: center
+   
+   Interactive station picker interface with map, controls, and status panels  
 
 **Interactive Controls:**
 
@@ -151,6 +195,13 @@ Four modes of inputs:
 - ``a``: Define area operations (box surveys)
 - ``n``: Navigation mode (pan/zoom)
 
+.. figure:: _static/screenshots/station_picker_point_mode.png
+   :alt: Station picker in point placement mode
+   :width: 700px
+   :align: center
+   
+   Point placement mode for adding individual stations (CTD, moorings).  Note the status in the upper right corner has changed to "Mode: Point".
+
 Additional commands can be used anytime:
 
 - ``u``: Undo last operation
@@ -158,7 +209,16 @@ Additional commands can be used anytime:
 - ``y``: Save to YAML file
 - ``Escape``: Exit without saving
 
-**Note:** If you don't specify an output file, it will create `stations.yaml` in your root directory.  If you do this multiple times, it will overwrite the file.  There is a prompt to confirm overwriting, or you can run `cruiseplan stations --overwrite` to default to overwrite without prompting.
+.. figure:: _static/screenshots/station_picker_multiple_stations.png
+   :alt: Multiple stations placed on the map
+   :width: 700px
+   :align: center
+   
+   Example cruise plan with multiple stations showing position on the map.
+   
+   
+.. warning::
+  If you don't specify an output file, the command will create ``stations.yaml`` in the default directory (``./data``). Running the command multiple times will overwrite that file. There is a prompt to confirm overwriting (otherwise it will not save); or run ``cruiseplan stations --overwrite`` to overwrite without prompting.
 
 
 **What this creates:**
@@ -167,20 +227,68 @@ Additional commands can be used anytime:
 - Basic structure for stations, transects, and areas
 - Geographic positions without operational details
 
-**Example output structure:**
+**Example output structure:** See a full example in `example_yaml.rst <example_yaml.html>`_.
 
 .. code-block:: yaml
 
-   stations:
-     - name: "STN_001"
-       latitude: 60.5
-       longitude: -30.2
-       depth: -9999.0
-       comment: "Interactive selection"
-       operation_type: "UPDATE-CTD-mooring-etc"
-       action: "UPDATE-profile-sampling-etc"
+  # CruisePlan YAML Configuration
+  # Generated by Interactive Station Picker
+  # Creation Date: 2025-12-18T10:41:20
 
-⚠️ **Critical Next Step:** The station picker creates placeholder values that will trigger validation warnings. You need to **manually edit the YAML** to specify actual operation types and actions before proceeding.
+  # ======================================================================================
+  # CRUISE PLANNING WORKFLOW - Next Steps:
+  # ======================================================================================
+  # 1. Review and update all 'UPDATE-*' placeholders below
+  # 2. Set operation_type (CTD, mooring, water_sampling, etc.)
+  # 3. Set action (profile, deployment, recovery, etc.)  
+  # 4. Run validation: cruiseplan validate <filename>
+  # 5. Add depths: cruiseplan enrich <filename> --add-depths --add-coords --expand-sections   
+  # 6. Generate schedule: cruiseplan schedule <filename>
+
+  # ======================================================================================
+  # FIELD DOCUMENTATION:
+  # ======================================================================================
+  # Required fields are marked with [REQUIRED]
+  # Optional fields are marked with [OPTIONAL]
+  # Fields marked 'UPDATE-*' must be reviewed and updated
+
+  # For complete field reference, see: 
+  # https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
+  # [REQUIRED] Unique identifier for this cruise
+  cruise_name: Interactive_Session
+  # [OPTIONAL] Human-readable cruise description
+  description: Cruise plan created with interactive station picker
+  # [REQUIRED] Default transit speed in knots
+  default_vessel_speed: 10.0
+  # [REQUIRED] Default distance between stations in kilometers
+  default_distance_between_stations: 40.0
+  calculate_transfer_between_sections: true
+  calculate_depth_via_bathymetry: true
+  # [REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)
+  start_date: '1970-01-01T00:00:00Z'
+  # [REQUIRED] Departure port details
+  # Update 'UPDATE-departure-port-name' with actual port name
+  # Update coordinates with actual port location
+  departure_port:
+    name: UPDATE-departure-port-name
+    latitude: 0.0
+    longitude: 0.0
+    timezone: GMT+0
+
+
+.. warning::
+  **Critical Next Step:** The station picker creates placeholder values that will trigger validation warnings. You need to **manually edit the YAML** to specify actual operation types and actions before proceeding.  
+
+
+----
+
+.. _manual_editing_configuration:
+
+Step 3: Manual Configuration Editing
+-------------------------------------
+ 
+**Purpose:** Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as "CTD" and "profile" for stations, but will not update the YAML configuration (so you know where you've updated or not).
+
 
 **Operation Type Guide:**
 
@@ -209,15 +317,9 @@ Additional commands can be used anytime:
      - Auto-calculated
      - Equipment calibration
 
-⚠️ **Important**: Mooring operations require manual duration specification. CTD operations are automatically calculated based on depth.
+.. warning::
+  ⚠️ **Important**: Mooring operations require manual duration specification. CTD operations are automatically calculated based on depth.
 
-
-Step 3: Manual Configuration Editing
--------------------------------------
-
-**Purpose:** Define what scientific operations will happen at each location.
-
-**Required edits** to the YAML file created in Step 2:
 
 1. **Replace placeholder values** for each station:
 
@@ -242,7 +344,9 @@ Step 3: Manual Configuration Editing
        strategy: "sequential"
        stations: ["STN_001", "STN_002", "STN_003"]  # Visit order
 
-3. **Add cruise metadata**:
+3. **Add/edit cruise metadata**:
+
+otherwise, your cruise will start at 0.0, 0.0!
 
 .. code-block:: yaml
 
@@ -261,6 +365,9 @@ Step 3: Manual Configuration Editing
      longitude: -52.6979
 
 
+----
+
+.. _enrich_configuration:
 
 Step 4: Enrich Configuration
 -----------------------------
@@ -269,13 +376,15 @@ Step 4: Enrich Configuration
 
 .. code-block:: bash
 
-   cruiseplan enrich -c my_cruise.yaml --add-depths --add-coords
+   cruiseplan enrich -c my_cruise.yaml --add-depths --add-coords --expand-sections
+
 
 **Options:**
 
 - ``--add-depths``: Looks up seafloor depth using bathymetry data
 - ``--add-coords``: Adds formatted coordinate strings (degrees/minutes)
 - ``--bathymetry-source gebco2025``: Use high-resolution bathymetry if available
+- ``--expand-sections``: Automatically add stations along transects at default spacing
 
 **What this does:**
 
@@ -305,6 +414,20 @@ Step 4: Enrich Configuration
      depth: 2847.3                            # Updated from bathymetry
      position_string: "60°30.0'N 30°12.0'W"  # Added automatically
 
+.. figure:: _static/screenshots/yaml_enrichment_comparison.png
+   :alt: YAML before and after enrichment showing added depth and position_string fields
+   :width: 600px
+   :align: center
+   
+   YAML before and after enrichment showing added depth and position_string fields
+
+.. note::
+  See :ref:`Enrich subcommand CLI reference <subcommand-enrich>` in :doc:`cli_reference` for full options and examples.
+
+----
+
+.. _validate_configuration:
+
 Step 5: Validate Configuration
 ------------------------------
 
@@ -313,6 +436,13 @@ Step 5: Validate Configuration
 .. code-block:: bash
 
    cruiseplan validate -c my_cruise.yaml --check-depths
+
+.. figure:: _static/screenshots/validate_command_results.png
+   :alt: Validation results showing successful checks and warnings
+   :width: 700px
+   :align: center
+   
+   Configuration validation with station-specific error messages and depth checks
 
 **Validation checks:**
 
@@ -347,6 +477,13 @@ Step 5: Validate Configuration
    * - "Potentially duplicate stations"
      - Review stations with identical coordinates - may be intentional
 
+.. note::
+  See :ref:`Validate subcommand CLI reference <subcommand-validate>` in :doc:`cli_reference` for full options and examples.
+
+----
+
+.. _generate_schedule_outputs:
+
 Step 6: Generate Schedule and Outputs
 --------------------------------------
 
@@ -361,6 +498,13 @@ Step 6: Generate Schedule and Outputs
    cruiseplan schedule -c my_cruise.yaml --format netcdf
    cruiseplan schedule -c my_cruise.yaml --format latex
 
+.. figure:: _static/screenshots/schedule_generation.png
+   :alt: Schedule generation process with progress output
+   :width: 700px
+   :align: center
+   
+   Schedule generation showing timeline calculations and output file creation
+
 **Output formats:**
 
 - **NetCDF**: CF-compliant scientific data files for analysis
@@ -369,6 +513,20 @@ Step 6: Generate Schedule and Outputs
 - **CSV**: Tabular data for Excel/analysis
 - **KML**: Google Earth visualization
 
+.. figure:: _static/screenshots/schedule_html_output.png
+   :alt: Generated HTML schedule summary
+   :width: 700px
+   :align: center
+   
+   Professional HTML schedule output with timeline and station details
+
+.. figure:: _static/screenshots/schedule_map_output.png
+   :alt: Generated cruise track map
+   :width: 700px
+   :align: center
+   
+   Publication-ready cruise track map with stations and bathymetric background
+
 **What you get:**
 
 - Detailed timeline with arrival/departure times
@@ -376,7 +534,12 @@ Step 6: Generate Schedule and Outputs
 - Station operation durations
 - Professional documentation ready for proposals
 
----
+.. note::
+  See :ref:`Schedule subcommand CLI reference <subcommand-schedule>` in :doc:`cli_reference` for full options and examples.
+
+----- 
+
+.. _user_workflow_path_2:
 
 Path 2: PANGAEA-Enhanced Workflow
 ==================================
@@ -387,14 +550,26 @@ Path 2: PANGAEA-Enhanced Workflow
 
 This workflow incorporates historical oceanographic station data from the PANGAEA database to inform your station planning.
 
+----
+
 Step 1: Download Bathymetry Data
 ---------------------------------
 
-*Same as Path 1, Step 1*
+**Purpose:** Provides depth information for station planning and automatic depth enrichment.
 
-.. code-block:: bash
+Essential first step:  :ref:`download_bathymetry`.  You've succeeeded when you have the file ``data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc`` available.  When in doubt, start with the ETOPO (default) only. 
 
-   cruiseplan download
+.. figure:: _static/screenshots/data_directory_structure.png
+   :alt: Bathymetry data directory structure showing downloaded files
+   :width: 600px
+   :align: center
+   
+   Directory structure (Mac OS Finder) showing bathymetry files in ``data/bathymetry/``
+
+.. note::
+  See :ref:`Download subcommand CLI reference <subcommand-download>` in :doc:`cli_reference` for full options and examples.
+
+----
 
 Step 2: Collect PANGAEA Dataset Information
 --------------------------------------------
@@ -453,6 +628,10 @@ Use ``--lat MIN MAX`` and ``--lon MIN MAX`` to specify search regions:
    # Arctic Ocean
    --lat 70 90 --lon -180 180
 
+.. note::
+  See :ref:`Pandoi subcommand CLI reference <subcommand-pandoi>` in :doc:`cli_reference` for full options and examples.
+
+
 **Option B: Manual Collection (Alternative):**
 
 1. **Visit PANGAEA database:** https://www.pangaea.de
@@ -478,6 +657,8 @@ Use ``--lat MIN MAX`` and ``--lon MIN MAX`` to specify search regions:
 
 - Use narrow geographic bounds initially
 - Focus on similar research objectives (physical oceanography vs biogeochemistry)
+
+----
 
 Step 3: Process PANGAEA Data
 ----------------------------
@@ -512,6 +693,11 @@ Step 3: Process PANGAEA Data
 
 ⚠️ **Note**: This process can be slow for large DOI lists due to API rate limiting. Consider running overnight for extensive datasets.
 
+.. note::
+  See :ref:`Pangaea subcommand CLI reference <subcommand-pangaea>` in :doc:`cli_reference` for full options and examples.
+
+----
+
 Step 4: Interactive Station Planning with PANGAEA Context
 ---------------------------------------------------------
 
@@ -527,6 +713,15 @@ Step 4: Interactive Station Planning with PANGAEA Context
 - Campaign information available on hover/click
 - Filter historical data by cruise or time period
 - Context for avoiding over-sampled areas or finding gaps
+
+
+.. figure:: _static/screenshots/station_picker_pangaea.png
+   :alt: Station picker interface with PANGAEA historical data overlay
+   :width: 600px
+   :align: center
+   
+   Station picker interface showing PANGAEA historical data overlay (left panel + markers)
+
 
 **Same interactive controls as Path 1:**
 
@@ -546,19 +741,25 @@ Additional commands can be used anytime:
 
 **Benefits:** Including PANGAEA historical stations allows you to revisit identical locations, if desired, rather than selecting new positions blindly.
 
+----
+
+
 Step 5-7: Complete Configuration and Scheduling
 -----------------------------------------------
 
 *Same as Path 1, Steps 3-6*
 
-1. **Manual editing** to add operation types and cruise metadata
-2. **Enrichment** to add depths and coordinates
-3. **Validation** to check for errors
-4. **Schedule generation** to create outputs
+1. :ref:`Manual editing <manual_editing_configuration>` to add operation types and cruise metadata
+2. :ref:`Enrichment <enrich_configuration>` to add depths and coordinates
+3. :ref:`Validation <validate_configuration>` to check for errors
+4. :ref:`Schedule generation <generate_schedule_outputs>` to create outputs
 
 The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.
 
----
+----
+
+
+.. _user_workflow_path_3:
 
 Path 3: Configuration-Only Workflow
 ====================================
@@ -579,7 +780,7 @@ If you have an existing YAML configuration (created manually or from external to
 
 .. code-block:: bash
 
-   cruiseplan enrich -c existing_cruise.yaml --add-depths --add-coords
+   cruiseplan enrich -c existing_cruise.yaml --add-depths --add-coords --expand-sections
 
 Continue with Validation and Scheduling
 ---------------------------------------
@@ -589,7 +790,8 @@ Continue with Validation and Scheduling
    cruiseplan validate -c enriched_cruise.yaml --check-depths
    cruiseplan schedule -c enriched_cruise.yaml --format all
 
----
+----
+
 
 Advanced Topics
 ===============
@@ -619,6 +821,8 @@ For complex cruises with multiple operational phases, these can be separated int
 - ``sequential``: Visit stations in specified order
 - (Future: ``adaptive``, ``opportunistic`` strategies)
 
+----
+
 Bathymetry Source Selection
 ---------------------------
 
@@ -635,6 +839,23 @@ Bathymetry Source Selection
 - Storage space is limited
 - Standard precision is adequate
 
+.. warning::
+   **Interactive Performance Considerations**
+   
+   Using ``cruiseplan stations`` with GEBCO 2025 and ``--high-resolution`` can significantly impact interactive performance:
+   
+   * **Slow response times** during station placement
+   * **Laggy map interactions** when zooming/panning
+   * **High memory usage** (GEBCO 2025 is ~7.5GB)
+   
+   **Recommended workflow for optimal performance:**
+   
+   1. **Initial planning**: Use ETOPO 2022 (default) for fast interactive station placement
+   2. **Detailed refinement**: Switch to GEBCO 2025 with standard resolution (10x downsampling)  
+   3. **Final validation**: Use GEBCO 2025 high-resolution only when necessary for precise depth requirements
+   
+   This staged approach maintains interactive responsiveness while ensuring access to high-quality bathymetry when needed.
+
 GEBCO is generally considered to be more accurate.
 
 **Switching between sources:**
@@ -643,6 +864,8 @@ GEBCO is generally considered to be more accurate.
 
    # Re-enrich with different bathymetry
    cruiseplan enrich -c cruise.yaml --add-depths --bathymetry-source gebco2025
+
+----
 
 Duration Calculation Rules
 -------------------------
@@ -684,6 +907,8 @@ Duration Calculation Rules
      operation_type: "mooring"
      action: "recovery"
      duration: 180  # 3 hours - REQUIRED for moorings
+
+----
 
 Common Configuration Patterns
 -----------------------------
@@ -845,45 +1070,12 @@ Getting Help
 - Include error messages and configuration files
 - Specify your operating system and Python version
 
-Best Practices
-==============
 
-Planning Recommendations
-------------------------
 
-1. **Start simple:** Begin with basic CTD stations before adding complex operations
-2. **Use PANGAEA data:** Historical context improves station placement decisions  
-3. **Plan for weather:** Add alternative stations for flexibility
-4. **Consider logistics:** Group nearby operations to minimize transit time
-5. **Document decisions:** Use ``comment`` fields to explain station rationale
-
-Configuration Management
-------------------------
-
-1. **Version control:** Keep YAML files in git repositories
-2. **Descriptive naming:** Use clear, consistent station names
-3. **Backup configurations:** Save multiple versions during development
-4. **Validate frequently:** Run validation after each major edit
-5. **Test scheduling:** Generate test schedules to check feasibility
-
-Operational Efficiency
-----------------------
-
-1. **Optimize routing:** Use geographic clustering in leg definitions
-2. **Buffer time:** Add extra duration for weather delays
-
-Data Management
----------------
-
-1. **Organized outputs:** Use consistent naming for generated files
-2. **Archive originals:** Keep original configurations before enrichment
-3. **Document changes:** Use git commits to track configuration evolution
-4. **Share configurations:** Export validated YAML for collaboration
-
----
+----
 
 **Next Steps:**
 
 - See :doc:`cli_reference` for detailed command options
-- Check :doc:`api` for programmatic usage
+- Check :doc:`api/modules` for programmatic usage
 - Review example configurations in ``tests/fixtures/``

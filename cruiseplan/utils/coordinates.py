@@ -269,13 +269,12 @@ def format_geographic_bounds(
                 return f"{abs_val:.2f}°S"
             else:  # value == 0
                 return f"{abs_val:.2f}°"
-        else:  # longitude
-            if value > 0 and value != 180:
-                return f"{abs_val:.2f}°E"
-            elif value < 0 and value != -180:
-                return f"{abs_val:.2f}°W"
-            else:  # value == 0, 180, or -180
-                return f"{abs_val:.2f}°"
+        elif value > 0 and value != 180:
+            return f"{abs_val:.2f}°E"
+        elif value < 0 and value != -180:
+            return f"{abs_val:.2f}°W"
+        else:  # value == 0, 180, or -180
+            return f"{abs_val:.2f}°"
 
     lat_bounds = f"{format_coord(min_lat, 'lat')} to {format_coord(max_lat, 'lat')}"
     lon_bounds = f"{format_coord(min_lon, 'lon')} to {format_coord(max_lon, 'lon')}"

@@ -46,6 +46,7 @@ def main(args: argparse.Namespace) -> int:
             output_file=output_file,
             bathymetry_source=args.bathymetry_source,
             bathymetry_stride=args.bathymetry_stride,
+            bathymetry_dir=str(args.bathymetry_dir),
             show_plot=args.show_plot,
             figsize=tuple(args.figsize),
         )

@@ -46,6 +46,7 @@ def mock_args(tmp_path):
         output_dir=tmp_path / "results",
         output_file=None,
         bathymetry_source="etopo2022",
+        bathymetry_dir=tmp_path / "bathymetry",
         high_resolution=False,
     )
     return args
@@ -73,6 +74,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         output_file=output_file,
         bathymetry_stride=10,  # Default stride since high_resolution=False
         bathymetry_source="etopo2022",  # Default bathymetry source
+        bathymetry_dir=str(mock_args.bathymetry_dir),
         overwrite=False,  # Default overwrite behavior
     )
 

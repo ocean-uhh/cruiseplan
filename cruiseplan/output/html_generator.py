@@ -689,20 +689,19 @@ class HTMLGenerator:
 
             if leg_name and leg_name in legs_data:
                 legs_data[leg_name]["activities"].append(activity_dict)
+            # If no leg_name, assign to first leg or create default
+            elif leg_names:
+                legs_data[leg_names[0]]["activities"].append(activity_dict)
             else:
-                # If no leg_name, assign to first leg or create default
-                if leg_names:
-                    legs_data[leg_names[0]]["activities"].append(activity_dict)
-                else:
-                    legs_data.setdefault(
-                        "Main Cruise",
-                        {
-                            "activities": [],
-                            "transit_to_start": None,
-                            "transit_from_end": None,
-                        },
-                    )
-                    legs_data["Main Cruise"]["activities"].append(activity_dict)
+                legs_data.setdefault(
+                    "Main Cruise",
+                    {
+                        "activities": [],
+                        "transit_to_start": None,
+                        "transit_from_end": None,
+                    },
+                )
+                legs_data["Main Cruise"]["activities"].append(activity_dict)
 
         # Add transit connections between legs
         self._add_leg_transits(legs_data, config)

@@ -251,6 +251,22 @@ def main(args: argparse.Namespace) -> None:
             else "standard resolution (10x downsampled)"
         )
         logger.info(f"Bathymetry resolution: {resolution_msg}")
+
+        # Performance warning for GEBCO + high-resolution combination
+        if optimal_bathymetry_source == "gebco2025" and getattr(
+            args, "high_resolution", False
+        ):
+            logger.warning("⚠️  PERFORMANCE WARNING:")
+            logger.warning(
+                "   GEBCO 2025 with high resolution can be very slow for interactive use!"
+            )
+            logger.warning(
+                "   Consider using --bathymetry-source etopo2022 for faster interaction."
+            )
+            logger.warning(
+                "   Reserve GEBCO high-resolution for final detailed planning only."
+            )
+            logger.warning("")
         logger.info("")
 
         # Display usage instructions
@@ -277,6 +293,7 @@ def main(args: argparse.Namespace) -> None:
                 output_file=str(output_path),
                 bathymetry_stride=bathymetry_stride,
                 bathymetry_source=optimal_bathymetry_source,
+                bathymetry_dir=str(args.bathymetry_dir),
                 overwrite=getattr(args, "overwrite", False),
             )
 

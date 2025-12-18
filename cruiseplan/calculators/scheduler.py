@@ -640,6 +640,7 @@ def generate_cruise_schedule(
     formats: List[str] = None,
     validate_depths: bool = False,
     selected_leg: Optional[str] = None,
+    derive_netcdf: bool = False,
 ) -> Dict[str, Any]:
     """
     Generate comprehensive cruise schedules from YAML configuration.
@@ -659,6 +660,9 @@ def generate_cruise_schedule(
         Whether to validate depths during generation. Default is False.
     selected_leg : str, optional
         If specified, only generate schedule for this leg. Default is None.
+    derive_netcdf : bool, optional
+        If True and NetCDF format is enabled, generate specialized NetCDF files
+        (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Default is False.
 
     Returns
     -------
@@ -791,7 +795,7 @@ def generate_cruise_schedule(
 
             elif format_name == "netcdf":
                 output_file = _generate_netcdf_schedule(
-                    timeline, config, output_path, base_filename
+                    timeline, config, output_path, base_filename, derive_netcdf
                 )
                 logger.info(f"    netCDF output: {output_file.name}")
                 formats_generated.append("netcdf")
@@ -842,18 +846,30 @@ def _generate_latex_schedule(timeline, config, output_path, base_filename):
         return None
 
 
-def _generate_netcdf_schedule(timeline, config, output_path, base_filename):
+def _generate_netcdf_schedule(
+    timeline, config, output_path, base_filename, derive_netcdf=False
+):
     """Generate NetCDF schedule output."""
     try:
         from cruiseplan.output.netcdf_generator import NetCDFGenerator
 
-        output_file = output_path / f"{base_filename}.nc"
-
-        # Use existing NetCDF generator
         netcdf_gen = NetCDFGenerator()
-        netcdf_gen.generate_master_schedule(timeline, config, output_file)
 
-        return output_file
+        if derive_netcdf:
+            logger.info("    Generating all NetCDF files (master + specialized)...")
+            # Generate all files including derived ones
+            output_files = netcdf_gen.generate_all_netcdf_outputs(
+                config, timeline, output_path
+            )
+            logger.info(f"    Generated {len(output_files)} NetCDF files:")
+            for file_path in output_files:
+                logger.info(f"      • {file_path.name}")
+            return output_files[0]  # Return schedule file as main output
+        else:
+            # Generate only master schedule file
+            output_file = output_path / f"{base_filename}.nc"
+            netcdf_gen.generate_master_schedule(timeline, config, output_file)
+            return output_file
 
     except ImportError:
         logger.warning("NetCDF generator not available - skipping NetCDF output")

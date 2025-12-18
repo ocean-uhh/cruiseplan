@@ -154,11 +154,8 @@ class PangaeaManager:
                     results.append(data)
                     if progress_callback:
                         progress_callback(i, len(doi_list), "✓ Retrieved dataset")
-                else:
-                    if progress_callback:
-                        progress_callback(
-                            i, len(doi_list), f"⚠ No data found for {doi}"
-                        )
+                elif progress_callback:
+                    progress_callback(i, len(doi_list), f"⚠ No data found for {doi}")
 
                 # Rate limiting between requests
                 if rate_limit and i < len(doi_list):  # Don't sleep after last request

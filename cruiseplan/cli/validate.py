@@ -57,6 +57,7 @@ def main(args: argparse.Namespace) -> None:
             check_depths=args.check_depths,
             tolerance=args.tolerance,
             bathymetry_source=args.bathymetry_source,
+            bathymetry_dir=str(args.bathymetry_dir),
             strict=args.strict,
         )
 

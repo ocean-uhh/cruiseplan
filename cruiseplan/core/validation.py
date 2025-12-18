@@ -1696,6 +1696,7 @@ def enrich_configuration(
     add_coords: bool = False,
     expand_sections: bool = False,
     bathymetry_source: str = "etopo2022",
+    bathymetry_dir: str = "data",
     coord_format: str = "dmm",
     output_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
@@ -1794,7 +1795,9 @@ def enrich_configuration(
 
     # Initialize managers if needed
     if add_depths:
-        bathymetry = BathymetryManager(source=bathymetry_source, data_dir="data")
+        bathymetry = BathymetryManager(
+            source=bathymetry_source, data_dir=bathymetry_dir
+        )
 
     # Track which stations had depths added for accurate YAML updating
     stations_with_depths_added = set()
@@ -1995,6 +1998,7 @@ def validate_configuration_file(
     check_depths: bool = False,
     tolerance: float = 10.0,
     bathymetry_source: str = "etopo2022",
+    bathymetry_dir: str = "data",
     strict: bool = False,
 ) -> Tuple[bool, List[str], List[str]]:
     """
@@ -2071,7 +2075,9 @@ def validate_configuration_file(
 
         # Depth validation if requested
         if check_depths:
-            bathymetry = BathymetryManager(source=bathymetry_source, data_dir="data")
+            bathymetry = BathymetryManager(
+                source=bathymetry_source, data_dir=bathymetry_dir
+            )
             stations_checked, depth_warnings = validate_depth_accuracy(
                 cruise, bathymetry, tolerance
             )
@@ -2096,17 +2102,23 @@ def validate_configuration_file(
         return success, errors, warnings
 
     except ValidationError as e:
+        # Load raw config first to help with error formatting
+        raw_config = None
+        try:
+            from cruiseplan.utils.yaml_io import load_yaml_safe
+
+            raw_config = load_yaml_safe(config_path)
+        except Exception:
+            pass
+
         for error in e.errors():
-            location = " -> ".join(str(loc) for loc in error["loc"])
+            # Enhanced location formatting with station names when possible
+            location = _format_error_location(error["loc"], raw_config)
             message = error["msg"]
             errors.append(f"Schema error at {location}: {message}")
 
         # Still try to collect warnings even when validation fails
         try:
-            # Try to load the YAML directly for metadata checking
-            from cruiseplan.utils.yaml_io import load_yaml_safe
-
-            raw_config = load_yaml_safe(config_path)
 
             # Check cruise metadata from raw YAML
             if raw_config:
@@ -2198,6 +2210,78 @@ def _check_unexpanded_ctd_sections_raw(config_dict: Dict[str, Any]) -> List[str]
                 )
 
     return warnings
+
+
+def _format_error_location(location_path: tuple, raw_config: dict) -> str:
+    """
+    Format error location path to be more user-friendly.
+
+    Converts array indices to meaningful names when possible.
+    E.g., "stations -> 0 -> position -> latitude" becomes
+    "station 'Station_A' -> position -> latitude"
+    """
+    if not location_path:
+        return "unknown"
+
+    # Convert to list for easier manipulation
+    path_parts = list(location_path)
+
+    # Handle stations array indices
+    if (
+        len(path_parts) >= 2
+        and path_parts[0] == "stations"
+        and isinstance(path_parts[1], int)
+    ):
+        station_index = path_parts[1]
+        station_name = None
+
+        # Try to get station name from raw config
+        if (
+            raw_config
+            and "stations" in raw_config
+            and isinstance(raw_config["stations"], list)
+            and 0 <= station_index < len(raw_config["stations"])
+        ):
+
+            station_data = raw_config["stations"][station_index]
+            if isinstance(station_data, dict) and "name" in station_data:
+                station_name = station_data["name"]
+
+        # Replace index with descriptive text
+        if station_name:
+            path_parts[0] = f"station '{station_name}'"
+            path_parts.pop(1)  # Remove the index
+        else:
+            path_parts[0] = f"station #{station_index + 1}"
+            path_parts.pop(1)  # Remove the index
+
+    # Handle other array indices (moorings, transits, etc.) similarly
+    elif len(path_parts) >= 2 and isinstance(path_parts[1], int):
+        array_name = path_parts[0]
+        index = path_parts[1]
+
+        # Try to get name from raw config
+        item_name = None
+        if (
+            raw_config
+            and array_name in raw_config
+            and isinstance(raw_config[array_name], list)
+            and 0 <= index < len(raw_config[array_name])
+        ):
+
+            item_data = raw_config[array_name][index]
+            if isinstance(item_data, dict) and "name" in item_data:
+                item_name = item_data["name"]
+
+        # Replace with descriptive text
+        if item_name:
+            path_parts[0] = f"{array_name[:-1]} '{item_name}'"  # Remove 's' from plural
+            path_parts.pop(1)  # Remove the index
+        else:
+            path_parts[0] = f"{array_name[:-1]} #{index + 1}"
+            path_parts.pop(1)  # Remove the index
+
+    return " -> ".join(str(part) for part in path_parts)
 
 
 def _check_cruise_metadata(cruise) -> List[str]:

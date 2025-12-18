@@ -10,9 +10,6 @@ authors:
   - family-names: Sorge
     given-names: Yves
     orcid: https://orcid.org/0009-0007-0043-9207
-  - family-names: Trace-Kleeberg
-    given-names: Sunke
-    orcid: https://orcid.org/0000-0002-5980-2492
 repository-code: "https://github.com/ocean-uhh/cruiseplan"
 url: "https://ocean-uhh.github.io/cruiseplan"
 abstract: >-

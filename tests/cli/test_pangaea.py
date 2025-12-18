@@ -179,7 +179,7 @@ class TestMainCommand:
         # Create args
         args = Namespace(
             doi_file=Path("dois.txt"),
-            output_dir=Path("output"),
+            output_dir=Path("tests_output"),
             output_file=None,
             rate_limit=1.0,
             merge_campaigns=True,
@@ -204,7 +204,7 @@ class TestMainCommand:
 
         args = Namespace(
             doi_file=Path("nonexistent.txt"),
-            output_dir=Path("output"),
+            output_dir=Path("tests_output"),
             output_file=None,
             rate_limit=1.0,
             merge_campaigns=True,
@@ -217,7 +217,7 @@ class TestMainCommand:
         """Test main command handles keyboard interrupt."""
         args = Namespace(
             doi_file=Path("dois.txt"),
-            output_dir=Path("output"),
+            output_dir=Path("tests_output"),
             output_file=None,
             rate_limit=1.0,
             merge_campaigns=True,

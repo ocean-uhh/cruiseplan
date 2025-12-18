@@ -222,7 +222,7 @@ class TestConfigUtils:
     def test_save_cruise_config_success(self, mock_save_yaml):
         """Tests successful file saving with correct parameters."""
         data = {"key": "value"}
-        filepath = Path("output/test.yaml")
+        filepath = Path("tests_output/test.yaml")
 
         save_cruise_config(data, filepath)
 
@@ -235,7 +235,7 @@ class TestConfigUtils:
     def test_save_cruise_config_io_error(self, mock_save_yaml):
         """Tests that file saving exceptions are caught and raised."""
         with pytest.raises(YAMLIOError, match="Permission denied"):
-            save_cruise_config({}, Path("output/test.yaml"))
+            save_cruise_config({}, Path("tests_output/test.yaml"))
 
     def test_format_station_for_yaml(self):
         """Tests correct formatting and coordinate/depth rounding with new enhanced format."""

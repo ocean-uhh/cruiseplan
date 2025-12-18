@@ -83,6 +83,7 @@ class StationPicker:
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
         bathymetry_source: str = "etopo2022",
+        bathymetry_dir: str = "data",
         overwrite: bool = False,
     ):
         """
@@ -98,6 +99,8 @@ class StationPicker:
             Downsampling factor for bathymetry data (default: 10, higher = faster but less detailed)
         bathymetry_source : str
             Bathymetry data source: "etopo2022" or "gebco2025" (default: etopo2022)
+        bathymetry_dir : str
+            Directory containing bathymetry data files (default: "data")
         overwrite : bool
             Whether to overwrite existing files without prompting (default: False)
         """
@@ -111,8 +114,10 @@ class StationPicker:
         self.bathymetry_stride = bathymetry_stride
         self.bathymetry_colormap = get_colormap("bathymetry")
 
-        # Initialize bathymetry manager with specified source
-        self.bathymetry = BathymetryManager(source=bathymetry_source)
+        # Initialize bathymetry manager with specified source and directory
+        self.bathymetry = BathymetryManager(
+            source=bathymetry_source, data_dir=bathymetry_dir
+        )
 
         # Data Storage
         self.stations: List[Dict] = []
@@ -249,7 +254,7 @@ class StationPicker:
             transform=self.ax_controls.transAxes,
             va="top",
             fontfamily="monospace",
-            fontsize=7,
+            fontsize=9,
         )
 
     def _setup_widgets(self):
@@ -377,10 +382,24 @@ class StationPicker:
 
     def _on_key_press(self, event):
         """Handle keyboard shortcuts."""
+        key = event.key.lower() if event.key else ""
+
+        # Handle global shortcuts that work from anywhere
+        if key in self.KEY_BINDINGS:
+            action = self.KEY_BINDINGS[key]
+
+            # Exit works globally - no need to be over the map
+            if action == "exit":
+                plt.close(self.fig)
+                sys.exit(0)
+
+            # Save also works globally for convenience
+            elif action == "save":
+                self._save_to_yaml()
+
+        # Other shortcuts only work when mouse is over the map
         if event.inaxes != self.ax_map:
             return
-
-        key = event.key.lower() if event.key else ""
 
         if key in self.KEY_BINDINGS:
             action = self.KEY_BINDINGS[key]
@@ -399,11 +418,6 @@ class StationPicker:
                 self._remove_last_item()
             elif action == "remove":
                 self.set_mode("remove")
-            elif action == "save":
-                self._save_to_yaml()
-            elif action == "exit":
-                plt.close(self.fig)
-                sys.exit(0)
 
         self._update_status_display()
         self.fig.canvas.draw_idle()
@@ -576,18 +590,18 @@ class StationPicker:
         if len(self.current_area_points) >= 2:
             self._update_temp_area()
 
-        # Update status with instruction
+        # Update status with instruction (2-line format for consistent layout)
         if len(self.current_area_points) == 1:
             self._update_status_display(
-                message="Click to add more points. Press 'a' to complete area (min 3 points)."
+                message="Area: 1 point\nAdd 2+ more, then press 'a'"
             )
         elif len(self.current_area_points) == 2:
             self._update_status_display(
-                message="Area: 2 points. Add 1+ more, then press 'a' to complete."
+                message="Area: 2 points\nAdd 1+ more, then press 'a'"
             )
         else:
             self._update_status_display(
-                message=f"Area: {len(self.current_area_points)} points. Press 'a' to complete area."
+                message=f"Area: {len(self.current_area_points)} points\nReady! Press 'a' to complete"
             )
 
     def _update_temp_area(self):
@@ -841,7 +855,11 @@ class StationPicker:
             aspect = 1.0
 
         aspect = max(1.0, min(aspect, 10.0))
-        self.ax_map.set_aspect(aspect, adjustable="datalim")
+
+        # Use "box" adjustable to prevent data limits from changing during interactions
+        # This maintains geographic projection while keeping map bounds stable
+        self.ax_map.set_aspect(aspect, adjustable="box")
+
         self.fig.canvas.draw_idle()
 
     # --- File Operations ---
@@ -992,7 +1010,6 @@ class StationPicker:
 
     def show(self):
         """Display the interactive cruise planning interface."""
-        plt.tight_layout()
         plt.show()
 
     def get_cruise_data(self) -> Dict:

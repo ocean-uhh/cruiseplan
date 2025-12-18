@@ -125,6 +125,7 @@ def plot_bathymetry(
     bathy_max_lat: float,
     bathymetry_source: str = "gebco2025",
     stride: int = 5,
+    bathymetry_dir: str = "data",
 ) -> bool:
     """
     Plot bathymetry contours on a matplotlib axis.
@@ -156,7 +157,9 @@ def plot_bathymetry(
         )
 
         # Initialize bathymetry
-        bathymetry = BathymetryManager(source=bathymetry_source)
+        bathymetry = BathymetryManager(
+            source=bathymetry_source, data_dir=bathymetry_dir
+        )
         bathy_data = bathymetry.get_grid_subset(
             lat_min=bathy_min_lat,
             lat_max=bathy_max_lat,
@@ -434,6 +437,7 @@ def generate_map(
     output_file: Union[str, Path] = "cruise_map.png",
     bathymetry_source: str = "gebco2025",
     bathymetry_stride: int = 5,
+    bathymetry_dir: str = "data",
     show_plot: bool = False,
     figsize: Tuple[float, float] = (10, 8),
 ) -> Optional[Path]:
@@ -509,7 +513,9 @@ def generate_map(
     fig, ax = plt.subplots(figsize=figsize)
 
     # Plot bathymetry
-    plot_bathymetry(ax, *bathy_limits, bathymetry_source, bathymetry_stride)
+    plot_bathymetry(
+        ax, *bathy_limits, bathymetry_source, bathymetry_stride, bathymetry_dir
+    )
 
     # Plot cruise elements
     plot_cruise_elements(ax, data_source, display_bounds, source_type)
@@ -538,6 +544,7 @@ def generate_map_from_yaml(
     output_file: Union[str, Path] = "cruise_map.png",
     bathymetry_source: str = "gebco2025",
     bathymetry_stride: int = 5,
+    bathymetry_dir: str = "data",
     show_plot: bool = False,
     figsize: Tuple[float, float] = (10, 8),
 ) -> Optional[Path]:
@@ -572,6 +579,7 @@ def generate_map_from_yaml(
         output_file=output_file,
         bathymetry_source=bathymetry_source,
         bathymetry_stride=bathymetry_stride,
+        bathymetry_dir=bathymetry_dir,
         show_plot=show_plot,
         figsize=figsize,
     )

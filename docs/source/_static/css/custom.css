@@ -46,3 +46,19 @@
   color: #ffcc00;
   /* or another brand accent */
 }
+
+/* Copyright footer disabled via html_show_copyright = False in conf.py */
+
+/* Add version display to sidebar */
+.wy-side-nav-search .version {
+  color: #ffffff;
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+/* Ensure version shows in project title area */
+.wy-side-nav-search > div.version {
+  display: block !important;
+  text-align: center;
+  margin-top: 5px;
+}

@@ -1,13 +1,36 @@
 # CruisePlan
 
-> 🌊 Oceanographic Research Cruise Planning System — a software package for planning oceanographic research cruises.
+> 🌊 **Comprehensive Oceanographic Research Cruise Planning System** — Streamlining the complex process of designing, optimizing, and planning oceanographic research expeditions.
 
 [![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
 
-CruisePlan assists oceanographers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
+## Statement of Need
+
+**The Challenge:** Oceanographic cruise planning involves precise timing and geographic calculations which may need frequent updating. Researchers currently face:
+
+- **Fragmented Tools**: Scattered spreadsheets, manual calculations, and discipline-specific software
+- **Time-Intensive Processes**: Semi-manual station planning, timing calculations, and proposal formatting  
+- **Error-Prone Workflows**: Manual depth lookups, coordinate formatting, and schedule validation
+- **Limited Historical Context**: Difficulty incorporating past cruise data and lessons learned
+
+**The Solution:** CruisePlan provides an integrated, semi-automated, flexible solution that transforms drafting of cruise plans into an efficient workflow.
+
+## Target Audience
+
+**Primary Users:**
+- **🔬 Oceanographic Researchers**: Principal investigators designing research expeditions
+- **📊 Students**: Graduate students learning cruise planning methodology
+- **📋 Proposal Writers**: Scientists preparing funding proposals with detailed cruise plans
+
+**Research Domains:**
+The primary development of CruisePlan is for physical oceanographers, with CTD stations, mooring deployments and glider operations as default.  However, it is possible to incorporate any type of point, line or area operation of a ship with a specified manual duration based on your own experience.
+
+CruisePlan transforms complex cruise planning from a weeks-long manual process into a structured, validated workflow that produces proposal-ready documentation with some checks on operational feasibility.
+
+**Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 
 📘 Full documentation available at:  
 👉 https://ocean-uhh.github.io/cruiseplan/
@@ -18,7 +41,7 @@ CruisePlan assists oceanographers in designing optimal station layouts, calculat
 
 - ✅ **Interactive station planning**: Click-to-place stations on bathymetric maps with real-time depth feedback
 - 📓 **PANGAEA integration**: Browse and incorporate past cruise data for context
-- 📄 **Multi-format outputs**: Generate NetCDF, LaTeX reports, HTML maps, KML files, and CSV data
+- 📄 **Multi-format outputs**: Generate NetCDF, LaTeX reports, PNG maps, KML files, and CSV data
 - 🔍 **Cruise validation**: Automated checking of cruise configurations and operational feasibility
 - 🎨 **Documentation**: Sphinx-based docs with API references and usage guides
 - 📦 **Modern Python packaging**: Complete with testing, linting, and CI/CD workflows
@@ -27,6 +50,8 @@ CruisePlan assists oceanographers in designing optimal station layouts, calculat
 ---
 
 ## Project structure
+
+For a detailed breakdown of the package architecture and module descriptions, see the [Project Structure Documentation](https://ocean-uhh.github.io/cruiseplan/project_structure.html).
 
 ```text
 cruiseplan/
@@ -61,29 +86,60 @@ cruiseplan/
 
 ---
 
-## 🔧 Quickstart
+## 🔧 Installation
 
-Install CruisePlan in development mode:
+### Option 1: Install from PyPI (Most Users)
+
+For general use, install the latest stable release from PyPI:
 
 ```bash
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install CruisePlan
+pip install cruiseplan
+```
+
+### Option 2: Install Latest from GitHub
+
+For the latest features and bug fixes:
+
+```bash
+# Create virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+
+# Install directly from GitHub
+pip install git+https://github.com/ocean-uhh/cruiseplan.git
+```
+
+### Option 3: Development Installation
+
+For development or contributing to CruisePlan:
+
+```bash
+# Clone the repository
 git clone https://github.com/ocean-uhh/cruiseplan.git
 cd cruiseplan
 
-# Option A: Using conda/mamba (recommended)
+# Option A: Using conda/mamba
 conda env create -f environment.yml
 conda activate cruiseplan
-pip install -e .
+pip install -e ".[dev]"
 
-# Option B: Using pip
-pip install -r requirements.txt
-pip install -r requirements-dev.txt
-pip install -e .
+# Option B: Using pip with virtual environment
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e ".[dev]"
 ```
+
+**Dependencies**: Core packages are listed in `requirements.txt`, development tools in `requirements-dev.txt`. The conda `environment.yml` loads from these files automatically.
 
 To run tests:
 
 ```bash
-pytest
+pytest tests/
 ```
 
 To build the documentation locally:
@@ -113,7 +169,9 @@ For information about planned improvements and the development roadmap, see [PRO
 
 ---
 
-## 📣 Citation
+## 🙏 Acknowledgments & Citation
+
+The original timing algorithms were developed by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and [Sunke Trace-Kleeberg](https://orcid.org/0000-0002-5980-2492).  CruisePlan software development and maintenance by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and [Eleanor Frajka-Williams](https://orcid.org/0000-0001-8773-7838).
 
 If you use CruisePlan in your research, please cite it using the information in [CITATION.cff](CITATION.cff).
 

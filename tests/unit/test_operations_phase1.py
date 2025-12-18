@@ -113,20 +113,35 @@ class TestAreaOperation:
         assert len(area_op.boundary_polygon) == 3
 
     def test_area_operation_duration_calculation(self):
-        """Verify duration calculation uses the placeholder formula."""
+        """Verify duration calculation uses user-specified duration."""
         area_km2 = 1000.0
         sampling_density = 0.5
+        user_duration = 480.0  # 8 hours
         area_op = AreaOperation(
             name="TestArea",
             boundary_polygon=[],
             area_km2=area_km2,
             sampling_density=sampling_density,
+            duration=user_duration,  # User-specified duration required
         )
-        # Formula is: self.area_km2 * self.sampling_density * 0.1
-        expected_duration = 1000.0 * 0.5 * 0.1
-        assert area_op.calculate_duration(self.rules) == pytest.approx(
-            expected_duration
+        # AreaOperation now requires user-specified duration
+        assert area_op.calculate_duration(self.rules) == user_duration
+
+    def test_area_operation_requires_duration(self):
+        """Verify AreaOperation raises error when duration is not specified."""
+        area_op = AreaOperation(
+            name="TestArea",
+            boundary_polygon=[],
+            area_km2=1000.0,
+            sampling_density=0.5,
+            # duration=None  # No duration specified
         )
+        # Should raise ValueError when duration is not provided
+        with pytest.raises(
+            ValueError,
+            match="Area operation 'TestArea' requires user-specified duration",
+        ):
+            area_op.calculate_duration(self.rules)
 
 
 class TestLeg:

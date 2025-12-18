@@ -649,12 +649,11 @@ class NetCDFGenerator:
         # Set global attributes
         if not timeline:
             total_duration_days = 0.0
+        # Calculate total cruise duration in days, handling edge cases
+        elif len(times) > 1:
+            total_duration_days = max(0.0, times[-1] - times[0])
         else:
-            # Calculate total cruise duration in days, handling edge cases
-            if len(times) > 1:
-                total_duration_days = max(0.0, times[-1] - times[0])
-            else:
-                total_duration_days = 0.0
+            total_duration_days = 0.0
         ds.attrs.update(
             {
                 "featureType": "trajectory",
@@ -1197,12 +1196,11 @@ class NetCDFGenerator:
         # Set global attributes
         if not timeline:
             total_duration_days = 0.0
+        # Calculate total cruise duration in days, handling edge cases
+        elif len(times) > 1:
+            total_duration_days = max(0.0, times[-1] - times[0])
         else:
-            # Calculate total cruise duration in days, handling edge cases
-            if len(times) > 1:
-                total_duration_days = max(0.0, times[-1] - times[0])
-            else:
-                total_duration_days = 0.0
+            total_duration_days = 0.0
         ds.attrs.update(
             {
                 "featureType": "trajectory",

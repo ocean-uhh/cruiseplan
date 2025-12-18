@@ -85,6 +85,8 @@ select = [
   "B",       # flake8-bugbear
   "UP",      # pyupgrade
   "D",       # pydocstyle (Docstrings)
+  "C901",    # mccabe complexity
+  "PLR",     # pylint refactor (includes function length)
 ]
 ignore = [
   "D107",    # missing docstring in __init__
@@ -94,8 +96,59 @@ ignore = [
   "E501",    # line‑length (handled by black)
 ]
 
+# Per-file ignores for complex legacy functions (to be refactored gradually)
+[tool.ruff.lint.per-file-ignores]
+"cruiseplan/calculators/scheduler.py" = ["C901", "PLR0912", "PLR0915"]  # Legacy complex functions
+"cruiseplan/core/validation.py" = ["C901", "PLR0912", "PLR0915"]  # Complex validation functions
+"cruiseplan/output/netcdf_generator.py" = ["C901", "PLR0912", "PLR0915"]  # Large data processing functions
+"cruiseplan/data/pangaea.py" = ["C901"]  # Complex API handling functions
+"cruiseplan/output/map_generator.py" = ["C901"]  # Complex plotting functions
+"cruiseplan/cli/enrich.py" = ["C901", "PLR0912", "PLR0915"]  # CLI main functions (temporary)
+"cruiseplan/cli/main.py" = ["C901", "PLR0915"]  # CLI argument parsing
+"cruiseplan/cli/*.py" = ["C901"]  # CLI functions can be complex (temporary)
+
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
+
+[tool.ruff.lint.mccabe]
+# Maximum allowed complexity for functions (start lenient, can tighten later)
+max-complexity = 15
+
+[tool.ruff.lint.pylint]
+# Maximum number of statements in a function body (your CONTRIBUTING.md suggests ~50 lines)
+max-statements = 75
+# Maximum number of arguments for function / method
+max-args = 8
+# Maximum number of branches for function / method body  
+max-branches = 20
+# Maximum number of return statements in function / method body
+max-returns = 8
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = false  # Start lenient, can tighten later
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_unreachable = true
+strict_equality = true
+
+# Scientific computing packages often lack good type stubs
+[[tool.mypy.overrides]]
+module = [
+    "matplotlib.*",
+    "folium.*", 
+    "pangaeapy.*",
+    "branca.*",
+    "netCDF4.*",
+    "scipy.*",
+]
+ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

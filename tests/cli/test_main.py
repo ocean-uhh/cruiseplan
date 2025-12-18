@@ -29,7 +29,7 @@ class TestCLIMainFunction:
             "pangaea",
             "dois.txt",
             "-o",
-            "output",
+            "tests_output",
             "--rate-limit",
             "0.5",
         ]
@@ -58,7 +58,14 @@ class TestCLIMainFunction:
 
     def test_schedule_subcommand(self):
         """Test schedule subcommand shows not implemented message."""
-        test_args = ["cruiseplan", "schedule", "-c", "cruise.yaml", "-o", "output"]
+        test_args = [
+            "cruiseplan",
+            "schedule",
+            "-c",
+            "cruise.yaml",
+            "-o",
+            "tests_output",
+        ]
 
         with patch.object(sys, "argv", test_args):
             with patch("sys.exit") as mock_exit:
@@ -199,7 +206,8 @@ class TestVersionAndHelp:
                 with patch("sys.stdout", new_callable=StringIO) as mock_stdout:
                     main()
                     output = mock_stdout.getvalue()
-                    assert "cruiseplan 1.0.0" in output
+                    assert "cruiseplan" in output
+                    assert "0.1." in output  # Match development version pattern
 
     def test_subcommand_help(self):
         """Test subcommand help works."""

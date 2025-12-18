@@ -71,6 +71,7 @@ def main(args: argparse.Namespace) -> None:
             add_coords=args.add_coords,
             expand_sections=getattr(args, "expand_sections", False),
             bathymetry_source=args.bathymetry_source,
+            bathymetry_dir=str(args.bathymetry_dir),
             coord_format=args.coord_format,
             output_path=output_path,
         )
