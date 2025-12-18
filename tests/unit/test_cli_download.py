@@ -5,6 +5,7 @@ This module tests the CLI download functionality for different bathymetry source
 error handling, and user interaction scenarios.
 """
 
+from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -35,7 +36,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called correctly
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="etopo2022"
+                target_dir=str(Path("data") / "bathymetry"), source="etopo2022"
             )
 
     def test_main_with_gebco2025_source(self, capsys):
@@ -58,7 +59,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called correctly
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="gebco2025"
+                target_dir=str(Path("data") / "bathymetry"), source="gebco2025"
             )
 
     def test_main_with_no_args_defaults_to_etopo2022(self, capsys):
@@ -80,7 +81,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called with default
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="etopo2022"
+                target_dir=str(Path("data") / "bathymetry"), source="etopo2022"
             )
 
     def test_main_with_none_args_defaults_to_etopo2022(self, capsys):
@@ -96,7 +97,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called with default
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="etopo2022"
+                target_dir=str(Path("data") / "bathymetry"), source="etopo2022"
             )
 
     def test_main_with_unknown_source_exits(self, capsys):
@@ -140,7 +141,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="gebco2025"
+                target_dir=str(Path("data") / "bathymetry"), source="gebco2025"
             )
 
     def test_main_etopo2022_failed_download_does_not_exit(self, capsys):
@@ -159,7 +160,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="etopo2022"
+                target_dir=str(Path("data") / "bathymetry"), source="etopo2022"
             )
 
     def test_main_keyboard_interrupt_handling(self, capsys):
@@ -217,7 +218,7 @@ class TestCliDownload:
 
             # Verify download_bathymetry was called with default
             mock_download.assert_called_once_with(
-                target_dir="data/bathymetry", source="etopo2022"
+                target_dir=str(Path("data") / "bathymetry"), source="etopo2022"
             )
 
     def test_main_with_citation_flag_etopo2022(self, capsys):
