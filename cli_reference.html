@@ -6,23 +6,23 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CLI Command Reference &mdash; CruisePlan v0.0.0 documentation</title>
+  <title>CLI Command Reference &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Units and Defaults" href="units_and_defaults.html" />
-    <link rel="prev" title="Complete User Workflows" href="user_workflows.html" /> 
+    <link rel="next" title="YAML Configuration Reference" href="yaml_reference.html" />
+    <link rel="prev" title="CruisePlan Demo" href="demo-output.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -34,7 +34,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            CruisePlan
+            CruisePlan v0.1
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -48,42 +48,40 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CLI Command Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#general-usage">General Usage</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#subcommands">Subcommands</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#download">download</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#schedule">schedule</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#stations">stations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#enrich">enrich</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#validate">validate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pandoi">pandoi</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#map">map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#pangaea">pangaea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#download"><cite>download</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pandoi"><cite>pandoi</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pangaea"><cite>pangaea</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#stations"><cite>stations</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#enrich"><cite>enrich</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#validate"><cite>validate</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#map"><cite>map</cite></a></li>
+<li class="toctree-l3"><a class="reference internal" href="#schedule"><cite>schedule</cite></a></li>
 </ul>
 </li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
 <li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 <li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
@@ -99,7 +97,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CruisePlan</a>
+          <a href="index.html">CruisePlan v0.1</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -109,7 +107,6 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">CLI Command Reference</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/cli_reference.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -141,18 +138,39 @@
 </tr>
 </tbody>
 </table>
+<p><strong>Workflow</strong></p>
+<p>The general workflow follows these steps in order:</p>
+<ol class="arabic simple">
+<li><p><strong>Data preparation:</strong> <a class="reference internal" href="#subcommand-download"><span class="std std-ref">download</span></a> - Download bathymetry and external datasets</p></li>
+<li><p><strong>Historical integration:</strong> <a class="reference internal" href="#subcommand-pandoi"><span class="std std-ref">pandoi</span></a> - Search PANGAEA datasets by query and bounds</p></li>
+<li><p><strong>Historical integration:</strong> <a class="reference internal" href="#subcommand-pangaea"><span class="std std-ref">pangaea</span></a> - Process PANGAEA DOI lists into campaign datasets</p></li>
+<li><p><strong>Cruise configuration:</strong> <a class="reference internal" href="#subcommand-stations"><span class="std std-ref">stations</span></a> - Interactive station planning interface</p></li>
+<li><p><strong>Cruise configuration:</strong> <a class="reference internal" href="#subcommand-enrich"><span class="std std-ref">enrich</span></a> - Add depths, coordinates, and expand sections</p></li>
+<li><p><strong>Cruise configuration:</strong> <a class="reference internal" href="#subcommand-validate"><span class="std std-ref">validate</span></a> - Validate configuration files</p></li>
+<li><p><strong>Cruise configuration:</strong> <a class="reference internal" href="#subcommand-map"><span class="std std-ref">map</span></a> - Generate standalone PNG cruise maps</p></li>
+<li><p><strong>Schedule generation:</strong> <a class="reference internal" href="#subcommand-schedule"><span class="std std-ref">schedule</span></a> - Generate cruise timeline and outputs</p></li>
+</ol>
 <p><strong>Examples:</strong></p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>results/
-$<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">65</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-30
-$<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
+<p>The command-line interface provides eight main subcommands for different aspects of cruise planning.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>$<span class="w"> </span>cruiseplan<span class="w"> </span>download
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">60</span><span class="w"> </span>--lon<span class="w"> </span>-50<span class="w"> </span>-40<span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span><span class="w"> </span>-o<span class="w"> </span>data/cruise1/
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>doi_list.txt<span class="w"> </span>-o<span class="w"> </span>data/cruise1/
+$<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">65</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-30<span class="w"> </span>-o<span class="w"> </span>data/cruise1/
+$<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>data/cruise1/cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords
 $<span class="w"> </span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--check-depths
-$<span class="w"> </span>cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">60</span><span class="w"> </span>--lon<span class="w"> </span>-50<span class="w"> </span>-40<span class="w"> </span>--limit<span class="w"> </span><span class="m">20</span>
 $<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span>
-$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>doi_list.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
+$<span class="w"> </span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>results/
 </pre></div>
 </div>
-<p>—</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/cli_help_overview.png"><img alt="CruisePlan CLI help overview showing all available commands" src="_images/cli_help_overview.png" style="width: 700px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Complete overview of CruisePlan CLI commands and their purposes</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
+<hr class="docutils" />
 <section id="subcommands">
 <h2>Subcommands<a class="headerlink" href="#subcommands" title="Link to this heading"></a></h2>
 <div class="admonition note">
@@ -160,9 +178,10 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 <p>For detailed help on any subcommand, use: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">&lt;command&gt;</span> <span class="pre">--help</span></code></p>
 </div>
 <section id="download">
-<h3>download<a class="headerlink" href="#download" title="Link to this heading"></a></h3>
+<span id="subcommand-download"></span><h3><cite>download</cite><a class="headerlink" href="#download" title="Link to this heading"></a></h3>
 <p>Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span>
+<span class="w">                           </span><span class="o">[</span>--citation<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span>
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>
@@ -177,6 +196,12 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
 <td><p>Bathymetry dataset to download (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--citation</span></code></p></td>
+<td><p>Show citation information for the bathymetry source without downloading.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory for bathymetry files (default: <code class="docutils literal notranslate"><span class="pre">data/bathymetry</span></code>).</p></td>
 </tr>
 </tbody>
 </table>
@@ -224,187 +249,18 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="
 $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
 </pre></div>
 </div>
-</section>
-<section id="schedule">
-<h3>schedule<a class="headerlink" href="#schedule" title="Link to this heading"></a></h3>
-<p>Generate the cruise timeline and schedule outputs from a YAML configuration file.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--format<span class="w"> </span><span class="o">{</span>html,latex,csv,kml,netcdf,png,all<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--leg<span class="w"> </span>LEG<span class="o">]</span>
-</pre></div>
-</div>
-<p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
-<td><p><strong>Required.</strong> YAML cruise configuration file.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
-<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">current</span></code> directory).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">{html,latex,csv,kml,netcdf,png,all}</span></code></p></td>
-<td><p>Output formats to generate (default: <code class="docutils literal notranslate"><span class="pre">all</span></code>). PNG format generates timeline-based maps showing scheduled sequence.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--leg</span> <span class="pre">LEG</span></code></p></td>
-<td><p>Process specific leg only (e.g., <code class="docutils literal notranslate"><span class="pre">--leg</span> <span class="pre">Northern_Operations</span></code>).</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="stations">
-<h3>stations<a class="headerlink" href="#stations" title="Link to this heading"></a></h3>
-<p>Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--high-resolution<span class="o">]</span>
-</pre></div>
-</div>
-<p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">PANGAEA_FILE,</span> <span class="pre">--pangaea-file</span> <span class="pre">PANGAEA_FILE</span></code></p></td>
-<td><p>Path to the pickled PANGAEA campaigns file.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code></p></td>
-<td><p>Latitude bounds for the map view (default: <code class="docutils literal notranslate"><span class="pre">45</span> <span class="pre">70</span></code>).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code></p></td>
-<td><p>Longitude bounds for the map view (default: <code class="docutils literal notranslate"><span class="pre">-65</span> <span class="pre">-5</span></code>).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
-<td><p>Output directory for the generated station YAML (default: <code class="docutils literal notranslate"><span class="pre">current</span></code>).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
-<td><p>Specific output file path for the generated YAML.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
-<td><p>Bathymetry dataset to use for depth lookups (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code></p></td>
-<td><p>Use full resolution bathymetry in the interactive interface (slower but more detailed).</p></td>
-</tr>
-</tbody>
-</table>
-</section>
-<section id="enrich">
-<h3>enrich<a class="headerlink" href="#enrich" title="Link to this heading"></a></h3>
-<p>Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--add-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--add-coords<span class="o">]</span><span class="w"> </span><span class="o">[</span>--expand-sections<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
-</pre></div>
-</div>
-<p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
-<td><p><strong>Required.</strong> Input YAML configuration file.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--add-depths</span></code></p></td>
-<td><p>Add missing <code class="docutils literal notranslate"><span class="pre">depth</span></code> values to stations using bathymetry data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code></p></td>
-<td><p>Add formatted coordinate fields (currently DMM; DMS not yet implemented).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code></p></td>
-<td><p>Expand CTD sections defined in <code class="docutils literal notranslate"><span class="pre">transits</span></code> into individual station definitions with spherical interpolation.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
-<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
-<td><p>Specific output file path.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
-<td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--coord-format</span> <span class="pre">{dmm,dms}</span></code></p></td>
-<td><p>Format for adding coordinates.</p></td>
-</tr>
-</tbody>
-</table>
-<p><strong>CTD Section Expansion:</strong></p>
-<p>The <code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code> option processes CTD section transits and converts them into individual station definitions:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: CTD section definition</span>
-<span class="nt">transits</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1&quot;</span>
-<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ctd_section&quot;</span>
-<span class="w">    </span><span class="nt">spacing_km</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.0</span>
-<span class="w">    </span><span class="nt">max_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
-<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
-<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
-<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">78.0</span>
-<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-8.0</span>
-
-<span class="c1"># Output: Individual stations created</span>
-<span class="nt">stations</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_001&quot;</span>
-<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
-<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
-<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
-<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
-<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_002&quot;</span>
-<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.59</span><span class="w">  </span><span class="c1"># Spherical interpolation</span>
-<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-13.68</span>
-<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
-<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
-<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
-<span class="w">  </span><span class="c1"># ... additional stations along the route</span>
-</pre></div>
-</div>
-<p><strong>Key Features:</strong>
-- Uses great circle interpolation for accurate positioning along curved Earth surface
-- Automatically generates unique station names with sequential numbering
-- Preserves original transit metadata (max_depth becomes station depth)
-- Handles name collisions by appending incremental suffixes
-- Updates leg definitions to reference the newly created stations</p>
-</section>
-<section id="validate">
-<h3>validate<a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
-<p>Performs validation checks on a configuration file, including comparing stated depths against bathymetry data.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--check-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--strict<span class="o">]</span><span class="w"> </span><span class="o">[</span>--warnings-only<span class="o">]</span><span class="w"> </span><span class="o">[</span>--tolerance<span class="w"> </span>TOLERANCE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
-</pre></div>
-</div>
-<p><strong>Options:</strong></p>
-<table class="docutils align-default">
-<colgroup>
-<col style="width: 30.0%" />
-<col style="width: 70.0%" />
-</colgroup>
-<tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
-<td><p><strong>Required.</strong> Input YAML configuration file.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--check-depths</span></code></p></td>
-<td><p>Compare existing depths with bathymetry data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--strict</span></code></p></td>
-<td><p>Enable strict validation mode (fail on warnings).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--warnings-only</span></code></p></td>
-<td><p>Show warnings but do not fail the exit code.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--tolerance</span> <span class="pre">TOLERANCE</span></code></p></td>
-<td><p>Depth difference tolerance in percent (default: <code class="docutils literal notranslate"><span class="pre">10.0</span></code>).</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
-<td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
-</tr>
-</tbody>
-</table>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/download_bathymetry.png"><img alt="Bathymetry download progress with citation information" src="_images/download_bathymetry.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Bathymetry download process showing progress bars</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<p>The download command shows progress information and provides proper citation details for the bathymetry datasets.</p>
+<hr class="docutils" />
 </section>
 <section id="pandoi">
-<h3>pandoi<a class="headerlink" href="#pandoi" title="Link to this heading"></a></h3>
+<span id="subcommand-pandoi"></span><h3><cite>pandoi</cite><a class="headerlink" href="#pandoi" title="Link to this heading"></a></h3>
 <p>Search PANGAEA datasets by query terms and geographic bounding box, generating a DOI list for subsequent use with the <code class="docutils literal notranslate"><span class="pre">pangaea</span></code> command.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--limit<span class="w"> </span>LIMIT<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span><span class="w"> </span>query
 </pre></div>
@@ -545,15 +401,257 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>pandoi<span class="w"
 $<span class="w"> </span>cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD temperature&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">60</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-50<span class="w"> </span>-30<span class="w"> </span>--output-file<span class="w"> </span>data/arctic_ctd_dois.txt
 
 <span class="c1"># Step 2: Fetch and process the datasets</span>
-$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>arctic_ctd_dois.txt<span class="w"> </span>--output-dir<span class="w"> </span>data/
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>data/arctic_ctd_dois.txt<span class="w"> </span>--output-dir<span class="w"> </span>data/
 
 <span class="c1"># Step 3: Use in station planning</span>
-$<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--pangaea-file<span class="w"> </span>data/pangaea_campaigns.pkl
+$<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--pangaea-file<span class="w"> </span>data/arctic_ctd_dois_pangaea_data.pkl
 </pre></div>
 </div>
+<hr class="docutils" />
+</section>
+<section id="pangaea">
+<span id="subcommand-pangaea"></span><h3><cite>pangaea</cite><a class="headerlink" href="#pangaea" title="Link to this heading"></a></h3>
+<p>Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and outputs a searchable dataset.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--rate-limit<span class="w"> </span>RATE_LIMIT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--merge-campaigns<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span>doi_file
+</pre></div>
+</div>
+<p><strong>Arguments:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doi_file</span></code></p></td>
+<td><p><strong>Required.</strong> Text file with PANGAEA DOIs (one per line).</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">data/</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--rate-limit</span> <span class="pre">RATE_LIMIT</span></code></p></td>
+<td><p>API request rate limit (requests per second, default: <code class="docutils literal notranslate"><span class="pre">1.0</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--merge-campaigns</span></code></p></td>
+<td><p>Merge campaigns with the same name.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
+<td><p>Specific output file path for the pickled dataset.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Examples:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Process DOIs from file with default settings</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt
+
+<span class="c1"># Process with custom output directory and rate limiting</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt<span class="w"> </span>-o<span class="w"> </span>data/pangaea<span class="w"> </span>--rate-limit<span class="w"> </span><span class="m">0</span>.5
+
+<span class="c1"># Merge campaigns and save to specific file</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt<span class="w"> </span>--merge-campaigns<span class="w"> </span>--output-file<span class="w"> </span>pangaea_stations.pkl
+</pre></div>
+</div>
+<p>The command will create a pickled file containing processed PANGAEA station data that can be used with the <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">stations</span></code> command for interactive station planning.</p>
+<hr class="docutils" />
+</section>
+<section id="stations">
+<span id="subcommand-stations"></span><h3><cite>stations</cite><a class="headerlink" href="#stations" title="Link to this heading"></a></h3>
+<p>Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--high-resolution<span class="o">]</span><span class="w"> </span><span class="o">[</span>--overwrite<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-p</span> <span class="pre">PANGAEA_FILE,</span> <span class="pre">--pangaea-file</span> <span class="pre">PANGAEA_FILE</span></code></p></td>
+<td><p>Path to the pickled PANGAEA campaigns file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code></p></td>
+<td><p>Latitude bounds for the map view (default: <code class="docutils literal notranslate"><span class="pre">45</span> <span class="pre">70</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code></p></td>
+<td><p>Longitude bounds for the map view (default: <code class="docutils literal notranslate"><span class="pre">-65</span> <span class="pre">-5</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory for the generated station YAML (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
+<td><p>Specific output file path for the generated YAML.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<td><p>Bathymetry dataset to use for depth lookups (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code></p></td>
+<td><p>Use full resolution bathymetry in the interactive interface (slower but more detailed).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--overwrite</span></code></p></td>
+<td><p>Overwrite existing output file without prompting.</p></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>Performance Notice:</strong> The combination of <code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">gebco2025</span></code> with <code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code> can be very slow for interactive use. GEBCO 2025 is a high-resolution dataset (~7.5GB) and processing it without downsampling creates significant lag during station placement and map interaction.</p>
+<p><strong>Recommended workflow:</strong>
+- Use <code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">etopo2022</span></code> (default) for initial interactive planning
+- Reserve GEBCO 2025 high-resolution for final detailed work only
+- Consider standard resolution (default) for GEBCO 2025 during interactive sessions</p>
+</div>
+<hr class="docutils" />
+</section>
+<section id="enrich">
+<span id="subcommand-enrich"></span><h3><cite>enrich</cite><a class="headerlink" href="#enrich" title="Link to this heading"></a></h3>
+<p>Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--add-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--add-coords<span class="o">]</span><span class="w"> </span><span class="o">[</span>--expand-sections<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
+<td><p><strong>Required.</strong> Input YAML configuration file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--add-depths</span></code></p></td>
+<td><p>Add missing <code class="docutils literal notranslate"><span class="pre">depth</span></code> values to stations using bathymetry data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code></p></td>
+<td><p>Add formatted coordinate fields (currently DMM; DMS not yet implemented).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code></p></td>
+<td><p>Expand CTD sections defined in <code class="docutils literal notranslate"><span class="pre">transits</span></code> into individual station definitions with spherical interpolation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
+<td><p>Specific output file path.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--coord-format</span> <span class="pre">{dmm,dms}</span></code></p></td>
+<td><p>Format for adding coordinates (default: <code class="docutils literal notranslate"><span class="pre">dmm</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--backup</span></code></p></td>
+<td><p>Create backup of original file before enriching.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--verbose</span></code></p></td>
+<td><p>Enable verbose logging output.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>CTD Section Expansion:</strong></p>
+<p>The <code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code> option processes CTD section transits and converts them into individual station definitions:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: CTD section definition</span>
+<span class="nt">transits</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ctd_section&quot;</span>
+<span class="w">    </span><span class="nt">spacing_km</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.0</span>
+<span class="w">    </span><span class="nt">max_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">78.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-8.0</span>
+
+<span class="c1"># Output: Individual stations created</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_001&quot;</span>
+<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>
+<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.0</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_002&quot;</span>
+<span class="w">    </span><span class="nt">position</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.59</span><span class="w">  </span><span class="c1"># Spherical interpolation</span>
+<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-13.68</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
+<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span>
+<span class="w">  </span><span class="c1"># ... additional stations along the route</span>
+</pre></div>
+</div>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p>Uses great circle interpolation for accurate positioning along curved Earth surface</p></li>
+<li><p>Automatically generates unique station names with sequential numbering</p></li>
+<li><p>Preserves original transit metadata (max_depth becomes station depth)</p></li>
+<li><p>Handles name collisions by appending incremental suffixes</p></li>
+<li><p>Updates leg definitions to reference the newly created stations</p></li>
+</ul>
+<hr class="docutils" />
+</section>
+<section id="validate">
+<span id="subcommand-validate"></span><h3><cite>validate</cite><a class="headerlink" href="#validate" title="Link to this heading"></a></h3>
+<p>Performs validation checks on a configuration file, including comparing stated depths against bathymetry data.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>validate<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>--check-depths<span class="o">]</span><span class="w"> </span><span class="o">[</span>--strict<span class="o">]</span><span class="w"> </span><span class="o">[</span>--warnings-only<span class="o">]</span><span class="w"> </span><span class="o">[</span>--tolerance<span class="w"> </span>TOLERANCE<span class="o">]</span><span class="w"> </span><span class="o">[</span>...<span class="o">]</span>
+</pre></div>
+</div>
+<p><strong>Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
+<td><p><strong>Required.</strong> Input YAML configuration file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--check-depths</span></code></p></td>
+<td><p>Compare existing depths with bathymetry data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--strict</span></code></p></td>
+<td><p>Enable strict validation mode (fail on warnings).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--warnings-only</span></code></p></td>
+<td><p>Show warnings but do not fail the exit code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--tolerance</span> <span class="pre">TOLERANCE</span></code></p></td>
+<td><p>Depth difference tolerance in percent (default: <code class="docutils literal notranslate"><span class="pre">10.0</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-format</span> <span class="pre">{text,json}</span></code></p></td>
+<td><p>Output format for validation results (default: <code class="docutils literal notranslate"><span class="pre">text</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-v,</span> <span class="pre">--verbose</span></code></p></td>
+<td><p>Enable verbose logging with detailed validation progress.</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation Checks:</strong></p>
+<p>The validation process includes:</p>
+<ul class="simple">
+<li><p><strong>Schema Validation</strong>: YAML structure and required fields</p></li>
+<li><p><strong>Reference Integrity</strong>: Station, leg, and cluster cross-references</p></li>
+<li><p><strong>Geographic Bounds</strong>: Coordinate validity and reasonable geographic limits</p></li>
+<li><p><strong>Operational Feasibility</strong>: Duration calculations and scheduling logic</p></li>
+<li><p><strong>Bathymetric Accuracy</strong>: Depth consistency with global datasets (when <code class="docutils literal notranslate"><span class="pre">--check-depths</span></code> enabled)</p></li>
+<li><p><strong>Scientific Standards</strong>: CF convention compliance for output formats</p></li>
+</ul>
+<hr class="docutils" />
 </section>
 <section id="map">
-<h3>map<a class="headerlink" href="#map" title="Link to this heading"></a></h3>
+<span id="subcommand-map"></span><h3><cite>map</cite><a class="headerlink" href="#map" title="Link to this heading"></a></h3>
 <p>Generate standalone PNG cruise track maps directly from YAML configuration files, independent of scheduling.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--bathymetry-stride<span class="w"> </span>BATHYMETRY_STRIDE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--show-plot<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span>
 </pre></div>
@@ -664,26 +762,67 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> <
 $<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--show-plot
 </pre></div>
 </div>
+<hr class="docutils" />
 </section>
-<section id="pangaea">
-<h3>pangaea<a class="headerlink" href="#pangaea" title="Link to this heading"></a></h3>
-<p>Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and outputs a searchable dataset.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--rate-limit<span class="w"> </span>RATE_LIMIT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--merge-campaigns<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span>doi_file
+<section id="schedule">
+<span id="subcommand-schedule"></span><h3><cite>schedule</cite><a class="headerlink" href="#schedule" title="Link to this heading"></a></h3>
+<p>Generate the cruise timeline and schedule outputs from a YAML configuration file.</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--format<span class="w"> </span><span class="o">{</span>html,latex,csv,kml,netcdf,png,all<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--leg<span class="w"> </span>LEG<span class="o">]</span><span class="w"> </span><span class="o">[</span>--derive-netcdf<span class="o">]</span>
 </pre></div>
 </div>
-<p><strong>Arguments:</strong></p>
+<p><strong>Options:</strong></p>
 <table class="docutils align-default">
 <colgroup>
 <col style="width: 30.0%" />
 <col style="width: 70.0%" />
 </colgroup>
 <tbody>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">doi_file</span></code></p></td>
-<td><p><strong>Required.</strong> Text file with PANGAEA DOIs (one per line).</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
+<td><p><strong>Required.</strong> YAML cruise configuration file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">{html,latex,csv,kml,netcdf,png,all}</span></code></p></td>
+<td><p>Output formats to generate (default: <code class="docutils literal notranslate"><span class="pre">all</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--leg</span> <span class="pre">LEG</span></code></p></td>
+<td><p>Process specific leg only (e.g., <code class="docutils literal notranslate"><span class="pre">--leg</span> <span class="pre">Northern_Operations</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--derive-netcdf</span></code></p></td>
+<td><p>Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Only works with NetCDF format.</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Options:</strong></p>
+<p><strong>Examples:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate all output formats</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>results/
+
+<span class="c1"># Generate only HTML and CSV</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>html,csv
+
+<span class="c1"># Generate NetCDF with specialized files</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>netcdf<span class="w"> </span>--derive-netcdf
+
+<span class="c1"># Process specific leg only</span>
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--leg<span class="w"> </span><span class="s2">&quot;Northern_Survey&quot;</span><span class="w"> </span>--format<span class="w"> </span>all
+</pre></div>
+</div>
+<p><strong>NetCDF Output Options:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">netcdf</span></code></p></td>
+<td><p>Generates master schedule file: <code class="docutils literal notranslate"><span class="pre">cruise_schedule.nc</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">netcdf</span> <span class="pre">--derive-netcdf</span></code></p></td>
+<td><p>Generates specialized files: <code class="docutils literal notranslate"><span class="pre">cruise_schedule.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">cruise_points.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">cruise_lines.nc</span></code>, <code class="docutils literal notranslate"><span class="pre">cruise_areas.nc</span></code></p></td>
+</tr>
+</tbody>
+</table>
 </section>
 </section>
 </section>
@@ -692,14 +831,14 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> <
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="user_workflows.html" class="btn btn-neutral float-left" title="Complete User Workflows" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="units_and_defaults.html" class="btn btn-neutral float-right" title="Units and Defaults" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="demo-output.html" class="btn btn-neutral float-left" title="CruisePlan Demo" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="yaml_reference.html" class="btn btn-neutral float-right" title="YAML Configuration Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

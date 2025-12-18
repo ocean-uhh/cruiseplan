@@ -6,23 +6,23 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Units and Defaults &mdash; CruisePlan v0.0.0 documentation</title>
+  <title>Units and Defaults &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CruisePlan Demo: Complete Cruise Planning Workflow" href="demo-output.html" />
-    <link rel="prev" title="CLI Command Reference" href="cli_reference.html" /> 
+    <link rel="next" title="NetCDF Output Files for CruisePlan" href="netcdf_outputs.html" />
+    <link rel="prev" title="YAML Configuration Reference" href="yaml_reference.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -34,7 +34,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            CruisePlan
+            CruisePlan v0.1
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -48,38 +48,36 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
-<ul class="current">
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Units and defaults</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#standard-units">Standard Units</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#time-formats">Time Formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#depth-convention">Depth Convention</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#coordinate-formats">Coordinate Formats</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#default-values">Default Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#operational-examples">Operational Examples</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-in-yaml">Examples in YAML</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#unit-conversion-reference">Unit Conversion Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
@@ -95,7 +93,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CruisePlan</a>
+          <a href="index.html">CruisePlan v0.1</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -105,7 +103,6 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Units and Defaults</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/units_and_defaults.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -158,7 +155,7 @@
 </section>
 <section id="time-formats">
 <h2>Time Formats<a class="headerlink" href="#time-formats" title="Link to this heading"></a></h2>
-<p><strong>ISO 8601 Format</strong>: All timestamps use ISO 8601 format with timezone specification.</p>
+<p><strong>ISO 8601 Format</strong>: All timestamps in YAML files use ISO 8601 format with timezone specification.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard timestamp format</span>
 <span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-01T08:00:00Z&quot;</span>
 
@@ -200,14 +197,22 @@
 <h2>Coordinate Formats<a class="headerlink" href="#coordinate-formats" title="Link to this heading"></a></h2>
 <p><strong>Primary Format</strong>: Decimal degrees (WGS84)</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">position</span><span class="p">:</span>
-<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.5833</span><span class="w">     </span><span class="c1"># 75°35&#39;N</span>
-<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.2500</span><span class="w">   </span><span class="c1"># 15°15&#39;W</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.58333</span><span class="w">     </span><span class="c1"># 75°35&#39;N</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.25000</span><span class="w">   </span><span class="c1"># 15°15&#39;W</span>
 </pre></div>
 </div>
 <p><strong>Output Formats</strong>: CruisePlan can generate coordinates in multiple formats for operational use:</p>
 <ul class="simple">
 <li><p><strong>DMM (Degrees, Decimal Minutes)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35.000'N,</span> <span class="pre">015°15.000'W</span></code></p></li>
-<li><p><strong>DMS (Degrees, Minutes, Seconds)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35'00&quot;N,</span> <span class="pre">015°15'00&quot;W</span></code></p></li>
+<li><p><strong>DMS (Degrees, Minutes, Seconds)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35'00&quot;N,</span> <span class="pre">015°15'00&quot;W</span></code> (not yet implemented)</p></li>
+</ul>
+<p><strong>Coordinate Precision Details</strong>:</p>
+<p>CruisePlan stores coordinates with 5 decimal place precision:</p>
+<ul class="simple">
+<li><p><strong>Latitude</strong>: ±XX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">75.58333</span></code>)</p></li>
+<li><p><strong>Longitude</strong>: ±XXX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">-15.25000</span></code>)</p></li>
+<li><p><strong>Accuracy</strong>: ~1.1 meter precision at equator - avoid calculation errors due to rounding</p></li>
+<li><p><strong>Display formats</strong>: Show 4 decimal places for readability</p></li>
 </ul>
 </section>
 <section id="default-values">
@@ -302,8 +307,9 @@
 </tbody>
 </table>
 </section>
-<section id="operational-examples">
-<h2>Operational Examples<a class="headerlink" href="#operational-examples" title="Link to this heading"></a></h2>
+<section id="examples-in-yaml">
+<h2>Examples in YAML<a class="headerlink" href="#examples-in-yaml" title="Link to this heading"></a></h2>
+<p>For more complete examples, see the <a class="reference internal" href="yaml_reference.html"><span class="doc">YAML Configuration Reference</span></a>.</p>
 <p><strong>Complete Station Definition with Units</strong>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
@@ -315,14 +321,7 @@
 <span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000.0</span><span class="w">             </span><span class="c1"># meters (positive down)</span>
 <span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180.0</span><span class="w">           </span><span class="c1"># minutes (3 hours)</span>
 <span class="w">    </span><span class="nt">delay_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120.0</span><span class="w">        </span><span class="c1"># minutes (2 hours for daylight)</span>
-<span class="w">    </span><span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">          </span><span class="c1"># minutes (1 hour settling time)</span>
-</pre></div>
-</div>
-<p><strong>Leg Definition with Buffer Time</strong>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Northern_Survey&quot;</span>
-<span class="w">    </span><span class="nt">buffer_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">480.0</span><span class="w">        </span><span class="c1"># minutes (8 hours weather contingency)</span>
-<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">           </span><span class="c1"># minutes (1 hour settling time)</span>
 </pre></div>
 </div>
 <p><strong>Cruise-Level Defaults</strong>:</p>
@@ -370,21 +369,13 @@
 <li><p><strong>Depths</strong>: Whole numbers for routine operations, decimals for precision work</p></li>
 <li><p><strong>Speeds</strong>: 1 decimal place for vessel speeds</p></li>
 </ul>
-<p><strong>Coordinate Precision Details</strong>:</p>
-<p>CruisePlan stores coordinates with 5 decimal place precision:</p>
-<ul class="simple">
-<li><p><strong>Latitude</strong>: ±XX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">75.58333</span></code>)</p></li>
-<li><p><strong>Longitude</strong>: ±XXX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">-15.25000</span></code>)</p></li>
-<li><p><strong>Accuracy</strong>: ~1.1 meter precision at equator, better at higher latitudes</p></li>
-<li><p><strong>Display formats</strong>: May show 4 decimal places in some outputs for readability</p></li>
-</ul>
 </section>
 <section id="best-practices">
 <h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
 <ol class="arabic simple">
 <li><p><strong>Consistency</strong>: Always use the standard units to avoid conversion errors</p></li>
-<li><p><strong>Precision</strong>: Match precision to operational requirements (avoid false accuracy)</p></li>
-<li><p><strong>Validation</strong>: CruisePlan validates units and will warn about unusual values</p></li>
+<li><p><strong>Precision</strong>: Match precision to operational requirements</p></li>
+<li><p><strong>Validation</strong>: CruisePlan validates some units and will warn about unusual values</p></li>
 <li><p><strong>Clear Naming</strong>: Use descriptive field names and values that make units obvious</p></li>
 </ol>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Unambiguous values following standard units</span>
@@ -397,10 +388,6 @@
 <span class="nt">speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span><span class="w">                </span><span class="c1"># km/h? knots? m/s? Unknown!</span>
 </pre></div>
 </div>
-<div class="admonition warning">
-<p class="admonition-title">Warning</p>
-<p><strong>Comments in YAML are preserved</strong>: The <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">enrich</span></code> command uses <code class="docutils literal notranslate"><span class="pre">ruamel.yaml</span></code>, which maintains comments when reading and writing files. You can rely on comments remaining in your YAML, but you should still use the standard units documented here to avoid ambiguity.</p>
-</div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>When in doubt about units, refer to this page or check the field validation messages in CruisePlan’s error output, which will specify expected units for each parameter.</p>
@@ -412,14 +399,14 @@
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="cli_reference.html" class="btn btn-neutral float-left" title="CLI Command Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="demo-output.html" class="btn btn-neutral float-right" title="CruisePlan Demo: Complete Cruise Planning Workflow" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="yaml_reference.html" class="btn btn-neutral float-left" title="YAML Configuration Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="netcdf_outputs.html" class="btn btn-neutral float-right" title="NetCDF Output Files for CruisePlan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

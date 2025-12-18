@@ -13,27 +13,30 @@ This document provides a comprehensive reference for all YAML configuration fiel
 Overview
 ========
 
-CruisePlan uses YAML configuration files to define oceanographic cruises. The configuration consists of two main parts:
+CruisePlan uses YAML configuration files to define oceanographic cruises. The configuration consists of three main parts:
 
-1. **Global Catalog**: Definitions of stations, transits, areas, and sections (reusable components)
-2. **Schedule Organization**: Legs and clusters that organize catalog items into execution order
+1. **:ref:`Cruise-wide metadata and settings <cruise-wide-metadata>`**: Cruise-level fields defining defaults and settings
+2. **Global Catalog**: Definitions of stations, transits, areas, and sections (reusable components)
+3. **Schedule Organization**: Legs and clusters that organize catalog items into execution order
 
+.. tip::
+  **Comments in YAML are preserved**: CruisePlan uses ``ruamel.yaml`` which maintains comments when reading and writing files. You can rely on comments remaining in your YAML through the `cruiseplan enrich` command.
+  
 .. _configuration-structure:
 
 Configuration Structure
-=======================
+-----------------------
 
 .. code-block:: yaml
 
-   # Root Configuration
+   # Cruise-wide Metadata and Settings
    cruise_name: "Example Cruise 2025"
    description: "Oceanographic survey of the North Atlantic"
    
    # Global Catalog (Reusable Definitions)
-   stations: [...]      # Point operations
-   transits: [...]      # Line operations  
-   areas: [...]         # Area operations
-   sections: [...]      # CTD section templates (for expansion)
+   stations: [...]      # Station definitions → converted to PointOperation objects for scheduling
+   transits: [...]      # Transit definitions → converted to LineOperation objects for scheduling
+   areas: [...]         # Area operation definitions
    
    # Schedule Organization
    legs: [...]          # Execution phases with clusters/stations/sequences
@@ -43,13 +46,15 @@ Configuration Structure
 
 .. _coordinate-conventions:
 
-Coordinate and Data Conventions
-===============================
 
-Coordinate Formats
-------------------
+Formats and data conventions
+----------------------------
 
-**Decimal Degrees**: All coordinates are stored internally as decimal degrees with **5 decimal places precision** (approximately 1.1 meter resolution).
+- **Depth Convention**: Positive values represent depth below sea surface (meters)
+- **Bathymetry Precision**: Depths from bathymetry are rounded to **nearest whole meter** (though 1 decimal place is acceptable)
+- **Manual Depths**: Can be specified to any precision but will be validated as ≥ 0
+- **Decimal Degrees**: All coordinates are stored internally as decimal degrees with **5 decimal places precision** (approximately 1.1 meter resolution).
+- **Longitude Range Consistency**: The entire cruise configuration must use **either** [-180°, 180°] **or** [0°, 360°] consistently. Mixing ranges will trigger validation errors.
 
 **Input Formats Supported**:
 
@@ -63,24 +68,16 @@ Coordinate Formats
    # Option 2: String format (backward compatibility)
    position: "47.5678, -52.1234"
 
-**Longitude Range Consistency**: The entire cruise configuration must use **either** [-180°, 180°] **or** [0°, 360°] consistently. Mixing ranges will trigger validation errors.
 
-Depth and Bathymetry
----------------------
+See also :ref:`units_and_defaults` for detailed conventions on units and default values used throughout CruisePlan.
 
-- **Depth Convention**: Positive values represent depth below sea surface (meters)
-- **Bathymetry Precision**: Depths from bathymetry are rounded to **nearest whole meter** (though 1 decimal place is acceptable)
-- **Manual Depths**: Can be specified to any precision but will be validated as ≥ 0
+.. _cruise-wide-metadata:
 
-.. _root-configuration:
-
-Root Configuration Fields
-=========================
+Cruise-wide metadata
+====================
 
 .. _cruise-metadata:
 
-Cruise Metadata
----------------
 
 .. list-table:: Basic Cruise Information
    :widths: 20 15 15 50
@@ -98,11 +95,16 @@ Cruise Metadata
      - str
      - None
      - Human-readable description of the cruise
+   * - ``start_date``
+     - str
+     - "2025-01-01"
+     - Cruise start date (ISO format)
+   * - ``start_time``
+     - str
+     - "08:00"
+     - Cruise start time (HH:MM format)
 
-.. _operational-parameters:
 
-Operational Parameters
-----------------------
 
 .. list-table:: Vessel and Operations
    :widths: 20 15 15 50
@@ -124,20 +126,6 @@ Operational Parameters
      - float
      - 10.0
      - Station turnaround time in minutes (≥0; warns if >60)
-
-.. _ctd-parameters:
-
-CTD Operation Parameters
-------------------------
-
-.. list-table:: CTD-Specific Settings
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
    * - ``ctd_descent_rate``
      - float
      - 1.0
@@ -146,13 +134,17 @@ CTD Operation Parameters
      - float
      - 1.0
      - CTD ascent rate in m/s (0.5-2.0)
+   * - ``calculate_transfer_between_sections``
+     - bool
+     - *required*
+     - Whether to calculate transit times between sections
+   * - ``calculate_depth_via_bathymetry``
+     - bool
+     - *required*
+     - Whether to calculate depths using bathymetry data
 
-.. _day-window:
 
-Day Window Configuration
-------------------------
-
-.. list-table:: Operational Time Windows
+.. list-table:: Operational choices
    :widths: 20 15 15 50
    :header-rows: 1
 
@@ -168,50 +160,6 @@ Day Window Configuration
      - int
      - 20
      - End hour for daytime operations (0-23, must be > day_start_hour)
-
-.. _calculation-options:
-
-Calculation Options
--------------------
-
-.. list-table:: Automated Calculation Settings
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
-   * - ``calculate_transfer_between_sections``
-     - bool
-     - *required*
-     - Whether to calculate transit times between sections
-   * - ``calculate_depth_via_bathymetry``
-     - bool
-     - *required*
-     - Whether to calculate depths using bathymetry data
-
-.. _timing-schedule:
-
-Timing and Schedule
--------------------
-
-.. list-table:: Schedule Configuration
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
-   * - ``start_date``
-     - str
-     - "2025-01-01"
-     - Cruise start date (ISO format)
-   * - ``start_time``
-     - str
-     - "08:00"
-     - Cruise start time (HH:MM format)
    * - ``station_label_format``
      - str
      - "C{:03d}"
@@ -221,10 +169,10 @@ Timing and Schedule
      - "M{:02d}"
      - Python format string for mooring labels
 
-.. _ports-anchors:
+.. _ports-transfers:
 
-Ports and Anchors
------------------
+Ports and first/last Stations
+-----------------------------
 
 .. list-table:: Departure and Arrival Points
    :widths: 20 15 15 50
@@ -251,18 +199,6 @@ Ports and Anchors
      - *required*
      - Name of the last station in working area
 
-.. _port-definition:
-
-Port Definition
-===============
-
-.. code-block:: yaml
-
-   departure_port:
-     name: "St. Johns"
-     position: "47.5678, -52.1234"
-     timezone: "America/St_Johns"  # Optional, defaults to UTC
-
 .. list-table:: Port Fields
    :widths: 20 15 15 50
    :header-rows: 1
@@ -284,6 +220,15 @@ Port Definition
      - "UTC"
      - Timezone identifier (e.g., "America/St_Johns")
 
+.. code-block:: yaml
+
+   departure_port:
+     name: "St. Johns"
+     position: "47.5678, -52.1234"
+     timezone: "America/St_Johns"  # Optional, defaults to UTC
+
+
+
 .. _global-catalog:
 
 Global Catalog Definitions
@@ -291,12 +236,28 @@ Global Catalog Definitions
 
 The global catalog contains reusable definitions that can be referenced by legs and clusters.
 
+.. note::
+   **YAML ↔ Operations Architecture**
+   
+   CruisePlan uses a two-layer architecture:
+   
+   1. **YAML Layer**: Pydantic validation models (`StationDefinition`, `TransitDefinition`, `AreaDefinition`) validate and parse YAML configuration
+   2. **Operations Layer**: Operational classes (`PointOperation`, `LineOperation`, `AreaOperation`) handle scheduling calculations
+   
+   During planning, definitions are converted:
+
+   - `StationDefinition` → `PointOperation` (via `from_pydantic()`)
+   - `TransitDefinition` → `LineOperation` (via `from_pydantic()`)
+   - `AreaDefinition` → `AreaOperation` (via `from_pydantic()`)
+   
+   This separation allows complex validation rules in YAML while maintaining efficient calculation objects for scheduling.
+
 .. _station-definition:
 
-Station Definition (Point Operations)
--------------------------------------
+Station Definition
+-------------------
 
-Stations represent point operations like CTD casts, water sampling, and mooring operations.
+Station definitions specify point operations at fixed locations. During scheduling, they are converted to `PointOperation` objects for duration calculations. Covers CTD casts, water sampling, mooring operations, and calibration activities.
 
 .. code-block:: yaml
 
@@ -304,7 +265,8 @@ Stations represent point operations like CTD casts, water sampling, and mooring 
      - name: "STN_001"
        operation_type: "CTD"
        action: "profile"
-       position: "50.0, -40.0"
+       latitude: 50
+       longitude: -40
        depth: 3000.0           # Optional: water depth in meters
        duration: 120.0         # Optional: manual override in minutes
        comment: "Deep water station"
@@ -312,8 +274,8 @@ Stations represent point operations like CTD casts, water sampling, and mooring 
 
 .. _station-fields:
 
-Station Fields
-~~~~~~~~~~~~~~
+Fields, Operations & Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table:: Station Definition Fields
    :widths: 20 15 15 50
@@ -335,7 +297,11 @@ Station Fields
      - ActionEnum
      - *required*
      - Specific action for the operation (see :ref:`action-types`)
-   * - ``position``
+   * - ``latitude``
+     - GeoPoint
+     - *required*
+     - Geographic coordinates (see :ref:`coordinate-conventions`)
+   * - ``longitude``
      - GeoPoint
      - *required*
      - Geographic coordinates (see :ref:`coordinate-conventions`)
@@ -347,14 +313,6 @@ Station Fields
      - float
      - None
      - Manual duration override in minutes (≥0)
-   * - ``delay_start``
-     - float
-     - None
-     - Time to wait before operation begins in minutes (≥0)
-   * - ``delay_end``
-     - float
-     - None
-     - Time to wait after operation ends in minutes (≥0)
    * - ``comment``
      - str
      - None
@@ -363,11 +321,19 @@ Station Fields
      - str
      - None
      - Equipment required for the operation
+   * - ``delay_start``
+     - float
+     - None
+     - Time to wait before operation begins in minutes (≥0)
+   * - ``delay_end``
+     - float
+     - None
+     - Time to wait after operation ends in minutes (≥0)
 
 .. _operation-types:
 
 Operation Types
-~~~~~~~~~~~~~~~
+...............
 
 .. list-table:: Valid Operation Types
    :widths: 25 75
@@ -387,7 +353,7 @@ Operation Types
 .. _action-types:
 
 Action Types
-~~~~~~~~~~~~
+...............
 
 .. list-table:: Valid Actions by Operation Type
    :widths: 20 25 55
@@ -411,8 +377,8 @@ Action Types
 
 .. _duration-calculation:
 
-Duration Calculation Behavior
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Duration Calculation
+~~~~~~~~~~~~~~~~~~~~
 
 The duration calculation depends on operation type and manual overrides:
 
@@ -432,10 +398,10 @@ The duration calculation depends on operation type and manual overrides:
 
 .. _enhanced-timing:
 
-Enhanced Buffer Time Configuration
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Buffer Time Configuration
+.........................
 
-The enhanced timing system provides multiple levels of buffer time control for realistic operational scenarios:
+The buffer time system provides multiple levels of buffer time control for realistic operational scenarios:
 
 .. code-block:: yaml
 
@@ -461,10 +427,10 @@ The enhanced timing system provides multiple levels of buffer time control for r
 
 .. _transit-definition:
 
-Transit Definition (Line Operations)
-------------------------------------
+Transit Definition
+------------------
 
-Transits represent line operations like ADCP surveys, bathymetry mapping, and towed instruments.
+Transit definitions specify movement routes with waypoints. During scheduling, they are converted to `LineOperation` objects for distance and timing calculations. When `operation_type` and `action` are specified, they become scientific line operations (ADCP, bathymetry, etc.).
 
 .. code-block:: yaml
 
@@ -481,8 +447,8 @@ Transits represent line operations like ADCP surveys, bathymetry mapping, and to
 
 .. _transit-fields:
 
-Transit Fields
-~~~~~~~~~~~~~~
+Fields, Operations & Actions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. list-table:: Transit Definition Fields
    :widths: 20 15 15 50
@@ -520,7 +486,7 @@ Transit Fields
 .. _line-operation-types:
 
 Line Operation Types
-~~~~~~~~~~~~~~~~~~~~
+....................
 
 .. list-table:: Valid Line Operations
    :widths: 20 25 55
@@ -537,6 +503,8 @@ Line Operation Types
      - Towed instrument operations
 
 .. _ctd-sections:
+.. _section-definition:
+
 
 CTD Section Special Case
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -546,13 +514,54 @@ CTD sections are a special type of transit that can be expanded into individual 
 .. code-block:: yaml
 
    transits:
-     - name: "53N_CTD_Section"
-       operation_type: "CTD"      # Special: CTD on transit
-       action: "section"          # Special: section action
+     - name: "53N_Section"
+       distance_between_stations: 25.0  # km
+       reversible: true
+       stations: []  # Populated during expansion
+       operation_type: "CTD"
+       action: "section"
        route:
          - "53.0, -40.0"
          - "53.0, -30.0"
-       comment: "CTD section for expansion"
+
+.. list-table:: Section Definition Fields
+   :widths: 20 15 15 50
+   :header-rows: 1
+
+   * - Field
+     - Type
+     - Default
+     - Description
+   * - ``name``
+     - str
+     - *required*
+     - Unique identifier for the section
+   * - ``operation_type``
+     - OperationTypeEnum
+     - *required*
+     - Must be ``CTD`` for sections
+   * - ``action``
+     - ActionEnum
+     - *required*
+     - Must be ``section`` for sections
+   * - ``route``
+     - List[GeoPoint]
+     - *required*
+     - Starting point of the section
+   * - ``distance_between_stations``
+     - float
+     - None
+     - Spacing between stations in km
+   * - ``reversible``
+     - bool
+     - True
+     - Whether section can be traversed in reverse
+   * - ``stations``
+     - List[str]
+     - []
+     - Station names (populated during expansion)
+
+
 
 **Expansion Behavior**:
 
@@ -563,6 +572,35 @@ CTD sections are a special type of transit that can be expanded into individual 
 
 .. warning::
    **Validation Warning**: The validate command will warn about unexpanded CTD sections and recommend using the enrich command with ``--expand-sections``.
+
+
+Duration Calculation
+~~~~~~~~~~~~~~~~~~~~
+
+Transit operations (scientific transits and vessel movements) calculate duration based on route distance and vessel speed using the `LineOperation.calculate_duration()` method:
+
+.. code-block:: python
+
+  # Transit duration calculation (in LineOperation.calculate_duration())
+  total_route_distance_km = sum(
+     haversine_distance(p1, p2) for p1, p2 in zip(route, route[1:])
+  )
+  route_distance_nm = total_route_distance_km * 0.539957  # km -> nautical miles
+  vessel_speed = transit.vessel_speed or config.default_vessel_speed  # knots
+  duration_hours = route_distance_nm / vessel_speed
+  duration_minutes = duration_hours * 60
+
+**Key Points:**
+
+- **Route Distance**: Sum of haversine distances between all consecutive waypoints in the route
+- **Vessel Speed**: Uses transit-specific `vessel_speed` if specified, otherwise falls back to `config.default_vessel_speed`
+- **Scientific vs Navigation**: When `operation_type` and `action` are specified, the transit becomes a scientific line operation (ADCP, bathymetry) but uses the same duration calculation
+- **Architectural Consistency**: Like `PointOperation` and `AreaOperation`, the `LineOperation` calculates its own duration
+
+**CTD Section Expansion**: When CTD sections are expanded using `cruiseplan enrich --expand-sections`, the resulting stations are treated as regular CTD stations with standard CTD duration calculations based on depth, descent/ascent rates, and turnaround time.
+
+**Inter-operation Transits**: The scheduler automatically calculates and adds transit time between operations when they are not geographically adjacent (> 0.1 nautical miles apart).
+
 
 .. _area-definition:
 
@@ -618,69 +656,38 @@ Areas represent operations covering defined geographic regions.
      - None
      - Human-readable description
 
-.. _section-definition:
 
-Section Definition (CTD Section Templates)
--------------------------------------------
-
-Sections define CTD line templates that can be expanded into individual stations.
-
-.. code-block:: yaml
-
-   sections:
-     - name: "53N_Section"
-       start: "53.0, -40.0"
-       end: "53.0, -30.0"
-       distance_between_stations: 25.0  # km
-       reversible: true
-       stations: []  # Populated during expansion
-
-.. list-table:: Section Definition Fields
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
-   * - ``name``
-     - str
-     - *required*
-     - Unique identifier for the section
-   * - ``start``
-     - GeoPoint
-     - *required*
-     - Starting point of the section
-   * - ``end``
-     - GeoPoint
-     - *required*
-     - Ending point of the section
-   * - ``distance_between_stations``
-     - float
-     - None
-     - Spacing between stations in km
-   * - ``reversible``
-     - bool
-     - True
-     - Whether section can be traversed in reverse
-   * - ``stations``
-     - List[str]
-     - []
-     - Station names (populated during expansion)
 
 .. _schedule-organization:
 
 Schedule Organization
 =====================
 
-The schedule organization defines how catalog items are executed through legs and clusters.
+The schedule organization defines how catalog items are executed through legs and clusters using a unified **activities-based architecture**.
+
+.. note::
+   **YAML ↔ Scheduling Architecture**
+   
+   CruisePlan uses a two-layer architecture for legs and clusters:
+   
+   1. **YAML Layer**: Pydantic validation models (`LegDefinition`, `ClusterDefinition`) validate and parse YAML configuration
+   2. **Scheduling Layer**: Runtime classes (`Leg`, `CompositeOperation`) handle execution with parameter inheritance
+   
+   During scheduling, definitions are converted:
+
+   - `LegDefinition` → `Leg` (with inheritance of cruise-level parameters like ``vessel_speed``)
+   - `ClusterDefinition` → `CompositeOperation` (with strategy-specific ordering logic)
+   
+   This separation allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies.
 
 .. _leg-definition:
 
-Leg Definition
---------------
+Leg & Cluster Definitions
+-------------------------
 
-Legs represent phases of the cruise with distinct operational or geographic characteristics.
+We have two organisational structures within a cruise.  The "Leg" is the highest level structure, representing a phase of the cruise with distinct operational or geographic characteristics.  Each leg contains a list of **activities** (references to items in the global catalog) that can be executed either in order or as an unordered set.  It can be useful, for instance, if a cruise is separated by two port calls or for main user and secondary user operations.
+
+A cluster is a sub-division within a leg that groups related operations with specific scheduling strategies.  Like legs, clusters use an **activities list** to reference catalog items.  Clusters are useful for grouping operations that share common characteristics, such as spatial interleaving or specific operational constraints.
 
 .. code-block:: yaml
 
@@ -688,137 +695,206 @@ Legs represent phases of the cruise with distinct operational or geographic char
      - name: "Western_Survey"
        description: "Deep water stations in western region"
        strategy: "sequential"
-       stations: ["STN_001", "STN_002"]
+       ordered: true
+       activities: ["STN_001", "STN_002", "MOOR_A"]
        clusters:
-         - name: "Mooring_Cluster"
+         - name: "Deep_Water_Cluster"
            strategy: "spatial_interleaved"
-           stations: ["MOOR_A", "MOOR_B"]
-       sequence: ["STN_001", "Mooring_Cluster", "STN_002"]
-
-.. _leg-fields:
-
-Leg Fields
-~~~~~~~~~~
-
-.. list-table:: Leg Definition Fields
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
-   * - ``name``
-     - str
-     - *required*
-     - Unique identifier for the leg
-   * - ``description``
-     - str
-     - None
-     - Human-readable description
-   * - ``strategy``
-     - StrategyEnum
-     - None
-     - Default scheduling strategy for the leg
-   * - ``ordered``
-     - bool
-     - None
-     - Whether operations should maintain order
-   * - ``buffer_time``
-     - float
-     - None
-     - Contingency time for entire leg in minutes (≥0)
-   * - ``stations``
-     - List[str]
-     - []
-     - List of station names in this leg
-   * - ``clusters``
-     - List[ClusterDefinition]
-     - []
-     - List of operation clusters
-   * - ``sections``
-     - List[SectionDefinition]
-     - []
-     - List of sections in this leg
-   * - ``sequence``
-     - List[str]
-     - []
-     - Ordered execution sequence
-
-.. _processing-priority:
-
-Processing Priority
-~~~~~~~~~~~~~~~~~~~
-
-The scheduler processes leg components in this order:
-
-1. **sequence**: If defined and non-empty, use this exact order
-2. **clusters**: Process all clusters according to their strategies
-3. **stations**: Process individual stations sequentially
-4. **sections**: Process sections (if not expanded to stations)
-
-.. _cluster-definition:
-
-Cluster Definition
-------------------
-
-Clusters group operations with specific scheduling strategies.
+           ordered: false
+           activities: ["STN_003", "STN_004", "ADCP_Line_A"]
 
 .. code-block:: yaml
 
    clusters:
      - name: "Deep_Water_Cluster"
        strategy: "spatial_interleaved"
-       ordered: true
-       stations: ["STN_003", "STN_004", "STN_005"]
-       sequence: ["STN_003", "ADCP_Line_A", "STN_004"]  # Optional: explicit order
+       ordered: false  # Unordered set - optimizer chooses order
+       activities: ["STN_003", "STN_004", "STN_005"]
+     
+     - name: "Mooring_Sequence"
+       strategy: "sequential"  
+       ordered: true  # Ordered sequence - maintain exact order
+       activities: ["MOOR_Deploy", "Trilateration_Survey", "MOOR_Release"]
 
-.. _cluster-fields:
 
-Cluster Fields
-~~~~~~~~~~~~~~
+.. _leg-fields:
 
-.. list-table:: Cluster Definition Fields
-   :widths: 20 15 15 50
+Leg & Cluster Fields
+~~~~~~~~~~~~~~~~~~~~
+
+.. list-table:: Leg Definition Fields  
+   :widths: 15 15 12 15 45
    :header-rows: 1
 
    * - Field
      - Type
      - Default
+     - Leg/Cluster
      - Description
    * - ``name``
      - str
      - *required*
-     - Unique identifier for the cluster
+     - Both
+     - Unique identifier for the leg or cluster
+   * - ``description``
+     - str
+     - None
+     - Both
+     - Human-readable description
    * - ``strategy``
      - StrategyEnum
-     - ``sequential``
-     - Scheduling strategy for operations
+     - None
+     - Both
+     - Default scheduling strategy for the leg or cluster
    * - ``ordered``
      - bool
-     - True
-     - Whether operations should maintain order
-   * - ``sequence``
-     - List[Union[str, StationDefinition]]
      - None
-     - Ordered sequence of operations
-   * - ``stations``
-     - List[Union[str, StationDefinition]]
-     - []
-     - List of stations in the cluster
-   * - ``generate_transect``
-     - GenerateTransect
-     - None
-     - Parameters for generating station transects
+     - Both
+     - Whether activities list should maintain order
    * - ``activities``
-     - List[dict]
+     - List[str]
      - []
-     - List of activity definitions
+     - Both
+     - List of activity names from the global catalog
+   * - ``buffer_time``
+     - float
+     - None
+     - Leg only
+     - Contingency time for entire leg in minutes (≥0)
+   * - ``clusters``
+     - List[ClusterDefinition]
+     - []
+     - Leg only
+     - List of operation clusters
+
+.. _planned-leg-enhancements:
+
+Planned Leg Enhancements
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. note::
+   **PLANNED FEATURES**: The following leg capabilities are planned for future implementation and will extend the current activities-based architecture.
+
+**Inheritable Cruise Parameters & Boundary Management**
+   Legs will be able to override cruise-level operational parameters for specific requirements:
+
+   .. list-table:: Planned Inheritable Parameter Fields & first / last station definition.
+      :widths: 15 15 12 57
+      :header-rows: 1
+
+      * - Field
+        - Type  
+        - Default
+        - Description
+      * - ``vessel_speed``
+        - float
+        - None
+        - Leg-specific vessel speed override (knots, must be >0)
+      * - ``distance_between_stations``
+        - float
+        - None  
+        - Leg-specific station spacing override (nautical miles, must be >0)
+      * - ``turnaround_time``
+        - float
+        - None
+        - Leg-specific turnaround time override (minutes, must be ≥0)
+      * - ``first_station``
+        - str
+        - None
+        - Entry point station for this leg (must exist in catalog)
+      * - ``last_station``
+        - str
+        - None
+        - Exit point station for this leg (must exist in catalog)
+
+**Planned Usage Example**:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Transit_Leg"
+       vessel_speed: 12.0           # Fast transit speed
+       turnaround_time: 15.0        # Quick turnarounds  
+       first_station: "PORT_START"  # Clear entry point
+       last_station: "SURVEY_ENTRY" # Hand-off to next leg
+       activities: ["PORT_START", "WAYPOINT_1", "SURVEY_ENTRY"]
+       
+     - name: "Survey_Leg"
+       vessel_speed: 8.0                    # Slower survey speed
+       distance_between_stations: 5.0       # Close station spacing
+       turnaround_time: 45.0                # Science operations
+       first_station: "SURVEY_ENTRY"        # Pick up from transit
+       last_station: "SURVEY_EXIT"          # Define survey boundary
+       activities: ["CTD_001", "CTD_002", "SURVEY_EXIT"]
+
+**Benefits**:
+
+- **Parameter inheritance**: Legs inherit cruise defaults but override for specific operational needs
+- **Boundary management**: Clear routing between legs with defined entry/exit points  
+- **Multi-leg support**: Enhanced routing logic for complex multi-leg cruises
+- **Operational flexibility**: Different speeds/timing for transit vs survey legs
+
+.. note::
+   **Current Implementation**: The runtime `Leg` class already supports parameter inheritance through ``get_effective_speed()`` and ``get_effective_spacing()`` methods. These planned enhancements will extend this capability to the YAML configuration layer.
+
+
+
+.. _processing-priority:
+
+Processing Priority
+~~~~~~~~~~~~~~~~~~~
+
+The scheduler processes leg components in this simplified order:
+
+1. **activities**: If defined and non-empty, process these activities (respecting ``ordered`` flag)
+2. **clusters**: Process all clusters according to their strategies and ordering
+
+**Note**: Legs must specify either ``activities`` or ``clusters`` (or both). Empty legs are not permitted.
+
+
+
+.. _activity-types:
+
+Activity Types
+~~~~~~~~~~~~~~
+
+Activities in ``legs`` and ``clusters`` reference items from the global catalog by name. Any catalog item can be referenced as an activity:
+
+.. list-table:: Supported Activity Types
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Activity Type
+     - Description  
+   * - **Station Operations**
+     - CTD casts, water sampling, instrument deployments (``stations`` catalog with various ``operation_type`` including ``CTD``, ``water_sampling``, ``calibration``)
+   * - **Mooring Operations**
+     - Mooring deployments, releases, surveys (``stations`` catalog with ``operation_type: mooring``)
+   * - **Area Surveys**
+     - Gridded sampling, multibeam mapping (``areas`` catalog)
+   * - **Line Transects**
+     - ADCP transects, towed instrument lines (``transits`` catalog with ``operation_type``)
+
+**Examples**:
+
+.. code-block:: yaml
+
+   # Mixed activity types in a single leg
+   legs:
+     - name: "Multi_Operation_Leg"
+       activities: [
+         "CTD_Station_001",      # Station operation
+         "MOOR_A_Deploy",        # Mooring deployment  
+         "Multibeam_Area_1",     # Area survey
+         "ADCP_Transect_Line_A"  # Line operation
+       ]
 
 .. _strategy-types:
 
-Strategy Types
-~~~~~~~~~~~~~~
+Optimization **Strategy** and (Un-)Ordered
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``ordered`` flag specifies whether a list of activities should be treated as an exact sequence (``ordered: true``) or an unordered set (``ordered: false``).  Generally, if the flag is set to True, the scheduler will respect the specified order, whereas if set to False, the scheduler may optimize the execution order based on the selected ``strategy``.
 
 .. list-table:: Available Scheduling Strategies
    :widths: 25 75
@@ -827,16 +903,82 @@ Strategy Types
    * - Strategy
      - Description
    * - ``sequential``
-     - Execute operations in defined order
+     - Execute activities in defined order (respects ``ordered`` flag)
    * - ``spatial_interleaved``
-     - Optimize order based on spatial proximity
+     - Optimize order based on spatial proximity (ignores ``ordered`` flag)
    * - ``day_night_split``
-     - Separate day and night operations
+     - Separate day and night operations based on activity characteristics
+
+.. _ordering-behavior:
+
+
+The interaction between ``strategy`` and ``ordered`` determines execution order:
+
+.. list-table:: Strategy vs Ordering Behavior
+   :widths: 20 20 60
+   :header-rows: 1
+
+   * - Strategy
+     - Ordered
+     - Behavior
+   * - ``sequential``
+     - True
+     - Execute activities in exact list order
+   * - ``sequential``  
+     - False
+     - Execute activities sequentially but allow strategy to reorder
+   * - ``spatial_interleaved``
+     - True/False
+     - Always optimize based on spatial proximity (ignores ordered flag)
+   * - ``day_night_split``
+     - True
+     - Maintain order within day/night groups
+   * - ``day_night_split``
+     - False  
+     - Allow reordering within day/night groups
+
+.. _deprecated-fields:
+
+Deprecated Fields
+~~~~~~~~~~~~~~~~~
+
+The following fields are **deprecated** and will be removed in future versions:
+
+.. list-table:: Deprecated Leg/Cluster Fields
+   :widths: 25 75
+   :header-rows: 1
+
+   * - Deprecated Field
+     - Replacement
+   * - ``stations``
+     - Use ``activities`` with station names
+   * - ``sequence``
+     - Use ``activities`` with ``ordered: true``
+   * - ``sections``
+     - Expand sections to individual stations first with ``cruiseplan enrich --expand-sections``
+   * - ``generate_transect``
+     - Create explicit stations in catalog and reference via ``activities``
+
+**Migration Example**:
+
+.. code-block:: yaml
+
+   # OLD (deprecated)
+   legs:
+     - name: "Survey_Leg"
+       sequence: ["STN_001", "STN_002", "STN_003"]
+       stations: ["STN_004", "STN_005"]
+   
+   # NEW (recommended)
+   legs:  
+     - name: "Survey_Leg"
+       ordered: true
+       activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]
 
 .. _yaml-structure-notes:
 
-YAML Structure Notes
-====================
+Validation Notes
+================
 
 Multiple Definitions
 --------------------
@@ -866,7 +1008,7 @@ Multiple Definitions
 .. _validation-behavior:
 
 Validation Behavior
-===================
+--------------------
 
 The validation system provides three levels of feedback:
 
@@ -888,7 +1030,7 @@ The validation system provides three levels of feedback:
 .. _cross-references:
 
 Cross-References
-================
+--------------------
 
 For workflow information, see:
 

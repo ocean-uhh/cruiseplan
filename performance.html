@@ -1,0 +1,587 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Performance &amp; Scalability &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Performance &amp; Scalability</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="performance-scalability">
+<h1>Performance &amp; Scalability<a class="headerlink" href="#performance-scalability" title="Link to this heading"></a></h1>
+<p>This document provides performance characteristics, benchmarks, and scalability guidance for CruisePlan operations across different dataset sizes and computational environments.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id1">Overview</a></p></li>
+<li><p><a class="reference internal" href="#expected-performance" id="id2">Expected Performance</a></p>
+<ul>
+<li><p><a class="reference internal" href="#interactive-operations" id="id3">Interactive Operations</a></p></li>
+<li><p><a class="reference internal" href="#batch-processing-operations" id="id4">Batch Processing Operations</a></p></li>
+<li><p><a class="reference internal" href="#data-processing-benchmarks" id="id5">Data Processing Benchmarks</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#scalability-limits" id="id6">Scalability Limits</a></p>
+<ul>
+<li><p><a class="reference internal" href="#tested-configurations" id="id7">Tested Configurations</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#performance-optimization" id="id8">Performance Optimization</a></p>
+<ul>
+<li><p><a class="reference internal" href="#system-configuration" id="id9">System Configuration</a></p></li>
+<li><p><a class="reference internal" href="#software-configuration" id="id10">Software Configuration</a></p></li>
+<li><p><a class="reference internal" href="#workflow-optimization" id="id11">Workflow Optimization</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#troubleshooting-performance-issues" id="id12">Troubleshooting Performance Issues</a></p>
+<ul>
+<li><p><a class="reference internal" href="#memory-issues" id="id13">Memory Issues</a></p></li>
+<li><p><a class="reference internal" href="#processing-speed-issues" id="id14">Processing Speed Issues</a></p></li>
+<li><p><a class="reference internal" href="#network-issues" id="id15">Network Issues</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#benchmarking-your-system" id="id16">Benchmarking Your System</a></p>
+<ul>
+<li><p><a class="reference internal" href="#system-performance-test" id="id17">System Performance Test</a></p></li>
+<li><p><a class="reference internal" href="#performance-reporting" id="id18">Performance Reporting</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="overview">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>CruisePlan is designed to handle cruise planning workflows efficiently while maintaining responsiveness for interactive operations. Performance characteristics vary by operation type, dataset size, and available computational resources.</p>
+<p><strong>Design Principles:</strong>
+- <strong>Interactive Responsiveness</strong>: Sub-second response for interactive station placement
+- <strong>Batch Processing Efficiency</strong>: Optimized algorithms for large-scale operations
+- <strong>Memory Management</strong>: Streaming and chunked processing for large datasets
+- <strong>Progressive Enhancement</strong>: Graceful degradation with limited resources</p>
+</section>
+<section id="expected-performance">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">Expected Performance</a><a class="headerlink" href="#expected-performance" title="Link to this heading"></a></h2>
+<section id="interactive-operations">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Interactive Operations</a><a class="headerlink" href="#interactive-operations" title="Link to this heading"></a></h3>
+<p><strong>Station Picker Interface:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Operation</strong></p></th>
+<th class="head"><p><strong>Typical Time</strong></p></th>
+<th class="head"><p><strong>Dataset Size</strong></p></th>
+<th class="head"><p><strong>Memory Usage</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Initial map loading</p></td>
+<td><p>2-5 seconds</p></td>
+<td><p>Regional bathymetry</p></td>
+<td><p>100-500 MB</p></td>
+</tr>
+<tr class="row-odd"><td><p>Station placement</p></td>
+<td><p>&lt;0.1 seconds</p></td>
+<td><p>Per click</p></td>
+<td><p>Minimal</p></td>
+</tr>
+<tr class="row-even"><td><p>Depth lookup</p></td>
+<td><p>&lt;0.1 seconds</p></td>
+<td><p>Per station</p></td>
+<td><p>Cached</p></td>
+</tr>
+<tr class="row-odd"><td><p>PANGAEA data overlay</p></td>
+<td><p>1-3 seconds</p></td>
+<td><p>1000-10000 stations</p></td>
+<td><p>50-200 MB</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Real-time Feedback:</strong>
+- Coordinate display: Instantaneous
+- Bathymetric depth: &lt;100ms per station
+- Distance calculations: &lt;50ms between stations</p>
+</section>
+<section id="batch-processing-operations">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Batch Processing Operations</a><a class="headerlink" href="#batch-processing-operations" title="Link to this heading"></a></h3>
+<p><strong>Enrichment Performance:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Configuration Size</strong></p></th>
+<th class="head"><p><strong>Enrichment Time</strong></p></th>
+<th class="head"><p><strong>Memory Peak</strong></p></th>
+<th class="head"><p><strong>Notes</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Small (1-50 stations)</p></td>
+<td><p>5-15 seconds</p></td>
+<td><p>&lt;200 MB</p></td>
+<td><p>Typical single-leg cruise</p></td>
+</tr>
+<tr class="row-odd"><td><p>Medium (50-200 stations)</p></td>
+<td><p>15-60 seconds</p></td>
+<td><p>200-500 MB</p></td>
+<td><p>Multi-leg expedition</p></td>
+</tr>
+<tr class="row-even"><td><p>Large (200-1000 stations)</p></td>
+<td><p>1-5 minutes</p></td>
+<td><p>500-1000 MB</p></td>
+<td><p>Large survey program</p></td>
+</tr>
+<tr class="row-odd"><td><p>Very Large (1000+ stations)</p></td>
+<td><p>5-15 minutes</p></td>
+<td><p>1-2 GB</p></td>
+<td><p>Multi-cruise campaigns</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Schedule Generation Performance:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Configuration Size</strong></p></th>
+<th class="head"><p><strong>Processing Time</strong></p></th>
+<th class="head"><p><strong>Output Size</strong></p></th>
+<th class="head"><p><strong>Formats Generated</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Small cruise</p></td>
+<td><p>10-30 seconds</p></td>
+<td><p>1-5 MB</p></td>
+<td><p>HTML, CSV, PNG map</p></td>
+</tr>
+<tr class="row-odd"><td><p>Medium cruise</p></td>
+<td><p>30-90 seconds</p></td>
+<td><p>5-20 MB</p></td>
+<td><p>All formats + NetCDF</p></td>
+</tr>
+<tr class="row-even"><td><p>Large cruise</p></td>
+<td><p>90-300 seconds</p></td>
+<td><p>20-100 MB</p></td>
+<td><p>Full output suite</p></td>
+</tr>
+<tr class="row-odd"><td><p>Complex multi-leg</p></td>
+<td><p>300-600 seconds</p></td>
+<td><p>100-500 MB</p></td>
+<td><p>Enhanced documentation</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="data-processing-benchmarks">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Data Processing Benchmarks</a><a class="headerlink" href="#data-processing-benchmarks" title="Link to this heading"></a></h3>
+<p><strong>Bathymetry Operations:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 30.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Operation</strong></p></th>
+<th class="head"><p><strong>ETOPO 2022</strong></p></th>
+<th class="head"><p><strong>GEBCO 2025</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Initial data loading</p></td>
+<td><p>5-10 seconds</p></td>
+<td><p>30-60 seconds</p></td>
+</tr>
+<tr class="row-odd"><td><p>Regional extraction</p></td>
+<td><p>1-3 seconds</p></td>
+<td><p>5-15 seconds</p></td>
+</tr>
+<tr class="row-even"><td><p>Depth lookup (1000 points)</p></td>
+<td><p>2-5 seconds</p></td>
+<td><p>3-8 seconds</p></td>
+</tr>
+<tr class="row-odd"><td><p>Contour generation</p></td>
+<td><p>5-15 seconds</p></td>
+<td><p>15-45 seconds</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>PANGAEA Data Processing:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Dataset Size</strong></p></th>
+<th class="head"><p><strong>Download Time</strong></p></th>
+<th class="head"><p><strong>Processing Time</strong></p></th>
+<th class="head"><p><strong>Storage</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Single campaign (100 stations)</p></td>
+<td><p>10-30 seconds</p></td>
+<td><p>5-15 seconds</p></td>
+<td><p>1-5 MB</p></td>
+</tr>
+<tr class="row-odd"><td><p>Multi-campaign (1000 stations)</p></td>
+<td><p>1-5 minutes</p></td>
+<td><p>30-90 seconds</p></td>
+<td><p>10-50 MB</p></td>
+</tr>
+<tr class="row-even"><td><p>Large database (10000+ stations)</p></td>
+<td><p>10-30 minutes</p></td>
+<td><p>5-15 minutes</p></td>
+<td><p>100-500 MB</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+<section id="scalability-limits">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Scalability Limits</a><a class="headerlink" href="#scalability-limits" title="Link to this heading"></a></h2>
+<section id="tested-configurations">
+<h3><a class="toc-backref" href="#id7" role="doc-backlink">Tested Configurations</a><a class="headerlink" href="#tested-configurations" title="Link to this heading"></a></h3>
+<p>CruisePlan has been tested with the following maximum configurations:</p>
+<p><strong>Station Limits:</strong>
+- <strong>Maximum tested</strong>: 5,000 individual stations
+- <strong>Recommended maximum</strong>: 2,000 stations per cruise
+- <strong>Interactive limit</strong>: 1,000 stations (maintains responsiveness)
+- <strong>Memory scaling</strong>: ~500 KB per station in memory</p>
+<p><strong>Geographic Coverage:</strong>
+- <strong>Global coverage</strong>: Full ocean basins supported
+- <strong>High-resolution regions</strong>: Continental shelves, polar regions
+- <strong>Coordinate precision</strong>: 0.0001° (≈10m at equator)</p>
+<p><strong>Temporal Scope:</strong>
+- <strong>Cruise duration</strong>: No practical limit (months-long expeditions tested)
+- <strong>Multi-year planning</strong>: Campaign-level organization supported
+- <strong>Historical integration</strong>: Decades of PANGAEA data</p>
+</section>
+</section>
+<section id="performance-optimization">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Performance Optimization</a><a class="headerlink" href="#performance-optimization" title="Link to this heading"></a></h2>
+<section id="system-configuration">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">System Configuration</a><a class="headerlink" href="#system-configuration" title="Link to this heading"></a></h3>
+<p><strong>Recommended Specifications:</strong></p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 30.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Use Case</strong></p></th>
+<th class="head"><p><strong>RAM</strong></p></th>
+<th class="head"><p><strong>Storage</strong></p></th>
+<th class="head"><p><strong>CPU</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Basic planning</p></td>
+<td><p>4 GB</p></td>
+<td><p>2 GB free</p></td>
+<td><p>2 cores</p></td>
+</tr>
+<tr class="row-odd"><td><p>Standard workflow</p></td>
+<td><p>8 GB</p></td>
+<td><p>10 GB free</p></td>
+<td><p>4 cores</p></td>
+</tr>
+<tr class="row-even"><td><p>Large campaigns</p></td>
+<td><p>16 GB</p></td>
+<td><p>50 GB free</p></td>
+<td><p>8+ cores</p></td>
+</tr>
+<tr class="row-odd"><td><p>High-performance</p></td>
+<td><p>32 GB</p></td>
+<td><p>100 GB SSD</p></td>
+<td><p>16+ cores</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Storage Optimization:</strong>
+- Use SSD for bathymetry data when possible
+- Place temporary files on fastest available storage
+- Consider network storage for shared datasets</p>
+</section>
+<section id="software-configuration">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Software Configuration</a><a class="headerlink" href="#software-configuration" title="Link to this heading"></a></h3>
+<p><strong>Environment Optimization:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Increase numpy/scipy performance</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">OMP_NUM_THREADS</span><span class="o">=</span><span class="m">4</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MKL_NUM_THREADS</span><span class="o">=</span><span class="m">4</span>
+
+<span class="c1"># Optimize matplotlib for non-interactive use</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">MPLBACKEND</span><span class="o">=</span>Agg
+
+<span class="c1"># Increase memory limits for large datasets</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">PYTHONMAXMEMORY</span><span class="o">=</span>8GB
+</pre></div>
+</div>
+<p><strong>Dependency Optimization:</strong>
+- Use conda-forge packages for optimized scientific libraries
+- Consider Intel MKL builds for numerical acceleration
+- Ensure latest versions for performance improvements</p>
+</section>
+<section id="workflow-optimization">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Workflow Optimization</a><a class="headerlink" href="#workflow-optimization" title="Link to this heading"></a></h3>
+<p><strong>Best Practices for Performance:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Bathymetry Strategy:</strong>
+- Use ETOPO 2022 for initial planning (faster)
+- Switch to GEBCO 2025 only for final detailed work
+- Cache regional extractions for repeated use</p></li>
+<li><p><strong>Interactive Planning:</strong>
+- Work with subsets for very large cruises
+- Use navigation mode for exploration without station creation
+- Save progress frequently to avoid re-work</p></li>
+<li><p><strong>Batch Processing:</strong>
+- Process enrichment in chunks for very large configurations
+- Use parallel processing where available
+- Monitor memory usage during large operations</p></li>
+<li><p><strong>Output Generation:</strong>
+- Generate only needed formats to reduce processing time
+- Use lower resolution maps for draft documents
+- Cache intermediate results when possible</p></li>
+</ol>
+</section>
+</section>
+<section id="troubleshooting-performance-issues">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Troubleshooting Performance Issues</a><a class="headerlink" href="#troubleshooting-performance-issues" title="Link to this heading"></a></h2>
+<section id="memory-issues">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Memory Issues</a><a class="headerlink" href="#memory-issues" title="Link to this heading"></a></h3>
+<p><strong>Symptoms:</strong>
+- Slow responsiveness during operation
+- Out of memory errors
+- System swapping/thrashing</p>
+<p><strong>Solutions:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Monitor memory usage</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import psutil; print(f&#39;Available RAM: {psutil.virtual_memory().available/1e9:.1f}GB&#39;)&quot;</span>
+
+<span class="c1"># Reduce dataset size</span>
+cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022<span class="w">  </span><span class="c1"># Use smaller dataset</span>
+
+<span class="c1"># Process in chunks</span>
+<span class="c1"># Split large configurations into smaller files</span>
+</pre></div>
+</div>
+<p><strong>Prevention:</strong>
+- Close other applications during large operations
+- Use appropriate bathymetry resolution for task
+- Upgrade RAM for consistently large workflows</p>
+</section>
+<section id="processing-speed-issues">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Processing Speed Issues</a><a class="headerlink" href="#processing-speed-issues" title="Link to this heading"></a></h3>
+<p><strong>Symptoms:</strong>
+- Operations taking much longer than expected
+- CPU usage consistently high
+- Slow interactive response</p>
+<p><strong>Diagnostics:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Check CPU usage</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import psutil; print(f&#39;CPU usage: {psutil.cpu_percent(interval=1)}%&#39;)&quot;</span>
+
+<span class="c1"># Profile slow operations</span>
+python<span class="w"> </span>-m<span class="w"> </span>cProfile<span class="w"> </span>-s<span class="w"> </span>cumulative<span class="w"> </span>your_script.py
+</pre></div>
+</div>
+<p><strong>Solutions:</strong>
+- Ensure adequate CPU resources
+- Check for other resource-intensive processes
+- Consider distributed processing for very large tasks
+- Use faster storage (SSD) for data files</p>
+</section>
+<section id="network-issues">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Network Issues</a><a class="headerlink" href="#network-issues" title="Link to this heading"></a></h3>
+<p><strong>Symptoms:</strong>
+- Slow bathymetry downloads
+- PANGAEA integration timeouts
+- Incomplete data retrieval</p>
+<p><strong>Solutions:</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test network connectivity</span>
+cruiseplan<span class="w"> </span>download<span class="w"> </span>--test-connection
+
+<span class="c1"># Use rate limiting for API calls</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt<span class="w"> </span>--rate-limit<span class="w"> </span><span class="m">0</span>.5
+
+<span class="c1"># Configure proxy if needed</span>
+<span class="nb">export</span><span class="w"> </span><span class="nv">HTTP_PROXY</span><span class="o">=</span>http://proxy.company.com:port
+</pre></div>
+</div>
+</section>
+</section>
+<section id="benchmarking-your-system">
+<h2><a class="toc-backref" href="#id16" role="doc-backlink">Benchmarking Your System</a><a class="headerlink" href="#benchmarking-your-system" title="Link to this heading"></a></h2>
+<section id="system-performance-test">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">System Performance Test</a><a class="headerlink" href="#system-performance-test" title="Link to this heading"></a></h3>
+<p>Use this script to benchmark CruisePlan performance on your system:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download test data</span>
+cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022
+
+<span class="c1"># Time basic operations</span>
+<span class="nb">time</span><span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>test_cruise.yaml<span class="w"> </span>--add-depths
+<span class="nb">time</span><span class="w"> </span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>test_cruise.yaml<span class="w"> </span>--check-depths
+<span class="nb">time</span><span class="w"> </span>cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>test_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>html
+</pre></div>
+</div>
+<p>Expected results on reference systems:</p>
+<ul class="simple">
+<li><p><strong>Laptop (8GB RAM, SSD)</strong>: Enrichment ~30s, Validation ~10s, Scheduling ~45s</p></li>
+<li><p><strong>Workstation (32GB RAM)</strong>: Enrichment ~10s, Validation ~3s, Scheduling ~15s</p></li>
+<li><p><strong>HPC Node</strong>: Enrichment ~5s, Validation ~1s, Scheduling ~8s</p></li>
+</ul>
+</section>
+<section id="performance-reporting">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Performance Reporting</a><a class="headerlink" href="#performance-reporting" title="Link to this heading"></a></h3>
+<p>When reporting performance issues, include:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># System information</span>
+python<span class="w"> </span>--version
+cruiseplan<span class="w"> </span>--version
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import psutil; print(f&#39;RAM: {psutil.virtual_memory().total/1e9:.1f}GB, CPU: {psutil.cpu_count()} cores&#39;)&quot;</span>
+
+<span class="c1"># Timing information</span>
+<span class="nb">time</span><span class="w"> </span>cruiseplan<span class="w"> </span>your-command-here
+
+<span class="c1"># Memory monitoring</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import psutil; psutil.Process().memory_info()&quot;</span>
+</pre></div>
+</div>
+<p>This information helps developers optimize performance and identify bottlenecks for different use cases and system configurations.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

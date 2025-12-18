@@ -6,15 +6,15 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Phase 4: CLI Integration Implementation Plan &mdash; CruisePlan v0.0.0 documentation</title>
+  <title>Phase 4: CLI Integration Implementation Plan &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -32,7 +32,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            CruisePlan
+            CruisePlan v0.1
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -46,28 +46,26 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 <li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
@@ -83,7 +81,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CruisePlan</a>
+          <a href="index.html">CruisePlan v0.1</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -93,7 +91,6 @@
       <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">Phase 4: CLI Integration Implementation Plan</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/instructions_phase4.md.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -594,7 +591,7 @@ Following the principle that CLI modules should be lightweight wrappers, the act
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

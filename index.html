@@ -6,15 +6,15 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan: Oceanographic Planning Hub &mdash; CruisePlan v0.0.0 documentation</title>
+  <title>CruisePlan: Oceanographic Planning Hub &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
-      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=20758594" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
 
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=8b92e751"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -33,7 +33,7 @@
           
           
           <a href="#" class="icon icon-home">
-            CruisePlan
+            CruisePlan v0.1
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -47,28 +47,26 @@
               <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
 <li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
@@ -84,7 +82,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="#">CruisePlan</a>
+          <a href="#">CruisePlan v0.1</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -94,7 +92,6 @@
       <li><a href="#" class="icon icon-home" aria-label="Home"></a></li>
       <li class="breadcrumb-item active">CruisePlan: Oceanographic Planning Hub</li>
       <li class="wy-breadcrumbs-aside">
-            <a href="_sources/index.rst.txt" rel="nofollow"> View page source</a>
       </li>
   </ul>
   <hr/>
@@ -110,31 +107,28 @@
 <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#prerequisites">Prerequisites</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-from-pypi">Installation from PyPI</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#installation-for-development">Installation for Development</a></li>
-<li class="toctree-l2"><a class="reference internal" href="installation.html#verification">Verification</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#install-options-pypi-github">Install options (PyPI, GitHub)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#core-dependencies">Core Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html#troubleshooting">Troubleshooting</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Guide</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#quick-start">Quick Start</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#basic-workflow">Basic Workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#configuration-files">Configuration Files</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#interactive-tools">Interactive Tools</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#command-line-interface">Command Line Interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="usage.html#output-formats">Output Formats</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#three-phase-workflow">Three-Phase Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#yaml-configuration-structure">YAML Configuration Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="usage.html#how-to-get-started">How to Get Started</a></li>
 </ul>
 </li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">User Workflows</span></p>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Complete User Workflows</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#overview">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#quick-reference">Quick Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#prerequisites">Prerequisites</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a><ul>
@@ -147,7 +141,7 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#id1">Step 1: Download Bathymetry Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#id2">Step 1: Download Bathymetry Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#step-2-collect-pangaea-dataset-information">Step 2: Collect PANGAEA Dataset Information</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#step-3-process-pangaea-data">Step 3: Process PANGAEA Data</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#step-4-interactive-station-planning-with-pangaea-context">Step 4: Interactive Station Planning with PANGAEA Context</a></li>
@@ -171,35 +165,12 @@
 <li class="toctree-l2"><a class="reference internal" href="user_workflows.html#getting-help">Getting Help</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#best-practices">Best Practices</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#planning-recommendations">Planning Recommendations</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#configuration-management">Configuration Management</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#operational-efficiency">Operational Efficiency</a></li>
-<li class="toctree-l2"><a class="reference internal" href="user_workflows.html#data-management">Data Management</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#general-usage">General Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#subcommands">Subcommands</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#standard-units">Standard Units</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#time-formats">Time Formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#depth-convention">Depth Convention</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#coordinate-formats">Coordinate Formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#default-values">Default Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#operational-examples">Operational Examples</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#unit-conversion-reference">Unit Conversion Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#best-practices">Best Practices</a></li>
-</ul>
-</li>
 </ul>
 </div>
 <div class="toctree-wrapper compound">
-<p class="caption" role="heading"><span class="caption-text">Demo notebook</span></p>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo: Complete Cruise Planning Workflow</a><ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Workflow-Overview">Workflow Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Setup-and-Imports">Setup and Imports</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-1:-Download-Bathymetry-Data">Step 1: Download Bathymetry Data</a></li>
@@ -208,8 +179,8 @@
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-4:-Create-Station-Configuration">Step 4: Create Station Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-5:-Validate-Configuration">Step 5: Validate Configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-6:-Enrich-Configuration">Step 6: Enrich Configuration</a></li>
-<li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-7:-Generate-Schedule">Step 7: Generate Schedule</a></li>
-<li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-8:-Generate-Maps">Step 8: Generate Maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-7:-Generate-Maps">Step 7: Generate Maps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="demo-output.html#Step-8:-Generate-Schedule">Step 8: Generate Schedule</a></li>
 <li class="toctree-l2"><a class="reference internal" href="demo-output.html#Workflow-Summary">Workflow Summary</a></li>
 </ul>
 </li>
@@ -218,28 +189,36 @@
 <div class="toctree-wrapper compound">
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#general-usage">General Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cli_reference.html#subcommands">Subcommands</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#configuration-structure">Configuration Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#coordinate-and-data-conventions">Coordinate and Data Conventions</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#root-configuration-fields">Root Configuration Fields</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#port-definition">Port Definition</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#cruise-wide-metadata">Cruise-wide metadata</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#global-catalog-definitions">Global Catalog Definitions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#schedule-organization">Schedule Organization</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#yaml-structure-notes">YAML Structure Notes</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#validation-behavior">Validation Behavior</a></li>
-<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#cross-references">Cross-References</a></li>
+<li class="toctree-l2"><a class="reference internal" href="yaml_reference.html#validation-notes">Validation Notes</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#standard-units">Standard Units</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#time-formats">Time Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#depth-convention">Depth Convention</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#coordinate-formats">Coordinate Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#default-values">Default Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#examples-in-yaml">Examples in YAML</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#unit-conversion-reference">Unit Conversion Reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="units_and_defaults.html#best-practices">Best Practices</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#overview">Overview</a></li>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#key-design-principles">Key Design Principles</a></li>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#cf-convention-alignment">CF Convention Alignment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#yaml-schema-organization">YAML Schema Organization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#generated-files">Generated Files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#technical-overview">Technical Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#output-file-structure">Output File Structure</a></li>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#implementation-requirements">Implementation Requirements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#integration-with-test-framework">Integration with Test Framework</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#cf-compliance-requirements">CF Compliance Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="netcdf_outputs.html#using-netcdf-files">Using NetCDF Files</a></li>
 </ul>
 </li>
 </ul>
@@ -281,7 +260,7 @@
   <hr/>
 
   <div role="contentinfo">
-    <p>&#169; Copyright 2025, Eleanor Frajka-Williams, Yves Sorge, Sunke Trace-Kleeberg.</p>
+    <p></p>
   </div>
 
   Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a

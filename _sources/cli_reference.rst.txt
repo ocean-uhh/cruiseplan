@@ -22,33 +22,65 @@ The `cruiseplan` CLI uses a "git-style" subcommand architecture.
    * - ``--version``
      - Show the program's version number and exit.
 
+
+**Workflow**
+
+The general workflow follows these steps in order:
+
+1. **Data preparation:** :ref:`subcommand-download` - Download bathymetry and external datasets
+2. **Historical integration:** :ref:`subcommand-pandoi` - Search PANGAEA datasets by query and bounds  
+3. **Historical integration:** :ref:`subcommand-pangaea` - Process PANGAEA DOI lists into campaign datasets
+4. **Cruise configuration:** :ref:`subcommand-stations` - Interactive station planning interface
+5. **Cruise configuration:** :ref:`subcommand-enrich` - Add depths, coordinates, and expand sections
+6. **Cruise configuration:** :ref:`subcommand-validate` - Validate configuration files
+7. **Cruise configuration:** :ref:`subcommand-map` - Generate standalone PNG cruise maps
+8. **Schedule generation:** :ref:`subcommand-schedule` - Generate cruise timeline and outputs
+
+
 **Examples:**
+
+The command-line interface provides eight main subcommands for different aspects of cruise planning.
 
 .. code-block:: bash
 
-    $ cruiseplan schedule -c cruise.yaml -o results/
-    $ cruiseplan stations --lat 50 65 --lon -60 -30
-    $ cruiseplan enrich -c cruise.yaml --add-depths --add-coords
+    $ cruiseplan download 
+    $ cruiseplan pandoi "CTD" --lat 50 60 --lon -50 -40 --limit 20 -o data/cruise1/
+    $ cruiseplan pangaea doi_list.txt -o data/cruise1/
+    $ cruiseplan stations --lat 50 65 --lon -60 -30 -o data/cruise1/
+    $ cruiseplan enrich -c data/cruise1/cruise.yaml --add-depths --add-coords
     $ cruiseplan validate -c cruise.yaml --check-depths
-    $ cruiseplan pandoi "CTD" --lat 50 60 --lon -50 -40 --limit 20
     $ cruiseplan map -c cruise.yaml --figsize 14 10
-    $ cruiseplan pangaea doi_list.txt -o pangaea_data/
+    $ cruiseplan schedule -c cruise.yaml -o results/
 
----
+
+.. figure:: _static/screenshots/cli_help_overview.png
+   :alt: CruisePlan CLI help overview showing all available commands
+   :width: 700px
+   :align: center
+   
+   Complete overview of CruisePlan CLI commands and their purposes
+
+
+
+
+----
 
 Subcommands
 -----------
 
 .. note:: For detailed help on any subcommand, use: ``cruiseplan <command> --help``
 
-download
-^^^^^^^^
+.. _subcommand-download:
+
+`download` 
+^^^^^^^^^^ 
 
 Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.
 
 .. code-block:: bash
 
-    usage: cruiseplan download [-h] [--bathymetry-source {etopo2022,gebco2025}]
+    usage: cruiseplan download [-h] [--bathymetry-source {etopo2022,gebco2025}] 
+                               [--citation] [-o OUTPUT_DIR]
 
 **Options:**
 
@@ -59,6 +91,10 @@ Download and manage external data assets required by CruisePlan, such as bathyme
      - Show this help message and exit.
    * - ``--bathymetry-source {etopo2022,gebco2025}``
      - Bathymetry dataset to download (default: ``etopo2022``).
+   * - ``--citation``
+     - Show citation information for the bathymetry source without downloading.
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory for bathymetry files (default: ``data/bathymetry``).
 
 **Description:**
 
@@ -100,162 +136,21 @@ The datasets are cached locally in the ``data/bathymetry/`` directory.
     # Download high-resolution GEBCO 2025 bathymetry
     $ cruiseplan download --bathymetry-source gebco2025
 
+.. figure:: _static/screenshots/download_bathymetry.png
+   :alt: Bathymetry download progress with citation information
+   :width: 600px
+   :align: center
+   
+   Bathymetry download process showing progress bars
+   
+The download command shows progress information and provides proper citation details for the bathymetry datasets.
 
-schedule
-^^^^^^^^
+----
 
-Generate the cruise timeline and schedule outputs from a YAML configuration file.
+.. _subcommand-pandoi:
 
-.. code-block:: bash
-
-    usage: cruiseplan schedule [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--format {html,latex,csv,kml,netcdf,png,all}] [--leg LEG]
-
-**Options:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
-     - **Required.** YAML cruise configuration file.
-   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
-     - Output directory (default: ``current`` directory).
-   * - ``--format {html,latex,csv,kml,netcdf,png,all}``
-     - Output formats to generate (default: ``all``). PNG format generates timeline-based maps showing scheduled sequence.
-   * - ``--leg LEG``
-     - Process specific leg only (e.g., ``--leg Northern_Operations``).
-
-stations
-^^^^^^^^
-
-Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.
-
-.. code-block:: bash
-
-    usage: cruiseplan stations [-h] [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}] [--high-resolution]
-
-**Options:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``-p PANGAEA_FILE, --pangaea-file PANGAEA_FILE``
-     - Path to the pickled PANGAEA campaigns file.
-   * - ``--lat MIN MAX``
-     - Latitude bounds for the map view (default: ``45 70``).
-   * - ``--lon MIN MAX``
-     - Longitude bounds for the map view (default: ``-65 -5``).
-   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
-     - Output directory for the generated station YAML (default: ``current``).
-   * - ``--output-file OUTPUT_FILE``
-     - Specific output file path for the generated YAML.
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
-     - Bathymetry dataset to use for depth lookups (default: ``etopo2022``).
-   * - ``--high-resolution``
-     - Use full resolution bathymetry in the interactive interface (slower but more detailed).
-
-enrich
-^^^^^^
-
-Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.
-
-.. code-block:: bash
-
-    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
-
-**Options:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
-     - **Required.** Input YAML configuration file.
-   * - ``--add-depths``
-     - Add missing ``depth`` values to stations using bathymetry data.
-   * - ``--add-coords``
-     - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
-   * - ``--expand-sections``
-     - Expand CTD sections defined in ``transits`` into individual station definitions with spherical interpolation.
-   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
-     - Output directory (default: ``data``).
-   * - ``--output-file OUTPUT_FILE``
-     - Specific output file path.
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
-     - Bathymetry dataset (default: ``etopo2022``).
-   * - ``--coord-format {dmm,dms}``
-     - Format for adding coordinates.
-
-**CTD Section Expansion:**
-
-The ``--expand-sections`` option processes CTD section transits and converts them into individual station definitions:
-
-.. code-block:: yaml
-
-    # Input: CTD section definition
-    transits:
-      - name: "Arctic_Section_1"
-        operation_type: "ctd_section"
-        spacing_km: 25.0
-        max_depth: 4000.0
-        route:
-          - latitude: 75.0
-            longitude: -15.0
-          - latitude: 78.0  
-            longitude: -8.0
-
-    # Output: Individual stations created
-    stations:
-      - name: "Arctic_Section_1_001"
-        position:
-          latitude: 75.0
-          longitude: -15.0
-        operation_type: "CTD"
-        action: "profile"
-        depth: 4000.0
-      - name: "Arctic_Section_1_002"
-        position:
-          latitude: 75.59  # Spherical interpolation
-          longitude: -13.68
-        operation_type: "CTD" 
-        action: "profile"
-        depth: 4000.0
-      # ... additional stations along the route
-
-**Key Features:**
-- Uses great circle interpolation for accurate positioning along curved Earth surface
-- Automatically generates unique station names with sequential numbering
-- Preserves original transit metadata (max_depth becomes station depth)
-- Handles name collisions by appending incremental suffixes
-- Updates leg definitions to reference the newly created stations
-
-validate
-^^^^^^^^
-
-Performs validation checks on a configuration file, including comparing stated depths against bathymetry data.
-
-.. code-block:: bash
-
-    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [...]
-
-**Options:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
-     - **Required.** Input YAML configuration file.
-   * - ``--check-depths``
-     - Compare existing depths with bathymetry data.
-   * - ``--strict``
-     - Enable strict validation mode (fail on warnings).
-   * - ``--warnings-only``
-     - Show warnings but do not fail the exit code.
-   * - ``--tolerance TOLERANCE``
-     - Depth difference tolerance in percent (default: ``10.0``).
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
-     - Bathymetry dataset (default: ``etopo2022``).
-
-pandoi
-^^^^^^
+`pandoi` 
+^^^^^^^^ 
 
 Search PANGAEA datasets by query terms and geographic bounding box, generating a DOI list for subsequent use with the ``pangaea`` command.
 
@@ -382,15 +277,242 @@ The ``pandoi`` command is designed to work with the ``pangaea`` command:
     $ cruiseplan pandoi "CTD temperature" --lat 60 70 --lon -50 -30 --output-file data/arctic_ctd_dois.txt
     
     # Step 2: Fetch and process the datasets
-    $ cruiseplan pangaea arctic_ctd_dois.txt --output-dir data/
+    $ cruiseplan pangaea data/arctic_ctd_dois.txt --output-dir data/
     
     # Step 3: Use in station planning
-    $ cruiseplan stations --pangaea-file data/pangaea_campaigns.pkl
+    $ cruiseplan stations --pangaea-file data/arctic_ctd_dois_pangaea_data.pkl
 
-map
-^^^
 
-Generate standalone PNG cruise track maps directly from YAML configuration files, independent of scheduling.
+----
+
+.. _subcommand-pangaea:
+
+`pangaea` 
+^^^^^^^^^^ 
+
+Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and outputs a searchable dataset.
+
+.. code-block:: bash
+
+    usage: cruiseplan pangaea [-h] [-o OUTPUT_DIR] [--rate-limit RATE_LIMIT] [--merge-campaigns] [--output-file OUTPUT_FILE] doi_file
+
+**Arguments:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``doi_file``
+     - **Required.** Text file with PANGAEA DOIs (one per line).
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory (default: ``data/``).
+   * - ``--rate-limit RATE_LIMIT``
+     - API request rate limit (requests per second, default: ``1.0``).
+   * - ``--merge-campaigns``
+     - Merge campaigns with the same name.
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path for the pickled dataset.
+
+**Examples:**
+
+.. code-block:: bash
+
+    # Process DOIs from file with default settings
+    $ cruiseplan pangaea dois.txt
+
+    # Process with custom output directory and rate limiting
+    $ cruiseplan pangaea dois.txt -o data/pangaea --rate-limit 0.5
+
+    # Merge campaigns and save to specific file
+    $ cruiseplan pangaea dois.txt --merge-campaigns --output-file pangaea_stations.pkl
+
+The command will create a pickled file containing processed PANGAEA station data that can be used with the ``cruiseplan stations`` command for interactive station planning.
+
+----
+
+.. _subcommand-stations:
+
+`stations` 
+^^^^^^^^^^ 
+
+Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.
+
+.. code-block:: bash
+
+    usage: cruiseplan stations [-h] [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}] [--high-resolution] [--overwrite]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-p PANGAEA_FILE, --pangaea-file PANGAEA_FILE``
+     - Path to the pickled PANGAEA campaigns file.
+   * - ``--lat MIN MAX``
+     - Latitude bounds for the map view (default: ``45 70``).
+   * - ``--lon MIN MAX``
+     - Longitude bounds for the map view (default: ``-65 -5``).
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory for the generated station YAML (default: ``data``).
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path for the generated YAML.
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset to use for depth lookups (default: ``etopo2022``).
+   * - ``--high-resolution``
+     - Use full resolution bathymetry in the interactive interface (slower but more detailed).
+   * - ``--overwrite``
+     - Overwrite existing output file without prompting.
+
+.. warning::
+   **Performance Notice:** The combination of ``--bathymetry-source gebco2025`` with ``--high-resolution`` can be very slow for interactive use. GEBCO 2025 is a high-resolution dataset (~7.5GB) and processing it without downsampling creates significant lag during station placement and map interaction.
+   
+   **Recommended workflow:**
+   - Use ``--bathymetry-source etopo2022`` (default) for initial interactive planning
+   - Reserve GEBCO 2025 high-resolution for final detailed work only
+   - Consider standard resolution (default) for GEBCO 2025 during interactive sessions
+
+----
+
+.. _subcommand-enrich:
+
+`enrich` 
+^^^^^^^^ 
+
+Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.
+
+.. code-block:: bash
+
+    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** Input YAML configuration file.
+   * - ``--add-depths``
+     - Add missing ``depth`` values to stations using bathymetry data.
+   * - ``--add-coords``
+     - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
+   * - ``--expand-sections``
+     - Expand CTD sections defined in ``transits`` into individual station definitions with spherical interpolation.
+   * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
+     - Output directory (default: ``data``).
+   * - ``--output-file OUTPUT_FILE``
+     - Specific output file path.
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset (default: ``etopo2022``).
+   * - ``--coord-format {dmm,dms}``
+     - Format for adding coordinates (default: ``dmm``).
+   * - ``--backup``
+     - Create backup of original file before enriching.
+   * - ``-v, --verbose``
+     - Enable verbose logging output.
+
+**CTD Section Expansion:**
+
+The ``--expand-sections`` option processes CTD section transits and converts them into individual station definitions:
+
+.. code-block:: yaml
+
+    # Input: CTD section definition
+    transits:
+      - name: "Arctic_Section_1"
+        operation_type: "ctd_section"
+        spacing_km: 25.0
+        max_depth: 4000.0
+        route:
+          - latitude: 75.0
+            longitude: -15.0
+          - latitude: 78.0  
+            longitude: -8.0
+
+    # Output: Individual stations created
+    stations:
+      - name: "Arctic_Section_1_001"
+        position:
+          latitude: 75.0
+          longitude: -15.0
+        operation_type: "CTD"
+        action: "profile"
+        depth: 4000.0
+      - name: "Arctic_Section_1_002"
+        position:
+          latitude: 75.59  # Spherical interpolation
+          longitude: -13.68
+        operation_type: "CTD" 
+        action: "profile"
+        depth: 4000.0
+      # ... additional stations along the route
+
+**Key Features:**
+
+- Uses great circle interpolation for accurate positioning along curved Earth surface
+- Automatically generates unique station names with sequential numbering
+- Preserves original transit metadata (max_depth becomes station depth)
+- Handles name collisions by appending incremental suffixes
+- Updates leg definitions to reference the newly created stations
+
+----
+
+.. _subcommand-validate:
+
+`validate` 
+^^^^^^^^^^ 
+
+Performs validation checks on a configuration file, including comparing stated depths against bathymetry data.
+
+.. code-block:: bash
+
+    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [...]
+
+**Options:**
+
+.. list-table::
+   :widths: 30 70
+
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** Input YAML configuration file.
+   * - ``--check-depths``
+     - Compare existing depths with bathymetry data.
+   * - ``--strict``
+     - Enable strict validation mode (fail on warnings).
+   * - ``--warnings-only``
+     - Show warnings but do not fail the exit code.
+   * - ``--tolerance TOLERANCE``
+     - Depth difference tolerance in percent (default: ``10.0``).
+   * - ``--bathymetry-source {etopo2022,gebco2025}``
+     - Bathymetry dataset (default: ``etopo2022``).
+   * - ``--output-format {text,json}``
+     - Output format for validation results (default: ``text``).
+   * - ``-v, --verbose``
+     - Enable verbose logging with detailed validation progress.
+
+**Validation Checks:**
+
+The validation process includes:
+
+- **Schema Validation**: YAML structure and required fields
+- **Reference Integrity**: Station, leg, and cluster cross-references  
+- **Geographic Bounds**: Coordinate validity and reasonable geographic limits
+- **Operational Feasibility**: Duration calculations and scheduling logic
+- **Bathymetric Accuracy**: Depth consistency with global datasets (when ``--check-depths`` enabled)
+- **Scientific Standards**: CF convention compliance for output formats
+
+----
+
+.. _subcommand-map:
+
+`map`
+^^^^^
+
+Generate standalone PNG cruise track maps directly from YAML configuration files, independent of scheduling.  
 
 .. code-block:: bash
 
@@ -477,33 +599,60 @@ Compare this to ``cruiseplan schedule --format png``:
     # Interactive display instead of file output
     $ cruiseplan map -c cruise.yaml --show-plot
 
-pangaea
-^^^^^^^
+----
 
-Processes a list of PANGAEA DOIs, aggregates coordinates by campaign, and outputs a searchable dataset.
+.. _subcommand-schedule:
+
+`schedule`
+^^^^^^^^^^
+
+Generate the cruise timeline and schedule outputs from a YAML configuration file.
 
 .. code-block:: bash
 
-    usage: cruiseplan pangaea [-h] [-o OUTPUT_DIR] [--rate-limit RATE_LIMIT] [--merge-campaigns] [--output-file OUTPUT_FILE] doi_file
-
-**Arguments:**
-
-.. list-table::
-   :widths: 30 70
-
-   * - ``doi_file``
-     - **Required.** Text file with PANGAEA DOIs (one per line).
+    usage: cruiseplan schedule [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--format {html,latex,csv,kml,netcdf,png,all}] [--leg LEG] [--derive-netcdf]
 
 **Options:**
 
 .. list-table::
    :widths: 30 70
 
+   * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
+     - **Required.** YAML cruise configuration file.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
-     - Output directory (default: ``data/``).
-   * - ``--rate-limit RATE_LIMIT``
-     - API request rate limit (requests per second, default: ``1.0``).
-   * - ``--merge-campaigns``
-     - Merge campaigns with the same name.
-   - ``--output-file OUTPUT_FILE``
-     - Specific output file path for the pickled dataset.
+     - Output directory (default: ``data``).
+   * - ``--format {html,latex,csv,kml,netcdf,png,all}``
+     - Output formats to generate (default: ``all``). 
+   * - ``--leg LEG``
+     - Process specific leg only (e.g., ``--leg Northern_Operations``).
+   * - ``--derive-netcdf``
+     - Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Only works with NetCDF format.
+
+**Examples:**
+
+.. code-block:: bash
+
+    # Generate all output formats
+    cruiseplan schedule -c cruise.yaml -o results/
+
+    # Generate only HTML and CSV
+    cruiseplan schedule -c cruise.yaml --format html,csv
+
+    # Generate NetCDF with specialized files
+    cruiseplan schedule -c cruise.yaml --format netcdf --derive-netcdf
+
+    # Process specific leg only
+    cruiseplan schedule -c cruise.yaml --leg "Northern_Survey" --format all
+
+**NetCDF Output Options:**
+
+.. list-table::
+   :widths: 40 60
+
+   * - ``--format netcdf``
+     - Generates master schedule file: ``cruise_schedule.nc``
+   * - ``--format netcdf --derive-netcdf``
+     - Generates specialized files: ``cruise_schedule.nc``, ``cruise_points.nc``, ``cruise_lines.nc``, ``cruise_areas.nc``
+
+
+

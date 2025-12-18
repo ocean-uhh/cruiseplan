@@ -1,93 +1,106 @@
-Usage Guide
-===========
+Usage Overview
+==============
 
-This guide provides a quick overview of how to use CruisePlan for oceanographic cruise planning.
+This page provides a high-level overview of how to use CruisePlan for oceanographic cruise planning. For detailed step-by-step instructions, see the linked workflow guides below.
 
-Quick Start
------------
+Three-Phase Workflow
+--------------------
 
-After installation, you can use CruisePlan via the command line:
+CruisePlan follows a systematic three-phase approach to cruise planning:
+
+Phase 1: Data Preparation
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Goal**: Gather *external* datasets needed for planning
+
+* **Download bathymetry**: ``cruiseplan download`` - Acquire global depth data (ETOPO/GEBCO)
+* **Search historical data**: ``cruiseplan pandoi`` - Find relevant PANGAEA datasets by query and region  
+* **Process historical data**: ``cruiseplan pangaea`` - Convert DOI lists into usable station databases
+
+This phase provides the foundational data layers for informed station placement.
+
+Phase 2: Cruise Configuration
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Goal**: Define your cruise plan and validate the configuration
+
+* **Interactive planning**: ``cruiseplan stations`` - Place stations on interactive maps with bathymetry
+* **Enrich metadata**: ``cruiseplan enrich`` - Add depths, coordinates, and expand sections automatically
+* **Validate setup**: ``cruiseplan validate`` - Check configuration for errors and consistency
+* **Generate maps**: ``cruiseplan map`` - Create standalone PNG maps from configuration
+
+This phase creates and refines your complete cruise configuration file.
+
+Within this phase, you should also expect to do some **manual editing** of the generated YAML configuration to choose operation types and actions, and to organise the leg/cluster structure of activities.
+
+Phase 3: Schedule Generation  
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Goal**: Generate final cruise timeline and professional outputs
+
+* **Create schedule**: ``cruiseplan schedule`` - Calculate timing and generate deliverables
+* **Multiple formats**: HTML summaries, LaTeX tables, NetCDF files, KML exports, PNG maps
+
+This phase produces documentation in various formats for cruise proposals (png figure + latex tables) and onward manipulation in python (netCDF).
+
+YAML Configuration Structure
+-----------------------------
+
+CruisePlan uses YAML files as the central configuration format. These files contain two main components:
+
+**Catalog Section**
+  Defines all available elements:
+  
+  * ``stations``: Geographic locations with operation types (CTD, mooring, etc.)
+  * ``transits``: Movement between locations or survey patterns
+  * ``areas``: Defined working regions
+  * ``legs``: Groupings of operations for scheduling
+
+**Schedule Section**  
+  Defines the sequence:
+  
+  * ``legs``: Ordered list of operations to perform
+  * ``clusters``: Strategic groupings and routing optimizations
+
+The catalog acts as a "library" of all possible operations, while the schedule determines which ones to execute and in what order. This separation allows flexible reuse of station definitions across different cruise scenarios.
+
+For complete YAML syntax and options, see the :doc:`yaml_reference`.
+
+How to Get Started
+------------------
+
+Get started immediately with:
 
 .. code-block:: bash
 
-   # Get help / list available commands
    cruiseplan --help
 
-Basic Workflow
---------------
+This displays all available commands with brief descriptions, helping you choose the right tool for your planning needs.
 
-CruisePlan follows a systematic workflow for cruise planning:
+Or choose your preferred approach and follow the guides:
 
-1. **Download bathymetry data** → 2. **Plan stations interactively** → 3. **Configure operations** → 4. **Enrich with metadata** → 5. **Validate configuration** → 6. **Generate schedule & outputs**
+**Command Line Workflows**
 
-For detailed step-by-step instructions, see the :doc:`user_workflows` guide, which provides comprehensive workflows for different planning scenarios.
+Follow the comprehensive :doc:`User Workflows (CLI) <user_workflows>` guide for three different planning scenarios:
+  
+  * **Basic Planning**: Simple workflow without historical data
+  * **PANGAEA-Enhanced**: Incorporating historical oceanographic data
+  * **Configuration-Only**: Processing existing YAML files
 
-**Quick Start:**
+**Jupyter Notebook Approach**  
+  Explore the :doc:`demo-output` notebook for:
+  
+  * Interactive Python API usage
+  * Data analysis integration
+  * Programmatic configuration generation
+  * Custom visualization examples
 
-.. code-block:: bash
+**Configuration Reference**
+  Consult the :doc:`yaml_reference` for:
+  
+  * Complete field documentation
+  * Validation rules and constraints  
+  * Example configurations
+  * Best practices
 
-   # 1. Download bathymetry data
-   cruiseplan download
-   
-   # 2. Interactive station planning
-   cruiseplan stations --output-file my_cruise.yaml
-   
-   # 3. Edit YAML to add operation types (CTD, mooring, etc.)
-   # 4. Add depths and coordinates
-   cruiseplan enrich -c my_cruise.yaml --add-depths --add-coords
-   
-   # 5. Validate configuration
-   cruiseplan validate -c my_cruise.yaml
-   
-   # 6. Generate outputs
-   cruiseplan schedule -c my_cruise.yaml
 
-Configuration Files
--------------------
-
-CruisePlan uses YAML configuration files to define cruise parameters. A basic configuration includes:
-
-- Cruise metadata (name, dates, ports)
-- Station definitions with coordinates and operations
-- Leg definitions grouping stations
-- Vessel parameters and operational constraints
-
-See the API documentation for detailed configuration options, or look in the `tests/fixtures` directory for example YAML files.
-
-Interactive Tools
------------------
-
-CruisePlan provides interactive tools for:
-
-- **Station picking**: Click on maps to place oceanographic stations
-- **Campaign selection**: Browse and select from PANGAEA datasets
-
-Command Line Interface
-----------------------
-
-The CLI provides access to all major functionality:
-
-.. code-block:: bash
-
-   # Validate a cruise configuration
-   cruiseplan validate -c config.yaml
-
-   # Generate a cruise schedule
-   cruiseplan schedule -c config.yaml
-
-   # Export to different formats
-   cruiseplan schedule -c config.yaml --format netcdf
-   cruiseplan schedule -c config.yaml --format latex
-
-Output Formats
---------------
-
-CruisePlan generates professional outputs including:
-
-- **NetCDF files**: (mostly) CF-compliant scientific data files
-- **LaTeX tables**: For DFG-style cruise applications 
-- **HTML summary**: An html summary of the planned working areas and stations
-- **KML files**: Google Earth compatible exports with stations, transects, and areas
-- **CSV data**: Tabular data exports
-
-For detailed information about each output format, see the respective module documentation.

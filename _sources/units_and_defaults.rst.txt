@@ -34,7 +34,7 @@ CruisePlan uses consistent units across all components to ensure compatibility a
 Time Formats
 ------------
 
-**ISO 8601 Format**: All timestamps use ISO 8601 format with timezone specification.
+**ISO 8601 Format**: All timestamps in YAML files use ISO 8601 format with timezone specification.
 
 .. code-block:: yaml
 
@@ -85,13 +85,22 @@ Coordinate Formats
 .. code-block:: yaml
 
     position:
-      latitude: 75.5833     # 75°35'N
-      longitude: -15.2500   # 15°15'W
+      latitude: 75.58333     # 75°35'N
+      longitude: -15.25000   # 15°15'W
 
 **Output Formats**: CruisePlan can generate coordinates in multiple formats for operational use:
 
 - **DMM (Degrees, Decimal Minutes)**: ``75°35.000'N, 015°15.000'W``
-- **DMS (Degrees, Minutes, Seconds)**: ``75°35'00"N, 015°15'00"W``
+- **DMS (Degrees, Minutes, Seconds)**: ``75°35'00"N, 015°15'00"W`` (not yet implemented)
+
+**Coordinate Precision Details**:
+
+CruisePlan stores coordinates with 5 decimal place precision:
+
+- **Latitude**: ±XX.XXXXX° (e.g., ``75.58333``)
+- **Longitude**: ±XXX.XXXXX° (e.g., ``-15.25000``)
+- **Accuracy**: ~1.1 meter precision at equator - avoid calculation errors due to rounding
+- **Display formats**: Show 4 decimal places for readability
 
 Default Values
 --------------
@@ -152,8 +161,10 @@ CruisePlan applies sensible defaults when values are not explicitly specified. T
      - 20.0 km
      - Default spacing for CTD section expansion
 
-Operational Examples
---------------------
+Examples in YAML
+----------------
+
+For more complete examples, see the :doc:`YAML Configuration Reference <yaml_reference>`.
 
 **Complete Station Definition with Units**:
 
@@ -169,16 +180,8 @@ Operational Examples
         depth: 2000.0             # meters (positive down)
         duration: 180.0           # minutes (3 hours)
         delay_start: 120.0        # minutes (2 hours for daylight)
-        delay_end: 60.0          # minutes (1 hour settling time)
+        delay_end: 60.0           # minutes (1 hour settling time)
 
-**Leg Definition with Buffer Time**:
-
-.. code-block:: yaml
-
-    legs:
-      - name: "Northern_Survey"
-        buffer_time: 480.0        # minutes (8 hours weather contingency)
-        stations: [...]
 
 **Cruise-Level Defaults**:
 
@@ -218,21 +221,14 @@ Unit Conversion Reference
 - **Depths**: Whole numbers for routine operations, decimals for precision work
 - **Speeds**: 1 decimal place for vessel speeds
 
-**Coordinate Precision Details**:
 
-CruisePlan stores coordinates with 5 decimal place precision:
-
-- **Latitude**: ±XX.XXXXX° (e.g., ``75.58333``)
-- **Longitude**: ±XXX.XXXXX° (e.g., ``-15.25000``)
-- **Accuracy**: ~1.1 meter precision at equator, better at higher latitudes
-- **Display formats**: May show 4 decimal places in some outputs for readability
 
 Best Practices
 --------------
 
 1. **Consistency**: Always use the standard units to avoid conversion errors
-2. **Precision**: Match precision to operational requirements (avoid false accuracy)  
-3. **Validation**: CruisePlan validates units and will warn about unusual values
+2. **Precision**: Match precision to operational requirements  
+3. **Validation**: CruisePlan validates some units and will warn about unusual values
 4. **Clear Naming**: Use descriptive field names and values that make units obvious
 
 .. code-block:: yaml
@@ -246,8 +242,7 @@ Best Practices
     duration: 4              # Could be hours, minutes, unclear!
     speed: 22                # km/h? knots? m/s? Unknown!
 
-.. warning::
-  **Comments in YAML are preserved**: The ``cruiseplan enrich`` command uses ``ruamel.yaml``, which maintains comments when reading and writing files. You can rely on comments remaining in your YAML, but you should still use the standard units documented here to avoid ambiguity.
+
 
 .. note::
    When in doubt about units, refer to this page or check the field validation messages in CruisePlan's error output, which will specify expected units for each parameter.

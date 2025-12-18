@@ -1,0 +1,252 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Example CruisePlan YAML Configuration &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=acad51fe"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Example CruisePlan YAML Configuration</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="example-cruiseplan-yaml-configuration">
+<h1>Example CruisePlan YAML Configuration<a class="headerlink" href="#example-cruiseplan-yaml-configuration" title="Link to this heading"></a></h1>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># CruisePlan YAML Configuration</span>
+<span class="c1"># Generated by Interactive Station Picker</span>
+<span class="c1"># Creation Date: 2025-12-18T10:41:20</span>
+
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># CRUISE PLANNING WORKFLOW - Next Steps:</span>
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># 1. Review and update all &#39;UPDATE-*&#39; placeholders below</span>
+<span class="c1"># 2. Set operation_type (CTD, mooring, water_sampling, etc.)</span>
+<span class="c1"># 3. Set action (profile, deployment, recovery, etc.)</span>
+<span class="c1"># 4. Run validation: cruiseplan validate &lt;filename&gt;</span>
+<span class="c1"># 5. Add depths: cruiseplan enrich &lt;filename&gt; --add-depths --add-coords --expand-sections</span>
+<span class="c1"># 6. Generate schedule: cruiseplan schedule &lt;filename&gt;</span>
+
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># FIELD DOCUMENTATION:</span>
+<span class="c1"># ======================================================================================</span>
+<span class="c1"># Required fields are marked with [REQUIRED]</span>
+<span class="c1"># Optional fields are marked with [OPTIONAL]</span>
+<span class="c1"># Fields marked &#39;UPDATE-*&#39; must be reviewed and updated</span>
+
+<span class="c1"># For complete field reference, see:</span>
+<span class="c1"># https://ocean-uhh.github.io/cruiseplan/yaml_reference.html</span>
+<span class="c1"># [REQUIRED] Unique identifier for this cruise</span>
+<span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive_Session</span>
+<span class="c1"># [OPTIONAL] Human-readable cruise description</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cruise plan created with interactive station picker</span>
+<span class="c1"># [REQUIRED] Default transit speed in knots</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span>
+<span class="c1"># [REQUIRED] Default distance between stations in kilometers</span>
+<span class="nt">default_distance_between_stations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">40.0</span>
+<span class="nt">calculate_transfer_between_sections</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="nt">calculate_depth_via_bathymetry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="c1"># [REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)</span>
+<span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;1970-01-01T00:00:00Z&#39;</span>
+<span class="c1"># [REQUIRED] Departure port details</span>
+<span class="c1"># Update &#39;UPDATE-departure-port-name&#39; with actual port name</span>
+<span class="c1"># Update coordinates with actual port location</span>
+<span class="nt">departure_port</span><span class="p">:</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-departure-port-name</span>
+<span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GMT+0</span>
+<span class="c1"># [REQUIRED] Arrival port details</span>
+<span class="c1"># Update &#39;UPDATE-arrival-port-name&#39; with actual port name</span>
+<span class="c1"># Update coordinates with actual port location</span>
+<span class="nt">arrival_port</span><span class="p">:</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-arrival-port-name</span>
+<span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.0</span>
+<span class="nt">timezone</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GMT+0</span>
+<span class="c1"># [REQUIRED] Name of first station (must match a station name above)</span>
+<span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
+<span class="c1"># [REQUIRED] Name of last station (must match a station name above)</span>
+<span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_002</span>
+<span class="c1"># [REQUIRED] Station catalog - Point operations (CTD, moorings, sampling)</span>
+<span class="c1"># Each station must have:</span>
+<span class="c1">#   - name: Unique identifier (e.g., STN_001, MOOR_A)</span>
+<span class="c1">#   - latitude/longitude: Decimal degrees (WGS84)</span>
+<span class="c1">#   - operation_type: CTD, mooring, water_sampling, calibration</span>
+<span class="c1">#   - action: profile, deployment, recovery, sampling</span>
+<span class="c1"># Optional fields:</span>
+<span class="c1">#   - water_depth: Seafloor depth in meters (auto-enriched if not provided)</span>
+<span class="c1">#   - operation_depth: Target operation depth for CTD casts</span>
+<span class="c1">#   - duration: Operation duration in minutes (calculated if not provided)</span>
+<span class="c1">#   - comment: Free-text description</span>
+<span class="nt">stations</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">latitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.46082</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-57.33108</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">comment</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive selection - Review coordinates and update operation details</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">operation_type</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-CTD-mooring-etc</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">action</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-profile-sampling-etc</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">water_depth</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2930.7</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_002</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">latitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">59.03237</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-52.36839</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">comment</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive selection - Review coordinates and update operation details</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">operation_type</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-CTD-mooring-etc</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">action</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-profile-sampling-etc</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">water_depth</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3499.6</span>
+<span class="c1"># [OPTIONAL] Transit catalog - Line operations and scientific transects</span>
+<span class="c1"># For transit legs between stations, these are auto-generated</span>
+<span class="c1"># Define custom transits for:</span>
+<span class="c1">#   - Underway scientific operations (ADCP, multibeam)</span>
+<span class="c1">#   - Specific route requirements</span>
+<span class="c1">#   - Non-standard vessel speeds</span>
+<span class="nt">transits</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="c1"># [OPTIONAL] Area survey catalog - Survey boxes and polygons</span>
+<span class="c1"># Define survey areas for:</span>
+<span class="c1">#   - Multibeam bathymetry surveys</span>
+<span class="c1">#   - Side-scan sonar operations</span>
+<span class="c1">#   - Systematic sampling grids</span>
+<span class="nt">areas</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Area_01</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">corners</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">58.79432</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-42.44301</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">57.08014</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.98002</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">55.73105</span>
+<span class="w">        </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-40.8774</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive area survey - Review polygon and update operation details</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">survey</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-bathymetry-survey-etc</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">9999.0</span>
+<span class="c1"># [REQUIRED] Operational sequence definition</span>
+<span class="c1"># Legs define the order and grouping of operations</span>
+<span class="c1"># Strategy options: sequential, cluster, nearest_neighbor</span>
+<span class="c1"># Each leg can override default vessel speeds and routing</span>
+<span class="nt">legs</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive_Survey</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequential</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">sequence</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_002</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Area_01</span>
+</pre></div>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
