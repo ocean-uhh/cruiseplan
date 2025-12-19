@@ -23,18 +23,25 @@ class TestTC4MixedOpsComprehensive:
         if not Path(yaml_path).exists():
             pytest.skip(f"Fixture {yaml_path} not found")
 
-        # Create temporary enriched file with depths
-        with tempfile.NamedTemporaryFile(
-            mode="w", suffix=".yaml", delete=False
-        ) as tmp_file:
-            enriched_path = Path(tmp_file.name)
-
+        # Use a more robust temporary file approach for CI compatibility
+        import tempfile
+        temp_dir = Path(tempfile.gettempdir())
+        enriched_path = temp_dir / f"tc4_test_enriched_{hash(yaml_path) % 10000}.yaml"
+        
         try:
+            # Ensure the file doesn't exist before we start
+            if enriched_path.exists():
+                enriched_path.unlink()
+            
             # Enrich the fixture file to add missing global fields and depths
             enrich_configuration(
                 yaml_path, output_path=enriched_path, add_depths=True, add_coords=True
             )
-
+            
+            # Verify the enriched file exists and is readable
+            if not enriched_path.exists():
+                pytest.fail(f"Enriched file was not created at {enriched_path}")
+                
             # Load enriched configuration
             loader = ConfigLoader(str(enriched_path))
             config = loader.load()
