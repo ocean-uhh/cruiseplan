@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -114,11 +114,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.utils">cruiseplan.cli.utils module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.CLIError"><code class="docutils literal notranslate"><span class="pre">CLIError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.capture_and_format_warnings"><code class="docutils literal notranslate"><span class="pre">capture_and_format_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.confirm_operation"><code class="docutils literal notranslate"><span class="pre">confirm_operation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.count_individual_warnings"><code class="docutils literal notranslate"><span class="pre">count_individual_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.display_user_warnings"><code class="docutils literal notranslate"><span class="pre">display_user_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.format_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">format_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.generate_output_filename"><code class="docutils literal notranslate"><span class="pre">generate_output_filename()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.load_cruise_with_pretty_warnings"><code class="docutils literal notranslate"><span class="pre">load_cruise_with_pretty_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.load_yaml_config"><code class="docutils literal notranslate"><span class="pre">load_yaml_config()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.read_doi_list"><code class="docutils literal notranslate"><span class="pre">read_doi_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.save_yaml_config"><code class="docutils literal notranslate"><span class="pre">save_yaml_config()</span></code></a></li>
@@ -481,6 +483,27 @@ and error message formatting.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.utils.capture_and_format_warnings">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">capture_and_format_warnings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#capture_and_format_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.capture_and_format_warnings" title="Link to this definition"></a></dt>
+<dd><p>Context manager to capture and format Pydantic warnings consistently.</p>
+<p>Captures Python warnings during execution and formats them in a user-friendly
+way instead of showing raw tracebacks. Use this around operations that might
+generate Pydantic validation warnings.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Yields<span class="colon">:</span></dt>
+<dd class="field-odd"><p><em>List[str]</em> – List of captured warning messages</p>
+</dd>
+</dl>
+<p class="rubric">Example</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">capture_and_format_warnings</span><span class="p">()</span> <span class="k">as</span> <span class="n">captured_warnings</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>  <span class="c1"># May generate warnings</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">captured_warnings</span><span class="p">:</span>
+<span class="gp">... </span>    <span class="n">display_user_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="s2">&quot;Validation Warnings&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.utils.confirm_operation">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">confirm_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#confirm_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.confirm_operation" title="Link to this definition"></a></dt>
 <dd><p>Prompt user for confirmation.</p>
@@ -560,6 +583,29 @@ extension: New extension (defaults to input extension)</p>
 <dl class="field-list simple">
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>Generated filename</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.utils.load_cruise_with_pretty_warnings">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">load_cruise_with_pretty_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#load_cruise_with_pretty_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.load_cruise_with_pretty_warnings" title="Link to this definition"></a></dt>
+<dd><p>Load a Cruise object with consistent warning formatting.</p>
+<p>This function wraps Cruise loading with warning capture to ensure
+any Pydantic validation warnings are displayed in a user-friendly
+format instead of showing raw Python warning tracebacks.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to the cruise configuration YAML file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Loaded cruise object</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise">Cruise</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If cruise loading fails</p>
 </dd>
 </dl>
 </dd></dl>

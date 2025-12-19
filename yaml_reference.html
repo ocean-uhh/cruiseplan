@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAML Configuration Reference &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>YAML Configuration Reference &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=acad51fe"></script>
+      <script src="_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -96,6 +96,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#leg-cluster-fields">Leg &amp; Cluster Fields</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#planned-leg-enhancements">Planned Leg Enhancements</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#processing-priority">Processing Priority</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#routing-anchor-behavior-first-station-last-station">Routing Anchor Behavior (first_station &amp; last_station)</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#activity-types">Activity Types</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#optimization-strategy-and-un-ordered">Optimization <strong>Strategy</strong> and (Un-)Ordered</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#deprecated-fields">Deprecated Fields</a></li>
@@ -186,18 +187,19 @@
 <li><p><a class="reference internal" href="#leg-cluster-fields" id="id52">Leg &amp; Cluster Fields</a></p></li>
 <li><p><a class="reference internal" href="#planned-leg-enhancements" id="id53">Planned Leg Enhancements</a></p></li>
 <li><p><a class="reference internal" href="#processing-priority" id="id54">Processing Priority</a></p></li>
-<li><p><a class="reference internal" href="#activity-types" id="id55">Activity Types</a></p></li>
-<li><p><a class="reference internal" href="#optimization-strategy-and-un-ordered" id="id56">Optimization <strong>Strategy</strong> and (Un-)Ordered</a></p></li>
-<li><p><a class="reference internal" href="#deprecated-fields" id="id57">Deprecated Fields</a></p></li>
+<li><p><a class="reference internal" href="#routing-anchor-behavior-first-station-last-station" id="id55">Routing Anchor Behavior (first_station &amp; last_station)</a></p></li>
+<li><p><a class="reference internal" href="#activity-types" id="id56">Activity Types</a></p></li>
+<li><p><a class="reference internal" href="#optimization-strategy-and-un-ordered" id="id57">Optimization <strong>Strategy</strong> and (Un-)Ordered</a></p></li>
+<li><p><a class="reference internal" href="#deprecated-fields" id="id58">Deprecated Fields</a></p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#validation-notes" id="id58">Validation Notes</a></p>
+<li><p><a class="reference internal" href="#validation-notes" id="id59">Validation Notes</a></p>
 <ul>
-<li><p><a class="reference internal" href="#multiple-definitions" id="id59">Multiple Definitions</a></p></li>
-<li><p><a class="reference internal" href="#validation-behavior" id="id60">Validation Behavior</a></p></li>
-<li><p><a class="reference internal" href="#cross-references" id="id61">Cross-References</a></p></li>
+<li><p><a class="reference internal" href="#multiple-definitions" id="id60">Multiple Definitions</a></p></li>
+<li><p><a class="reference internal" href="#validation-behavior" id="id61">Validation Behavior</a></p></li>
+<li><p><a class="reference internal" href="#cross-references" id="id62">Cross-References</a></p></li>
 </ul>
 </li>
 </ul>
@@ -1102,12 +1104,12 @@
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">first_station</span></code></p></td>
 <td><p>str</p></td>
 <td><p>None</p></td>
-<td><p>Entry point station for this leg (must exist in catalog)</p></td>
+<td><p>Entry point station for this leg (must exist in catalog). <strong>Executes the defined activity by default</strong> (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">0</span></code>.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">last_station</span></code></p></td>
 <td><p>str</p></td>
 <td><p>None</p></td>
-<td><p>Exit point station for this leg (must exist in catalog)</p></td>
+<td><p>Exit point station for this leg (must exist in catalog). <strong>Executes the defined activity by default</strong> (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">0</span></code>.</p></td>
 </tr>
 </tbody>
 </table>
@@ -1152,8 +1154,65 @@
 </ol>
 <p><strong>Note</strong>: Legs must specify either <code class="docutils literal notranslate"><span class="pre">activities</span></code> or <code class="docutils literal notranslate"><span class="pre">clusters</span></code> (or both). Empty legs are not permitted.</p>
 </section>
+<section id="routing-anchor-behavior-first-station-last-station">
+<span id="routing-anchor-behavior"></span><h4><a class="toc-backref" href="#id55" role="doc-backlink">Routing Anchor Behavior (first_station &amp; last_station)</a><a class="headerlink" href="#routing-anchor-behavior-first-station-last-station" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">first_station</span></code> and <code class="docutils literal notranslate"><span class="pre">last_station</span></code> fields serve dual purposes as routing anchors and operational stations:</p>
+<p><strong>Default Behavior - Execute Activities</strong>:</p>
+<p>By default, <code class="docutils literal notranslate"><span class="pre">first_station</span></code> and <code class="docutils literal notranslate"><span class="pre">last_station</span></code> <strong>execute their defined activities</strong> (CTD casts, mooring deployments, etc.) in addition to serving as routing waypoints. This provides a complete operational workflow where legs begin and end with actual scientific operations.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ENTRY_CTD&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">    </span><span class="c1"># No explicit duration → normal CTD operation will be performed</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;EXIT_MOORING&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mooring</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">deployment</span>
+<span class="w">    </span><span class="c1"># No explicit duration → full mooring deployment will be performed</span>
+
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Leg&quot;</span>
+<span class="w">    </span><span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ENTRY_CTD&quot;</span><span class="w">    </span><span class="c1"># Executes CTD cast at leg start</span>
+<span class="w">    </span><span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;EXIT_MOORING&quot;</span><span class="w">  </span><span class="c1"># Executes mooring deployment at leg end</span>
+<span class="w">    </span><span class="nt">clusters</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Waypoint-Only Behavior - Zero Duration</strong>:</p>
+<p>To use <code class="docutils literal notranslate"><span class="pre">first_station</span></code> and <code class="docutils literal notranslate"><span class="pre">last_station</span></code> as routing waypoints only (without executing activities), define them with <code class="docutils literal notranslate"><span class="pre">duration:</span> <span class="pre">0</span></code>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WAYPOINT_START&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w">  </span><span class="c1"># ← Zero duration = waypoint only, no CTD operation</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WAYPOINT_END&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">mooring</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span><span class="w">  </span><span class="c1"># ← Zero duration = waypoint only, no mooring operation</span>
+
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Transit_Leg&quot;</span>
+<span class="w">    </span><span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WAYPOINT_START&quot;</span><span class="w">  </span><span class="c1"># Navigation waypoint only</span>
+<span class="w">    </span><span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;WAYPOINT_END&quot;</span><span class="w">    </span><span class="c1"># Navigation waypoint only</span>
+</pre></div>
+</div>
+<p><strong>Cluster Integration</strong>:</p>
+<p>It is completely normal for <code class="docutils literal notranslate"><span class="pre">first_station</span></code> and <code class="docutils literal notranslate"><span class="pre">last_station</span></code> to also appear in cluster activities. They will execute once as routing anchors and may execute additional times if included in cluster activities:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Leg&quot;</span>
+<span class="w">    </span><span class="nt">first_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="w">  </span><span class="c1"># Executes CTD cast as routing anchor</span>
+<span class="w">    </span><span class="nt">last_station</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_004&quot;</span><span class="w">   </span><span class="c1"># Executes CTD cast as routing anchor</span>
+<span class="w">    </span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Repeat_Survey&quot;</span>
+<span class="w">        </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># STN_001 executed again in cluster</span>
+</pre></div>
+</div>
+<p><strong>Benefits of Default Activity Execution</strong>:</p>
+<ul class="simple">
+<li><p><strong>Complete workflow coverage</strong>: Legs naturally begin and end with scientific operations</p></li>
+<li><p><strong>Natural leg boundaries</strong>: Clear operational transitions between legs</p></li>
+<li><p><strong>Flexibility</strong>: Zero-duration override available when waypoint-only behavior is needed</p></li>
+</ul>
+</section>
 <section id="activity-types">
-<span id="id14"></span><h4><a class="toc-backref" href="#id55" role="doc-backlink">Activity Types</a><a class="headerlink" href="#activity-types" title="Link to this heading"></a></h4>
+<span id="id14"></span><h4><a class="toc-backref" href="#id56" role="doc-backlink">Activity Types</a><a class="headerlink" href="#activity-types" title="Link to this heading"></a></h4>
 <p>Activities in <code class="docutils literal notranslate"><span class="pre">legs</span></code> and <code class="docutils literal notranslate"><span class="pre">clusters</span></code> reference items from the global catalog by name. Any catalog item can be referenced as an activity:</p>
 <table class="docutils align-default" id="id32">
 <caption><span class="caption-text">Supported Activity Types</span><a class="headerlink" href="#id32" title="Link to this table"></a></caption>
@@ -1195,7 +1254,7 @@
 </div>
 </section>
 <section id="optimization-strategy-and-un-ordered">
-<span id="strategy-types"></span><h4><a class="toc-backref" href="#id56" role="doc-backlink">Optimization <strong>Strategy</strong> and (Un-)Ordered</a><a class="headerlink" href="#optimization-strategy-and-un-ordered" title="Link to this heading"></a></h4>
+<span id="strategy-types"></span><h4><a class="toc-backref" href="#id57" role="doc-backlink">Optimization <strong>Strategy</strong> and (Un-)Ordered</a><a class="headerlink" href="#optimization-strategy-and-un-ordered" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">ordered</span></code> flag specifies whether a list of activities should be treated as an exact sequence (<code class="docutils literal notranslate"><span class="pre">ordered:</span> <span class="pre">true</span></code>) or an unordered set (<code class="docutils literal notranslate"><span class="pre">ordered:</span> <span class="pre">false</span></code>).  Generally, if the flag is set to True, the scheduler will respect the specified order, whereas if set to False, the scheduler may optimize the execution order based on the selected <code class="docutils literal notranslate"><span class="pre">strategy</span></code>.</p>
 <table class="docutils align-default" id="id33">
 <caption><span class="caption-text">Available Scheduling Strategies</span><a class="headerlink" href="#id33" title="Link to this table"></a></caption>
@@ -1259,7 +1318,7 @@
 </table>
 </section>
 <section id="deprecated-fields">
-<span id="id15"></span><h4><a class="toc-backref" href="#id57" role="doc-backlink">Deprecated Fields</a><a class="headerlink" href="#deprecated-fields" title="Link to this heading"></a></h4>
+<span id="id15"></span><h4><a class="toc-backref" href="#id58" role="doc-backlink">Deprecated Fields</a><a class="headerlink" href="#deprecated-fields" title="Link to this heading"></a></h4>
 <p>The following fields are <strong>deprecated</strong> and will be removed in future versions:</p>
 <table class="docutils align-default" id="id35">
 <caption><span class="caption-text">Deprecated Leg/Cluster Fields</span><a class="headerlink" href="#id35" title="Link to this table"></a></caption>
@@ -1305,9 +1364,9 @@
 </section>
 </section>
 <section id="validation-notes">
-<span id="yaml-structure-notes"></span><h2><a class="toc-backref" href="#id58" role="doc-backlink">Validation Notes</a><a class="headerlink" href="#validation-notes" title="Link to this heading"></a></h2>
+<span id="yaml-structure-notes"></span><h2><a class="toc-backref" href="#id59" role="doc-backlink">Validation Notes</a><a class="headerlink" href="#validation-notes" title="Link to this heading"></a></h2>
 <section id="multiple-definitions">
-<h3><a class="toc-backref" href="#id59" role="doc-backlink">Multiple Definitions</a><a class="headerlink" href="#multiple-definitions" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id60" role="doc-backlink">Multiple Definitions</a><a class="headerlink" href="#multiple-definitions" title="Link to this heading"></a></h3>
 <p><strong>Correct</strong>: Single list with multiple items</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clusters</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Cluster_A&quot;</span>
@@ -1328,7 +1387,7 @@
 </div>
 </section>
 <section id="validation-behavior">
-<span id="id16"></span><h3><a class="toc-backref" href="#id60" role="doc-backlink">Validation Behavior</a><a class="headerlink" href="#validation-behavior" title="Link to this heading"></a></h3>
+<span id="id16"></span><h3><a class="toc-backref" href="#id61" role="doc-backlink">Validation Behavior</a><a class="headerlink" href="#validation-behavior" title="Link to this heading"></a></h3>
 <p>The validation system provides three levels of feedback:</p>
 <dl class="simple">
 <dt><strong>Errors</strong>: Configuration issues that prevent processing</dt><dd><ul class="simple">
@@ -1352,7 +1411,7 @@
 </dl>
 </section>
 <section id="cross-references">
-<span id="id17"></span><h3><a class="toc-backref" href="#id61" role="doc-backlink">Cross-References</a><a class="headerlink" href="#cross-references" title="Link to this heading"></a></h3>
+<span id="id17"></span><h3><a class="toc-backref" href="#id62" role="doc-backlink">Cross-References</a><a class="headerlink" href="#cross-references" title="Link to this heading"></a></h3>
 <p>For workflow information, see:</p>
 <ul class="simple">
 <li><p><span class="xref std std-ref">Basic Planning Workflow</span> in <a class="reference internal" href="user_workflows.html"><span class="doc">Overview</span></a></p></li>

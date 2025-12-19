@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.utils &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.cli.utils &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -109,6 +109,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">python_warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -457,6 +459,89 @@
             <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># Add spacing between warning groups</span></div>
+
+
+
+<div class="viewcode-block" id="capture_and_format_warnings">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.utils.capture_and_format_warnings">[docs]</a>
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">capture_and_format_warnings</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager to capture and format Pydantic warnings consistently.</span>
+
+<span class="sd">    Captures Python warnings during execution and formats them in a user-friendly</span>
+<span class="sd">    way instead of showing raw tracebacks. Use this around operations that might</span>
+<span class="sd">    generate Pydantic validation warnings.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List of captured warning messages</span>
+
+<span class="sd">    Example</span>
+<span class="sd">    -------</span>
+<span class="sd">    &gt;&gt;&gt; with capture_and_format_warnings() as captured_warnings:</span>
+<span class="sd">    ...     cruise = Cruise(config_file)  # May generate warnings</span>
+<span class="sd">    &gt;&gt;&gt; if captured_warnings:</span>
+<span class="sd">    ...     display_user_warnings(captured_warnings, &quot;Validation Warnings&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="c1"># Extract just the warning message, ignore file paths and line numbers</span>
+        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+    <span class="c1"># Set up warning capture</span>
+    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
+    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">captured_warnings</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Restore original warning handler</span>
+        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span></div>
+
+
+
+<div class="viewcode-block" id="load_cruise_with_pretty_warnings">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.utils.load_cruise_with_pretty_warnings">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">load_cruise_with_pretty_warnings</span><span class="p">(</span><span class="n">config_file</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Load a Cruise object with consistent warning formatting.</span>
+
+<span class="sd">    This function wraps Cruise loading with warning capture to ensure</span>
+<span class="sd">    any Pydantic validation warnings are displayed in a user-friendly</span>
+<span class="sd">    format instead of showing raw Python warning tracebacks.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str or Path</span>
+<span class="sd">        Path to the cruise configuration YAML file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Cruise</span>
+<span class="sd">        Loaded cruise object</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    CLIError</span>
+<span class="sd">        If cruise loading fails</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">capture_and_format_warnings</span><span class="p">()</span> <span class="k">as</span> <span class="n">captured_warnings</span><span class="p">:</span>
+            <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+
+        <span class="c1"># Display any captured warnings in pretty format</span>
+        <span class="k">if</span> <span class="n">captured_warnings</span><span class="p">:</span>
+            <span class="n">display_user_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="s2">&quot;Configuration Warnings&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">cruise</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load cruise configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
 
 </pre></div>
 

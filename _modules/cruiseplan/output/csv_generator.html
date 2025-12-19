@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.csv_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.output.csv_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -191,11 +191,26 @@
                 <span class="n">duration_hours</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
 
                 <span class="c1"># Round transit distance to nearest 0.1 nm</span>
-                <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="c1"># For scientific transits, use operation distance instead of transit distance</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span>
+                    <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="p">):</span>
+                    <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">transit_dist_nm</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
 
                 <span class="c1"># Vessel speed - 0 for station operations, actual speed for transits</span>
-                <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span><span class="p">:</span>
+                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span>
+                    <span class="ow">or</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;port_departure&quot;</span>
+                    <span class="ow">or</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;port_arrival&quot;</span>
+                <span class="p">):</span>
                     <span class="n">vessel_speed</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                    <span class="c1"># For scientific transits with 0 speed, try to calculate from distance/time</span>
+                    <span class="k">if</span> <span class="n">vessel_speed</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">transit_dist_nm</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">duration_hours</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+                        <span class="n">vessel_speed</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">transit_dist_nm</span> <span class="o">/</span> <span class="n">duration_hours</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">vessel_speed</span> <span class="o">=</span> <span class="mi">0</span>  <span class="c1"># Station operations have 0 vessel speed</span>
 

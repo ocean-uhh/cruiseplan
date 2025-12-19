@@ -37,10 +37,10 @@
    "id": "setup-imports",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:10.824467Z",
-     "iopub.status.busy": "2025-12-18T11:20:10.824257Z",
-     "iopub.status.idle": "2025-12-18T11:20:12.708726Z",
-     "shell.execute_reply": "2025-12-18T11:20:12.708047Z"
+     "iopub.execute_input": "2025-12-19T22:23:50.567875Z",
+     "iopub.status.busy": "2025-12-19T22:23:50.567682Z",
+     "iopub.status.idle": "2025-12-19T22:23:52.559380Z",
+     "shell.execute_reply": "2025-12-19T22:23:52.558601Z"
     }
    },
    "outputs": [
@@ -95,10 +95,10 @@
    "id": "step1-download",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:12.710592Z",
-     "iopub.status.busy": "2025-12-18T11:20:12.710291Z",
-     "iopub.status.idle": "2025-12-18T11:20:12.716570Z",
-     "shell.execute_reply": "2025-12-18T11:20:12.715939Z"
+     "iopub.execute_input": "2025-12-19T22:23:52.561207Z",
+     "iopub.status.busy": "2025-12-19T22:23:52.560883Z",
+     "iopub.status.idle": "2025-12-19T22:23:52.568237Z",
+     "shell.execute_reply": "2025-12-19T22:23:52.567450Z"
     }
    },
    "outputs": [
@@ -148,10 +148,10 @@
    "id": "step2-pandoi",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:12.718355Z",
-     "iopub.status.busy": "2025-12-18T11:20:12.718175Z",
-     "iopub.status.idle": "2025-12-18T11:20:21.585120Z",
-     "shell.execute_reply": "2025-12-18T11:20:21.584438Z"
+     "iopub.execute_input": "2025-12-19T22:23:52.569761Z",
+     "iopub.status.busy": "2025-12-19T22:23:52.569606Z",
+     "iopub.status.idle": "2025-12-19T22:24:02.760260Z",
+     "shell.execute_reply": "2025-12-19T22:24:02.759451Z"
     }
    },
    "outputs": [
@@ -283,10 +283,10 @@
    "id": "step3-pangaea",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:21.587070Z",
-     "iopub.status.busy": "2025-12-18T11:20:21.586903Z",
-     "iopub.status.idle": "2025-12-18T11:20:25.593265Z",
-     "shell.execute_reply": "2025-12-18T11:20:25.592563Z"
+     "iopub.execute_input": "2025-12-19T22:24:02.761865Z",
+     "iopub.status.busy": "2025-12-19T22:24:02.761698Z",
+     "iopub.status.idle": "2025-12-19T22:24:06.767477Z",
+     "shell.execute_reply": "2025-12-19T22:24:06.766762Z"
     }
    },
    "outputs": [
@@ -348,10 +348,10 @@
    "id": "step4-stations",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:25.595116Z",
-     "iopub.status.busy": "2025-12-18T11:20:25.594841Z",
-     "iopub.status.idle": "2025-12-18T11:20:25.610861Z",
-     "shell.execute_reply": "2025-12-18T11:20:25.610240Z"
+     "iopub.execute_input": "2025-12-19T22:24:06.769210Z",
+     "iopub.status.busy": "2025-12-19T22:24:06.769044Z",
+     "iopub.status.idle": "2025-12-19T22:24:06.784650Z",
+     "shell.execute_reply": "2025-12-19T22:24:06.784084Z"
     }
    },
    "outputs": [
@@ -523,10 +523,10 @@
    "id": "step5-validate",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:25.612599Z",
-     "iopub.status.busy": "2025-12-18T11:20:25.612438Z",
-     "iopub.status.idle": "2025-12-18T11:20:25.629274Z",
-     "shell.execute_reply": "2025-12-18T11:20:25.628563Z"
+     "iopub.execute_input": "2025-12-19T22:24:06.786238Z",
+     "iopub.status.busy": "2025-12-19T22:24:06.786087Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.026826Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.025968Z"
     }
    },
    "outputs": [
@@ -534,11 +534,20 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "✅ Validating configuration...\n",
-      "✅ Configuration loaded and validated successfully!\n",
-      "   - Found 7 station definitions\n",
-      "   - Found 2 leg definitions\n",
-      "   - Found 1 transit definitions\n"
+      "✅ Validating configuration...\n"
+     ]
+    },
+    {
+     "ename": "ValidationError",
+     "evalue": "12 validation errors for CruiseConfig\ndeparture_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\ndeparture_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ndeparture_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\narrival_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.departure_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.arrival_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.departure_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.arrival_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nfirst_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_001', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nlast_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_006', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
+      "\u001b[31mValidationError\u001b[39m                           Traceback (most recent call last)",
+      "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[6]\u001b[39m\u001b[32m, line 4\u001b[39m\n\u001b[32m      1\u001b[39m \u001b[38;5;28mprint\u001b[39m(\u001b[33m\"\u001b[39m\u001b[33m✅ Validating configuration...\u001b[39m\u001b[33m\"\u001b[39m)\n\u001b[32m      3\u001b[39m config_file = output_dir / \u001b[33m\"\u001b[39m\u001b[33mdemo_cruise.yaml\u001b[39m\u001b[33m\"\u001b[39m\n\u001b[32m----> \u001b[39m\u001b[32m4\u001b[39m cruise = \u001b[43mCruise\u001b[49m\u001b[43m(\u001b[49m\u001b[43mconfig_file\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m      6\u001b[39m \u001b[38;5;66;03m# The Cruise.__init__() automatically performs validation during loading\u001b[39;00m\n\u001b[32m      7\u001b[39m \u001b[38;5;66;03m# including Pydantic model validation and cruise-specific validation\u001b[39;00m\n\u001b[32m      8\u001b[39m \u001b[38;5;28mprint\u001b[39m(\u001b[33m\"\u001b[39m\u001b[33m✅ Configuration loaded and validated successfully!\u001b[39m\u001b[33m\"\u001b[39m)\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py:84\u001b[39m, in \u001b[36mCruise.__init__\u001b[39m\u001b[34m(self, config_path)\u001b[39m\n\u001b[32m     81\u001b[39m \u001b[38;5;28mself\u001b[39m.raw_data = \u001b[38;5;28mself\u001b[39m._load_yaml()\n\u001b[32m     83\u001b[39m \u001b[38;5;66;03m# 1. Validation Pass (Pydantic)\u001b[39;00m\n\u001b[32m---> \u001b[39m\u001b[32m84\u001b[39m \u001b[38;5;28mself\u001b[39m.config = \u001b[43mCruiseConfig\u001b[49m\u001b[43m(\u001b[49m\u001b[43m*\u001b[49m\u001b[43m*\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mraw_data\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m     86\u001b[39m \u001b[38;5;66;03m# 2. Indexing Pass (Build the Catalog Registry)\u001b[39;00m\n\u001b[32m     87\u001b[39m \u001b[38;5;28mself\u001b[39m.station_registry: Dict[\u001b[38;5;28mstr\u001b[39m, StationDefinition] = {\n\u001b[32m     88\u001b[39m     s.name: s \u001b[38;5;28;01mfor\u001b[39;00m s \u001b[38;5;129;01min\u001b[39;00m (\u001b[38;5;28mself\u001b[39m.config.stations \u001b[38;5;129;01mor\u001b[39;00m [])\n\u001b[32m     89\u001b[39m }\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pydantic/main.py:250\u001b[39m, in \u001b[36mBaseModel.__init__\u001b[39m\u001b[34m(self, **data)\u001b[39m\n\u001b[32m    248\u001b[39m \u001b[38;5;66;03m# `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks\u001b[39;00m\n\u001b[32m    249\u001b[39m __tracebackhide__ = \u001b[38;5;28;01mTrue\u001b[39;00m\n\u001b[32m--> \u001b[39m\u001b[32m250\u001b[39m validated_self = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m__pydantic_validator__\u001b[49m\u001b[43m.\u001b[49m\u001b[43mvalidate_python\u001b[49m\u001b[43m(\u001b[49m\u001b[43mdata\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mself_instance\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m)\u001b[49m\n\u001b[32m    251\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;28mself\u001b[39m \u001b[38;5;129;01mis\u001b[39;00m \u001b[38;5;129;01mnot\u001b[39;00m validated_self:\n\u001b[32m    252\u001b[39m     warnings.warn(\n\u001b[32m    253\u001b[39m         \u001b[33m'\u001b[39m\u001b[33mA custom validator is returning a value other than `self`.\u001b[39m\u001b[38;5;130;01m\\n\u001b[39;00m\u001b[33m'\u001b[39m\n\u001b[32m    254\u001b[39m         \u001b[33m\"\u001b[39m\u001b[33mReturning anything other than `self` from a top level model validator isn\u001b[39m\u001b[33m'\u001b[39m\u001b[33mt supported when validating via `__init__`.\u001b[39m\u001b[38;5;130;01m\\n\u001b[39;00m\u001b[33m\"\u001b[39m\n\u001b[32m    255\u001b[39m         \u001b[33m'\u001b[39m\u001b[33mSee the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.\u001b[39m\u001b[33m'\u001b[39m,\n\u001b[32m    256\u001b[39m         stacklevel=\u001b[32m2\u001b[39m,\n\u001b[32m    257\u001b[39m     )\n",
+      "\u001b[31mValidationError\u001b[39m: 12 validation errors for CruiseConfig\ndeparture_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\ndeparture_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ndeparture_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\narrival_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.departure_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.arrival_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.departure_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.arrival_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nfirst_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_001', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nlast_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_006', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
      ]
     }
    ],
@@ -577,13 +586,27 @@
    "id": "step6-enrich",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:25.630971Z",
-     "iopub.status.busy": "2025-12-18T11:20:25.630814Z",
-     "iopub.status.idle": "2025-12-18T11:20:25.737029Z",
-     "shell.execute_reply": "2025-12-18T11:20:25.736399Z"
+     "iopub.execute_input": "2025-12-19T22:24:07.028520Z",
+     "iopub.status.busy": "2025-12-19T22:24:07.028335Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.257031Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.256136Z"
     }
    },
    "outputs": [
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km\n"
+     ]
+    },
+    {
+     "name": "stderr",
+     "output_type": "stream",
+     "text": [
+      "INFO: ℹ️ Missing required fields added with defaults. Update these values as needed.\n"
+     ]
+    },
     {
      "name": "stderr",
      "output_type": "stream",
@@ -595,40 +618,28 @@
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO: Saved configuration to: /tmp/tmp7bo87vg4.yaml\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: ⚠️ No bathymetry file found at /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc. Using MOCK mode.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:    Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Saved configuration to: ../tests_output/demo/demo_cruise_enriched.yaml\n"
+      "INFO: Saved configuration to: /tmp/tmpoed44_6p.yaml\n"
      ]
     },
     {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "🔧 Enriching configuration...\n",
-      "✅ Configuration enriched and saved to ../tests_output/demo/demo_cruise_enriched.yaml\n",
-      "   - Expanded 1 CTD sections\n",
-      "   - Created 32 new stations\n",
-      "   - Added depths to 39 stations\n",
-      "   - Added coordinates to 41 stations\n"
+      "🔧 Enriching configuration...\n"
+     ]
+    },
+    {
+     "ename": "ValidationError",
+     "evalue": "12 validation errors for CruiseConfig\ndeparture_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\ndeparture_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ndeparture_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\narrival_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.departure_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.arrival_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.departure_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.arrival_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nfirst_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_001', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nlast_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_006', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
+      "\u001b[31mValidationError\u001b[39m                           Traceback (most recent call last)",
+      "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[7]\u001b[39m\u001b[32m, line 7\u001b[39m\n\u001b[32m      4\u001b[39m enriched_config_file = output_dir / \u001b[33m\"\u001b[39m\u001b[33mdemo_cruise_enriched.yaml\u001b[39m\u001b[33m\"\u001b[39m\n\u001b[32m      6\u001b[39m \u001b[38;5;66;03m# Use the actual enrichment function\u001b[39;00m\n\u001b[32m----> \u001b[39m\u001b[32m7\u001b[39m summary = \u001b[43menrich_configuration\u001b[49m\u001b[43m(\u001b[49m\n\u001b[32m      8\u001b[39m \u001b[43m    \u001b[49m\u001b[43mconfig_path\u001b[49m\u001b[43m=\u001b[49m\u001b[43mconfig_file\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m      9\u001b[39m \u001b[43m    \u001b[49m\u001b[43madd_depths\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43;01mTrue\u001b[39;49;00m\u001b[43m,\u001b[49m\n\u001b[32m     10\u001b[39m \u001b[43m    \u001b[49m\u001b[43madd_coords\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43;01mTrue\u001b[39;49;00m\u001b[43m,\u001b[49m\n\u001b[32m     11\u001b[39m \u001b[43m    \u001b[49m\u001b[43mexpand_sections\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43;01mTrue\u001b[39;49;00m\u001b[43m,\u001b[49m\n\u001b[32m     12\u001b[39m \u001b[43m    \u001b[49m\u001b[43mbathymetry_source\u001b[49m\u001b[43m=\u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43metopo2022\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m     13\u001b[39m \u001b[43m    \u001b[49m\u001b[43mcoord_format\u001b[49m\u001b[43m=\u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43mdmm\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m     14\u001b[39m \u001b[43m    \u001b[49m\u001b[43moutput_path\u001b[49m\u001b[43m=\u001b[49m\u001b[43menriched_config_file\u001b[49m\n\u001b[32m     15\u001b[39m \u001b[43m)\u001b[49m\n\u001b[32m     17\u001b[39m \u001b[38;5;28mprint\u001b[39m(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[33m✅ Configuration enriched and saved to \u001b[39m\u001b[38;5;132;01m{\u001b[39;00menriched_config_file\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m\"\u001b[39m)\n\u001b[32m     18\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m summary:\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/core/validation.py:2623\u001b[39m, in \u001b[36menrich_configuration\u001b[39m\u001b[34m(config_path, add_depths, add_coords, expand_sections, expand_ports, bathymetry_source, bathymetry_dir, coord_format, output_path)\u001b[39m\n\u001b[32m   2621\u001b[39m     save_yaml(config_dict, temp_config_path, backup=\u001b[38;5;28;01mFalse\u001b[39;00m)\n\u001b[32m   2622\u001b[39m     \u001b[38;5;66;03m# Load cruise configuration from preprocessed data\u001b[39;00m\n\u001b[32m-> \u001b[39m\u001b[32m2623\u001b[39m     cruise = \u001b[43mCruise\u001b[49m\u001b[43m(\u001b[49m\u001b[43mtemp_config_path\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m   2624\u001b[39m \u001b[38;5;28;01mfinally\u001b[39;00m:\n\u001b[32m   2625\u001b[39m     \u001b[38;5;66;03m# Clean up temporary file safely\u001b[39;00m\n\u001b[32m   2626\u001b[39m     \u001b[38;5;28;01mif\u001b[39;00m temp_config_path.exists():\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py:84\u001b[39m, in \u001b[36mCruise.__init__\u001b[39m\u001b[34m(self, config_path)\u001b[39m\n\u001b[32m     81\u001b[39m \u001b[38;5;28mself\u001b[39m.raw_data = \u001b[38;5;28mself\u001b[39m._load_yaml()\n\u001b[32m     83\u001b[39m \u001b[38;5;66;03m# 1. Validation Pass (Pydantic)\u001b[39;00m\n\u001b[32m---> \u001b[39m\u001b[32m84\u001b[39m \u001b[38;5;28mself\u001b[39m.config = \u001b[43mCruiseConfig\u001b[49m\u001b[43m(\u001b[49m\u001b[43m*\u001b[49m\u001b[43m*\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mraw_data\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m     86\u001b[39m \u001b[38;5;66;03m# 2. Indexing Pass (Build the Catalog Registry)\u001b[39;00m\n\u001b[32m     87\u001b[39m \u001b[38;5;28mself\u001b[39m.station_registry: Dict[\u001b[38;5;28mstr\u001b[39m, StationDefinition] = {\n\u001b[32m     88\u001b[39m     s.name: s \u001b[38;5;28;01mfor\u001b[39;00m s \u001b[38;5;129;01min\u001b[39;00m (\u001b[38;5;28mself\u001b[39m.config.stations \u001b[38;5;129;01mor\u001b[39;00m [])\n\u001b[32m     89\u001b[39m }\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pydantic/main.py:250\u001b[39m, in \u001b[36mBaseModel.__init__\u001b[39m\u001b[34m(self, **data)\u001b[39m\n\u001b[32m    248\u001b[39m \u001b[38;5;66;03m# `__tracebackhide__` tells pytest and some other tools to omit this function from tracebacks\u001b[39;00m\n\u001b[32m    249\u001b[39m __tracebackhide__ = \u001b[38;5;28;01mTrue\u001b[39;00m\n\u001b[32m--> \u001b[39m\u001b[32m250\u001b[39m validated_self = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m__pydantic_validator__\u001b[49m\u001b[43m.\u001b[49m\u001b[43mvalidate_python\u001b[49m\u001b[43m(\u001b[49m\u001b[43mdata\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mself_instance\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m)\u001b[49m\n\u001b[32m    251\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;28mself\u001b[39m \u001b[38;5;129;01mis\u001b[39;00m \u001b[38;5;129;01mnot\u001b[39;00m validated_self:\n\u001b[32m    252\u001b[39m     warnings.warn(\n\u001b[32m    253\u001b[39m         \u001b[33m'\u001b[39m\u001b[33mA custom validator is returning a value other than `self`.\u001b[39m\u001b[38;5;130;01m\\n\u001b[39;00m\u001b[33m'\u001b[39m\n\u001b[32m    254\u001b[39m         \u001b[33m\"\u001b[39m\u001b[33mReturning anything other than `self` from a top level model validator isn\u001b[39m\u001b[33m'\u001b[39m\u001b[33mt supported when validating via `__init__`.\u001b[39m\u001b[38;5;130;01m\\n\u001b[39;00m\u001b[33m\"\u001b[39m\n\u001b[32m    255\u001b[39m         \u001b[33m'\u001b[39m\u001b[33mSee the `model_validator` docs (https://docs.pydantic.dev/latest/concepts/validators/#model-validators) for more details.\u001b[39m\u001b[33m'\u001b[39m,\n\u001b[32m    256\u001b[39m         stacklevel=\u001b[32m2\u001b[39m,\n\u001b[32m    257\u001b[39m     )\n",
+      "\u001b[31mValidationError\u001b[39m: 12 validation errors for CruiseConfig\ndeparture_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\ndeparture_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\ndeparture_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.str\n  Input should be a valid string [type=string_type, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/string_type\narrival_port.PortDefinition.latitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\narrival_port.PortDefinition.longitude\n  Field required [type=missing, input_value={'name': 'St. Johns', 'po... 'longitude': -52.7126}}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.departure_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.0.arrival_port\n  Field required [type=missing, input_value={'name': 'Outbound_Survey...': ['Demo_CTD_Section']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.departure_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nlegs.1.arrival_port\n  Field required [type=missing, input_value={'name': 'Return_Survey',...'sequence': ['STN_006']}, input_type=CommentedMap]\n    For further information visit https://errors.pydantic.dev/2.12/v/missing\nfirst_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_001', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden\nlast_station\n  Extra inputs are not permitted [type=extra_forbidden, input_value='STN_006', input_type=str]\n    For further information visit https://errors.pydantic.dev/2.12/v/extra_forbidden"
      ]
     }
    ],
@@ -678,10 +689,10 @@
    "id": "68ed6cdc",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:25.738686Z",
-     "iopub.status.busy": "2025-12-18T11:20:25.738532Z",
-     "iopub.status.idle": "2025-12-18T11:20:26.027783Z",
-     "shell.execute_reply": "2025-12-18T11:20:26.026934Z"
+     "iopub.execute_input": "2025-12-19T22:24:07.258846Z",
+     "iopub.status.busy": "2025-12-19T22:24:07.258629Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.263343Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.262716Z"
     }
    },
    "outputs": [
@@ -689,87 +700,25 @@
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "🗺️ Generating cruise track map with bathymetry...\n"
+      "🗺️ Generating cruise track map with bathymetry...\n",
+      "❌ Map generation failed: YAML file not found: ../tests_output/demo/demo_cruise_enriched.yaml\n"
      ]
     },
     {
      "name": "stderr",
      "output_type": "stream",
      "text": [
-      "INFO: Loading bathymetry for region: 37.6°-73.0°N, -62.7°--20.0°E\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: ⚠️ No bathymetry file found at /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/GEBCO_2025.nc. Using MOCK mode.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:    Run `cruiseplan.data.bathymetry.download_bathymetry()` to fetch it.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Added bathymetry contours covering full region\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Map displayed with 39 stations\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Departure: St. Johns\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Arrival: St. Johns\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "WARNING: Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "WARNING: Ignoring fixed x limits to fulfill fixed data aspect with adjustable data limits.\n"
-     ]
-    },
-    {
-     "data": {
-      "image/png": "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OX5PYIPBoNmzZ2v27NleaaPEdOlAFAyBWKp5nri8IkzhYTaldWobK2UDAAAg8M2ePVs33nij83VsrV11ioqKdN5552n06NF67rnntHnzZt1www1KSEjQ5MmTJUlr1qzRhAkTNHfuXF100UVavHixxo0bpw0bNmjAgAGSpHnz5unpp5/WokWL1L17dz344IMaM2aMtmzZ0uJBSV8KqFDcFhCIA0+wBGJJ2r2vZup0emqRTCZ2nQcAAAglNptNRUVFdY41tjOOu2JjYxtdbPj1119XZWWlXn75ZUVEROjEE0/Uxo0bNX/+fGcofuqppzR27Fj97W9/kyQ99NBDWrZsmZ555hk999xzstvtWrBggaZNm6ZLL71UkvTqq6+qU6dOev/99zV+/PgWfwZfIRS7oaCiXNHhMQTiABJMgViS9hx7nrhr56JmSgIAAKA1lJcVaf+eLT5/n/zD+3Vk717Fx8fXOT5jxgzNnDmzxfU/8sgjeuihh9S1a1ddffXVuuuuuxQWVhMHs7KyNGLECEVERDjLjxkzRo8++qjy8/OVmJiorKwsTZkypU6dY8aM0fvvvy9J2rlzp3JzczV69Gjn+fj4eGVmZiorK4tQHEwIxIEj2AKxJO1yLLLF88QAAAAhJz09XZs2bapzzBujxH/+85912mmnqX379lqzZo3uu+8+HThwQPPnz5ck5ebmqnv37nWu6dSpk/NcYmKicnNzncdql8nNzXWWq31dQ2UCFaHYDQleCrAE4pYLxkAsSb8/f6t27k1Qnx5H/N0UAAAAtDKj0ai4uDiXyt5777169NFHmyzz888/q1+/fnVGeAcOHKiIiAjddNNNmjt3rldCd1tHKG5lBOKWCdYw7NA9vVDd0xklBgAAQNP++te/auLEiU2W6dGjR4PHMzMzVV1drV27dqlv375KSUlRXl5enTKO147nkBsrU/u841hqamqdMqeccorLn8sfCMWtiEDcMsEeiAEAAABXJSUlObeuddfGjRtlNBqVnJwsSRoyZIgeeOABVVVVKTw8XJK0bNky9e3bV4mJic4yK1as0J133umsZ9myZRoyZIgkqXv37kpJSdGKFSucIbioqEjr1q3TLbfc4uGnbB2E4lZAGG65UAjE321KUXW1Uf16HVFCnMXfzQEAAEAQyMrK0rp16zRq1CjFxsYqKytLd911l6655hpn4L366qs1a9YsTZo0Sffcc49+/PFHPfXUU3ryySed9fzlL3/R7373Oz3xxBO68MIL9cYbb+i7777TCy+8IKlmK9w777xTc+bMUe/evZ1bMqWlpWncuHH++OguIxT7GIG45UIhEEvSsq96aO+BWP2/8Rt12oC85i8AAAAAmmE2m/XGG29o5syZslgs6t69u+666646zxnHx8dr6dKluu222zRo0CB17NhR06dPd27HJElDhw7V4sWLNW3aNN1///3q3bu33n//fecexZJ09913q7S0VJMnT1ZBQYGGDRumTz/9NKD3KJYIxT5FIG45W9kOGQ3BH4irqozanxcjiZWnAQAA4D2nnXaa1q5d22y5gQMH6quvvmqyzBVXXKErrrii0fMGg0GzZ8/W7Nmz3W6nPxn93YBgRSBuObvlgKTgD8SStC83VjabQTHRVWqfUOHv5gAAAAAhg1DsAwTilrOV7ZAkGaN7+rklrWP3vmP7E3cplMHg58YAAAAAIYTp015GIG45W1m2jNG9ZLDGSCrxd3Naxe79x0IxU6cBAACAVkUo9iICccvUXlDLZvdzY1rZHkIxAAAA4BeEYi/pmb+QMNwCobLCdEMsFpNyD7eTRCgGAAAAWhuhuIUYHW65UA7EkmQ2WzX37i+070Cc4mIr/d0cAAAAIKQQiluAQNxyoR6IHeJiK3VC7GF/NwMAAAAIOaw+7SECccsRiAEAAAD4G6HYAwTiliMQ/+Y/7w7QR8t7qaQ03N9NAQAAAEIO06fdRCBuOQLxb0rLwpW1obMk6Zyzdvm3MQAAAEAIIhS7oXvBYinGTCD2EGG4vt37arZiSu5Qpuioaj+3BgAAAAg9TJ92E4HYMwTihu3OiZPEVkwAAACAvxCK3ZBgjvR3E9okAnHjHCPFGV0IxQAAAIA/EIrhUwTipu3efywUM1IMAAAA+AWhGD5DIG5aQZFZhcVmGQxSl5RifzcHAAAACEkstAWfIBA37/DRKEWareqQUC6z2erv5gAAAAAhiVAMryMQu6ZXtwI9MW25iksi/N0UAAAAIGQxfRpeRSB2j8EgxcVW+rsZAAAAQMhipBheQRgGAAAA0BYxUowWIxC779CRKM18crhee2+Av5sCAAAAhDRGitEiBGLP7N4fr4NHohUdWeXvpgAAAAAhjZFieIxA7Lnd+47tT9yF/YkBAAAAfyIUwyME4pbZnXMsFHcmFAMAAAD+RCiG2wjELWOzSXtz4iQxUgwAAAD4G6EYbiEQt1zuoRhZKk0yR1jVqWOpv5sDAAAAhDQW2oJLCMPes3t/zdTp9LQiGfm1FAAAAOBX/EiOZhGIvctktKlLSrF6pBf4uykAAABAyGOkGE0iEHvfGacc0BmnHJDd7u+WAAAAAGCkGI0iEPuWweDvFgAAAAAgFKNBBGLfqKw0qrqaNAwAAAAECkIx6iEQ+87a7ztrykOj9fbH/fzdFAAAAAAiFOM4BGLf2r0/XtVWoyIirP5uCgAAAAARilELgdj3du+r2Y6pW5dCP7cEAAAAgMTq0xBhuLVYLCYdOBQjScogFAMAAAS89u3bq/joIdltNhmMvh1PLDp6SDn5R3z6HmgYI8UhjkDcevYciJPdLiXEWRQfa/F3cwAAANCMq6++WtVVldr7y2afvk95SZF2bvpWHy15zafvg4YRikMYgbh17dkfJ0nqmsYoMQAAQFsQGRmpfz/3rLauWylrdZXP3mfrupVK6d5Hp59+us/eA40jFIcoAnHrczxPzNRpAACAtmP8+PEyR8Xo1x++8Un9hYfztH/7Fn312Uc+qR/NIxSHIAKxf/TteVSnnJCn3t2O+rspAAAAcJHRaNR7b76u7RvWyFJe6vX6t2StULcBg9S9e3ev1w3XsNBWiCEQ+89Zp+/TWafv83czAAAA4KZRo0apQ2q6fvl2tU4aMcZr9R7c+6sK8nK09ftvvVYn3MdIcQghEAMAAACe+fyTD7R7y/cqKfDOrD+7zaYtX69Q70HD1L59e6/UCc8QikOErSxbxuheBGI/OXCwnQ4fjZLd7u+WAAAAwBMnnHCC0vuepJ/Xfu6V+vb+slnVlRXa8Pn/vFIfPEcoDnK2smxnIIb/fLisj6bPH6EvsjL83RQAAAB4KGv5xzq4e4eO5rbskThrdZW2rlupF597Vmaz2Uutg6cIxUGM6dKBY/f+mpWn09OK/NwSAAAAeCo1NVU9TzlTP329XPYWTAH89YdvZI6K0fjx473YOniKhbaCFIE4cBQWm1VQZJbBIHVNLVJOXpE+XPaTVn+3V0cLKmSztY051XZJ1VaTwkxWGXz8XmHhJnVNjdHZQ3ro4tEnyGzmWxUAAAgM67/4RB2TU3Tg121K69nP7est5aXavmGNln32qYxGxigDAT9pBiECcWBx7E+cmlSinIOHdNv0j2Q1xOp3I85W586pMplMfm6h62w2o4xGm8/fp7KySj/99LMWLFqrL7/Zpcfuv4BgDAAAAkJMTIyeevIJ/fWe+5XSrbeMbv4s98u3q9UhratGjhzpmwbCbfyUGWQIxIFn9/44SVJGl0LNe+5LxXfopheena/ExAT/NswD1TaTwozWVnu/9Rs26fY/T9G7n27WhEtPbbX3BQAAaMqkSZM09b5p2v3TBnUfONjl60oKjmr3lu+1edMPPmwd3MV4fRAhEAcmx/PECXE5+mHrIV37x6vaZCD2h0GnDdTQoWfpi6yd/m4KAACAU1hYmBYvelnbvv1KVZUWl6/7ee0XSu97kk444QQftg7uIhQHCQJxYLLbf5s+bTLtkl0mnTSgv59b1bYMHHiidu1ngTIAABBYLrroIsW276jsDWtcKn80d58O7s5W1vKPfdwyuIvp020cYTiw2e3ShEt/0u59CWofXyTJIHNEhL+b1aaYIyJUWdV6U7YBAABcYTAY9H/vv60hQ89StwGDFBUT12hZu92un75erp6nnqnU1NRWbCVcwUhxG0YgDnxGo3TagDxdNnabTKa2scp0Y374zzbNbfcvPRT1gr+bAgAAEBAGDx6slO69tXXdyibLHfh1m8oK87X+809ap2FwCyPFbRSBOLhYK63KWrBJm/+7XYV7SmQwGdQuKUrJJ7bXiGmDlDKwgyTpgxtXatNrvyhjeKquW3qxR+/lCLUDr+mjS18c6a2PAAAAEJK++ux/6tW7j3qcnKn4jp3qnbdZrfo563M99eQTiomJ8UML0RxGitsgAnHb8c3GVP2c3UGVlU3fasvvW6cvZnyrw1sLFJvWTgkZsSo9VK5tH+3S0ezCVmotAAAA3NW9e3d1GzBIW7JWNHh+95bvZTAaNWnSpFZuGVzFSHEbQyBuO+x26Y2PTlSFxaQHbv+6ybI/vbNDkjT8/tM08sHTj11v176sPEUnR0mSnu67WIV7SiRJu7864Bzxvfazi9RtRFqL2lpVXq2vHtmgLW//qsK9JYqICVfXs1I0csZgdRrQvl75vVm5+mxqlg79fFQd+ybo/AXD1CWz5jejq+Z8py//vkHxXWM0+uEztXL2tyraV6rUUzvqwmdHqGOfBEnS4V8KtPz+tdr/zUFZCisV3TFKyQPa63fTBqnz4OQWfR4AAIDW9O3nnyglrbMO7v1Vyek9nMerKi3a9u2XevvNNxQWRvQKVIwUtyEE4rYl91A7VVhMigi3KTW5pMmydlvN88a/Lt+nXz7ZrZK8MhkMBqUPTVGHXjWrV6ec3FHRHSMlSRGx4eo8OFmdByfLHNvyhbve/MNn+nreRuXvLFJijzjZqmz65X+7tXDUBzq8raBe+dcv+kSVJZWyVdmUu/GI3r1uhWzVtjplinNK9d71n0sGg6rKq7Xn61x9dNMq5/n3/rRC2z/eI1u1XUknJMpus2vH0r06vDW/xZ8HAACgNbVv3169B52lLV+vkN32289E2RvWKDaxoy666CI/tg7NIRS3EQTitmfPsf2J09MKZWzmTjt9cs1edfu/Oag3f/+Znuz2mp49+U19OXeDqiuqJUlXLjlPvcZ2lSSlntJRN3w5Tjd8OU6pp3ZsUTt3rcrRzs/3S5LOe3SIbt14pW75/gpFxISrsqRKXz/2fb1rzn7oDN36w1U695EhkqTCPSU6uqPutkm2aruu+O+5unXjlcq8/SRJ0r61eaoqr/k8R7Nryo9/e4xuzPq97tp5jW7/ebwyWjjqDQAA4A/rV/xPVZUV2vvLZklSeUmRfv3hG/3f+2/LYDD4uXVoCqG4DbCVZcsY3YtA3MbsPhaKM9Ka32P3d9NO1xVvnKveF3aVOS5cknTkl0Ktmv2dPr5jtU/bmfPdQeefB1xV828srkuMup6VUnN+w+F61wy8urckqWP/BOex0oNldcqY4yPU58IMSVJS/8Ra5colSb0vqAn4r479n549ZYneGr9UO5buU0xKdEs/EgAAQKuLjIzUv597VlvXrZS1ukpb161SSvfeGjx4sL+bhmYwsT2AMTrctu3edywUd3Ftoax+l3ZXv0u7y26z68CGQ/roli918Mej2vbRLh+20jORCWZJkjHst9+r2Y/bcSoy/rdp3caw+r8dHffSKPW5MEO7vzqgwz/nK/uzvdr6wS4d2nJU5y8Y5puGAwAA+ND48eN1651T9cPKT5ST/bOyt//i7ybBBYwUBygCcdtWXW3Q3gOxklwLxV/M/Fa5P9SMyBqMBqWdnqz2x54ljoz7LVyGR9f8HquytLpeHc+e/KaePflNffuvH91qa9rpvy1q9eObNf/uivaVaM/XuTXnT2vZ9OzG7Pk6V/0u7a4L/zFcf1p+iUbcP0iStHv1AZ+8HwAAgK8ZjUa99+br2rdts7oNGKTu3bv7u0lwASPFAYhA3PblHIxVtdWo6MhqJbUva7b89wu3avWj3yu6Y6Ti0mNUdrBcRftLJUknXvXbvwPHys0HNhzSc6e/pYjocF372UUKjwrTkV9qwnfZkQq32trtd2nqfnZn7fx8v5bek6UNL/+sov2lqiypUkRMuM7626lu1eeq92/4QuX5FYrrEqPw6DAd2lKzwFanAR188n4AAACtYdSoUfr66681YMAAfzcFLiIUBxgCcXDo3KlY9926RgVFkXJlXYVRMwbrl0926+CPR3VkW4Fs1TZ16BOvE6/oqeH3nuYsd8qf+mr36gPa+cV+HfqpJkTarfbGqq2nsqTK+ecw828TRa56e0zNlkxv7dDR7EJFxEaoz0UZGjljsDr2TXC5fnecfF0f7Vi6TwW7ilS4u0oxnaLUa0y6zn4o0yfvBwAA0FqGDh3q7ybADQa7/fgnAXG8oqIixcfH69D3MxQXG+mz9yEQ/8Zmlw4VxygptkTGIFms79sf9urPs5frg3ffUFpaSqu/f0WBRWue/EFfz9soSRr9cKaG3HWyW3VU20wKM1p90LrGvbHkfT3zj/la+QYb3h8vGO+Tto4+CTz0SeChTwJPMPZJUXGFkk6dpcLCQsXFxfm7OQhwjBQHCAIxfKmiwKLHUhc5X0d1MOukYytIBzp+bwcAAABfIhQHAAJxcMjJK1J5RZWqq436+PNe6t7VokvPLXHuUWyOCJNkV3mFe8/8eovBaFBUB7O6npWqkTNOV0yntrH1UXlFhSIj+FYFAAAA3+AnTT8iDAePnLwi3XjXu7KUSJZKkw4ebidjpElnnDxKnVNqpux065KoMKNN6zdsUs8e3Vq1fZEJZk0rvbFV39Nb1q/fqF7dEvzdDAAAAAQptmTyEwJxcCmvqJKlRBoeMVTnhV+sIaZhMsuiCstvC1vFxUbqjJNTtOg/i7Vnzz4/trbt+GzZSn333TcafVZPfzcFAAAAQYqRYj8gEAevDpHxqqxIUaypWBHh9RekuveWkbpt+ke6YsKfdNqppyk9vYtMxrbzuymb3Sijwebz96msqtLmzT9q584dGjs8XZece4LP3xMAAAChiVDcygjEwa+8IlySFBFRPxQndYjRvx+5TJ+vydbqb3dr6w/bZLO1jYWk7JIs1WEyh1XL1wtThocZ1a9LrG65cpTOOj1Dxjb0iwMAAAC0LYTiVkQgDh6ORbUc9h0olCRZbQZZKk2SpIhwq/O4Q1RkuNI6xWncmAEaN6ZtbegejNs1AAAAAITiVkIgDh61F9WqrbJEsplr9rGODjequsyuhx7+sk4Zc4z04pOXK60T++UBAAAAgSBg5yQ+8sgjMhgMuvPOOyVJu3btksFgaPDrrbfearSeiRMn1is/duzYVvoUNQjEwaX2olrj4s53fl3T5WJFKVGSlBwTo2u6XFzn/PCIobKUqM4IMwAAAAD/CsiR4m+//VbPP/+8Bg4c6DyWnp6uAwcO1Cn3wgsv6LHHHtP555/fZH1jx47VK6+84nxtNpu92+Am2MqyCcNBqkNkvDpFta970FyhhDiLbDaDwsMaGA2ubJ22AQAAAHBNwIXikpIS/fGPf9SLL76oOXPmOI+bTCalpKTUKfvee+/pyiuvVExMTJN1ms3metc2xWKxyGKxOF8XFRVJqnmm0tU1kWxlOyTVjA63kXWUAorNLtnd+PtuTfZjbTpSUajazYswhinRHCej0S6j0a6jliJV2qqd549WFDqvD8TP1ZxA7pNQRZ8EHvok8NAngYc+CTzB2CfB9FngewEXim+77TZdeOGFGj16dJ1QfLz169dr48aN+uc//9lsnStXrlRycrISExN19tlna86cOerQoUOj5efOnatZs2bVO364pJ0simr2/eyWA5KSZTCnSsXNFkcD7JIKyyMlg3y+0rG7Sq1WGSJN+qJ0rVT+2/GqMrvGp16qRHOc8i1FeuPA/xQeXbf14e1MKrUm6FBx07/ICUSB3Cehij4JPPRJ4KFPAg99EniCsU+KS0z+bgLakIAKxW+88YY2bNigb7/9ttmyL730kvr376+hQ4c2WW7s2LG6/PLL1b17d+3YsUP333+/zj//fGVlZclkavhmue+++zRlyhTn66KiIqWnp6tjTKniYutvs1ObrWyHFC0Zo3tKKmmyLBpns0uySx1jAm+l46RYk155+lJV1F59OrdQcx7+UjJaFBFmlaosioq1a9r9w9UlJd5ZLjIyXGmdTGqL/zYCuU9CFX0SeOiTwEOfBB76JPAEY5+YVeHvJqANCZhQvHfvXv3lL3/RsmXLFBkZ2WTZ8vJyLV68WA8++GCz9Y4fP97555NOOkkDBw5Uz549tXLlSp1zzjkNXmM2mxt87thoUJPfKGxl2TVleIbYKwyG5v/O/aVLSt3nhQ3H2mio9SVJ6anx6pnR+KyEtiaQ+yRU0SeBhz4JPPRJ4KFPAk+w9UmwfA60joBZfXr9+vU6ePCgTjvtNIWFhSksLEyrVq3S008/rbCwMFmtv43Qvv322yorK9N1113n9vv06NFDHTt2VHZ2tjebzwrTAAAAANAGBcxI8TnnnKPNmzfXOXb99derX79+uueee+pMdX7ppZd0ySWXKCkpye332bdvn44cOaLU1NQWt9mBQAyHI8cW03L8FwAAAEBgC5hQHBsbqwEDBtQ51q5dO3Xo0KHO8ezsbH355Zf65JNPGqynX79+mjt3ri677DKVlJRo1qxZ+v3vf6+UlBTt2LFDd999t3r16qUxY8Z4pd0EYkhSVGS4zDHSVyVrnNsumWNqjgMAAAAIXAETil318ssvq0uXLjrvvPMaPL9t2zYVFtaM0plMJm3atEmLFi1SQUGB0tLSdN555+mhhx5q8V7FhGHUltYpTi8+ebnKay2+FRUZrrRODexVDAAAACBgBHQoXrlyZb1jDz/8sB5++OFGr7Hbf9uULCoqSp999pnX20UgRkMIwAAAAEDbEzALbbUVBGIAAAAACB6EYjfYyn+VRCAGAAAAgGBBKHYTgRgAAAAAggeh2A3GqB7+bgIAAAAAwIsIxQAAAACAkEUoBgAAAACELEIxAAAAACBkEYoBAAAAACGLUAwAAAAACFmEYgAAAABAyCIUAwAAAABCFqEYAAAAABCyCMUAAAAAgJBFKAYAAAAAhCxCMQAAAAAgZBGKAQAAAAAhi1AMAAAAAAhZhGIAAAAAQMgiFAMAAAAAQhahGAAAAAAQsgjFAAAAAICQRSgGAAAAAIQsQjEAAAAAIGQRigEAAAAAIYtQDAAAAAAIWYRiAAAAAEDIIhQDAAAAAEIWoRgAAAAAELIIxQAAAACAkEUoBgAAAACELEIxAAAAACBkEYoBAAAAACGLUAwAAAAACFmEYgAAAABAyCIUAwAAAABCFqEYAAAAABCyCMUAAAAAgJBFKAYAAAAAhCxCMQAAAAAgZBGKAQAAAAAhi1AMAAAAAAhZhGIAAAAAQMgiFAMAAAAAQhahGAAAAAAQsgjFAAAAAICQFebvBrQFdrtdklRcYvFzS0KHzS4Vl5hkVoWMBn+3BhJ9Eojok8BDnwQe+iTw0CeBJxj7xPFzu+PneKAphGIXFBcXS5J6DH/Ezy0BAAAA4Kri4mLFx8f7uxkIcAY7vz5pls1mU05OjmJjY2UwBMmvzwJcUVGR0tPTtXfvXsXFxfm7ORB9Eojok8BDnwQe+iTw0CeBJxj7xG63q7i4WGlpaTIaeWIUTWOk2AVGo1FdunTxdzNCUlxcXNB8cw4W9EngoU8CD30SeOiTwEOfBJ5g6xNGiOEqfm0CAAAAAAhZhGIAAAAAQMgiFCMgmc1mzZgxQ2az2d9NwTH0SeChTwIPfRJ46JPAQ58EHvoEoY6FtgAAAAAAIYuRYgAAAABAyCIUAwAAAABCFqEYAAAAABCyCMUAAAAAgJBFKEbA6datmwwGQ52vRx55xHl+165d9c4bDAatXbvWj60Obs31iSRt2rRJw4cPV2RkpNLT0zVv3jw/tTa0WCwWnXLKKTIYDNq4caPzOPeJ/zTWJxL3SWu75JJL1LVrV0VGRio1NVXXXnutcnJynOe5T1pfc30icZ+0pl27dmnSpEnq3r27oqKi1LNnT82YMUOVlZV1ynCfINiF+bsBQENmz56tG2+80fk6Nja2Xpnly5frxBNPdL7u0KFDq7QtVDXVJ0VFRTrvvPM0evRoPffcc9q8ebNuuOEGJSQkaPLkyf5obsi4++67lZaWph9++KHB89wnra+xPuE+aX2jRo3S/fffr9TUVO3fv19Tp07VH/7wB61Zs6ZOOe6T1tNcn3CftK6tW7fKZrPp+eefV69evfTjjz/qxhtvVGlpqR5//PE6ZblPENTsQIDJyMiwP/nkk42e37lzp12S/fvvv2+1NoW65vrk2WeftScmJtotFovz2D333GPv27dvK7QudH3yySf2fv362X/66ad69wT3iX801SfcJ/73wQcf2A0Gg72ystJut3OfBILj+4T7xP/mzZtn7969u/M19wlCAdOnEZAeeeQRdejQQaeeeqoee+wxVVdX1ytzySWXKDk5WcOGDdOHH37oh1aGlqb6JCsrSyNGjFBERITz2JgxY7Rt2zbl5+f7o7lBLy8vTzfeeKP+85//KDo6utFy3Cetp7k+4T7xr6NHj+r111/X0KFDFR4eXucc94l/NNQn3Cf+V1hYqPbt29c7zn2CYEYoRsD585//rDfeeENffPGFbrrpJj388MO6++67nedjYmL0xBNP6K233tLHH3+sYcOGady4cXyD9qHm+iQ3N1edOnWqc43jdW5ubqu2NRTY7XZNnDhRN998s04//fQGy3CftC5X+oT7xD/uuecetWvXTh06dNCePXv0wQcfOM9xn/hHU33CfeJf2dnZ+sc//qGbbrrJeYz7BCHB30PVCA333HOPXVKTXz///HOD17700kv2sLAwe0VFRaP1X3vttfZhw4b5qvlByZt9cu6559onT55cp4xj+uiWLVt8/lmChat98tRTT9nPOusse3V1td1ud31qG/eJ+7zZJ9wn3uHu965Dhw7Zt23bZl+6dKn9rLPOsl9wwQV2m83WaP3cJ+7zZp9wn3iHJ/+P37dvn71nz572SZMmNVs/9wmCDQttoVX89a9/1cSJE5ss06NHjwaPZ2Zmqrq6Wrt27VLfvn0bLbNs2bKWNjOkeLNPUlJSlJeXV6eM43VKSopX2hsKXO2Tzz//XFlZWTKbzXXOnX766frjH/+oRYsWNXgt94n7vNkn3Cfe4e73ro4dO6pjx47q06eP+vfvr/T0dK1du1ZDhgxp8FruE/d5s0+4T7zD3T7JycnRqFGjNHToUL3wwgvN1s99gmBDKEarSEpKUlJSkkfXbty4UUajUcnJyU2WSU1N9bR5IcmbfTJkyBA98MADqqqqcj4XtmzZMvXt21eJiYlea3Owc7VPnn76ac2ZM8f5OicnR2PGjNGbb76pzMzMRq/jPnGfN/uE+8Q7WvK9y2azSarZNqsx3Cfu82afcJ94hzt9sn//fo0aNUqDBg3SK6+8IqOx+acruU8QbAjFCChZWVlat26dRo0apdjYWGVlZemuu+7SNddc4/yf4aJFixQREaFTTz1VkvTuu+/q5Zdf1r///W9/Nj1oudInV199tWbNmqVJkybpnnvu0Y8//qinnnpKTz75pJ9bH5y6du1a53VMTIwkqWfPnurSpYsk7pPW5kqfcJ+0rnXr1unbb7/VsGHDlJiYqB07dujBBx9Uz549naPE3Cety5U+4T5pXfv379fIkSOVkZGhxx9/XIcOHXKec4zMc58gJPh7/jZQ2/r16+2ZmZn2+Ph4e2RkpL1///72hx9+uM7zxAsXLrT379/fHh0dbY+Li7OfccYZ9rfeesuPrQ5urvSJ3W63//DDD/Zhw4bZzWazvXPnzvZHHnnETy0OPQ09v8p94l+NPefNfdJ6Nm3aZB81apS9ffv2drPZbO/WrZv95ptvtu/bt89ZhvukdbnSJ3Y790lreuWVVxp95tiB+wShwGC32+3+i+QAAAAAAPgPWzIBAAAAAEIWoRgAAAAAELIIxQAAAACAkEUoBgAAAACELEIxAAAAACBkEYoBAAAAACGLUAwAAAAACFmEYgAAAABAyCIUAwCCxsqVK2UwGLRy5cpWeb+RI0dq5MiRXq/3ggsu0I033tjgOYvFUu9YVVWV0tPT9eyzz3q9LQAABDtCMQDAZQsXLpTBYNB3333n76a4bPHixVqwYIG/m+Gyr7/+WkuXLtU999xT5/jSpUvVpUsXtWvXTpdccokKCgqc58LDwzVlyhT9/e9/V0VFRSu3GACAto1QDAAIGiNGjFB5eblGjBjhPNbWQvFjjz2mc845R7169XIeKykp0YQJE3T99dfr7bffVmFhoe6///46111//fU6fPiwFi9e3NpNBgCgTQvzdwMAAPAWo9GoyMhIfzfDYwcPHtTHH3+s5557rs7xrVu3qmvXrnrooYckSd27d9c111xTp0xCQoLOO+88LVy4UDfccEOrtRkAgLaOkWIAgNd9//33Ov/88xUXF6eYmBidc845Wrt2bZ0yjqnYX3/9taZMmaKkpCS1a9dOl112mQ4dOlSnrM1m08yZM5WWlqbo6GiNGjVKW7ZsUbdu3TRx4kRnueOfKR45cqQ+/vhj7d69WwaDQQaDQd26davz/rt27arzXo09l/zCCy+oZ8+eioqK0hlnnKGvvvqqwc9usVg0Y8YM9erVS2azWenp6br77rsbfBb4eB9//LGqq6s1evToOse7du2q7du366233tKOHTv09NNPq3fv3vWuP/fcc7V69WodPXq02fcCAAA1GCkGAHjVTz/9pOHDhysuLk533323wsPD9fzzz2vkyJFatWqVMjMz65S/4447lJiYqBkzZmjXrl1asGCBbr/9dr355pvOMvfdd5/mzZuniy++WGPGjNEPP/ygMWPGNPv87AMPPKDCwkLt27dPTz75pCQpJibG7c/00ksv6aabbtLQoUN155136tdff9Ull1yi9u3bKz093VnOZrPpkksu0erVqzV58mT1799fmzdv1pNPPqlffvlF77//fpPvs2bNGnXo0EEZGRl1jicnJ2vmzJkaP368bDabMjIytHTp0nrXDxo0SHa7XWvWrNFFF13k9ucEACAUEYoBAF41bdo0VVVVafXq1erRo4ck6brrrlPfvn119913a9WqVXXKd+jQQUuXLpXBYJBUEyyffvppFRYWKj4+Xnl5eZo/f77GjRun9957z3ndrFmzNHPmzCbbcu6556pz587Kz8+vN93YVVVVVbr//vt1yimn6IsvvlBERIQk6YQTTtDkyZPrhOLFixdr+fLlWrVqlYYNG+Y8PmDAAN18881as2aNhg4d2uh7bd261TmSfbypU6dqwoQJysnJ0UknndTgNHHH3/eWLVsIxQAAuIjp0wAAr7FarVq6dKnGjRvnDGiSlJqaqquvvlqrV69WUVFRnWsmT57sDMSSNHz4cFmtVu3evVuStGLFClVXV+vWW2+tc90dd9zhw0/ym++++04HDx7UzTff7AzEkjRx4kTFx8fXKfvWW2+pf//+6tevnw4fPuz8OvvssyVJX3zxRZPvdeTIESUmJjZ6vnPnzho8eHCjz007rj18+LBLnw0AADBSDADwokOHDqmsrEx9+/atd65///6y2Wzau3evTjzxROfxrl271innCHb5+fmS5AzHtVdjlqT27ds3GSC9xfH+xz/DGx4eXif4S9L27dv1888/KykpqcG6Dh482Oz72e12D1v627W1f8kAAACaRigGAPiVyWRq8HhLwqErGguOVqvV4zptNptOOukkzZ8/v8HztadaN6RDhw7OXwZ4wnFtx44dPa4DAIBQQygGAHhNUlKSoqOjtW3btnrntm7dKqPR2GwwPJ5j0ans7Gx1797defzIkSMuBcjGwq9jlLmgoKDOccfI8PHvv337duc0aKnmWeOdO3fq5JNPdh7r2bOnfvjhB51zzjkejdb269dP77zzjtvXOezcuVNSzag8AABwDc8UAwC8xmQy6bzzztMHH3xQZ6ujvLw8LV68WMOGDVNcXJxbdZ5zzjkKCwvTv/71rzrHn3nmGZeub9eunQoLC+sd79mzpyTpyy+/dB6zWq164YUX6pQ7/fTTlZSUpOeee06VlZXO4wsXLqwXqK+88krt379fL774Yr33Ky8vV2lpaZNtHTJkiPLz8/Xrr782+7kasn79ehkMBg0ZMsSj6wEACEWMFAMA3Pbyyy/r008/rXf8L3/5i+bMmaNly5Zp2LBhuvXWWxUWFqbnn39eFotF8+bNc/u9OnXqpL/85S964okndMkll2js2LH64Ycf9H//93/q2LFjsyOygwYN0ptvvqkpU6Zo8ODBiomJ0cUXX6wTTzxRZ555pu677z4dPXpU7du31xtvvKHq6uo614eHh2vOnDm66aabdPbZZ+uqq67Szp079corr9R7pvjaa6/VkiVLdPPNN+uLL77QWWedJavVqq1bt2rJkiX67LPPdPrppzfa1gsvvFBhYWFavny5Jk+e7Pbf1bJly3TWWWepQ4cObl8LAECoIhQDANx2/Kitw8SJE3XiiSfqq6++0n333ae5c+fKZrMpMzNTr732Wr09il316KOPKjo6Wi+++KKWL1+uIUOGaOnSpRo2bFijKzE73Hrrrdq4caNeeeUVPfnkk8rIyNDFF18sSXr99dd100036ZFHHlFCQoImTZqkUaNG6dxzz61Tx+TJk2W1WvXYY4/pb3/7m0466SR9+OGHevDBB+uUMxqNev/99/Xkk0/q1Vdf1Xvvvafo6Gj16NFDf/nLX9SnT58m29qpUyddcMEFWrJkiduhuLCwUEuXLtWzzz7r1nUAAIQ6g93XK5kAAOADBQUFSkxM1Jw5c/TAAw/4uzle89VXX2nkyJHaunVrvRWvm7JgwQLNmzdPO3bsUFRUlA9bCABAcOGZYgBAwCsvL693bMGCBZKkkSNHtm5jfGz48OE677zz3JpqXlVVpfnz52vatGkEYgAA3MRIMQAg4C1cuFALFy7UBRdcoJiYGK1evVr//e9/dd555+mzzz7zd/MAAEAbxjPFAICAN3DgQIWFhWnevHkqKipyLr41Z84cfzcNAAC0cYwUAwAAAABCFs8UAwAAAABCFqEYAAAAABCyCMUAAAAAgJBFKAYAAAAAhCxCMQAAAAAgZBGKAQAAAAAhi1AMAAAAAAhZhGIAAAAAQMj6/9ozI2Yn2rWtAAAAAElFTkSuQmCC",
-      "text/plain": [
-       "<Figure size 1000x800 with 2 Axes>"
-      ]
-     },
-     "metadata": {},
-     "output_type": "display_data"
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "✅ Map generated and displayed\n"
+      "Traceback (most recent call last):\n",
+      "  File \"/tmp/ipykernel_2636/1156403205.py\", line 6, in <module>\n",
+      "    cruise = Cruise(enriched_config_file)\n",
+      "  File \"/home/runner/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py\", line 81, in __init__\n",
+      "    self.raw_data = self._load_yaml()\n",
+      "                    ~~~~~~~~~~~~~~~^^\n",
+      "  File \"/home/runner/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py\", line 125, in _load_yaml\n",
+      "    return load_yaml(self.config_path)\n",
+      "  File \"/home/runner/work/cruiseplan/cruiseplan/cruiseplan/utils/yaml_io.py\", line 69, in load_yaml\n",
+      "    raise YAMLIOError(f\"YAML file not found: {file_path}\")\n",
+      "cruiseplan.utils.yaml_io.YAMLIOError: YAML file not found: ../tests_output/demo/demo_cruise_enriched.yaml\n"
      ]
     }
    ],
@@ -819,119 +768,33 @@
    "id": "step7-schedule",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:26.029383Z",
-     "iopub.status.busy": "2025-12-18T11:20:26.029202Z",
-     "iopub.status.idle": "2025-12-18T11:20:26.107015Z",
-     "shell.execute_reply": "2025-12-18T11:20:26.106397Z"
+     "iopub.execute_input": "2025-12-19T22:24:07.265059Z",
+     "iopub.status.busy": "2025-12-19T22:24:07.264874Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.375893Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.375180Z"
     }
    },
    "outputs": [
     {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Loaded cruise: Demo North Atlantic Survey 2025\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Description: Demonstration cruise for CruisePlan workflow\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Generating activity timeline...\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: Adding 120.0 min buffer time at end of leg 'Outbound_Survey'\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: - Generated 15 activities\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:     Total schedule duration: 280.4 hours\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:     Total distance: 4046.3 nm\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: - Generating HTML output...\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:     HTML schedule: Demo_North_Atlantic_Survey_2025_summary.html\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: - Generating CSV output...\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:     CSV schedule: Demo_North_Atlantic_Survey_2025_schedule.csv\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO: - Generating NETCDF output...\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "INFO:     netCDF output: Demo_North_Atlantic_Survey_2025_schedule.nc\n"
-     ]
-    },
-    {
      "name": "stdout",
      "output_type": "stream",
      "text": [
-      "📅 Generating cruise schedule...\n",
-      "✅ Schedule generated successfully!\n",
-      "   - SUCCESS: True\n",
-      "   - TOTAL_ACTIVITIES: 15\n",
-      "   - TOTAL_DURATION_HOURS: 280.41513892583305\n",
-      "   - TOTAL_DISTANCE_NM: 4046.2680323496397\n",
-      "   - FORMATS_GENERATED: ['html', 'csv', 'netcdf']\n",
-      "   - OUTPUT_FILES: [PosixPath('../tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.html'), PosixPath('../tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.csv'), PosixPath('../tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.nc')]\n",
-      "   - WARNINGS: []\n",
-      "   - CRUISE_NAME: Demo North Atlantic Survey 2025\n",
-      "   - SELECTED_LEG: None\n"
+      "📅 Generating cruise schedule...\n"
+     ]
+    },
+    {
+     "ename": "YAMLIOError",
+     "evalue": "YAML file not found: ../tests_output/demo/demo_cruise_enriched.yaml",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
+      "\u001b[31mYAMLIOError\u001b[39m                               Traceback (most recent call last)",
+      "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[9]\u001b[39m\u001b[32m, line 4\u001b[39m\n\u001b[32m      1\u001b[39m \u001b[38;5;28mprint\u001b[39m(\u001b[33m\"\u001b[39m\u001b[33m📅 Generating cruise schedule...\u001b[39m\u001b[33m\"\u001b[39m)\n\u001b[32m      3\u001b[39m \u001b[38;5;66;03m# Generate the schedule with multiple output formats\u001b[39;00m\n\u001b[32m----> \u001b[39m\u001b[32m4\u001b[39m schedule_results = \u001b[43mgenerate_cruise_schedule\u001b[49m\u001b[43m(\u001b[49m\n\u001b[32m      5\u001b[39m \u001b[43m    \u001b[49m\u001b[43mconfig_path\u001b[49m\u001b[43m=\u001b[49m\u001b[43menriched_config_file\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m      6\u001b[39m \u001b[43m    \u001b[49m\u001b[43moutput_dir\u001b[49m\u001b[43m=\u001b[49m\u001b[43moutput_dir\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m      7\u001b[39m \u001b[43m    \u001b[49m\u001b[43mformats\u001b[49m\u001b[43m=\u001b[49m\u001b[43m[\u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43mhtml\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43mcsv\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m,\u001b[49m\u001b[33;43m\"\u001b[39;49m\u001b[33;43mnetcdf\u001b[39;49m\u001b[33;43m\"\u001b[39;49m\u001b[43m]\u001b[49m\u001b[43m,\u001b[49m\u001b[43m  \u001b[49m\u001b[38;5;66;43;03m# Available formats: html, csv, latex, netcdf, kml, png\u001b[39;49;00m\n\u001b[32m      8\u001b[39m \u001b[43m    \u001b[49m\u001b[43mvalidate_depths\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43;01mFalse\u001b[39;49;00m\u001b[43m,\u001b[49m\n\u001b[32m      9\u001b[39m \u001b[43m    \u001b[49m\u001b[43mselected_leg\u001b[49m\u001b[43m=\u001b[49m\u001b[38;5;28;43;01mNone\u001b[39;49;00m\n\u001b[32m     10\u001b[39m \u001b[43m)\u001b[49m\n\u001b[32m     12\u001b[39m \u001b[38;5;28mprint\u001b[39m(\u001b[33m\"\u001b[39m\u001b[33m✅ Schedule generated successfully!\u001b[39m\u001b[33m\"\u001b[39m)\n\u001b[32m     13\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m schedule_results:\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/calculators/scheduler.py:1353\u001b[39m, in \u001b[36mgenerate_cruise_schedule\u001b[39m\u001b[34m(config_path, output_dir, formats, validate_depths, selected_leg, derive_netcdf)\u001b[39m\n\u001b[32m   1350\u001b[39m     formats = [\u001b[33m\"\u001b[39m\u001b[33mhtml\u001b[39m\u001b[33m\"\u001b[39m, \u001b[33m\"\u001b[39m\u001b[33mcsv\u001b[39m\u001b[33m\"\u001b[39m]\n\u001b[32m   1352\u001b[39m \u001b[38;5;66;03m# Load cruise configuration\u001b[39;00m\n\u001b[32m-> \u001b[39m\u001b[32m1353\u001b[39m cruise = \u001b[43mCruise\u001b[49m\u001b[43m(\u001b[49m\u001b[43mconfig_path\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m   1354\u001b[39m config = cruise.config\n\u001b[32m   1356\u001b[39m logger.info(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[33mLoaded cruise: \u001b[39m\u001b[38;5;132;01m{\u001b[39;00mconfig.cruise_name\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m\"\u001b[39m)\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py:81\u001b[39m, in \u001b[36mCruise.__init__\u001b[39m\u001b[34m(self, config_path)\u001b[39m\n\u001b[32m     56\u001b[39m \u001b[38;5;250m\u001b[39m\u001b[33;03m\"\"\"\u001b[39;00m\n\u001b[32m     57\u001b[39m \u001b[33;03mInitialize a Cruise object from a YAML configuration file.\u001b[39;00m\n\u001b[32m     58\u001b[39m \n\u001b[32m   (...)\u001b[39m\u001b[32m     78\u001b[39m \u001b[33;03m    If referenced stations or transits are not found in the catalog.\u001b[39;00m\n\u001b[32m     79\u001b[39m \u001b[33;03m\"\"\"\u001b[39;00m\n\u001b[32m     80\u001b[39m \u001b[38;5;28mself\u001b[39m.config_path = Path(config_path)\n\u001b[32m---> \u001b[39m\u001b[32m81\u001b[39m \u001b[38;5;28mself\u001b[39m.raw_data = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_load_yaml\u001b[49m\u001b[43m(\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m     83\u001b[39m \u001b[38;5;66;03m# 1. Validation Pass (Pydantic)\u001b[39;00m\n\u001b[32m     84\u001b[39m \u001b[38;5;28mself\u001b[39m.config = CruiseConfig(**\u001b[38;5;28mself\u001b[39m.raw_data)\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/core/cruise.py:125\u001b[39m, in \u001b[36mCruise._load_yaml\u001b[39m\u001b[34m(self)\u001b[39m\n\u001b[32m    109\u001b[39m \u001b[38;5;28;01mdef\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[34m_load_yaml\u001b[39m(\u001b[38;5;28mself\u001b[39m) -> Dict[\u001b[38;5;28mstr\u001b[39m, Any]:\n\u001b[32m    110\u001b[39m \u001b[38;5;250m    \u001b[39m\u001b[33;03m\"\"\"\u001b[39;00m\n\u001b[32m    111\u001b[39m \u001b[33;03m    Load and parse the YAML configuration file.\u001b[39;00m\n\u001b[32m    112\u001b[39m \n\u001b[32m   (...)\u001b[39m\u001b[32m    123\u001b[39m \u001b[33;03m        If the YAML file cannot be parsed.\u001b[39;00m\n\u001b[32m    124\u001b[39m \u001b[33;03m    \"\"\"\u001b[39;00m\n\u001b[32m--> \u001b[39m\u001b[32m125\u001b[39m     \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[43mload_yaml\u001b[49m\u001b[43m(\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mconfig_path\u001b[49m\u001b[43m)\u001b[49m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/work/cruiseplan/cruiseplan/cruiseplan/utils/yaml_io.py:69\u001b[39m, in \u001b[36mload_yaml\u001b[39m\u001b[34m(file_path, encoding)\u001b[39m\n\u001b[32m     66\u001b[39m file_path = Path(file_path)\n\u001b[32m     68\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;129;01mnot\u001b[39;00m file_path.exists():\n\u001b[32m---> \u001b[39m\u001b[32m69\u001b[39m     \u001b[38;5;28;01mraise\u001b[39;00m YAMLIOError(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[33mYAML file not found: \u001b[39m\u001b[38;5;132;01m{\u001b[39;00mfile_path\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m\"\u001b[39m)\n\u001b[32m     71\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;129;01mnot\u001b[39;00m file_path.is_file():\n\u001b[32m     72\u001b[39m     \u001b[38;5;28;01mraise\u001b[39;00m YAMLIOError(\u001b[33mf\u001b[39m\u001b[33m\"\u001b[39m\u001b[33mPath is not a file: \u001b[39m\u001b[38;5;132;01m{\u001b[39;00mfile_path\u001b[38;5;132;01m}\u001b[39;00m\u001b[33m\"\u001b[39m)\n",
+      "\u001b[31mYAMLIOError\u001b[39m: YAML file not found: ../tests_output/demo/demo_cruise_enriched.yaml"
      ]
     }
    ],
@@ -959,565 +822,39 @@
    "id": "3dc2450d",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:26.108854Z",
-     "iopub.status.busy": "2025-12-18T11:20:26.108681Z",
-     "iopub.status.idle": "2025-12-18T11:20:26.137195Z",
-     "shell.execute_reply": "2025-12-18T11:20:26.136574Z"
+     "iopub.execute_input": "2025-12-19T22:24:07.377510Z",
+     "iopub.status.busy": "2025-12-19T22:24:07.377356Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.585772Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.584957Z"
     }
    },
    "outputs": [
     {
-     "data": {
-      "text/html": [
-       "<div><svg style=\"position: absolute; width: 0; height: 0; overflow: hidden\">\n",
-       "<defs>\n",
-       "<symbol id=\"icon-database\" viewBox=\"0 0 32 32\">\n",
-       "<path d=\"M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z\"></path>\n",
-       "<path d=\"M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z\"></path>\n",
-       "<path d=\"M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z\"></path>\n",
-       "</symbol>\n",
-       "<symbol id=\"icon-file-text2\" viewBox=\"0 0 32 32\">\n",
-       "<path d=\"M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z\"></path>\n",
-       "<path d=\"M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z\"></path>\n",
-       "<path d=\"M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z\"></path>\n",
-       "<path d=\"M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z\"></path>\n",
-       "</symbol>\n",
-       "</defs>\n",
-       "</svg>\n",
-       "<style>/* CSS stylesheet for displaying xarray objects in notebooks */\n",
-       "\n",
-       ":root {\n",
-       "  --xr-font-color0: var(\n",
-       "    --jp-content-font-color0,\n",
-       "    var(--pst-color-text-base rgba(0, 0, 0, 1))\n",
-       "  );\n",
-       "  --xr-font-color2: var(\n",
-       "    --jp-content-font-color2,\n",
-       "    var(--pst-color-text-base, rgba(0, 0, 0, 0.54))\n",
-       "  );\n",
-       "  --xr-font-color3: var(\n",
-       "    --jp-content-font-color3,\n",
-       "    var(--pst-color-text-base, rgba(0, 0, 0, 0.38))\n",
-       "  );\n",
-       "  --xr-border-color: var(\n",
-       "    --jp-border-color2,\n",
-       "    hsl(from var(--pst-color-on-background, white) h s calc(l - 10))\n",
-       "  );\n",
-       "  --xr-disabled-color: var(\n",
-       "    --jp-layout-color3,\n",
-       "    hsl(from var(--pst-color-on-background, white) h s calc(l - 40))\n",
-       "  );\n",
-       "  --xr-background-color: var(\n",
-       "    --jp-layout-color0,\n",
-       "    var(--pst-color-on-background, white)\n",
-       "  );\n",
-       "  --xr-background-color-row-even: var(\n",
-       "    --jp-layout-color1,\n",
-       "    hsl(from var(--pst-color-on-background, white) h s calc(l - 5))\n",
-       "  );\n",
-       "  --xr-background-color-row-odd: var(\n",
-       "    --jp-layout-color2,\n",
-       "    hsl(from var(--pst-color-on-background, white) h s calc(l - 15))\n",
-       "  );\n",
-       "}\n",
-       "\n",
-       "html[theme=\"dark\"],\n",
-       "html[data-theme=\"dark\"],\n",
-       "body[data-theme=\"dark\"],\n",
-       "body.vscode-dark {\n",
-       "  --xr-font-color0: var(\n",
-       "    --jp-content-font-color0,\n",
-       "    var(--pst-color-text-base, rgba(255, 255, 255, 1))\n",
-       "  );\n",
-       "  --xr-font-color2: var(\n",
-       "    --jp-content-font-color2,\n",
-       "    var(--pst-color-text-base, rgba(255, 255, 255, 0.54))\n",
-       "  );\n",
-       "  --xr-font-color3: var(\n",
-       "    --jp-content-font-color3,\n",
-       "    var(--pst-color-text-base, rgba(255, 255, 255, 0.38))\n",
-       "  );\n",
-       "  --xr-border-color: var(\n",
-       "    --jp-border-color2,\n",
-       "    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))\n",
-       "  );\n",
-       "  --xr-disabled-color: var(\n",
-       "    --jp-layout-color3,\n",
-       "    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))\n",
-       "  );\n",
-       "  --xr-background-color: var(\n",
-       "    --jp-layout-color0,\n",
-       "    var(--pst-color-on-background, #111111)\n",
-       "  );\n",
-       "  --xr-background-color-row-even: var(\n",
-       "    --jp-layout-color1,\n",
-       "    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))\n",
-       "  );\n",
-       "  --xr-background-color-row-odd: var(\n",
-       "    --jp-layout-color2,\n",
-       "    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))\n",
-       "  );\n",
-       "}\n",
-       "\n",
-       ".xr-wrap {\n",
-       "  display: block !important;\n",
-       "  min-width: 300px;\n",
-       "  max-width: 700px;\n",
-       "  line-height: 1.6;\n",
-       "}\n",
-       "\n",
-       ".xr-text-repr-fallback {\n",
-       "  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */\n",
-       "  display: none;\n",
-       "}\n",
-       "\n",
-       ".xr-header {\n",
-       "  padding-top: 6px;\n",
-       "  padding-bottom: 6px;\n",
-       "  margin-bottom: 4px;\n",
-       "  border-bottom: solid 1px var(--xr-border-color);\n",
-       "}\n",
-       "\n",
-       ".xr-header > div,\n",
-       ".xr-header > ul {\n",
-       "  display: inline;\n",
-       "  margin-top: 0;\n",
-       "  margin-bottom: 0;\n",
-       "}\n",
-       "\n",
-       ".xr-obj-type,\n",
-       ".xr-obj-name,\n",
-       ".xr-group-name {\n",
-       "  margin-left: 2px;\n",
-       "  margin-right: 10px;\n",
-       "}\n",
-       "\n",
-       ".xr-group-name::before {\n",
-       "  content: \"📁\";\n",
-       "  padding-right: 0.3em;\n",
-       "}\n",
-       "\n",
-       ".xr-group-name,\n",
-       ".xr-obj-type {\n",
-       "  color: var(--xr-font-color2);\n",
-       "}\n",
-       "\n",
-       ".xr-sections {\n",
-       "  padding-left: 0 !important;\n",
-       "  display: grid;\n",
-       "  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;\n",
-       "  margin-block-start: 0;\n",
-       "  margin-block-end: 0;\n",
-       "}\n",
-       "\n",
-       ".xr-section-item {\n",
-       "  display: contents;\n",
-       "}\n",
-       "\n",
-       ".xr-section-item input {\n",
-       "  display: inline-block;\n",
-       "  opacity: 0;\n",
-       "  height: 0;\n",
-       "  margin: 0;\n",
-       "}\n",
-       "\n",
-       ".xr-section-item input + label {\n",
-       "  color: var(--xr-disabled-color);\n",
-       "  border: 2px solid transparent !important;\n",
-       "}\n",
-       "\n",
-       ".xr-section-item input:enabled + label {\n",
-       "  cursor: pointer;\n",
-       "  color: var(--xr-font-color2);\n",
-       "}\n",
-       "\n",
-       ".xr-section-item input:focus + label {\n",
-       "  border: 2px solid var(--xr-font-color0) !important;\n",
-       "}\n",
-       "\n",
-       ".xr-section-item input:enabled + label:hover {\n",
-       "  color: var(--xr-font-color0);\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary {\n",
-       "  grid-column: 1;\n",
-       "  color: var(--xr-font-color2);\n",
-       "  font-weight: 500;\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary > span {\n",
-       "  display: inline-block;\n",
-       "  padding-left: 0.5em;\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in:disabled + label {\n",
-       "  color: var(--xr-font-color2);\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in + label:before {\n",
-       "  display: inline-block;\n",
-       "  content: \"►\";\n",
-       "  font-size: 11px;\n",
-       "  width: 15px;\n",
-       "  text-align: center;\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in:disabled + label:before {\n",
-       "  color: var(--xr-disabled-color);\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in:checked + label:before {\n",
-       "  content: \"▼\";\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in:checked + label > span {\n",
-       "  display: none;\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary,\n",
-       ".xr-section-inline-details {\n",
-       "  padding-top: 4px;\n",
-       "}\n",
-       "\n",
-       ".xr-section-inline-details {\n",
-       "  grid-column: 2 / -1;\n",
-       "}\n",
-       "\n",
-       ".xr-section-details {\n",
-       "  display: none;\n",
-       "  grid-column: 1 / -1;\n",
-       "  margin-top: 4px;\n",
-       "  margin-bottom: 5px;\n",
-       "}\n",
-       "\n",
-       ".xr-section-summary-in:checked ~ .xr-section-details {\n",
-       "  display: contents;\n",
-       "}\n",
-       "\n",
-       ".xr-group-box {\n",
-       "  display: inline-grid;\n",
-       "  grid-template-columns: 0px 20px auto;\n",
-       "  width: 100%;\n",
-       "}\n",
-       "\n",
-       ".xr-group-box-vline {\n",
-       "  grid-column-start: 1;\n",
-       "  border-right: 0.2em solid;\n",
-       "  border-color: var(--xr-border-color);\n",
-       "  width: 0px;\n",
-       "}\n",
-       "\n",
-       ".xr-group-box-hline {\n",
-       "  grid-column-start: 2;\n",
-       "  grid-row-start: 1;\n",
-       "  height: 1em;\n",
-       "  width: 20px;\n",
-       "  border-bottom: 0.2em solid;\n",
-       "  border-color: var(--xr-border-color);\n",
-       "}\n",
-       "\n",
-       ".xr-group-box-contents {\n",
-       "  grid-column-start: 3;\n",
-       "}\n",
-       "\n",
-       ".xr-array-wrap {\n",
-       "  grid-column: 1 / -1;\n",
-       "  display: grid;\n",
-       "  grid-template-columns: 20px auto;\n",
-       "}\n",
-       "\n",
-       ".xr-array-wrap > label {\n",
-       "  grid-column: 1;\n",
-       "  vertical-align: top;\n",
-       "}\n",
-       "\n",
-       ".xr-preview {\n",
-       "  color: var(--xr-font-color3);\n",
-       "}\n",
-       "\n",
-       ".xr-array-preview,\n",
-       ".xr-array-data {\n",
-       "  padding: 0 5px !important;\n",
-       "  grid-column: 2;\n",
-       "}\n",
-       "\n",
-       ".xr-array-data,\n",
-       ".xr-array-in:checked ~ .xr-array-preview {\n",
-       "  display: none;\n",
-       "}\n",
-       "\n",
-       ".xr-array-in:checked ~ .xr-array-data,\n",
-       ".xr-array-preview {\n",
-       "  display: inline-block;\n",
-       "}\n",
-       "\n",
-       ".xr-dim-list {\n",
-       "  display: inline-block !important;\n",
-       "  list-style: none;\n",
-       "  padding: 0 !important;\n",
-       "  margin: 0;\n",
-       "}\n",
-       "\n",
-       ".xr-dim-list li {\n",
-       "  display: inline-block;\n",
-       "  padding: 0;\n",
-       "  margin: 0;\n",
-       "}\n",
-       "\n",
-       ".xr-dim-list:before {\n",
-       "  content: \"(\";\n",
-       "}\n",
-       "\n",
-       ".xr-dim-list:after {\n",
-       "  content: \")\";\n",
-       "}\n",
-       "\n",
-       ".xr-dim-list li:not(:last-child):after {\n",
-       "  content: \",\";\n",
-       "  padding-right: 5px;\n",
-       "}\n",
-       "\n",
-       ".xr-has-index {\n",
-       "  font-weight: bold;\n",
-       "}\n",
-       "\n",
-       ".xr-var-list,\n",
-       ".xr-var-item {\n",
-       "  display: contents;\n",
-       "}\n",
-       "\n",
-       ".xr-var-item > div,\n",
-       ".xr-var-item label,\n",
-       ".xr-var-item > .xr-var-name span {\n",
-       "  background-color: var(--xr-background-color-row-even);\n",
-       "  border-color: var(--xr-background-color-row-odd);\n",
-       "  margin-bottom: 0;\n",
-       "  padding-top: 2px;\n",
-       "}\n",
-       "\n",
-       ".xr-var-item > .xr-var-name:hover span {\n",
-       "  padding-right: 5px;\n",
-       "}\n",
-       "\n",
-       ".xr-var-list > li:nth-child(odd) > div,\n",
-       ".xr-var-list > li:nth-child(odd) > label,\n",
-       ".xr-var-list > li:nth-child(odd) > .xr-var-name span {\n",
-       "  background-color: var(--xr-background-color-row-odd);\n",
-       "  border-color: var(--xr-background-color-row-even);\n",
-       "}\n",
-       "\n",
-       ".xr-var-name {\n",
-       "  grid-column: 1;\n",
-       "}\n",
-       "\n",
-       ".xr-var-dims {\n",
-       "  grid-column: 2;\n",
-       "}\n",
-       "\n",
-       ".xr-var-dtype {\n",
-       "  grid-column: 3;\n",
-       "  text-align: right;\n",
-       "  color: var(--xr-font-color2);\n",
-       "}\n",
-       "\n",
-       ".xr-var-preview {\n",
-       "  grid-column: 4;\n",
-       "}\n",
-       "\n",
-       ".xr-index-preview {\n",
-       "  grid-column: 2 / 5;\n",
-       "  color: var(--xr-font-color2);\n",
-       "}\n",
-       "\n",
-       ".xr-var-name,\n",
-       ".xr-var-dims,\n",
-       ".xr-var-dtype,\n",
-       ".xr-preview,\n",
-       ".xr-attrs dt {\n",
-       "  white-space: nowrap;\n",
-       "  overflow: hidden;\n",
-       "  text-overflow: ellipsis;\n",
-       "  padding-right: 10px;\n",
-       "}\n",
-       "\n",
-       ".xr-var-name:hover,\n",
-       ".xr-var-dims:hover,\n",
-       ".xr-var-dtype:hover,\n",
-       ".xr-attrs dt:hover {\n",
-       "  overflow: visible;\n",
-       "  width: auto;\n",
-       "  z-index: 1;\n",
-       "}\n",
-       "\n",
-       ".xr-var-attrs,\n",
-       ".xr-var-data,\n",
-       ".xr-index-data {\n",
-       "  display: none;\n",
-       "  border-top: 2px dotted var(--xr-background-color);\n",
-       "  padding-bottom: 20px !important;\n",
-       "  padding-top: 10px !important;\n",
-       "}\n",
-       "\n",
-       ".xr-var-attrs-in + label,\n",
-       ".xr-var-data-in + label,\n",
-       ".xr-index-data-in + label {\n",
-       "  padding: 0 1px;\n",
-       "}\n",
-       "\n",
-       ".xr-var-attrs-in:checked ~ .xr-var-attrs,\n",
-       ".xr-var-data-in:checked ~ .xr-var-data,\n",
-       ".xr-index-data-in:checked ~ .xr-index-data {\n",
-       "  display: block;\n",
-       "}\n",
-       "\n",
-       ".xr-var-data > table {\n",
-       "  float: right;\n",
-       "}\n",
-       "\n",
-       ".xr-var-data > pre,\n",
-       ".xr-index-data > pre,\n",
-       ".xr-var-data > table > tbody > tr {\n",
-       "  background-color: transparent !important;\n",
-       "}\n",
-       "\n",
-       ".xr-var-name span,\n",
-       ".xr-var-data,\n",
-       ".xr-index-name div,\n",
-       ".xr-index-data,\n",
-       ".xr-attrs {\n",
-       "  padding-left: 25px !important;\n",
-       "}\n",
-       "\n",
-       ".xr-attrs,\n",
-       ".xr-var-attrs,\n",
-       ".xr-var-data,\n",
-       ".xr-index-data {\n",
-       "  grid-column: 1 / -1;\n",
-       "}\n",
-       "\n",
-       "dl.xr-attrs {\n",
-       "  padding: 0;\n",
-       "  margin: 0;\n",
-       "  display: grid;\n",
-       "  grid-template-columns: 125px auto;\n",
-       "}\n",
-       "\n",
-       ".xr-attrs dt,\n",
-       ".xr-attrs dd {\n",
-       "  padding: 0;\n",
-       "  margin: 0;\n",
-       "  float: left;\n",
-       "  padding-right: 10px;\n",
-       "  width: auto;\n",
-       "}\n",
-       "\n",
-       ".xr-attrs dt {\n",
-       "  font-weight: normal;\n",
-       "  grid-column: 1;\n",
-       "}\n",
-       "\n",
-       ".xr-attrs dt:hover span {\n",
-       "  display: inline-block;\n",
-       "  background: var(--xr-background-color);\n",
-       "  padding-right: 10px;\n",
-       "}\n",
-       "\n",
-       ".xr-attrs dd {\n",
-       "  grid-column: 2;\n",
-       "  white-space: pre-wrap;\n",
-       "  word-break: break-all;\n",
-       "}\n",
-       "\n",
-       ".xr-icon-database,\n",
-       ".xr-icon-file-text2,\n",
-       ".xr-no-icon {\n",
-       "  display: inline-block;\n",
-       "  vertical-align: middle;\n",
-       "  width: 1em;\n",
-       "  height: 1.5em !important;\n",
-       "  stroke-width: 0;\n",
-       "  stroke: currentColor;\n",
-       "  fill: currentColor;\n",
-       "}\n",
-       "\n",
-       ".xr-var-attrs-in:checked + label > .xr-icon-file-text2,\n",
-       ".xr-var-data-in:checked + label > .xr-icon-database,\n",
-       ".xr-index-data-in:checked + label > .xr-icon-database {\n",
-       "  color: var(--xr-font-color0);\n",
-       "  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));\n",
-       "  stroke-width: 0.8px;\n",
-       "}\n",
-       "</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 9kB\n",
-       "Dimensions:          (obs: 15)\n",
-       "Coordinates:\n",
-       "    time             (obs) datetime64[ns] 120B ...\n",
-       "    longitude        (obs) float32 60B ...\n",
-       "    latitude         (obs) float32 60B ...\n",
-       "    waterdepth       (obs) float32 60B ...\n",
-       "Dimensions without coordinates: obs\n",
-       "Data variables: (12/13)\n",
-       "    operation_depth  (obs) float32 60B ...\n",
-       "    name             (obs) &lt;U45 3kB ...\n",
-       "    category         (obs) &lt;U15 900B ...\n",
-       "    type             (obs) &lt;U23 1kB ...\n",
-       "    action           (obs) &lt;U10 600B ...\n",
-       "    comment          (obs) &lt;U25 2kB ...\n",
-       "    ...               ...\n",
-       "    duration         (obs) float32 60B ...\n",
-       "    vessel_speed     (obs) float32 60B ...\n",
-       "    start_latitude   (obs) float32 60B ...\n",
-       "    start_longitude  (obs) float32 60B ...\n",
-       "    end_latitude     (obs) float32 60B ...\n",
-       "    end_longitude    (obs) float32 60B ...\n",
-       "Attributes:\n",
-       "    featureType:          trajectory\n",
-       "    title:                Ship Schedule: Demo North Atlantic Survey 2025\n",
-       "    institution:          Generated by CruisePlan software\n",
-       "    source:               Scheduler computation from YAML configuration\n",
-       "    Conventions:          CF-1.8\n",
-       "    cruise_name:          Demo North Atlantic Survey 2025\n",
-       "    total_duration_days:  8.803908713161945e-10\n",
-       "    creation_date:        2025-12-18T11:20:26\n",
-       "    comment:              Master file containing all cruise data - specialize...</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-675472e4-28e8-48cc-826a-6e1b719c197c' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-675472e4-28e8-48cc-826a-6e1b719c197c' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 15</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-86b424f2-0170-4667-8e79-b6833b532d69' class='xr-section-summary-in' type='checkbox'  checked><label for='section-86b424f2-0170-4667-8e79-b6833b532d69' class='xr-section-summary' >Coordinates: <span>(4)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-1098edf3-e5b5-4987-bb61-d0daa1f04197' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-1098edf3-e5b5-4987-bb61-d0daa1f04197' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5a92e3eb-79a0-4bae-ab1c-c67b49bc650b' class='xr-var-data-in' type='checkbox'><label for='data-5a92e3eb-79a0-4bae-ab1c-c67b49bc650b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-a7465929-8380-405e-b41e-8d96f24e6681' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-a7465929-8380-405e-b41e-8d96f24e6681' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-33a8d408-8643-44e8-8baf-0da413598d6e' class='xr-var-data-in' type='checkbox'><label for='data-33a8d408-8643-44e8-8baf-0da413598d6e' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-fec71d2d-2a63-470a-9035-0f481346fd14' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-fec71d2d-2a63-470a-9035-0f481346fd14' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-67d745e1-c328-43ff-8f64-5d2141cf2751' class='xr-var-data-in' type='checkbox'><label for='data-67d745e1-c328-43ff-8f64-5d2141cf2751' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>waterdepth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c3bec26f-57fb-4c7e-8f0c-7f5530ee3576' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c3bec26f-57fb-4c7e-8f0c-7f5530ee3576' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-897ee9fc-ca48-424c-9747-c9848bc5f434' class='xr-var-data-in' type='checkbox'><label for='data-897ee9fc-ca48-424c-9747-c9848bc5f434' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>water depth at operation location</dd><dt><span>standard_name :</span></dt><dd>sea_floor_depth_below_sea_surface</dd><dt><span>vocabulary :</span></dt><dd>http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/</dd><dt><span>units :</span></dt><dd>m</dd><dt><span>positive :</span></dt><dd>down</dd><dt><span>axis :</span></dt><dd>Z</dd><dt><span>comment :</span></dt><dd>Available for point operations only, NaN for transits and line operations</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-7ea6e1b1-04cb-43be-9096-0f713ac597ce' class='xr-section-summary-in' type='checkbox'  checked><label for='section-7ea6e1b1-04cb-43be-9096-0f713ac597ce' class='xr-section-summary' >Data variables: <span>(13)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>operation_depth</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-3eb6580a-8e9b-4aa8-965f-c46a9dd509a1' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3eb6580a-8e9b-4aa8-965f-c46a9dd509a1' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0f2efd18-5d86-42d4-a57c-93b151e81ef7' class='xr-var-data-in' type='checkbox'><label for='data-0f2efd18-5d86-42d4-a57c-93b151e81ef7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>target operation depth</dd><dt><span>standard_name :</span></dt><dd>depth</dd><dt><span>units :</span></dt><dd>m</dd><dt><span>positive :</span></dt><dd>down</dd><dt><span>axis :</span></dt><dd>Z</dd><dt><span>comment :</span></dt><dd>Target depth for operation (e.g., CTD cast depth), NaN if not specified</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U45</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-b1b67cd7-7508-48c7-ade8-d237b2518c55' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b1b67cd7-7508-48c7-ade8-d237b2518c55' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1fbac3fb-1d4a-4b96-b5a8-cea124ae85e9' class='xr-var-data-in' type='checkbox'><label for='data-1fbac3fb-1d4a-4b96-b5a8-cea124ae85e9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U45]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-ccc14b56-f453-4f51-a1d4-d43202bf1556' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ccc14b56-f453-4f51-a1d4-d43202bf1556' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ddb34d9b-234f-42c5-a86f-6ac9a7b3a983' class='xr-var-data-in' type='checkbox'><label for='data-ddb34d9b-234f-42c5-a86f-6ac9a7b3a983' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U23</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-3ee73cd2-f3d6-407e-bf37-c1fcdd137926' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3ee73cd2-f3d6-407e-bf37-c1fcdd137926' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e6f862a1-44c9-4dfe-9743-12831c76fb55' class='xr-var-data-in' type='checkbox'><label for='data-e6f862a1-44c9-4dfe-9743-12831c76fb55' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U23]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e865d9e2-0e07-421f-9e0f-e62d464edbf2' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e865d9e2-0e07-421f-9e0f-e62d464edbf2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-e594b634-4659-41b8-a214-4f0bb2c0caf7' class='xr-var-data-in' type='checkbox'><label for='data-e594b634-4659-41b8-a214-4f0bb2c0caf7' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U25</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-06ead62f-5d59-44c4-8452-ba18b3ed72cb' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-06ead62f-5d59-44c4-8452-ba18b3ed72cb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1b4981fd-2f4c-4164-8566-a67d97692415' class='xr-var-data-in' type='checkbox'><label for='data-1b4981fd-2f4c-4164-8566-a67d97692415' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U25]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U25</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-3e9f7c9a-ab03-49a7-bbe9-0df9b9d2c41e' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-3e9f7c9a-ab03-49a7-bbe9-0df9b9d2c41e' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6ab25a56-e57a-4add-ac3c-9c9726b24c45' class='xr-var-data-in' type='checkbox'><label for='data-6ab25a56-e57a-4add-ac3c-9c9726b24c45' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=&lt;U25]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-93da99ff-40e8-4f5f-b965-b7d3259e7690' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-93da99ff-40e8-4f5f-b965-b7d3259e7690' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-3a777e02-92f8-43f6-9255-3de389c135a2' class='xr-var-data-in' type='checkbox'><label for='data-3a777e02-92f8-43f6-9255-3de389c135a2' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-731f8120-814f-4b94-bb7d-e8af7b9b9b54' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-731f8120-814f-4b94-bb7d-e8af7b9b9b54' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-f6fe06ba-c5e8-42f7-bec6-7f40712d3a38' class='xr-var-data-in' type='checkbox'><label for='data-f6fe06ba-c5e8-42f7-bec6-7f40712d3a38' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>start_latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-48d7effc-fe29-476a-84d2-bff4e6901be1' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-48d7effc-fe29-476a-84d2-bff4e6901be1' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d44165d2-bb4c-4538-87db-267969906e76' class='xr-var-data-in' type='checkbox'><label for='data-d44165d2-bb4c-4538-87db-267969906e76' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>line operation start latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>start_longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-d97f149b-c120-463d-8764-22ab8271139d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d97f149b-c120-463d-8764-22ab8271139d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8ce34b35-2fbb-4825-8218-71249ebc9d52' class='xr-var-data-in' type='checkbox'><label for='data-8ce34b35-2fbb-4825-8218-71249ebc9d52' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>line operation start longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>end_latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-7760fcf4-6dc5-4337-aecc-8c342ba85eaf' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7760fcf4-6dc5-4337-aecc-8c342ba85eaf' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-6d76ffb4-64e6-4c34-9c3b-f9250c89c0a6' class='xr-var-data-in' type='checkbox'><label for='data-6d76ffb4-64e6-4c34-9c3b-f9250c89c0a6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>line operation end latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>end_longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-15829dda-d579-4a70-8bb7-22d9c7c945fb' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-15829dda-d579-4a70-8bb7-22d9c7c945fb' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-ead69291-b3bb-4c2d-b416-2e41f117af2a' class='xr-var-data-in' type='checkbox'><label for='data-ead69291-b3bb-4c2d-b416-2e41f117af2a' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>line operation end longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[15 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-932abeb9-0115-4cb2-be3f-d9d7739a9102' class='xr-section-summary-in' type='checkbox'  checked><label for='section-932abeb9-0115-4cb2-be3f-d9d7739a9102' class='xr-section-summary' >Attributes: <span>(9)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>8.803908713161945e-10</dd><dt><span>creation_date :</span></dt><dd>2025-12-18T11:20:26</dd><dt><span>comment :</span></dt><dd>Master file containing all cruise data - specialized files derived from this</dd></dl></div></li></ul></div></div>"
-      ],
-      "text/plain": [
-       "<xarray.Dataset> Size: 9kB\n",
-       "Dimensions:          (obs: 15)\n",
-       "Coordinates:\n",
-       "    time             (obs) datetime64[ns] 120B ...\n",
-       "    longitude        (obs) float32 60B ...\n",
-       "    latitude         (obs) float32 60B ...\n",
-       "    waterdepth       (obs) float32 60B ...\n",
-       "Dimensions without coordinates: obs\n",
-       "Data variables: (12/13)\n",
-       "    operation_depth  (obs) float32 60B ...\n",
-       "    name             (obs) <U45 3kB ...\n",
-       "    category         (obs) <U15 900B ...\n",
-       "    type             (obs) <U23 1kB ...\n",
-       "    action           (obs) <U10 600B ...\n",
-       "    comment          (obs) <U25 2kB ...\n",
-       "    ...               ...\n",
-       "    duration         (obs) float32 60B ...\n",
-       "    vessel_speed     (obs) float32 60B ...\n",
-       "    start_latitude   (obs) float32 60B ...\n",
-       "    start_longitude  (obs) float32 60B ...\n",
-       "    end_latitude     (obs) float32 60B ...\n",
-       "    end_longitude    (obs) float32 60B ...\n",
-       "Attributes:\n",
-       "    featureType:          trajectory\n",
-       "    title:                Ship Schedule: Demo North Atlantic Survey 2025\n",
-       "    institution:          Generated by CruisePlan software\n",
-       "    source:               Scheduler computation from YAML configuration\n",
-       "    Conventions:          CF-1.8\n",
-       "    cruise_name:          Demo North Atlantic Survey 2025\n",
-       "    total_duration_days:  8.803908713161945e-10\n",
-       "    creation_date:        2025-12-18T11:20:26\n",
-       "    comment:              Master file containing all cruise data - specialize..."
-      ]
-     },
-     "execution_count": 10,
-     "metadata": {},
-     "output_type": "execute_result"
+     "ename": "FileNotFoundError",
+     "evalue": "[Errno 2] No such file or directory: '/home/runner/work/cruiseplan/cruiseplan/tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.nc'",
+     "output_type": "error",
+     "traceback": [
+      "\u001b[31m---------------------------------------------------------------------------\u001b[39m",
+      "\u001b[31mKeyError\u001b[39m                                  Traceback (most recent call last)",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/file_manager.py:219\u001b[39m, in \u001b[36mCachingFileManager._acquire_with_cache_info\u001b[39m\u001b[34m(self, needs_lock)\u001b[39m\n\u001b[32m    218\u001b[39m \u001b[38;5;28;01mtry\u001b[39;00m:\n\u001b[32m--> \u001b[39m\u001b[32m219\u001b[39m     file = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_cache\u001b[49m\u001b[43m[\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_key\u001b[49m\u001b[43m]\u001b[49m\n\u001b[32m    220\u001b[39m \u001b[38;5;28;01mexcept\u001b[39;00m \u001b[38;5;167;01mKeyError\u001b[39;00m:\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/lru_cache.py:56\u001b[39m, in \u001b[36mLRUCache.__getitem__\u001b[39m\u001b[34m(self, key)\u001b[39m\n\u001b[32m     55\u001b[39m \u001b[38;5;28;01mwith\u001b[39;00m \u001b[38;5;28mself\u001b[39m._lock:\n\u001b[32m---> \u001b[39m\u001b[32m56\u001b[39m     value = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_cache\u001b[49m\u001b[43m[\u001b[49m\u001b[43mkey\u001b[49m\u001b[43m]\u001b[49m\n\u001b[32m     57\u001b[39m     \u001b[38;5;28mself\u001b[39m._cache.move_to_end(key)\n",
+      "\u001b[31mKeyError\u001b[39m: [<class 'netCDF4._netCDF4.Dataset'>, ('/home/runner/work/cruiseplan/cruiseplan/tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.nc',), 'r', (('clobber', True), ('diskless', False), ('format', 'NETCDF4'), ('persist', False)), '4d4b6d1c-4382-469f-8959-54a17e2df5e5']",
+      "\nDuring handling of the above exception, another exception occurred:\n",
+      "\u001b[31mFileNotFoundError\u001b[39m                         Traceback (most recent call last)",
+      "\u001b[36mCell\u001b[39m\u001b[36m \u001b[39m\u001b[32mIn[10]\u001b[39m\u001b[32m, line 1\u001b[39m\n\u001b[32m----> \u001b[39m\u001b[32m1\u001b[39m ds = \u001b[43mxr\u001b[49m\u001b[43m.\u001b[49m\u001b[43mopen_dataset\u001b[49m\u001b[43m(\u001b[49m\u001b[43moutput_dir\u001b[49m\u001b[43m \u001b[49m\u001b[43m/\u001b[49m\u001b[43m \u001b[49m\u001b[33;43m'\u001b[39;49m\u001b[33;43mDemo_North_Atlantic_Survey_2025_schedule.nc\u001b[39;49m\u001b[33;43m'\u001b[39;49m\u001b[43m)\u001b[49m\n\u001b[32m      2\u001b[39m ds\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/api.py:606\u001b[39m, in \u001b[36mopen_dataset\u001b[39m\u001b[34m(filename_or_obj, engine, chunks, cache, decode_cf, mask_and_scale, decode_times, decode_timedelta, use_cftime, concat_characters, decode_coords, drop_variables, create_default_indexes, inline_array, chunked_array_type, from_array_kwargs, backend_kwargs, **kwargs)\u001b[39m\n\u001b[32m    594\u001b[39m decoders = _resolve_decoders_kwargs(\n\u001b[32m    595\u001b[39m     decode_cf,\n\u001b[32m    596\u001b[39m     open_backend_dataset_parameters=backend.open_dataset_parameters,\n\u001b[32m   (...)\u001b[39m\u001b[32m    602\u001b[39m     decode_coords=decode_coords,\n\u001b[32m    603\u001b[39m )\n\u001b[32m    605\u001b[39m overwrite_encoded_chunks = kwargs.pop(\u001b[33m\"\u001b[39m\u001b[33moverwrite_encoded_chunks\u001b[39m\u001b[33m\"\u001b[39m, \u001b[38;5;28;01mNone\u001b[39;00m)\n\u001b[32m--> \u001b[39m\u001b[32m606\u001b[39m backend_ds = \u001b[43mbackend\u001b[49m\u001b[43m.\u001b[49m\u001b[43mopen_dataset\u001b[49m\u001b[43m(\u001b[49m\n\u001b[32m    607\u001b[39m \u001b[43m    \u001b[49m\u001b[43mfilename_or_obj\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    608\u001b[39m \u001b[43m    \u001b[49m\u001b[43mdrop_variables\u001b[49m\u001b[43m=\u001b[49m\u001b[43mdrop_variables\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    609\u001b[39m \u001b[43m    \u001b[49m\u001b[43m*\u001b[49m\u001b[43m*\u001b[49m\u001b[43mdecoders\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    610\u001b[39m \u001b[43m    \u001b[49m\u001b[43m*\u001b[49m\u001b[43m*\u001b[49m\u001b[43mkwargs\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    611\u001b[39m \u001b[43m\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    612\u001b[39m ds = _dataset_from_backend_dataset(\n\u001b[32m    613\u001b[39m     backend_ds,\n\u001b[32m    614\u001b[39m     filename_or_obj,\n\u001b[32m   (...)\u001b[39m\u001b[32m    625\u001b[39m     **kwargs,\n\u001b[32m    626\u001b[39m )\n\u001b[32m    627\u001b[39m \u001b[38;5;28;01mreturn\u001b[39;00m ds\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/netCDF4_.py:767\u001b[39m, in \u001b[36mNetCDF4BackendEntrypoint.open_dataset\u001b[39m\u001b[34m(self, filename_or_obj, mask_and_scale, decode_times, concat_characters, decode_coords, drop_variables, use_cftime, decode_timedelta, group, mode, format, clobber, diskless, persist, auto_complex, lock, autoclose)\u001b[39m\n\u001b[32m    745\u001b[39m \u001b[38;5;28;01mdef\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[34mopen_dataset\u001b[39m(\n\u001b[32m    746\u001b[39m     \u001b[38;5;28mself\u001b[39m,\n\u001b[32m    747\u001b[39m     filename_or_obj: T_PathFileOrDataStore,\n\u001b[32m   (...)\u001b[39m\u001b[32m    764\u001b[39m     autoclose=\u001b[38;5;28;01mFalse\u001b[39;00m,\n\u001b[32m    765\u001b[39m ) -> Dataset:\n\u001b[32m    766\u001b[39m     filename_or_obj = _normalize_path(filename_or_obj)\n\u001b[32m--> \u001b[39m\u001b[32m767\u001b[39m     store = \u001b[43mNetCDF4DataStore\u001b[49m\u001b[43m.\u001b[49m\u001b[43mopen\u001b[49m\u001b[43m(\u001b[49m\n\u001b[32m    768\u001b[39m \u001b[43m        \u001b[49m\u001b[43mfilename_or_obj\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    769\u001b[39m \u001b[43m        \u001b[49m\u001b[43mmode\u001b[49m\u001b[43m=\u001b[49m\u001b[43mmode\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    770\u001b[39m \u001b[43m        \u001b[49m\u001b[38;5;28;43mformat\u001b[39;49m\u001b[43m=\u001b[49m\u001b[38;5;28;43mformat\u001b[39;49m\u001b[43m,\u001b[49m\n\u001b[32m    771\u001b[39m \u001b[43m        \u001b[49m\u001b[43mgroup\u001b[49m\u001b[43m=\u001b[49m\u001b[43mgroup\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    772\u001b[39m \u001b[43m        \u001b[49m\u001b[43mclobber\u001b[49m\u001b[43m=\u001b[49m\u001b[43mclobber\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    773\u001b[39m \u001b[43m        \u001b[49m\u001b[43mdiskless\u001b[49m\u001b[43m=\u001b[49m\u001b[43mdiskless\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    774\u001b[39m \u001b[43m        \u001b[49m\u001b[43mpersist\u001b[49m\u001b[43m=\u001b[49m\u001b[43mpersist\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    775\u001b[39m \u001b[43m        \u001b[49m\u001b[43mauto_complex\u001b[49m\u001b[43m=\u001b[49m\u001b[43mauto_complex\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    776\u001b[39m \u001b[43m        \u001b[49m\u001b[43mlock\u001b[49m\u001b[43m=\u001b[49m\u001b[43mlock\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    777\u001b[39m \u001b[43m        \u001b[49m\u001b[43mautoclose\u001b[49m\u001b[43m=\u001b[49m\u001b[43mautoclose\u001b[49m\u001b[43m,\u001b[49m\n\u001b[32m    778\u001b[39m \u001b[43m    \u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    780\u001b[39m     store_entrypoint = StoreBackendEntrypoint()\n\u001b[32m    781\u001b[39m     \u001b[38;5;28;01mwith\u001b[39;00m close_on_error(store):\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/netCDF4_.py:525\u001b[39m, in \u001b[36mNetCDF4DataStore.open\u001b[39m\u001b[34m(cls, filename, mode, format, group, clobber, diskless, persist, auto_complex, lock, lock_maker, autoclose)\u001b[39m\n\u001b[32m    521\u001b[39m \u001b[38;5;28;01melse\u001b[39;00m:\n\u001b[32m    522\u001b[39m     manager = CachingFileManager(\n\u001b[32m    523\u001b[39m         netCDF4.Dataset, filename, mode=mode, kwargs=kwargs\n\u001b[32m    524\u001b[39m     )\n\u001b[32m--> \u001b[39m\u001b[32m525\u001b[39m \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mcls\u001b[39;49m\u001b[43m(\u001b[49m\u001b[43mmanager\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mgroup\u001b[49m\u001b[43m=\u001b[49m\u001b[43mgroup\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mmode\u001b[49m\u001b[43m=\u001b[49m\u001b[43mmode\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mlock\u001b[49m\u001b[43m=\u001b[49m\u001b[43mlock\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43mautoclose\u001b[49m\u001b[43m=\u001b[49m\u001b[43mautoclose\u001b[49m\u001b[43m)\u001b[49m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/netCDF4_.py:429\u001b[39m, in \u001b[36mNetCDF4DataStore.__init__\u001b[39m\u001b[34m(self, manager, group, mode, lock, autoclose)\u001b[39m\n\u001b[32m    427\u001b[39m \u001b[38;5;28mself\u001b[39m._group = group\n\u001b[32m    428\u001b[39m \u001b[38;5;28mself\u001b[39m._mode = mode\n\u001b[32m--> \u001b[39m\u001b[32m429\u001b[39m \u001b[38;5;28mself\u001b[39m.format = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mds\u001b[49m.data_model\n\u001b[32m    430\u001b[39m \u001b[38;5;28mself\u001b[39m._filename = \u001b[38;5;28mself\u001b[39m.ds.filepath()\n\u001b[32m    431\u001b[39m \u001b[38;5;28mself\u001b[39m.is_remote = is_remote_uri(\u001b[38;5;28mself\u001b[39m._filename)\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/netCDF4_.py:534\u001b[39m, in \u001b[36mNetCDF4DataStore.ds\u001b[39m\u001b[34m(self)\u001b[39m\n\u001b[32m    532\u001b[39m \u001b[38;5;129m@property\u001b[39m\n\u001b[32m    533\u001b[39m \u001b[38;5;28;01mdef\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[34mds\u001b[39m(\u001b[38;5;28mself\u001b[39m):\n\u001b[32m--> \u001b[39m\u001b[32m534\u001b[39m     \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_acquire\u001b[49m\u001b[43m(\u001b[49m\u001b[43m)\u001b[49m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/netCDF4_.py:528\u001b[39m, in \u001b[36mNetCDF4DataStore._acquire\u001b[39m\u001b[34m(self, needs_lock)\u001b[39m\n\u001b[32m    527\u001b[39m \u001b[38;5;28;01mdef\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[34m_acquire\u001b[39m(\u001b[38;5;28mself\u001b[39m, needs_lock=\u001b[38;5;28;01mTrue\u001b[39;00m):\n\u001b[32m--> \u001b[39m\u001b[32m528\u001b[39m \u001b[43m    \u001b[49m\u001b[38;5;28;43;01mwith\u001b[39;49;00m\u001b[43m \u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_manager\u001b[49m\u001b[43m.\u001b[49m\u001b[43macquire_context\u001b[49m\u001b[43m(\u001b[49m\u001b[43mneeds_lock\u001b[49m\u001b[43m)\u001b[49m\u001b[43m \u001b[49m\u001b[38;5;28;43;01mas\u001b[39;49;00m\u001b[43m \u001b[49m\u001b[43mroot\u001b[49m\u001b[43m:\u001b[49m\n\u001b[32m    529\u001b[39m \u001b[43m        \u001b[49m\u001b[43mds\u001b[49m\u001b[43m \u001b[49m\u001b[43m=\u001b[49m\u001b[43m \u001b[49m\u001b[43m_nc4_require_group\u001b[49m\u001b[43m(\u001b[49m\u001b[43mroot\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_group\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_mode\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    530\u001b[39m     \u001b[38;5;28;01mreturn\u001b[39;00m ds\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/contextlib.py:141\u001b[39m, in \u001b[36m_GeneratorContextManager.__enter__\u001b[39m\u001b[34m(self)\u001b[39m\n\u001b[32m    139\u001b[39m \u001b[38;5;28;01mdel\u001b[39;00m \u001b[38;5;28mself\u001b[39m.args, \u001b[38;5;28mself\u001b[39m.kwds, \u001b[38;5;28mself\u001b[39m.func\n\u001b[32m    140\u001b[39m \u001b[38;5;28;01mtry\u001b[39;00m:\n\u001b[32m--> \u001b[39m\u001b[32m141\u001b[39m     \u001b[38;5;28;01mreturn\u001b[39;00m \u001b[38;5;28;43mnext\u001b[39;49m\u001b[43m(\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43mgen\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    142\u001b[39m \u001b[38;5;28;01mexcept\u001b[39;00m \u001b[38;5;167;01mStopIteration\u001b[39;00m:\n\u001b[32m    143\u001b[39m     \u001b[38;5;28;01mraise\u001b[39;00m \u001b[38;5;167;01mRuntimeError\u001b[39;00m(\u001b[33m\"\u001b[39m\u001b[33mgenerator didn\u001b[39m\u001b[33m'\u001b[39m\u001b[33mt yield\u001b[39m\u001b[33m\"\u001b[39m) \u001b[38;5;28;01mfrom\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[38;5;28;01mNone\u001b[39;00m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/file_manager.py:207\u001b[39m, in \u001b[36mCachingFileManager.acquire_context\u001b[39m\u001b[34m(self, needs_lock)\u001b[39m\n\u001b[32m    204\u001b[39m \u001b[38;5;129m@contextmanager\u001b[39m\n\u001b[32m    205\u001b[39m \u001b[38;5;28;01mdef\u001b[39;00m\u001b[38;5;250m \u001b[39m\u001b[34macquire_context\u001b[39m(\u001b[38;5;28mself\u001b[39m, needs_lock: \u001b[38;5;28mbool\u001b[39m = \u001b[38;5;28;01mTrue\u001b[39;00m) -> Iterator[T_File]:\n\u001b[32m    206\u001b[39m \u001b[38;5;250m    \u001b[39m\u001b[33;03m\"\"\"Context manager for acquiring a file.\"\"\"\u001b[39;00m\n\u001b[32m--> \u001b[39m\u001b[32m207\u001b[39m     file, cached = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_acquire_with_cache_info\u001b[49m\u001b[43m(\u001b[49m\u001b[43mneeds_lock\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    208\u001b[39m     \u001b[38;5;28;01mtry\u001b[39;00m:\n\u001b[32m    209\u001b[39m         \u001b[38;5;28;01myield\u001b[39;00m file\n",
+      "\u001b[36mFile \u001b[39m\u001b[32m~/micromamba/envs/cruiseplan/lib/python3.13/site-packages/xarray/backends/file_manager.py:225\u001b[39m, in \u001b[36mCachingFileManager._acquire_with_cache_info\u001b[39m\u001b[34m(self, needs_lock)\u001b[39m\n\u001b[32m    223\u001b[39m     kwargs = kwargs.copy()\n\u001b[32m    224\u001b[39m     kwargs[\u001b[33m\"\u001b[39m\u001b[33mmode\u001b[39m\u001b[33m\"\u001b[39m] = \u001b[38;5;28mself\u001b[39m._mode\n\u001b[32m--> \u001b[39m\u001b[32m225\u001b[39m file = \u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_opener\u001b[49m\u001b[43m(\u001b[49m\u001b[43m*\u001b[49m\u001b[38;5;28;43mself\u001b[39;49m\u001b[43m.\u001b[49m\u001b[43m_args\u001b[49m\u001b[43m,\u001b[49m\u001b[43m \u001b[49m\u001b[43m*\u001b[49m\u001b[43m*\u001b[49m\u001b[43mkwargs\u001b[49m\u001b[43m)\u001b[49m\n\u001b[32m    226\u001b[39m \u001b[38;5;28;01mif\u001b[39;00m \u001b[38;5;28mself\u001b[39m._mode == \u001b[33m\"\u001b[39m\u001b[33mw\u001b[39m\u001b[33m\"\u001b[39m:\n\u001b[32m    227\u001b[39m     \u001b[38;5;66;03m# ensure file doesn't get overridden when opened again\u001b[39;00m\n\u001b[32m    228\u001b[39m     \u001b[38;5;28mself\u001b[39m._mode = \u001b[33m\"\u001b[39m\u001b[33ma\u001b[39m\u001b[33m\"\u001b[39m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32msrc/netCDF4/_netCDF4.pyx:2517\u001b[39m, in \u001b[36mnetCDF4._netCDF4.Dataset.__init__\u001b[39m\u001b[34m()\u001b[39m\n",
+      "\u001b[36mFile \u001b[39m\u001b[32msrc/netCDF4/_netCDF4.pyx:2154\u001b[39m, in \u001b[36mnetCDF4._netCDF4._ensure_nc_success\u001b[39m\u001b[34m()\u001b[39m\n",
+      "\u001b[31mFileNotFoundError\u001b[39m: [Errno 2] No such file or directory: '/home/runner/work/cruiseplan/cruiseplan/tests_output/demo/Demo_North_Atlantic_Survey_2025_schedule.nc'"
+     ]
     }
    ],
    "source": [
@@ -1541,10 +878,10 @@
    "id": "summary",
    "metadata": {
     "execution": {
-     "iopub.execute_input": "2025-12-18T11:20:26.138870Z",
-     "iopub.status.busy": "2025-12-18T11:20:26.138700Z",
-     "iopub.status.idle": "2025-12-18T11:20:26.144447Z",
-     "shell.execute_reply": "2025-12-18T11:20:26.143711Z"
+     "iopub.execute_input": "2025-12-19T22:24:07.587566Z",
+     "iopub.status.busy": "2025-12-19T22:24:07.587411Z",
+     "iopub.status.idle": "2025-12-19T22:24:07.592972Z",
+     "shell.execute_reply": "2025-12-19T22:24:07.592346Z"
     }
    },
    "outputs": [
@@ -1555,15 +892,11 @@
       "📋 CruisePlan Demo Workflow Complete!\n",
       "\n",
       "🗂️  Generated files in tests_output/demo/:\n",
-      "   📄 Demo_North_Atlantic_Survey_2025_schedule.csv (2.2KB)\n",
-      "   📄 Demo_North_Atlantic_Survey_2025_schedule.html (7.6KB)\n",
-      "   📄 Demo_North_Atlantic_Survey_2025_schedule.nc (30.5KB)\n",
       "   📄 ctd_pangaea_data.pkl           (0.5KB)\n",
       "   📄 demo_cruise.yaml               (2.3KB)\n",
-      "   📄 demo_cruise_enriched.yaml      (11.0KB)\n",
       "   📄 demo_dois.txt                  (0.1KB)\n",
       "\n",
-      "💾 Total output size: 54.1KB\n",
+      "💾 Total output size: 2.9KB\n",
       "📁 Output directory: /home/runner/work/cruiseplan/cruiseplan/notebooks/../tests_output/demo\n",
       "\n",
       "✨ Workflow Steps Completed:\n",

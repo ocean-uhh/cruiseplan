@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Index &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>Index &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=acad51fe"></script>
+      <script src="_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -136,8 +136,6 @@
 </li>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.__init__">(cruiseplan.core.operations.BaseOperation method)</a>
 </li>
-        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.__init__">(cruiseplan.core.operations.CompositeOperation method)</a>
-</li>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.__init__">(cruiseplan.core.operations.LineOperation method)</a>
 </li>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.__init__">(cruiseplan.core.operations.PointOperation method)</a>
@@ -165,6 +163,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.__repr__">__repr__() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.__str__">__str__() (cruiseplan.core.leg.Leg method)</a>
+</li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager._dataset">_dataset (cruiseplan.data.bathymetry.BathymetryManager attribute)</a>
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager._is_mock">_is_mock (cruiseplan.data.bathymetry.BathymetryManager attribute)</a>
@@ -185,15 +187,19 @@
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord">ActivityRecord (class in cruiseplan.calculators.scheduler)</a>
 </li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.add_composite">add_composite() (cruiseplan.core.leg.Leg method)</a>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.add_cluster">add_cluster() (cruiseplan.core.leg.Leg method)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.add_operation">add_operation() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.allows_reordering">allows_reordering() (cruiseplan.core.leg.Leg method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.area_km2">area_km2 (cruiseplan.core.operations.AreaOperation attribute)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation">AreaOperation (class in cruiseplan.core.operations)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.arrival_port">arrival_port (cruiseplan.core.leg.Leg attribute)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.ax">ax (cruiseplan.interactive.widgets.ModeIndicator attribute)</a>
 
@@ -236,8 +242,6 @@
       <ul>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.calculate_duration">(cruiseplan.core.operations.BaseOperation method)</a>
 </li>
-        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.calculate_duration">(cruiseplan.core.operations.CompositeOperation method)</a>
-</li>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.calculate_duration">(cruiseplan.core.operations.LineOperation method)</a>
 </li>
         <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.calculate_duration">(cruiseplan.core.operations.PointOperation method)</a>
@@ -245,9 +249,13 @@
       </ul></li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.coordinates.calculate_map_bounds">calculate_map_bounds() (in module cruiseplan.utils.coordinates)</a>
 </li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.calculate_optimal_figsize">calculate_optimal_figsize() (in module cruiseplan.output.map_generator)</a>
+</li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.routing.calculate_route_distance">calculate_route_distance() (in module cruiseplan.calculators.routing)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.calculate_total_duration">calculate_total_duration() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction">calculate_transit_distance_using_abstraction() (in module cruiseplan.calculators.scheduler)</a>
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.duration.DurationCalculator.calculate_transit_time">calculate_transit_time() (cruiseplan.calculators.duration.DurationCalculator method)</a>
 </li>
@@ -261,13 +269,13 @@
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector">CampaignSelector (class in cruiseplan.interactive.campaign_selector)</a>
 </li>
+      <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.utils.capture_and_format_warnings">capture_and_format_warnings() (in module cruiseplan.cli.utils)</a>
+</li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.cf_conventions">cf_conventions (cruiseplan.output.netcdf_generator.NetCDFGenerator attribute)</a>
 </li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.stations.check_bathymetry_availability">check_bathymetry_availability() (in module cruiseplan.cli.stations)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector.check_buttons">check_buttons (cruiseplan.interactive.campaign_selector.CampaignSelector attribute)</a>
-</li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.children">children (cruiseplan.core.operations.CompositeOperation attribute)</a>
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.cache.CacheManager.clear">clear() (cruiseplan.data.cache.CacheManager method)</a>
 </li>
@@ -275,13 +283,11 @@
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.close">close() (cruiseplan.data.bathymetry.BathymetryManager method)</a>
 </li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.clusters">clusters (cruiseplan.core.leg.Leg attribute)</a>
+</li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.colors">colors (cruiseplan.interactive.widgets.ModeIndicator attribute)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.comment">comment (cruiseplan.core.operations.BaseOperation attribute)</a>
-</li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation">CompositeOperation (class in cruiseplan.core.operations)</a>
-</li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.composites">composites (cruiseplan.core.leg.Leg attribute)</a>
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.coordinates.compute_final_limits">compute_final_limits() (in module cruiseplan.utils.coordinates)</a>
 </li>
@@ -585,6 +591,8 @@
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_dmm">decimal_degrees_to_dmm() (cruiseplan.utils.coordinates.UnitConverter static method)</a>
 </li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.departure_port">departure_port (cruiseplan.core.leg.Leg attribute)</a>
+</li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.depth">depth (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
 
       <ul>
@@ -631,13 +639,23 @@
 </li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.main.enrich_main">enrich_main() (in module cruiseplan.cli.main)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.ensure_gebco_2025">ensure_gebco_2025() (cruiseplan.data.bathymetry.BathymetryManager method)</a>
 </li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_areas_from_cruise">extract_areas_from_cruise() (in module cruiseplan.output.map_generator)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.coordinates.extract_coordinates_from_cruise">extract_coordinates_from_cruise() (in module cruiseplan.utils.coordinates)</a>
 </li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_lines_from_cruise">extract_lines_from_cruise() (in module cruiseplan.output.map_generator)</a>
+</li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_lines_from_timeline">extract_lines_from_timeline() (in module cruiseplan.output.map_generator)</a>
+</li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_map_data">extract_map_data() (in module cruiseplan.output.map_generator)</a>
+</li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_points_from_cruise">extract_points_from_cruise() (in module cruiseplan.output.map_generator)</a>
+</li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_points_from_timeline">extract_points_from_timeline() (in module cruiseplan.output.map_generator)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -648,6 +666,8 @@
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.fetch_datasets">fetch_datasets() (cruiseplan.data.pangaea.PangaeaManager method)</a>
 </li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.pangaea.fetch_pangaea_data">fetch_pangaea_data() (in module cruiseplan.cli.pangaea)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.first_waypoint">first_waypoint (cruiseplan.core.leg.Leg attribute)</a>
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.config.format_area_for_yaml">format_area_for_yaml() (in module cruiseplan.utils.config)</a>
 </li>
@@ -668,6 +688,8 @@
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.config.format_station_for_yaml">format_station_for_yaml() (in module cruiseplan.utils.config)</a>
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.config.format_transect_for_yaml">format_transect_for_yaml() (in module cruiseplan.utils.config)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.from_definition">from_definition() (cruiseplan.core.leg.Leg class method)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.from_pydantic">from_pydantic() (cruiseplan.core.operations.AreaOperation class method)</a>
 
@@ -695,6 +717,8 @@
 </li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.html_generator.generate_html_schedule">generate_html_schedule() (in module cruiseplan.output.html_generator)</a>
 </li>
+      <li><a href="api/cruiseplan.output.html#cruiseplan.output.kml_generator.generate_kml_catalog">generate_kml_catalog() (in module cruiseplan.output.kml_generator)</a>
+</li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.kml_generator.generate_kml_schedule">generate_kml_schedule() (in module cruiseplan.output.kml_generator)</a>
 </li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_line_operations">generate_line_operations() (cruiseplan.output.netcdf_generator.NetCDFGenerator method)</a>
@@ -713,8 +737,6 @@
 </li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_point_operations">generate_point_operations() (cruiseplan.output.netcdf_generator.NetCDFGenerator method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.csv_generator.CSVGenerator.generate_schedule_csv">generate_schedule_csv() (cruiseplan.output.csv_generator.CSVGenerator method)</a>
 </li>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.kml_generator.KMLGenerator.generate_schedule_kml">generate_schedule_kml() (cruiseplan.output.kml_generator.KMLGenerator method)</a>
@@ -725,13 +747,21 @@
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">generate_timeline() (in module cruiseplan.calculators.scheduler)</a>
 </li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.geometry_definition">geometry_definition (cruiseplan.core.operations.CompositeOperation attribute)</a>
+      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline_legacy">generate_timeline_legacy() (in module cruiseplan.calculators.scheduler)</a>
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.cache.CacheManager.get">get() (cruiseplan.data.cache.CacheManager method)</a>
 </li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_all_clusters">get_all_clusters() (cruiseplan.core.leg.Leg method)</a>
+</li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_all_operations">get_all_operations() (cruiseplan.core.leg.Leg method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.get_bathymetry_singleton">get_bathymetry_singleton() (in module cruiseplan.data.bathymetry)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_boundary_waypoints">get_boundary_waypoints() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_cluster_entry_exit_points">get_cluster_entry_exit_points() (in module cruiseplan.calculators.scheduler)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.colormaps.get_colormap">get_colormap() (in module cruiseplan.interactive.colormaps)</a>
 </li>
@@ -741,7 +771,43 @@
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_effective_speed">get_effective_speed() (cruiseplan.core.leg.Leg method)</a>
 </li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_effective_turnaround_time">get_effective_turnaround_time() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_entry_point">get_entry_point() (cruiseplan.core.leg.Leg method)</a>
+
+      <ul>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.get_entry_point">(cruiseplan.core.operations.AreaOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_entry_point">(cruiseplan.core.operations.BaseOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.get_entry_point">(cruiseplan.core.operations.LineOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_entry_point">(cruiseplan.core.operations.PointOperation method)</a>
+</li>
+      </ul></li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_exit_point">get_exit_point() (cruiseplan.core.leg.Leg method)</a>
+
+      <ul>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.get_exit_point">(cruiseplan.core.operations.AreaOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_exit_point">(cruiseplan.core.operations.BaseOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.get_exit_point">(cruiseplan.core.operations.LineOperation method)</a>
+</li>
+        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_exit_point">(cruiseplan.core.operations.PointOperation method)</a>
+</li>
+      </ul></li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.get_grid_subset">get_grid_subset() (cruiseplan.data.bathymetry.BathymetryManager method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_operation_count">get_operation_count() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_operation_entry_exit_points">get_operation_entry_exit_points() (in module cruiseplan.calculators.scheduler)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_operational_entry_point">get_operational_entry_point() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_operational_exit_point">get_operational_exit_point() (cruiseplan.core.leg.Leg method)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.get_port_positions">get_port_positions() (cruiseplan.core.leg.Leg method)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector.get_selected_campaigns">get_selected_campaigns() (cruiseplan.interactive.campaign_selector.CampaignSelector method)</a>
 </li>
@@ -766,6 +832,8 @@
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.activity_utils.is_line_operation">is_line_operation() (in module cruiseplan.utils.activity_utils)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.is_same_port_leg">is_same_port_leg() (cruiseplan.core.leg.Leg method)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -793,6 +861,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.label">label (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
 </li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.last_waypoint">last_waypoint (cruiseplan.core.leg.Leg attribute)</a>
+</li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.lat">lat (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg">Leg (class in cruiseplan.core.leg)</a>
@@ -808,6 +878,8 @@
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.pangaea.load_campaign_data">load_campaign_data() (in module cruiseplan.data.pangaea)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.colormaps.load_cpt_colormap">load_cpt_colormap() (in module cruiseplan.interactive.colormaps)</a>
+</li>
+      <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.utils.load_cruise_with_pretty_warnings">load_cruise_with_pretty_warnings() (in module cruiseplan.cli.utils)</a>
 </li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.stations.load_pangaea_data">load_pangaea_data() (in module cruiseplan.cli.stations)</a>
 </li>
@@ -956,20 +1028,16 @@
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.operation_dist_nm">operation_dist_nm (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
 </li>
-      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.operation_type">operation_type (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
-</li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.operation_type">operation_type (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
+</li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.operations">operations (cruiseplan.core.leg.Leg attribute)</a>
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.routing.optimize_composite_route">optimize_composite_route() (in module cruiseplan.calculators.routing)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.ordered">ordered (cruiseplan.core.leg.Leg attribute)</a>
-
-      <ul>
-        <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.ordered">(cruiseplan.core.operations.CompositeOperation attribute)</a>
 </li>
-      </ul></li>
   </ul></td>
 </tr></table>
 
@@ -982,13 +1050,15 @@
 </li>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.coordinates.parse_dmm_format">parse_dmm_format() (in module cruiseplan.utils.coordinates)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.plot_bathymetry">plot_bathymetry() (in module cruiseplan.output.map_generator)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.output.html#cruiseplan.output.map_generator.plot_cruise_elements">plot_cruise_elements() (in module cruiseplan.output.map_generator)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation">PointOperation (class in cruiseplan.core.operations)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.cruise.Cruise.port_registry">port_registry (cruiseplan.core.cruise.Cruise attribute)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.position">position (cruiseplan.core.operations.PointOperation attribute)</a>
 </li>
@@ -1006,15 +1076,17 @@
       </ul></li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.utils.read_doi_list">read_doi_list() (in module cruiseplan.cli.utils)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.cruise.ReferenceError">ReferenceError</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.utils.html#cruiseplan.utils.activity_utils.round_time_to_minute">round_time_to_minute() (in module cruiseplan.utils.activity_utils)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.route">route (cruiseplan.core.operations.LineOperation attribute)</a>
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.distance.route_distance">route_distance() (in module cruiseplan.calculators.distance)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.cruise.Cruise.runtime_legs">runtime_legs (cruiseplan.core.cruise.Cruise attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -1036,18 +1108,16 @@
 </li>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.main.schedule_main">schedule_main() (in module cruiseplan.cli.main)</a>
 </li>
-      <li><a href="api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.scheduling_strategy">scheduling_strategy (cruiseplan.core.operations.CompositeOperation attribute)</a>
-</li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.pangaea.PangaeaManager.search">search() (cruiseplan.data.pangaea.PangaeaManager method)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector.selected_campaigns">selected_campaigns (cruiseplan.interactive.campaign_selector.CampaignSelector attribute)</a>
 </li>
       <li><a href="api/cruiseplan.data.html#cruiseplan.data.cache.CacheManager.set">set() (cruiseplan.data.cache.CacheManager method)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.widgets.ModeIndicator.set_mode">set_mode() (cruiseplan.interactive.widgets.ModeIndicator method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.cli.html#cruiseplan.cli.utils.setup_logging">setup_logging() (in module cruiseplan.cli.utils)</a>
 </li>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector.setup_ui">setup_ui() (cruiseplan.interactive.campaign_selector.CampaignSelector method)</a>
@@ -1080,13 +1150,15 @@
 </li>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.distance.to_coords">to_coords() (in module cruiseplan.calculators.distance)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.interactive.html#cruiseplan.interactive.campaign_selector.CampaignSelector.toggle_all">toggle_all() (cruiseplan.interactive.campaign_selector.CampaignSelector method)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.transit_dist_nm">transit_dist_nm (cruiseplan.calculators.scheduler.ActivityRecord attribute)</a>
 </li>
       <li><a href="api/cruiseplan.core.html#cruiseplan.core.cruise.Cruise.transit_registry">transit_registry (cruiseplan.core.cruise.Cruise attribute)</a>
+</li>
+      <li><a href="api/cruiseplan.core.html#cruiseplan.core.leg.Leg.turnaround_time">turnaround_time (cruiseplan.core.leg.Leg attribute)</a>
 </li>
   </ul></td>
 </tr></table>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Output formats &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>Output formats &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -92,12 +92,19 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.kml_generator">cruiseplan.output.kml_generator module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.kml_generator.KMLGenerator"><code class="docutils literal notranslate"><span class="pre">KMLGenerator</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.kml_generator.generate_kml_catalog"><code class="docutils literal notranslate"><span class="pre">generate_kml_catalog()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.kml_generator.generate_kml_schedule"><code class="docutils literal notranslate"><span class="pre">generate_kml_schedule()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-output-latex-generator-module">cruiseplan.output.latex_generator module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.map_generator">cruiseplan.output.map_generator module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.calculate_optimal_figsize"><code class="docutils literal notranslate"><span class="pre">calculate_optimal_figsize()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_areas_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_areas_from_cruise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_lines_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_lines_from_cruise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_lines_from_timeline"><code class="docutils literal notranslate"><span class="pre">extract_lines_from_timeline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_map_data"><code class="docutils literal notranslate"><span class="pre">extract_map_data()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_points_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_points_from_cruise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_points_from_timeline"><code class="docutils literal notranslate"><span class="pre">extract_points_from_timeline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.generate_folium_map"><code class="docutils literal notranslate"><span class="pre">generate_folium_map()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.generate_map"><code class="docutils literal notranslate"><span class="pre">generate_map()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.generate_map_from_timeline"><code class="docutils literal notranslate"><span class="pre">generate_map_from_timeline()</span></code></a></li>
@@ -289,15 +296,18 @@ schedule data, including summary statistics and detailed activity breakdowns.</p
 </section>
 <section id="module-cruiseplan.output.kml_generator">
 <span id="cruiseplan-output-kml-generator-module"></span><h2>cruiseplan.output.kml_generator module<a class="headerlink" href="#module-cruiseplan.output.kml_generator" title="Link to this heading"></a></h2>
-<p>KML Schedule Generation System.</p>
-<p>Generates Google Earth compatible KML files showing scientific operations only.
-Creates geospatial visualizations of cruise activities for geographic analysis
-and planning. Only includes scientific operations (stations, moorings, surveys)
-in the KML output, excluding navigation transits.</p>
+<p>KML Generation System for Cruise Planning.</p>
+<p>Generates Google Earth compatible KML files from cruise configuration catalogs.
+Creates geospatial visualizations of all cruise entities (stations, moorings,
+transits, ports, areas) for geographic analysis and planning.</p>
+<p>This module provides two generation modes:
+1. Catalog-based: Generate KML from YAML configuration entities (recommended)
+2. Timeline-based: Generate KML from scheduled timeline activities (legacy)</p>
 <p class="rubric">Notes</p>
 <p>KML files can be opened directly in Google Earth or other GIS applications.
-Each operation type is styled differently for visual distinction. Point features
-include detailed metadata in popups.</p>
+Each entity type is styled differently for visual distinction. Point features
+include detailed metadata in popups. Catalog-based generation shows each
+location once regardless of visitation frequency.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="cruiseplan.output.kml_generator.KMLGenerator">
 <em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.output.kml_generator.</span></span><span class="sig-name descname"><span class="pre">KMLGenerator</span></span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#KMLGenerator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.KMLGenerator" title="Link to this definition"></a></dt>
@@ -333,6 +343,29 @@ are included, with different styling for each operation type.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.kml_generator.generate_kml_catalog">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.kml_generator.</span></span><span class="sig-name descname"><span class="pre">generate_kml_catalog</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/kml_generator.html#generate_kml_catalog"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.kml_generator.generate_kml_catalog" title="Link to this definition"></a></dt>
+<dd><p>Generate KML file from YAML configuration catalog entities.</p>
+<p>Creates a KML file containing all entities defined in the cruise configuration
+(stations, moorings, transits, ports, areas) without timeline duplication.
+Each location appears once regardless of how many times it’s visited.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – The cruise configuration object containing all catalog entities</p></li>
+<li><p><strong>output_file</strong> (<em>Path</em>) – Path to output KML file</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Path to generated KML file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -411,7 +444,8 @@ pagination of large tables.</p>
 <dl class="py method">
 <dt class="sig sig-object py">
 <span class="sig-name descname"><span class="pre">generate_work_days_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/latex_generator.html#LaTeXGenerator.generate_work_days_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a></dt>
-<dd><p>Generates the Work Days at Sea table from scheduler timeline.</p>
+<dd><p>Generates the Work Days at Sea table from scheduler timeline.
+If multiple legs exist, generates separate tables per leg.</p>
 </dd></dl>
 
 </dd></dl>
@@ -446,21 +480,134 @@ of cruise operations and tracks.</p>
 displayed with different colors. Requires internet connection for tile loading
 when viewing the generated HTML files.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.calculate_optimal_figsize">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">calculate_optimal_figsize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">display_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_width</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">12.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_height</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#calculate_optimal_figsize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.calculate_optimal_figsize" title="Link to this definition"></a></dt>
+<dd><p>Calculate figure size that matches geographic aspect ratio.</p>
+<p>This prevents aspect ratio conflicts between matplotlib’s figure
+and the geographic extent of the map.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>display_bounds</strong> (<em>tuple</em>) – (min_lon, max_lon, min_lat, max_lat) in degrees</p></li>
+<li><p><strong>base_width</strong> (<em>float</em><em>, </em><em>optional</em>) – Preferred figure width in inches (default 12.0)</p></li>
+<li><p><strong>max_height</strong> (<em>float</em><em>, </em><em>optional</em>) – Maximum figure height in inches (default 10.0)</p></li>
+<li><p><strong>min_height</strong> (<em>float</em><em>, </em><em>optional</em>) – Minimum figure height in inches (default 4.0)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(width, height) in inches optimized for geographic extent</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_areas_from_cruise">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_areas_from_cruise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_areas_from_cruise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_areas_from_cruise" title="Link to this definition"></a></dt>
+<dd><p>Extract area features (survey areas, polygons) from cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with config containing areas</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of area dictionaries with keys: name, corners, entity_type, operation_type, action</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_lines_from_cruise">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_lines_from_cruise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_lines_from_cruise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_lines_from_cruise" title="Link to this definition"></a></dt>
+<dd><p>Extract line features (scientific transits, cruise tracks) from cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with config containing transits</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of line dictionaries with keys: name, waypoints, entity_type, operation_type, action</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_lines_from_timeline">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_lines_from_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_lines_from_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_lines_from_timeline" title="Link to this definition"></a></dt>
+<dd><p>Extract line features (cruise tracks) from timeline activities by connecting sequential positions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – List of timeline activity records</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of line dictionaries with waypoints showing cruise track progression</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_map_data">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_map_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cruise'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_map_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_map_data" title="Link to this definition"></a></dt>
-<dd><p>Extract coordinate and metadata from either cruise config or timeline data.</p>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_map_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cruise'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_map_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_map_data" title="Link to this definition"></a></dt>
+<dd><p>Extract all map features (points, lines, areas) from cruise config or timeline.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>data_source</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a><em> or </em><em>list</em>) – Either a Cruise object or timeline list</p></li>
 <li><p><strong>source_type</strong> (<em>str</em><em>, </em><em>optional</em>) – “cruise” for Cruise object, “timeline” for timeline list</p></li>
+<li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports (default True)</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dictionary with keys: lats, lons, station_names, station_types, departure_port, arrival_port, title</p>
+<dd class="field-even"><p>Dictionary with keys: points, lines, areas, title, bounds</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_points_from_cruise">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_points_from_cruise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ports</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_points_from_cruise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_points_from_cruise" title="Link to this definition"></a></dt>
+<dd><p>Extract point features (stations, moorings, optionally ports) from cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with station registry and configuration</p></li>
+<li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports (default True)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of point dictionaries with keys: name, lat, lon, entity_type, operation_type, action</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_points_from_timeline">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_points_from_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_points_from_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_points_from_timeline" title="Link to this definition"></a></dt>
+<dd><p>Extract point features (stations, ports) from timeline activities.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline</strong> (<em>List</em><em>[</em><a class="reference internal" href="cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><em>ActivityRecord</em></a><em>]</em>) – List of timeline activity records</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of point dictionaries with keys: name, lat, lon, entity_type, operation_type, action, depth</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -491,7 +638,7 @@ displayed with different colors. Returns None if no valid tracks provided.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.output.map_generator.generate_map">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">generate_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise_map.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">8)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#generate_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.generate_map" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">generate_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise_map.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">8.1)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#generate_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.generate_map" title="Link to this definition"></a></dt>
 <dd><p>Generate a static PNG map from either cruise config or timeline data.</p>
 <p>This is a unified function that can handle both cruise configuration objects
 and timeline data from the scheduler.</p>
@@ -505,6 +652,7 @@ and timeline data from the scheduler.</p>
 <li><p><strong>bathymetry_stride</strong> (<em>int</em><em>, </em><em>optional</em>) – Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.</p></li>
 <li><p><strong>show_plot</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display the plot inline (useful for notebooks). Default is False.</p></li>
 <li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size as (width, height) in inches. Default is (10, 8).</p></li>
+<li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports in the map. Default is True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -544,7 +692,7 @@ with cruise tracks between stations.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.output.map_generator.generate_map_from_yaml">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">generate_map_from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise_map.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">8)</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#generate_map_from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.generate_map_from_yaml" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">generate_map_from_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cruise</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'cruise_map.png'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'gebco2025'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_stride</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_plot</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">figsize</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">(10,</span> <span class="pre">8)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include_ports</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#generate_map_from_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.generate_map_from_yaml" title="Link to this definition"></a></dt>
 <dd><p>Generate a static PNG map directly from a Cruise configuration object.</p>
 <p>This is a high-level function that combines the individual plotting functions.</p>
 <dl class="field-list simple">
@@ -556,6 +704,7 @@ with cruise tracks between stations.</p>
 <li><p><strong>bathymetry_stride</strong> (<em>int</em><em>, </em><em>optional</em>) – Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.</p></li>
 <li><p><strong>show_plot</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to display the plot inline (useful for notebooks). Default is False.</p></li>
 <li><p><strong>figsize</strong> (<em>tuple</em><em> of </em><em>float</em><em>, </em><em>optional</em>) – Figure size as (width, height) in inches. Default is (10, 8).</p></li>
+<li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports in the map. Default is True.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -594,15 +743,14 @@ with cruise tracks between stations.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.output.map_generator.plot_cruise_elements">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">plot_cruise_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_source</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">source_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cruise'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#plot_cruise_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.plot_cruise_elements" title="Link to this definition"></a></dt>
-<dd><p>Plot stations, ports, and cruise tracks on a matplotlib axis.</p>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">plot_cruise_elements</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">map_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">display_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#plot_cruise_elements"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.plot_cruise_elements" title="Link to this definition"></a></dt>
+<dd><p>Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>ax</strong> (<em>matplotlib.axes.Axes</em>) – The matplotlib axis to plot on</p></li>
-<li><p><strong>data_source</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a><em> or </em><em>list</em>) – Either a Cruise object or timeline data</p></li>
+<li><p><strong>map_data</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Structured map data with ‘points’, ‘lines’, ‘areas’, ‘title’, and ‘bounds’</p></li>
 <li><p><strong>display_bounds</strong> (<em>tuple</em>) – (min_lon, max_lon, min_lat, max_lat) for display area</p></li>
-<li><p><strong>source_type</strong> (<em>str</em><em>, </em><em>optional</em>) – “cruise” for Cruise object, “timeline” for timeline data</p></li>
 </ul>
 </dd>
 </dl>

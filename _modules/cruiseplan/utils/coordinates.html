@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -448,14 +448,46 @@
     <span class="n">arrival_port</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
-        <span class="n">dep_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
-        <span class="n">dep_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
-        <span class="n">departure_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">dep_lat</span><span class="p">,</span> <span class="n">dep_lon</span><span class="p">,</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Handle both resolved PortDefinition objects and string references</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
+            <span class="c1"># Resolved PortDefinition object</span>
+            <span class="n">dep_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="n">dep_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="n">dep_name</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+            <span class="c1"># Legacy format with nested position object</span>
+            <span class="n">dep_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="n">dep_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="n">dep_name</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># String reference - skip for now</span>
+            <span class="n">dep_lat</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">dep_lon</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">dep_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">dep_lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">dep_lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">departure_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">dep_lat</span><span class="p">,</span> <span class="n">dep_lon</span><span class="p">,</span> <span class="n">dep_name</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
-        <span class="n">arr_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
-        <span class="n">arr_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
-        <span class="n">arrival_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr_lat</span><span class="p">,</span> <span class="n">arr_lon</span><span class="p">,</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+        <span class="c1"># Handle both resolved PortDefinition objects and string references</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
+            <span class="c1"># Resolved PortDefinition object</span>
+            <span class="n">arr_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="n">arr_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="n">arr_name</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+            <span class="c1"># Legacy format with nested position object</span>
+            <span class="n">arr_lat</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="n">arr_lon</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="n">arr_name</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># String reference - skip for now</span>
+            <span class="n">arr_lat</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">arr_lon</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">arr_name</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="n">arr_lat</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">arr_lon</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">arrival_port</span> <span class="o">=</span> <span class="p">(</span><span class="n">arr_lat</span><span class="p">,</span> <span class="n">arr_lon</span><span class="p">,</span> <span class="n">arr_name</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">all_lats</span><span class="p">,</span> <span class="n">all_lons</span><span class="p">,</span> <span class="n">station_names</span><span class="p">,</span> <span class="n">departure_port</span><span class="p">,</span> <span class="n">arrival_port</span></div>
 

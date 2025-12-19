@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.constants &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.utils.constants &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -145,6 +145,16 @@
 <span class="c1"># Corresponds to CruiseConfig.default_distance_between_stations default.</span>
 <span class="n">DEFAULT_STATION_SPACING_KM</span> <span class="o">=</span> <span class="mf">15.0</span>
 
+<span class="c1"># Default calculation flags - typically True for automated processing</span>
+<span class="c1"># Whether to calculate transit times between section waypoints</span>
+<span class="n">DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Whether to automatically look up depth values from bathymetry data</span>
+<span class="n">DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY</span> <span class="o">=</span> <span class="kc">True</span>
+
+<span class="c1"># Default mooring operation duration in minutes (999 hours = 59940 minutes)</span>
+<span class="c1"># Used as a highly visible placeholder for mooring operations without specified duration</span>
+<span class="n">DEFAULT_MOORING_DURATION_MIN</span> <span class="o">=</span> <span class="mf">59940.0</span>
 
 <span class="n">DEFAULT_START_DATE_NUM</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
 <span class="c1"># Make this an ISO8601 string</span>

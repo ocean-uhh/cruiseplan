@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.operations &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.core.operations &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -162,6 +162,42 @@
 <span class="sd">            Duration in minutes.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseOperation.get_entry_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_entry_point">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic entry point for this operation.</span>
+
+<span class="sd">        For point operations (stations, moorings): same as operation location.</span>
+<span class="sd">        For line operations (transits): start of the route.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the operation&#39;s entry point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseOperation.get_exit_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_exit_point">[docs]</a>
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic exit point for this operation.</span>
+
+<span class="sd">        For point operations (stations, moorings): same as operation location.</span>
+<span class="sd">        For line operations (transits): end of the route.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the operation&#39;s exit point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">pass</span></div>
 </div>
 
 
@@ -271,6 +307,38 @@
             <span class="p">)</span>
 
         <span class="k">return</span> <span class="mf">0.0</span></div>
+
+
+<div class="viewcode-block" id="PointOperation.get_entry_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_entry_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic entry point for this point operation.</span>
+
+<span class="sd">        For point operations, entry and exit are the same location.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the operation location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span></div>
+
+
+<div class="viewcode-block" id="PointOperation.get_exit_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_exit_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic exit point for this point operation.</span>
+
+<span class="sd">        For point operations, entry and exit are the same location.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the operation location.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span></div>
 
 
 <div class="viewcode-block" id="PointOperation.from_pydantic">
@@ -405,6 +473,42 @@
         <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mf">60.0</span></div>
 
 
+<div class="viewcode-block" id="LineOperation.get_entry_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.get_entry_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic entry point for this line operation.</span>
+
+<span class="sd">        For line operations, this is the start of the route.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the route start point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Fallback for empty routes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="LineOperation.get_exit_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.get_exit_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic exit point for this line operation.</span>
+
+<span class="sd">        For line operations, this is the end of the route.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the route end point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Fallback for empty routes</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+
+
 <div class="viewcode-block" id="LineOperation.from_pydantic">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.from_pydantic">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -436,121 +540,6 @@
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
-
-
-
-<div class="viewcode-block" id="CompositeOperation">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">CompositeOperation</span><span class="p">(</span><span class="n">BaseOperation</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Logical container for grouping related PointOperations or other BaseOperations.</span>
-
-<span class="sd">    Examples: &quot;53N Section&quot; (20 CTDs), &quot;OSNAP Array&quot; (Mixed CTDs + Moorings).</span>
-<span class="sd">    Provides different scheduling strategies for optimizing execution order.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    children : List[BaseOperation]</span>
-<span class="sd">        List of child operations contained within this composite.</span>
-<span class="sd">    geometry_definition : Optional[Any]</span>
-<span class="sd">        Geometric definition (LineString or Polygon) for spatial operations.</span>
-<span class="sd">    scheduling_strategy : str</span>
-<span class="sd">        Strategy for scheduling child operations (&#39;sequential&#39;, &#39;spatial_interleaved&#39;, &#39;day_night_split&#39;).</span>
-<span class="sd">    ordered : bool</span>
-<span class="sd">        Whether the order of operations should be preserved.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-<div class="viewcode-block" id="CompositeOperation.__init__">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">children</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">BaseOperation</span><span class="p">],</span>
-        <span class="n">geometry_definition</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># LineString or Polygon</span>
-        <span class="n">scheduling_strategy</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;sequential&quot;</span><span class="p">,</span>
-        <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Initialize a composite operation.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        name : str</span>
-<span class="sd">            Unique identifier for this composite operation.</span>
-<span class="sd">        children : List[BaseOperation]</span>
-<span class="sd">            List of child operations to contain.</span>
-<span class="sd">        geometry_definition : Optional[Any], optional</span>
-<span class="sd">            Geometric definition for spatial operations.</span>
-<span class="sd">        scheduling_strategy : str, optional</span>
-<span class="sd">            Scheduling strategy (&#39;sequential&#39;, &#39;spatial_interleaved&#39;, &#39;day_night_split&#39;, default: &#39;sequential&#39;).</span>
-<span class="sd">        ordered : bool, optional</span>
-<span class="sd">            Whether to preserve operation order (default: True).</span>
-<span class="sd">        comment : str, optional</span>
-<span class="sd">            Human-readable comment or description.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">children</span> <span class="o">=</span> <span class="n">children</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">geometry_definition</span> <span class="o">=</span> <span class="n">geometry_definition</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">scheduling_strategy</span> <span class="o">=</span> <span class="n">scheduling_strategy</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">ordered</span> <span class="o">=</span> <span class="n">ordered</span></div>
-
-
-<div class="viewcode-block" id="CompositeOperation.calculate_duration">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.CompositeOperation.calculate_duration">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate total duration by solving internal routing logic.</span>
-
-<span class="sd">        Accounts for strategy (sequential, day_night_split, spatial_interleaved).</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        rules : Any</span>
-<span class="sd">            Duration calculation rules and parameters.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        float</span>
-<span class="sd">            Total duration in minutes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-            <span class="k">return</span> <span class="mf">0.0</span>
-
-        <span class="c1"># Import here to avoid circular imports</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.routing</span><span class="w"> </span><span class="kn">import</span> <span class="n">optimize_composite_route</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduling_strategy</span> <span class="o">==</span> <span class="s2">&quot;sequential&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">calculate_duration</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduling_strategy</span> <span class="o">==</span> <span class="s2">&quot;spatial_interleaved&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">optimize_composite_route</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">,</span> <span class="n">rules</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">scheduling_strategy</span> <span class="o">==</span> <span class="s2">&quot;day_night_split&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calculate_day_night_duration</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Default to sequential if strategy is unknown/invalid</span>
-            <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="n">child</span><span class="o">.</span><span class="n">calculate_duration</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span> <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">)</span></div>
-
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_day_night_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Calculate duration for day/night split strategy.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        rules : Any</span>
-<span class="sd">            Duration calculation rules and parameters.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        float</span>
-<span class="sd">            Duration in minutes.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Implement zipper pattern logic from specs</span>
-        <span class="n">total_duration</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="c1"># This is a placeholder - implement according to PROJECT_SPECS.md section 3.2</span>
-        <span class="k">for</span> <span class="n">child</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">children</span><span class="p">:</span>
-            <span class="n">total_duration</span> <span class="o">+=</span> <span class="n">child</span><span class="o">.</span><span class="n">calculate_duration</span><span class="p">(</span><span class="n">rules</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">total_duration</span></div>
 
 
 
@@ -660,6 +649,38 @@
                 <span class="sa">f</span><span class="s2">&quot;Area operation &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; requires user-specified duration. &quot;</span>
                 <span class="s2">&quot;Add &#39;duration: &lt;minutes&gt;&#39; to the area definition in YAML.&quot;</span>
             <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="AreaOperation.get_entry_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.get_entry_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic entry point for this area operation.</span>
+
+<span class="sd">        For area operations, this is the start point of the survey pattern.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the area entry point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span></div>
+
+
+<div class="viewcode-block" id="AreaOperation.get_exit_point">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.AreaOperation.get_exit_point">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the geographic exit point for this area operation.</span>
+
+<span class="sd">        For area operations, this is the end point of the survey pattern.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        tuple[float, float]</span>
+<span class="sd">            (latitude, longitude) of the area exit point.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_point</span></div>
 
 
 <div class="viewcode-block" id="AreaOperation.from_pydantic">

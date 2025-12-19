@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -170,6 +170,148 @@
 
 
 
+<span class="c1"># --- Entry/Exit Point Abstraction Helpers ---</span>
+
+
+<div class="viewcode-block" id="get_operation_entry_exit_points">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_operation_entry_exit_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_operation_entry_exit_points</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get entry and exit points for an operation using the new abstraction methods.</span>
+
+<span class="sd">    This demonstrates the new architecture where routing calculations use</span>
+<span class="sd">    standardized entry/exit point methods regardless of operation type.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[tuple[float, float], tuple[float, float]] or None</span>
+<span class="sd">        ((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Try to create operation objects and use their entry/exit methods</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Check stations (point operations)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointOperation</span>
+
+                <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">(),</span> <span class="n">operation</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">())</span>
+
+        <span class="c1"># Check transits (line operations)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">LineOperation</span>
+
+                <span class="n">default_speed</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+                <span class="n">operation</span> <span class="o">=</span> <span class="n">LineOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="n">default_speed</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">(),</span> <span class="n">operation</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">())</span>
+
+        <span class="c1"># Check areas (area operations)</span>
+        <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+            <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.operations</span><span class="w"> </span><span class="kn">import</span> <span class="n">AreaOperation</span>
+
+                <span class="n">operation</span> <span class="o">=</span> <span class="n">AreaOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">match</span><span class="p">)</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">(),</span> <span class="n">operation</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">())</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry/exit points for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_cluster_entry_exit_points">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_cluster_entry_exit_points">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_cluster_entry_exit_points</span><span class="p">(</span>
+    <span class="n">cluster</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get entry and exit points for a cluster using the new abstraction methods.</span>
+
+<span class="sd">    For clusters, entry point is the first operation&#39;s entry point,</span>
+<span class="sd">    and exit point is the last operation&#39;s exit point.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[tuple[float, float], tuple[float, float]] or None</span>
+<span class="sd">        ((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if cluster is empty</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;get_entry_point&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;get_exit_point&quot;</span><span class="p">):</span>
+        <span class="c1"># Use the cluster&#39;s built-in methods if available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">entry_point</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span>
+            <span class="n">exit_point</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">entry_point</span> <span class="ow">and</span> <span class="n">exit_point</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="n">entry_point</span><span class="p">,</span> <span class="n">exit_point</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get cluster entry/exit points: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Fallback: get entry/exit from first/last operations in cluster</span>
+    <span class="n">operations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;operations&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">operations</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">first_op</span> <span class="o">=</span> <span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">last_op</span> <span class="o">=</span> <span class="n">operations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="n">first_entry</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">first_op</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">first_op</span><span class="p">,</span> <span class="s2">&quot;get_entry_point&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+        <span class="n">last_exit</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">last_op</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">last_op</span><span class="p">,</span> <span class="s2">&quot;get_exit_point&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">first_entry</span> <span class="ow">and</span> <span class="n">last_exit</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="n">first_entry</span><span class="p">,</span> <span class="n">last_exit</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get cluster operation entry/exit points: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="calculate_transit_distance_using_abstraction">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_transit_distance_using_abstraction</span><span class="p">(</span>
+    <span class="n">last_operation_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">current_operation_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate transit distance between operations using entry/exit point abstraction.</span>
+
+<span class="sd">    This demonstrates how the new abstraction makes routing calculations cleaner:</span>
+<span class="sd">    distance = last_operation.get_exit_point() → current_operation.get_entry_point()</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Transit distance in nautical miles</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">last_operation_name</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">current_operation_name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Get exit point of last operation and entry point of current operation</span>
+    <span class="n">last_points</span> <span class="o">=</span> <span class="n">get_operation_entry_exit_points</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">last_operation_name</span><span class="p">)</span>
+    <span class="n">current_points</span> <span class="o">=</span> <span class="n">get_operation_entry_exit_points</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">current_operation_name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">last_points</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">current_points</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+
+    <span class="c1"># Calculate distance: last_operation.exit → current_operation.entry</span>
+    <span class="n">last_exit</span> <span class="o">=</span> <span class="n">last_points</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>  <span class="c1"># (lat, lon)</span>
+    <span class="n">current_entry</span> <span class="o">=</span> <span class="n">current_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># (lat, lon)</span>
+
+    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">last_exit</span><span class="p">,</span> <span class="n">current_entry</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span></div>
+
+
+
 <span class="c1"># --- Core Scheduling Logic ---</span>
 
 
@@ -178,7 +320,7 @@
     <span class="c1"># Check stations (includes all point operations: CTD, mooring, etc.)</span>
     <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
         <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="n">match</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">match</span> <span class="ow">and</span> <span class="p">(</span><span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">)):</span>
             <span class="c1"># Map operation type to legacy op_type for backward compatibility</span>
             <span class="c1"># This is a little confusing --&gt; these are how activities are filtered in latex_generator</span>
             <span class="n">op_type_mapping</span> <span class="o">=</span> <span class="p">{</span>
@@ -194,8 +336,11 @@
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                 <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                 <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">op_type</span><span class="p">,</span>
                 <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">match</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
                 <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes</span>
@@ -296,11 +441,14 @@
 
             <span class="k">return</span> <span class="p">{</span>
                 <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">match</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                <span class="c1"># XXX: Is it a problem that the default position is the last position?</span>
-                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="c1"># Use first point as position for distance calculations TO this transit</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                 <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                 <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">first_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="c1"># Add end point coordinates for position tracking after transit</span>
+                <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">last_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                 <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="n">transit_duration_min</span><span class="p">,</span>
@@ -319,9 +467,27 @@
     <span class="k">return</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="generate_timeline">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<div class="viewcode-block" id="generate_timeline_legacy">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline_legacy">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline_legacy</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    DEPRECATED: Legacy timeline generation for backward compatibility.</span>
+
+<span class="sd">    Use generate_timeline_maritime() for new maritime architecture.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+
+    <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+        <span class="s2">&quot;generate_timeline() is deprecated. Use generate_timeline_maritime() for maritime architecture.&quot;</span><span class="p">,</span>
+        <span class="ne">DeprecationWarning</span><span class="p">,</span>
+        <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">_generate_timeline_legacy_impl</span><span class="p">(</span><span class="n">config</span><span class="p">)</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_timeline_legacy_impl</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Legacy implementation moved to separate function.&quot;&quot;&quot;</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate a flattened, time-ordered list of all cruise activities.</span>
 
@@ -368,7 +534,17 @@
     <span class="n">last_position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
     <span class="c1"># --- Step 2: Transit to Working Area ---</span>
-    <span class="n">first_station_details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">first_station</span><span class="p">)</span>
+    <span class="c1"># In legacy mode, use first leg&#39;s first waypoint if available</span>
+    <span class="n">first_waypoint_name</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">first_leg</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">first_waypoint_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">first_leg</span><span class="p">,</span> <span class="s2">&quot;first_waypoint&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">first_station_details</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">first_waypoint_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">first_waypoint_name</span>
+        <span class="k">else</span> <span class="kc">None</span>
+    <span class="p">)</span>
     <span class="k">if</span> <span class="n">first_station_details</span><span class="p">:</span>
         <span class="n">start_pos</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">position</span>
         <span class="n">end_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
@@ -385,7 +561,8 @@
             <span class="n">ActivityRecord</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to working area: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">first_station</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to working area: </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">first_waypoint_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                     <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                     <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -396,7 +573,6 @@
                     <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
                     <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
                     <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit_to_working_area&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
                     <span class="c1"># Added for completeness, though unused for pure navigation</span>
                     <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
@@ -415,11 +591,19 @@
         <span class="n">activity_names</span> <span class="o">=</span> <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span>
 
         <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">activity_names</span><span class="p">:</span>
-            <span class="c1"># First try to resolve as station</span>
+            <span class="c1"># Try to resolve activity using specialized resolvers</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="c1"># Try each resolver in order of specificity</span>
             <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
             <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
-                <span class="c1"># Then try to resolve as transit</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_mooring_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_area_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
                 <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+                <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_port_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">details</span><span class="p">:</span>
                 <span class="c1"># Add leg name to activity details</span>
@@ -535,7 +719,7 @@
                     <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">transit_time_h</span><span class="p">)</span>
                     <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
 
-                <span class="c1"># Current position for this activity is the route END</span>
+                <span class="c1"># Current position for this activity is the route END (for next operation&#39;s distance calculation)</span>
                 <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
                     <span class="n">latitude</span><span class="o">=</span><span class="n">route_end</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">route_end</span><span class="o">.</span><span class="n">longitude</span>
                 <span class="p">)</span>
@@ -696,6 +880,7 @@
             <span class="n">ActivityRecord</span><span class="p">(</span>
                 <span class="p">{</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit from working area to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                     <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
@@ -707,7 +892,6 @@
                     <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
                     <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
                     <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit_from_working_area&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
                     <span class="c1"># Added for completeness, though unused for pure navigation</span>
                     <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
@@ -716,8 +900,508 @@
             <span class="p">)</span>
         <span class="p">)</span>
 
+    <span class="k">return</span> <span class="n">timeline</span>
+
+
+<div class="viewcode-block" id="generate_timeline">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">cruise_obj</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate comprehensive cruise timeline using maritime port-to-port architecture.</span>
+
+<span class="sd">    This function implements the new maritime scheduling system with:</span>
+<span class="sd">    - Port-to-port leg structure following nautical terminology</span>
+<span class="sd">    - Cluster boundary management for operation shuffling</span>
+<span class="sd">    - Proper parameter inheritance (Cruise → Leg → Cluster → Operations)</span>
+<span class="sd">    - Realistic inter-leg transit routing</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration with validated maritime leg structure.</span>
+<span class="sd">    cruise_obj : Cruise, optional</span>
+<span class="sd">        Cruise object with runtime legs. If None, will create runtime legs from config.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[ActivityRecord]</span>
+<span class="sd">        Complete timeline with port transits, leg operations, and cluster boundaries.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    This is the new implementation for maritime architecture. Uses runtime Leg objects</span>
+<span class="sd">    from the Cruise class for proper port-to-port scheduling.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.leg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
+
+    <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Initialize timing and calculators</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;T&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
+            <span class="n">start_date_clean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">start_date_clean</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span>
+            <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid start_date or start_time format in config: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">duration_calc</span> <span class="o">=</span> <span class="n">DurationCalculator</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">current_position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Get runtime legs from cruise object or create them from config</span>
+    <span class="k">if</span> <span class="n">cruise_obj</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_obj</span><span class="p">,</span> <span class="s2">&quot;runtime_legs&quot;</span><span class="p">):</span>
+        <span class="n">runtime_legs</span> <span class="o">=</span> <span class="n">cruise_obj</span><span class="o">.</span><span class="n">runtime_legs</span>
+        <span class="n">leg_definitions</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Fallback: create minimal Leg objects for backward compatibility</span>
+        <span class="c1"># This handles test scenarios where full cruise object isn&#39;t available</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.leg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
+
+        <span class="n">runtime_legs</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">leg_def</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="c1"># Try to create a basic Leg from the definition</span>
+                <span class="n">runtime_leg</span> <span class="o">=</span> <span class="n">Leg</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">departure_port</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">arrival_port</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">description</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">first_waypoint</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;first_waypoint&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="n">last_waypoint</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;last_waypoint&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="c1"># Copy leg-specific parameter overrides from definition</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;vessel_speed&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">turnaround_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;turnaround_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">distance_between_stations</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;distance_between_stations&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                <span class="p">)</span>
+                <span class="n">runtime_legs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runtime_leg</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Failed to create runtime leg for &#39;</span><span class="si">{</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="c1"># Create a minimal mock leg for testing</span>
+                <span class="n">runtime_leg</span> <span class="o">=</span> <span class="n">Leg</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                    <span class="n">departure_port</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test_Port&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">},</span>
+                    <span class="n">arrival_port</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test_Port&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+                <span class="n">runtime_legs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runtime_leg</span><span class="p">)</span>
+
+        <span class="n">leg_definitions</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+
+    <span class="c1"># Process each leg using maritime port-to-port structure</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="n">runtime_leg</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">leg_definitions</span><span class="p">,</span> <span class="n">runtime_legs</span><span class="p">)):</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing leg &#39;</span><span class="si">{</span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">runtime_leg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># 1. Add port departure transit if this is not the first leg</span>
+        <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Transit from previous leg&#39;s arrival port to current leg&#39;s departure port</span>
+            <span class="n">prev_runtime_leg</span> <span class="o">=</span> <span class="n">runtime_legs</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+            <span class="n">prev_arrival_pos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">prev_runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="n">prev_runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">curr_departure_pos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Only add transit if ports are different</span>
+            <span class="k">if</span> <span class="n">prev_arrival_pos</span> <span class="o">!=</span> <span class="n">curr_departure_pos</span><span class="p">:</span>
+                <span class="c1"># Use leg&#39;s effective speed with parameter inheritance</span>
+                <span class="n">effective_speed</span> <span class="o">=</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">8.0</span>
+                <span class="p">)</span>
+                <span class="n">transit_time</span> <span class="o">=</span> <span class="n">_calculate_inter_port_transit</span><span class="p">(</span>
+                    <span class="n">prev_arrival_pos</span><span class="p">,</span>
+                    <span class="n">curr_departure_pos</span><span class="p">,</span>
+                    <span class="n">effective_speed</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ActivityRecord</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Port_Transit&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit: </span><span class="si">{</span><span class="n">prev_runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">),</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time</span><span class="p">,</span>
+                            <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">)</span>
+
+        <span class="c1"># 2. Process leg departure from port to first operation</span>
+        <span class="c1"># Check for activities (either direct or extracted from clusters)</span>
+        <span class="n">has_activities</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_activities</span><span class="p">:</span>
+            <span class="c1"># Get first activity name - prioritize first_waypoint, then activities</span>
+            <span class="n">first_activity_name</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;first_waypoint&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">first_waypoint</span><span class="p">:</span>
+                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">first_waypoint</span>
+            <span class="k">elif</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">extracted_activities</span> <span class="o">=</span> <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
+                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">extracted_activities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">extracted_activities</span> <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">)</span>
+            <span class="n">first_activity_details</span> <span class="o">=</span> <span class="kc">None</span>
+
+            <span class="k">if</span> <span class="n">first_activity_name</span><span class="p">:</span>
+                <span class="c1"># Resolve first activity details using specialized resolvers</span>
+                <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
+                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_mooring_details</span><span class="p">(</span>
+                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
+                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_area_details</span><span class="p">(</span>
+                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
+                    <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
+                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span>
+                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
+                    <span class="p">)</span>
+
+            <span class="c1"># Add transit from departure port to first operation</span>
+            <span class="k">if</span> <span class="n">first_activity_details</span><span class="p">:</span>
+                <span class="n">port_pos</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="n">operation_pos</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="n">first_activity_details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span>
+                    <span class="n">first_activity_details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Use leg&#39;s effective speed with parameter inheritance</span>
+                <span class="n">effective_speed</span> <span class="o">=</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">8.0</span>
+                <span class="p">)</span>
+                <span class="n">transit_time</span> <span class="o">=</span> <span class="n">_calculate_inter_port_transit</span><span class="p">(</span>
+                    <span class="n">port_pos</span><span class="p">,</span>
+                    <span class="n">operation_pos</span><span class="p">,</span>
+                    <span class="n">effective_speed</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Calculate distance for CSV output</span>
+                <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">port_pos</span><span class="p">,</span> <span class="n">operation_pos</span><span class="p">)</span>
+                <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+
+                <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ActivityRecord</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Departure: </span><span class="si">{</span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to Operations&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="c1"># Record departure port coordinates</span>
+                            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># Record departure port coordinates</span>
+                            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">),</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time</span><span class="p">,</span>
+                            <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">distance_nm</span><span class="p">,</span>
+                            <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">effective_speed</span><span class="p">,</span>
+                            <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">)</span>
+                <span class="n">current_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="n">operation_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">operation_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+
+        <span class="c1"># 3. Process activities within leg using cluster boundaries</span>
+        <span class="n">leg_activities</span> <span class="o">=</span> <span class="n">_process_leg_activities_with_clusters</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">runtime_leg</span><span class="p">,</span> <span class="n">leg_def</span><span class="p">,</span> <span class="n">duration_calc</span><span class="p">,</span> <span class="n">current_time</span><span class="p">,</span> <span class="n">current_position</span>
+        <span class="p">)</span>
+
+        <span class="n">timeline</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">leg_activities</span><span class="p">)</span>
+
+        <span class="c1"># Update current time and position from last activity</span>
+        <span class="k">if</span> <span class="n">leg_activities</span><span class="p">:</span>
+            <span class="n">last_activity</span> <span class="o">=</span> <span class="n">leg_activities</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">current_time</span> <span class="o">=</span> <span class="n">last_activity</span><span class="p">[</span><span class="s2">&quot;end_time&quot;</span><span class="p">]</span>
+            <span class="n">current_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">last_activity</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">last_activity</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 4. Add transit from last operation to arrival port</span>
+        <span class="c1"># Check for activities (either direct or extracted from clusters)</span>
+        <span class="n">has_activities_for_arrival</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">has_activities_for_arrival</span> <span class="ow">and</span> <span class="n">current_position</span><span class="p">:</span>
+            <span class="n">arrival_pos</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">operation_pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">current_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">current_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+
+            <span class="c1"># Only add transit if positions are different</span>
+            <span class="k">if</span> <span class="n">arrival_pos</span> <span class="o">!=</span> <span class="n">operation_pos</span><span class="p">:</span>
+                <span class="c1"># Use leg&#39;s effective speed with parameter inheritance</span>
+                <span class="n">effective_speed</span> <span class="o">=</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                    <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">8.0</span>
+                <span class="p">)</span>
+                <span class="n">transit_time</span> <span class="o">=</span> <span class="n">_calculate_inter_port_transit</span><span class="p">(</span>
+                    <span class="n">operation_pos</span><span class="p">,</span>
+                    <span class="n">arrival_pos</span><span class="p">,</span>
+                    <span class="n">effective_speed</span><span class="p">,</span>
+                <span class="p">)</span>
+
+                <span class="c1"># Calculate distance for CSV output</span>
+                <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">operation_pos</span><span class="p">,</span> <span class="n">arrival_pos</span><span class="p">)</span>
+                <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+
+                <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="n">ActivityRecord</span><span class="p">(</span>
+                        <span class="p">{</span>
+                            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port_arrival&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Arrival: Operations to </span><span class="si">{</span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">),</span>
+                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time</span><span class="p">,</span>
+                            <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">distance_nm</span><span class="p">,</span>
+                            <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">effective_speed</span><span class="p">,</span>
+                            <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                        <span class="p">}</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+                <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">)</span>
+                <span class="n">current_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="n">arrival_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">arrival_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+                <span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generated maritime timeline with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">timeline</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_inter_port_transit</span><span class="p">(</span>
+    <span class="n">start_pos</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">vessel_speed</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Calculate transit time between two geographic positions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    start_pos : tuple</span>
+<span class="sd">        Starting position as (latitude, longitude).</span>
+<span class="sd">    end_pos : tuple</span>
+<span class="sd">        Ending position as (latitude, longitude).</span>
+<span class="sd">    vessel_speed : float</span>
+<span class="sd">        Vessel speed in knots.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Transit time in minutes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_pos</span><span class="p">,</span> <span class="n">end_pos</span><span class="p">)</span>
+    <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
+    <span class="n">duration_hours</span> <span class="o">=</span> <span class="n">distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
+    <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mf">60.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_leg_activities_with_clusters</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span>
+    <span class="n">leg</span><span class="p">:</span> <span class="s2">&quot;Leg&quot;</span><span class="p">,</span>
+    <span class="n">leg_def</span><span class="p">:</span> <span class="s2">&quot;LegDefinition&quot;</span><span class="p">,</span>
+    <span class="n">duration_calc</span><span class="p">:</span> <span class="n">DurationCalculator</span><span class="p">,</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
+    <span class="n">start_position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process activities within a leg using cluster boundary management.</span>
+
+<span class="sd">    This function handles the complex logic of:</span>
+<span class="sd">    - Resolving activities to operations</span>
+<span class="sd">    - Applying cluster boundaries for reordering constraints</span>
+<span class="sd">    - Calculating durations with parameter inheritance</span>
+<span class="sd">    - Managing inter-operation transits within leg boundaries</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration.</span>
+<span class="sd">    leg : Leg</span>
+<span class="sd">        Runtime leg instance with clusters.</span>
+<span class="sd">    leg_def : LegDefinition</span>
+<span class="sd">        Original leg definition from config.</span>
+<span class="sd">    duration_calc : DurationCalculator</span>
+<span class="sd">        Duration calculator with cruise parameters.</span>
+<span class="sd">    start_time : datetime</span>
+<span class="sd">        Start time for first operation in leg.</span>
+<span class="sd">    start_position : Optional[GeoPoint]</span>
+<span class="sd">        Starting position for leg operations.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[ActivityRecord]</span>
+<span class="sd">        List of activity records for this leg.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">activities</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current_time</span> <span class="o">=</span> <span class="n">start_time</span>
+    <span class="n">last_position</span> <span class="o">=</span> <span class="n">start_position</span>
+
+    <span class="c1"># Extract activities from leg - waypoints are NOT included in execution</span>
+    <span class="c1"># Waypoints (first_waypoint/last_waypoint) are used only for routing, not execution</span>
+    <span class="n">activity_list</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+        <span class="c1"># Use direct activities if available</span>
+        <span class="n">activity_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Extract activities from clusters</span>
+        <span class="n">extracted_names</span> <span class="o">=</span> <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
+        <span class="n">activity_list</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">extracted_names</span><span class="p">)</span>
+
+    <span class="c1"># Note: Waypoints (first_waypoint/last_waypoint) are used only for transit planning</span>
+    <span class="c1"># and route boundaries. They are NOT automatically added to the execution list.</span>
+
+    <span class="c1"># For now, implement simple sequential processing</span>
+    <span class="c1"># TODO: Implement cluster boundary processing with reordering capability</span>
+
+    <span class="k">for</span> <span class="n">activity_def</span> <span class="ow">in</span> <span class="n">activity_list</span><span class="p">:</span>
+        <span class="c1"># Extract activity name from activity definition</span>
+        <span class="n">activity_name</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">activity_def</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity_def</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">activity_def</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Resolve activity details using specialized resolvers</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_mooring_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_area_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_port_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Could not resolve activity &#39;</span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">&#39; in leg &#39;</span><span class="si">{</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+            <span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Calculate and add separate transit activity if needed</span>
+        <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+
+        <span class="k">if</span> <span class="n">last_position</span> <span class="ow">and</span> <span class="p">(</span>
+            <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span> <span class="o">!=</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span>
+            <span class="ow">or</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span> <span class="o">!=</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="p">):</span>
+            <span class="c1"># Calculate transit distance and time</span>
+            <span class="n">transit_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">last_position</span><span class="p">,</span> <span class="n">current_pos</span><span class="p">)</span>
+            <span class="n">transit_distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">transit_distance_km</span><span class="p">)</span>
+            <span class="n">vessel_speed</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_effective_speed</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">)</span>
+            <span class="n">transit_time_h</span> <span class="o">=</span> <span class="n">transit_distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
+            <span class="n">transit_time_min</span> <span class="o">=</span> <span class="n">transit_time_h</span> <span class="o">*</span> <span class="mi">60</span>
+
+            <span class="c1"># Add separate transit activity</span>
+            <span class="n">activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">ActivityRecord</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit to </span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                        <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                        <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
+                        <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+                        <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">),</span>
+                        <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time_min</span><span class="p">,</span>
+                        <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">transit_distance_nm</span><span class="p">,</span>
+                        <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">vessel_speed</span><span class="p">,</span>
+                        <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                        <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time_min</span><span class="p">)</span>
+
+        <span class="c1"># Add the main operation</span>
+        <span class="n">operation_duration</span> <span class="o">=</span> <span class="n">duration_calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;manual_duration&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">operation_duration</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;manual_duration&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Apply turnaround time using leg inheritance</span>
+        <span class="n">turnaround_time</span> <span class="o">=</span> <span class="n">leg</span><span class="o">.</span><span class="n">get_effective_turnaround_time</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">turnaround_time</span><span class="p">)</span>
+
+        <span class="n">activity_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">title</span><span class="p">(),</span>
+            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
+            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">operation_duration</span><span class="p">),</span>
+            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">operation_duration</span><span class="p">,</span>
+            <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Transit distance now handled by separate transit activities</span>
+            <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Default - will be updated for scientific transits</span>
+            <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span>
+            <span class="p">),</span>  <span class="c1"># For LaTeX compatibility</span>
+            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Add route distance for scientific transits</span>
+        <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span> <span class="ow">and</span> <span class="s2">&quot;route_distance_nm&quot;</span> <span class="ow">in</span> <span class="n">details</span><span class="p">:</span>
+            <span class="n">activity_data</span><span class="p">[</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">details</span><span class="p">[</span><span class="s2">&quot;route_distance_nm&quot;</span><span class="p">]</span>
+
+        <span class="n">activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ActivityRecord</span><span class="p">(</span><span class="n">activity_data</span><span class="p">))</span>
+
+        <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">operation_duration</span> <span class="o">+</span> <span class="n">turnaround_time</span><span class="p">)</span>
+
+        <span class="c1"># For transits, update position to end point, otherwise use current position</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span>
+            <span class="ow">and</span> <span class="s2">&quot;end_lat&quot;</span> <span class="ow">in</span> <span class="n">details</span>
+            <span class="ow">and</span> <span class="s2">&quot;end_lon&quot;</span> <span class="ow">in</span> <span class="n">details</span>
+        <span class="p">):</span>
+            <span class="n">last_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
+                <span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">last_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+
+    <span class="k">return</span> <span class="n">activities</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_calculate_inter_operation_transit</span><span class="p">(</span><span class="n">last_pos</span><span class="p">,</span> <span class="n">current_pos</span><span class="p">,</span> <span class="n">vessel_speed_kt</span><span class="p">):</span>
@@ -819,9 +1503,9 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&#39; not found in configuration&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing selected leg: </span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="c1"># Generate timeline</span>
+    <span class="c1"># Generate timeline using maritime architecture with runtime legs</span>
     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating activity timeline...&quot;</span><span class="p">)</span>
-    <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+    <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">cruise_obj</span><span class="o">=</span><span class="n">cruise</span><span class="p">)</span>
 
     <span class="c1"># Filter timeline by selected leg if specified</span>
     <span class="k">if</span> <span class="n">selected_leg</span><span class="p">:</span>
@@ -886,20 +1570,6 @@
                 <span class="p">)</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    LaTeX tables: </span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_tables.tex&quot;</span><span class="p">)</span>
                 <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;latex&quot;</span><span class="p">)</span>
-                <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
-
-            <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;kml&quot;</span><span class="p">:</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.kml_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_kml_schedule</span>
-
-                <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">.kml&quot;</span>
-                <span class="n">scientific_operations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Area&quot;</span><span class="p">]]</span>
-                <span class="p">)</span>
-                <span class="n">generate_kml_schedule</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;    KML positions: </span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_positions.kml (</span><span class="si">{</span><span class="n">scientific_operations</span><span class="si">}</span><span class="s2"> operations)&quot;</span>
-                <span class="p">)</span>
-                <span class="n">formats_generated</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;kml&quot;</span><span class="p">)</span>
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span>
@@ -1058,7 +1728,23 @@
                     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
                         <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
                         <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
-            <span class="c1"># Process cluster stations</span>
+            <span class="c1"># Process cluster activities (new format)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;activities&quot;</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">):</span>
+                <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
+                    <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                        <span class="n">activity_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+                        <span class="n">cluster_activities_found</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="c1"># Process cluster stations (deprecated)</span>
             <span class="k">elif</span> <span class="p">(</span>
                 <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span>
                 <span class="ow">and</span> <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
@@ -1174,6 +1860,180 @@
                 <span class="p">)</span>
 
             <span class="k">return</span> <span class="n">details</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_mooring_details</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="s2">&quot;CruiseConfig&quot;</span><span class="p">,</span> <span class="n">mooring_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve mooring details from configuration.</span>
+
+<span class="sd">    Specifically handles mooring operations with deployment/recovery actions.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object.</span>
+<span class="sd">    mooring_name : str</span>
+<span class="sd">        Name of the mooring to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        Mooring details dictionary or None if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">station</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">mooring_name</span>
+            <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">operation_type</span>
+            <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span>
+        <span class="p">):</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="p">)</span>
+                <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;mooring&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;delay_start&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;delay_end&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">station</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">if</span> <span class="n">station</span><span class="o">.</span><span class="n">action</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">station</span><span class="o">.</span><span class="n">action</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">station</span><span class="o">.</span><span class="n">action</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;mooring_type&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;mooring_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_area_details</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="s2">&quot;CruiseConfig&quot;</span><span class="p">,</span> <span class="n">area_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve area details from configuration.</span>
+
+<span class="sd">    Handles area-based operations like surveys and monitoring.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object.</span>
+<span class="sd">    area_name : str</span>
+<span class="sd">        Name of the area to resolve.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        Area details dictionary or None if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;areas&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">area</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">area_name</span> <span class="ow">and</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">:</span>
+            <span class="c1"># Calculate center point from corners</span>
+            <span class="n">center_lat</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">latitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">area</span><span class="o">.</span><span class="n">corners</span>
+            <span class="p">)</span>
+            <span class="n">center_lon</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">longitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="n">area</span><span class="o">.</span><span class="n">corners</span>
+            <span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">area</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">center_lat</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">center_lon</span><span class="p">,</span>
+                <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Areas typically don&#39;t have specific depth</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;manual_duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">0.0</span><span class="p">,</span>
+                <span class="s2">&quot;delay_start&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;delay_end&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">(</span>
+                    <span class="p">(</span>
+                        <span class="n">area</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
+                        <span class="k">if</span> <span class="n">area</span><span class="o">.</span><span class="n">action</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">area</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                        <span class="k">else</span> <span class="n">area</span><span class="o">.</span><span class="n">action</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">area</span><span class="o">.</span><span class="n">action</span>
+                    <span class="k">else</span> <span class="kc">None</span>
+                <span class="p">),</span>
+                <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="p">[</span>
+                    <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">longitude</span><span class="p">}</span>
+                    <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area</span><span class="o">.</span><span class="n">corners</span>
+                <span class="p">],</span>
+                <span class="s2">&quot;area_km2&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;area_km2&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">}</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_port_details</span><span class="p">(</span>
+    <span class="n">config</span><span class="p">:</span> <span class="s2">&quot;CruiseConfig&quot;</span><span class="p">,</span> <span class="n">port_name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Resolve port details from configuration or global port registry.</span>
+
+<span class="sd">    Handles port references for leg departure/arrival points.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object.</span>
+<span class="sd">    port_name : str</span>
+<span class="sd">        Name of the port to resolve (can be global reference like &#39;port_bergen&#39;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict or None</span>
+<span class="sd">        Port details dictionary or None if not found.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">PortDefinition</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_port_reference</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Try to resolve as global port reference or custom port definition</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">port_name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port_name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;port_&quot;</span><span class="p">):</span>
+            <span class="c1"># Global port reference</span>
+            <span class="n">port_def</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_name</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+            <span class="c1"># Check for custom port definitions in config</span>
+            <span class="n">port_def</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">port_name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">port_def</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Try to resolve as global reference</span>
+                <span class="n">port_def</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_name</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Try to resolve as global reference</span>
+            <span class="n">port_def</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">port_def</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">port_def</span><span class="p">,</span> <span class="n">PortDefinition</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_def</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port_def</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port_def</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;timezone&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">port_def</span><span class="p">,</span> <span class="s2">&quot;timezone&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">port_def</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="p">}</span>
+
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+        <span class="c1"># Port reference not found in global registry</span>
+        <span class="k">pass</span>
 
     <span class="k">return</span> <span class="kc">None</span>
 </pre></div>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -98,8 +98,12 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.calculators.scheduler">cruiseplan.calculators.scheduler module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord"><code class="docutils literal notranslate"><span class="pre">ActivityRecord</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction"><code class="docutils literal notranslate"><span class="pre">calculate_transit_distance_using_abstraction()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_cruise_schedule"><code class="docutils literal notranslate"><span class="pre">generate_cruise_schedule()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_timeline"><code class="docutils literal notranslate"><span class="pre">generate_timeline()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_timeline_legacy"><code class="docutils literal notranslate"><span class="pre">generate_timeline_legacy()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.get_cluster_entry_exit_points"><code class="docutils literal notranslate"><span class="pre">get_cluster_entry_exit_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.get_operation_entry_exit_points"><code class="docutils literal notranslate"><span class="pre">get_operation_entry_exit_points()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -382,7 +386,7 @@ will eventually solve constrained Traveling Salesman Problems (TSP).</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.calculators.routing.optimize_composite_route">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.routing.</span></span><span class="sig-name descname"><span class="pre">optimize_composite_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">children</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/routing.html#optimize_composite_route"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.routing.optimize_composite_route" title="Link to this definition"></a></dt>
-<dd><p>Calculate total duration for operations within a CompositeOperation.</p>
+<dd><p>Calculate total duration for operations within a Cluster.</p>
 <p>This function should eventually solve a Constrained Traveling Salesman Problem (TSP)
 to optimize the order and routing of operations. For now, it returns the simple
 sum of the children’s durations.</p>
@@ -565,6 +569,22 @@ timing, positioning, and operational information.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">calculate_transit_distance_using_abstraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#calculate_transit_distance_using_abstraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction" title="Link to this definition"></a></dt>
+<dd><p>Calculate transit distance between operations using entry/exit point abstraction.</p>
+<p>This demonstrates how the new abstraction makes routing calculations cleaner:
+distance = last_operation.get_exit_point() → current_operation.get_entry_point()</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Transit distance in nautical miles</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.generate_cruise_schedule">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">generate_cruise_schedule</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">formats</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate_depths</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selected_leg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">derive_netcdf</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#generate_cruise_schedule"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.generate_cruise_schedule" title="Link to this definition"></a></dt>
 <dd><p>Generate comprehensive cruise schedules from YAML configuration.</p>
@@ -593,26 +613,69 @@ schedule generation process, including timeline creation and output formatting.<
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.generate_timeline">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">generate_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#generate_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.generate_timeline" title="Link to this definition"></a></dt>
-<dd><p>Generate a flattened, time-ordered list of all cruise activities.</p>
-<p>This function implements sequential scheduling logic where activities are
-processed in the order defined in the cruise configuration. Start times
-are calculated cumulatively based on operation durations and transit times.</p>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">generate_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cruise_obj</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#generate_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.generate_timeline" title="Link to this definition"></a></dt>
+<dd><p>Generate comprehensive cruise timeline using maritime port-to-port architecture.</p>
+<p>This function implements the new maritime scheduling system with:
+- Port-to-port leg structure following nautical terminology
+- Cluster boundary management for operation shuffling
+- Proper parameter inheritance (Cruise → Leg → Cluster → Operations)
+- Realistic inter-leg transit routing</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config</strong> (<em>CruiseConfig</em>) – Cruise configuration object containing legs, operations, and parameters.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – Cruise configuration with validated maritime leg structure.</p></li>
+<li><p><strong>cruise_obj</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a><em>, </em><em>optional</em>) – Cruise object with runtime legs. If None, will create runtime legs from config.</p></li>
+</ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Time-ordered list of all scheduled activities.</p>
+<dd class="field-even"><p>Complete timeline with port transits, leg operations, and cluster boundaries.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list of <a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord">ActivityRecord</a></p>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord">ActivityRecord</a>]</p>
 </dd>
 </dl>
 <p class="rubric">Notes</p>
-<p>Phase 3a implementation: Strict sequential ordering based on YAML leg/sequence.
-Start time calculation: End Time (N) = Start Time (N) + Duration (N),
-Start Time (N+1) = End Time (N) + Transit Time (N -&gt; N+1).</p>
+<p>This is the new implementation for maritime architecture. Uses runtime Leg objects
+from the Cruise class for proper port-to-port scheduling.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.generate_timeline_legacy">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">generate_timeline_legacy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord" title="cruiseplan.calculators.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#generate_timeline_legacy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.generate_timeline_legacy" title="Link to this definition"></a></dt>
+<dd><p>DEPRECATED: Legacy timeline generation for backward compatibility.</p>
+<p>Use generate_timeline_maritime() for new maritime architecture.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.get_cluster_entry_exit_points">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">get_cluster_entry_exit_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#get_cluster_entry_exit_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.get_cluster_entry_exit_points" title="Link to this definition"></a></dt>
+<dd><p>Get entry and exit points for a cluster using the new abstraction methods.</p>
+<p>For clusters, entry point is the first operation’s entry point,
+and exit point is the last operation’s exit point.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if cluster is empty</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[tuple[float, float], tuple[float, float]] or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.get_operation_entry_exit_points">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">get_operation_entry_exit_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#get_operation_entry_exit_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.get_operation_entry_exit_points" title="Link to this definition"></a></dt>
+<dd><p>Get entry and exit points for an operation using the new abstraction methods.</p>
+<p>This demonstrates the new architecture where routing calculations use
+standardized entry/exit point methods regardless of operation type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if not found</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[tuple[float, float], tuple[float, float]] or None</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

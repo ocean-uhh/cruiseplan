@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev12</title>
+  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=acad51fe"></script>
+      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -220,7 +220,7 @@
             <span class="n">activity</span>
             <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
             <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]</span>
-            <span class="ow">or</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;operation_type&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;mooring&quot;</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;mooring&quot;</span><span class="p">]</span>
             <span class="ow">or</span> <span class="n">is_scientific_transit</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>  <span class="c1"># &lt;-- Include scientific transits</span>
         <span class="p">]</span>
 
@@ -288,10 +288,320 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the Work Days at Sea table from scheduler timeline.</span>
+<span class="sd">        If multiple legs exist, generates separate tables per leg.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check if we have multiple legs</span>
+        <span class="n">leg_names</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">]</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;legs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+            <span class="k">else</span> <span class="p">[]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">leg_names</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="c1"># Single leg or no legs defined - generate single table</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_single_work_days_table</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Multiple legs - generate unified table with leg information in Area column</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_unified_multi_leg_work_days_table</span><span class="p">(</span>
+                <span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">leg_names</span>
+            <span class="p">)</span></div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_single_work_days_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a single work days table for the entire cruise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;work_days_table.tex.j2&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Create summary breakdown from timeline activities</span>
+        <span class="c1"># Calculate activity groups for this method</span>
+        <span class="n">station_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">]</span>
+        <span class="n">mooring_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]</span>
+        <span class="n">area_activities</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">]</span>
+        <span class="n">all_transits</span> <span class="o">=</span> <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">timeline</span> <span class="k">if</span> <span class="n">a</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">]</span>
+        <span class="n">scientific_transits</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_transits</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+        <span class="p">]</span>  <span class="c1"># Scientific transits have actions</span>
+
+        <span class="n">station_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">station_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">mooring_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">mooring_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+        <span class="n">area_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">area_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+
+        <span class="c1"># Calculate scientific operation durations by action</span>
+        <span class="n">scientific_op_durations_h</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">scientific_transits</span><span class="p">:</span>
+            <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;Uncategorized&quot;</span><span class="p">)</span>
+            <span class="n">duration_h</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="n">scientific_op_durations_h</span><span class="p">[</span><span class="n">action</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">scientific_op_durations_h</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span> <span class="o">+</span> <span class="n">duration_h</span>
+            <span class="p">)</span>
+
+        <span class="n">total_scientific_op_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">scientific_op_durations_h</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+        <span class="n">ACTION_TO_DISPLAY_NAME</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;survey&quot;</span><span class="p">:</span> <span class="s2">&quot;Survey Operations&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;ADCP&quot;</span><span class="p">:</span> <span class="s2">&quot;ADCP Survey&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span> <span class="s2">&quot;Bathymetric Survey&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Calculate transit variables that are used later</span>
+        <span class="n">navigation_transits</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">all_transits</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
+        <span class="p">]</span>  <span class="c1"># Navigation transits don&#39;t have actions</span>
+
+        <span class="c1"># Simple transit categorization</span>
+        <span class="n">transit_to_area_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">transit_from_area_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">transit_within_area_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">if</span> <span class="n">navigation_transits</span><span class="p">:</span>
+            <span class="c1"># First transit is to area, last is from area, rest are within area</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="n">transit_to_area_h</span> <span class="o">=</span> <span class="n">navigation_transits</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">transit_from_area_h</span> <span class="o">=</span> <span class="n">navigation_transits</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mi">60</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">navigation_transits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">within_transits</span> <span class="o">=</span> <span class="n">navigation_transits</span><span class="p">[</span><span class="mi">1</span><span class="p">:</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="n">transit_within_area_h</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="nb">sum</span><span class="p">(</span><span class="n">t</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">within_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
+                <span class="p">)</span>
+
+        <span class="n">total_navigation_transit_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">transit_to_area_h</span> <span class="o">+</span> <span class="n">transit_from_area_h</span> <span class="o">+</span> <span class="n">transit_within_area_h</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Generate work days rows for the timeline</span>
+        <span class="n">summary_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_work_days_rows_for_timeline</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
+
+        <span class="c1"># 2. Station Operations</span>
+        <span class="k">if</span> <span class="n">station_activities</span><span class="p">:</span>
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD/Station Operations&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">station_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 3. Mooring Operations</span>
+        <span class="k">if</span> <span class="n">mooring_activities</span><span class="p">:</span>
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Mooring Operations&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mooring_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> operations&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 4. Scientific Transits (Grouped by action)</span>
+        <span class="c1"># Sort keys for predictable output</span>
+        <span class="n">sorted_actions</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scientific_op_durations_h</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">sorted_actions</span><span class="p">:</span>
+            <span class="n">duration_h</span> <span class="o">=</span> <span class="n">scientific_op_durations_h</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
+            <span class="n">display_name</span> <span class="o">=</span> <span class="n">ACTION_TO_DISPLAY_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> Operations&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Count the number of segments for the notes field</span>
+            <span class="n">num_activities</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
+                <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">action</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">display_name</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Scientific transit duration counts as operation time</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_activities</span><span class="si">}</span><span class="s2"> segments&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 5. Scientific survey (Area)</span>
+        <span class="k">if</span> <span class="n">area_activities</span><span class="p">:</span>
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Area Survey Operations&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">area_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> areas&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 6. Navigation Transit (Within Area)</span>
+        <span class="k">if</span> <span class="n">transit_within_area_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit within area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transit_within_area_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No operation duration</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Between operations&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 7. Navigation Transit (From Area)</span>
+        <span class="k">if</span> <span class="n">transit_from_area_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Find last operational activity (non-port) as working area origin</span>
+            <span class="n">last_operation</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">]:</span>
+                    <span class="n">last_operation</span> <span class="o">=</span> <span class="n">activity</span>
+                    <span class="k">break</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">last_operation</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">last_operation</span> <span class="k">else</span> <span class="s2">&quot;working area&quot;</span>
+
+            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit from area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No operation duration</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transit_from_area_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">origin</span><span class="si">}</span><span class="s2"> to arrival port&quot;</span><span class="p">,</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Calculate totals</span>
+        <span class="n">total_operation_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">station_duration_h</span>
+            <span class="o">+</span> <span class="n">mooring_duration_h</span>
+            <span class="o">+</span> <span class="n">area_duration_h</span>
+            <span class="o">+</span> <span class="n">total_scientific_op_h</span>  <span class="c1"># Scientific transit duration is operation time</span>
+            <span class="o">+</span> <span class="n">transit_within_area_h</span>  <span class="c1"># Within-area transit counted as operation time</span>
+        <span class="p">)</span>
+        <span class="n">total_transit_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">total_navigation_transit_h</span>  <span class="c1"># Only pure navigation transit duration</span>
+        <span class="p">)</span>
+        <span class="n">total_duration_h</span> <span class="o">=</span> <span class="n">total_operation_duration_h</span> <span class="o">+</span> <span class="n">total_transit_h</span>
+        <span class="n">total_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
+
+        <span class="n">paginated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paginate_data</span><span class="p">(</span><span class="n">summary_rows</span><span class="p">,</span> <span class="s2">&quot;work_days&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">cruise_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+            <span class="n">pages</span><span class="o">=</span><span class="n">paginated_data</span><span class="p">,</span>
+            <span class="n">total_duration_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_operation_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">total_transit_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_transit_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">total_days</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_multi_leg_work_days_tables</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate separate work days tables for each leg.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;work_days_table.tex.j2&quot;</span><span class="p">)</span>
+
+        <span class="n">all_tables</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">for</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="n">leg_names</span><span class="p">:</span>
+            <span class="c1"># Filter timeline activities for this leg</span>
+            <span class="n">leg_timeline</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">activity</span>
+                <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
+                <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">leg_name</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">leg_timeline</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Generate work days data for this leg</span>
+            <span class="n">summary_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_work_days_rows_for_timeline</span><span class="p">(</span><span class="n">leg_timeline</span><span class="p">)</span>
+
+            <span class="c1"># Calculate totals for this leg</span>
+            <span class="n">total_operation_duration_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+            <span class="n">total_transit_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">summary_rows</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">total_operation_duration_h</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">total_transit_h</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">])</span>
+
+            <span class="n">total_duration_h</span> <span class="o">=</span> <span class="n">total_operation_duration_h</span> <span class="o">+</span> <span class="n">total_transit_h</span>
+            <span class="n">total_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
+
+            <span class="n">paginated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paginate_data</span><span class="p">(</span><span class="n">summary_rows</span><span class="p">,</span> <span class="s2">&quot;work_days&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Generate table for this leg</span>
+            <span class="n">leg_table</span> <span class="o">=</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+                <span class="n">cruise_name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="n">leg_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;_&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">pages</span><span class="o">=</span><span class="n">paginated_data</span><span class="p">,</span>
+                <span class="n">total_duration_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_operation_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">total_transit_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_transit_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">total_days</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+            <span class="n">all_tables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">leg_table</span><span class="p">)</span>
+
+        <span class="c1"># Combine all leg tables with page breaks</span>
+        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n\\</span><span class="s2">clearpage</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_tables</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_unified_multi_leg_work_days_table</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Generate a unified work days table with leg information in the Area column.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">template</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">get_template</span><span class="p">(</span><span class="s2">&quot;work_days_table.tex.j2&quot;</span><span class="p">)</span>
+
+        <span class="n">all_summary_rows</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">total_operation_duration_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">total_transit_h</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+        <span class="k">for</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="n">leg_names</span><span class="p">:</span>
+            <span class="c1"># Filter timeline activities for this leg</span>
+            <span class="n">leg_timeline</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">activity</span>
+                <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
+                <span class="k">if</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">leg_name</span>
+            <span class="p">]</span>
+
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">leg_timeline</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># Generate work days data for this leg</span>
+            <span class="n">leg_summary_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_work_days_rows_for_timeline</span><span class="p">(</span><span class="n">leg_timeline</span><span class="p">)</span>
+
+            <span class="c1"># Add leg name to Area column for each row in this leg</span>
+            <span class="n">sanitized_leg_name</span> <span class="o">=</span> <span class="n">leg_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">leg_summary_rows</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">i</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+                    <span class="c1"># First row shows the leg name</span>
+                    <span class="n">row</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">sanitized_leg_name</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Subsequent rows leave area blank for cleaner table appearance</span>
+                    <span class="n">row</span><span class="p">[</span><span class="s2">&quot;area&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+                <span class="n">all_summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+            <span class="c1"># Calculate totals across all legs</span>
+            <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">leg_summary_rows</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">total_operation_duration_h</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;duration_h&quot;</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">]</span> <span class="ow">and</span> <span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;&quot;</span><span class="p">:</span>
+                    <span class="n">total_transit_h</span> <span class="o">+=</span> <span class="nb">float</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="s2">&quot;transit_h&quot;</span><span class="p">])</span>
+
+        <span class="n">total_duration_h</span> <span class="o">=</span> <span class="n">total_operation_duration_h</span> <span class="o">+</span> <span class="n">total_transit_h</span>
+        <span class="n">total_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
+
+        <span class="n">paginated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paginate_data</span><span class="p">(</span><span class="n">all_summary_rows</span><span class="p">,</span> <span class="s2">&quot;work_days&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+            <span class="n">cruise_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
+            <span class="n">pages</span><span class="o">=</span><span class="n">paginated_data</span><span class="p">,</span>
+            <span class="n">total_duration_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_operation_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">total_transit_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_transit_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">total_days</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_generate_work_days_rows_for_timeline</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Extract work days summary rows from a timeline (used for both single and multi-leg).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">summary_rows</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Group activities by type and classify transits</span>
@@ -351,12 +661,26 @@
 
         <span class="c1"># 1. Navigation Transit (To Area)</span>
         <span class="k">if</span> <span class="n">transit_to_area_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Find first operational activity (non-port) as working area destination</span>
+            <span class="n">first_operation</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+                <span class="p">(</span>
+                    <span class="n">activity</span>
+                    <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
+                    <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">]</span>
+                <span class="p">),</span>
+                <span class="kc">None</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">destination</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">first_operation</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">first_operation</span> <span class="k">else</span> <span class="s2">&quot;working area&quot;</span>
+            <span class="p">)</span>
+
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit to area&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No operation duration</span>
                     <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transit_to_area_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">first_station</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Departure port to </span><span class="si">{</span><span class="n">destination</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
@@ -364,6 +688,7 @@
         <span class="k">if</span> <span class="n">station_activities</span><span class="p">:</span>
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD/Station Operations&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">station_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
@@ -375,6 +700,7 @@
         <span class="k">if</span> <span class="n">mooring_activities</span><span class="p">:</span>
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Mooring Operations&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">mooring_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
@@ -382,84 +708,67 @@
                 <span class="p">}</span>
             <span class="p">)</span>
 
-        <span class="c1"># 4. Scientific Transits (Grouped by action)</span>
-        <span class="c1"># Sort keys for predictable output</span>
-        <span class="n">sorted_actions</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">scientific_op_durations_h</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-        <span class="k">for</span> <span class="n">action</span> <span class="ow">in</span> <span class="n">sorted_actions</span><span class="p">:</span>
-            <span class="n">duration_h</span> <span class="o">=</span> <span class="n">scientific_op_durations_h</span><span class="p">[</span><span class="n">action</span><span class="p">]</span>
-            <span class="n">display_name</span> <span class="o">=</span> <span class="n">ACTION_TO_DISPLAY_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2"> Operations&quot;</span><span class="p">)</span>
+        <span class="c1"># 4. Scientific Transit Operations (counted as operation duration)</span>
+        <span class="k">if</span> <span class="n">scientific_transits</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">action</span><span class="p">,</span> <span class="n">duration_h</span> <span class="ow">in</span> <span class="n">scientific_op_durations_h</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">display_name</span> <span class="o">=</span> <span class="n">ACTION_TO_DISPLAY_NAME</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="n">action</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">action</span><span class="o">.</span><span class="n">title</span><span class="p">()</span><span class="si">}</span><span class="s2"> Survey&quot;</span>
+                <span class="p">)</span>
+                <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                        <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">display_name</span><span class="p">,</span>
+                        <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time, this is operation time</span>
+                        <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Scientific transit operation&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
 
-            <span class="c1"># Count the number of segments for the notes field</span>
-            <span class="n">num_activities</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span>
-                <span class="p">[</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">action</span><span class="p">]</span>
-            <span class="p">)</span>
-
-            <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="p">{</span>
-                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="n">display_name</span><span class="p">,</span>
-                    <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Scientific transit duration counts as operation time</span>
-                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">num_activities</span><span class="si">}</span><span class="s2"> segments&quot;</span><span class="p">,</span>
-                <span class="p">}</span>
-            <span class="p">)</span>
-
-        <span class="c1"># 5. Scientific survey (Area)</span>
+        <span class="c1"># 5. Area/Survey Operations</span>
         <span class="k">if</span> <span class="n">area_activities</span><span class="p">:</span>
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Area Survey Operations&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">area_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time for this row</span>
-                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> areas&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> survey areas&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
-        <span class="c1"># 6. Navigation Transit (Within Area)</span>
+        <span class="c1"># 6. Within-area navigation transits (counted as operation time)</span>
         <span class="k">if</span> <span class="n">transit_within_area_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
-                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit within area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
+                    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Within-area transits&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transit_within_area_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No operation duration</span>
-                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Between operations&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No transit time, this is operation time</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="s2">&quot;Navigation within working areas&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
         <span class="c1"># 7. Navigation Transit (From Area)</span>
         <span class="k">if</span> <span class="n">transit_from_area_h</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Find last operational activity (non-port) as working area origin</span>
+            <span class="n">last_operation</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">]:</span>
+                    <span class="n">last_operation</span> <span class="o">=</span> <span class="n">activity</span>
+                    <span class="k">break</span>
+            <span class="n">origin</span> <span class="o">=</span> <span class="n">last_operation</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="n">last_operation</span> <span class="k">else</span> <span class="s2">&quot;working area&quot;</span>
+
             <span class="n">summary_rows</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="p">{</span>
+                    <span class="s2">&quot;area&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># Area will be populated by caller for multi-leg</span>
                     <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Transit from area&quot;</span><span class="p">,</span>
                     <span class="s2">&quot;duration_h&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>  <span class="c1"># No operation duration</span>
                     <span class="s2">&quot;transit_h&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">transit_from_area_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">last_station</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;notes&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">origin</span><span class="si">}</span><span class="s2"> to arrival port&quot;</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
 
-        <span class="c1"># Calculate totals</span>
-        <span class="n">total_operation_duration_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">station_duration_h</span>
-            <span class="o">+</span> <span class="n">mooring_duration_h</span>
-            <span class="o">+</span> <span class="n">area_duration_h</span>
-            <span class="o">+</span> <span class="n">total_scientific_op_h</span>  <span class="c1"># Scientific transit duration is operation time</span>
-            <span class="o">+</span> <span class="n">transit_within_area_h</span>  <span class="c1"># Within-area transit counted as operation time</span>
-        <span class="p">)</span>
-        <span class="n">total_transit_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">total_navigation_transit_h</span>  <span class="c1"># Only pure navigation transit duration</span>
-        <span class="p">)</span>
-        <span class="n">total_duration_h</span> <span class="o">=</span> <span class="n">total_operation_duration_h</span> <span class="o">+</span> <span class="n">total_transit_h</span>
-        <span class="n">total_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
-
-        <span class="n">paginated_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_paginate_data</span><span class="p">(</span><span class="n">summary_rows</span><span class="p">,</span> <span class="s2">&quot;work_days&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">template</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
-            <span class="n">cruise_name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">),</span>
-            <span class="n">pages</span><span class="o">=</span><span class="n">paginated_data</span><span class="p">,</span>
-            <span class="n">total_duration_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_operation_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">total_transit_h</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_transit_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">total_days</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">total_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="p">)</span></div>
-</div>
+        <span class="k">return</span> <span class="n">summary_rows</span></div>
 
 
 
