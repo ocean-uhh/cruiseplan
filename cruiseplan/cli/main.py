@@ -307,9 +307,7 @@ Examples:
         help="Expand CTD sections into individual station definitions",
     )
     enrich_parser.add_argument(
-        "--expand-ports",
-        action="store_true",
-        help="Expand global port references"
+        "--expand-ports", action="store_true", help="Expand global port references"
     )
     enrich_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

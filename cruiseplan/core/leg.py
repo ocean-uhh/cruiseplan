@@ -1,7 +1,7 @@
 from typing import Any, List, Optional, Union
 
 from cruiseplan.core.cluster import Cluster
-from cruiseplan.core.operations import BaseOperation, CompositeOperation
+from cruiseplan.core.operations import BaseOperation
 
 # Import validation models and port utilities
 from cruiseplan.core.validation import LegDefinition, PortDefinition, StrategyEnum
@@ -38,10 +38,10 @@ class Leg:
         List of standalone operations (e.g., single CTD, single Transit).
     clusters : List[Cluster]
         List of cluster boundaries for operation shuffling control.
-    first_station : Optional[str]
-        First station/activity to execute after departing port.
-    last_station : Optional[str]
-        Last station/activity to execute before arriving at port.
+    first_waypoint : Optional[str]
+        First waypoint/navigation marker for routing (not executed).
+    last_waypoint : Optional[str]
+        Last waypoint/navigation marker for routing (not executed).
     vessel_speed : Optional[float]
         Leg-specific vessel speed override (None uses cruise default).
     turnaround_time : Optional[float]
@@ -69,8 +69,8 @@ class Leg:
         description: Optional[str] = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
-        first_station: Optional[str] = None,
-        last_station: Optional[str] = None,
+        first_waypoint: Optional[str] = None,
+        last_waypoint: Optional[str] = None,
     ):
         """
         Initialize a maritime Leg with port-to-port structure.
@@ -89,17 +89,17 @@ class Leg:
             Execution strategy for operations (default: SEQUENTIAL).
         ordered : bool, optional
             Whether operations should maintain their specified order (default: True).
-        first_station : Optional[str], optional
-            First station/activity to execute after departing port.
-        last_station : Optional[str], optional
-            Last station/activity to execute before arriving at port.
+        first_waypoint : Optional[str], optional
+            First waypoint for navigation (not executed).
+        last_waypoint : Optional[str], optional
+            Last waypoint for navigation (not executed).
         """
         self.name = name
         self.description = description
         self.strategy = strategy
         self.ordered = ordered
-        self.first_station = first_station
-        self.last_station = last_station
+        self.first_waypoint = first_waypoint
+        self.last_waypoint = last_waypoint
 
         # Resolve ports using global port system
         self.departure_port = resolve_port_reference(departure_port)
@@ -137,37 +137,6 @@ class Leg:
         cluster : Cluster
             The cluster boundary to add for operation reordering management.
         """
-        self.clusters.append(cluster)
-
-    def add_composite(self, composite: CompositeOperation) -> None:
-        """
-        Add a composite operation (deprecated - use clusters for boundary management).
-
-        Parameters
-        ----------
-        composite : CompositeOperation
-            The composite operation to add.
-
-        Notes
-        -----
-        This method is deprecated. Use add_cluster() for operation boundary management.
-        """
-        import warnings
-
-        warnings.warn(
-            "add_composite() is deprecated. Use add_cluster() for operation boundary management.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        # Convert CompositeOperation to Cluster for boundary management
-        cluster = Cluster(
-            name=composite.name,
-            description=composite.comment,
-            strategy=StrategyEnum.SEQUENTIAL,  # Default strategy
-            ordered=composite.ordered,
-        )
-        for child in composite.children:
-            cluster.add_operation(child)
         self.clusters.append(cluster)
 
     def get_all_operations(self) -> List[BaseOperation]:
@@ -344,16 +313,94 @@ class Leg:
         # Check if any clusters allow reordering
         return any(cluster.allows_reordering() for cluster in self.clusters)
 
-    def get_boundary_stations(self) -> tuple[Optional[str], Optional[str]]:
+    def get_boundary_waypoints(self) -> tuple[Optional[str], Optional[str]]:
         """
-        Get the first and last station boundaries for this leg.
+        Get the first and last waypoint boundaries for this leg.
 
         Returns
         -------
         tuple[Optional[str], Optional[str]]
-            Tuple of (first_station, last_station) for boundary management.
+            Tuple of (first_waypoint, last_waypoint) for boundary management.
         """
-        return (self.first_station, self.last_station)
+        return (self.first_waypoint, self.last_waypoint)
+
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Get the geographic entry point for this leg (departure port).
+
+        This provides a standardized interface regardless of internal field names.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the leg's entry point.
+        """
+        return (self.departure_port.latitude, self.departure_port.longitude)
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Get the geographic exit point for this leg (arrival port).
+
+        This provides a standardized interface regardless of internal field names.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the leg's exit point.
+        """
+        return (self.arrival_port.latitude, self.arrival_port.longitude)
+
+    def get_operational_entry_point(
+        self, resolver=None
+    ) -> Optional[tuple[float, float]]:
+        """
+        Get the geographic entry point for operations within this leg.
+
+        Uses first_waypoint if available, otherwise first activity.
+
+        Parameters
+        ----------
+        resolver : object, optional
+            Operation resolver to look up waypoint coordinates.
+
+        Returns
+        -------
+        tuple[float, float] or None
+            (latitude, longitude) of the operational entry point, or None if not resolvable.
+        """
+        if self.first_waypoint and resolver:
+            from ..calculators.scheduler import _resolve_station_details
+
+            details = _resolve_station_details(resolver, self.first_waypoint)
+            if details:
+                return (details["lat"], details["lon"])
+        return None
+
+    def get_operational_exit_point(
+        self, resolver=None
+    ) -> Optional[tuple[float, float]]:
+        """
+        Get the geographic exit point for operations within this leg.
+
+        Uses last_waypoint if available, otherwise last activity.
+
+        Parameters
+        ----------
+        resolver : object, optional
+            Operation resolver to look up waypoint coordinates.
+
+        Returns
+        -------
+        tuple[float, float] or None
+            (latitude, longitude) of the operational exit point, or None if not resolvable.
+        """
+        if self.last_waypoint and resolver:
+            from ..calculators.scheduler import _resolve_station_details
+
+            details = _resolve_station_details(resolver, self.last_waypoint)
+            if details:
+                return (details["lat"], details["lon"])
+        return None
 
     def get_port_positions(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """
@@ -456,8 +503,8 @@ class Leg:
             description=leg_def.description,
             strategy=leg_def.strategy if leg_def.strategy else StrategyEnum.SEQUENTIAL,
             ordered=leg_def.ordered if leg_def.ordered is not None else True,
-            first_station=leg_def.first_station,
-            last_station=leg_def.last_station,
+            first_waypoint=leg_def.first_waypoint,
+            last_waypoint=leg_def.last_waypoint,
         )
 
         # Set parameter overrides from leg definition

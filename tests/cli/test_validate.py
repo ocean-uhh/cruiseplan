@@ -19,9 +19,6 @@ class TestValidateCommand:
         """Get path to test fixture file."""
         return Path(__file__).parent.parent / "fixtures" / filename
 
-
-
-
     def test_validate_nonexistent_file(self, tmp_path):
         """Test validation with nonexistent file."""
         nonexistent_file = tmp_path / "nonexistent.yaml"
@@ -40,9 +37,6 @@ class TestValidateCommand:
 
         with pytest.raises(SystemExit, match="1"):
             main(args)
-
-
-
 
     @patch("cruiseplan.core.validation.validate_configuration_file")
     def test_validate_keyboard_interrupt(self, mock_validate_config):

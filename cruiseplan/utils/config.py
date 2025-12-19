@@ -88,16 +88,14 @@ https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
         elif key == "departure_port":
             documented_data.yaml_set_comment_before_after_key(
                 key,
-                before="""[REQUIRED] Departure port details
-Update 'UPDATE-departure-port-name' with actual port name
-Update coordinates with actual port location""",
+                before="""[DEPRECATED] Global departure port - use leg-level fields instead
+Move this field to individual leg definitions to avoid validation conflicts""",
             )
         elif key == "arrival_port":
             documented_data.yaml_set_comment_before_after_key(
                 key,
-                before="""[REQUIRED] Arrival port details  
-Update 'UPDATE-arrival-port-name' with actual port name
-Update coordinates with actual port location""",
+                before="""[DEPRECATED] Global arrival port - use leg-level fields instead
+Move this field to individual leg definitions to avoid validation conflicts""",
             )
         elif key == "stations":
             documented_data.yaml_set_comment_before_after_key(
@@ -138,18 +136,24 @@ Define survey areas for:
                 key,
                 before="""[REQUIRED] Operational sequence definition
 Legs define the order and grouping of operations
+Each leg must include:
+  - departure_port/arrival_port: Port references for this leg
+  - first_waypoint/last_waypoint: Starting and ending operations
+  - activities: List of operations to execute in sequence
 Strategy options: sequential, cluster, nearest_neighbor
 Each leg can override default vessel speeds and routing""",
             )
         elif key == "first_station":
             documented_data.yaml_set_comment_before_after_key(
                 key,
-                before="[REQUIRED] Name of first station (must match a station name above)",
+                before="""[DEPRECATED] Global first station - use leg-level first_waypoint instead
+Move this field to individual leg definitions to avoid validation conflicts""",
             )
         elif key == "last_station":
             documented_data.yaml_set_comment_before_after_key(
                 key,
-                before="[REQUIRED] Name of last station (must match a station name above)",
+                before="""[DEPRECATED] Global last station - use leg-level last_waypoint instead
+Move this field to individual leg definitions to avoid validation conflicts""",
             )
         elif key == "default_vessel_speed":
             documented_data.yaml_set_comment_before_after_key(

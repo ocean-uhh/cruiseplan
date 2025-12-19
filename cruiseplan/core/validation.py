@@ -361,7 +361,9 @@ class StationDefinition(FlexibleLocationModel):
     comment: Optional[str] = None
     equipment: Optional[str] = None
     position_string: Optional[str] = None
-    coordinates_dmm: Optional[str] = Field(None, description="Degrees decimal minutes coordinate string")
+    coordinates_dmm: Optional[str] = Field(
+        None, description="Degrees decimal minutes coordinate string"
+    )
 
     @field_validator("duration")
     def validate_duration_positive(cls, v):
@@ -1152,10 +1154,13 @@ class ClusterDefinition(BaseModel):
                     raise ValueError(f"Activity {i} name cannot be empty")
                 activity_names.append(str(activity["name"]).strip())
             else:
-                raise ValueError(f"Activity {i} must be either a string reference or a dictionary")
+                raise ValueError(
+                    f"Activity {i} must be either a string reference or a dictionary"
+                )
 
         # Check for duplicate names within cluster and issue warnings
         import warnings
+
         duplicates = set(
             [name for name in activity_names if activity_names.count(name) > 1]
         )
@@ -1164,7 +1169,7 @@ class ClusterDefinition(BaseModel):
                 f"⚠️ Duplicate activity names in cluster: {', '.join(duplicates)}. "
                 f"These activities will be executed multiple times as specified.",
                 UserWarning,
-                stacklevel=2
+                stacklevel=2,
             )
 
         return v
@@ -1230,10 +1235,10 @@ class LegDefinition(BaseModel):
         Default station spacing for this leg in kilometers (inheritable from cruise).
     turnaround_time : Optional[float]
         Turnaround time between operations in minutes (inheritable from cruise).
-    first_station : Optional[str]
-        First operation/station name in this leg (boundary management).
-    last_station : Optional[str]
-        Last operation/station name in this leg (boundary management).
+    first_waypoint : Optional[str]
+        First waypoint/navigation marker for this leg (routing only, not executed).
+    last_waypoint : Optional[str]
+        Last waypoint/navigation marker for this leg (routing only, not executed).
     strategy : Optional[StrategyEnum]
         Default scheduling strategy for the leg.
     ordered : Optional[bool]
@@ -1274,12 +1279,14 @@ class LegDefinition(BaseModel):
         None, ge=0, description="Turnaround time between operations in minutes"
     )
 
-    # Station boundary management
-    first_station: Optional[str] = Field(
-        None, description="First operation/station name in this leg"
+    # Waypoint boundary management for routing
+    first_waypoint: Optional[str] = Field(
+        None,
+        description="First waypoint/navigation marker for this leg (used for routing only, not execution)",
     )
-    last_station: Optional[str] = Field(
-        None, description="Last operation/station name in this leg"
+    last_waypoint: Optional[str] = Field(
+        None,
+        description="Last waypoint/navigation marker for this leg (used for routing only, not execution)",
     )
 
     # Scheduling and organization
@@ -1291,7 +1298,8 @@ class LegDefinition(BaseModel):
 
     # New activities-based architecture
     activities: Optional[List[Union[str, dict]]] = Field(
-        default_factory=list, description="Unified list of all activities in this leg (can be string references or dict objects)"
+        default_factory=list,
+        description="Unified list of all activities in this leg (can be string references or dict objects)",
     )
     clusters: Optional[List[ClusterDefinition]] = Field(
         default_factory=list, description="List of operation clusters in the leg"
@@ -1314,7 +1322,7 @@ class LegDefinition(BaseModel):
         Validate port fields to ensure maritime terminology compliance.
 
         Maritime legs MUST have both departure_port and arrival_port defined.
-        Accepts global port references (e.g., 'port_reykjavik'), PortDefinition 
+        Accepts global port references (e.g., 'port_reykjavik'), PortDefinition
         objects, or port dictionaries. Global port references are resolved later
         in the Cruise initialization process.
 
@@ -1375,7 +1383,7 @@ class LegDefinition(BaseModel):
 
         return v
 
-    @field_validator("first_station", "last_station")
+    @field_validator("first_waypoint", "last_waypoint")
     def validate_station_names(cls, v):
         """
         Validate station name fields to ensure they are not empty strings.
@@ -1450,38 +1458,9 @@ class LegDefinition(BaseModel):
         """
         # Note: Round-trip cruises (same departure/arrival port) are valid maritime operations
 
-        # Validate boundary station names exist in activities if specified
-        if self.first_station or self.last_station:
-            activity_names = set()
-            if self.activities:
-                for activity in self.activities:
-                    if isinstance(activity, dict) and "name" in activity:
-                        activity_names.add(activity["name"])
-
-            # Include deprecated stations for backward compatibility
-            if self.stations:
-                for station in self.stations:
-                    if isinstance(station, str):
-                        activity_names.add(station)
-                    elif hasattr(station, "name"):
-                        activity_names.add(station.name)
-
-            if (
-                self.first_station
-                and self.first_station not in activity_names
-                and activity_names
-            ):
-                raise ValueError(
-                    f"first_station '{self.first_station}' not found in leg activities"
-                )
-            if (
-                self.last_station
-                and self.last_station not in activity_names
-                and activity_names
-            ):
-                raise ValueError(
-                    f"last_station '{self.last_station}' not found in leg activities"
-                )
+        # Note: Waypoints (first_waypoint/last_waypoint) are used only for routing
+        # They are NOT required to exist in the activities list since they serve
+        # as navigation markers, not execution targets
 
         return self
 
@@ -1532,10 +1511,6 @@ class CruiseConfig(BaseModel):
         Port where the cruise begins.
     arrival_port : PortDefinition
         Port where the cruise ends.
-    first_station : str
-        Name of the first station.
-    last_station : str
-        Name of the last station.
     stations : Optional[List[StationDefinition]]
         List of station definitions.
     transits : Optional[List[TransitDefinition]]
@@ -1570,16 +1545,12 @@ class CruiseConfig(BaseModel):
     mooring_label_format: str = "M{:02d}"
 
     departure_port: Optional[Union[str, PortDefinition]] = Field(
-        None, description="Port where the cruise begins (can be global port reference). Optional for multi-leg cruises."
+        None,
+        description="Port where the cruise begins (can be global port reference). Optional for multi-leg cruises.",
     )
     arrival_port: Optional[Union[str, PortDefinition]] = Field(
-        None, description="Port where the cruise ends (can be global port reference). Optional for multi-leg cruises."
-    )
-    first_station: Optional[str] = Field(
-        None, description="Name of the first station. Optional for multi-leg cruises."
-    )
-    last_station: Optional[str] = Field(
-        None, description="Name of the last station. Optional for multi-leg cruises."
+        None,
+        description="Port where the cruise ends (can be global port reference). Optional for multi-leg cruises.",
     )
 
     stations: Optional[List[StationDefinition]] = []
@@ -1733,7 +1704,7 @@ class CruiseConfig(BaseModel):
         """
         Validate port fields at cruise level to support global port references.
 
-        Accepts global port references (e.g., 'port_reykjavik'), PortDefinition 
+        Accepts global port references (e.g., 'port_reykjavik'), PortDefinition
         objects, or port dictionaries. Global port references are resolved during
         Cruise initialization.
 
@@ -1816,9 +1787,8 @@ class CruiseConfig(BaseModel):
     @model_validator(mode="after")
     def validate_no_global_leg_fields(self):
         """
-        Validate that departure_port, arrival_port, first_station, and last_station
-        are not defined at cruise level.
-        
+        Validate that departure_port and arrival_port are not defined at cruise level.
+
         These fields must now be defined only at the leg level to avoid conflicts
         during section expansion and multi-leg cruise processing.
 
@@ -1830,23 +1800,16 @@ class CruiseConfig(BaseModel):
         Raises
         ------
         ValueError
-            If any of departure_port, arrival_port, first_station, or last_station
-            are defined at the cruise level.
+            If departure_port or arrival_port are defined at the cruise level.
         """
         global_fields_errors = []
-        
+
         if self.departure_port is not None:
             global_fields_errors.append("departure_port")
-        
+
         if self.arrival_port is not None:
             global_fields_errors.append("arrival_port")
-            
-        if self.first_station is not None:
-            global_fields_errors.append("first_station")
-            
-        if self.last_station is not None:
-            global_fields_errors.append("last_station")
-        
+
         if global_fields_errors:
             fields_str = ", ".join(global_fields_errors)
             raise ValueError(
@@ -1855,7 +1818,7 @@ class CruiseConfig(BaseModel):
                 f"avoid conflicts during section expansion and multi-leg processing. "
                 f"Please move these fields into the 'legs' section of your configuration."
             )
-        
+
         return self
 
     @model_validator(mode="after")
@@ -1952,15 +1915,15 @@ class CruiseConfig(BaseModel):
     def validate_cruise_leg_consistency(self):
         """
         Validate consistency between cruise-level and leg-level definitions.
-        
+
         For single-leg cruises: RECOMMEND cruise-level fields
         For multi-leg cruises: ALLOW leg-level only, but validate consistency if both present
-        
+
         Returns
         -------
         CruiseConfig
             Self for chaining.
-            
+
         Raises
         ------
         ValueError
@@ -1968,128 +1931,58 @@ class CruiseConfig(BaseModel):
         """
         if not self.legs:
             raise ValueError("At least one leg must be defined")
-            
+
         is_single_leg = len(self.legs) == 1
         first_leg = self.legs[0]
         last_leg = self.legs[-1]
-        
+
         # Check if we have any cruise-level definitions
         has_cruise_departure = self.departure_port is not None
         has_cruise_arrival = self.arrival_port is not None
-        has_cruise_first_station = self.first_station is not None
-        has_cruise_last_station = self.last_station is not None
-        
+
         # For single-leg cruises, derive missing cruise-level fields from leg
         if is_single_leg:
-            if not has_cruise_departure and hasattr(first_leg, 'departure_port') and first_leg.departure_port:
+            if (
+                not has_cruise_departure
+                and hasattr(first_leg, "departure_port")
+                and first_leg.departure_port
+            ):
                 self.departure_port = first_leg.departure_port
-            if not has_cruise_arrival and hasattr(first_leg, 'arrival_port') and first_leg.arrival_port:
+            if (
+                not has_cruise_arrival
+                and hasattr(first_leg, "arrival_port")
+                and first_leg.arrival_port
+            ):
                 self.arrival_port = first_leg.arrival_port
-            if not has_cruise_first_station and hasattr(first_leg, 'first_station') and first_leg.first_station:
-                self.first_station = first_leg.first_station
-            if not has_cruise_last_station and hasattr(first_leg, 'last_station') and first_leg.last_station:
-                self.last_station = first_leg.last_station
-        
+
         # Validate consistency if both cruise-level and leg-level are present
-        if has_cruise_departure and hasattr(first_leg, 'departure_port') and first_leg.departure_port:
+        if (
+            has_cruise_departure
+            and hasattr(first_leg, "departure_port")
+            and first_leg.departure_port
+        ):
             if str(self.departure_port) != str(first_leg.departure_port):
                 raise ValueError(
                     f"Cruise departure_port '{self.departure_port}' conflicts with first leg departure_port '{first_leg.departure_port}'"
                 )
-        
-        if has_cruise_arrival and hasattr(last_leg, 'arrival_port') and last_leg.arrival_port:
+
+        if (
+            has_cruise_arrival
+            and hasattr(last_leg, "arrival_port")
+            and last_leg.arrival_port
+        ):
             if str(self.arrival_port) != str(last_leg.arrival_port):
                 raise ValueError(
                     f"Cruise arrival_port '{self.arrival_port}' conflicts with last leg arrival_port '{last_leg.arrival_port}'"
                 )
-                
-        if has_cruise_first_station and hasattr(first_leg, 'first_station') and first_leg.first_station:
-            if self.first_station != first_leg.first_station:
-                raise ValueError(
-                    f"Cruise first_station '{self.first_station}' conflicts with first leg first_station '{first_leg.first_station}'"
-                )
-                
-        if has_cruise_last_station and hasattr(last_leg, 'last_station') and last_leg.last_station:
-            if self.last_station != last_leg.last_station:
-                raise ValueError(
-                    f"Cruise last_station '{self.last_station}' conflicts with last leg last_station '{last_leg.last_station}'"
-                )
-        
-        # For single-leg cruises, ensure we have the required fields (either cruise-level or derived from legs)
-        # For multi-leg cruises, cruise-level fields are optional but each leg must have required fields
-        num_legs = len(self.legs) if self.legs else 0
-        if num_legs == 1:
-            if not self.departure_port:
-                raise ValueError("departure_port must be defined either at cruise level or in first leg")
-            if not self.arrival_port:
-                raise ValueError("arrival_port must be defined either at cruise level or in last leg")
-            if not self.first_station:
-                raise ValueError("first_station must be defined either at cruise level or in first leg")
-            if not self.last_station:
-                raise ValueError("last_station must be defined either at cruise level or in last leg")
-        else:
-            # For multi-leg cruises, just ensure each leg has required fields
-            for i, leg in enumerate(self.legs):
-                if not hasattr(leg, 'departure_port') or not leg.departure_port:
-                    raise ValueError(f"Leg {i+1} ('{leg.name}') must define departure_port")
-                if not hasattr(leg, 'arrival_port') or not leg.arrival_port:
-                    raise ValueError(f"Leg {i+1} ('{leg.name}') must define arrival_port")
-            
-        return self
 
-    @model_validator(mode="after") 
-    def validate_first_last_stations_execution_behavior(self):
-        """
-        Validate and provide guidance on first_station and last_station execution behavior.
-        
-        By default, first_station and last_station execute their defined activities 
-        (CTD casts, mooring deployments, etc.) in addition to serving as routing anchors.
-        This provides a complete operational workflow where the cruise begins and ends 
-        with actual scientific operations.
-        
-        If users want first_station and last_station to serve only as routing waypoints 
-        without executing activities, they should define these stations with zero duration
-        or create separate zero-duration waypoint stations.
-        
-        Returns
-        -------
-        CruiseConfig
-            Self for chaining.
-        """
-        import warnings
-        
-        # Check if any first_station or last_station stations are defined with zero duration,
-        # which would indicate the user wants them as waypoints only
-        for leg in self.legs:
-            # Get first and last stations for this leg (prefer leg-level over cruise-level)
-            leg_first_station = getattr(leg, 'first_station', None)
-            leg_last_station = getattr(leg, 'last_station', None)
-            
-            # Only fall back to cruise-level if leg-level is not defined
-            if leg_first_station is None:
-                leg_first_station = self.first_station
-            if leg_last_station is None:
-                leg_last_station = self.last_station
-            
-            # Check if first_station/last_station are defined with zero duration
-            # This would indicate user wants waypoint-only behavior
-            for station_name in [leg_first_station, leg_last_station]:
-                if station_name and hasattr(self, 'stations'):
-                    for station_def in self.stations:
-                        if (hasattr(station_def, 'name') and 
-                            station_def.name == station_name and 
-                            hasattr(station_def, 'duration') and 
-                            station_def.duration is not None and
-                            station_def.duration == 0.0):
-                            
-                            role = "first_station" if station_name == leg_first_station else "last_station"
-                            warnings.warn(
-                                f"💡 {role} '{station_name}' has zero duration - will serve as waypoint only. "
-                                f"To execute activities at routing anchors, omit duration field or set duration > 0.",
-                                UserWarning,
-                                stacklevel=2
-                            )
-        
+        # For multi-leg cruises, just ensure each leg has required fields
+        for i, leg in enumerate(self.legs):
+            if not hasattr(leg, "departure_port") or not leg.departure_port:
+                raise ValueError(f"Leg {i+1} ('{leg.name}') must define departure_port")
+            if not hasattr(leg, "arrival_port") or not leg.arrival_port:
+                raise ValueError(f"Leg {i+1} ('{leg.name}') must define arrival_port")
+
         return self
 
 
@@ -2297,6 +2190,7 @@ def expand_ctd_sections(
                 # Create appropriate list type based on config type
                 if hasattr(config, "copy"):  # CommentedMap
                     from ruamel.yaml.comments import CommentedSeq
+
                     config["stations"] = CommentedSeq()
                 else:
                     config["stations"] = []
@@ -2322,20 +2216,21 @@ def expand_ctd_sections(
                 # Convert station to CommentedMap if needed for comment support
                 if hasattr(config, "copy"):  # CommentedMap config
                     from ruamel.yaml.comments import CommentedMap
+
                     if not isinstance(station, CommentedMap):
                         commented_station = CommentedMap(station)
                         station = commented_station
-                
+
                 config["stations"].append(station)
-                
+
                 # Add expansion comment if config supports it (ruamel.yaml CommentedMap)
                 if hasattr(config["stations"], "yaml_add_eol_comment"):
                     station_index = len(config["stations"]) - 1
                     config["stations"].yaml_add_eol_comment(
-                        f" expanded by cruiseplan enrich --expand-sections", 
-                        station_index
+                        " expanded by cruiseplan enrich --expand-sections",
+                        station_index,
                     )
-                
+
                 station_names.append(station_name)
                 total_stations_created += 1
 
@@ -2352,22 +2247,19 @@ def expand_ctd_sections(
         if not config["transits"]:
             del config["transits"]
 
-    # Note: Global first_station and last_station references are no longer supported
-    # All anchor field updates are handled at the leg level below
-
-    # Update leg references
+    # Update leg waypoint references
     for leg in config.get("legs", []):
-        # Check leg-level anchor fields (first_station and last_station)
-        if leg.get("first_station") and leg["first_station"] in expanded_stations:
+        # Check leg-level waypoint fields (first_waypoint and last_waypoint)
+        if leg.get("first_waypoint") and leg["first_waypoint"] in expanded_stations:
             # Use the first station from the expansion
-            leg["first_station"] = expanded_stations[leg["first_station"]][0]
-            logger.info(f"Updated leg first_station to {leg['first_station']}")
-        
-        if leg.get("last_station") and leg["last_station"] in expanded_stations:
+            leg["first_waypoint"] = expanded_stations[leg["first_waypoint"]][0]
+            logger.info(f"Updated leg first_waypoint to {leg['first_waypoint']}")
+
+        if leg.get("last_waypoint") and leg["last_waypoint"] in expanded_stations:
             # Use the last station from the expansion
-            leg["last_station"] = expanded_stations[leg["last_station"]][-1]
-            logger.info(f"Updated leg last_station to {leg['last_station']}")
-            
+            leg["last_waypoint"] = expanded_stations[leg["last_waypoint"]][-1]
+            logger.info(f"Updated leg last_waypoint to {leg['last_waypoint']}")
+
         # Check direct stations in leg
         if leg.get("stations"):
             new_stations = []
@@ -2384,7 +2276,9 @@ def expand_ctd_sections(
             for item in leg["activities"]:
                 if isinstance(item, str) and item in expanded_stations:
                     new_activities.extend(expanded_stations[item])
-                    logger.info(f"Expanded activities list: {item} → {expanded_stations[item]}")
+                    logger.info(
+                        f"Expanded activities list: {item} → {expanded_stations[item]}"
+                    )
                 else:
                     new_activities.append(item)
             leg["activities"] = new_activities
@@ -2419,18 +2313,20 @@ def expand_ctd_sections(
     return config, summary
 
 
-def add_missing_required_fields(config_dict: Dict[str, Any]) -> Tuple[Dict[str, Any], List[str]]:
+def add_missing_required_fields(
+    config_dict: Dict[str, Any],
+) -> Tuple[Dict[str, Any], List[str]]:
     """
     Add missing required fields with sensible defaults and provide user feedback.
-    
-    Inserts missing fields at the top of the configuration after cruise_name with 
+
+    Inserts missing fields at the top of the configuration after cruise_name with
     appropriate comments indicating they were added by enrichment.
-    
+
     Parameters
     ----------
     config_dict : Dict[str, Any]
         Configuration dictionary loaded from YAML
-        
+
     Returns
     -------
     Tuple[Dict[str, Any], List[str]]
@@ -2444,29 +2340,71 @@ def add_missing_required_fields(config_dict: Dict[str, Any]) -> Tuple[Dict[str, 
     fields_to_add = []
 
     if "default_vessel_speed" not in config_dict:
-        fields_to_add.append(("default_vessel_speed", DEFAULT_VESSEL_SPEED_KT, f"{DEFAULT_VESSEL_SPEED_KT} knots"))
+        fields_to_add.append(
+            (
+                "default_vessel_speed",
+                DEFAULT_VESSEL_SPEED_KT,
+                f"{DEFAULT_VESSEL_SPEED_KT} knots",
+            )
+        )
         defaults_added.append(f"default_vessel_speed = {DEFAULT_VESSEL_SPEED_KT}")
-        logger.warning(f"⚠️ Added missing field: default_vessel_speed = {DEFAULT_VESSEL_SPEED_KT} knots")
+        logger.warning(
+            f"⚠️ Added missing field: default_vessel_speed = {DEFAULT_VESSEL_SPEED_KT} knots"
+        )
 
     if "calculate_transfer_between_sections" not in config_dict:
-        fields_to_add.append(("calculate_transfer_between_sections", DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS, str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS)))
-        defaults_added.append(f"calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}")
-        logger.warning(f"⚠️ Added missing field: calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}")
+        fields_to_add.append(
+            (
+                "calculate_transfer_between_sections",
+                DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+                str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS),
+            )
+        )
+        defaults_added.append(
+            f"calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}"
+        )
+        logger.warning(
+            f"⚠️ Added missing field: calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}"
+        )
 
     if "calculate_depth_via_bathymetry" not in config_dict:
-        fields_to_add.append(("calculate_depth_via_bathymetry", DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY, str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY)))
-        defaults_added.append(f"calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}")
-        logger.warning(f"⚠️ Added missing field: calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}")
+        fields_to_add.append(
+            (
+                "calculate_depth_via_bathymetry",
+                DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
+                str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY),
+            )
+        )
+        defaults_added.append(
+            f"calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}"
+        )
+        logger.warning(
+            f"⚠️ Added missing field: calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}"
+        )
 
     if "default_distance_between_stations" not in config_dict:
-        fields_to_add.append(("default_distance_between_stations", DEFAULT_STATION_SPACING_KM, f"{DEFAULT_STATION_SPACING_KM} km"))
-        defaults_added.append(f"default_distance_between_stations = {DEFAULT_STATION_SPACING_KM}")
-        logger.warning(f"⚠️ Added missing field: default_distance_between_stations = {DEFAULT_STATION_SPACING_KM} km")
+        fields_to_add.append(
+            (
+                "default_distance_between_stations",
+                DEFAULT_STATION_SPACING_KM,
+                f"{DEFAULT_STATION_SPACING_KM} km",
+            )
+        )
+        defaults_added.append(
+            f"default_distance_between_stations = {DEFAULT_STATION_SPACING_KM}"
+        )
+        logger.warning(
+            f"⚠️ Added missing field: default_distance_between_stations = {DEFAULT_STATION_SPACING_KM} km"
+        )
 
     if "start_date" not in config_dict:
-        fields_to_add.append(("start_date", DEFAULT_START_DATE, f"'{DEFAULT_START_DATE}' (placeholder)"))
+        fields_to_add.append(
+            ("start_date", DEFAULT_START_DATE, f"'{DEFAULT_START_DATE}' (placeholder)")
+        )
         defaults_added.append(f"start_date = '{DEFAULT_START_DATE}'")
-        logger.warning(f"⚠️ Added missing field: start_date = '{DEFAULT_START_DATE}' (placeholder)")
+        logger.warning(
+            f"⚠️ Added missing field: start_date = '{DEFAULT_START_DATE}' (placeholder)"
+        )
 
     # If we have fields to add, insert them properly at the top
     if fields_to_add:
@@ -2485,9 +2423,13 @@ def add_missing_required_fields(config_dict: Dict[str, Any]) -> Tuple[Dict[str, 
             config_dict.insert(insert_index, field_name, field_value)
 
             # Add comment indicating this was added by enrichment
-            config_dict.yaml_add_eol_comment("# default added by cruiseplan enrich", field_name)
+            config_dict.yaml_add_eol_comment(
+                "# default added by cruiseplan enrich", field_name
+            )
 
-        logger.info("ℹ️ Missing required fields added with defaults. Update these values as needed.")
+        logger.info(
+            "ℹ️ Missing required fields added with defaults. Update these values as needed."
+        )
 
     return config_dict, defaults_added
 
@@ -2495,14 +2437,14 @@ def add_missing_required_fields(config_dict: Dict[str, Any]) -> Tuple[Dict[str, 
 def add_missing_station_defaults(config_dict: Dict[str, Any]) -> int:
     """
     Add missing defaults to station definitions.
-    
+
     Adds default duration to mooring operations that lack this field.
-    
+
     Parameters
     ----------
     config_dict : Dict[str, Any]
         Configuration dictionary loaded from YAML
-        
+
     Returns
     -------
     int
@@ -2533,14 +2475,20 @@ def add_missing_station_defaults(config_dict: Dict[str, Any]) -> int:
                     elif "name" in keys:
                         insert_index = keys.index("name") + 1
 
-                    station_data.insert(insert_index, "duration", DEFAULT_MOORING_DURATION_MIN)
-                    station_data.yaml_add_eol_comment("# default added by cruiseplan enrich", "duration")
+                    station_data.insert(
+                        insert_index, "duration", DEFAULT_MOORING_DURATION_MIN
+                    )
+                    station_data.yaml_add_eol_comment(
+                        "# default added by cruiseplan enrich", "duration"
+                    )
                 else:
                     # Fallback for regular dict
                     station_data["duration"] = DEFAULT_MOORING_DURATION_MIN
 
                 station_defaults_added += 1
-                logger.warning(f"⚠️ Added missing mooring duration to station '{station_name}': {DEFAULT_MOORING_DURATION_MIN} minutes (999 hours)")
+                logger.warning(
+                    f"⚠️ Added missing mooring duration to station '{station_name}': {DEFAULT_MOORING_DURATION_MIN} minutes (999 hours)"
+                )
 
     # Process moorings for missing defaults (if moorings section exists)
     if "moorings" in config_dict:
@@ -2558,14 +2506,20 @@ def add_missing_station_defaults(config_dict: Dict[str, Any]) -> int:
                     if "name" in keys:
                         insert_index = keys.index("name") + 1
 
-                    mooring_data.insert(insert_index, "duration", DEFAULT_MOORING_DURATION_MIN)
-                    mooring_data.yaml_add_eol_comment("# default added by cruiseplan enrich", "duration")
+                    mooring_data.insert(
+                        insert_index, "duration", DEFAULT_MOORING_DURATION_MIN
+                    )
+                    mooring_data.yaml_add_eol_comment(
+                        "# default added by cruiseplan enrich", "duration"
+                    )
                 else:
                     # Fallback for regular dict
                     mooring_data["duration"] = DEFAULT_MOORING_DURATION_MIN
 
                 station_defaults_added += 1
-                logger.warning(f"⚠️ Added missing mooring duration to mooring '{mooring_name}': {DEFAULT_MOORING_DURATION_MIN} minutes (999 hours)")
+                logger.warning(
+                    f"⚠️ Added missing mooring duration to mooring '{mooring_name}': {DEFAULT_MOORING_DURATION_MIN} minutes (999 hours)"
+                )
 
     return station_defaults_added
 
@@ -2862,20 +2816,24 @@ def enrich_configuration(
                         "longitude": port_definition.longitude,
                         "position": {
                             "latitude": port_definition.latitude,
-                            "longitude": port_definition.longitude
-                        }
+                            "longitude": port_definition.longitude,
+                        },
                     }
                     # Add display_name if available
-                    if hasattr(port_definition, 'display_name'):
+                    if hasattr(port_definition, "display_name"):
                         catalog_port["display_name"] = port_definition.display_name
-                    elif hasattr(port_definition, 'name'):
+                    elif hasattr(port_definition, "name"):
                         catalog_port["display_name"] = port_definition.name
 
                     config_dict["ports"].append(catalog_port)
                     ports_expanded_count += 1
-                    logger.debug(f"Added port '{port_ref}' to catalog as '{catalog_port.get('display_name', port_ref)}'")
+                    logger.debug(
+                        f"Added port '{port_ref}' to catalog as '{catalog_port.get('display_name', port_ref)}'"
+                    )
                 except ValueError as e:
-                    logger.warning(f"Could not resolve port reference '{port_ref}': {e}")
+                    logger.warning(
+                        f"Could not resolve port reference '{port_ref}': {e}"
+                    )
 
         enrichment_summary["ports_expanded"] = ports_expanded_count
 

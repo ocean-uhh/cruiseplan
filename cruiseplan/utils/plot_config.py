@@ -7,15 +7,16 @@ This module provides:
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """
 
+from typing import Any, Dict
+
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
-from typing import Dict, Any
-
 
 # ============================================================================
 # COLORMAPS (moved from interactive/colormaps.py)
 # ============================================================================
+
 
 def create_bathymetry_colormap() -> mcolors.LinearSegmentedColormap:
     """
@@ -175,25 +176,23 @@ def get_colormap(name: str) -> mcolors.Colormap:
 PLOT_STYLES = {
     # Ports
     "departure_port": {
-        "marker": "s",  # square
-        "color": "#8B4513",  # saddle brown
-        "edgecolor": "#654321",  # darker brown
-        "size": 120,
+        "marker": "P",  # plus (filled)
+        "color": "#8B008B",  # dark purple
+        "edgecolor": "#4B0082",  # indigo
+        "size": 60,
         "alpha": 0.9,
-        "linewidth": 2,
-        "label": "Departure Port"
+        "linewidth": 1,
+        "label": "Port",
     },
-    
     "arrival_port": {
-        "marker": "s",  # square  
-        "color": "#CD853F",  # peru
-        "edgecolor": "#A0522D",  # sienna
-        "size": 120,
+        "marker": "P",  # plus (filled)
+        "color": "#8B008B",  # dark purple
+        "edgecolor": "#4B0082",  # indigo
+        "size": 60,
         "alpha": 0.9,
-        "linewidth": 2,
-        "label": "Arrival Port"
+        "linewidth": 1,
+        "label": "",
     },
-    
     # Stations
     "station": {
         "marker": "o",  # circle
@@ -201,57 +200,51 @@ PLOT_STYLES = {
         "edgecolor": "#800000",  # maroon
         "size": 80,
         "alpha": 0.8,
-        "linewidth": 1.5,
-        "label": "Stations"
+        "linewidth": 1,
+        "label": "Stations",
     },
-    
     "CTD": {
         "marker": "o",  # circle
         "color": "#FF0000",  # red
         "edgecolor": "#800000",  # maroon
-        "size": 80,
+        "size": 70,
         "alpha": 0.8,
         "linewidth": 1.5,
-        "label": "CTD Stations"
+        "label": "CTD Stations",
     },
-    
     # Moorings
     "mooring": {
-        "marker": "^",  # triangle up
-        "color": "#00FF00",  # green
-        "edgecolor": "#006400",  # dark green
-        "size": 100,
+        "marker": "*",  # star
+        "color": "#DED833",  # yellow
+        "edgecolor": "#020202",  # black
+        "size": 110,
         "alpha": 0.8,
-        "linewidth": 1.5,
-        "label": "Moorings"
+        "linewidth": 1,
+        "label": "Moorings",
     },
-    
     # Scientific Transits (lines)
     "transit": {
         "color": "#0000FF",  # blue
         "linewidth": 3,
         "linestyle": "-",  # solid
         "alpha": 0.7,
-        "label": "Scientific Transits"
+        "label": "Scientific Transits",
     },
-    
     "underway": {
         "color": "#0000FF",  # blue
-        "linewidth": 3,
+        "linewidth": 2,
         "linestyle": "-",  # solid
         "alpha": 0.7,
-        "label": "Underway Operations"
+        "label": "Underway Operations",
     },
-    
     # Navigation cruise tracks (dashed lines)
     "cruise_track": {
         "color": "#4169E1",  # royal blue
-        "linewidth": 2,
+        "linewidth": 1,
         "linestyle": "--",  # dashed
         "alpha": 0.6,
-        "label": "Cruise Track"
+        "label": "Cruise Track",
     },
-    
     # Areas (polygons)
     "area": {
         "facecolor": "#FFD700",  # gold
@@ -259,33 +252,33 @@ PLOT_STYLES = {
         "alpha": 0.4,
         "linewidth": 2,
         "linestyle": "-",
-        "label": "Survey Areas"
+        "label": "Survey Areas",
     },
-    
     "survey": {
         "facecolor": "#FFD700",  # gold
         "edgecolor": "#B8860B",  # dark goldenrod
         "alpha": 0.4,
         "linewidth": 2,
         "linestyle": "-",
-        "label": "Survey Areas"
+        "label": "Survey Areas",
     },
-    
     "bathymetry": {
-        "facecolor": "#87CEEB",  # sky blue
-        "edgecolor": "#4682B4",  # steel blue
+        "facecolor": "#26901D",  # green
+        "edgecolor": "#215D11",  # dark green
         "alpha": 0.3,
-        "linewidth": 2,
+        "linewidth": 1,
         "linestyle": "-",
-        "label": "Bathymetry Survey"
+        "label": "Bathymetry Survey",
     },
 }
 
 
-def get_plot_style(entity_type: str, operation_type: str = None, action: str = None) -> Dict[str, Any]:
+def get_plot_style(
+    entity_type: str, operation_type: str = None, action: str = None
+) -> Dict[str, Any]:
     """
     Get plot styling for a specific entity type.
-    
+
     Parameters
     ----------
     entity_type : str
@@ -294,7 +287,7 @@ def get_plot_style(entity_type: str, operation_type: str = None, action: str = N
         Operation type (e.g., 'CTD', 'mooring', 'underway', 'survey')
     action : str, optional
         Specific action (e.g., 'profile', 'deployment', 'ADCP', 'bathymetry')
-        
+
     Returns
     -------
     Dict[str, Any]
@@ -304,7 +297,7 @@ def get_plot_style(entity_type: str, operation_type: str = None, action: str = N
     for key in [action, operation_type, entity_type]:
         if key and key in PLOT_STYLES:
             return PLOT_STYLES[key].copy()
-    
+
     # Fallback to generic styling
     if entity_type.endswith("_port"):
         return PLOT_STYLES["departure_port"].copy()
@@ -318,7 +311,7 @@ def get_plot_style(entity_type: str, operation_type: str = None, action: str = N
 def get_legend_entries() -> Dict[str, Dict[str, Any]]:
     """
     Get legend entries for all plot styles.
-    
+
     Returns
     -------
     Dict[str, Dict[str, Any]]
@@ -328,13 +321,14 @@ def get_legend_entries() -> Dict[str, Dict[str, Any]]:
     for style_name, style_dict in PLOT_STYLES.items():
         if "label" in style_dict:
             legend_entries[style_dict["label"]] = style_dict.copy()
-    
+
     return legend_entries
 
 
 # ============================================================================
 # BACKWARDS COMPATIBILITY
 # ============================================================================
+
 
 def load_cpt_colormap(cpt_file: str) -> mcolors.LinearSegmentedColormap:
     """

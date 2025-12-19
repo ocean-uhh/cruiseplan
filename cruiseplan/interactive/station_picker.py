@@ -892,29 +892,31 @@ class StationPicker:
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "start_date": "1970-01-01T00:00:00Z",
-            "departure_port": "port_update",
-            "arrival_port": "port_update",
-            "first_station": (
-                yaml_stations[0]["name"]
-                if yaml_stations
-                else "UPDATE-first-station-name"
-            ),
-            "last_station": (
-                yaml_stations[-1]["name"]
-                if yaml_stations
-                else "UPDATE-last-station-name"
-            ),
             # Global catalog sections (stations, transits, areas) come BEFORE legs
             "stations": yaml_stations,
             "transits": yaml_sections,  # Schema expects 'transits' not 'sections'
             "areas": yaml_areas,
             # Scheduling/sequencing logic comes after catalog
+            # IMPORTANT: No global departure_port, arrival_port, first_station, last_station
+            # These fields are now defined at leg level to avoid validation conflicts
             "legs": (
                 [
                     {
                         "name": "Interactive_Survey",
+                        "departure_port": "port_update",  # Move from global to leg level
+                        "arrival_port": "port_update",  # Move from global to leg level
+                        "first_waypoint": (  # Renamed from first_station
+                            yaml_stations[0]["name"]
+                            if yaml_stations
+                            else "UPDATE-first-station-name"
+                        ),
+                        "last_waypoint": (  # Renamed from last_station
+                            yaml_stations[-1]["name"]
+                            if yaml_stations
+                            else "UPDATE-last-station-name"
+                        ),
                         "strategy": "sequential",
-                        "sequence": (
+                        "activities": (  # Use activities instead of sequence
                             [station["name"] for station in yaml_stations]
                             + [section["name"] for section in yaml_sections]
                             + [area["name"] for area in yaml_areas]

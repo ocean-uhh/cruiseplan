@@ -180,10 +180,319 @@ class LaTeXGenerator:
     ) -> str:
         """
         Generates the Work Days at Sea table from scheduler timeline.
+        If multiple legs exist, generates separate tables per leg.
+        """
+        # Check if we have multiple legs
+        leg_names = (
+            [leg.name for leg in config.legs]
+            if hasattr(config, "legs") and config.legs
+            else []
+        )
+
+        if len(leg_names) <= 1:
+            # Single leg or no legs defined - generate single table
+            return self._generate_single_work_days_table(config, timeline)
+        else:
+            # Multiple legs - generate unified table with leg information in Area column
+            return self._generate_unified_multi_leg_work_days_table(
+                config, timeline, leg_names
+            )
+
+    def _generate_single_work_days_table(
+        self, config: CruiseConfig, timeline: List[ActivityRecord]
+    ) -> str:
+        """
+        Generate a single work days table for the entire cruise.
         """
         template = self.env.get_template("work_days_table.tex.j2")
 
-        # Create summary breakdown from timeline activities
+        # Calculate activity groups for this method
+        station_activities = [a for a in timeline if a["activity"] == "Station"]
+        mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
+        area_activities = [a for a in timeline if a["activity"] == "Area"]
+        all_transits = [a for a in timeline if a["activity"] == "Transit"]
+        scientific_transits = [
+            a for a in all_transits if a.get("action")
+        ]  # Scientific transits have actions
+
+        station_duration_h = sum(a["duration_minutes"] for a in station_activities) / 60
+        mooring_duration_h = sum(a["duration_minutes"] for a in mooring_activities) / 60
+        area_duration_h = sum(a["duration_minutes"] for a in area_activities) / 60
+
+        # Calculate scientific operation durations by action
+        scientific_op_durations_h = {}
+        for activity in scientific_transits:
+            action = activity.get("action", "Uncategorized")
+            duration_h = activity["duration_minutes"] / 60
+            scientific_op_durations_h[action] = (
+                scientific_op_durations_h.get(action, 0.0) + duration_h
+            )
+
+        total_scientific_op_h = sum(scientific_op_durations_h.values())
+
+        ACTION_TO_DISPLAY_NAME = {
+            "survey": "Survey Operations",
+            "ADCP": "ADCP Survey",
+            "bathymetry": "Bathymetric Survey",
+        }
+
+        # Calculate transit variables that are used later
+        navigation_transits = [
+            a for a in all_transits if not a.get("action")
+        ]  # Navigation transits don't have actions
+
+        # Simple transit categorization
+        transit_to_area_h = 0.0
+        transit_from_area_h = 0.0
+        transit_within_area_h = 0.0
+
+        if navigation_transits:
+            # First transit is to area, last is from area, rest are within area
+            if len(navigation_transits) >= 1:
+                transit_to_area_h = navigation_transits[0]["duration_minutes"] / 60
+            if len(navigation_transits) >= 2:
+                transit_from_area_h = navigation_transits[-1]["duration_minutes"] / 60
+            if len(navigation_transits) > 2:
+                within_transits = navigation_transits[1:-1]
+                transit_within_area_h = (
+                    sum(t["duration_minutes"] for t in within_transits) / 60
+                )
+
+        total_navigation_transit_h = (
+            transit_to_area_h + transit_from_area_h + transit_within_area_h
+        )
+
+        # Generate work days rows for the timeline
+        summary_rows = self._generate_work_days_rows_for_timeline(timeline)
+
+        # 2. Station Operations
+        if station_activities:
+            summary_rows.append(
+                {
+                    "area": "",  # Area will be populated by caller for multi-leg
+                    "activity": "CTD/Station Operations",
+                    "duration_h": f"{station_duration_h:.1f}",
+                    "transit_h": "",  # No transit time for this row
+                    "notes": f"{len(station_activities)} stations",
+                }
+            )
+
+        # 3. Mooring Operations
+        if mooring_activities:
+            summary_rows.append(
+                {
+                    "area": "",  # Area will be populated by caller for multi-leg
+                    "activity": "Mooring Operations",
+                    "duration_h": f"{mooring_duration_h:.1f}",
+                    "transit_h": "",  # No transit time for this row
+                    "notes": f"{len(mooring_activities)} operations",
+                }
+            )
+
+        # 4. Scientific Transits (Grouped by action)
+        # Sort keys for predictable output
+        sorted_actions = sorted(scientific_op_durations_h.keys())
+        for action in sorted_actions:
+            duration_h = scientific_op_durations_h[action]
+            display_name = ACTION_TO_DISPLAY_NAME.get(action, f"{action} Operations")
+
+            # Count the number of segments for the notes field
+            num_activities = len(
+                [a for a in scientific_transits if a.get("action") == action]
+            )
+
+            summary_rows.append(
+                {
+                    "area": "",  # Area will be populated by caller for multi-leg
+                    "activity": display_name,
+                    "duration_h": f"{duration_h:.1f}",
+                    "transit_h": "",  # Scientific transit duration counts as operation time
+                    "notes": f"{num_activities} segments",
+                }
+            )
+
+        # 5. Scientific survey (Area)
+        if area_activities:
+            summary_rows.append(
+                {
+                    "activity": "Area Survey Operations",
+                    "duration_h": f"{area_duration_h:.1f}",
+                    "transit_h": "",  # No transit time for this row
+                    "notes": f"{len(area_activities)} areas",
+                }
+            )
+
+        # 6. Navigation Transit (Within Area)
+        if transit_within_area_h > 0:
+            summary_rows.append(
+                {
+                    "activity": "Transit within area",
+                    "duration_h": f"{transit_within_area_h:.1f}",
+                    "transit_h": "",  # No operation duration
+                    "notes": "Between operations",
+                }
+            )
+
+        # 7. Navigation Transit (From Area)
+        if transit_from_area_h > 0:
+            # Find last operational activity (non-port) as working area origin
+            last_operation = None
+            for activity in reversed(timeline):
+                if activity["activity"] not in ["Port_Departure", "Port_Arrival"]:
+                    last_operation = activity
+                    break
+            origin = last_operation["label"] if last_operation else "working area"
+
+            summary_rows.append(
+                {
+                    "area": "",  # Area will be populated by caller for multi-leg
+                    "activity": "Transit from area",
+                    "duration_h": "",  # No operation duration
+                    "transit_h": f"{transit_from_area_h:.1f}",
+                    "notes": f"{origin} to arrival port",
+                }
+            )
+
+        # Calculate totals
+        total_operation_duration_h = (
+            station_duration_h
+            + mooring_duration_h
+            + area_duration_h
+            + total_scientific_op_h  # Scientific transit duration is operation time
+            + transit_within_area_h  # Within-area transit counted as operation time
+        )
+        total_transit_h = (
+            total_navigation_transit_h  # Only pure navigation transit duration
+        )
+        total_duration_h = total_operation_duration_h + total_transit_h
+        total_days = total_duration_h / 24
+
+        paginated_data = self._paginate_data(summary_rows, "work_days")
+
+        return template.render(
+            cruise_name=str(config.cruise_name).replace("_", "-"),
+            pages=paginated_data,
+            total_duration_h=f"{total_operation_duration_h:.1f}",
+            total_transit_h=f"{total_transit_h:.1f}",
+            total_days=f"{total_days:.1f}",
+        )
+
+    def _generate_multi_leg_work_days_tables(
+        self, config: CruiseConfig, timeline: List[ActivityRecord], leg_names: List[str]
+    ) -> str:
+        """
+        Generate separate work days tables for each leg.
+        """
+        template = self.env.get_template("work_days_table.tex.j2")
+
+        all_tables = []
+
+        for leg_name in leg_names:
+            # Filter timeline activities for this leg
+            leg_timeline = [
+                activity
+                for activity in timeline
+                if activity.get("leg_name") == leg_name
+            ]
+
+            if not leg_timeline:
+                continue
+
+            # Generate work days data for this leg
+            summary_rows = self._generate_work_days_rows_for_timeline(leg_timeline)
+
+            # Calculate totals for this leg
+            total_operation_duration_h = 0.0
+            total_transit_h = 0.0
+
+            for row in summary_rows:
+                if row["duration_h"] and row["duration_h"] != "":
+                    total_operation_duration_h += float(row["duration_h"])
+                if row["transit_h"] and row["transit_h"] != "":
+                    total_transit_h += float(row["transit_h"])
+
+            total_duration_h = total_operation_duration_h + total_transit_h
+            total_days = total_duration_h / 24
+
+            paginated_data = self._paginate_data(summary_rows, "work_days")
+
+            # Generate table for this leg
+            leg_table = template.render(
+                cruise_name=f"{str(config.cruise_name).replace('_', '-')} - {leg_name.replace('_', '-')}",
+                pages=paginated_data,
+                total_duration_h=f"{total_operation_duration_h:.1f}",
+                total_transit_h=f"{total_transit_h:.1f}",
+                total_days=f"{total_days:.1f}",
+            )
+
+            all_tables.append(leg_table)
+
+        # Combine all leg tables with page breaks
+        return "\n\n\\clearpage\n\n".join(all_tables)
+
+    def _generate_unified_multi_leg_work_days_table(
+        self, config: CruiseConfig, timeline: List[ActivityRecord], leg_names: List[str]
+    ) -> str:
+        """
+        Generate a unified work days table with leg information in the Area column.
+        """
+        template = self.env.get_template("work_days_table.tex.j2")
+
+        all_summary_rows = []
+        total_operation_duration_h = 0.0
+        total_transit_h = 0.0
+
+        for leg_name in leg_names:
+            # Filter timeline activities for this leg
+            leg_timeline = [
+                activity
+                for activity in timeline
+                if activity.get("leg_name") == leg_name
+            ]
+
+            if not leg_timeline:
+                continue
+
+            # Generate work days data for this leg
+            leg_summary_rows = self._generate_work_days_rows_for_timeline(leg_timeline)
+
+            # Add leg name to Area column for each row in this leg
+            sanitized_leg_name = leg_name.replace("_", "-")
+            for i, row in enumerate(leg_summary_rows):
+                if i == 0:
+                    # First row shows the leg name
+                    row["area"] = sanitized_leg_name
+                else:
+                    # Subsequent rows leave area blank for cleaner table appearance
+                    row["area"] = ""
+                all_summary_rows.append(row)
+
+            # Calculate totals across all legs
+            for row in leg_summary_rows:
+                if row["duration_h"] and row["duration_h"] != "":
+                    total_operation_duration_h += float(row["duration_h"])
+                if row["transit_h"] and row["transit_h"] != "":
+                    total_transit_h += float(row["transit_h"])
+
+        total_duration_h = total_operation_duration_h + total_transit_h
+        total_days = total_duration_h / 24
+
+        paginated_data = self._paginate_data(all_summary_rows, "work_days")
+
+        return template.render(
+            cruise_name=str(config.cruise_name).replace("_", "-"),
+            pages=paginated_data,
+            total_duration_h=f"{total_operation_duration_h:.1f}",
+            total_transit_h=f"{total_transit_h:.1f}",
+            total_days=f"{total_days:.1f}",
+        )
+
+    def _generate_work_days_rows_for_timeline(
+        self, timeline: List[ActivityRecord]
+    ) -> List[Dict[str, str]]:
+        """
+        Extract work days summary rows from a timeline (used for both single and multi-leg).
+        """
         summary_rows = []
 
         # Group activities by type and classify transits
@@ -243,12 +552,26 @@ class LaTeXGenerator:
 
         # 1. Navigation Transit (To Area)
         if transit_to_area_h > 0:
+            # Find first operational activity (non-port) as working area destination
+            first_operation = next(
+                (
+                    activity
+                    for activity in timeline
+                    if activity["activity"] not in ["Port_Departure", "Port_Arrival"]
+                ),
+                None,
+            )
+            destination = (
+                first_operation["label"] if first_operation else "working area"
+            )
+
             summary_rows.append(
                 {
+                    "area": "",  # Area will be populated by caller for multi-leg
                     "activity": "Transit to area",
                     "duration_h": "",  # No operation duration
                     "transit_h": f"{transit_to_area_h:.1f}",
-                    "notes": f"{getattr(config.departure_port, 'name', 'Departure port')} to {config.first_station}",
+                    "notes": f"Departure port to {destination}",
                 }
             )
 
@@ -256,6 +579,7 @@ class LaTeXGenerator:
         if station_activities:
             summary_rows.append(
                 {
+                    "area": "",  # Area will be populated by caller for multi-leg
                     "activity": "CTD/Station Operations",
                     "duration_h": f"{station_duration_h:.1f}",
                     "transit_h": "",  # No transit time for this row
@@ -267,6 +591,7 @@ class LaTeXGenerator:
         if mooring_activities:
             summary_rows.append(
                 {
+                    "area": "",  # Area will be populated by caller for multi-leg
                     "activity": "Mooring Operations",
                     "duration_h": f"{mooring_duration_h:.1f}",
                     "transit_h": "",  # No transit time for this row
@@ -274,83 +599,67 @@ class LaTeXGenerator:
                 }
             )
 
-        # 4. Scientific Transits (Grouped by action)
-        # Sort keys for predictable output
-        sorted_actions = sorted(scientific_op_durations_h.keys())
-        for action in sorted_actions:
-            duration_h = scientific_op_durations_h[action]
-            display_name = ACTION_TO_DISPLAY_NAME.get(action, f"{action} Operations")
+        # 4. Scientific Transit Operations (counted as operation duration)
+        if scientific_transits:
+            for action, duration_h in scientific_op_durations_h.items():
+                display_name = ACTION_TO_DISPLAY_NAME.get(
+                    action, f"{action.title()} Survey"
+                )
+                summary_rows.append(
+                    {
+                        "area": "",  # Area will be populated by caller for multi-leg
+                        "activity": display_name,
+                        "duration_h": f"{duration_h:.1f}",
+                        "transit_h": "",  # No transit time, this is operation time
+                        "notes": "Scientific transit operation",
+                    }
+                )
 
-            # Count the number of segments for the notes field
-            num_activities = len(
-                [a for a in scientific_transits if a.get("action") == action]
-            )
-
-            summary_rows.append(
-                {
-                    "activity": display_name,
-                    "duration_h": f"{duration_h:.1f}",
-                    "transit_h": "",  # Scientific transit duration counts as operation time
-                    "notes": f"{num_activities} segments",
-                }
-            )
-
-        # 5. Scientific survey (Area)
+        # 5. Area/Survey Operations
         if area_activities:
             summary_rows.append(
                 {
+                    "area": "",  # Area will be populated by caller for multi-leg
                     "activity": "Area Survey Operations",
                     "duration_h": f"{area_duration_h:.1f}",
                     "transit_h": "",  # No transit time for this row
-                    "notes": f"{len(area_activities)} areas",
+                    "notes": f"{len(area_activities)} survey areas",
                 }
             )
 
-        # 6. Navigation Transit (Within Area)
+        # 6. Within-area navigation transits (counted as operation time)
         if transit_within_area_h > 0:
             summary_rows.append(
                 {
-                    "activity": "Transit within area",
+                    "area": "",  # Area will be populated by caller for multi-leg
+                    "activity": "Within-area transits",
                     "duration_h": f"{transit_within_area_h:.1f}",
-                    "transit_h": "",  # No operation duration
-                    "notes": "Between operations",
+                    "transit_h": "",  # No transit time, this is operation time
+                    "notes": "Navigation within working areas",
                 }
             )
 
         # 7. Navigation Transit (From Area)
         if transit_from_area_h > 0:
+            # Find last operational activity (non-port) as working area origin
+            last_operation = None
+            for activity in reversed(timeline):
+                if activity["activity"] not in ["Port_Departure", "Port_Arrival"]:
+                    last_operation = activity
+                    break
+            origin = last_operation["label"] if last_operation else "working area"
+
             summary_rows.append(
                 {
+                    "area": "",  # Area will be populated by caller for multi-leg
                     "activity": "Transit from area",
                     "duration_h": "",  # No operation duration
                     "transit_h": f"{transit_from_area_h:.1f}",
-                    "notes": f"{config.last_station} to {getattr(config.arrival_port, 'name', 'Arrival port')}",
+                    "notes": f"{origin} to arrival port",
                 }
             )
 
-        # Calculate totals
-        total_operation_duration_h = (
-            station_duration_h
-            + mooring_duration_h
-            + area_duration_h
-            + total_scientific_op_h  # Scientific transit duration is operation time
-            + transit_within_area_h  # Within-area transit counted as operation time
-        )
-        total_transit_h = (
-            total_navigation_transit_h  # Only pure navigation transit duration
-        )
-        total_duration_h = total_operation_duration_h + total_transit_h
-        total_days = total_duration_h / 24
-
-        paginated_data = self._paginate_data(summary_rows, "work_days")
-
-        return template.render(
-            cruise_name=str(config.cruise_name).replace("_", "-"),
-            pages=paginated_data,
-            total_duration_h=f"{total_operation_duration_h:.1f}",
-            total_transit_h=f"{total_transit_h:.1f}",
-            total_days=f"{total_days:.1f}",
-        )
+        return summary_rows
 
 
 def generate_latex_tables(

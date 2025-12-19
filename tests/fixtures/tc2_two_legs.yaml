@@ -17,8 +17,12 @@ legs:
   - name: "Leg_Atlantic"
     departure_port: port_halifax
     arrival_port: port_bremerhaven
+    first_waypoint: STN_001
+    last_waypoint: STN_001
     activities: [STN_001]
   - name: "Leg_North" 
     departure_port: port_bremerhaven
     arrival_port: port_reykjavik
+    first_waypoint: STN_002
+    last_waypoint: STN_002
     activities: [STN_002]

@@ -18,9 +18,6 @@ class TestScheduleCommand:
         """Get path to test fixture file."""
         return Path(__file__).parent.parent / "fixtures" / filename
 
-
-
-
     def test_schedule_nonexistent_file(self, tmp_path):
         """Test handling of nonexistent input file."""
         nonexistent_file = tmp_path / "nonexistent.yaml"
@@ -37,7 +34,6 @@ class TestScheduleCommand:
 
         with pytest.raises(SystemExit, match="1"):
             main(args)
-
 
     def test_schedule_nonexistent_leg_real_file(self, tmp_path):
         """Test handling of nonexistent leg name."""

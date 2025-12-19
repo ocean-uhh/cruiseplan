@@ -13,7 +13,7 @@ from cruiseplan.core.operations import BaseOperation
 
 def optimize_composite_route(children: List[BaseOperation], rules: Any) -> float:
     """
-    Calculate total duration for operations within a CompositeOperation.
+    Calculate total duration for operations within a Cluster.
 
     This function should eventually solve a Constrained Traveling Salesman Problem (TSP)
     to optimize the order and routing of operations. For now, it returns the simple

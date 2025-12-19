@@ -132,25 +132,15 @@ class Cruise:
         identifiers into their corresponding StationDefinition and
         TransitDefinition objects from the registries.
 
-        Validates that global anchor stations (first_station and last_station)
-        exist in the station registry before proceeding with resolution.
+        Resolves all references within legs to their corresponding definitions.
 
         Raises
         ------
         ReferenceError
             If any referenced station or transit ID is not found in the
-            corresponding registry, or if global anchor stations are missing.
+            corresponding registry.
         """
-        # Validate Global Anchors exist (only if defined - they're optional for multi-leg cruises)
-        if self.config.first_station and not self._anchor_exists_in_catalog(self.config.first_station):
-            raise ReferenceError(
-                f"Global anchor 'first_station': {self.config.first_station} not found in catalog."
-            )
-
-        if self.config.last_station and not self._anchor_exists_in_catalog(self.config.last_station):
-            raise ReferenceError(
-                f"Global anchor 'last_station': {self.config.last_station} not found in catalog."
-            )
+        # Note: Global anchor validation removed - waypoints are now handled at leg level
 
         for leg in self.config.legs:
             # Resolve Direct Leg Stations
@@ -258,28 +248,32 @@ class Cruise:
     def _resolve_port_reference(self, port_ref) -> PortDefinition:
         """
         Resolve a port reference checking catalog first, then global registry.
-        
+
         Follows the catalog-based pattern where string references are first
         checked against the local port catalog, then fall back to global
         port registry for resolution.
-        
+
         Parameters
         ----------
         port_ref : Union[str, PortDefinition, dict]
             Port reference to resolve.
-            
+
         Returns
         -------
         PortDefinition
             Resolved port definition object.
-            
+
         Raises
         ------
         ReferenceError
             If string reference is not found in catalog or global registry.
         """
         # Catch-all for any port-like object at the beginning
-        if hasattr(port_ref, 'name') and hasattr(port_ref, 'latitude') and hasattr(port_ref, 'longitude'):
+        if (
+            hasattr(port_ref, "name")
+            and hasattr(port_ref, "latitude")
+            and hasattr(port_ref, "longitude")
+        ):
             return port_ref
 
         # If already a PortDefinition object, return as-is
@@ -303,7 +297,9 @@ class Cruise:
                     return PortDefinition(**catalog_port)
                 else:
                     # Handle unexpected type in catalog
-                    raise ReferenceError(f"Unexpected type in port catalog: {type(catalog_port)}")
+                    raise ReferenceError(
+                        f"Unexpected type in port catalog: {type(catalog_port)}"
+                    )
 
             # Fall back to global port registry
             try:
@@ -318,17 +314,21 @@ class Cruise:
     def _resolve_config_ports(self):
         """
         Resolve top-level config departure_port and arrival_port references.
-        
+
         This method resolves string references in the cruise configuration's
         top-level departure_port and arrival_port fields to PortDefinition objects.
         """
-        if hasattr(self.config, 'departure_port') and self.config.departure_port:
+        if hasattr(self.config, "departure_port") and self.config.departure_port:
             if isinstance(self.config.departure_port, str):
-                self.config.departure_port = self._resolve_port_reference(self.config.departure_port)
+                self.config.departure_port = self._resolve_port_reference(
+                    self.config.departure_port
+                )
 
-        if hasattr(self.config, 'arrival_port') and self.config.arrival_port:
+        if hasattr(self.config, "arrival_port") and self.config.arrival_port:
             if isinstance(self.config.arrival_port, str):
-                self.config.arrival_port = self._resolve_port_reference(self.config.arrival_port)
+                self.config.arrival_port = self._resolve_port_reference(
+                    self.config.arrival_port
+                )
 
     def _convert_leg_definitions_to_legs(self) -> List[Leg]:
         """
@@ -380,8 +380,8 @@ class Cruise:
                 description=leg_def.description,
                 strategy=leg_def.strategy or StrategyEnum.SEQUENTIAL,
                 ordered=leg_def.ordered if leg_def.ordered is not None else True,
-                first_station=leg_def.first_station,
-                last_station=leg_def.last_station,
+                first_waypoint=leg_def.first_waypoint,
+                last_waypoint=leg_def.last_waypoint,
             )
 
             # Apply parameter inheritance (leg overrides cruise defaults)
@@ -446,15 +446,15 @@ class Cruise:
     def _anchor_exists_in_catalog(self, anchor_ref: str) -> bool:
         """
         Check if an anchor reference exists in any catalog registry.
-        
+
         Anchors can be stations, areas, or other operation entities
         that can serve as routing points for maritime planning.
-        
+
         Parameters
         ----------
         anchor_ref : str
             String reference to check against all registries.
-            
+
         Returns
         -------
         bool
@@ -463,13 +463,13 @@ class Cruise:
         # Check stations registry (includes moorings as operation_type=mooring)
         if anchor_ref in self.station_registry:
             return True
-            
+
         # Check areas registry
         if anchor_ref in self.area_registry:
             return True
-            
+
         # Check transits registry for scientific transits that can serve as anchors
         if anchor_ref in self.transit_registry:
             return True
-            
+
         return False

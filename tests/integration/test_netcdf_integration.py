@@ -10,9 +10,9 @@ import netCDF4 as nc
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.validation import enrich_configuration
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
 from cruiseplan.utils.config import ConfigLoader
-from cruiseplan.core.validation import enrich_configuration
 
 # Available test fixtures
 TEST_FIXTURES = [
@@ -37,14 +37,16 @@ class TestNetCDFIntegration:
     def test_netcdf_generation_all_fixtures(self, yaml_path):
         """Test NetCDF generation with all available YAML fixtures."""
         # Create temporary enriched file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yaml", delete=False
+        ) as tmp_file:
             enriched_path = Path(tmp_file.name)
-            
+
         try:
             # Enrich the fixture file to add missing global fields
             # This will save the enriched config to the temporary file
             enrich_configuration(yaml_path, output_path=enriched_path)
-            
+
             # Load enriched configuration
             loader = ConfigLoader(str(enriched_path))
             config = loader.load()
@@ -60,7 +62,9 @@ class TestNetCDFIntegration:
             netcdf_files = generate_netcdf_outputs(config, timeline, output_path)
 
             # Verify files were created
-            assert len(netcdf_files) == 4, f"Should create 4 NetCDF files for {yaml_path}"
+            assert (
+                len(netcdf_files) == 4
+            ), f"Should create 4 NetCDF files for {yaml_path}"
 
             # Verify all files exist and have content
             for netcdf_file in netcdf_files:
@@ -80,17 +84,11 @@ class TestNetCDFIntegration:
                     assert hasattr(
                         ds, "featureType"
                     ), f"Missing featureType attribute in {netcdf_file}"
-        
+
         finally:
             # Clean up temporary enriched file
             if enriched_path.exists():
                 enriched_path.unlink()
-
-
-
-
-
-
 
     def _verify_cf_compliance(self, netcdf_file: Path):
         """Verify CF compliance for a single NetCDF file."""
@@ -120,14 +118,15 @@ class TestNetCDFIntegration:
                         var, "long_name"
                     ), f"Variable {var_name} missing 'long_name' attribute"
 
-
     def test_empty_configuration_handling(self):
         """Test NetCDF generation with minimal/empty configuration."""
         # Create a minimal config with no stations
-        from cruiseplan.core.validation import CruiseConfig, PortDefinition
+        from cruiseplan.core.validation import (
+            CruiseConfig,
+            LegDefinition,
+            PortDefinition,
+        )
 
-        from cruiseplan.core.validation import LegDefinition
-        
         minimal_config = CruiseConfig(
             cruise_name="Empty_Test_Cruise",
             default_vessel_speed=10.0,
@@ -138,11 +137,15 @@ class TestNetCDFIntegration:
             legs=[
                 LegDefinition(
                     name="empty_leg",
-                    departure_port=PortDefinition(name="Port A", latitude=0.0, longitude=0.0),
-                    arrival_port=PortDefinition(name="Port B", latitude=1.0, longitude=1.0),
+                    departure_port=PortDefinition(
+                        name="Port A", latitude=0.0, longitude=0.0
+                    ),
+                    arrival_port=PortDefinition(
+                        name="Port B", latitude=1.0, longitude=1.0
+                    ),
                     first_station="none",
                     last_station="none",
-                    activities=[]
+                    activities=[],
                 )
             ],
         )

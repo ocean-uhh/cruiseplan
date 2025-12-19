@@ -6,8 +6,6 @@ from argparse import Namespace
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-import pytest
-
 from cruiseplan.cli.map import main
 
 
@@ -105,11 +103,15 @@ class TestMapCommand:
 
     @patch("cruiseplan.cli.map.generate_map_from_yaml")
     @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_cruise_name_sanitization(self, mock_load_cruise, mock_generate, tmp_path):
+    def test_map_cruise_name_sanitization(
+        self, mock_load_cruise, mock_generate, tmp_path
+    ):
         """Test cruise name sanitization for filename generation."""
         # Setup mocks with problematic cruise name
         mock_load_cruise_instance = MagicMock()
-        mock_load_cruise_instance.config.cruise_name = "Test Cruise/With Special Characters"
+        mock_load_cruise_instance.config.cruise_name = (
+            "Test Cruise/With Special Characters"
+        )
         mock_load_cruise_instance.station_registry = {"STN_001": MagicMock()}
         mock_load_cruise.return_value = mock_load_cruise_instance
 
@@ -139,7 +141,9 @@ class TestMapCommand:
 
     @patch("cruiseplan.cli.map.generate_map_from_yaml")
     @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_with_port_info(self, mock_load_cruise, mock_generate, tmp_path, capsys):
+    def test_map_with_port_info(
+        self, mock_load_cruise, mock_generate, tmp_path, capsys
+    ):
         """Test map generation with departure and arrival ports."""
         # Setup mocks with port information
         mock_load_cruise_instance = MagicMock()
@@ -298,4 +302,3 @@ class TestMapCommand:
 
         # Verify error handling and verbose output
         assert result == 1
-

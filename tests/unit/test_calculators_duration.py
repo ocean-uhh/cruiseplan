@@ -11,7 +11,7 @@ from cruiseplan.core.validation import CruiseConfig, PortDefinition
 @pytest.fixture
 def mock_config():
     from cruiseplan.core.validation import LegDefinition
-    
+
     return CruiseConfig(
         cruise_name="Test",
         start_date="2025-01-01T08:00:00",
@@ -26,7 +26,7 @@ def mock_config():
                 arrival_port=PortDefinition(name="B", latitude=0.0, longitude=0.0),
                 first_station="S1",
                 last_station="S1",
-                activities=[]
+                activities=[],
             )
         ],
         ctd_descent_rate=1.0,  # 60 m/min
@@ -83,7 +83,7 @@ def test_custom_day_window_wait():
     """Verify wait time respects custom daylight hours (e.g., High Latitude Summer)."""
     # Create config with LONG days (04:00 to 22:00)
     from cruiseplan.core.validation import LegDefinition
-    
+
     cfg = CruiseConfig(
         cruise_name="Summer Sun",
         start_date="2025-06-01T00:00:00",
@@ -98,7 +98,7 @@ def test_custom_day_window_wait():
                 arrival_port=PortDefinition(name="B", latitude=0, longitude=0),
                 first_station="S1",
                 last_station="S1",
-                activities=[]
+                activities=[],
             )
         ],
         day_start_hour=4,  # Sunrise 04:00

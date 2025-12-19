@@ -179,9 +179,6 @@ class TestScheduleIntegration:
         return Path(__file__).parent.parent / "fixtures" / filename
 
 
-
-
-
 class TestWorkflowIntegration:
     """Test complete workflow integration."""
 

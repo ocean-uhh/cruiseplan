@@ -47,7 +47,7 @@ class TestCluster:
         cluster = Cluster(
             name="Boundary_Cluster",
             strategy=StrategyEnum.SPATIAL_INTERLEAVED,
-            ordered=False  # Allow reordering within cluster
+            ordered=False,  # Allow reordering within cluster
         )
 
         # Add multiple operations
@@ -76,18 +76,22 @@ class TestCluster:
     def test_cluster_from_definition(self):
         """Test creating cluster from ClusterDefinition."""
         # Mock ClusterDefinition
-        cluster_def = type('ClusterDefinition', (), {
-            'name': 'Generated_Cluster',
-            'description': 'From definition',
-            'strategy': StrategyEnum.SEQUENTIAL,
-            'ordered': True,
-            'activities': ['STN_001', 'STN_002'],
-        })()
+        cluster_def = type(
+            "ClusterDefinition",
+            (),
+            {
+                "name": "Generated_Cluster",
+                "description": "From definition",
+                "strategy": StrategyEnum.SEQUENTIAL,
+                "ordered": True,
+                "activities": ["STN_001", "STN_002"],
+            },
+        )()
 
         cluster = Cluster.from_definition(cluster_def)
 
-        assert cluster.name == 'Generated_Cluster'
-        assert cluster.description == 'From definition'
+        assert cluster.name == "Generated_Cluster"
+        assert cluster.description == "From definition"
         assert cluster.strategy == StrategyEnum.SEQUENTIAL
         assert cluster.ordered is True
 
@@ -100,7 +104,7 @@ class TestClusterBoundaryLogic:
         cluster = Cluster(
             name="Ordered_Cluster",
             strategy=StrategyEnum.SEQUENTIAL,
-            ordered=True  # Strict ordering
+            ordered=True,  # Strict ordering
         )
 
         operations = [
@@ -123,7 +127,7 @@ class TestClusterBoundaryLogic:
         cluster = Cluster(
             name="Flexible_Cluster",
             strategy=StrategyEnum.SPATIAL_INTERLEAVED,
-            ordered=False  # Allow reordering
+            ordered=False,  # Allow reordering
         )
 
         operations = [

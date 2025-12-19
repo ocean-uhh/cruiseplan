@@ -88,7 +88,9 @@ legs:
         Cruise(bad_yaml)
 
     assert "GHOST_STATION" in str(exc.value)
-    assert "not found in catalog" in str(exc.value)
+    assert "not found in Catalog" in str(exc.value)
+
+
 """
 Tests to boost validation.py coverage.
 

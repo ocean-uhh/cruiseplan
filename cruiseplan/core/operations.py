@@ -55,6 +55,36 @@ class BaseOperation(ABC):
         """
         pass
 
+    @abstractmethod
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Get the geographic entry point for this operation.
+
+        For point operations (stations, moorings): same as operation location.
+        For line operations (transits): start of the route.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the operation's entry point.
+        """
+        pass
+
+    @abstractmethod
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Get the geographic exit point for this operation.
+
+        For point operations (stations, moorings): same as operation location.
+        For line operations (transits): end of the route.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the operation's exit point.
+        """
+        pass
+
 
 class PointOperation(BaseOperation):
     """
@@ -154,6 +184,32 @@ class PointOperation(BaseOperation):
             )
 
         return 0.0
+
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Get the geographic entry point for this point operation.
+
+        For point operations, entry and exit are the same location.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the operation location.
+        """
+        return self.position
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Get the geographic exit point for this point operation.
+
+        For point operations, entry and exit are the same location.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the operation location.
+        """
+        return self.position
 
     @classmethod
     def from_pydantic(cls, obj: StationDefinition) -> "PointOperation":
@@ -275,6 +331,36 @@ class LineOperation(BaseOperation):
         duration_hours = route_distance_nm / vessel_speed
         return duration_hours * 60.0
 
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Get the geographic entry point for this line operation.
+
+        For line operations, this is the start of the route.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the route start point.
+        """
+        if not self.route:
+            return (0.0, 0.0)  # Fallback for empty routes
+        return self.route[0]
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Get the geographic exit point for this line operation.
+
+        For line operations, this is the end of the route.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the route end point.
+        """
+        if not self.route:
+            return (0.0, 0.0)  # Fallback for empty routes
+        return self.route[-1]
+
     @classmethod
     def from_pydantic(
         cls, obj: TransitDefinition, default_speed: float
@@ -303,112 +389,6 @@ class LineOperation(BaseOperation):
             speed=obj.vessel_speed if obj.vessel_speed else default_speed,
             comment=obj.comment,
         )
-
-
-class CompositeOperation(BaseOperation):
-    """
-    Logical container for grouping related PointOperations or other BaseOperations.
-
-    Examples: "53N Section" (20 CTDs), "OSNAP Array" (Mixed CTDs + Moorings).
-    Provides different scheduling strategies for optimizing execution order.
-
-    Attributes
-    ----------
-    children : List[BaseOperation]
-        List of child operations contained within this composite.
-    geometry_definition : Optional[Any]
-        Geometric definition (LineString or Polygon) for spatial operations.
-    scheduling_strategy : str
-        Strategy for scheduling child operations ('sequential', 'spatial_interleaved', 'day_night_split').
-    ordered : bool
-        Whether the order of operations should be preserved.
-    """
-
-    def __init__(
-        self,
-        name: str,
-        children: List[BaseOperation],
-        geometry_definition: Optional[Any] = None,  # LineString or Polygon
-        scheduling_strategy: str = "sequential",
-        ordered: bool = True,
-        comment: str = None,
-    ):
-        """
-        Initialize a composite operation.
-
-        Parameters
-        ----------
-        name : str
-            Unique identifier for this composite operation.
-        children : List[BaseOperation]
-            List of child operations to contain.
-        geometry_definition : Optional[Any], optional
-            Geometric definition for spatial operations.
-        scheduling_strategy : str, optional
-            Scheduling strategy ('sequential', 'spatial_interleaved', 'day_night_split', default: 'sequential').
-        ordered : bool, optional
-            Whether to preserve operation order (default: True).
-        comment : str, optional
-            Human-readable comment or description.
-        """
-        super().__init__(name, comment)
-        self.children = children
-        self.geometry_definition = geometry_definition
-        self.scheduling_strategy = scheduling_strategy
-        self.ordered = ordered
-
-    def calculate_duration(self, rules: Any) -> float:
-        """
-        Calculate total duration by solving internal routing logic.
-
-        Accounts for strategy (sequential, day_night_split, spatial_interleaved).
-
-        Parameters
-        ----------
-        rules : Any
-            Duration calculation rules and parameters.
-
-        Returns
-        -------
-        float
-            Total duration in minutes.
-        """
-        if not self.children:
-            return 0.0
-
-        # Import here to avoid circular imports
-        from cruiseplan.calculators.routing import optimize_composite_route
-
-        if self.scheduling_strategy == "sequential":
-            return sum(child.calculate_duration(rules) for child in self.children)
-        elif self.scheduling_strategy == "spatial_interleaved":
-            return optimize_composite_route(self.children, rules)
-        elif self.scheduling_strategy == "day_night_split":
-            return self._calculate_day_night_duration(rules)
-        else:
-            # Default to sequential if strategy is unknown/invalid
-            return sum(child.calculate_duration(rules) for child in self.children)
-
-    def _calculate_day_night_duration(self, rules: Any) -> float:
-        """
-        Calculate duration for day/night split strategy.
-
-        Parameters
-        ----------
-        rules : Any
-            Duration calculation rules and parameters.
-
-        Returns
-        -------
-        float
-            Duration in minutes.
-        """
-        # Implement zipper pattern logic from specs
-        total_duration = 0.0
-        # This is a placeholder - implement according to PROJECT_SPECS.md section 3.2
-        for child in self.children:
-            total_duration += child.calculate_duration(rules)
-        return total_duration
 
 
 class AreaOperation(BaseOperation):
@@ -510,6 +490,32 @@ class AreaOperation(BaseOperation):
                 f"Area operation '{self.name}' requires user-specified duration. "
                 "Add 'duration: <minutes>' to the area definition in YAML."
             )
+
+    def get_entry_point(self) -> tuple[float, float]:
+        """
+        Get the geographic entry point for this area operation.
+
+        For area operations, this is the start point of the survey pattern.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the area entry point.
+        """
+        return self.start_point
+
+    def get_exit_point(self) -> tuple[float, float]:
+        """
+        Get the geographic exit point for this area operation.
+
+        For area operations, this is the end point of the survey pattern.
+
+        Returns
+        -------
+        tuple[float, float]
+            (latitude, longitude) of the area exit point.
+        """
+        return self.end_point
 
     @classmethod
     def from_pydantic(cls, obj: AreaDefinition) -> "AreaOperation":

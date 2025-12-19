@@ -58,9 +58,9 @@ def _calculate_summary_statistics(timeline):
     """
     Calculate summary statistics for HTML output from activity timeline.
 
-    Computes comprehensive statistics for different activity types including
-    counts, durations, distances, and averages. Separates activities into
-    scientific operations and navigation transits.
+    Uses timeline-based categorization to ensure every activity is accounted for.
+    Categorizes activities into: moorings, stations, surveys, areas, port transits,
+    and within-area transits (everything else).
 
     Parameters
     ----------
@@ -74,19 +74,36 @@ def _calculate_summary_statistics(timeline):
         'moorings', 'stations', 'surveys', 'areas', 'within_area', 'port_area',
         and 'mooring_activities' (raw mooring data).
     """
-    # Separate activities by type
-    station_activities = [a for a in timeline if a["activity"] == "Station"]
-    mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
-    area_activities = [a for a in timeline if a["activity"] == "Area"]
-    all_transits = [a for a in timeline if a["activity"] == "Transit"]
+    # Initialize categorized activity lists
+    station_activities = []
+    mooring_activities = []
+    area_activities = []
+    scientific_transits = []
+    port_transits = []
+    within_area_transits = []
 
-    # Separate scientific and navigation transits
-    scientific_transits = [
-        a
-        for a in all_transits
-        if is_scientific_operation(a) and a["activity"] == "Transit"
-    ]
-    navigation_transits = [a for a in all_transits if not is_scientific_operation(a)]
+    # Categorize every activity in the timeline
+    for activity in timeline:
+        activity_type = activity["activity"]
+
+        if activity_type == "Station":
+            station_activities.append(activity)
+        elif activity_type == "Mooring":
+            mooring_activities.append(activity)
+        elif activity_type == "Area":
+            area_activities.append(activity)
+        elif activity_type in ["Port_Departure", "Port_Arrival"]:
+            port_transits.append(activity)
+        elif activity_type == "Transit":
+            # Check if it's a scientific transit
+            if is_scientific_operation(activity):
+                scientific_transits.append(activity)
+            else:
+                # All other transits are within-area transits
+                within_area_transits.append(activity)
+        else:
+            # Any unrecognized activities also go to within-area as a fallback
+            within_area_transits.append(activity)
 
     # Calculate mooring statistics
     mooring_stats = {}
@@ -183,10 +200,7 @@ def _calculate_summary_statistics(timeline):
             "total_duration_days": 0,
         }
 
-    # Calculate within-area navigation transits (excluding first and last)
-    within_area_transits = (
-        navigation_transits[1:-1] if len(navigation_transits) > 2 else []
-    )
+    # Calculate within-area transits (already categorized above)
     within_area_stats = {}
     if within_area_transits:
         total_within_duration_h = (
@@ -214,22 +228,7 @@ def _calculate_summary_statistics(timeline):
             "total_duration_days": 0,
         }
 
-    # Calculate to/from working area transits (Port_Departure and Port_Arrival activities)
-    # These represent the actual transits between ports and the working area for each leg
-    port_transits = [
-        a for a in timeline 
-        if a.get("activity") in ["Port_Departure", "Port_Arrival"]
-    ]
-    
-    # If no explicit port activities, treat first and last navigation transits as port transits
-    # This handles the case where we have navigation transits representing the full journey
-    if not port_transits and len(navigation_transits) > 0:
-        port_transits = []
-        if len(navigation_transits) >= 1:
-            port_transits.append(navigation_transits[0])  # First transit is departure
-        if len(navigation_transits) >= 2:
-            port_transits.append(navigation_transits[-1])  # Last transit is arrival
-
+    # Calculate port area transits (already categorized above)
     port_area_stats = {}
     if port_transits:
         total_port_duration_h = sum(a["duration_minutes"] for a in port_transits) / 60
@@ -299,14 +298,9 @@ class HTMLGenerator:
         # Calculate summary statistics
         stats = _calculate_summary_statistics(timeline)
 
-        # Calculate total statistics
+        # Calculate total statistics - use simple sum like CLI to avoid categorization errors
         total_duration_h = (
-            stats["moorings"]["total_duration_h"]
-            + stats["stations"]["total_duration_h"]
-            + stats["surveys"]["total_duration_h"]
-            + stats["areas"]["total_duration_h"]
-            + stats["within_area"]["total_duration_h"]
-            + stats["port_area"]["total_duration_h"]
+            sum(activity["duration_minutes"] for activity in timeline) / 60.0
         )
         total_duration_days = total_duration_h / 24
 
@@ -404,6 +398,8 @@ class HTMLGenerator:
             <td class="number">{stats["port_area"]["total_duration_days"]:.1f}</td>
         </tr>
 """
+
+        # All activities are now accounted for in the timeline-based categorization
 
         # Total row
         html_content += f"""
@@ -514,7 +510,9 @@ class HTMLGenerator:
         <tr>
             <th>Activity</th>
             <th>Type</th>
-            <th>Position</th>
+            <th>Entry Position</th>
+            <th>Exit Position</th>
+            <th>Distance (nm)</th>
             <th>Duration (hrs)</th>
             <th>Comments</th>
         </tr>
@@ -526,15 +524,15 @@ class HTMLGenerator:
             # No need to add separate transit rows as they would be duplicated
 
             # Add leg activities
-            for activity in leg_data["activities"]:
+            activities = leg_data["activities"]
+            for i, activity in enumerate(activities):
                 duration_hrs = activity.get("duration_minutes", 0) / 60
                 total_leg_duration += duration_hrs
 
-                # Format position
-                if "lat" in activity and "lon" in activity:
-                    position = f"{activity['lat']:.4f}, {activity['lon']:.4f}"
-                else:
-                    position = "N/A"
+                # Determine entry and exit positions based on activity type
+                entry_position, exit_position, distance_nm = (
+                    self._get_activity_entry_exit_distance(activity, activities, i)
+                )
 
                 # Determine activity type using correct field names
                 activity_type = activity.get("activity", "Unknown")
@@ -552,7 +550,9 @@ class HTMLGenerator:
         <tr>
             <td>{activity.get('label', 'Unknown')}</td>
             <td>{activity_type}</td>
-            <td>{position}</td>
+            <td>{entry_position}</td>
+            <td>{exit_position}</td>
+            <td class="number">{distance_nm}</td>
             <td class="number">{duration_hrs:.1f}</td>
             <td>{activity.get('comment', '')}</td>
         </tr>
@@ -565,6 +565,8 @@ class HTMLGenerator:
         <tr style="font-weight: bold; background-color: #f2f2f2;">
             <td>Leg Total</td>
             <td>{len(leg_data['activities'])} operations</td>
+            <td></td>
+            <td></td>
             <td></td>
             <td class="number">{total_leg_duration:.1f}</td>
             <td>{total_leg_duration/24:.1f} days</td>
@@ -683,6 +685,91 @@ class HTMLGenerator:
         self._add_leg_transits(legs_data, config)
 
         return legs_data
+
+    def _get_activity_entry_exit_distance(self, activity, activities, index):
+        """
+        Determine entry position, exit position, and distance for an activity.
+
+        Parameters
+        ----------
+        activity : dict
+            Current activity record
+        activities : list
+            List of all activities in this leg
+        index : int
+            Index of current activity in the activities list
+
+        Returns
+        -------
+        tuple
+            (entry_position, exit_position, distance_nm) as formatted strings and float
+        """
+        # Get current activity position
+        if "lat" in activity and "lon" in activity:
+            current_pos = f"{activity['lat']:.4f}, {activity['lon']:.4f}"
+        else:
+            current_pos = "N/A"
+
+        activity_type = activity.get("activity", "Unknown")
+
+        # For station/mooring activities: entry = exit = activity position
+        if activity_type in ["Station", "Mooring"]:
+            entry_position = current_pos
+            exit_position = current_pos
+            # For point operations, use operation distance (0 for most point ops)
+            distance_nm = activity.get("operation_dist_nm", 0.0)
+
+        # For port activities: entry = exit = port position, but use transit distance
+        elif activity_type in ["Port_Departure", "Port_Arrival"]:
+            entry_position = current_pos
+            exit_position = current_pos
+            # For ports, use transit distance to show distance to next destination
+            distance_nm = activity.get("transit_dist_nm", 0.0)
+
+        # For transit activities: entry = previous activity exit, exit = next activity entry
+        elif activity_type == "Transit":
+            # Entry position: previous activity position (or current if first)
+            if index > 0:
+                prev_activity = activities[index - 1]
+                if "lat" in prev_activity and "lon" in prev_activity:
+                    entry_position = (
+                        f"{prev_activity['lat']:.4f}, {prev_activity['lon']:.4f}"
+                    )
+                else:
+                    entry_position = "N/A"
+            else:
+                entry_position = current_pos
+
+            # Exit position: next activity position (or current if last)
+            if index < len(activities) - 1:
+                next_activity = activities[index + 1]
+                if "lat" in next_activity and "lon" in next_activity:
+                    exit_position = (
+                        f"{next_activity['lat']:.4f}, {next_activity['lon']:.4f}"
+                    )
+                else:
+                    exit_position = "N/A"
+            else:
+                exit_position = current_pos
+
+            # For transit, use transit distance
+            distance_nm = activity.get("transit_dist_nm", 0.0)
+
+        else:
+            # Unknown activity type: use current position for both
+            entry_position = current_pos
+            exit_position = current_pos
+            distance_nm = activity.get(
+                "transit_dist_nm", activity.get("operation_dist_nm", 0.0)
+            )
+
+        # Format distance
+        if distance_nm == 0.0:
+            distance_str = "-"
+        else:
+            distance_str = f"{distance_nm:.1f}"
+
+        return entry_position, exit_position, distance_str
 
     def _add_leg_transits(self, legs_data: dict, config: CruiseConfig):
         """

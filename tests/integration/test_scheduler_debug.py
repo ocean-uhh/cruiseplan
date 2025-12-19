@@ -16,9 +16,7 @@ from cruiseplan.utils.config import ConfigLoader
 class TestSchedulerDebug:
     """Debug tests that provide detailed timeline analysis."""
 
-    @pytest.mark.parametrize(
-        "fixture_name", ["tc4_mixed_ops.yaml"]
-    )
+    @pytest.mark.parametrize("fixture_name", ["tc4_mixed_ops.yaml"])
     def test_scheduler_debug_output(self, fixture_name, capsys):
         """Generate detailed debug output for scheduler timeline generation."""
         yaml_path = f"tests/fixtures/{fixture_name}"
@@ -32,13 +30,15 @@ class TestSchedulerDebug:
 
         try:
             # Create temporary enriched file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".yaml", delete=False
+            ) as tmp_file:
                 enriched_path = Path(tmp_file.name)
-                
+
             try:
                 # Enrich the fixture file to add missing global fields
                 enrich_configuration(yaml_path, output_path=enriched_path)
-                
+
                 # Load enriched configuration
                 loader = ConfigLoader(str(enriched_path))
                 config = loader.load()
@@ -53,7 +53,9 @@ class TestSchedulerDebug:
             print(f"   Start time: {getattr(config, 'start_time', 'not set')}")
             print(f"   Legs: {len(config.legs)}")
             for leg in config.legs:
-                print(f"     {leg.name}: {getattr(leg, 'first_station', 'no first')} -> {getattr(leg, 'last_station', 'no last')}")
+                print(
+                    f"     {leg.name}: {getattr(leg, 'first_station', 'no first')} -> {getattr(leg, 'last_station', 'no last')}"
+                )
             print(f"   Default vessel speed: {config.default_vessel_speed} knots")
 
             print(f"\n   Stations: {len(config.stations or [])}")
@@ -190,13 +192,15 @@ class TestSchedulerDebug:
         print(f"{'='*60}")
 
         # Create temporary enriched file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+        with tempfile.NamedTemporaryFile(
+            mode="w", suffix=".yaml", delete=False
+        ) as tmp_file:
             enriched_path = Path(tmp_file.name)
-            
+
         try:
             # Enrich the fixture file to add missing global fields
             enrich_configuration(yaml_path, output_path=enriched_path)
-            
+
             # Load enriched configuration
             loader = ConfigLoader(str(enriched_path))
             config = loader.load()
@@ -204,23 +208,44 @@ class TestSchedulerDebug:
             # Clean up temporary enriched file
             if enriched_path.exists():
                 enriched_path.unlink()
-                
+
         timeline = generate_timeline(config)
+
+        # Debug: Print all activities in the timeline
+        print(f"\n📋 Generated timeline with {len(timeline)} activities:")
+        for i, activity in enumerate(timeline, 1):
+            print(
+                f"   Activity {i}: {activity.get('label', 'Unknown')} ({activity.get('activity', 'Unknown')})"
+            )
+            print(f"     - transit_dist_nm: {activity.get('transit_dist_nm', 0):.2f}")
+            print(
+                f"     - operation_dist_nm: {activity.get('operation_dist_nm', 0):.2f}"
+            )
 
         # Verify specific distance calculations
         print("\n🔍 Verifying transit distance calculations:")
 
-        # Expected inter-operation distances (transit_dist_nm) - only for transit records
+        # Expected inter-operation distances (transit_dist_nm) for tc4_mixed_ops.yaml
+        # Updated for new timeline structure with separate transit activities
         expected_transit_distances = {
-            1: (372.67, "Departure port to CTD_Station_A"),
-            3: (21.55, "CTD_Station_A to Survey_Line_Alpha start"),
-            5: (219.12, "Survey_Line_Alpha end to Mooring_K7_Recovery"),
-            9: (366.77, "Mooring_K7_Recovery to arrival port"),
+            1: (
+                577.81,
+                "Halifax to operations area",
+            ),  # Port departure to first operation
+            2: (0.00, "STN_001 (no additional transit)"),  # Already at location
+            3: (60.04, "STN_001 to ADCP_Survey start"),  # CTD to ADCP survey start
+            4: (0.00, "ADCP_Survey operation (no transit)"),  # Scientific operation
+            5: (60.04, "ADCP_Survey end to Area_01"),  # ADCP end to survey area
+            6: (0.00, "Area_01 operation (no transit)"),  # Area operation
+            7: (2029.12, "Area_01 to arrival port"),  # Operations to Cadiz
         }
 
         # Expected operation distances (operation_dist_nm) - only for scientific transits
         expected_operation_distances = {
-            4: (27.94, "Survey_Line_Alpha route distance"),
+            4: (
+                60.04,
+                "ADCP_Survey route distance",
+            ),  # ADCP survey route length (46°N to 47°N)
         }
 
         for i, activity in enumerate(timeline, 1):
@@ -250,17 +275,17 @@ class TestSchedulerDebug:
                     abs(actual_op_dist - expected_op_dist) < 0.1
                 ), f"Operation distance mismatch for activity {i}: expected {expected_op_dist:.2f}, got {actual_op_dist:.2f}"
 
-        # Verify custom vessel speed is applied
-        survey_activity = timeline[
+        # Verify custom vessel speed is applied for ADCP_Survey
+        adcp_activity = timeline[
             3
-        ]  # Survey_Line_Alpha (now at index 3 due to inter-operation transit)
-        assert survey_activity["label"] == "Survey_Line_Alpha"
+        ]  # ADCP_Survey is at index 3 (4th activity) in new structure
+        assert adcp_activity["label"] == "ADCP_Survey"
 
-        # At 5 knots, the internal route should take longer than at 12 knots
-        survey_duration_h = survey_activity["duration_minutes"] / 60
-        print(f"\n   Survey operation duration: {survey_duration_h:.2f}h at 5 knots")
+        # At 5 knots, the ADCP route should take longer than at default speed
+        adcp_duration_h = adcp_activity["duration_minutes"] / 60
+        print(f"\n   ADCP survey operation duration: {adcp_duration_h:.2f}h at 5 knots")
         assert (
-            survey_duration_h > 4
-        ), f"Survey should take >4h at 5 knots, got {survey_duration_h:.2f}h"
+            adcp_duration_h > 10
+        ), f"ADCP survey should take >10h at 5 knots, got {adcp_duration_h:.2f}h"
 
         print("\n✅ All distance calculations verified!")

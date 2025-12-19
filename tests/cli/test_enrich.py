@@ -7,7 +7,6 @@ from pathlib import Path
 from unittest.mock import patch
 
 import pytest
-import yaml
 
 from cruiseplan.cli.enrich import main
 
@@ -18,10 +17,6 @@ class TestEnrichCommand:
     def get_fixture_path(self, filename: str) -> Path:
         """Get path to test fixture file."""
         return Path(__file__).parent.parent / "fixtures" / filename
-
-
-
-
 
     @patch("cruiseplan.cli.enrich.setup_logging")
     def test_enrich_no_operations_specified(self, mock_setup_logging):
@@ -164,11 +159,6 @@ legs: []
 
         with pytest.raises(SystemExit, match="1"):
             main(args)
-
-
-
-
-
 
 
 class TestEnrichCommandExecution:

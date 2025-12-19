@@ -216,6 +216,42 @@ class Cluster:
         """
         return [operation.name for operation in self.operations]
 
+    def get_entry_point(self) -> Optional[tuple[float, float]]:
+        """
+        Get the geographic entry point for this cluster (first operation position).
+
+        This provides a standardized interface regardless of internal field names.
+
+        Returns
+        -------
+        tuple[float, float] or None
+            (latitude, longitude) of the cluster's entry point, or None if no operations.
+        """
+        if not self.operations:
+            return None
+        first_op = self.operations[0]
+        if hasattr(first_op, "position"):
+            return (first_op.position.latitude, first_op.position.longitude)
+        return None
+
+    def get_exit_point(self) -> Optional[tuple[float, float]]:
+        """
+        Get the geographic exit point for this cluster (last operation position).
+
+        This provides a standardized interface regardless of internal field names.
+
+        Returns
+        -------
+        tuple[float, float] or None
+            (latitude, longitude) of the cluster's exit point, or None if no operations.
+        """
+        if not self.operations:
+            return None
+        last_op = self.operations[-1]
+        if hasattr(last_op, "position"):
+            return (last_op.position.latitude, last_op.position.longitude)
+        return None
+
     def __repr__(self) -> str:
         """
         String representation of the cluster.

@@ -17,6 +17,6 @@ legs:
   - name: "Section_Survey"
     departure_port: port_halifax  
     arrival_port: port_cadiz
-    first_station: SEC_001
-    last_station: SEC_001
+    first_waypoint: SEC_001
+    last_waypoint: SEC_001
     activities: [SEC_001]

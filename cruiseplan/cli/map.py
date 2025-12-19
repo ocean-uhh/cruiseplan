@@ -27,23 +27,23 @@ def main(args: argparse.Namespace) -> int:
         # Load cruise configuration with pretty warning formatting
         logger.info(f"Loading cruise configuration from {args.config_file}")
         cruise = load_cruise_with_pretty_warnings(args.config_file)
-        
+
         # Parse format selection
         formats = []
         if args.format == "all":
             formats = ["png", "kml"]
         else:
             formats = [args.format]
-            
+
         # Ensure output directory exists
         args.output_dir.mkdir(parents=True, exist_ok=True)
-        
+
         # Clean cruise name for filenames
         cruise_name = cruise.config.cruise_name.replace(" ", "_").replace("/", "-")
-        
+
         # Track generated files
         generated_files = []
-        
+
         # Generate PNG map if requested
         if "png" in formats:
             if args.output_file and args.format == "png":
@@ -52,8 +52,10 @@ def main(args: argparse.Namespace) -> int:
             else:
                 # Auto-generate PNG filename
                 png_output_file = args.output_dir / f"{cruise_name}_map.png"
-            
-            logger.info(f"Generating PNG map with bathymetry source: {args.bathymetry_source}")
+
+            logger.info(
+                f"Generating PNG map with bathymetry source: {args.bathymetry_source}"
+            )
             png_result = generate_map_from_yaml(
                 cruise,
                 output_file=png_output_file,
@@ -62,57 +64,76 @@ def main(args: argparse.Namespace) -> int:
                 bathymetry_dir=str(args.bathymetry_dir),
                 show_plot=args.show_plot,
                 figsize=tuple(args.figsize),
+                include_ports=False,  # Focus on scientific operations only
             )
-            
+
             if png_result:
                 generated_files.append(("PNG map", png_result))
                 logger.info(f"✅ PNG map generated: {png_result}")
             else:
                 logger.error("❌ PNG map generation failed")
                 return 1
-        
+
         # Generate KML file if requested
         if "kml" in formats:
             if args.output_file and args.format == "kml":
-                # Use specific output file for KML only  
+                # Use specific output file for KML only
                 kml_output_file = args.output_file
             else:
                 # Auto-generate KML filename
                 kml_output_file = args.output_dir / f"{cruise_name}_catalog.kml"
-            
+
             logger.info("Generating KML catalog from YAML configuration")
             from cruiseplan.output.kml_generator import generate_kml_catalog
-            
+
             kml_result = generate_kml_catalog(cruise.config, kml_output_file)
-            
+
             if kml_result:
                 generated_files.append(("KML catalog", kml_result))
                 logger.info(f"✅ KML catalog generated: {kml_result}")
             else:
                 logger.error("❌ KML catalog generation failed")
                 return 1
-        
+
         # Print summary of generated files
         print("✅ Map generation complete!")
         for file_type, file_path in generated_files:
             print(f"📁 {file_type}: {file_path}")
-        
-        # Print statistics
-        station_count = len(cruise.station_registry) if hasattr(cruise, 'station_registry') and cruise.station_registry else 0
-        mooring_count = len(cruise.mooring_registry) if hasattr(cruise, 'mooring_registry') and cruise.mooring_registry else 0
-        transit_count = len(cruise.transit_registry) if hasattr(cruise, 'transit_registry') and cruise.transit_registry else 0
-        area_count = len(cruise.area_registry) if hasattr(cruise, 'area_registry') and cruise.area_registry else 0
-        
-        print(f"\n📊 Catalog summary:")
+
+        # Print statistics based on operation types
+        station_count = 0
+        mooring_count = 0
+
+        # Count stations by operation type
+        if hasattr(cruise, "station_registry") and cruise.station_registry:
+            for station in cruise.station_registry.values():
+                operation_type = getattr(station, "operation_type", "station")
+                if operation_type == "mooring":
+                    mooring_count += 1
+                else:
+                    station_count += 1
+
+        # Add dedicated moorings from mooring_registry
+        if hasattr(cruise, "mooring_registry") and cruise.mooring_registry:
+            mooring_count += len(cruise.mooring_registry)
+        transit_count = (
+            len(cruise.transit_registry)
+            if hasattr(cruise, "transit_registry") and cruise.transit_registry
+            else 0
+        )
+        area_count = (
+            len(cruise.area_registry)
+            if hasattr(cruise, "area_registry") and cruise.area_registry
+            else 0
+        )
+
+        print("\n📊 Catalog summary:")
         print(f"   📍 Stations: {station_count}")
         print(f"   ⚓ Moorings: {mooring_count}")
         print(f"   🚢 Transits: {transit_count}")
         print(f"   📐 Areas: {area_count}")
-        
-        if (
-            hasattr(cruise.config, "departure_port")
-            and cruise.config.departure_port
-        ):
+
+        if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
             print(f"   🚢 Departure: {cruise.config.departure_port.name}")
         if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
             print(f"   🏁 Arrival: {cruise.config.arrival_port.name}")

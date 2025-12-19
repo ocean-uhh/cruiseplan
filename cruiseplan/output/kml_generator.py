@@ -2,7 +2,7 @@
 KML Generation System for Cruise Planning.
 
 Generates Google Earth compatible KML files from cruise configuration catalogs.
-Creates geospatial visualizations of all cruise entities (stations, moorings, 
+Creates geospatial visualizations of all cruise entities (stations, moorings,
 transits, ports, areas) for geographic analysis and planning.
 
 This module provides two generation modes:
@@ -328,7 +328,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Ports -->"""
 
     # Add ports from cruise configuration
-    if hasattr(config, 'departure_port') and config.departure_port:
+    if hasattr(config, "departure_port") and config.departure_port:
         port = config.departure_port
         kml_content += f"""
         <Placemark>
@@ -345,7 +345,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
             </Point>
         </Placemark>"""
 
-    if hasattr(config, 'arrival_port') and config.arrival_port:
+    if hasattr(config, "arrival_port") and config.arrival_port:
         port = config.arrival_port
         kml_content += f"""
         <Placemark>
@@ -367,12 +367,12 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Stations -->"""
 
     # Add stations from configuration
-    if hasattr(config, 'stations') and config.stations:
+    if hasattr(config, "stations") and config.stations:
         for station in config.stations:
-            operation_type = getattr(station, 'operation_type', 'station')
-            action = getattr(station, 'action', 'profile')
-            depth = getattr(station, 'depth', 'N/A')
-            
+            operation_type = getattr(station, "operation_type", "station")
+            action = getattr(station, "action", "profile")
+            depth = getattr(station, "depth", "N/A")
+
             kml_content += f"""
         <Placemark>
             <name>{station.name}</name>
@@ -392,13 +392,13 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
         <!-- Moorings -->"""
 
-    # Add moorings from configuration  
-    if hasattr(config, 'moorings') and config.moorings:
+    # Add moorings from configuration
+    if hasattr(config, "moorings") and config.moorings:
         for mooring in config.moorings:
-            operation_type = getattr(mooring, 'operation_type', 'mooring')
-            action = getattr(mooring, 'action', 'deployment')
-            depth = getattr(mooring, 'depth', 'N/A')
-            
+            operation_type = getattr(mooring, "operation_type", "mooring")
+            action = getattr(mooring, "action", "deployment")
+            depth = getattr(mooring, "depth", "N/A")
+
             kml_content += f"""
         <Placemark>
             <name>{mooring.name}</name>
@@ -419,7 +419,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Transits -->"""
 
     # Add transits from configuration
-    if hasattr(config, 'transits') and config.transits:
+    if hasattr(config, "transits") and config.transits:
         for transit in config.transits:
             # Extract start and end coordinates from route waypoints
             if transit.route and len(transit.route) >= 2:
@@ -427,10 +427,10 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 start_lon = transit.route[0].longitude
                 end_lat = transit.route[-1].latitude
                 end_lon = transit.route[-1].longitude
-                
+
                 # Calculate route distance if available
-                route_distance = getattr(transit, 'distance', 'calculated')
-                
+                route_distance = getattr(transit, "distance", "calculated")
+
                 kml_content += f"""
         <Placemark>
             <name>{transit.name}</name>
@@ -454,19 +454,21 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Areas -->"""
 
     # Add areas from configuration
-    if hasattr(config, 'areas') and config.areas:
+    if hasattr(config, "areas") and config.areas:
         for area in config.areas:
-            if hasattr(area, 'corners') and area.corners:
+            if hasattr(area, "corners") and area.corners:
                 # Create coordinate list for polygon
                 coord_list = []
                 for corner in area.corners:
                     coord_list.append(f"{corner.longitude},{corner.latitude},0")
                 # Close the polygon
                 if area.corners:
-                    coord_list.append(f"{area.corners[0].longitude},{area.corners[0].latitude},0")
-                
+                    coord_list.append(
+                        f"{area.corners[0].longitude},{area.corners[0].latitude},0"
+                    )
+
                 coordinates_str = " ".join(coord_list)
-                
+
                 kml_content += f"""
         <Placemark>
             <name>{area.name}</name>

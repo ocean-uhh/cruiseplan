@@ -41,11 +41,11 @@ class TestLeg:
             description="Test leg with all parameters",
             strategy=StrategyEnum.SPATIAL_INTERLEAVED,
             ordered=False,
-            first_station="STN_001",
-            last_station="STN_999",
+            first_waypoint="STN_001",
+            last_waypoint="STN_999",
         )
-        
-        # Set parameter inheritance attributes  
+
+        # Set parameter inheritance attributes
         leg.vessel_speed = 12.0
         leg.distance_between_stations = 50.0
         leg.turnaround_time = 45.0
@@ -53,11 +53,17 @@ class TestLeg:
         assert leg.description == "Test leg with all parameters"
         assert leg.strategy == StrategyEnum.SPATIAL_INTERLEAVED
         assert leg.ordered is False
-        assert leg.first_station == "STN_001"
-        assert leg.last_station == "STN_999"
+        assert leg.first_waypoint == "STN_001"
+        assert leg.last_waypoint == "STN_999"
         assert leg.vessel_speed == 12.0
         assert leg.distance_between_stations == 50.0
         assert leg.turnaround_time == 45.0
+
+        # Test the new entry/exit point abstraction methods
+        entry_point = leg.get_entry_point()  # Should return departure port coordinates
+        exit_point = leg.get_exit_point()  # Should return arrival port coordinates
+        assert entry_point == (60.0, -20.0)  # departure_port coordinates
+        assert exit_point == (64.0, -22.0)  # arrival_port coordinates
 
     def test_leg_add_cluster(self):
         """Test adding clusters to a leg."""
@@ -158,7 +164,10 @@ class TestLegParameterInheritance:
         )
         leg_with_turnaround.turnaround_time = 20.0
 
-        assert leg_with_turnaround.get_effective_turnaround_time(default_turnaround=30.0) == 20.0
+        assert (
+            leg_with_turnaround.get_effective_turnaround_time(default_turnaround=30.0)
+            == 20.0
+        )
 
         # Without leg-specific turnaround time
         leg_without_turnaround = Leg(
@@ -167,7 +176,12 @@ class TestLegParameterInheritance:
             arrival_port=arrival_port,
         )
 
-        assert leg_without_turnaround.get_effective_turnaround_time(default_turnaround=30.0) == 30.0
+        assert (
+            leg_without_turnaround.get_effective_turnaround_time(
+                default_turnaround=30.0
+            )
+            == 30.0
+        )
 
     def test_get_effective_distance_between_stations(self):
         """Test distance between stations inheritance."""

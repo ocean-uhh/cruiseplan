@@ -329,16 +329,16 @@ def display_user_warnings(
 def capture_and_format_warnings():
     """
     Context manager to capture and format Pydantic warnings consistently.
-    
+
     Captures Python warnings during execution and formats them in a user-friendly
     way instead of showing raw tracebacks. Use this around operations that might
     generate Pydantic validation warnings.
-    
+
     Yields
     ------
     List[str]
         List of captured warning messages
-        
+
     Example
     -------
     >>> with capture_and_format_warnings() as captured_warnings:
@@ -347,15 +347,15 @@ def capture_and_format_warnings():
     ...     display_user_warnings(captured_warnings, "Validation Warnings")
     """
     captured_warnings = []
-    
+
     def warning_handler(message, category, filename, lineno, file=None, line=None):
         # Extract just the warning message, ignore file paths and line numbers
         captured_warnings.append(str(message))
-    
+
     # Set up warning capture
     old_showwarning = python_warnings.showwarning
     python_warnings.showwarning = warning_handler
-    
+
     try:
         yield captured_warnings
     finally:
@@ -366,37 +366,37 @@ def capture_and_format_warnings():
 def load_cruise_with_pretty_warnings(config_file):
     """
     Load a Cruise object with consistent warning formatting.
-    
+
     This function wraps Cruise loading with warning capture to ensure
     any Pydantic validation warnings are displayed in a user-friendly
     format instead of showing raw Python warning tracebacks.
-    
+
     Parameters
     ----------
     config_file : str or Path
         Path to the cruise configuration YAML file
-        
+
     Returns
     -------
     Cruise
         Loaded cruise object
-        
+
     Raises
     ------
     CLIError
         If cruise loading fails
     """
     from cruiseplan.core.cruise import Cruise
-    
+
     try:
         with capture_and_format_warnings() as captured_warnings:
             cruise = Cruise(config_file)
-            
+
         # Display any captured warnings in pretty format
         if captured_warnings:
             display_user_warnings(captured_warnings, "Configuration Warnings")
-            
+
         return cruise
-        
+
     except Exception as e:
         raise CLIError(f"Failed to load cruise configuration: {e}") from e

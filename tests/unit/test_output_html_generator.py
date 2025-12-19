@@ -168,11 +168,14 @@ class TestSummaryStatistics:
 
         stats = _calculate_summary_statistics(timeline)
 
-        # With 3 navigation transits, first and last are port transits, middle is within area
-        assert stats["port_area"]["total_duration_h"] == 6.0  # (120 + 240) / 60
-        assert stats["port_area"]["total_distance_nm"] == 50.0  # 15 + 35
-        assert stats["within_area"]["total_duration_h"] == 3.0  # 180 / 60
-        assert stats["within_area"]["total_distance_nm"] == 25.0
+        # With new timeline-based categorization, all navigation transits go to within_area
+        # unless they are explicitly Port_Departure/Port_Arrival activities
+        assert (
+            stats["port_area"]["total_duration_h"] == 0.0
+        )  # No explicit port activities
+        assert stats["port_area"]["total_distance_nm"] == 0.0
+        assert stats["within_area"]["total_duration_h"] == 9.0  # (120 + 180 + 240) / 60
+        assert stats["within_area"]["total_distance_nm"] == 75.0  # 15 + 25 + 35
 
     def test_calculate_summary_statistics_mixed_activities(self):
         """Test statistics calculation with mixed activity types."""
@@ -444,12 +447,12 @@ class TestHTMLGenerator:
             with open(output_file, encoding="utf-8") as f:
                 content = f.read()
 
-            # Should have port transits and within area transits
-            assert "Transit to/from working area" in content
-            assert "50.0 nm" in content  # First + last: 15 + 35
-
+            # With new logic, all navigation transits are within area
             assert "Transit within area" in content
-            assert "25.0 nm" in content  # Middle transit
+            assert "75.0 nm" in content  # All transits: 15 + 25 + 35
+
+            # No port transits expected (no Port_Departure/Port_Arrival activities)
+            assert "Transit to/from working area" not in content or "0.0 nm" in content
 
         finally:
             if output_file.exists():

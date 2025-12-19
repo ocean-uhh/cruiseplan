@@ -3,7 +3,9 @@ setup.sh
 data/temp.nc
 tests_output/*
 data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
-
+data/tc*yaml*
+data/TC*
+data/Test*
 logs/*log
 
 # VSCode settings

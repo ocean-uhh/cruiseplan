@@ -262,7 +262,11 @@ def resolve_port_reference(
         return port_ref
 
     # Handle any port-like object (for compatibility)
-    if hasattr(port_ref, 'name') and hasattr(port_ref, 'latitude') and hasattr(port_ref, 'longitude'):
+    if (
+        hasattr(port_ref, "name")
+        and hasattr(port_ref, "latitude")
+        and hasattr(port_ref, "longitude")
+    ):
         return port_ref
 
     if isinstance(port_ref, dict):
@@ -275,9 +279,11 @@ def resolve_port_reference(
             for error in e.errors():
                 if error["type"] == "missing":
                     missing_fields.append(error["loc"][0])
-            
+
             if missing_fields:
-                raise ValueError(f"Port dictionary missing required fields: {', '.join(missing_fields)}")
+                raise ValueError(
+                    f"Port dictionary missing required fields: {', '.join(missing_fields)}"
+                )
             else:
                 # Re-raise original validation error for other types of validation issues
                 raise ValueError(str(e)) from e
@@ -358,6 +364,7 @@ def add_custom_port(port_id: str, port_data: dict) -> None:
     # Validate the port data by creating a PortDefinition
     try:
         from cruiseplan.core.validation import PortDefinition
+
         PortDefinition(**port_data)
     except Exception as e:
         raise ValueError(f"Invalid port data: {e}") from e

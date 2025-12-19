@@ -66,6 +66,139 @@ class ActivityRecord(Dict):
     """
 
 
+# --- Entry/Exit Point Abstraction Helpers ---
+
+
+def get_operation_entry_exit_points(
+    config: CruiseConfig, name: str
+) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
+    """
+    Get entry and exit points for an operation using the new abstraction methods.
+
+    This demonstrates the new architecture where routing calculations use
+    standardized entry/exit point methods regardless of operation type.
+
+    Returns
+    -------
+    tuple[tuple[float, float], tuple[float, float]] or None
+        ((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if not found
+    """
+    # Try to create operation objects and use their entry/exit methods
+    try:
+        # Check stations (point operations)
+        if config.stations:
+            match = next((s for s in config.stations if s.name == name), None)
+            if match:
+                from cruiseplan.core.operations import PointOperation
+
+                operation = PointOperation.from_pydantic(match)
+                return (operation.get_entry_point(), operation.get_exit_point())
+
+        # Check transits (line operations)
+        if config.transits:
+            match = next((t for t in config.transits if t.name == name), None)
+            if match:
+                from cruiseplan.core.operations import LineOperation
+
+                default_speed = config.default_vessel_speed
+                operation = LineOperation.from_pydantic(match, default_speed)
+                return (operation.get_entry_point(), operation.get_exit_point())
+
+        # Check areas (area operations)
+        if config.areas:
+            match = next((a for a in config.areas if a.name == name), None)
+            if match:
+                from cruiseplan.core.operations import AreaOperation
+
+                operation = AreaOperation.from_pydantic(match)
+                return (operation.get_entry_point(), operation.get_exit_point())
+
+    except Exception as e:
+        logger.warning(f"Could not get entry/exit points for {name}: {e}")
+
+    return None
+
+
+def get_cluster_entry_exit_points(
+    cluster, config: CruiseConfig
+) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
+    """
+    Get entry and exit points for a cluster using the new abstraction methods.
+
+    For clusters, entry point is the first operation's entry point,
+    and exit point is the last operation's exit point.
+
+    Returns
+    -------
+    tuple[tuple[float, float], tuple[float, float]] or None
+        ((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if cluster is empty
+    """
+    if hasattr(cluster, "get_entry_point") and hasattr(cluster, "get_exit_point"):
+        # Use the cluster's built-in methods if available
+        try:
+            entry_point = cluster.get_entry_point()
+            exit_point = cluster.get_exit_point()
+            if entry_point and exit_point:
+                return (entry_point, exit_point)
+        except Exception as e:
+            logger.warning(f"Could not get cluster entry/exit points: {e}")
+
+    # Fallback: get entry/exit from first/last operations in cluster
+    operations = getattr(cluster, "operations", [])
+    if not operations:
+        return None
+
+    try:
+        first_op = operations[0]
+        last_op = operations[-1]
+
+        first_entry = (
+            first_op.get_entry_point() if hasattr(first_op, "get_entry_point") else None
+        )
+        last_exit = (
+            last_op.get_exit_point() if hasattr(last_op, "get_exit_point") else None
+        )
+
+        if first_entry and last_exit:
+            return (first_entry, last_exit)
+    except Exception as e:
+        logger.warning(f"Could not get cluster operation entry/exit points: {e}")
+
+    return None
+
+
+def calculate_transit_distance_using_abstraction(
+    last_operation_name: str, current_operation_name: str, config: CruiseConfig
+) -> float:
+    """
+    Calculate transit distance between operations using entry/exit point abstraction.
+
+    This demonstrates how the new abstraction makes routing calculations cleaner:
+    distance = last_operation.get_exit_point() → current_operation.get_entry_point()
+
+    Returns
+    -------
+    float
+        Transit distance in nautical miles
+    """
+    if not last_operation_name or not current_operation_name:
+        return 0.0
+
+    # Get exit point of last operation and entry point of current operation
+    last_points = get_operation_entry_exit_points(config, last_operation_name)
+    current_points = get_operation_entry_exit_points(config, current_operation_name)
+
+    if not last_points or not current_points:
+        return 0.0
+
+    # Calculate distance: last_operation.exit → current_operation.entry
+    last_exit = last_points[1]  # (lat, lon)
+    current_entry = current_points[0]  # (lat, lon)
+
+    distance_km = haversine_distance(last_exit, current_entry)
+    return km_to_nm(distance_km)
+
+
 # --- Core Scheduling Logic ---
 
 
@@ -195,11 +328,14 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
 
             return {
                 "name": match.name,
-                # XXX: Is it a problem that the default position is the last position?
-                "lat": last_point.latitude,
-                "lon": last_point.longitude,
+                # Use first point as position for distance calculations TO this transit
+                "lat": first_point.latitude,
+                "lon": first_point.longitude,
                 "start_lat": first_point.latitude,
                 "start_lon": first_point.longitude,
+                # Add end point coordinates for position tracking after transit
+                "end_lat": last_point.latitude,
+                "end_lon": last_point.longitude,
                 "depth": 0.0,
                 "op_type": "transit",
                 "manual_duration": transit_duration_min,
@@ -282,7 +418,17 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
     last_position: Optional[GeoPoint] = None
 
     # --- Step 2: Transit to Working Area ---
-    first_station_details = _resolve_station_details(config, config.first_station)
+    # In legacy mode, use first leg's first waypoint if available
+    first_waypoint_name = None
+    if config.legs and len(config.legs) > 0:
+        first_leg = config.legs[0]
+        first_waypoint_name = getattr(first_leg, "first_waypoint", None)
+
+    first_station_details = (
+        _resolve_station_details(config, first_waypoint_name)
+        if first_waypoint_name
+        else None
+    )
     if first_station_details:
         start_pos = config.departure_port.position
         end_pos = GeoPoint(
@@ -300,7 +446,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                 {
                     "activity": "Transit",
                     "operation_type": "transit",
-                    "label": f"Transit to working area: {config.departure_port.name} to {config.first_station}",
+                    "label": f"Transit to working area: {config.departure_port.name} to {first_waypoint_name}",
                     "lat": end_pos.latitude,
                     "lon": end_pos.longitude,
                     "depth": 0.0,
@@ -457,7 +603,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     transit_time_min = hours_to_minutes(transit_time_h)
                     current_time += timedelta(minutes=transit_time_min)
 
-                # Current position for this activity is the route END
+                # Current position for this activity is the route END (for next operation's distance calculation)
                 current_pos = GeoPoint(
                     latitude=route_end.latitude, longitude=route_end.longitude
                 )
@@ -706,13 +852,15 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     departure_port=getattr(leg_def, "departure_port", None),
                     arrival_port=getattr(leg_def, "arrival_port", None),
                     description=getattr(leg_def, "description", None),
-                    first_station=getattr(leg_def, "first_station", None),
-                    last_station=getattr(leg_def, "last_station", None),
+                    first_waypoint=getattr(leg_def, "first_waypoint", None),
+                    last_waypoint=getattr(leg_def, "last_waypoint", None),
                 )
                 # Copy leg-specific parameter overrides from definition
                 runtime_leg.vessel_speed = getattr(leg_def, "vessel_speed", None)
                 runtime_leg.turnaround_time = getattr(leg_def, "turnaround_time", None)
-                runtime_leg.distance_between_stations = getattr(leg_def, "distance_between_stations", None)
+                runtime_leg.distance_between_stations = getattr(
+                    leg_def, "distance_between_stations", None
+                )
                 runtime_legs.append(runtime_leg)
             except Exception as e:
                 logger.warning(
@@ -786,14 +934,21 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
 
         # 2. Process leg departure from port to first operation
         # Check for activities (either direct or extracted from clusters)
-        has_activities = bool(leg_def.activities) or bool(_extract_activities_from_leg(leg_def))
+        has_activities = bool(leg_def.activities) or bool(
+            _extract_activities_from_leg(leg_def)
+        )
         if has_activities:
-            # Get first activity name (from direct activities or extracted from clusters)
-            if leg_def.activities:
+            # Get first activity name - prioritize first_waypoint, then activities
+            first_activity_name = None
+            if hasattr(leg_def, "first_waypoint") and leg_def.first_waypoint:
+                first_activity_name = leg_def.first_waypoint
+            elif leg_def.activities:
                 first_activity_name = leg_def.activities[0]
             else:
                 extracted_activities = _extract_activities_from_leg(leg_def)
-                first_activity_name = extracted_activities[0] if extracted_activities else None
+                first_activity_name = (
+                    extracted_activities[0] if extracted_activities else None
+                )
             first_activity_details = None
 
             if first_activity_name:
@@ -844,8 +999,8 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                         {
                             "activity": "Port_Departure",
                             "label": f"Departure: {runtime_leg.departure_port.name} to Operations",
-                            "lat": runtime_leg.departure_port.latitude,
-                            "lon": runtime_leg.departure_port.longitude,
+                            "lat": port_pos[0],  # Record departure port coordinates
+                            "lon": port_pos[1],  # Record departure port coordinates
                             "depth": 0.0,
                             "start_time": current_time,
                             "end_time": current_time + timedelta(minutes=transit_time),
@@ -879,7 +1034,9 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
 
         # 4. Add transit from last operation to arrival port
         # Check for activities (either direct or extracted from clusters)
-        has_activities_for_arrival = bool(leg_def.activities) or bool(_extract_activities_from_leg(leg_def))
+        has_activities_for_arrival = bool(leg_def.activities) or bool(
+            _extract_activities_from_leg(leg_def)
+        )
         if has_activities_for_arrival and current_position:
             arrival_pos = (
                 runtime_leg.arrival_port.latitude,
@@ -998,27 +1155,20 @@ def _process_leg_activities_with_clusters(
     current_time = start_time
     last_position = start_position
 
-    # Extract activities from leg (including from clusters if activities list is empty)
+    # Extract activities from leg - waypoints are NOT included in execution
+    # Waypoints (first_waypoint/last_waypoint) are used only for routing, not execution
+    activity_list = []
+
     if leg_def.activities:
         # Use direct activities if available
-        activity_list = leg_def.activities
+        activity_list.extend(leg_def.activities)
     else:
-        # Extract activities from clusters and add routing anchors
+        # Extract activities from clusters
         extracted_names = _extract_activities_from_leg(leg_def)
-        activity_list = []
-        
-        # Add first_station at the beginning if defined
-        if hasattr(leg_def, 'first_station') and leg_def.first_station:
-            activity_list.append(leg_def.first_station)
-            # Note: first_station may also appear in cluster activities for intentional double execution
-        
-        # Add cluster activities
         activity_list.extend(extracted_names)
-        
-        # Add last_station at the end if defined
-        if hasattr(leg_def, 'last_station') and leg_def.last_station:
-            activity_list.append(leg_def.last_station)
-            # Note: last_station may also appear in cluster activities for intentional double execution
+
+    # Note: Waypoints (first_waypoint/last_waypoint) are used only for transit planning
+    # and route boundaries. They are NOT automatically added to the execution list.
 
     # For now, implement simple sequential processing
     # TODO: Implement cluster boundary processing with reordering capability
@@ -1049,26 +1199,21 @@ def _process_leg_activities_with_clusters(
             )
             continue
 
-        # Calculate inter-operation transit if needed
+        # Calculate and add separate transit activity if needed
         current_pos = GeoPoint(latitude=details["lat"], longitude=details["lon"])
 
         if last_position and (
             last_position.latitude != current_pos.latitude
             or last_position.longitude != current_pos.longitude
         ):
-
             # Calculate transit distance and time
-            vessel_speed = leg.get_effective_speed(config.default_vessel_speed)
-            transit_time_min = _calculate_inter_port_transit(
-                (last_position.latitude, last_position.longitude),
-                (current_pos.latitude, current_pos.longitude),
-                vessel_speed,
-            )
-            
-            # Calculate distance from time and speed
             transit_distance_km = haversine_distance(last_position, current_pos)
             transit_distance_nm = km_to_nm(transit_distance_km)
+            vessel_speed = leg.get_effective_speed(config.default_vessel_speed)
+            transit_time_h = transit_distance_nm / vessel_speed
+            transit_time_min = transit_time_h * 60
 
+            # Add separate transit activity
             activities.append(
                 ActivityRecord(
                     {
@@ -1098,29 +1243,44 @@ def _process_leg_activities_with_clusters(
         # Apply turnaround time using leg inheritance
         turnaround_time = leg.get_effective_turnaround_time(config.turnaround_time)
 
-        activities.append(
-            ActivityRecord(
-                {
-                    "activity": details.get("op_type", "station").title(),
-                    "label": details["name"],
-                    "lat": current_pos.latitude,
-                    "lon": current_pos.longitude,
-                    "depth": details.get("depth", 0.0),
-                    "start_time": current_time,
-                    "end_time": current_time + timedelta(minutes=operation_duration),
-                    "duration_minutes": operation_duration,
-                    "leg_name": leg.name,
-                    "op_type": details.get("op_type", "station"),
-                    "operation_type": details.get(
-                        "op_type", "station"
-                    ),  # For LaTeX compatibility
-                    "action": details.get("action"),
-                }
-            )
-        )
+        activity_data = {
+            "activity": details.get("op_type", "station").title(),
+            "label": details["name"],
+            "lat": current_pos.latitude,
+            "lon": current_pos.longitude,
+            "depth": details.get("depth", 0.0),
+            "start_time": current_time,
+            "end_time": current_time + timedelta(minutes=operation_duration),
+            "duration_minutes": operation_duration,
+            "transit_dist_nm": 0.0,  # Transit distance now handled by separate transit activities
+            "operation_dist_nm": 0.0,  # Default - will be updated for scientific transits
+            "leg_name": leg.name,
+            "op_type": details.get("op_type", "station"),
+            "operation_type": details.get(
+                "op_type", "station"
+            ),  # For LaTeX compatibility
+            "action": details.get("action"),
+        }
+
+        # Add route distance for scientific transits
+        if details.get("op_type") == "transit" and "route_distance_nm" in details:
+            activity_data["operation_dist_nm"] = details["route_distance_nm"]
+
+        activities.append(ActivityRecord(activity_data))
 
         current_time += timedelta(minutes=operation_duration + turnaround_time)
-        last_position = current_pos
+
+        # For transits, update position to end point, otherwise use current position
+        if (
+            details.get("op_type") == "transit"
+            and "end_lat" in details
+            and "end_lon" in details
+        ):
+            last_position = GeoPoint(
+                latitude=details["end_lat"], longitude=details["end_lon"]
+            )
+        else:
+            last_position = current_pos
 
     return activities
 

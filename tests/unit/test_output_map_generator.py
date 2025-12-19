@@ -38,11 +38,11 @@ class TestExtractMapData:
 
         # Mock empty other registries
         mock_cruise.mooring_registry = {}
-        
+
         # Mock config with no transits/areas
         mock_cruise.config.transits = []
         mock_cruise.config.areas = []
-        
+
         # Mock ports
         mock_cruise.config.departure_port = None
         mock_cruise.config.arrival_port = None
@@ -51,11 +51,11 @@ class TestExtractMapData:
 
         # Check new structure
         assert "points" in data
-        assert "lines" in data  
+        assert "lines" in data
         assert "areas" in data
         assert "title" in data
         assert "bounds" in data
-        
+
         assert len(data["points"]) == 1
         assert data["points"][0]["name"] == "STN_001"
         assert data["points"][0]["lat"] == 60.0
@@ -77,13 +77,27 @@ class TestExtractMapData:
 
         data = extract_map_data(timeline, "timeline")
 
-        # Timeline extraction currently returns empty lists (TODO implementation)
+        # Timeline extraction should work now
         assert "points" in data
-        assert "lines" in data  
+        assert "lines" in data
         assert "areas" in data
         assert "title" in data
-        assert data["points"] == []  # Timeline extraction not yet implemented
-        assert data["lines"] == []
+
+        # Verify points were extracted correctly
+        assert len(data["points"]) == 2
+        assert data["points"][0]["lat"] == 60.0
+        assert data["points"][0]["lon"] == -20.0
+        assert data["points"][0]["operation_type"] == "CTD"
+        assert data["points"][1]["lat"] == 61.0
+        assert data["points"][1]["lon"] == -21.0
+        assert data["points"][1]["operation_type"] == "mooring"
+
+        # Verify cruise track line was created
+        assert len(data["lines"]) == 1
+        assert data["lines"][0]["name"] == "Cruise Track"
+        assert len(data["lines"][0]["waypoints"]) == 2
+
+        # Areas not implemented yet
         assert data["areas"] == []
         assert "Timeline" in data["title"]
 
@@ -106,12 +120,21 @@ class TestExtractMapData:
 
         data = extract_map_data(timeline_data, "timeline")
 
-        # Timeline extraction currently returns empty lists (TODO implementation)
+        # Timeline extraction should work now
         assert "points" in data
-        assert "lines" in data  
+        assert "lines" in data
         assert "areas" in data
-        assert data["points"] == []  # Timeline extraction not yet implemented
-        assert data["lines"] == []
+
+        # Should extract one point for the CTD station
+        assert len(data["points"]) == 1
+        assert data["points"][0]["lat"] == 60.0
+        assert data["points"][0]["lon"] == -20.0
+        assert data["points"][0]["operation_type"] == "CTD"
+
+        # Should create cruise track line with one waypoint
+        assert len(data["lines"]) == 0  # Need at least 2 points for a line
+
+        # Areas not implemented yet
         assert data["areas"] == []
 
     def test_extract_map_data_timeline_skip_zero_coords(self):
@@ -129,9 +152,20 @@ class TestExtractMapData:
 
         data = extract_map_data(timeline, "timeline")
 
-        # Timeline extraction currently returns empty lists (TODO implementation)
+        # Timeline extraction should skip zero coordinates
         assert "points" in data
-        assert data["points"] == []  # Timeline extraction not yet implemented
+        assert "lines" in data
+
+        # Should extract 2 points (skipping the (0,0) transit)
+        assert len(data["points"]) == 2
+        assert data["points"][0]["lat"] == 60.0
+        assert data["points"][0]["lon"] == -20.0
+        assert data["points"][1]["lat"] == 61.0
+        assert data["points"][1]["lon"] == -21.0
+
+        # Should create cruise track line with 2 waypoints (skipping (0,0))
+        assert len(data["lines"]) == 1
+        assert len(data["lines"][0]["waypoints"]) == 2
 
     def test_extract_map_data_invalid_source_type(self):
         """Test error handling for invalid source type."""
@@ -172,7 +206,9 @@ class TestPlotBathymetry:
 
         result = plot_bathymetry(mock_ax, -25, -15, 55, 65, "gebco2025", 5, "data")
 
-        assert result == mock_cs_filled  # Should return the contour object for colorbar creation
+        assert (
+            result == mock_cs_filled
+        )  # Should return the contour object for colorbar creation
         mock_bathymetry_manager.assert_called_once_with(
             source="gebco2025", data_dir="data"
         )
@@ -218,15 +254,35 @@ class TestPlotCruiseElements:
         # Structured map data (new format)
         map_data = {
             "points": [
-                {"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"},
-                {"name": "STN_002", "lat": 61.0, "lon": -21.0, "entity_type": "mooring"},
-                {"name": "Reykjavik", "lat": 64.0, "lon": -22.0, "entity_type": "departure_port"},
-                {"name": "Longyearbyen", "lat": 78.0, "lon": 15.0, "entity_type": "arrival_port"}
+                {
+                    "name": "STN_001",
+                    "lat": 60.0,
+                    "lon": -20.0,
+                    "entity_type": "station",
+                },
+                {
+                    "name": "STN_002",
+                    "lat": 61.0,
+                    "lon": -21.0,
+                    "entity_type": "mooring",
+                },
+                {
+                    "name": "Reykjavik",
+                    "lat": 64.0,
+                    "lon": -22.0,
+                    "entity_type": "departure_port",
+                },
+                {
+                    "name": "Longyearbyen",
+                    "lat": 78.0,
+                    "lon": 15.0,
+                    "entity_type": "arrival_port",
+                },
             ],
             "lines": [],
             "areas": [],
             "title": "Test Cruise",
-            "bounds": (-25, -15, 55, 65)
+            "bounds": (-25, -15, 55, 65),
         }
 
         display_bounds = (-25, -15, 55, 65)
@@ -251,20 +307,38 @@ class TestPlotCruiseElements:
         # Structured map data with lines (transit tracks)
         map_data = {
             "points": [
-                {"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"},
-                {"name": "STN_002", "lat": 61.0, "lon": -21.0, "entity_type": "station"},
-                {"name": "STN_003", "lat": 62.0, "lon": -22.0, "entity_type": "station"}
+                {
+                    "name": "STN_001",
+                    "lat": 60.0,
+                    "lon": -20.0,
+                    "entity_type": "station",
+                },
+                {
+                    "name": "STN_002",
+                    "lat": 61.0,
+                    "lon": -21.0,
+                    "entity_type": "station",
+                },
+                {
+                    "name": "STN_003",
+                    "lat": 62.0,
+                    "lon": -22.0,
+                    "entity_type": "station",
+                },
             ],
             "lines": [
-                {"name": "Transit_Line", "waypoints": [
-                    {"lat": 60.0, "lon": -20.0},
-                    {"lat": 61.0, "lon": -21.0},
-                    {"lat": 62.0, "lon": -22.0}
-                ]}
+                {
+                    "name": "Transit_Line",
+                    "waypoints": [
+                        {"lat": 60.0, "lon": -20.0},
+                        {"lat": 61.0, "lon": -21.0},
+                        {"lat": 62.0, "lon": -22.0},
+                    ],
+                }
             ],
             "areas": [],
             "title": "Timeline",
-            "bounds": (-25, -15, 55, 65)
+            "bounds": (-25, -15, 55, 65),
         }
 
         display_bounds = (-25, -15, 55, 65)
@@ -282,13 +356,23 @@ class TestPlotCruiseElements:
         # Structured map data with mixed entity types
         map_data = {
             "points": [
-                {"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"},
-                {"name": "MOOR_001", "lat": 61.0, "lon": -21.0, "entity_type": "mooring"}
+                {
+                    "name": "STN_001",
+                    "lat": 60.0,
+                    "lon": -20.0,
+                    "entity_type": "station",
+                },
+                {
+                    "name": "MOOR_001",
+                    "lat": 61.0,
+                    "lon": -21.0,
+                    "entity_type": "mooring",
+                },
             ],
             "lines": [],
             "areas": [],
             "title": "Mixed Types",
-            "bounds": (-25, -15, 55, 65)
+            "bounds": (-25, -15, 55, 65),
         }
 
         display_bounds = (-25, -15, 55, 65)
@@ -325,22 +409,24 @@ class TestGenerateMap:
         # Mock matplotlib
         mock_fig = MagicMock()
         mock_ax = MagicMock()
-        
+
         # Mock axis position for colorbar calculations
         mock_bbox = MagicMock()
         mock_bbox.height = 0.8
-        mock_bbox.width = 0.6  
+        mock_bbox.width = 0.6
         mock_ax.get_position.return_value = mock_bbox
-        
+
         mock_subplots.return_value = (mock_fig, mock_ax)
 
         # Mock map data (new structure)
         mock_extract.return_value = {
-            "points": [{"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"}],
+            "points": [
+                {"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"}
+            ],
             "lines": [],
             "areas": [],
             "title": "Test Map",
-            "bounds": (-25, -15, 55, 65)
+            "bounds": (-25, -15, 55, 65),
         }
 
         # Mock bounds calculation
@@ -371,7 +457,7 @@ class TestGenerateMap:
             "lines": [],
             "areas": [],
             "title": "Empty Map",
-            "bounds": None
+            "bounds": None,
         }
 
         result = generate_map(MagicMock(), "cruise")
@@ -398,21 +484,23 @@ class TestGenerateMap:
         """Test map generation with show_plot=True."""
         mock_fig = MagicMock()
         mock_ax = MagicMock()
-        
+
         # Mock axis position for colorbar calculations
         mock_bbox = MagicMock()
         mock_bbox.height = 0.8
-        mock_bbox.width = 0.6  
+        mock_bbox.width = 0.6
         mock_ax.get_position.return_value = mock_bbox
-        
+
         mock_subplots.return_value = (mock_fig, mock_ax)
 
         mock_extract.return_value = {
-            "points": [{"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"}],
+            "points": [
+                {"name": "STN_001", "lat": 60.0, "lon": -20.0, "entity_type": "station"}
+            ],
             "lines": [],
             "areas": [],
             "title": "Test Map",
-            "bounds": (-25, -15, 55, 65)
+            "bounds": (-25, -15, 55, 65),
         }
         mock_calc_bounds.return_value = (-25, -15, 55, 65)
         mock_plot_bathy.return_value = True
@@ -453,6 +541,7 @@ class TestGenerateMapFromYaml:
             bathymetry_dir="data",
             show_plot=True,
             figsize=(14, 12),
+            include_ports=True,  # Default value
         )
 
 
