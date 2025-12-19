@@ -214,12 +214,21 @@ def _calculate_summary_statistics(timeline):
             "total_duration_days": 0,
         }
 
-    # Calculate to/from working area transits (first and last)
-    port_transits = []
-    if len(navigation_transits) >= 1:
-        port_transits.append(navigation_transits[0])  # First transit
-    if len(navigation_transits) >= 2:
-        port_transits.append(navigation_transits[-1])  # Last transit
+    # Calculate to/from working area transits (Port_Departure and Port_Arrival activities)
+    # These represent the actual transits between ports and the working area for each leg
+    port_transits = [
+        a for a in timeline 
+        if a.get("activity") in ["Port_Departure", "Port_Arrival"]
+    ]
+    
+    # If no explicit port activities, treat first and last navigation transits as port transits
+    # This handles the case where we have navigation transits representing the full journey
+    if not port_transits and len(navigation_transits) > 0:
+        port_transits = []
+        if len(navigation_transits) >= 1:
+            port_transits.append(navigation_transits[0])  # First transit is departure
+        if len(navigation_transits) >= 2:
+            port_transits.append(navigation_transits[-1])  # Last transit is arrival
 
     port_area_stats = {}
     if port_transits:
@@ -513,21 +522,8 @@ class HTMLGenerator:
 
             total_leg_duration = 0
 
-            # Add transit to leg start (from previous leg end or departure port)
-            if leg_data["transit_to_start"]:
-                transit = leg_data["transit_to_start"]
-                duration_hrs = transit.get("duration_minutes", 0) / 60
-                total_leg_duration += duration_hrs
-
-                html_content += f"""
-        <tr style="background-color: #f0f8ff;">
-            <td>{transit.get('label', 'Transit')}</td>
-            <td>Transit to leg start</td>
-            <td>{transit.get('start_pos', '')} &rarr; {transit.get('end_pos', '')}</td>
-            <td class="number">{duration_hrs:.1f}</td>
-            <td>{transit.get('comment', 'Transit between legs')}</td>
-        </tr>
-"""
+            # Transit information is now handled by scheduler Port_Departure/Port_Arrival activities
+            # No need to add separate transit rows as they would be duplicated
 
             # Add leg activities
             for activity in leg_data["activities"]:
@@ -562,21 +558,7 @@ class HTMLGenerator:
         </tr>
 """
 
-            # Add transit from leg end (for last leg only - to arrival port)
-            if leg_data["transit_from_end"]:
-                transit = leg_data["transit_from_end"]
-                duration_hrs = transit.get("duration_minutes", 0) / 60
-                total_leg_duration += duration_hrs
-
-                html_content += f"""
-        <tr style="background-color: #f0f8ff;">
-            <td>{transit.get('label', 'Transit')}</td>
-            <td>Transit to arrival port</td>
-            <td>{transit.get('start_pos', '')} &rarr; {transit.get('end_pos', '')}</td>
-            <td class="number">{duration_hrs:.1f}</td>
-            <td>{transit.get('comment', 'Transit to arrival port')}</td>
-        </tr>
-"""
+            # Transit to arrival port is now handled by scheduler Port_Arrival activities
 
             # Add leg total row
             html_content += f"""
@@ -647,8 +629,6 @@ class HTMLGenerator:
 
             legs_data["Main Cruise"] = {
                 "activities": main_activities,
-                "transit_to_start": None,
-                "transit_from_end": None,
             }
             return legs_data
 
@@ -656,8 +636,6 @@ class HTMLGenerator:
         for leg_name in leg_names:
             legs_data[leg_name] = {
                 "activities": [],
-                "transit_to_start": None,
-                "transit_from_end": None,
             }
 
         # Group activities by leg using leg_name field
@@ -697,8 +675,6 @@ class HTMLGenerator:
                     "Main Cruise",
                     {
                         "activities": [],
-                        "transit_to_start": None,
-                        "transit_from_end": None,
                     },
                 )
                 legs_data["Main Cruise"]["activities"].append(activity_dict)
@@ -748,83 +724,8 @@ class HTMLGenerator:
 
         leg_names = list(legs_data.keys())
 
-        for i, leg_name in enumerate(leg_names):
-            # Add transit to leg start (except for first leg, which gets departure port transit)
-            if i == 0:
-                # First leg: transit from departure port to first station
-                if hasattr(config, "departure_port") and config.departure_port:
-                    departure_pos = f"{config.departure_port.position.latitude:.4f}, {config.departure_port.position.longitude:.4f}"
-                    first_activity = (
-                        legs_data[leg_name]["activities"][0]
-                        if legs_data[leg_name]["activities"]
-                        else None
-                    )
-                    if first_activity and "lat" in first_activity:
-                        first_pos = (
-                            f"{first_activity['lat']:.4f}, {first_activity['lon']:.4f}"
-                        )
-                        legs_data[leg_name]["transit_to_start"] = {
-                            "label": f"Transit from {config.departure_port.name}",
-                            "duration_minutes": calculate_transit_duration(
-                                departure_pos, first_pos, vessel_speed
-                            ),
-                            "start_pos": departure_pos,
-                            "end_pos": first_pos,
-                            "comment": f"Transit from departure port ({config.departure_port.name})",
-                        }
-            else:
-                # Subsequent legs: transit from previous leg end to this leg start
-                prev_leg = leg_names[i - 1]
-                prev_activities = legs_data[prev_leg]["activities"]
-                current_activities = legs_data[leg_name]["activities"]
-
-                if prev_activities and current_activities:
-                    last_prev = prev_activities[-1]
-                    first_current = current_activities[0]
-
-                    if (
-                        last_prev
-                        and first_current
-                        and "lat" in last_prev
-                        and "lat" in first_current
-                    ):
-                        start_pos = f"{last_prev['lat']:.4f}, {last_prev['lon']:.4f}"
-                        end_pos = (
-                            f"{first_current['lat']:.4f}, {first_current['lon']:.4f}"
-                        )
-
-                        legs_data[leg_name]["transit_to_start"] = {
-                            "label": f"Transit {prev_leg} to {leg_name}",
-                            "duration_minutes": calculate_transit_duration(
-                                start_pos, end_pos, vessel_speed
-                            ),
-                            "start_pos": start_pos,
-                            "end_pos": end_pos,
-                            "comment": "Transit between legs",
-                        }
-
-            # Add transit from leg end (only for last leg - to arrival port)
-            if i == len(leg_names) - 1:
-                if hasattr(config, "arrival_port") and config.arrival_port:
-                    arrival_pos = f"{config.arrival_port.position.latitude:.4f}, {config.arrival_port.position.longitude:.4f}"
-                    last_activity = (
-                        legs_data[leg_name]["activities"][-1]
-                        if legs_data[leg_name]["activities"]
-                        else None
-                    )
-                    if last_activity and "lat" in last_activity:
-                        last_pos = (
-                            f"{last_activity['lat']:.4f}, {last_activity['lon']:.4f}"
-                        )
-                        legs_data[leg_name]["transit_from_end"] = {
-                            "label": f"Transit to {config.arrival_port.name}",
-                            "duration_minutes": calculate_transit_duration(
-                                last_pos, arrival_pos, vessel_speed
-                            ),
-                            "start_pos": last_pos,
-                            "end_pos": arrival_pos,
-                            "comment": f"Transit to arrival port ({config.arrival_port.name})",
-                        }
+        # Transit calculations removed - now handled by scheduler Port_Departure/Port_Arrival activities
+        # This eliminates duplication between scheduler activities and HTML generator calculations
 
 
 def generate_html_schedule(

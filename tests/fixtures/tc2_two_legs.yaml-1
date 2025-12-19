@@ -1,0 +1,24 @@
+cruise_name: "TC2_TwoLegs_Test"
+
+
+stations:
+  - name: STN_001  
+    latitude: 50.0
+    longitude: -50.0
+    operation_type: CTD
+    action: profile
+  - name: STN_002
+    latitude: 60.0  
+    longitude: -30.0
+    operation_type: mooring
+    action: deployment
+
+legs:
+  - name: "Leg_Atlantic"
+    departure_port: port_halifax
+    arrival_port: port_bremerhaven
+    activities: [STN_001]
+  - name: "Leg_North" 
+    departure_port: port_bremerhaven
+    arrival_port: port_reykjavik
+    activities: [STN_002]

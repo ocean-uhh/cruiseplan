@@ -183,7 +183,7 @@ Examples:
     )
     schedule_parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "kml", "netcdf", "png", "all"],
+        choices=["html", "latex", "csv", "netcdf", "png", "all"],
         default="all",
         help="Output formats (default: all)",
     )
@@ -307,6 +307,11 @@ Examples:
         help="Expand CTD sections into individual station definitions",
     )
     enrich_parser.add_argument(
+        "--expand-ports",
+        action="store_true",
+        help="Expand global port references"
+    )
+    enrich_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
@@ -401,11 +406,12 @@ Examples:
     # --- 7. Map Subcommand ---
     map_parser = subparsers.add_parser(
         "map",
-        help="Generate PNG cruise track map from YAML configuration",
-        description="Create a static PNG map showing cruise track, stations, and bathymetry",
+        help="Generate PNG maps and KML geographic data from YAML configuration",
+        description="Create static PNG maps and/or KML files from cruise configuration catalog",
         epilog="""
-This command generates a standalone PNG map from a cruise configuration file,
-showing stations, cruise tracks, ports, and bathymetric background.
+This command generates PNG maps and/or KML geographic data from cruise configuration.
+PNG maps show stations, cruise tracks, ports, and bathymetric background.
+KML files contain geographic data for Google Earth viewing of all catalog entities.
 
 Examples:
   cruiseplan map -c cruise.yaml                                # Generate map with default settings
@@ -425,13 +431,19 @@ Examples:
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("."),
-        help="Output directory (default: current)",
+        default=Path("data"),
+        help="Output directory (default: data)",
     )
     map_parser.add_argument(
         "--output-file",
         type=Path,
         help="Specific output file path (overrides auto-generated name)",
+    )
+    map_parser.add_argument(
+        "--format",
+        choices=["png", "kml", "all"],
+        default="all",
+        help="Output format: png (map), kml (geographic data), or all (default: all)",
     )
     map_parser.add_argument(
         "--bathymetry-source",

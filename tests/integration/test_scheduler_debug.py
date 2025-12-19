@@ -3,11 +3,13 @@ Debug tests for scheduler timeline generation.
 These tests provide detailed output for understanding and debugging scheduler behavior.
 """
 
+import tempfile
 from pathlib import Path
 
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.validation import enrich_configuration
 from cruiseplan.utils.config import ConfigLoader
 
 
@@ -15,7 +17,7 @@ class TestSchedulerDebug:
     """Debug tests that provide detailed timeline analysis."""
 
     @pytest.mark.parametrize(
-        "fixture_name", ["cruise_simple.yaml", "cruise_mixed_ops.yaml"]
+        "fixture_name", ["tc4_mixed_ops.yaml"]
     )
     def test_scheduler_debug_output(self, fixture_name, capsys):
         """Generate detailed debug output for scheduler timeline generation."""
@@ -29,16 +31,29 @@ class TestSchedulerDebug:
         print(f"{'='*60}")
 
         try:
-            # Load configuration
-            loader = ConfigLoader(yaml_path)
-            config = loader.load()
+            # Create temporary enriched file
+            with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+                enriched_path = Path(tmp_file.name)
+                
+            try:
+                # Enrich the fixture file to add missing global fields
+                enrich_configuration(yaml_path, output_path=enriched_path)
+                
+                # Load enriched configuration
+                loader = ConfigLoader(str(enriched_path))
+                config = loader.load()
+            finally:
+                # Clean up temporary enriched file
+                if enriched_path.exists():
+                    enriched_path.unlink()
 
             print("✅ Config loaded:")
             print(f"   Cruise: {config.cruise_name}")
             print(f"   Start date: {config.start_date}")
             print(f"   Start time: {getattr(config, 'start_time', 'not set')}")
-            print(f"   First station: {config.first_station}")
-            print(f"   Last station: {config.last_station}")
+            print(f"   Legs: {len(config.legs)}")
+            for leg in config.legs:
+                print(f"     {leg.name}: {getattr(leg, 'first_station', 'no first')} -> {getattr(leg, 'last_station', 'no last')}")
             print(f"   Default vessel speed: {config.default_vessel_speed} knots")
 
             print(f"\n   Stations: {len(config.stations or [])}")
@@ -90,12 +105,9 @@ class TestSchedulerDebug:
                         f"     {i+1}. {leg.name}: stations={stations}, sequence={sequence}"
                     )
 
-            print(
-                f"\n   Departure port: {config.departure_port.name} at {config.departure_port.position}"
-            )
-            print(
-                f"   Arrival port: {config.arrival_port.name} at {config.arrival_port.position}"
-            )
+            print("\n   Port information (leg-level):")
+            for leg in config.legs:
+                print(f"     {leg.name}: {leg.departure_port} -> {leg.arrival_port}")
 
             # Generate timeline with debug info
             print("\n🔍 Generating timeline...")
@@ -168,7 +180,7 @@ class TestSchedulerDebug:
 
     def test_scheduler_debug_mixed_operations_details(self, capsys):
         """Detailed debug output specifically for mixed operations to verify transit calculations."""
-        yaml_path = "tests/fixtures/cruise_mixed_ops.yaml"
+        yaml_path = "tests/fixtures/tc4_mixed_ops.yaml"
 
         if not Path(yaml_path).exists():
             pytest.skip(f"Fixture {yaml_path} not found")
@@ -177,8 +189,22 @@ class TestSchedulerDebug:
         print("Mixed Operations Transit Calculation Debug")
         print(f"{'='*60}")
 
-        loader = ConfigLoader(yaml_path)
-        config = loader.load()
+        # Create temporary enriched file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as tmp_file:
+            enriched_path = Path(tmp_file.name)
+            
+        try:
+            # Enrich the fixture file to add missing global fields
+            enrich_configuration(yaml_path, output_path=enriched_path)
+            
+            # Load enriched configuration
+            loader = ConfigLoader(str(enriched_path))
+            config = loader.load()
+        finally:
+            # Clean up temporary enriched file
+            if enriched_path.exists():
+                enriched_path.unlink()
+                
         timeline = generate_timeline(config)
 
         # Verify specific distance calculations

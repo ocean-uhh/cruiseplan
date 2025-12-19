@@ -115,7 +115,7 @@ class LaTeXGenerator:
             activity
             for activity in timeline
             if activity["activity"] in ["Station", "Mooring"]
-            or activity["operation_type"] in ["station", "mooring"]
+            or activity.get("operation_type", "") in ["station", "mooring"]
             or is_scientific_transit(activity)  # <-- Include scientific transits
         ]
 
@@ -248,7 +248,7 @@ class LaTeXGenerator:
                     "activity": "Transit to area",
                     "duration_h": "",  # No operation duration
                     "transit_h": f"{transit_to_area_h:.1f}",
-                    "notes": f"{config.departure_port.name} to {config.first_station}",
+                    "notes": f"{getattr(config.departure_port, 'name', 'Departure port')} to {config.first_station}",
                 }
             )
 
@@ -324,7 +324,7 @@ class LaTeXGenerator:
                     "activity": "Transit from area",
                     "duration_h": "",  # No operation duration
                     "transit_h": f"{transit_from_area_h:.1f}",
-                    "notes": f"{config.last_station} to {config.arrival_port.name}",
+                    "notes": f"{config.last_station} to {getattr(config.arrival_port, 'name', 'Arrival port')}",
                 }
             )
 

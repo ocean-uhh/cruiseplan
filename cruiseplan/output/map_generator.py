@@ -23,9 +23,247 @@ import matplotlib.pyplot as plt
 logger = logging.getLogger(__name__)
 
 
+# ============================================================================
+# MAP DATA EXTRACTION FUNCTIONS
+# ============================================================================
+
+def extract_points_from_cruise(cruise) -> List[Dict[str, Any]]:
+    """
+    Extract point features (stations, moorings, ports) from cruise configuration.
+    
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object with station registry and configuration
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of point dictionaries with keys: name, lat, lon, entity_type, operation_type, action
+    """
+    points = []
+    
+    # Extract stations
+    if hasattr(cruise, 'station_registry') and cruise.station_registry:
+        for station_name, station in cruise.station_registry.items():
+            lat = (
+                station.latitude
+                if hasattr(station, "latitude")
+                else station.position.latitude
+            )
+            lon = (
+                station.longitude
+                if hasattr(station, "longitude")
+                else station.position.longitude
+            )
+            points.append({
+                'name': station_name,
+                'lat': lat,
+                'lon': lon,
+                'entity_type': 'station',
+                'operation_type': getattr(station, 'operation_type', 'station'),
+                'action': getattr(station, 'action', None),
+                'depth': getattr(station, 'water_depth', getattr(station, 'depth', None)),
+            })
+    
+    # Extract moorings
+    if hasattr(cruise, 'mooring_registry') and cruise.mooring_registry:
+        for mooring_name, mooring in cruise.mooring_registry.items():
+            lat = (
+                mooring.latitude
+                if hasattr(mooring, "latitude")
+                else mooring.position.latitude
+            )
+            lon = (
+                mooring.longitude
+                if hasattr(mooring, "longitude")
+                else mooring.position.longitude
+            )
+            points.append({
+                'name': mooring_name,
+                'lat': lat,
+                'lon': lon,
+                'entity_type': 'mooring',
+                'operation_type': getattr(mooring, 'operation_type', 'mooring'),
+                'action': getattr(mooring, 'action', None),
+                'depth': getattr(mooring, 'water_depth', getattr(mooring, 'depth', None)),
+            })
+    
+    # Extract departure port
+    if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
+        port = cruise.config.departure_port
+        if hasattr(port, "latitude"):
+            points.append({
+                'name': port.name,
+                'lat': port.latitude,
+                'lon': port.longitude,
+                'entity_type': 'departure_port',
+                'operation_type': 'port',
+                'action': None,
+                'depth': None,
+            })
+    
+    # Extract arrival port
+    if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
+        port = cruise.config.arrival_port
+        if hasattr(port, "latitude"):
+            points.append({
+                'name': port.name,
+                'lat': port.latitude,
+                'lon': port.longitude,
+                'entity_type': 'arrival_port',
+                'operation_type': 'port',
+                'action': None,
+                'depth': None,
+            })
+    
+    return points
+
+
+def extract_lines_from_cruise(cruise) -> List[Dict[str, Any]]:
+    """
+    Extract line features (scientific transits, cruise tracks) from cruise configuration.
+    
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object with config containing transits
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of line dictionaries with keys: name, waypoints, entity_type, operation_type, action
+    """
+    lines = []
+    
+    # Extract scientific transits with routes from config
+    if hasattr(cruise, 'config') and hasattr(cruise.config, 'transits') and cruise.config.transits:
+        for transit in cruise.config.transits:
+            if hasattr(transit, 'route') and transit.route and len(transit.route) >= 2:
+                waypoints = []
+                for waypoint in transit.route:
+                    waypoints.append({
+                        'lat': waypoint.latitude,
+                        'lon': waypoint.longitude
+                    })
+                
+                lines.append({
+                    'name': transit.name,
+                    'waypoints': waypoints,
+                    'entity_type': 'transit',
+                    'operation_type': getattr(transit, 'operation_type', 'transit'),
+                    'action': getattr(transit, 'action', None),
+                    'vessel_speed': getattr(transit, 'vessel_speed', None),
+                })
+    
+    return lines
+
+
+def extract_areas_from_cruise(cruise) -> List[Dict[str, Any]]:
+    """
+    Extract area features (survey areas, polygons) from cruise configuration.
+    
+    Parameters
+    ----------
+    cruise : Cruise
+        Cruise object with config containing areas
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of area dictionaries with keys: name, corners, entity_type, operation_type, action
+    """
+    areas = []
+    
+    # Extract survey areas with corners from config
+    if hasattr(cruise, 'config') and hasattr(cruise.config, 'areas') and cruise.config.areas:
+        for area in cruise.config.areas:
+            if hasattr(area, 'corners') and area.corners and len(area.corners) >= 3:
+                corners = []
+                for corner in area.corners:
+                    corners.append({
+                        'lat': corner.latitude,
+                        'lon': corner.longitude
+                    })
+                
+                areas.append({
+                    'name': area.name,
+                    'corners': corners,
+                    'entity_type': 'area',
+                    'operation_type': getattr(area, 'operation_type', 'survey'),
+                    'action': getattr(area, 'action', None),
+                    'duration': getattr(area, 'duration', None),
+                })
+    
+    return areas
+
+
+def calculate_optimal_figsize(
+    display_bounds: Tuple[float, float, float, float],
+    base_width: float = 12.0,  # inches
+    max_height: float = 10.0,  # inches
+    min_height: float = 4.0,   # inches
+) -> Tuple[float, float]:
+    """
+    Calculate figure size that matches geographic aspect ratio.
+    
+    This prevents aspect ratio conflicts between matplotlib's figure
+    and the geographic extent of the map.
+    
+    Parameters
+    ----------
+    display_bounds : tuple
+        (min_lon, max_lon, min_lat, max_lat) in degrees
+    base_width : float, optional
+        Preferred figure width in inches (default 12.0)
+    max_height : float, optional  
+        Maximum figure height in inches (default 10.0)
+    min_height : float, optional
+        Minimum figure height in inches (default 4.0)
+        
+    Returns
+    -------
+    tuple
+        (width, height) in inches optimized for geographic extent
+    """
+    min_lon, max_lon, min_lat, max_lat = display_bounds
+
+    # Calculate geographic ranges
+    lat_range = max_lat - min_lat
+    lon_range = max_lon - min_lon
+
+    if lat_range <= 0 or lon_range <= 0:
+        return (base_width, base_width * 0.75)  # Default 4:3 ratio
+
+    # Adjust longitude range for latitude compression at mid-latitude
+    mid_lat = (min_lat + max_lat) / 2
+    mid_lat = max(-85.0, min(85.0, mid_lat))  # Clamp to avoid polar issues
+    cos_lat = math.cos(math.radians(abs(mid_lat)))
+    effective_lon_range = lon_range * cos_lat
+
+    # Calculate geographic aspect ratio (width / height)
+    geo_aspect = effective_lon_range / lat_range
+    geo_aspect = max(0.1, min(geo_aspect, 10.0))  # Reasonable bounds
+
+    # Calculate figure dimensions
+    width = base_width
+    height = width / geo_aspect
+
+    # Apply constraints
+    if height > max_height:
+        height = max_height
+        width = height * geo_aspect
+    elif height < min_height:
+        height = min_height
+        width = height * geo_aspect
+
+    logger.debug(f"Geographic aspect ratio: {geo_aspect:.2f}, Figure size: {width:.1f}x{height:.1f}")
+    return (width, height)
+
+
 def extract_map_data(data_source, source_type="cruise"):
     """
-    Extract coordinate and metadata from either cruise config or timeline data.
+    Extract all map features (points, lines, areas) from cruise config or timeline.
 
     Parameters
     ----------
@@ -37,83 +275,57 @@ def extract_map_data(data_source, source_type="cruise"):
     Returns
     -------
     dict
-        Dictionary with keys: lats, lons, station_names, station_types, departure_port, arrival_port, title
+        Dictionary with keys: points, lines, areas, title, bounds
     """
     if source_type == "cruise":
-        from cruiseplan.utils.coordinates import extract_coordinates_from_cruise
-
-        all_lats, all_lons, station_names, departure_port, arrival_port = (
-            extract_coordinates_from_cruise(data_source)
-        )
-
-        # Extract station types from cruise station registry
-        station_types = []
-        for station_name, station in data_source.station_registry.items():
-            # Check operation_type or fall back to detecting from object type
-            if hasattr(station, "operation_type"):
-                station_types.append(station.operation_type)
-            elif "mooring" in station_name.lower() or hasattr(station, "mooring"):
-                station_types.append("mooring")
-            else:
-                station_types.append("station")  # Default to station
-
+        # Extract structured data using new functions
+        points = extract_points_from_cruise(data_source)
+        lines = extract_lines_from_cruise(data_source)
+        areas = extract_areas_from_cruise(data_source)
         title = f"{data_source.config.cruise_name}\nCruise Track with Bathymetry"
-
+        
     elif source_type == "timeline":
-        all_lats = []
-        all_lons = []
-        station_names = []
-        station_types = []
-        departure_port = None
-        arrival_port = None
-
-        # Handle both old (list) and new (dict) timeline data format
-        if isinstance(data_source, dict):
-            timeline = data_source["timeline"]
-            config = data_source.get("config")
-        else:
-            timeline = data_source
-            config = None
-
-        # Extract coordinates from timeline activities
-        for activity in timeline:
-            if isinstance(activity, dict):
-                lat = activity.get("lat", 0.0)
-                lon = activity.get("lon", 0.0)
-                name = activity.get("activity", "Unknown")
-                operation_type = activity.get("operation_type", "station")
-
-                if lat != 0.0 or lon != 0.0:
-                    all_lats.append(lat)
-                    all_lons.append(lon)
-                    station_names.append(name)
-                    station_types.append(operation_type)
-
-        # Extract ports from config if available
-        if config:
-            if hasattr(config, "departure_port") and config.departure_port:
-                dep_lat = config.departure_port.position.latitude
-                dep_lon = config.departure_port.position.longitude
-                departure_port = (dep_lat, dep_lon, config.departure_port.name)
-
-            if hasattr(config, "arrival_port") and config.arrival_port:
-                arr_lat = config.arrival_port.position.latitude
-                arr_lon = config.arrival_port.position.longitude
-                arrival_port = (arr_lat, arr_lon, config.arrival_port.name)
-
+        # TODO: Implement timeline extraction functions later
+        points = []
+        lines = []
+        areas = []
         title = "Cruise Schedule\nOperations Timeline with Bathymetry"
-
+        
     else:
         raise ValueError(f"Unknown source_type: {source_type}")
-
+    
+    # Calculate bounds from all coordinate data
+    all_lats = []
+    all_lons = []
+    
+    # Add point coordinates
+    for point in points:
+        all_lats.append(point['lat'])
+        all_lons.append(point['lon'])
+    
+    # Add line coordinates
+    for line in lines:
+        for waypoint in line['waypoints']:
+            all_lats.append(waypoint['lat'])
+            all_lons.append(waypoint['lon'])
+    
+    # Add area coordinates
+    for area in areas:
+        for corner in area['corners']:
+            all_lats.append(corner['lat'])
+            all_lons.append(corner['lon'])
+    
+    # Calculate bounds
+    bounds = None
+    if all_lats and all_lons:
+        bounds = (min(all_lons), max(all_lons), min(all_lats), max(all_lats))
+    
     return {
-        "lats": all_lats,
-        "lons": all_lons,
-        "station_names": station_names,
-        "station_types": station_types,
-        "departure_port": departure_port,
-        "arrival_port": arrival_port,
-        "title": title,
+        'points': points,
+        'lines': lines,
+        'areas': areas,
+        'title': title,
+        'bounds': bounds,
     }
 
 
@@ -202,54 +414,35 @@ def plot_bathymetry(
             extend="both",
         )
 
-        # Add colorbar
-        cbar = plt.colorbar(cs_filled, ax=ax, shrink=0.8, pad=0.02)
-        cbar.set_label("Depth (m)", rotation=270, labelpad=20)
-
         logger.info("Added bathymetry contours covering full region")
-        return True
+        return cs_filled  # Return contour object for colorbar creation later
 
     except Exception as e:
         logger.warning(f"Bathymetry plotting failed: {e}")
         return False
 
 
-def plot_cruise_elements(
-    ax,
-    data_source,
-    display_bounds: Tuple[float, float, float, float],
-    source_type="cruise",
-):
+def plot_cruise_elements(ax, map_data: Dict[str, Any], display_bounds: Tuple[float, float, float, float]):
     """
-    Plot stations, ports, and cruise tracks on a matplotlib axis.
+    Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.
 
     Parameters
     ----------
     ax : matplotlib.axes.Axes
         The matplotlib axis to plot on
-    data_source : Cruise or list
-        Either a Cruise object or timeline data
+    map_data : Dict[str, Any]
+        Structured map data with 'points', 'lines', 'areas', 'title', and 'bounds'
     display_bounds : tuple
         (min_lon, max_lon, min_lat, max_lat) for display area
-    source_type : str, optional
-        "cruise" for Cruise object, "timeline" for timeline data
     """
-    # Extract coordinates using unified function
-    map_data = extract_map_data(data_source, source_type)
-    all_lats = map_data["lats"]
-    all_lons = map_data["lons"]
-    station_names = map_data["station_names"]
-    station_types = map_data["station_types"]
-    departure_port = map_data["departure_port"]
-    arrival_port = map_data["arrival_port"]
-    title = map_data["title"]
+    from cruiseplan.utils.plot_config import get_plot_style
 
-    # Set display limits and aspect ratio
+    # Set display limits
     final_min_lon, final_max_lon, final_min_lat, final_max_lat = display_bounds
     ax.set_xlim(final_min_lon, final_max_lon)
     ax.set_ylim(final_min_lat, final_max_lat)
 
-    # Set the computed aspect ratio
+    # Set geographic aspect ratio
     mid_lat_deg = (final_min_lat + final_max_lat) / 2
     mid_lat_deg = max(-85.0, min(85.0, mid_lat_deg))
     mid_lat_rad = math.radians(mid_lat_deg)
@@ -258,177 +451,124 @@ def plot_cruise_elements(
     except ZeroDivisionError:
         aspect = 1.0
     aspect = max(1.0, min(aspect, 10.0))
-    ax.set_aspect(aspect, adjustable="datalim")
+    ax.set_aspect(aspect, adjustable="box")
 
-    # Extract only station coordinates for cruise track (exclude ports)
-    if source_type == "cruise":
-        station_lats = []
-        station_lons = []
-        for station_name, station in data_source.station_registry.items():
-            lat = (
-                station.latitude
-                if hasattr(station, "latitude")
-                else station.position.latitude
-            )
-            lon = (
-                station.longitude
-                if hasattr(station, "longitude")
-                else station.position.longitude
-            )
-            station_lats.append(lat)
-            station_lons.append(lon)
-    else:  # timeline data
-        station_lats = all_lats
-        station_lons = all_lons
+    # Track which legend labels have been added
+    legend_labels_added = set()
 
-    # Plot transit lines UNDER symbols (lower zorder)
-    if departure_port and station_lats:
-        dep_lat, dep_lon, _ = departure_port
-        # Line from departure port to first station
-        ax.plot(
-            [dep_lon, station_lons[0]],
-            [dep_lat, station_lats[0]],
-            "b--",
-            linewidth=1.5,
-            alpha=0.6,
-            zorder=1,
-            label="Transit Lines",
-        )
+    # Plot areas (polygons) first so they appear behind other elements
+    for area in map_data.get('areas', []):
+        if not area.get('corners'):
+            continue
+            
+        # Extract polygon coordinates
+        poly_lons = [corner['lon'] for corner in area['corners']]
+        poly_lats = [corner['lat'] for corner in area['corners']]
+        
+        # Close the polygon by connecting back to first point
+        poly_lons.append(poly_lons[0])
+        poly_lats.append(poly_lats[0])
+        
+        # Get styling for areas
+        style = get_plot_style('area', area.get('operation_type'), area.get('action'))
+        
+        # Plot filled polygon
+        ax.fill(poly_lons, poly_lats, 
+               facecolor=style.get('facecolor', '#FFD700'),
+               edgecolor=style.get('edgecolor', '#B8860B'), 
+               alpha=style.get('alpha', 0.4),
+               linewidth=style.get('linewidth', 2),
+               zorder=2)
+        
+        # Add to legend if not already added
+        label = style.get('label', 'Areas')
+        if label not in legend_labels_added:
+            ax.fill([], [], 
+                   facecolor=style.get('facecolor', '#FFD700'),
+                   edgecolor=style.get('edgecolor', '#B8860B'), 
+                   alpha=style.get('alpha', 0.4),
+                   label=label)
+            legend_labels_added.add(label)
 
-    if arrival_port and station_lats and arrival_port != departure_port:
-        arr_lat, arr_lon, _ = arrival_port
-        # Line from last station to arrival port
-        ax.plot(
-            [station_lons[-1], arr_lon],
-            [station_lats[-1], arr_lat],
-            "b--",
-            linewidth=1.5,
-            alpha=0.6,
-            zorder=1,
-        )
+    # Plot lines (scientific transits) 
+    for line in map_data.get('lines', []):
+        if not line.get('waypoints') or len(line['waypoints']) < 2:
+            continue
+            
+        # Extract line coordinates
+        line_lons = [wp['lon'] for wp in line['waypoints']]
+        line_lats = [wp['lat'] for wp in line['waypoints']]
+        
+        # Get styling for transits
+        style = get_plot_style('transit', line.get('operation_type'), line.get('action'))
+        
+        # Plot line
+        ax.plot(line_lons, line_lats,
+               color=style.get('color', '#0000FF'),
+               linewidth=style.get('linewidth', 3),
+               linestyle=style.get('linestyle', '-'),
+               alpha=style.get('alpha', 0.7),
+               zorder=5)
+        
+        # Add to legend if not already added
+        label = style.get('label', 'Scientific Transits')
+        if label not in legend_labels_added:
+            ax.plot([], [],
+                   color=style.get('color', '#0000FF'),
+                   linewidth=style.get('linewidth', 3),
+                   linestyle=style.get('linestyle', '-'),
+                   alpha=style.get('alpha', 0.7),
+                   label=label)
+            legend_labels_added.add(label)
 
-    # Plot cruise track between stations - only for timeline data (scheduled sequence)
-    if source_type == "timeline" and len(station_lats) > 1:
-        ax.plot(
-            station_lons,
-            station_lats,
-            "b-",
-            linewidth=1,
-            alpha=0.8,
-            label="Cruise Track",
-            zorder=2,
-        )
+    # Plot points (stations, moorings, ports)
+    for point in map_data.get('points', []):
+        lat, lon = point['lat'], point['lon']
+        if lat == 0.0 and lon == 0.0:
+            continue
 
-    # Plot ports
-    if departure_port:
-        dep_lat, dep_lon, dep_name = departure_port
-        ax.scatter(
-            dep_lon,
-            dep_lat,
-            c="purple",
-            s=100,
-            marker="P",
-            edgecolors="black",
-            alpha=0.7,
-            linewidth=1,
-            zorder=10,
-            label="Departure Port",
-        )
-        ax.annotate(
-            dep_name,
-            (dep_lon, dep_lat),
-            xytext=(8, 8),
-            textcoords="offset points",
-            fontsize=10,
-            fontweight="bold",
-            color="purple",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8),
-        )
-
-    if arrival_port and arrival_port != departure_port:
-        arr_lat, arr_lon, arr_name = arrival_port
-        ax.scatter(
-            arr_lon,
-            arr_lat,
-            c="darkmagenta",
-            s=100,
-            marker="H",
-            alpha=0.7,
-            edgecolors="black",
-            linewidth=1,
-            zorder=10,
-            label="Arrival Port",
-        )
-        ax.annotate(
-            arr_name,
-            (arr_lon, arr_lat),
-            xytext=(8, 8),
-            textcoords="offset points",
-            fontsize=10,
-            fontweight="bold",
-            color="darkmagenta",
-            bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8),
-        )
-
-    # Plot stations by type
-    if station_lats:
-        # Separate stations and moorings
-        station_lats_by_type = {"station": [], "mooring": []}
-        station_lons_by_type = {"station": [], "mooring": []}
-
-        for i, (lat, lon, stype) in enumerate(
-            zip(station_lats, station_lons, station_types)
-        ):
-            if "mooring" in stype.lower():
-                station_lats_by_type["mooring"].append(lat)
-                station_lons_by_type["mooring"].append(lon)
-            else:
-                station_lats_by_type["station"].append(lat)
-                station_lons_by_type["station"].append(lon)
-
-        # Plot regular stations (red circles)
-        if station_lats_by_type["station"]:
-            ax.scatter(
-                station_lons_by_type["station"],
-                station_lats_by_type["station"],
-                c="red",
-                s=50,
-                alpha=0.8,
-                edgecolors="black",
-                linewidth=0.5,
-                zorder=15,
-                label="Stations",
-            )
-
-        # Plot moorings (yellow stars)
-        if station_lats_by_type["mooring"]:
-            ax.scatter(
-                station_lons_by_type["mooring"],
-                station_lats_by_type["mooring"],
-                c="gold",
-                s=120,
-                marker="*",
-                alpha=0.9,
-                edgecolors="black",
-                linewidth=0.5,
-                zorder=15,
-                label="Moorings",
-            )
+        # Get styling based on entity type and operation type
+        style = get_plot_style(point['entity_type'], point.get('operation_type'), point.get('action'))
+        
+        # Plot point
+        ax.scatter(lon, lat,
+                  s=style.get('size', 80),
+                  c=style.get('color', '#FF0000'),
+                  marker=style.get('marker', 'o'),
+                  alpha=style.get('alpha', 0.8),
+                  edgecolors=style.get('edgecolor', 'black'),
+                  linewidth=style.get('linewidth', 1),
+                  zorder=10)
+        
+        # Add point name annotation
+        ax.annotate(point['name'], (lon, lat),
+                   xytext=(3, 3), textcoords="offset points",
+                   fontsize=8, color="black", weight="bold", zorder=20)
+        
+        # Add to legend if not already added
+        label = style.get('label', point['entity_type'].title())
+        if label not in legend_labels_added:
+            ax.scatter([], [],
+                      s=style.get('size', 80),
+                      c=style.get('color', '#FF0000'),
+                      marker=style.get('marker', 'o'),
+                      alpha=style.get('alpha', 0.8),
+                      edgecolors=style.get('edgecolor', 'black'),
+                      linewidth=style.get('linewidth', 1),
+                      label=label)
+            legend_labels_added.add(label)
 
     # Set labels and title
     ax.set_xlabel("Longitude (°)", fontsize=12)
     ax.set_ylabel("Latitude (°)", fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight="bold")
+    ax.set_title(map_data.get('title', 'Cruise Plan Map'), fontsize=14, fontweight="bold")
 
     # Add grid and legend
     ax.grid(True, alpha=0.3, zorder=0)
-    ax.legend(loc="upper right", fontsize=10, frameon=True, fancybox=True, shadow=True)
+    if legend_labels_added:
+        ax.legend(loc="upper right", fontsize=10, frameon=True, fancybox=True, shadow=True)
 
-    logger.info(f"Map displayed with {len(station_names)} stations")
-    if departure_port:
-        logger.info(f"Departure: {departure_port[2]}")
-    if arrival_port:
-        logger.info(f"Arrival: {arrival_port[2]}")
+    logger.info(f"Map displayed with {len(map_data.get('points', []))} points, {len(map_data.get('lines', []))} lines, {len(map_data.get('areas', []))} areas")
 
 
 def generate_map(
@@ -439,7 +579,7 @@ def generate_map(
     bathymetry_stride: int = 5,
     bathymetry_dir: str = "data",
     show_plot: bool = False,
-    figsize: Tuple[float, float] = (10, 8),
+    figsize: Tuple[float, float] = (10, 8.1),
 ) -> Optional[Path]:
     """
     Generate a static PNG map from either cruise config or timeline data.
@@ -471,10 +611,8 @@ def generate_map(
     """
     # Extract map data using unified function
     map_data = extract_map_data(data_source, source_type)
-    all_lats = map_data["lats"]
-    all_lons = map_data["lons"]
-
-    if not all_lats:
+    
+    if not map_data['points']:
         logger.warning(f"No coordinates found in {source_type} data")
         return None
 
@@ -482,43 +620,77 @@ def generate_map(
     output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Calculate display bounds (include ports for bounds calculation)
-    from cruiseplan.utils.coordinates import calculate_map_bounds
+    # Calculate display bounds from the bounds in map_data
+    bounds = map_data.get('bounds')
+    if bounds:
+        min_lon, max_lon, min_lat, max_lat = bounds
+    else:
+        # Fallback: calculate from points
+        all_lats = [point['lat'] for point in map_data['points']]
+        all_lons = [point['lon'] for point in map_data['points']]
+        if not all_lats:
+            logger.warning("No valid coordinates found")
+            return None
+        min_lat, max_lat = min(all_lats), max(all_lats)
+        min_lon, max_lon = min(all_lons), max(all_lons)
 
-    bounds_lats = all_lats.copy()
-    bounds_lons = all_lons.copy()
+    # Add padding to bounds
+    padding_deg = 5.0  # degrees padding around data points
+    min_lat -= padding_deg
+    max_lat += padding_deg
+    min_lon -= padding_deg
+    max_lon += padding_deg
 
-    # Add ports to bounds calculation
-    if map_data["departure_port"]:
-        dep_lat, dep_lon, _ = map_data["departure_port"]
-        bounds_lats.append(dep_lat)
-        bounds_lons.append(dep_lon)
-    if map_data["arrival_port"]:
-        arr_lat, arr_lon, _ = map_data["arrival_port"]
-        bounds_lats.append(arr_lat)
-        bounds_lons.append(arr_lon)
+    display_bounds = (min_lon, max_lon, min_lat, max_lat)
 
-    display_bounds = calculate_map_bounds(bounds_lats, bounds_lons)
+    logger.info(f"Display bounds: {min_lat:.1f}°-{max_lat:.1f}°N, {min_lon:.1f}°-{max_lon:.1f}°E")
 
-    # Calculate bathymetry limits with extra padding for coverage
-    bathy_limits = calculate_map_bounds(
-        bounds_lats,
-        bounds_lons,
-        padding_degrees=10.0,  # Fixed 10-degree padding for bathymetry
-        apply_aspect_ratio=False,  # Don't need aspect correction for bathymetry bounds
-        round_to_degrees=False,  # Don't need rounding for bathymetry bounds
+    # Calculate optimal figure size to match geographic extent
+    optimal_figsize = calculate_optimal_figsize(display_bounds)
+
+    # Override the passed figsize with the optimal one for this geographic extent
+    if figsize == (10, 8.1):  # Only override if using default figsize
+        figsize = optimal_figsize
+        logger.info(f"Using dynamic figure size: {figsize[0]:.1f}x{figsize[1]:.1f} inches")
+
+    # Calculate bathymetry bounds with additional padding for coverage
+    min_lon, max_lon, min_lat, max_lat = display_bounds
+    bathy_padding = 3.0  # Additional padding for bathymetry coverage beyond display area
+    bathy_limits = (
+        min_lon - bathy_padding,  # min_lon
+        max_lon + bathy_padding,  # max_lon
+        min_lat - bathy_padding,  # min_lat
+        max_lat + bathy_padding   # max_lat
     )
 
-    # Create figure and axis
+    # Create figure and axis with optimized size
     fig, ax = plt.subplots(figsize=figsize)
 
-    # Plot bathymetry
-    plot_bathymetry(
+    # Plot bathymetry and get contour object for colorbar
+    cs_filled = plot_bathymetry(
         ax, *bathy_limits, bathymetry_source, bathymetry_stride, bathymetry_dir
     )
 
-    # Plot cruise elements
-    plot_cruise_elements(ax, data_source, display_bounds, source_type)
+    # Plot cruise elements using new structured data (this applies the final aspect ratio)
+    plot_cruise_elements(ax, map_data, display_bounds)
+
+    # Create colorbar AFTER aspect ratio is applied
+    if cs_filled and cs_filled is not False:
+        # Calculate axis dimensions after final aspect ratio is applied
+        bbox = ax.get_position()
+        axis_height = bbox.height
+        axis_width = bbox.width
+
+        # For wide maps, use smaller shrink factor; for tall maps, use larger
+        # Target: colorbar no more than 10% taller than map axis
+        aspect_ratio = axis_width / axis_height
+        if aspect_ratio > 2.0:  # Wide map
+            shrink_factor = min(0.6, 1.1 / aspect_ratio)  # Smaller colorbar for wide maps
+        else:  # More square map
+            shrink_factor = 0.8  # Original behavior
+
+        cbar = plt.colorbar(cs_filled, ax=ax, shrink=shrink_factor, pad=0.02)
+        cbar.set_label("Depth (m)", rotation=270, labelpad=20)
 
     plt.tight_layout()
 
@@ -537,6 +709,7 @@ def generate_map(
         logger.info(f"Map saved to {output_path.resolve()}")
 
     return output_path.resolve()
+
 
 
 def generate_map_from_yaml(

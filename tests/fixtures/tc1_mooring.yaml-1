@@ -1,0 +1,17 @@
+cruise_name: "Test Mooring Defaults"
+
+stations:
+  - name: "MOORING_001"
+    latitude: 45.0
+    longitude: -45.0
+    operation_type: "mooring"
+    action: "deployment"
+    # Note: duration field is intentionally missing
+
+legs:
+  - name: "Test_Leg"
+    departure_port: "port_halifax"
+    arrival_port: "port_cadiz"
+    activities: ["MOORING_001"]
+    first_station: "MOORING_001"
+    last_station: "MOORING_001"

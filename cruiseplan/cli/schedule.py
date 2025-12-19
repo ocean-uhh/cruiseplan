@@ -56,7 +56,7 @@ def main(args: argparse.Namespace) -> None:
         formats = []
         if args.format:
             if args.format == "all":
-                formats = ["html", "csv", "latex", "kml", "netcdf", "png"]
+                formats = ["html", "csv", "latex", "netcdf", "png"]
             elif isinstance(args.format, str):
                 formats = [f.strip().lower() for f in args.format.split(",")]
             elif isinstance(args.format, list):
@@ -157,7 +157,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--format",
-        choices=["html", "latex", "csv", "kml", "netcdf", "all"],
+        choices=["html", "latex", "csv", "netcdf", "all"],
         default="all",
         help="Output format (default: all)",
     )

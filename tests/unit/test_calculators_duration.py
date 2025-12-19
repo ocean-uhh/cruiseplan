@@ -10,6 +10,8 @@ from cruiseplan.core.validation import CruiseConfig, PortDefinition
 # Mock Config
 @pytest.fixture
 def mock_config():
+    from cruiseplan.core.validation import LegDefinition
+    
     return CruiseConfig(
         cruise_name="Test",
         start_date="2025-01-01T08:00:00",
@@ -17,11 +19,16 @@ def mock_config():
         default_distance_between_stations=20,
         calculate_transfer_between_sections=True,
         calculate_depth_via_bathymetry=False,
-        departure_port=PortDefinition(name="A", position="0,0"),
-        arrival_port=PortDefinition(name="B", position="0,0"),
-        first_station="S1",
-        last_station="S1",
-        legs=[],
+        legs=[
+            LegDefinition(
+                name="Test_Leg",
+                departure_port=PortDefinition(name="A", latitude=0.0, longitude=0.0),
+                arrival_port=PortDefinition(name="B", latitude=0.0, longitude=0.0),
+                first_station="S1",
+                last_station="S1",
+                activities=[]
+            )
+        ],
         ctd_descent_rate=1.0,  # 60 m/min
         ctd_ascent_rate=1.0,  # 60 m/min
         turnaround_time=10,  # min
@@ -75,6 +82,8 @@ def test_ctd_duration_custom_rates(slow_winch_config):
 def test_custom_day_window_wait():
     """Verify wait time respects custom daylight hours (e.g., High Latitude Summer)."""
     # Create config with LONG days (04:00 to 22:00)
+    from cruiseplan.core.validation import LegDefinition
+    
     cfg = CruiseConfig(
         cruise_name="Summer Sun",
         start_date="2025-06-01T00:00:00",
@@ -82,11 +91,16 @@ def test_custom_day_window_wait():
         default_distance_between_stations=10,
         calculate_transfer_between_sections=True,
         calculate_depth_via_bathymetry=False,
-        departure_port=PortDefinition(name="A", latitude=0, longitude=0),
-        arrival_port=PortDefinition(name="B", latitude=0, longitude=0),
-        first_station="S1",
-        last_station="S1",
-        legs=[],
+        legs=[
+            LegDefinition(
+                name="Summer_Leg",
+                departure_port=PortDefinition(name="A", latitude=0, longitude=0),
+                arrival_port=PortDefinition(name="B", latitude=0, longitude=0),
+                first_station="S1",
+                last_station="S1",
+                activities=[]
+            )
+        ],
         day_start_hour=4,  # Sunrise 04:00
         day_end_hour=22,  # Sunset 22:00
     )

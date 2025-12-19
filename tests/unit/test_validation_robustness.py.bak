@@ -192,4 +192,5 @@ legs: []
 
     # Check Port parsed correctly
     p1 = cruise.config.departure_port
-    assert p1.position.latitude == 50.0
+    assert p1.latitude == 50.0
+    assert p1.longitude == -10.0

@@ -1,0 +1,22 @@
+cruise_name: "TC5_Sections_Test"  
+
+
+
+transits:
+  - name: SEC_001
+    route:
+      - latitude: 45.0
+        longitude: -50.0
+      - latitude: 47.0
+        longitude: -48.0
+    
+    operation_type: CTD
+    action: section
+
+legs:
+  - name: "Section_Survey"
+    departure_port: port_halifax  
+    arrival_port: port_cadiz
+    first_station: SEC_001
+    last_station: SEC_001
+    activities: [SEC_001]

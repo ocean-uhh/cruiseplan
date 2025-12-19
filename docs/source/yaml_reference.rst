@@ -801,11 +801,11 @@ Planned Leg Enhancements
       * - ``first_station``
         - str
         - None
-        - Entry point station for this leg (must exist in catalog)
+        - Entry point station for this leg (must exist in catalog). **Executes the defined activity by default** (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with ``duration: 0``.
       * - ``last_station``
         - str
         - None
-        - Exit point station for this leg (must exist in catalog)
+        - Exit point station for this leg (must exist in catalog). **Executes the defined activity by default** (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with ``duration: 0``.
 
 **Planned Usage Example**:
 
@@ -852,6 +852,74 @@ The scheduler processes leg components in this simplified order:
 **Note**: Legs must specify either ``activities`` or ``clusters`` (or both). Empty legs are not permitted.
 
 
+.. _routing-anchor-behavior:
+
+Routing Anchor Behavior (first_station & last_station)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The ``first_station`` and ``last_station`` fields serve dual purposes as routing anchors and operational stations:
+
+**Default Behavior - Execute Activities**:
+
+By default, ``first_station`` and ``last_station`` **execute their defined activities** (CTD casts, mooring deployments, etc.) in addition to serving as routing waypoints. This provides a complete operational workflow where legs begin and end with actual scientific operations.
+
+.. code-block:: yaml
+
+   stations:
+     - name: "ENTRY_CTD"
+       operation_type: CTD
+       # No explicit duration → normal CTD operation will be performed
+       
+     - name: "EXIT_MOORING"  
+       operation_type: mooring
+       action: deployment
+       # No explicit duration → full mooring deployment will be performed
+   
+   legs:
+     - name: "Survey_Leg"
+       first_station: "ENTRY_CTD"    # Executes CTD cast at leg start
+       last_station: "EXIT_MOORING"  # Executes mooring deployment at leg end
+       clusters: [...]
+
+**Waypoint-Only Behavior - Zero Duration**:
+
+To use ``first_station`` and ``last_station`` as routing waypoints only (without executing activities), define them with ``duration: 0``:
+
+.. code-block:: yaml
+
+   stations:
+     - name: "WAYPOINT_START"
+       operation_type: CTD  
+       duration: 0  # ← Zero duration = waypoint only, no CTD operation
+       
+     - name: "WAYPOINT_END"
+       operation_type: mooring
+       duration: 0  # ← Zero duration = waypoint only, no mooring operation
+   
+   legs:
+     - name: "Transit_Leg"
+       first_station: "WAYPOINT_START"  # Navigation waypoint only
+       last_station: "WAYPOINT_END"    # Navigation waypoint only
+
+**Cluster Integration**:
+
+It is completely normal for ``first_station`` and ``last_station`` to also appear in cluster activities. They will execute once as routing anchors and may execute additional times if included in cluster activities:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Survey_Leg"
+       first_station: "STN_001"  # Executes CTD cast as routing anchor
+       last_station: "STN_004"   # Executes CTD cast as routing anchor  
+       clusters:
+         - name: "Repeat_Survey"
+           activities: ["STN_001", "STN_002", "STN_003", "STN_001"]  # STN_001 executed again in cluster
+
+**Benefits of Default Activity Execution**:
+
+- **Complete workflow coverage**: Legs naturally begin and end with scientific operations
+- **Natural leg boundaries**: Clear operational transitions between legs
+- **Flexibility**: Zero-duration override available when waypoint-only behavior is needed
 
 .. _activity-types:
 

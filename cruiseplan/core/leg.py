@@ -1,18 +1,24 @@
-from typing import Any, List, Optional
+from typing import Any, List, Optional, Union
 
+from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.operations import BaseOperation, CompositeOperation
 
-# Assuming you have a StrategyEnum defined in cruiseplan.core.validation
-from cruiseplan.core.validation import StrategyEnum
+# Import validation models and port utilities
+from cruiseplan.core.validation import LegDefinition, PortDefinition, StrategyEnum
+from cruiseplan.utils.global_ports import resolve_port_reference
 
 
 class Leg:
     """
-    Discrete working area/time period container for cruise operations.
+    Port-to-port maritime leg container following nautical terminology.
 
-    The Leg class acts as the 'Chapter' in the cruise timeline, grouping related
-    operations and composites (clusters/sections) and allowing for leg-specific
-    overrides of cruise parameters like speed and station spacing.
+    A Leg represents a discrete maritime journey between two ports, containing
+    all scientific operations and clusters executed during that voyage segment.
+    This follows maritime tradition where a 'leg' always has departure and
+    arrival ports, providing clear operational boundaries.
+
+    The Leg manages parameter inheritance (from parent Cruise), cluster boundaries,
+    and port-to-port routing for realistic maritime scheduling.
 
     Attributes
     ----------
@@ -20,55 +26,95 @@ class Leg:
         Unique identifier for this leg.
     description : Optional[str]
         Optional human-readable description of the leg's purpose.
+    departure_port : PortDefinition
+        Required departure port for this maritime leg.
+    arrival_port : PortDefinition
+        Required arrival port for this maritime leg.
     strategy : StrategyEnum
         Execution strategy for operations (default: SEQUENTIAL).
     ordered : bool
         Whether operations should maintain their specified order (default: True).
     operations : List[BaseOperation]
         List of standalone operations (e.g., single CTD, single Transit).
-    composites : List[CompositeOperation]
-        List of composite operations (e.g., Sections, Array Clusters).
+    clusters : List[Cluster]
+        List of cluster boundaries for operation shuffling control.
+    first_station : Optional[str]
+        First station/activity to execute after departing port.
+    last_station : Optional[str]
+        Last station/activity to execute before arriving at port.
     vessel_speed : Optional[float]
         Leg-specific vessel speed override (None uses cruise default).
+    turnaround_time : Optional[float]
+        Leg-specific turnaround time override in minutes (None uses cruise default).
     distance_between_stations : Optional[float]
         Leg-specific station spacing override (None uses cruise default).
+
+    Examples
+    --------
+    >>> # Arctic research leg with weather-flexible clusters
+    >>> leg = Leg(
+    ...     name="Arctic_Survey",
+    ...     departure_port=resolve_port_reference("port_tromsoe"),
+    ...     arrival_port=resolve_port_reference("port_longyearbyen"),
+    ...     vessel_speed=12.0,  # Faster speed for ice conditions
+    ...     turnaround_time=45.0  # Extra time for Arctic operations
+    ... )
     """
 
     def __init__(
         self,
         name: str,
+        departure_port: Union[str, PortDefinition, dict],
+        arrival_port: Union[str, PortDefinition, dict],
         description: Optional[str] = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
+        first_station: Optional[str] = None,
+        last_station: Optional[str] = None,
     ):
         """
-        Initialize a Leg with the specified parameters.
+        Initialize a maritime Leg with port-to-port structure.
 
         Parameters
         ----------
         name : str
             Unique identifier for this leg.
+        departure_port : Union[str, PortDefinition, dict]
+            Required departure port (can be global reference, PortDefinition, or dict).
+        arrival_port : Union[str, PortDefinition, dict]
+            Required arrival port (can be global reference, PortDefinition, or dict).
         description : Optional[str], optional
             Human-readable description of the leg's purpose.
         strategy : StrategyEnum, optional
             Execution strategy for operations (default: SEQUENTIAL).
         ordered : bool, optional
             Whether operations should maintain their specified order (default: True).
+        first_station : Optional[str], optional
+            First station/activity to execute after departing port.
+        last_station : Optional[str], optional
+            Last station/activity to execute before arriving at port.
         """
         self.name = name
         self.description = description
         self.strategy = strategy
         self.ordered = ordered
+        self.first_station = first_station
+        self.last_station = last_station
+
+        # Resolve ports using global port system
+        self.departure_port = resolve_port_reference(departure_port)
+        self.arrival_port = resolve_port_reference(arrival_port)
 
         # Operation containers
         # Operations are simple, standalone tasks (e.g., a single CTD, a single Transit)
         self.operations: List[BaseOperation] = []
-        # Composites are logical groups (e.g., a Section, an Array Cluster)
-        self.composites: List[CompositeOperation] = []
+        # Clusters provide boundary management for operation shuffling
+        self.clusters: List[Cluster] = []
 
-        # Inheritance attributes (to be set by parent Cruise)
-        # These allow a Leg to override global cruise settings.
+        # Parameter inheritance attributes (to be set by parent Cruise)
+        # These allow a Leg to override global cruise settings for this maritime segment.
         self.vessel_speed: Optional[float] = None
+        self.turnaround_time: Optional[float] = None
         self.distance_between_stations: Optional[float] = None
 
     def add_operation(self, operation: BaseOperation) -> None:
@@ -82,55 +128,97 @@ class Leg:
         """
         self.operations.append(operation)
 
+    def add_cluster(self, cluster: Cluster) -> None:
+        """
+        Add a cluster boundary to this leg for operation shuffling control.
+
+        Parameters
+        ----------
+        cluster : Cluster
+            The cluster boundary to add for operation reordering management.
+        """
+        self.clusters.append(cluster)
+
     def add_composite(self, composite: CompositeOperation) -> None:
         """
-        Add a composite operation (cluster/section) to this leg.
+        Add a composite operation (deprecated - use clusters for boundary management).
 
         Parameters
         ----------
         composite : CompositeOperation
-            The composite operation to add (e.g., a section or array cluster).
+            The composite operation to add.
+
+        Notes
+        -----
+        This method is deprecated. Use add_cluster() for operation boundary management.
         """
-        self.composites.append(composite)
+        import warnings
+
+        warnings.warn(
+            "add_composite() is deprecated. Use add_cluster() for operation boundary management.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        # Convert CompositeOperation to Cluster for boundary management
+        cluster = Cluster(
+            name=composite.name,
+            description=composite.comment,
+            strategy=StrategyEnum.SEQUENTIAL,  # Default strategy
+            ordered=composite.ordered,
+        )
+        for child in composite.children:
+            cluster.add_operation(child)
+        self.clusters.append(cluster)
 
     def get_all_operations(self) -> List[BaseOperation]:
         """
-        Flatten all operations including those within composites' children.
+        Flatten all operations including those within cluster boundaries.
 
         This provides a unified list of atomic operations for route optimization
-        that respects the Leg's boundaries.
+        that respects the Leg's port-to-port boundaries.
 
         Returns
         -------
         List[BaseOperation]
             Unified list containing both standalone operations and operations
-            from within composite operations.
+            from within cluster boundaries.
         """
         # Start with simple, direct operations
         all_ops = self.operations.copy()
 
-        # Add children from all composite operations
-        for composite in self.composites:
-            all_ops.extend(composite.children)
+        # Add operations from all cluster boundaries
+        for cluster in self.clusters:
+            all_ops.extend(cluster.get_all_operations())
 
         return all_ops
+
+    def get_all_clusters(self) -> List[Cluster]:
+        """
+        Get all clusters within this leg for boundary management.
+
+        Returns
+        -------
+        List[Cluster]
+            List of all cluster boundaries within this leg.
+        """
+        return self.clusters.copy()
 
     def calculate_total_duration(self, rules: Any) -> float:
         """
         Calculate total duration for all operations in this leg.
 
-        Note: The duration for composites includes internal routing/optimization
-        logic defined within the CompositeOperation class itself.
+        Includes port-to-port transit time, standalone operations, and cluster
+        operations with proper boundary management.
 
         Parameters
         ----------
         rules : Any
-            Duration calculation rules/parameters.
+            Duration calculation rules/parameters containing config.
 
         Returns
         -------
         float
-            Total duration in appropriate units (typically minutes or hours).
+            Total duration in minutes including all operations and transits.
         """
         total = 0.0
 
@@ -138,11 +226,49 @@ class Leg:
         for op in self.operations:
             total += op.calculate_duration(rules)
 
-        # Duration of Composite operations (includes internal routing/optimization)
-        for composite in self.composites:
-            total += composite.calculate_duration(rules)
+        # Duration of cluster operations (includes boundary management)
+        for cluster in self.clusters:
+            total += cluster.calculate_total_duration(rules)
+
+        # Add port-to-port transit time
+        total += self._calculate_port_to_port_transit(rules)
 
         return total
+
+    def _calculate_port_to_port_transit(self, rules: Any) -> float:
+        """
+        Calculate transit time from departure port to arrival port.
+
+        Parameters
+        ----------
+        rules : Any
+            Duration calculation rules containing config with vessel speed.
+
+        Returns
+        -------
+        float
+            Transit duration in minutes.
+        """
+        from cruiseplan.calculators.distance import haversine_distance
+
+        # Calculate distance between ports
+        departure_pos = (self.departure_port.latitude, self.departure_port.longitude)
+        arrival_pos = (self.arrival_port.latitude, self.arrival_port.longitude)
+
+        distance_km = haversine_distance(departure_pos, arrival_pos)
+        distance_nm = distance_km * 0.539957  # km to nautical miles
+
+        # Get effective vessel speed for this leg
+        default_speed = (
+            getattr(rules.config, "default_vessel_speed", 10.0)
+            if hasattr(rules, "config")
+            else 10.0
+        )
+        speed_knots = self.get_effective_speed(default_speed)
+
+        # Calculate duration in hours, convert to minutes
+        duration_hours = distance_nm / speed_knots
+        return duration_hours * 60.0
 
     def get_effective_speed(self, default_speed: float) -> float:
         """
@@ -179,3 +305,186 @@ class Leg:
             if self.distance_between_stations is not None
             else default_spacing
         )
+
+    def get_effective_turnaround_time(self, default_turnaround: float) -> float:
+        """
+        Get leg-specific turnaround time or fallback to the parent cruise's default.
+
+        Parameters
+        ----------
+        default_turnaround : float
+            The default turnaround time from the parent cruise configuration.
+
+        Returns
+        -------
+        float
+            The effective turnaround time for this leg in minutes.
+        """
+        return (
+            self.turnaround_time
+            if self.turnaround_time is not None
+            else default_turnaround
+        )
+
+    def allows_reordering(self) -> bool:
+        """
+        Check if this leg allows operation reordering.
+
+        A leg allows reordering if it's not strictly ordered or if any of its
+        clusters allow reordering.
+
+        Returns
+        -------
+        bool
+            True if operations can be reordered within this leg, False if strict order required.
+        """
+        if not self.ordered:
+            return True
+
+        # Check if any clusters allow reordering
+        return any(cluster.allows_reordering() for cluster in self.clusters)
+
+    def get_boundary_stations(self) -> tuple[Optional[str], Optional[str]]:
+        """
+        Get the first and last station boundaries for this leg.
+
+        Returns
+        -------
+        tuple[Optional[str], Optional[str]]
+            Tuple of (first_station, last_station) for boundary management.
+        """
+        return (self.first_station, self.last_station)
+
+    def get_port_positions(self) -> tuple[tuple[float, float], tuple[float, float]]:
+        """
+        Get the geographic positions of departure and arrival ports.
+
+        Returns
+        -------
+        tuple[tuple[float, float], tuple[float, float]]
+            Tuple of ((dep_lat, dep_lon), (arr_lat, arr_lon)) port positions.
+        """
+        departure_pos = (self.departure_port.latitude, self.departure_port.longitude)
+        arrival_pos = (self.arrival_port.latitude, self.arrival_port.longitude)
+        return (departure_pos, arrival_pos)
+
+    def is_same_port_leg(self) -> bool:
+        """
+        Check if this leg departs and arrives at the same port.
+
+        Returns
+        -------
+        bool
+            True if departure and arrival ports are the same, False otherwise.
+        """
+        return self.departure_port.name == self.arrival_port.name
+
+    def get_operation_count(self) -> int:
+        """
+        Get the total number of operations in this leg.
+
+        Returns
+        -------
+        int
+            Total count of operations including those within clusters.
+        """
+        total = len(self.operations)
+        for cluster in self.clusters:
+            total += cluster.get_operation_count()
+        return total
+
+    def __repr__(self) -> str:
+        """
+        String representation of the leg.
+
+        Returns
+        -------
+        str
+            String representation showing leg name, ports, and operation count.
+        """
+        return (
+            f"Leg(name='{self.name}', "
+            f"departure='{self.departure_port.name}', "
+            f"arrival='{self.arrival_port.name}', "
+            f"operations={self.get_operation_count()}, "
+            f"clusters={len(self.clusters)})"
+        )
+
+    def __str__(self) -> str:
+        """
+        Human-readable string representation.
+
+        Returns
+        -------
+        str
+            Human-readable description of the leg with port-to-port information.
+        """
+        port_desc = (
+            f"{self.departure_port.name} → {self.arrival_port.name}"
+            if not self.is_same_port_leg()
+            else f"{self.departure_port.name} (round trip)"
+        )
+        return (
+            f"Leg '{self.name}': {port_desc}, "
+            f"{self.get_operation_count()} operations, "
+            f"{len(self.clusters)} clusters"
+        )
+
+    @classmethod
+    def from_definition(cls, leg_def: LegDefinition) -> "Leg":
+        """
+        Create a Leg runtime instance from a LegDefinition.
+
+        This factory method converts a validated LegDefinition into a runtime Leg
+        with proper port-to-port structure and default cluster creation.
+
+        Parameters
+        ----------
+        leg_def : LegDefinition
+            Validated leg definition from YAML configuration.
+
+        Returns
+        -------
+        Leg
+            New Leg runtime instance with resolved ports and clusters.
+        """
+        # Create runtime leg with port-to-port structure
+        leg = cls(
+            name=leg_def.name,
+            departure_port=leg_def.departure_port,
+            arrival_port=leg_def.arrival_port,
+            description=leg_def.description,
+            strategy=leg_def.strategy if leg_def.strategy else StrategyEnum.SEQUENTIAL,
+            ordered=leg_def.ordered if leg_def.ordered is not None else True,
+            first_station=leg_def.first_station,
+            last_station=leg_def.last_station,
+        )
+
+        # Set parameter overrides from leg definition
+        leg.vessel_speed = leg_def.vessel_speed
+        leg.turnaround_time = leg_def.turnaround_time
+        leg.distance_between_stations = leg_def.distance_between_stations
+
+        # Create default cluster for activities if no clusters are defined
+        if leg_def.activities and not leg_def.clusters:
+            # Create a default cluster containing all activities
+            default_cluster = Cluster(
+                name=f"{leg_def.name}_operations",
+                description=f"Default cluster for {leg_def.name} activities",
+                strategy=(
+                    leg_def.strategy if leg_def.strategy else StrategyEnum.SEQUENTIAL
+                ),
+                ordered=leg_def.ordered if leg_def.ordered is not None else True,
+            )
+            leg.add_cluster(default_cluster)
+
+        # Process defined clusters
+        elif leg_def.clusters:
+            for cluster_def in leg_def.clusters:
+                cluster = Cluster.from_definition(cluster_def)
+                leg.add_cluster(cluster)
+
+        # Note: Operations will be added later during resolution phase
+        # The leg structure and boundaries are established here
+
+        return leg

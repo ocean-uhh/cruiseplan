@@ -324,14 +324,46 @@ def extract_coordinates_from_cruise(
     arrival_port = None
 
     if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
-        dep_lat = cruise.config.departure_port.position.latitude
-        dep_lon = cruise.config.departure_port.position.longitude
-        departure_port = (dep_lat, dep_lon, cruise.config.departure_port.name)
+        # Handle both resolved PortDefinition objects and string references
+        if hasattr(cruise.config.departure_port, "latitude"):
+            # Resolved PortDefinition object
+            dep_lat = cruise.config.departure_port.latitude
+            dep_lon = cruise.config.departure_port.longitude
+            dep_name = cruise.config.departure_port.name
+        elif hasattr(cruise.config.departure_port, "position"):
+            # Legacy format with nested position object
+            dep_lat = cruise.config.departure_port.position.latitude
+            dep_lon = cruise.config.departure_port.position.longitude
+            dep_name = cruise.config.departure_port.name
+        else:
+            # String reference - skip for now
+            dep_lat = None
+            dep_lon = None
+            dep_name = None
+
+        if dep_lat is not None and dep_lon is not None:
+            departure_port = (dep_lat, dep_lon, dep_name)
 
     if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
-        arr_lat = cruise.config.arrival_port.position.latitude
-        arr_lon = cruise.config.arrival_port.position.longitude
-        arrival_port = (arr_lat, arr_lon, cruise.config.arrival_port.name)
+        # Handle both resolved PortDefinition objects and string references
+        if hasattr(cruise.config.arrival_port, "latitude"):
+            # Resolved PortDefinition object
+            arr_lat = cruise.config.arrival_port.latitude
+            arr_lon = cruise.config.arrival_port.longitude
+            arr_name = cruise.config.arrival_port.name
+        elif hasattr(cruise.config.arrival_port, "position"):
+            # Legacy format with nested position object
+            arr_lat = cruise.config.arrival_port.position.latitude
+            arr_lon = cruise.config.arrival_port.position.longitude
+            arr_name = cruise.config.arrival_port.name
+        else:
+            # String reference - skip for now
+            arr_lat = None
+            arr_lon = None
+            arr_name = None
+
+        if arr_lat is not None and arr_lon is not None:
+            arrival_port = (arr_lat, arr_lon, arr_name)
 
     return all_lats, all_lons, station_names, departure_port, arrival_port
 

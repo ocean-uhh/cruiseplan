@@ -74,7 +74,7 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
     # Check stations (includes all point operations: CTD, mooring, etc.)
     if config.stations:
         match = next((s for s in config.stations if s.name == name), None)
-        if match and match.position:
+        if match and (hasattr(match, "latitude") or hasattr(match, "position")):
             # Map operation type to legacy op_type for backward compatibility
             # This is a little confusing --> these are how activities are filtered in latex_generator
             op_type_mapping = {
@@ -90,8 +90,11 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
                 "name": match.name,
                 "lat": match.latitude,
                 "lon": match.longitude,
-                "depth": getattr(match, "operation_depth", None)
-                or getattr(match, "depth", 0.0),
+                "depth": (
+                    getattr(match, "operation_depth", None)
+                    or getattr(match, "depth", None)
+                )
+                or 0.0,
                 "op_type": op_type,
                 "manual_duration": getattr(match, "duration", 0.0)
                 or 0.0,  # Duration in minutes
@@ -215,7 +218,24 @@ def _resolve_station_details(config: CruiseConfig, name: str) -> Optional[Dict]:
     return None
 
 
-def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
+def generate_timeline_legacy(config: CruiseConfig) -> List[ActivityRecord]:
+    """
+    DEPRECATED: Legacy timeline generation for backward compatibility.
+
+    Use generate_timeline_maritime() for new maritime architecture.
+    """
+    import warnings
+
+    warnings.warn(
+        "generate_timeline() is deprecated. Use generate_timeline_maritime() for maritime architecture.",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+    return _generate_timeline_legacy_impl(config)
+
+
+def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]:
+    """Legacy implementation moved to separate function."""
     """
     Generate a flattened, time-ordered list of all cruise activities.
 
@@ -279,6 +299,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
             ActivityRecord(
                 {
                     "activity": "Transit",
+                    "operation_type": "transit",
                     "label": f"Transit to working area: {config.departure_port.name} to {config.first_station}",
                     "lat": end_pos.latitude,
                     "lon": end_pos.longitude,
@@ -290,7 +311,6 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Transit_to_working_area",
-                    "operation_type": "Transit",
                     # Added for completeness, though unused for pure navigation
                     "action": None,
                     "start_lat": start_pos.latitude,
@@ -309,11 +329,19 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         activity_names = _extract_activities_from_leg(leg)
 
         for name in activity_names:
-            # First try to resolve as station
+            # Try to resolve activity using specialized resolvers
+            details = None
+
+            # Try each resolver in order of specificity
             details = _resolve_station_details(config, name)
             if not details:
-                # Then try to resolve as transit
+                details = _resolve_mooring_details(config, name)
+            if not details:
+                details = _resolve_area_details(config, name)
+            if not details:
                 details = _resolve_transit_details(config, name)
+            if not details:
+                details = _resolve_port_details(config, name)
 
             if details:
                 # Add leg name to activity details
@@ -590,6 +618,7 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
             ActivityRecord(
                 {
                     "activity": "Transit",
+                    "operation_type": "transit",
                     "label": f"Transit from working area to {config.arrival_port.name}",
                     "lat": end_pos.latitude,
                     "lon": end_pos.longitude,
@@ -601,7 +630,6 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": "Transit_from_working_area",
-                    "operation_type": "Transit",
                     # Added for completeness, though unused for pure navigation
                     "action": None,
                     "start_lat": last_position.latitude,
@@ -611,6 +639,490 @@ def generate_timeline(config: CruiseConfig) -> List[ActivityRecord]:
         )
 
     return timeline
+
+
+def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRecord]:
+    """
+    Generate comprehensive cruise timeline using maritime port-to-port architecture.
+
+    This function implements the new maritime scheduling system with:
+    - Port-to-port leg structure following nautical terminology
+    - Cluster boundary management for operation shuffling
+    - Proper parameter inheritance (Cruise → Leg → Cluster → Operations)
+    - Realistic inter-leg transit routing
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration with validated maritime leg structure.
+    cruise_obj : Cruise, optional
+        Cruise object with runtime legs. If None, will create runtime legs from config.
+
+    Returns
+    -------
+    List[ActivityRecord]
+        Complete timeline with port transits, leg operations, and cluster boundaries.
+
+    Notes
+    -----
+    This is the new implementation for maritime architecture. Uses runtime Leg objects
+    from the Cruise class for proper port-to-port scheduling.
+    """
+    from cruiseplan.core.leg import Leg
+
+    timeline: List[ActivityRecord] = []
+
+    # Initialize timing and calculators
+    try:
+        if "T" in config.start_date:
+            start_date_clean = config.start_date.replace("Z", "").replace("+00:00", "")
+            current_time = datetime.fromisoformat(start_date_clean)
+        else:
+            current_time = datetime.strptime(
+                f"{config.start_date} {config.start_time}", "%Y-%m-%d %H:%M"
+            )
+    except (ValueError, AttributeError) as e:
+        logger.error(f"Invalid start_date or start_time format in config: {e}")
+        return []
+
+    duration_calc = DurationCalculator(config)
+    current_position: Optional[GeoPoint] = None
+
+    # Get runtime legs from cruise object or create them from config
+    if cruise_obj and hasattr(cruise_obj, "runtime_legs"):
+        runtime_legs = cruise_obj.runtime_legs
+        leg_definitions = config.legs
+    else:
+        # Fallback: create minimal Leg objects for backward compatibility
+        # This handles test scenarios where full cruise object isn't available
+        from cruiseplan.core.leg import Leg
+
+        runtime_legs = []
+        for leg_def in config.legs or []:
+            try:
+                # Try to create a basic Leg from the definition
+                runtime_leg = Leg(
+                    name=leg_def.name,
+                    departure_port=getattr(leg_def, "departure_port", None),
+                    arrival_port=getattr(leg_def, "arrival_port", None),
+                    description=getattr(leg_def, "description", None),
+                    first_station=getattr(leg_def, "first_station", None),
+                    last_station=getattr(leg_def, "last_station", None),
+                )
+                # Copy leg-specific parameter overrides from definition
+                runtime_leg.vessel_speed = getattr(leg_def, "vessel_speed", None)
+                runtime_leg.turnaround_time = getattr(leg_def, "turnaround_time", None)
+                runtime_leg.distance_between_stations = getattr(leg_def, "distance_between_stations", None)
+                runtime_legs.append(runtime_leg)
+            except Exception as e:
+                logger.warning(
+                    f"Failed to create runtime leg for '{leg_def.name}': {e}"
+                )
+                # Create a minimal mock leg for testing
+                runtime_leg = Leg(
+                    name=leg_def.name,
+                    departure_port={
+                        "name": "Test_Port",
+                        "latitude": 0.0,
+                        "longitude": 0.0,
+                    },
+                    arrival_port={
+                        "name": "Test_Port",
+                        "latitude": 0.0,
+                        "longitude": 0.0,
+                    },
+                )
+                runtime_legs.append(runtime_leg)
+
+        leg_definitions = config.legs
+
+    # Process each leg using maritime port-to-port structure
+    for i, (leg_def, runtime_leg) in enumerate(zip(leg_definitions, runtime_legs)):
+
+        logger.info(f"Processing leg '{runtime_leg.name}': {runtime_leg}")
+
+        # 1. Add port departure transit if this is not the first leg
+        if i > 0:
+            # Transit from previous leg's arrival port to current leg's departure port
+            prev_runtime_leg = runtime_legs[i - 1]
+            prev_arrival_pos = (
+                prev_runtime_leg.arrival_port.latitude,
+                prev_runtime_leg.arrival_port.longitude,
+            )
+            curr_departure_pos = (
+                runtime_leg.departure_port.latitude,
+                runtime_leg.departure_port.longitude,
+            )
+
+            # Only add transit if ports are different
+            if prev_arrival_pos != curr_departure_pos:
+                # Use leg's effective speed with parameter inheritance
+                effective_speed = runtime_leg.vessel_speed or getattr(
+                    config, "default_vessel_speed", 8.0
+                )
+                transit_time = _calculate_inter_port_transit(
+                    prev_arrival_pos,
+                    curr_departure_pos,
+                    effective_speed,
+                )
+
+                timeline.append(
+                    ActivityRecord(
+                        {
+                            "activity": "Port_Transit",
+                            "label": f"Transit: {prev_runtime_leg.arrival_port.name} → {runtime_leg.departure_port.name}",
+                            "lat": runtime_leg.departure_port.latitude,
+                            "lon": runtime_leg.departure_port.longitude,
+                            "depth": 0.0,
+                            "start_time": current_time,
+                            "end_time": current_time + timedelta(minutes=transit_time),
+                            "duration_minutes": transit_time,
+                            "leg_name": runtime_leg.name,
+                            "op_type": "transit",
+                        }
+                    )
+                )
+                current_time += timedelta(minutes=transit_time)
+
+        # 2. Process leg departure from port to first operation
+        # Check for activities (either direct or extracted from clusters)
+        has_activities = bool(leg_def.activities) or bool(_extract_activities_from_leg(leg_def))
+        if has_activities:
+            # Get first activity name (from direct activities or extracted from clusters)
+            if leg_def.activities:
+                first_activity_name = leg_def.activities[0]
+            else:
+                extracted_activities = _extract_activities_from_leg(leg_def)
+                first_activity_name = extracted_activities[0] if extracted_activities else None
+            first_activity_details = None
+
+            if first_activity_name:
+                # Resolve first activity details using specialized resolvers
+                first_activity_details = _resolve_station_details(
+                    config, first_activity_name
+                )
+                if not first_activity_details:
+                    first_activity_details = _resolve_mooring_details(
+                        config, first_activity_name
+                    )
+                if not first_activity_details:
+                    first_activity_details = _resolve_area_details(
+                        config, first_activity_name
+                    )
+                if not first_activity_details:
+                    first_activity_details = _resolve_transit_details(
+                        config, first_activity_name
+                    )
+
+            # Add transit from departure port to first operation
+            if first_activity_details:
+                port_pos = (
+                    runtime_leg.departure_port.latitude,
+                    runtime_leg.departure_port.longitude,
+                )
+                operation_pos = (
+                    first_activity_details["lat"],
+                    first_activity_details["lon"],
+                )
+
+                # Use leg's effective speed with parameter inheritance
+                effective_speed = runtime_leg.vessel_speed or getattr(
+                    config, "default_vessel_speed", 8.0
+                )
+                transit_time = _calculate_inter_port_transit(
+                    port_pos,
+                    operation_pos,
+                    effective_speed,
+                )
+
+                # Calculate distance for CSV output
+                distance_km = haversine_distance(port_pos, operation_pos)
+                distance_nm = km_to_nm(distance_km)
+
+                timeline.append(
+                    ActivityRecord(
+                        {
+                            "activity": "Port_Departure",
+                            "label": f"Departure: {runtime_leg.departure_port.name} to Operations",
+                            "lat": runtime_leg.departure_port.latitude,
+                            "lon": runtime_leg.departure_port.longitude,
+                            "depth": 0.0,
+                            "start_time": current_time,
+                            "end_time": current_time + timedelta(minutes=transit_time),
+                            "duration_minutes": transit_time,
+                            "transit_dist_nm": distance_nm,
+                            "vessel_speed_kt": effective_speed,
+                            "leg_name": runtime_leg.name,
+                            "op_type": "transit",
+                        }
+                    )
+                )
+                current_time += timedelta(minutes=transit_time)
+                current_position = GeoPoint(
+                    latitude=operation_pos[0], longitude=operation_pos[1]
+                )
+
+        # 3. Process activities within leg using cluster boundaries
+        leg_activities = _process_leg_activities_with_clusters(
+            config, runtime_leg, leg_def, duration_calc, current_time, current_position
+        )
+
+        timeline.extend(leg_activities)
+
+        # Update current time and position from last activity
+        if leg_activities:
+            last_activity = leg_activities[-1]
+            current_time = last_activity["end_time"]
+            current_position = GeoPoint(
+                latitude=last_activity["lat"], longitude=last_activity["lon"]
+            )
+
+        # 4. Add transit from last operation to arrival port
+        # Check for activities (either direct or extracted from clusters)
+        has_activities_for_arrival = bool(leg_def.activities) or bool(_extract_activities_from_leg(leg_def))
+        if has_activities_for_arrival and current_position:
+            arrival_pos = (
+                runtime_leg.arrival_port.latitude,
+                runtime_leg.arrival_port.longitude,
+            )
+            operation_pos = (current_position.latitude, current_position.longitude)
+
+            # Only add transit if positions are different
+            if arrival_pos != operation_pos:
+                # Use leg's effective speed with parameter inheritance
+                effective_speed = runtime_leg.vessel_speed or getattr(
+                    config, "default_vessel_speed", 8.0
+                )
+                transit_time = _calculate_inter_port_transit(
+                    operation_pos,
+                    arrival_pos,
+                    effective_speed,
+                )
+
+                # Calculate distance for CSV output
+                distance_km = haversine_distance(operation_pos, arrival_pos)
+                distance_nm = km_to_nm(distance_km)
+
+                timeline.append(
+                    ActivityRecord(
+                        {
+                            "activity": "Port_Arrival",
+                            "operation_type": "port_arrival",
+                            "label": f"Arrival: Operations to {runtime_leg.arrival_port.name}",
+                            "lat": runtime_leg.arrival_port.latitude,
+                            "lon": runtime_leg.arrival_port.longitude,
+                            "depth": 0.0,
+                            "start_time": current_time,
+                            "end_time": current_time + timedelta(minutes=transit_time),
+                            "duration_minutes": transit_time,
+                            "transit_dist_nm": distance_nm,
+                            "vessel_speed_kt": effective_speed,
+                            "leg_name": runtime_leg.name,
+                            "op_type": "transit",
+                        }
+                    )
+                )
+                current_time += timedelta(minutes=transit_time)
+                current_position = GeoPoint(
+                    latitude=arrival_pos[0], longitude=arrival_pos[1]
+                )
+
+    logger.info(f"Generated maritime timeline with {len(timeline)} activities")
+    return timeline
+
+
+def _calculate_inter_port_transit(
+    start_pos: tuple, end_pos: tuple, vessel_speed: float
+) -> float:
+    """
+    Calculate transit time between two geographic positions.
+
+    Parameters
+    ----------
+    start_pos : tuple
+        Starting position as (latitude, longitude).
+    end_pos : tuple
+        Ending position as (latitude, longitude).
+    vessel_speed : float
+        Vessel speed in knots.
+
+    Returns
+    -------
+    float
+        Transit time in minutes.
+    """
+    distance_km = haversine_distance(start_pos, end_pos)
+    distance_nm = km_to_nm(distance_km)
+    duration_hours = distance_nm / vessel_speed
+    return duration_hours * 60.0
+
+
+def _process_leg_activities_with_clusters(
+    config: CruiseConfig,
+    leg: "Leg",
+    leg_def: "LegDefinition",
+    duration_calc: DurationCalculator,
+    start_time: datetime,
+    start_position: Optional[GeoPoint],
+) -> List[ActivityRecord]:
+    """
+    Process activities within a leg using cluster boundary management.
+
+    This function handles the complex logic of:
+    - Resolving activities to operations
+    - Applying cluster boundaries for reordering constraints
+    - Calculating durations with parameter inheritance
+    - Managing inter-operation transits within leg boundaries
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration.
+    leg : Leg
+        Runtime leg instance with clusters.
+    leg_def : LegDefinition
+        Original leg definition from config.
+    duration_calc : DurationCalculator
+        Duration calculator with cruise parameters.
+    start_time : datetime
+        Start time for first operation in leg.
+    start_position : Optional[GeoPoint]
+        Starting position for leg operations.
+
+    Returns
+    -------
+    List[ActivityRecord]
+        List of activity records for this leg.
+    """
+    activities = []
+    current_time = start_time
+    last_position = start_position
+
+    # Extract activities from leg (including from clusters if activities list is empty)
+    if leg_def.activities:
+        # Use direct activities if available
+        activity_list = leg_def.activities
+    else:
+        # Extract activities from clusters and add routing anchors
+        extracted_names = _extract_activities_from_leg(leg_def)
+        activity_list = []
+        
+        # Add first_station at the beginning if defined
+        if hasattr(leg_def, 'first_station') and leg_def.first_station:
+            activity_list.append(leg_def.first_station)
+            # Note: first_station may also appear in cluster activities for intentional double execution
+        
+        # Add cluster activities
+        activity_list.extend(extracted_names)
+        
+        # Add last_station at the end if defined
+        if hasattr(leg_def, 'last_station') and leg_def.last_station:
+            activity_list.append(leg_def.last_station)
+            # Note: last_station may also appear in cluster activities for intentional double execution
+
+    # For now, implement simple sequential processing
+    # TODO: Implement cluster boundary processing with reordering capability
+
+    for activity_def in activity_list:
+        # Extract activity name from activity definition
+        activity_name = (
+            activity_def.get("name")
+            if isinstance(activity_def, dict)
+            else str(activity_def)
+        )
+
+        # Resolve activity details using specialized resolvers
+        details = None
+        details = _resolve_station_details(config, activity_name)
+        if not details:
+            details = _resolve_mooring_details(config, activity_name)
+        if not details:
+            details = _resolve_area_details(config, activity_name)
+        if not details:
+            details = _resolve_transit_details(config, activity_name)
+        if not details:
+            details = _resolve_port_details(config, activity_name)
+
+        if not details:
+            logger.warning(
+                f"Could not resolve activity '{activity_name}' in leg '{leg.name}'"
+            )
+            continue
+
+        # Calculate inter-operation transit if needed
+        current_pos = GeoPoint(latitude=details["lat"], longitude=details["lon"])
+
+        if last_position and (
+            last_position.latitude != current_pos.latitude
+            or last_position.longitude != current_pos.longitude
+        ):
+
+            # Calculate transit distance and time
+            vessel_speed = leg.get_effective_speed(config.default_vessel_speed)
+            transit_time_min = _calculate_inter_port_transit(
+                (last_position.latitude, last_position.longitude),
+                (current_pos.latitude, current_pos.longitude),
+                vessel_speed,
+            )
+            
+            # Calculate distance from time and speed
+            transit_distance_km = haversine_distance(last_position, current_pos)
+            transit_distance_nm = km_to_nm(transit_distance_km)
+
+            activities.append(
+                ActivityRecord(
+                    {
+                        "activity": "Transit",
+                        "operation_type": "transit",
+                        "label": f"Transit to {activity_name}",
+                        "lat": current_pos.latitude,
+                        "lon": current_pos.longitude,
+                        "depth": 0.0,
+                        "start_time": current_time,
+                        "end_time": current_time + timedelta(minutes=transit_time_min),
+                        "duration_minutes": transit_time_min,
+                        "transit_dist_nm": transit_distance_nm,
+                        "vessel_speed_kt": vessel_speed,
+                        "leg_name": leg.name,
+                        "op_type": "transit",
+                    }
+                )
+            )
+            current_time += timedelta(minutes=transit_time_min)
+
+        # Add the main operation
+        operation_duration = duration_calc.calculate_ctd_time(details.get("depth", 0.0))
+        if details.get("manual_duration", 0) > 0:
+            operation_duration = details["manual_duration"]
+
+        # Apply turnaround time using leg inheritance
+        turnaround_time = leg.get_effective_turnaround_time(config.turnaround_time)
+
+        activities.append(
+            ActivityRecord(
+                {
+                    "activity": details.get("op_type", "station").title(),
+                    "label": details["name"],
+                    "lat": current_pos.latitude,
+                    "lon": current_pos.longitude,
+                    "depth": details.get("depth", 0.0),
+                    "start_time": current_time,
+                    "end_time": current_time + timedelta(minutes=operation_duration),
+                    "duration_minutes": operation_duration,
+                    "leg_name": leg.name,
+                    "op_type": details.get("op_type", "station"),
+                    "operation_type": details.get(
+                        "op_type", "station"
+                    ),  # For LaTeX compatibility
+                    "action": details.get("action"),
+                }
+            )
+        )
+
+        current_time += timedelta(minutes=operation_duration + turnaround_time)
+        last_position = current_pos
+
+    return activities
 
 
 def _calculate_inter_operation_transit(last_pos, current_pos, vessel_speed_kt):
@@ -710,9 +1222,9 @@ def generate_cruise_schedule(
             raise ValueError(f"Leg '{selected_leg}' not found in configuration")
         logger.info(f"Processing selected leg: {selected_leg}")
 
-    # Generate timeline
+    # Generate timeline using maritime architecture with runtime legs
     logger.info("Generating activity timeline...")
-    timeline = generate_timeline(config)
+    timeline = generate_timeline(config, cruise_obj=cruise)
 
     # Filter timeline by selected leg if specified
     if selected_leg:
@@ -777,20 +1289,6 @@ def generate_cruise_schedule(
                 )
                 logger.info(f"    LaTeX tables: {cruise_name}_tables.tex")
                 formats_generated.append("latex")
-                output_files.append(output_file)
-
-            elif format_name == "kml":
-                from cruiseplan.output.kml_generator import generate_kml_schedule
-
-                output_file = output_path / f"{base_filename}.kml"
-                scientific_operations = len(
-                    [a for a in timeline if a.get("activity") in ["Station", "Area"]]
-                )
-                generate_kml_schedule(config, timeline, output_file)
-                logger.info(
-                    f"    KML positions: {cruise_name}_positions.kml ({scientific_operations} operations)"
-                )
-                formats_generated.append("kml")
                 output_files.append(output_file)
 
             elif format_name == "netcdf":
@@ -948,7 +1446,23 @@ def _extract_activities_from_leg(leg) -> List[str]:
                     elif hasattr(item, "name"):
                         activity_names.append(item.name)
                         cluster_activities_found = True
-            # Process cluster stations
+            # Process cluster activities (new format)
+            elif (
+                hasattr(cluster, "activities")
+                and cluster.activities is not None
+                and len(cluster.activities) > 0
+            ):
+                for activity in cluster.activities:
+                    if isinstance(activity, str):
+                        activity_names.append(activity)
+                        cluster_activities_found = True
+                    elif isinstance(activity, dict) and "name" in activity:
+                        activity_names.append(activity["name"])
+                        cluster_activities_found = True
+                    elif hasattr(activity, "name"):
+                        activity_names.append(activity.name)
+                        cluster_activities_found = True
+            # Process cluster stations (deprecated)
             elif (
                 hasattr(cluster, "stations")
                 and cluster.stations is not None
@@ -1064,5 +1578,179 @@ def _resolve_transit_details(
                 )
 
             return details
+
+    return None
+
+
+def _resolve_mooring_details(
+    config: "CruiseConfig", mooring_name: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Resolve mooring details from configuration.
+
+    Specifically handles mooring operations with deployment/recovery actions.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration object.
+    mooring_name : str
+        Name of the mooring to resolve.
+
+    Returns
+    -------
+    dict or None
+        Mooring details dictionary or None if not found.
+    """
+    if not hasattr(config, "stations") or not config.stations:
+        return None
+
+    for station in config.stations:
+        if (
+            station.name == mooring_name
+            and station.operation_type
+            and station.operation_type.value == "mooring"
+        ):
+
+            return {
+                "name": station.name,
+                "lat": station.latitude,
+                "lon": station.longitude,
+                "depth": (
+                    getattr(station, "operation_depth", None)
+                    or getattr(station, "depth", None)
+                )
+                or 0.0,
+                "op_type": "mooring",
+                "manual_duration": getattr(station, "duration", 0.0) or 0.0,
+                "delay_start": getattr(station, "delay_start", 0.0),
+                "delay_end": getattr(station, "delay_end", 0.0),
+                "action": (
+                    (
+                        station.action.value
+                        if station.action and hasattr(station.action, "value")
+                        else station.action
+                    )
+                    if station.action
+                    else None
+                ),
+                "mooring_type": getattr(station, "mooring_type", None),
+            }
+
+    return None
+
+
+def _resolve_area_details(
+    config: "CruiseConfig", area_name: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Resolve area details from configuration.
+
+    Handles area-based operations like surveys and monitoring.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration object.
+    area_name : str
+        Name of the area to resolve.
+
+    Returns
+    -------
+    dict or None
+        Area details dictionary or None if not found.
+    """
+    if not hasattr(config, "areas") or not config.areas:
+        return None
+
+    for area in config.areas:
+        if area.name == area_name and area.corners:
+            # Calculate center point from corners
+            center_lat = sum(corner.latitude for corner in area.corners) / len(
+                area.corners
+            )
+            center_lon = sum(corner.longitude for corner in area.corners) / len(
+                area.corners
+            )
+
+            return {
+                "name": area.name,
+                "lat": center_lat,
+                "lon": center_lon,
+                "depth": 0.0,  # Areas typically don't have specific depth
+                "op_type": "area",
+                "manual_duration": getattr(area, "duration", 0.0) or 0.0,
+                "delay_start": getattr(area, "delay_start", 0.0),
+                "delay_end": getattr(area, "delay_end", 0.0),
+                "action": (
+                    (
+                        area.action.value
+                        if area.action and hasattr(area.action, "value")
+                        else area.action
+                    )
+                    if area.action
+                    else None
+                ),
+                "corners": [
+                    {"latitude": corner.latitude, "longitude": corner.longitude}
+                    for corner in area.corners
+                ],
+                "area_km2": getattr(area, "area_km2", None),
+            }
+
+    return None
+
+
+def _resolve_port_details(
+    config: "CruiseConfig", port_name: str
+) -> Optional[Dict[str, Any]]:
+    """
+    Resolve port details from configuration or global port registry.
+
+    Handles port references for leg departure/arrival points.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration object.
+    port_name : str
+        Name of the port to resolve (can be global reference like 'port_bergen').
+
+    Returns
+    -------
+    dict or None
+        Port details dictionary or None if not found.
+    """
+    from cruiseplan.core.validation import PortDefinition
+    from cruiseplan.utils.global_ports import resolve_port_reference
+
+    try:
+        # Try to resolve as global port reference or custom port definition
+        if isinstance(port_name, str) and port_name.startswith("port_"):
+            # Global port reference
+            port_def = resolve_port_reference(port_name)
+        elif hasattr(config, "ports") and config.ports:
+            # Check for custom port definitions in config
+            port_def = next((p for p in config.ports if p.name == port_name), None)
+            if port_def is None:
+                # Try to resolve as global reference
+                port_def = resolve_port_reference(port_name)
+        else:
+            # Try to resolve as global reference
+            port_def = resolve_port_reference(port_name)
+
+        if port_def and isinstance(port_def, PortDefinition):
+            return {
+                "name": port_def.name,
+                "lat": port_def.latitude,
+                "lon": port_def.longitude,
+                "op_type": "port",
+                "timezone": getattr(port_def, "timezone", None),
+                "description": getattr(port_def, "description", None),
+            }
+
+    except (ValueError, KeyError):
+        # Port reference not found in global registry
+        pass
 
     return None

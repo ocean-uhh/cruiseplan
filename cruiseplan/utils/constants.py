@@ -44,6 +44,16 @@ DEFAULT_CTD_RATE_M_S = 1.0
 # Corresponds to CruiseConfig.default_distance_between_stations default.
 DEFAULT_STATION_SPACING_KM = 15.0
 
+# Default calculation flags - typically True for automated processing
+# Whether to calculate transit times between section waypoints
+DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS = True
+
+# Whether to automatically look up depth values from bathymetry data
+DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY = True
+
+# Default mooring operation duration in minutes (999 hours = 59940 minutes)
+# Used as a highly visible placeholder for mooring operations without specified duration
+DEFAULT_MOORING_DURATION_MIN = 59940.0
 
 DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 # Make this an ISO8601 string

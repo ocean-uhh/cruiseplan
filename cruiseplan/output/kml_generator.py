@@ -1,16 +1,20 @@
 """
-KML Schedule Generation System.
+KML Generation System for Cruise Planning.
 
-Generates Google Earth compatible KML files showing scientific operations only.
-Creates geospatial visualizations of cruise activities for geographic analysis
-and planning. Only includes scientific operations (stations, moorings, surveys)
-in the KML output, excluding navigation transits.
+Generates Google Earth compatible KML files from cruise configuration catalogs.
+Creates geospatial visualizations of all cruise entities (stations, moorings, 
+transits, ports, areas) for geographic analysis and planning.
+
+This module provides two generation modes:
+1. Catalog-based: Generate KML from YAML configuration entities (recommended)
+2. Timeline-based: Generate KML from scheduled timeline activities (legacy)
 
 Notes
 -----
 KML files can be opened directly in Google Earth or other GIS applications.
-Each operation type is styled differently for visual distinction. Point features
-include detailed metadata in popups.
+Each entity type is styled differently for visual distinction. Point features
+include detailed metadata in popups. Catalog-based generation shows each
+location once regardless of visitation frequency.
 """
 
 import logging
@@ -243,6 +247,256 @@ class KMLGenerator:
             f.write(kml_content)
 
         return output_file
+
+
+def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
+    """
+    Generate KML file from YAML configuration catalog entities.
+
+    Creates a KML file containing all entities defined in the cruise configuration
+    (stations, moorings, transits, ports, areas) without timeline duplication.
+    Each location appears once regardless of how many times it's visited.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        The cruise configuration object containing all catalog entities
+    output_file : Path
+        Path to output KML file
+
+    Returns
+    -------
+    Path
+        Path to generated KML file
+    """
+    # Define KML styles for different entity types
+    kml_content = f"""<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>{config.cruise_name} - Catalog</name>
+        <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
+        
+        <!-- Styles for different entity types -->
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="portStyle">
+            <IconStyle>
+                <color>ff0080ff</color>
+                <scale>1.5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/marina.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="transitStyle">
+            <LineStyle>
+                <color>80ff0000</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
+
+        <!-- Ports -->"""
+
+    # Add ports from cruise configuration
+    if hasattr(config, 'departure_port') and config.departure_port:
+        port = config.departure_port
+        kml_content += f"""
+        <Placemark>
+            <name>Departure: {port.name}</name>
+            <description>
+                Port: {port.name}
+                Type: Departure Port
+                Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
+                Timezone: {getattr(port, 'timezone', 'N/A')}
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>{port.longitude},{port.latitude},0</coordinates>
+            </Point>
+        </Placemark>"""
+
+    if hasattr(config, 'arrival_port') and config.arrival_port:
+        port = config.arrival_port
+        kml_content += f"""
+        <Placemark>
+            <name>Arrival: {port.name}</name>
+            <description>
+                Port: {port.name}
+                Type: Arrival Port
+                Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
+                Timezone: {getattr(port, 'timezone', 'N/A')}
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>{port.longitude},{port.latitude},0</coordinates>
+            </Point>
+        </Placemark>"""
+
+    kml_content += """
+
+        <!-- Stations -->"""
+
+    # Add stations from configuration
+    if hasattr(config, 'stations') and config.stations:
+        for station in config.stations:
+            operation_type = getattr(station, 'operation_type', 'station')
+            action = getattr(station, 'action', 'profile')
+            depth = getattr(station, 'depth', 'N/A')
+            
+            kml_content += f"""
+        <Placemark>
+            <name>{station.name}</name>
+            <description>
+                Type: Station ({operation_type})
+                Action: {action}
+                Location: {station.latitude:.6f}°N, {station.longitude:.6f}°W
+                Depth: {depth} m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>{station.longitude},{station.latitude},0</coordinates>
+            </Point>
+        </Placemark>"""
+
+    kml_content += """
+
+        <!-- Moorings -->"""
+
+    # Add moorings from configuration  
+    if hasattr(config, 'moorings') and config.moorings:
+        for mooring in config.moorings:
+            operation_type = getattr(mooring, 'operation_type', 'mooring')
+            action = getattr(mooring, 'action', 'deployment')
+            depth = getattr(mooring, 'depth', 'N/A')
+            
+            kml_content += f"""
+        <Placemark>
+            <name>{mooring.name}</name>
+            <description>
+                Type: Mooring ({operation_type})
+                Action: {action}
+                Location: {mooring.latitude:.6f}°N, {mooring.longitude:.6f}°W
+                Depth: {depth} m
+            </description>
+            <styleUrl>#mooringStyle</styleUrl>
+            <Point>
+                <coordinates>{mooring.longitude},{mooring.latitude},0</coordinates>
+            </Point>
+        </Placemark>"""
+
+    kml_content += """
+
+        <!-- Transits -->"""
+
+    # Add transits from configuration
+    if hasattr(config, 'transits') and config.transits:
+        for transit in config.transits:
+            # Extract start and end coordinates from route waypoints
+            if transit.route and len(transit.route) >= 2:
+                start_lat = transit.route[0].latitude
+                start_lon = transit.route[0].longitude
+                end_lat = transit.route[-1].latitude
+                end_lon = transit.route[-1].longitude
+                
+                # Calculate route distance if available
+                route_distance = getattr(transit, 'distance', 'calculated')
+                
+                kml_content += f"""
+        <Placemark>
+            <name>{transit.name}</name>
+            <description>
+                Type: Transit
+                Start: {start_lat:.6f}°N, {start_lon:.6f}°W
+                End: {end_lat:.6f}°N, {end_lon:.6f}°W
+                Distance: {route_distance} nm
+            </description>
+            <styleUrl>#transitStyle</styleUrl>
+            <LineString>
+                <coordinates>
+                    {start_lon},{start_lat},0
+                    {end_lon},{end_lat},0
+                </coordinates>
+            </LineString>
+        </Placemark>"""
+
+    kml_content += """
+
+        <!-- Areas -->"""
+
+    # Add areas from configuration
+    if hasattr(config, 'areas') and config.areas:
+        for area in config.areas:
+            if hasattr(area, 'corners') and area.corners:
+                # Create coordinate list for polygon
+                coord_list = []
+                for corner in area.corners:
+                    coord_list.append(f"{corner.longitude},{corner.latitude},0")
+                # Close the polygon
+                if area.corners:
+                    coord_list.append(f"{area.corners[0].longitude},{area.corners[0].latitude},0")
+                
+                coordinates_str = " ".join(coord_list)
+                
+                kml_content += f"""
+        <Placemark>
+            <name>{area.name}</name>
+            <description>
+                Type: Area
+                Corners: {len(area.corners)}
+                Operation: {getattr(area, 'operation_type', 'survey')}
+            </description>
+            <styleUrl>#areaStyle</styleUrl>
+            <Polygon>
+                <outerBoundaryIs>
+                    <LinearRing>
+                        <coordinates>{coordinates_str}</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>"""
+
+    # Close KML document
+    kml_content += """
+    </Document>
+</kml>
+"""
+
+    # Write to file
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_file, "w", encoding="utf-8") as f:
+        f.write(kml_content)
+
+    return output_file
 
 
 def generate_kml_schedule(

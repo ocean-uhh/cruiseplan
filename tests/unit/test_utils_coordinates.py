@@ -654,16 +654,20 @@ class TestExtractCoordinatesFromCruise:
         mock_cruise = MagicMock()
         mock_cruise.station_registry = {}
 
-        # Mock departure port
+        # Mock departure port (support both formats)
         mock_dep_port = MagicMock()
-        mock_dep_port.position.latitude = 64.0
+        mock_dep_port.latitude = 64.0  # Direct attribute format
+        mock_dep_port.longitude = -22.0
+        mock_dep_port.position.latitude = 64.0  # Nested position format
         mock_dep_port.position.longitude = -22.0
         mock_dep_port.name = "Reykjavik"
         mock_cruise.config.departure_port = mock_dep_port
 
-        # Mock arrival port
+        # Mock arrival port (support both formats)
         mock_arr_port = MagicMock()
-        mock_arr_port.position.latitude = 78.0
+        mock_arr_port.latitude = 78.0  # Direct attribute format
+        mock_arr_port.longitude = 15.0
+        mock_arr_port.position.latitude = 78.0  # Nested position format
         mock_arr_port.position.longitude = 15.0
         mock_arr_port.name = "Longyearbyen"
         mock_cruise.config.arrival_port = mock_arr_port

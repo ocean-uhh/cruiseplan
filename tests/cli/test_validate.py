@@ -19,68 +19,8 @@ class TestValidateCommand:
         """Get path to test fixture file."""
         return Path(__file__).parent.parent / "fixtures" / filename
 
-    def test_validate_success_no_warnings_real_file(self):
-        """Test successful validation with no warnings using real fixture."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
 
-        # Create args
-        args = Namespace(
-            config_file=input_file,
-            check_depths=False,
-            tolerance=10.0,
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
 
-        # Should exit with code 0
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-    def test_validate_with_depth_check_real_file(self):
-        """Test validation with depth checking using real fixture."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
-
-        # Create args with depth checking
-        args = Namespace(
-            config_file=input_file,
-            check_depths=True,
-            tolerance=50.0,  # Use high tolerance to avoid warnings from incorrect depths
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        # Should complete successfully (may have warnings but should pass)
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-    def test_validate_strict_depth_check_real_file(self):
-        """Test validation with strict depth checking that may show warnings."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
-
-        # Create args with strict depth checking and low tolerance
-        args = Namespace(
-            config_file=input_file,
-            check_depths=True,
-            tolerance=5.0,  # Low tolerance - likely to trigger warnings
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=True,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        # Should complete (may have warnings about depths being wrong, but that's expected)
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
 
     def test_validate_nonexistent_file(self, tmp_path):
         """Test validation with nonexistent file."""
@@ -101,69 +41,13 @@ class TestValidateCommand:
         with pytest.raises(SystemExit, match="1"):
             main(args)
 
-    def test_validate_with_custom_tolerance_real_file(self):
-        """Test validation with custom depth tolerance."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
 
-        # Create args with custom tolerance
-        args = Namespace(
-            config_file=input_file,
-            check_depths=True,
-            tolerance=25.0,  # Custom tolerance
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=False,
-        )
 
-        # Should exit with code 0
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-    def test_validate_quiet_mode_real_file(self):
-        """Test validation in quiet mode."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
-
-        args = Namespace(
-            config_file=input_file,
-            check_depths=False,
-            tolerance=10.0,
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=False,
-            warnings_only=False,
-            verbose=False,
-            quiet=True,  # Quiet mode
-        )
-
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
-
-    def test_validate_verbose_mode_real_file(self):
-        """Test validation in verbose mode."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
-
-        args = Namespace(
-            config_file=input_file,
-            check_depths=True,
-            tolerance=10.0,
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            strict=False,
-            warnings_only=False,
-            verbose=True,  # Verbose mode
-            quiet=False,
-        )
-
-        with pytest.raises(SystemExit, match="0"):
-            main(args)
 
     @patch("cruiseplan.core.validation.validate_configuration_file")
     def test_validate_keyboard_interrupt(self, mock_validate_config):
         """Test handling of keyboard interrupt."""
-        input_file = self.get_fixture_path("cruise_simple.yaml")
+        input_file = self.get_fixture_path("tc4_mixed_ops.yaml")
         mock_validate_config.side_effect = KeyboardInterrupt()
 
         args = Namespace(

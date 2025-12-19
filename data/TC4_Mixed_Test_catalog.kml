@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>TC4_Mixed_Test - Catalog</name>
+        <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
+        
+        <!-- Styles for different entity types -->
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="portStyle">
+            <IconStyle>
+                <color>ff0080ff</color>
+                <scale>1.5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/marina.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="transitStyle">
+            <LineStyle>
+                <color>80ff0000</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
+
+        <!-- Ports -->
+        <Placemark>
+            <name>Departure: Halifax</name>
+            <description>
+                Port: Halifax
+                Type: Departure Port
+                Location: 44.648800°N, -63.575200°W
+                Timezone: GMT-4
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-63.5752,44.6488,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>Arrival: Cadiz</name>
+            <description>
+                Port: Cadiz
+                Type: Arrival Port
+                Location: 36.529800°N, -6.292300°W
+                Timezone: GMT+1
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-6.2923,36.5298,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Stations -->
+        <Placemark>
+            <name>STN_001</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.000000°N, -50.000000°W
+                Depth: None m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-50.0,45.0,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Moorings -->
+
+        <!-- Transits -->
+        <Placemark>
+            <name>ADCP_Survey</name>
+            <description>
+                Type: Transit
+                Start: 46.000000°N, -50.000000°W
+                End: 47.000000°N, -50.000000°W
+                Distance: calculated nm
+            </description>
+            <styleUrl>#transitStyle</styleUrl>
+            <LineString>
+                <coordinates>
+                    -50.0,46.0,0
+                    -50.0,47.0,0
+                </coordinates>
+            </LineString>
+        </Placemark>
+
+        <!-- Areas -->
+        <Placemark>
+            <name>Area_01</name>
+            <description>
+                Type: Area
+                Corners: 4
+                Operation: AreaOperationTypeEnum.SURVEY
+            </description>
+            <styleUrl>#areaStyle</styleUrl>
+            <Polygon>
+                <outerBoundaryIs>
+                    <LinearRing>
+                        <coordinates>-50.5,47.5,0 -50.5,48.5,0 -49.5,48.5,0 -49.5,47.5,0 -50.5,47.5,0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+    </Document>
+</kml>

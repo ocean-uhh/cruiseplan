@@ -892,18 +892,8 @@ class StationPicker:
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "start_date": "1970-01-01T00:00:00Z",
-            "departure_port": {
-                "name": "UPDATE-departure-port-name",
-                "latitude": 0.0,
-                "longitude": 0.0,
-                "timezone": "GMT+0",
-            },
-            "arrival_port": {
-                "name": "UPDATE-arrival-port-name",
-                "latitude": 0.0,
-                "longitude": 0.0,
-                "timezone": "GMT+0",
-            },
+            "departure_port": "port_update",
+            "arrival_port": "port_update",
             "first_station": (
                 yaml_stations[0]["name"]
                 if yaml_stations

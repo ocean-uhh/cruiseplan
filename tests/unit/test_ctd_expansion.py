@@ -292,10 +292,8 @@ class TestCTDSectionExpansion:
         assert any("Section_B_Stn" in name for name in station_names)
 
     def test_expand_section_updates_first_last_station_refs(self):
-        """Test that first_station and last_station references are updated."""
+        """Test that first_station and last_station references are updated at leg level."""
         config = {
-            "first_station": "Main Section",
-            "last_station": "Main Section",
             "transits": [
                 {
                     "name": "Main Section",
@@ -307,16 +305,25 @@ class TestCTDSectionExpansion:
                     ],
                 }
             ],
+            "legs": [
+                {
+                    "name": "Survey_Leg",
+                    "first_station": "Main Section",
+                    "last_station": "Main Section",
+                    "activities": ["Main Section"]
+                }
+            ],
         }
 
         result_config, summary = expand_ctd_sections(config)
 
-        # first_station should point to first expanded station
+        # first_station should point to first expanded station at leg level
         expanded_stations = [s["name"] for s in result_config["stations"]]
-        assert result_config["first_station"] == expanded_stations[0]
+        leg = result_config["legs"][0]
+        assert leg["first_station"] == expanded_stations[0]
 
-        # last_station should point to last expanded station
-        assert result_config["last_station"] == expanded_stations[-1]
+        # last_station should point to last expanded station at leg level  
+        assert leg["last_station"] == expanded_stations[-1]
 
     def test_expand_section_preserves_other_transit_fields(self):
         """Test that additional fields from transits are preserved in stations."""

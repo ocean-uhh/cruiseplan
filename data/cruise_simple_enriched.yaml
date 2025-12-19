@@ -1,0 +1,85 @@
+# Test fixture for new maritime-correct architecture
+# Demonstrates port-to-port legs with activities-based organization
+
+cruise_name: "Simple_Test_Cruise_2028"
+start_date: '1970-01-01T00:00:00+00:00' # default added by cruiseplan enrich
+description: "Basic two-station test cruise"
+
+# Cruise-level parameters (inheritable to legs)
+default_vessel_speed: 10.0  # knots
+default_distance_between_stations: 50.0  # km
+turnaround_time: 30.0  # minutes
+calculate_transfer_between_sections: false
+calculate_depth_via_bathymetry: true
+
+
+# Station definitions (global catalog)
+stations:
+  - name: "CTD_001"
+    coordinates_dmm: 62 00.00'N, 008 00.00'E
+    water_depth: 1358.0
+    latitude: 62.0
+    longitude: 8.0
+    operation_type: "CTD"
+    action: "profile"
+  - name: "CTD_002"
+    coordinates_dmm: 64 00.00'N, 010 00.00'E
+    water_depth: 3.0
+    latitude: 64.0
+    longitude: 10.0
+    operation_type: "CTD"
+    action: "profile"
+  - name: "MOORING_001"
+    coordinates_dmm: 66 00.00'N, 012 00.00'E
+    water_depth: 99.0
+    latitude: 66.0
+    longitude: 12.0
+    operation_type: "mooring"
+    duration: 59940.0 # default added by cruiseplan enrich
+    action: "deployment"
+
+# Leg definitions (maritime port-to-port segments)
+legs:
+  - name: "North_Survey"
+    description: "Main survey leg from Bergen to Tromsø"
+    departure_port:
+      name: "Bergen"
+      latitude: 60.3913
+      longitude: 5.3221
+      timezone: "GMT+1"
+    arrival_port:
+      name: "Tromsø"
+      latitude: 69.6496
+      longitude: 18.9553
+      timezone: "GMT+1"
+    vessel_speed: 8.0  # Override cruise default for this leg
+    first_station: "CTD_001"
+    last_station: "MOORING_001"
+
+    # Activities-based organization (unified approach)
+    activities:
+      - name: "CTD_001"
+        type: "station"
+      - name: "CTD_002"
+        type: "station"
+      - name: "MOORING_001"
+        type: "station"
+
+    # Clusters for operation boundary management
+    clusters:
+      - name: "CTD_Cluster"
+        description: "CTD operations that can be reordered for weather"
+        strategy: "sequential"
+        ordered: false  # Allow reordering within cluster
+        activities:
+          - name: "CTD_001"
+            type: "station"
+          - name: "CTD_002"
+            type: "station"
+      - name: "Mooring_Cluster"
+        description: "Mooring deployment (strict ordering required)"
+        strategy: "sequential"
+        ordered: true  # Maintain strict order
+        activities:
+          - name: "MOORING_001"
+            type: "station"

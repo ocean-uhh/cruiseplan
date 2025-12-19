@@ -36,13 +36,11 @@ def main(args: argparse.Namespace) -> None:
             verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
         )
 
-        # Validate that at least one operation is requested
+        # Get expansion flags (optional operations)
         expand_sections = getattr(args, "expand_sections", False)
-        if not (args.add_depths or args.add_coords or expand_sections):
-            logger.error(
-                "At least one operation must be specified: --add-depths, --add-coords, or --expand-sections"
-            )
-            sys.exit(1)
+        expand_ports = getattr(args, "expand_ports", False)
+
+        # Note: At minimum, enrichment will add missing defaults even with no explicit flags
 
         # Validate input file
         config_file = validate_input_file(args.config_file)
@@ -70,6 +68,7 @@ def main(args: argparse.Namespace) -> None:
             add_depths=args.add_depths,
             add_coords=args.add_coords,
             expand_sections=getattr(args, "expand_sections", False),
+            expand_ports=getattr(args, "expand_ports", False),
             bathymetry_source=args.bathymetry_source,
             bathymetry_dir=str(args.bathymetry_dir),
             coord_format=args.coord_format,
@@ -81,6 +80,7 @@ def main(args: argparse.Namespace) -> None:
             summary["stations_with_depths_added"]
             + summary["stations_with_coords_added"]
             + summary.get("sections_expanded", 0)
+            + summary.get("ports_expanded", 0)
         )
 
         if args.add_depths and summary["stations_with_depths_added"] > 0:
@@ -96,6 +96,21 @@ def main(args: argparse.Namespace) -> None:
         if expand_sections and summary.get("sections_expanded", 0) > 0:
             logger.info(
                 f"✓ Expanded {summary['sections_expanded']} CTD sections into {summary.get('stations_from_expansion', 0)} stations"
+            )
+
+        if expand_ports and summary.get("ports_expanded", 0) > 0:
+            logger.info(
+                f"✓ Expanded {summary['ports_expanded']} global port references"
+            )
+
+        if summary.get("defaults_added", 0) > 0:
+            logger.info(
+                f"✓ Added {summary['defaults_added']} missing required fields with defaults"
+            )
+
+        if summary.get("station_defaults_added", 0) > 0:
+            logger.info(
+                f"✓ Added {summary['station_defaults_added']} missing station defaults (e.g., mooring durations)"
             )
 
         if total_enriched > 0:
@@ -234,9 +249,13 @@ if __name__ == "__main__":
     parser.add_argument(
         "--expand-sections", action="store_true", help="Expand CTD sections"
     )
+    parser.add_argument(
+        "--expand-ports", action="store_true", help="Expand global port references"
+    )
     parser.add_argument("-o", "--output-dir", type=Path, default=Path("."))
     parser.add_argument("--output-file", type=Path)
     parser.add_argument("--bathymetry-source", default="etopo2022")
+    parser.add_argument("--bathymetry-dir", type=Path, default=Path("data"))
     parser.add_argument("--coord-format", default="dmm", choices=["dmm", "dms"])
 
     args = parser.parse_args()
