@@ -16,47 +16,19 @@ CruisePlan is actively developed with a focus on data integrity, operational rea
 Phase 1: Critical Data Integrity 
 --------------------------------
 
-**Target**: Version 0.2.0 (Breaking Changes Release)  
-**Timeline**: 4-6 weeks  
+**Target**: Version 0.3.0 (Breaking Changes Release)  
 **Focus**: Data accuracy and routing consistency
 
-Depth Semantics Separation 🔴
+Station Coordinate Access 🟠
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Priority**: Critical - Data Integrity Issue  
-**Breaking Change**: Yes - Major version bump required
+**Priority**: Medium - Developer Experience  
+**Breaking Change**: No (additive)
 
-**Current Problem**: 
-The existing ``depth`` field conflates two distinct concepts, causing incorrect calculations:
+**Current Pattern**: ``station.position.latitude`` (cumbersome)  
+**Planned Addition**: ``station.latitude`` (convenience properties)
 
-- CTD cast depth vs seafloor depth ambiguity
-- Duration calculations use wrong depth values  
-- NetCDF outputs contain incorrect depth semantics
-
-**Impact**: 
-- Incorrect CTD operation duration estimates
-- Scientific data misrepresentation in outputs
-- Validation errors when comparing bathymetry data
-
-**Planned Solution**:
-
-.. code-block:: yaml
-
-   # Current (ambiguous)
-   stations:
-     - name: "CTD_001"
-       depth: 500          # Cast depth or water depth?
-
-   # New (explicit semantics)  
-   stations:
-     - name: "CTD_001"
-       operation_depth: 500   # CTD cast target depth
-       water_depth: 2000     # Seafloor depth at location
-
-**Migration Strategy**:
-- Deprecation warnings for legacy ``depth`` field
-- Automatic conversion with user notifications  
-- Backward compatibility maintained for 2 minor versions
+**Benefits**: Improved code readability throughout calculation and enrichment functions
 
 Area Operation Routing Fix 🟡
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -80,8 +52,7 @@ Replace center point calculations with proper ``get_entry_point()`` and ``get_ex
 Phase 2: Core Feature Completion
 --------------------------------
 
-**Target**: Version 0.3.0 (Feature Release)  
-**Timeline**: 4-6 weeks after Phase 1  
+**Target**: Version 0.4.0 (Feature Release)  
 **Focus**: Missing functionality and operational realism
 
 PNG Map Generation 🔴
@@ -154,8 +125,7 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 Phase 3: Code Quality and Polish
 --------------------------------
 
-**Target**: Version 0.4.0 (Quality Release)  
-**Timeline**: 2-4 weeks after Phase 2  
+**Target**: Version 0.5.0 (Quality Release)  
 **Focus**: Maintainability and developer experience
 
 NetCDF Generator Refactoring 🟠
@@ -174,16 +144,30 @@ NetCDF Generator Refactoring 🟠
 - Standardized variable definitions and coordinate templates
 - Single source of truth for CF convention compliance
 
-Station Coordinate Access 🟠
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NetCDF to YAML Roundtrip Validation 🟡
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Priority**: Medium - Developer Experience  
+**Priority**: Medium - Data Integrity  
 **Breaking Change**: No (additive)
 
-**Current Pattern**: ``station.position.latitude`` (cumbersome)  
-**Planned Addition**: ``station.latitude`` (convenience properties)
+**Requirement**: 
+Implement bidirectional conversion between NetCDF output and YAML configuration to validate completeness of exported data.
 
-**Benefits**: Improved code readability throughout calculation and enrichment functions
+**Implementation Plan**:
+- Create ``cruiseplan netcdf-to-yaml`` command to reverse-engineer YAML from NetCDF
+- Validate that all critical cruise planning information is preserved in NetCDF export
+- Ensure roundtrip fidelity: ``YAML → NetCDF → YAML`` produces equivalent configurations
+- Identify any data loss during NetCDF export process
+
+**Use Cases**:
+- **Data Integrity Validation**: Verify NetCDF exports contain complete cruise information
+- **Configuration Recovery**: Reconstruct YAML configs from archived NetCDF files
+- **Format Migration**: Enable users to recover configurations from legacy NetCDF outputs
+- **Quality Assurance**: Automated testing of export completeness
+
+**Success Criteria**: Generated YAML produces identical schedule and station information when re-processed
+
+
 
 Risk Assessment
 ----------------

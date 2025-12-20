@@ -77,6 +77,7 @@ Note that the jinja template will break long tables across multiple ``tabular`` 
    Example LaTeX stations table from ``tc4_mixed_ops.yaml``, demonstrating the comprehensive station listing format including areas, scientific transits, and traditional station operations with precise coordinate and timing information.
 
 .. code-block:: latex
+
     \begin{table}[htbp]
     \caption{Working area, stations and profiles: TC5-Sections-Test}
     \centering

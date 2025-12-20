@@ -30,6 +30,8 @@ The primary development of CruisePlan is for physical oceanographers, with CTD s
 
 CruisePlan transforms complex cruise planning from a weeks-long manual process into a structured, validated workflow that produces proposal-ready documentation with some checks on operational feasibility.
 
+**Important - Version 0.2.0 Release:** This release includes breaking changes to depth field semantics. See our [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html) for migration guidance.
+
 **Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 
 📘 Full documentation available at:  
@@ -90,7 +92,7 @@ cruiseplan/
 
 ### Option 1: Install from PyPI (Most Users)
 
-For general use, install the latest stable release from PyPI:
+For general use, install the latest stable release from PyPI. **Note**: CruisePlan is in active development (0.x versions) with occasional breaking changes.
 
 ```bash
 # Create virtual environment
@@ -156,7 +158,7 @@ make html
 - [Installation Guide](https://ocean-uhh.github.io/cruiseplan/installation.html)
 - [Usage Guide](https://ocean-uhh.github.io/cruiseplan/usage.html)
 - [API Reference](https://ocean-uhh.github.io/cruiseplan/api/modules.html)
-- [Development Roadmap](https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md)
+- [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html)
 - [Contributing Guidelines](https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md)
 
 ---
@@ -165,7 +167,7 @@ make html
 
 Contributions are welcome! Please see our [Contributing Guidelines](https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md) for details on how to get started.
 
-For information about planned improvements and the development roadmap, see [PROJECT_SPECS.md](PROJECT_SPECS.md).
+For information about planned improvements and development priorities, see our [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html).
 
 ---
 

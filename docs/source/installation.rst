@@ -75,7 +75,8 @@ For general use, install the latest stable release from PyPI:
    :alt: Successful CruisePlan installation verification
    :width: 600px
    :align: center
-   :caption: Successful CruisePlan installation showing version information and available commands
+
+   Successful CruisePlan installation showing version information and available commands
 
 After installing, verify the installation by running the steps in :ref:`verification_testing`.
 
