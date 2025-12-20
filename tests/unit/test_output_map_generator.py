@@ -581,7 +581,7 @@ class TestGenerateMapFromTimeline:
         assert "data_source" in call_args.kwargs
         timeline_data = call_args.kwargs["data_source"]
         assert timeline_data["timeline"] == timeline
-        assert timeline_data["config"] == config
+        assert timeline_data["cruise"] == config
 
 
 class TestGenerateFoliumMap:
