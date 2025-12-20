@@ -109,27 +109,27 @@ class TestFormatPositionLatex:
     def test_format_position_latex_basic(self):
         """Test basic LaTeX formatting."""
         result = format_position_latex(65.7458, -24.4792)
-        assert result == "65$^\\circ$44.75'$N$, 024$^\\circ$28.75'$W$"
+        assert result == "65$^\\circ$44.75'N, 024$^\\circ$28.75'W"
 
     def test_format_position_latex_south_east(self):
         """Test LaTeX formatting for SE quadrant."""
         result = format_position_latex(-33.8568, 151.2153)
-        assert result == "33$^\\circ$51.41'$S$, 151$^\\circ$12.92'$E$"
+        assert result == "33$^\\circ$51.41'S, 151$^\\circ$12.92'E"
 
     def test_format_position_latex_zero(self):
         """Test LaTeX formatting for zero coordinates."""
         result = format_position_latex(0.0, 0.0)
-        assert result == "00$^\\circ$00.00'$N$, 000$^\\circ$00.00'$E$"
+        assert result == "00$^\\circ$00.00'N, 000$^\\circ$00.00'E"
 
     def test_format_position_latex_precise(self):
         """Test LaTeX formatting with precise coordinates."""
         result = format_position_latex(50.1234, -40.5678)
-        assert result == "50$^\\circ$07.40'$N$, 040$^\\circ$34.07'$W$"
+        assert result == "50$^\\circ$07.40'N, 040$^\\circ$34.07'W"
 
     def test_format_position_latex_leading_zeros_longitude(self):
         """Test that longitude gets proper leading zeros in LaTeX."""
         result = format_position_latex(5.1234, -8.5678)
-        assert result == "05$^\\circ$07.40'$N$, 008$^\\circ$34.07'$W$"
+        assert result == "05$^\\circ$07.40'N, 008$^\\circ$34.07'W"
 
 
 class TestCoordinateFormatConsistency:
@@ -179,7 +179,7 @@ class TestRealWorldCoordinates:
         assert dmm == "59 45.50'N, 039 44.00'W"
 
         latex = format_position_latex(lat, lon)
-        assert latex == "59$^\\circ$45.50'$N$, 039$^\\circ$44.00'$W$"
+        assert latex == "59$^\\circ$45.50'N, 039$^\\circ$44.00'W"
 
     def test_arctic_station(self):
         """Test Arctic research station coordinates."""

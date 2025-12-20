@@ -4,7 +4,7 @@
 PNG Output
 ==========
 
-PNG format provides static map visualizations for cruise planning, documentation, and presentation. CruisePlan generates PNG maps through two distinct commands with different purposes and data sources.
+PNG format provides static map visualizations for cruise planning, documentation, and presentation. CruisePlan generates PNG maps in two ways, depending on whether you just want operational locations (``cruiseplan map``) or also scheduling/transit information (``cruiseplan schedule``) to be plotted.
 
 Purpose and Use Cases
 ======================
@@ -15,12 +15,6 @@ Purpose and Use Cases
   - Scientific presentation and publication figures
   - Field operation reference maps
 
-**Target Audiences**:
-  - Principal investigators preparing proposals
-  - Ship operations staff and navigators
-  - Scientific collaborators and reviewers
-  - Funding agency reviewers
-
 Command Comparison: Schedule vs Map
 ===================================
 
@@ -30,7 +24,7 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
    :alt: Comparison of PNG outputs from map command vs schedule command
    :width: 100%
    
-   **PNG Output Comparison**: Left shows ``cruiseplan map`` output (configuration-based), right shows ``cruiseplan schedule`` output (timeline-based). Note the key difference: schedule output includes departure/arrival ports while map output focuses purely on station configuration.
+   **PNG Output Comparison**: Left shows ``cruiseplan map`` output (configuration-based), right shows ``cruiseplan schedule`` output (timeline-based). Note the key difference: schedule output includes departure/arrival ports and lines to show transits, while map output focuses purely on station configuration.
 
 .. list-table:: PNG Output Comparison
    :widths: 30 35 35
@@ -42,15 +36,12 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
    * - **Data Source**
      - Generated timeline with scheduling
      - YAML configuration only
-   * - **Station Order**
-     - Scheduled sequence (leg-based execution order)
-     - Configuration order (definition sequence)
-   * - **Timing Information**
-     - Operation start times and durations
-     - No timing information displayed
    * - **Port Visualization**
      - ✅ Shows departure and arrival ports
      - ❌ Ports not displayed
+   * - **Station Order**
+     - Scheduled sequence (leg-based execution order)
+     - Configuration order (definition sequence)
    * - **Cruise Track Lines**
      - Complete executed route between all operations
      - Basic station connections only
@@ -58,8 +49,8 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
      - Uniform markers (operation type from timeline)
      - Differentiated markers (stations vs moorings)
    * - **Use Case**
-     - Final schedule and execution planning
-     - Initial planning and configuration review
+     - Schedule and execution planning
+     - Proposals (port independent) and overview
    * - **Prerequisites**
      - Requires successful validation and scheduling
      - Works directly with YAML configuration
@@ -67,42 +58,18 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
      - Slower (includes scheduling calculations)
      - Faster (direct from configuration)
 
+----
+
 Schedule PNG Output (Timeline-Based)
-=====================================
+-----------------------------------
 
 Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 
 **Characteristics**:
+
   - Shows operations in scheduled execution order
   - Includes complete cruise track with all transits
-  - Displays timing information and durations
-  - Optimized routing between operations
   - Requires prior validation and scheduling success
-
-**Visual Elements**:
-
-.. list-table:: Schedule PNG Visual Elements
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - **Element**
-     - **Appearance**
-     - **Information Displayed**
-   * - **Stations**
-     - Red circles
-     - Operation name, scheduled start time
-   * - **Moorings**
-     - Gold stars
-     - Operation name, deployment/recovery type
-   * - **Transit Lines**
-     - Colored lines
-     - Route segments with timing
-   * - **Timeline Track**
-     - Connected polyline
-     - Complete vessel path in execution order
-   * - **Bathymetry**
-     - Contour background
-     - Depth context for operations
 
 **Example Command Usage**:
 
@@ -119,42 +86,24 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 
 **Output File**: ``{cruise_name}_schedule.png``
 
+.. figure:: ../_static/screenshots/schedule_png_detailed.png
+   :alt: Map generated from cruiseplan schedule for tc1_mooring.yaml
+   :width: 100%
+   
+   Shows a cruise track with a single operation (mooring) and two ports.
+
+----
+
 Map PNG Output (Configuration-Based)
-=====================================
+-----------------------------------
 
 Generated via: ``cruiseplan map -c cruise.yaml --format png``
 
 **Characteristics**:
+
   - Shows stations in YAML configuration order
   - Displays differentiated station types (stations vs moorings)
-  - Includes port connections and basic routing
-  - No timing or scheduling information
   - Works with any valid YAML configuration
-
-**Visual Elements**:
-
-.. list-table:: Map PNG Visual Elements
-   :widths: 25 25 50
-   :header-rows: 1
-
-   * - **Element**
-     - **Appearance**
-     - **Information Displayed**
-   * - **Stations**
-     - Red circles
-     - Station name, coordinates
-   * - **Moorings**
-     - Gold stars
-     - Mooring name, operation type
-   * - **Port Connections**
-     - Dashed lines
-     - Direct connections to first/last stations
-   * - **Configuration Order**
-     - Numbered sequence
-     - YAML definition order (not execution)
-   * - **Bathymetry**
-     - Contour background
-     - Geographic and depth context
 
 **Example Command Usage**:
 
@@ -174,13 +123,22 @@ Generated via: ``cruiseplan map -c cruise.yaml --format png``
 
 **Output File**: ``{cruise_name}_map.png``
 
-Visual Styling and Customization
+
+.. figure:: ../_static/screenshots/map_png_detailed.png
+   :alt: Map generated from cruiseplan map for tc5_sections.yaml
+   :width: 70%
+   
+   Shows the station naming for a section which has been expanded by ``cruiseplan enrich``.
+
+----
+
+Integration and workflows
 =================================
 
-Bathymetric Background
-----------------------
+Visualisation and Customization
+-------------------------------
 
-Both PNG outputs include bathymetric background visualization:
+Both PNG outputs include bathymetric background visualization.  For ``cruiseplan map``, the bathymetry source can be selected, while for ``cruiseplan schedule``, GEBCO 2025 is always used.
 
 **Bathymetry Sources**:
   - **GEBCO 2025**: High-resolution global bathymetry (default)
@@ -188,10 +146,9 @@ Both PNG outputs include bathymetric background visualization:
 
 **Contour Styling**:
   - Depth contours at standard oceanographic intervals
-  - Color-coded depth ranges from shallow (light) to deep (dark)
-  - Automatic depth range selection based on operation area
+  - Color-coded depth ranges from land (yellow) and water (blues) ranging from shallow (light) to deep (dark)
 
-**Configuration Options**:
+**Configuration Options** for ``cruiseplan map`` only:
 
 .. code-block:: bash
 
@@ -201,54 +158,44 @@ Both PNG outputs include bathymetric background visualization:
    # Fast bathymetry for quick previews
    --bathymetry-source etopo2022 --bathymetry-stride 10
 
-Station and Operation Markers
+Default Operation Markers
 -----------------------------
 
 **Station Markers** (Red Circles):
-  - Size proportional to operation importance
   - Labels with station names
-  - Coordinate information in tooltips
-  - Consistent styling across both command types
 
 **Mooring Markers** (Gold Stars):
   - Distinctive star shape for easy identification
-  - Larger size for multi-day deployments
-  - Deployment vs recovery differentiation
-  - Equipment type annotations
+
+**Line Operations** (orange lines):
+  - Represent underway operations (e.g., ADCP surveys)
 
 **Area Operations** (when present):
   - Polygon outlines with semi-transparent fill
-  - Corner point markers with coordinates
   - Center point routing anchors
-  - Area calculations displayed
+
+These are not user-configurable unless you clone the repository and edit ``cruiseplan/utils/plot_config.py``. See the file on GitHub: `cruiseplan/utils/plot_config.py on GitHub <https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/plot_config.py>`_.
 
 Figure Customization
 --------------------
 
-**Figure Size Options**:
+**Figure Size Options** for ``cruiseplan map`` only:
 
 .. code-block:: bash
 
    # Standard size (default)
    --figsize 12 10
-   
-   # Wide format for presentations
-   --figsize 16 8
-   
-   # High-resolution for publications
-   --figsize 14 12
+
+Note that making the figure size smaller will increase the relative size of the fonts, so if you want fonts to be more legible, make the figure size smaller.
 
 **Output Quality**:
-  - 300 DPI resolution for publication quality
-  - Vector graphics where possible
-  - Anti-aliased text and lines
-  - Professional cartographic styling
+  - 300 DPI resolution for publication quality (not configurable)
+  - PNG for lossless compression and clarity
 
-Integration and Workflow
-=========================
 
-Planning Workflow Integration
------------------------------
+
+Workflow Integration
+--------------------
 
 **Initial Planning Phase** (use ``cruiseplan map``):
   1. Create initial YAML configuration
@@ -256,75 +203,25 @@ Planning Workflow Integration
   3. Iteratively refine station positions and operations
   4. Share planning maps with collaborators
 
-**Final Planning Phase** (use ``cruiseplan schedule``):
+**Final Planning Phase** or for cruise reports (use ``cruiseplan schedule``):
   1. Validate and enrich configuration
-  2. Generate timeline-based PNG with scheduling
+  2. Generate timeline-based PNG
   3. Review execution order and timing
   4. Generate final documentation set
 
-**Documentation Generation**:
 
-.. code-block:: bash
 
-   # Complete documentation package
-   cruiseplan schedule -c cruise.yaml --format png,html,latex,csv
-   
-   # Initial planning maps
-   cruiseplan map -c cruise.yaml --format png,kml
-
-Comparison with Other Formats
------------------------------
-
-**PNG vs HTML**:
-  - PNG: Static, publication-ready, embedded in documents
-  - HTML: Interactive, web-shareable, includes detailed tables
-
-**PNG vs KML**:
-  - PNG: Fixed visualization, document embedding, print-ready
-  - KML: Interactive Google Earth, dynamic exploration, GPS integration
-
-**PNG vs LaTeX**:
-  - PNG: Geographic visualization, spatial relationships
-  - LaTeX: Tabular data, numerical information, proposal formatting
-
-File Management and Organization
-================================
-
-Naming Conventions
-------------------
+File-Naming Conventions
+------------------------
 
 **Schedule PNG Files**:
-  - Format: ``{cruise_name}_schedule.png``
-  - Example: ``Arctic_Survey_2024_schedule.png``
+  - Format: ``{cruise_name}_schedule_map.png`` 
+  - Example: ``Arctic_Survey_2024_schedule_map.png``
 
 **Map PNG Files**:
   - Format: ``{cruise_name}_map.png`` (or custom via ``--output-file``)
   - Example: ``Arctic_Survey_2024_map.png``
 
-**Version Control**:
-  - Include generation timestamp in metadata
-  - Maintain separate directories for different planning phases
-  - Archive previous versions for comparison
-
-Output Directory Organization
------------------------------
-
-**Recommended Structure**:
-
-.. code-block:: text
-
-   cruise_outputs/
-   ├── planning/
-   │   ├── initial_map.png          # Early configuration maps
-   │   └── planning_iterations/
-   ├── schedules/
-   │   ├── schedule_map.png         # Final timeline-based maps
-   │   ├── schedule.html
-   │   ├── schedule.csv
-   │   └── schedule.tex
-   └── presentations/
-       ├── proposal_map.png         # Publication-ready figures
-       └── presentation_slides.png
 
 **Command Examples for Organization**:
 
@@ -336,25 +233,21 @@ Output Directory Organization
    # Final schedule outputs
    cruiseplan schedule -c cruise.yaml -o schedules/ --format all
    
-   # Presentation-ready outputs
-   cruiseplan schedule -c cruise.yaml --format png -o presentations/
 
-Quality Assurance and Best Practices
-=====================================
 
 Visual Quality Checks
-----------------------
+====================== 
 
 **Review Checklist**:
-  - All stations clearly visible and labeled
+  - All stations visible and labeled
   - Bathymetric context appropriate for operation depths
   - Track lines connect logically between operations
-  - No overlapping labels or markers
   - Proper scaling and geographic projection
+
 
 **Common Issues and Solutions**:
 
-.. list-table:: PNG Quality Issues
+.. list-table:: Figure Issues
    :widths: 30 70
    :header-rows: 1
 
@@ -365,26 +258,9 @@ Visual Quality Checks
    * - Unclear bathymetry
      - Reduce stride: ``--bathymetry-stride 3``
    * - Slow generation
-     - Use ETOPO: ``--bathymetry-source etopo2022``
+     - Use ETOPO: ``--bathymetry-source etopo2022`` (cruiseplan map only)
    * - Missing geographic context
      - Check coordinate validity and map projection
 
-Performance Considerations
---------------------------
 
-**Generation Speed**:
-  - Map command: ~5-15 seconds for typical configurations
-  - Schedule command: ~10-30 seconds including scheduling calculations
-  - High-resolution bathymetry adds ~10-20 seconds
-
-**Optimization Tips**:
-
-.. code-block:: bash
-
-   # Fast preview generation
-   cruiseplan map -c cruise.yaml --bathymetry-stride 8 --show-plot
-   
-   # Production quality (slower)
-   cruiseplan schedule -c cruise.yaml --format png --bathymetry-stride 2
-
-PNG output provides essential visualization capabilities for cruise planning, from initial configuration review through final documentation. The dual command approach supports both rapid planning iterations and final presentation-quality outputs for complete oceanographic research workflows.
+PNG output provides  visualization capabilities for cruise planning, helping you to review the initial configuration and the routing.  If you use and update the yaml during a cruise, then the final yaml can be used to generate the actual cruise track with the schedule command---useful for cruise reports.
