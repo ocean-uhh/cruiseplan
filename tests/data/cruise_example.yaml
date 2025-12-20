@@ -19,7 +19,7 @@ stations:
     operation_type: CTD
     action: profile
     position: "63.00, -20.00"
-    depth: 500.0
+    operation_depth: 500.0
     duration: 60.0
     comment: "The global start station"
 
@@ -27,14 +27,14 @@ stations:
     operation_type: CTD
     action: profile
     position: "62.50, -20.00"
-    depth: 1200.0
+    operation_depth: 1200.0
 
   - name: M_End_01
     operation_type: mooring
     action: recovery
     position: "62.00, -19.00"
     duration: 180.0
-    depth: 1500.0
+    operation_depth: 1500.0
 
 # --- PART 2: THE SCHEDULE (Execution) ---
 legs:
@@ -70,7 +70,7 @@ legs:
             action: profile
             latitude: 62.25
             longitude: -19.50
-            depth: 1400.0
+            operation_depth: 1400.0
             duration: 45.0
           - "M_End_01"                     # Reference (mooring in stations)
 

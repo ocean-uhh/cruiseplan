@@ -69,7 +69,7 @@ Formats and data conventions
    position: "47.5678, -52.1234"
 
 
-See also :ref:`units_and_defaults` for detailed conventions on units and default values used throughout CruisePlan.
+See also :doc:`units_and_defaults` for detailed conventions on units and default values used throughout CruisePlan.
 
 .. _cruise-wide-metadata:
 
@@ -701,6 +701,46 @@ When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` 
        last_waypoint: "Survey_Grid_Alpha"  # End at area center point
        activities: ["STN_001", "Survey_Grid_Alpha"]
 
+**Advanced Routing Examples**:
+
+.. code-block:: yaml
+
+   areas:
+     - name: "Northern_Grid"
+       corners: ["60.0, -50.0", "62.0, -50.0", "62.0, -48.0", "60.0, -48.0"]
+       operation_type: "survey"
+       action: "bathymetry"
+       duration: 240.0  # 4-hour survey
+       
+     - name: "Southern_Box"
+       corners: ["58.0, -52.0", "59.0, -52.0", "59.0, -51.0", "58.0, -51.0"]
+       operation_type: "survey"
+       action: "mapping"
+       duration: 180.0  # 3-hour mapping
+   
+   stations:
+     - name: "CTD_01"
+       latitude: 61.0
+       longitude: -49.0
+       operation_type: "CTD"
+       action: "profile"
+   
+   legs:
+     - name: "Survey_Campaign"
+       first_waypoint: "CTD_01"         # Start at station coordinates
+       last_waypoint: "Northern_Grid"   # End at area center (61.0°N, 49.0°W)
+       activities: ["CTD_01", "Northern_Grid"]
+       
+     - name: "Mapping_Phase"
+       first_waypoint: "Northern_Grid"  # Start at area center from previous leg  
+       last_waypoint: "Southern_Box"    # End at area center (58.5°N, 51.5°W)
+       activities: ["Southern_Box"]
+
+**Center Point Calculations for Examples**:
+
+- ``Northern_Grid`` center: (60+62+62+60)/4 = 61.0°N, (-50-50-48-48)/4 = -49.0°W
+- ``Southern_Box`` center: (58+59+59+58)/4 = 58.5°N, (-52-52-51-51)/4 = -51.5°W
+
 **Routing Benefits**:
 
 - **Simplified navigation**: No need to manually calculate area center points
@@ -722,12 +762,12 @@ The schedule organization defines how catalog items are executed through legs an
    CruisePlan uses a two-layer architecture for legs and clusters:
    
    1. **YAML Layer**: Pydantic validation models (`LegDefinition`, `ClusterDefinition`) validate and parse YAML configuration
-   2. **Scheduling Layer**: Runtime classes (`Leg`, `CompositeOperation`) handle execution with parameter inheritance
+   2. **Scheduling Layer**: Runtime classes (`Leg`, `Cluster`) handle execution with parameter inheritance
    
    During scheduling, definitions are converted:
 
    - `LegDefinition` → `Leg` (with inheritance of cruise-level parameters like ``vessel_speed``)
-   - `ClusterDefinition` → `CompositeOperation` (with strategy-specific ordering logic)
+   - `ClusterDefinition` → `Cluster` (with strategy-specific ordering logic)
    
    This separation allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies.
 
@@ -852,11 +892,11 @@ Planned Leg Enhancements
       * - ``first_waypoint``
         - str
         - None
-        - Entry point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses center point. To use as waypoint only, define with ``duration: 0``.
+        - Entry point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses calculated center point from corner coordinates. To use as waypoint only, define with ``duration: 0``. Formerly ``first_station``.
       * - ``last_waypoint``
         - str
         - None
-        - Exit point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses center point. To use as waypoint only, define with ``duration: 0``.
+        - Exit point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses calculated center point from corner coordinates. To use as waypoint only, define with ``duration: 0``. Formerly ``last_station``.
 
 **Planned Usage Example**:
 
@@ -1166,15 +1206,15 @@ Cross-References
 
 For workflow information, see:
 
-- :ref:`Basic Planning Workflow <basic-planning-workflow>` in :doc:`user_workflows`
-- :ref:`PANGAEA-Enhanced Workflow <pangaea-enhanced-workflow>` in :doc:`user_workflows`
-- :ref:`Configuration-Only Workflow <configuration-only-workflow>` in :doc:`user_workflows`
+- :ref:`Basic Planning Workflow <user_workflow_path_1>` in :doc:`user_workflows`
+- :ref:`PANGAEA-Enhanced Workflow <user_workflow_path_2>` in :doc:`user_workflows`
+- :ref:`Configuration-Only Workflow <user_workflow_path_3>` in :doc:`user_workflows`
 
 For command-line usage, see:
 
 - :doc:`cli_reference` for complete command documentation
-- :ref:`Enrichment Commands <enrichment-commands>` in :doc:`cli_reference`
-- :ref:`Validation Commands <validation-commands>` in :doc:`cli_reference`
+- :ref:`Enrich subcommand <subcommand-enrich>` in :doc:`cli/enrich`
+- :ref:`Validate subcommand <subcommand-validate>` in :doc:`cli/validate`
 
 For development and API details, see:
 

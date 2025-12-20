@@ -208,4 +208,107 @@ This document outlines all screenshots needed for comprehensive user workflow do
 - Place in `docs/source/_static/screenshots/` directory
 - Reference in documentation with proper captions
 
-This comprehensive screenshot plan covers all major user interactions and will significantly enhance the usability and accessibility of the CruisePlan documentation.
+## Output Format Visualization Screenshots
+
+### 28. PNG Map Command vs Schedule Command Comparison
+- **File**: `png_output_comparison.png`
+- **Content**: Side-by-side comparison showing:
+  - Left: `cruiseplan map --format png` output (configuration-based)
+  - Right: `cruiseplan schedule --format png` output (timeline-based)
+- **Key differences to highlight**:
+  - Station order (configuration vs scheduled sequence)
+  - Track lines (basic vs complete routing)
+  - Station markers (differentiated vs uniform)
+- **Context**: PNG output format documentation
+
+### 29. Schedule Command PNG Output Detail
+- **File**: `schedule_png_detailed.png`
+- **Content**: High-resolution example of schedule PNG showing:
+  - Complete cruise track with all transit lines
+  - Numbered stations in execution order
+  - Timing annotations on track segments
+  - Professional cartographic styling
+- **Context**: Schedule PNG output documentation
+
+### 30. Map Command PNG Output Detail
+- **File**: `map_png_detailed.png`
+- **Content**: High-resolution example of map PNG showing:
+  - Stations and moorings with different symbols
+  - Port connections (dashed lines)
+  - Configuration order numbering
+  - Geographic context without timing
+- **Context**: Map PNG output documentation
+
+### 31. HTML Output Full Page
+- **File**: `html_output_fullpage.png`
+- **Content**: Complete HTML output page showing:
+  - Navigation header and cruise summary
+  - Interactive timeline table
+  - Embedded map visualization
+  - Station details section
+  - Professional web formatting
+- **Context**: HTML output format documentation
+
+### 32. LaTeX Output Example
+- **File**: `latex_output_example.png`
+- **Content**: Compiled LaTeX PDF showing:
+  - Working areas and profiles table
+  - Work days at sea calculation
+  - Station list with coordinates
+  - Professional academic formatting
+- **Context**: LaTeX output format documentation
+
+### 33. CSV Output in Excel
+- **File**: `csv_output_excel.png`
+- **Content**: Excel spreadsheet showing CSV import:
+  - Complete operation timeline
+  - All data columns properly formatted
+  - Example pivot table or analysis
+  - Column headers and data types visible
+- **Context**: CSV output format documentation
+
+### 34. KML Output in Google Earth
+- **File**: `kml_output_google_earth.png`
+- **Content**: Google Earth displaying KML file showing:
+  - 3D terrain visualization
+  - Station markers with information popups
+  - Cruise track overlay
+  - Time slider interface (if applicable)
+- **Context**: KML output format documentation
+
+### 35. NetCDF File Structure
+- **File**: `netcdf_output_structure.png`
+- **Content**: Tool (like ncview, Panoply, or Python) showing:
+  - NetCDF file structure and variables
+  - CF convention compliance
+  - Data dimensions and attributes
+  - Variable metadata display
+- **Context**: NetCDF output format documentation
+
+### 36. Multiple Output Formats Directory
+- **File**: `all_formats_directory.png`
+- **Content**: File explorer showing complete output set:
+  - All format files from `--format all` command
+  - Specialized NetCDF files from `--derive-netcdf`
+  - Proper naming conventions displayed
+  - File sizes and timestamps visible
+- **Context**: Output format overview
+
+### 37. Command Format Selection Examples
+- **File**: `format_selection_commands.png`
+- **Content**: Terminal showing different format selection commands:
+  - `cruiseplan schedule --format all`
+  - `cruiseplan schedule --format png,html,csv`
+  - `cruiseplan map --format png,kml`
+  - Output confirmation messages
+- **Context**: Format selection documentation
+
+### 38. Output Quality Comparison
+- **File**: `output_quality_comparison.png`
+- **Content**: Side-by-side showing:
+  - Publication-quality PNG (high DPI)
+  - Web-optimized PNG (standard DPI)
+  - Professional vs preview formatting
+- **Context**: Quality assurance documentation
+
+This comprehensive screenshot plan covers all major user interactions and output formats, significantly enhancing the usability and accessibility of the CruisePlan documentation.

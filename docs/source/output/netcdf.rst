@@ -1,8 +1,16 @@
-# NetCDF Output Files for CruisePlan
+.. _output-netcdf:
+
+==============
+NetCDF Output
+==============
 
 CruisePlan generates CF-compliant NetCDF files containing your cruise timeline and operation data. These files provide structured datasets suitable for analysis tools, data sharing, and scientific workflows.
 
-## Generated Files
+.. note::
+   NetCDF output is only available from the **schedule command** (``cruiseplan schedule --format netcdf``). For configuration-based visualization, use :doc:`png` output via the map command.
+
+Generated Files
+===============
 
 **Master Schedule**: `cruiseplan schedule --format netcdf` generates:
 - ✅ **Ship Schedule** (`{cruise_name}_schedule.nc`) - Complete timeline with all operations
@@ -17,29 +25,34 @@ CruisePlan generates CF-compliant NetCDF files containing your cruise timeline a
 
 The specialized files are filtered views of the master schedule file, organized by operation type for convenient analysis.
 
-## Technical Overview
+Technical Overview
+==================
 
 These files follow CF-1.8 discrete sampling geometry conventions (see [CF Conventions](https://cfconventions.org)) and organize cruise data by operation geometry while maintaining scientific data standards.
 
-### Key Design Principles
+Key Design Principles
+---------------------
 
 1. **CF-1.8 Compliance**: Aligned with CF discrete sampling geometries conventions (but we have trajectory AND point featureTypes)
 3. **Schema Separation**: Pure navigation (`transits`) vs scientific operations (`surveys`)
 4. **Ship Trajectory**: Complete time-ordered vessel path including all activities
 5. **CruiseConfig Source**: Operation metadata are extracted directly from YAML configuration
 
-### CF Convention Alignment
+CF Convention Alignment
+-----------------------
 
 - **FeatureType "point"**: Discrete observations at fixed locations (stations, moorings)
 - **FeatureType "trajectory"**: Sequential observations along paths (surveys, ship schedule)
 - **Coordinate Requirements**: All data variables include `coordinates` attribute
 - **Standard Names**: Use CF standard name table for oceanographic variables
 
-## Output File Structure
+Output File Structure
+=====================
 
 The following files organize cruise data by operation geometry:
 
-### 1. Point Operations (`{cruise_name}_points.nc`)
+1. Point Operations (`{cruise_name}_points.nc`)
+------------------------------------------------
 
 **Status**: ✅ Fully implemented - filtered view of stations and moorings from schedule  
 **Purpose**: All discrete scientific operations at fixed locations  
@@ -113,7 +126,8 @@ comment(obs): |S256
 :depth_datum = "Mean Sea Level"
 ```
 
-### 2. Line Operations (`{cruise_name}_lines.nc`)
+2. Line Operations (`{cruise_name}_lines.nc`)
+-----------------------------------------------
 
 **Status**: ✅ Fully implemented - filtered view of scientific transits from schedule  
 **Purpose**: Scientific operations along defined paths  
@@ -170,7 +184,8 @@ duration(operations): float32
 :creation_date = "{iso_timestamp}"
 ```
 
-### 3. Area Operations (`{cruise_name}_areas.nc`)
+3. Area Operations (`{cruise_name}_areas.nc`)
+-----------------------------------------------
 
 **Status**: ⚠️ Placeholder implementation - generates empty file  
 **Purpose**: Scientific operations over defined areas  
@@ -231,7 +246,8 @@ area_extent_km2(operations): float32
 :creation_date = "{iso_timestamp}"
 ```
 
-### 4. Ship Schedule (`{cruise_name}_schedule.nc`) - *Master File*
+4. Ship Schedule (`{cruise_name}_schedule.nc`) - *Master File*
+---------------------------------------------------------------
 
 **Status**: ✅ Fully implemented - master file containing all cruise data  
 **Purpose**: Complete ship trajectory including all operations and transits  
@@ -352,7 +368,8 @@ vessel_speed(obs): float32
 ```
 
 
-## CF Compliance Requirements
+CF Compliance Requirements
+==========================
 
 1. **FeatureType Specification**: Each file must have exactly one `featureType` global attribute
 2. **Coordinate Variables**: Must include proper `units`, `standard_name`, and `long_name` attributes
@@ -362,7 +379,8 @@ vessel_speed(obs): float32
 6. **Standard Names**: Use CF standard name table for oceanographic variables
 7. **Fill Values**: Use appropriate `_FillValue` for missing or optional data
 
-### Data Type Specifications
+Data Type Specifications
+------------------------
 
 - **Coordinates**: `float64` for time precision, `float32` for spatial coordinates
 - **Time**: `float64` (days since epoch for CF compliance)
@@ -370,7 +388,8 @@ vessel_speed(obs): float32
 - **Strings**: Variable length based on content (`|S32`, `|S64`, `|S256`)
 - **Flags/Categories**: `|S32` for string enumerations
 
-### Controlled Vocabulary
+Controlled Vocabulary
+---------------------
 
 **Point Operation Types:**
 - `"CTD_profile"` - CTD casts and water sampling
@@ -391,7 +410,8 @@ vessel_speed(obs): float32
 - `"seismic"` - Seismic surveys
 - `"microstructure"` - Microstructure profilers
 
-### Validation Requirements
+Validation Requirements
+-----------------------
 
 Each generated file must:
 1. Pass CF checker validation (`cf-checker` tool)
@@ -401,7 +421,8 @@ Each generated file must:
 5. Use valid CF standard names and units
 6. Contain realistic values within expected ranges
 
-### Cross-Reference System
+Cross-Reference System
+----------------------
 
 **Operation Linking:**
 - Use operation `name` fields as primary keys between files
@@ -415,7 +436,8 @@ Each generated file must:
 
 
 
-## Using NetCDF Files
+Using NetCDF Files
+==================
 
 The generated NetCDF files can be used with standard scientific tools:
 

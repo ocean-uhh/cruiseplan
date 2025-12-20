@@ -88,6 +88,48 @@ Required Experience:
 └── Meticulous accounting for units throughout
 ```
 
+#### 5. Enhanced CLI Warning Display
+```
+User Intent: "I need clear, actionable warnings without technical noise when validating cruise configurations"
+
+Required Experience:
+├── Clean, formatted warning messages across all CLI commands
+├── Contextual error information without raw Pydantic tracebacks
+├── Consistent warning formatting standards for better readability
+├── Actionable guidance for resolving common validation issues
+└── Professional error display suitable for operational use
+```
+
+**CLI Warning Display Requirements:**
+
+- **Clean Format**: Human-readable warning messages without technical stack traces
+- **Consistent Standards**: Uniform formatting across `validate`, `enrich`, `schedule`, and `stations` commands
+- **Contextual Information**: Include relevant details (line numbers, field names, suggested fixes)
+- **Actionable Guidance**: Clear instructions for resolving validation issues
+- **Professional Presentation**: Suitable for operational cruise planning environments
+
+**Implementation Standards:**
+
+```text
+# Enhanced Warning Format (Target)
+WARNING: Station 'CTD_001' validation issues:
+  - Missing operation_type field (line 45)
+    → Add: operation_type: "CTD"
+  - Invalid depth value: -9999.0 (line 47)  
+    → Use: depth: <positive value> or remove for auto-calculation
+
+# Instead of Raw Pydantic Format (Current)
+ValidationError: 1 validation error for StationDefinition
+stations -> 0 -> operation_type
+  field required (type=value_error.missing)
+```
+
+**Benefits:**
+- **Reduced Learning Curve**: Non-technical users can understand and fix validation issues
+- **Faster Troubleshooting**: Clear guidance eliminates guesswork
+- **Professional Output**: Suitable for operational cruise planning environments
+- **Consistent Experience**: Uniform warning format across all commands
+
 ---
 
 ## 🏗️ Core Architecture Specifications
@@ -98,13 +140,13 @@ When calculating the Cruise Timeline and Path, the system follows this strict hi
 
 1. **Global Anchors (The "Bookends"):**
    - The cruise **MUST** start at `departure_port` and end at `arrival_port`
-   - The first science action **MUST** be `first_station`
-   - The last science action **MUST** be `last_station`
+   - The first science action **MUST** be `first_waypoint` (formerly `first_station`) - uses entry point from operation abstraction
+   - The last science action **MUST** be `last_waypoint` (formerly `last_station`) - uses exit point from operation abstraction
    - For time-based strategies, assume departure time of 08:00 local time, "daytime" is 08:00 - 20:00
 
 2. **Leg Sequence (The "Chapters"):**
    - Legs are executed strictly in the order listed in the YAML
-   - The system moves from the last point of Leg N to the first point of Leg N+1
+   - The system moves from the exit point of Leg N to the entry point of Leg N+1 using the operation abstraction interface
 
 3. **Cluster Constraints (The "Paragraphs"):**
    - **Contiguity:** The ship enters a Cluster and completes ALL tasks inside before leaving (unless `--flatten-groups` is used)
@@ -164,14 +206,13 @@ Cruise (Top-level container)
 # Duration calculation: distance / speed
 ```
 
-**CompositeOperation**
+**Cluster**
 ```python
 # Logical containers for grouping related PointOperations
 # Examples: "53N Section" (20 CTDs), "OSNAP Array" (Mixed CTDs + Moorings)
 # Attributes:
-#   - children: List[PointOperation]
-#   - geometry_definition: LineString or Polygon (defines the spatial bounds)
-#   - scheduling_strategy: Enum (SEQUENTIAL, INTERLEAVED, DAY_NIGHT_SPLIT)
+#   - stations: List[str] (references to station names)
+#   - strategy: Enum (SEQUENTIAL, INTERLEAVED, DAY_NIGHT_SPLIT)
 #
 # Function:
 #   Calculates total duration not just by summing children, but by
@@ -185,6 +226,79 @@ Cruise (Top-level container)
 # Attributes: boundary_polygon, area, sampling_density
 # Duration calculation: area coverage models or user-defined
 ```
+
+### Entry/Exit Point Abstraction Architecture
+
+**Purpose**: Provide a unified, type-agnostic interface for routing calculations across all operation types.
+
+**Problem Solved**: Previously, routing logic needed operation-specific code to determine entry and exit points for different operation types. This created maintenance burden and coupling between routing algorithms and operation implementations.
+
+**Abstraction Methods**:
+
+```python
+# Unified interface implemented by all operation types
+class Operation:
+    def get_entry_point(self) -> Coordinate:
+        """Return the geographic coordinate where this operation begins"""
+        pass
+    
+    def get_exit_point(self) -> Coordinate:
+        """Return the geographic coordinate where this operation ends"""
+        pass
+```
+
+**Operation Type Abstractions**:
+
+**Point Operations**:
+```python
+def get_entry_point(self) -> Coordinate:
+    return self.position  # Station coordinates
+    
+def get_exit_point(self) -> Coordinate:
+    return self.position  # Same point for entry and exit
+```
+
+**Line Operations**:
+```python
+def get_entry_point(self) -> Coordinate:
+    return self.route[0]  # First waypoint in route
+    
+def get_exit_point(self) -> Coordinate:
+    return self.route[-1]  # Last waypoint in route
+```
+
+**Area Operations**:
+```python
+def get_entry_point(self) -> Coordinate:
+    return self.calculate_center_point()  # Calculated center of polygon
+    
+def get_exit_point(self) -> Coordinate:
+    return self.calculate_center_point()  # Same center point for entry/exit
+```
+
+**Cluster Operations**:
+```python
+def get_entry_point(self) -> Coordinate:
+    return self.stations[0].get_entry_point()  # First operation entry
+    
+def get_exit_point(self) -> Coordinate:
+    return self.stations[-1].get_exit_point()  # Last operation exit
+```
+
+**Routing Calculation Improvements**:
+
+- **Type-Agnostic Distance Calculations**: Routing algorithms use `get_entry_point()` and `get_exit_point()` without knowing operation type
+- **Future-Proof Architecture**: New operation types only need to implement the abstraction interface
+- **Cleaner Code**: Eliminates operation-specific conditional logic in routing calculations
+- **Consistent Behavior**: All operations provide predictable entry/exit coordinates for scheduling
+
+**Benefits**:
+
+- **Future-Proof**: Adding new operation types requires only implementing the abstraction interface
+- **Type-Agnostic**: Routing algorithms work with any operation type without modification
+- **Cleaner Code**: Eliminates complex conditional logic based on operation type
+- **Maintainable**: Centralized interface reduces coupling between routing and operation implementations
+- **Testable**: Abstraction interface can be easily mocked for unit testing
 
 **Developer Note: The "Hybrid" Pattern**
 
@@ -443,9 +557,9 @@ When parsing a Cluster, the system looks for operations in this priority order:
 **Distance Calculation:**
 
 1. **Transit Segments:**
-   - **Mobilization:** `Distance(departure_port, first_station)`
-   - **Demobilization:** `Distance(last_station, arrival_port)`
-   - **Inter-Station:** Haversine distance between sequential points
+   - **Mobilization:** `Distance(departure_port, first_waypoint.get_entry_point())`
+   - **Demobilization:** `Distance(last_waypoint.get_exit_point(), arrival_port)`
+   - **Inter-Operation:** Haversine distance between sequential operation exit/entry points using abstraction interface
 
 2. **Composite Cluster Distance:**
    - If a Cluster contains multiple lists (e.g., `moorings` and `stations`), the calculator treats them as **Sequential Blocks** by default
@@ -509,8 +623,8 @@ arrival_port:
 # 2. The Scientific Boundaries (The first/last science acts)
 # These define the "Transit to/from Working Area" segments
 # The Optimizer will effectively "Lock" these stations in place
-first_station: "STN_01_Deep"  # Must match a name in the Catalog
-last_station: "Mooring_K7"    # Must match a name in the Catalog
+first_waypoint: "STN_01_Deep"  # Must match a name in the Catalog - routing uses entry point
+last_waypoint: "Mooring_K7"    # Must match a name in the Catalog - routing uses exit point
 
 # ---------------------------------------------------------
 # RESOURCE CATALOG

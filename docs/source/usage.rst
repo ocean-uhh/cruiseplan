@@ -88,7 +88,7 @@ Follow the comprehensive :doc:`User Workflows (CLI) <user_workflows>` guide for 
   * **Configuration-Only**: Processing existing YAML files
 
 **Jupyter Notebook Approach**  
-  Explore the :doc:`demo-output` notebook for:
+  CruisePlan provides a Python API for programmatic usage:
   
   * Interactive Python API usage
   * Data analysis integration

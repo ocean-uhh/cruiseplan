@@ -178,6 +178,12 @@ Areas must be properly defined with the following constraints:
   - **Coordinate Order**: Points should define a logical polygon boundary
   - **Closure**: Areas are automatically closed (no need to repeat first point)
 
+**Corner Coordinate Requirements**:
+  - **Format**: "latitude, longitude" string format (decimal degrees)
+  - **Precision**: Standard decimal degrees precision (typically 4-6 decimal places)
+  - **Valid Ranges**: Latitude [-90, 90], Longitude [-180, 180]
+  - **Consistency**: All corners must use consistent coordinate system and precision
+
 **Example Area Definition**:
 
 .. code-block:: yaml
@@ -188,11 +194,25 @@ Areas must be properly defined with the following constraints:
        action: "multibeam"
        duration: 480.0  # 8 hours
        corners:
-         - "50.0, -40.0"  # Southwest corner
-         - "51.0, -40.0"  # Southeast corner  
-         - "51.0, -39.0"  # Northeast corner
-         - "50.0, -39.0"  # Northwest corner
+         - "50.0000, -40.0000"  # Southwest corner - High precision
+         - "51.0000, -40.0000"  # Southeast corner  
+         - "51.0000, -39.0000"  # Northeast corner
+         - "50.0000, -39.0000"  # Northwest corner
        comment: "High-resolution bathymetry survey"
+       
+     - name: "Triangular_Survey_Zone"
+       operation_type: "survey" 
+       action: "biological"
+       duration: 360.0  # 6 hours
+       corners:
+         - "52.5, -41.2"   # Point A - Standard precision
+         - "53.0, -40.8"   # Point B
+         - "52.2, -40.5"   # Point C
+       comment: "Biological sampling area - minimum 3 points"
+
+**Center Point Calculations for Examples**:
+- **Multibeam_Grid_A**: Center = (50.5°N, 39.5°W)  
+- **Triangular_Survey_Zone**: Center = (52.57°N, 40.83°W)
 
 Duration Calculation
 --------------------
@@ -236,6 +256,8 @@ The calculated center point is used for:
 - The center point is for routing calculations only; actual area operations may follow complex survey patterns
 - Areas with irregular shapes may have center points outside the operational area
 - For precise navigation within areas, define explicit waypoints or station sequences
+- **Routing Integration**: Area center points are used seamlessly with station coordinates and transit endpoints for distance calculations
+- **Waypoint Compatibility**: When areas serve as ``first_waypoint`` or ``last_waypoint`` in legs, the center point provides a consistent navigation target
 
 Routing Behavior as Anchors
 ----------------------------
