@@ -11,6 +11,10 @@ from typing import Literal
 
 from cruiseplan.calculators.distance import km_to_nm
 from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.utils.constants import (
+    hours_to_minutes,
+    rate_per_second_to_rate_per_minute,
+)
 
 
 class DurationCalculator:
@@ -58,9 +62,11 @@ class DurationCalculator:
         if depth <= 0:
             return 0.0
 
+        descent_m_sec = self.config.ctd_descent_rate
+        ascent_m_sec = self.config.ctd_ascent_rate
         # Convert rates (m/s) to m/min
-        descent_m_min = self.config.ctd_descent_rate * 60
-        ascent_m_min = self.config.ctd_ascent_rate * 60
+        descent_m_min = rate_per_second_to_rate_per_minute(descent_m_sec)
+        ascent_m_min = rate_per_second_to_rate_per_minute(ascent_m_sec)
 
         # Avoid division by zero
         if descent_m_min <= 0 or ascent_m_min <= 0:
@@ -94,8 +100,8 @@ class DurationCalculator:
             return 0.0
 
         distance_nm = km_to_nm(distance_km)
-        hours = distance_nm / speed
-        return hours * 60
+        duration_hours = distance_nm / speed
+        return hours_to_minutes(duration_hours)
 
     def calculate_wait_time(
         self,

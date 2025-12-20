@@ -24,12 +24,6 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
 
 .. toctree::
    :maxdepth: 2
-   :caption: Python API
-
-   API Reference <api/modules.rst>
-
-.. toctree::
-   :maxdepth: 2
    :caption: Project Specifications
 
    CLI Command Reference <cli_reference.rst>
@@ -47,6 +41,9 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    GitHub Repository <https://github.com/ocean-uhh/cruiseplan>
    API Reference <api/modules.rst>
    Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
+   Project Structure <project_structure.md>
+   Developer Guide <developer_guide.md>
+   Development Roadmap <roadmap.rst>
 
 Indices and tables
 ==================

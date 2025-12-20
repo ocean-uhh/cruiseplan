@@ -6,6 +6,7 @@ from cruiseplan.core.validation import (
     StationDefinition,
     TransitDefinition,
 )
+from cruiseplan.utils.constants import NM_PER_KM
 
 
 class BaseOperation(ABC):
@@ -321,7 +322,7 @@ class LineOperation(BaseOperation):
             total_route_distance_km += segment_distance
 
         # Convert to nautical miles
-        route_distance_nm = total_route_distance_km * 0.539957  # km to nautical miles
+        route_distance_nm = total_route_distance_km * NM_PER_KM  # km to nautical miles
 
         # Use transit-specific vessel speed if provided, otherwise use default
         vessel_speed = self.speed

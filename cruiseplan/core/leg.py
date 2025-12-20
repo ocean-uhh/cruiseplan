@@ -5,6 +5,7 @@ from cruiseplan.core.operations import BaseOperation
 
 # Import validation models and port utilities
 from cruiseplan.core.validation import LegDefinition, PortDefinition, StrategyEnum
+from cruiseplan.utils.constants import NM_PER_KM
 from cruiseplan.utils.global_ports import resolve_port_reference
 
 
@@ -225,7 +226,7 @@ class Leg:
         arrival_pos = (self.arrival_port.latitude, self.arrival_port.longitude)
 
         distance_km = haversine_distance(departure_pos, arrival_pos)
-        distance_nm = distance_km * 0.539957  # km to nautical miles
+        distance_nm = distance_km * NM_PER_KM  # km to nautical miles
 
         # Get effective vessel speed for this leg
         default_speed = (

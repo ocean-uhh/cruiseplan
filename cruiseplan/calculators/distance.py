@@ -11,13 +11,7 @@ import math
 from typing import List, Tuple, Union
 
 from cruiseplan.core.validation import GeoPoint
-
-# Earth radius in kilometers (approximate)
-R_EARTH_KM = 6371.0
-
-# Distance conversion factors
-NM_PER_KM = 0.539957
-KM_PER_NM = 1.852
+from cruiseplan.utils.constants import KM_PER_NM, NM_PER_KM, R_EARTH_KM
 
 
 def to_coords(point: Union[GeoPoint, Tuple[float, float]]) -> Tuple[float, float]:

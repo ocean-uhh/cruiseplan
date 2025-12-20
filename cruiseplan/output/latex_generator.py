@@ -21,6 +21,7 @@ from jinja2 import Environment, FileSystemLoader
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.utils.activity_utils import is_scientific_transit
+from cruiseplan.utils.constants import hours_to_days
 from cruiseplan.utils.coordinates import format_position_latex
 
 
@@ -305,7 +306,7 @@ class LaTeXGenerator:
             total_navigation_transit_h  # Only pure navigation transit duration
         )
         total_duration_h = total_operation_duration_h + total_transit_h
-        total_days = total_duration_h / 24
+        total_days = hours_to_days(total_duration_h)
 
         paginated_data = self._paginate_data(summary_rows, "work_days")
 
@@ -352,7 +353,7 @@ class LaTeXGenerator:
                     total_transit_h += float(row["transit_h"])
 
             total_duration_h = total_operation_duration_h + total_transit_h
-            total_days = total_duration_h / 24
+            total_days = hours_to_days(total_duration_h)
 
             paginated_data = self._paginate_data(summary_rows, "work_days")
 
@@ -415,7 +416,7 @@ class LaTeXGenerator:
                     total_transit_h += float(row["transit_h"])
 
         total_duration_h = total_operation_duration_h + total_transit_h
-        total_days = total_duration_h / 24
+        total_days = hours_to_days(total_duration_h)
 
         paginated_data = self._paginate_data(all_summary_rows, "work_days")
 

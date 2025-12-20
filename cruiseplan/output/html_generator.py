@@ -20,6 +20,7 @@ from typing import List
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.utils.activity_utils import is_scientific_operation
+from cruiseplan.utils.constants import NM_PER_KM, hours_to_days
 
 logger = logging.getLogger(__name__)
 
@@ -116,7 +117,7 @@ def _calculate_summary_statistics(timeline):
             "count": len(mooring_activities),
             "avg_duration_h": avg_mooring_duration_h,
             "total_duration_h": total_mooring_duration_h,
-            "total_duration_days": total_mooring_duration_h / 24,
+            "total_duration_days": hours_to_days(total_mooring_duration_h),
         }
     else:
         mooring_stats = {
@@ -141,7 +142,7 @@ def _calculate_summary_statistics(timeline):
             "avg_duration_h": avg_station_duration_h,
             "avg_depth_m": avg_depth,
             "total_duration_h": total_station_duration_h,
-            "total_duration_days": total_station_duration_h / 24,
+            "total_duration_days": hours_to_days(total_station_duration_h),
         }
     else:
         station_stats = {
@@ -169,7 +170,7 @@ def _calculate_summary_statistics(timeline):
             "avg_distance_nm": avg_survey_distance_nm,
             "total_distance_nm": total_survey_distance_nm,
             "total_duration_h": total_survey_duration_h,
-            "total_duration_days": total_survey_duration_h / 24,
+            "total_duration_days": hours_to_days(total_survey_duration_h),
         }
     else:
         survey_stats = {
@@ -190,7 +191,7 @@ def _calculate_summary_statistics(timeline):
             "count": len(area_activities),
             "avg_duration_h": avg_area_duration_h,
             "total_duration_h": total_area_duration_h,
-            "total_duration_days": total_area_duration_h / 24,
+            "total_duration_days": hours_to_days(total_area_duration_h),
         }
     else:
         area_stats = {
@@ -218,7 +219,7 @@ def _calculate_summary_statistics(timeline):
             "total_distance_nm": total_within_distance_nm,
             "avg_speed_kts": avg_speed_kts,
             "total_duration_h": total_within_duration_h,
-            "total_duration_days": total_within_duration_h / 24,
+            "total_duration_days": hours_to_days(total_within_duration_h),
         }
     else:
         within_area_stats = {
@@ -242,7 +243,7 @@ def _calculate_summary_statistics(timeline):
             "total_distance_nm": total_port_distance_nm,
             "avg_speed_kts": avg_speed_kts,
             "total_duration_h": total_port_duration_h,
-            "total_duration_days": total_port_duration_h / 24,
+            "total_duration_days": hours_to_days(total_port_duration_h),
         }
     else:
         port_area_stats = {
@@ -302,7 +303,7 @@ class HTMLGenerator:
         total_duration_h = (
             sum(activity["duration_minutes"] for activity in timeline) / 60.0
         )
-        total_duration_days = total_duration_h / 24
+        total_duration_days = hours_to_days(total_duration_h)
 
         # Create HTML content
         html_content = f"""<!DOCTYPE html>
@@ -590,7 +591,7 @@ class HTMLGenerator:
             <td></td>
             <td></td>
             <td class="number">{total_leg_duration:.1f}</td>
-            <td>{total_leg_duration/24:.1f} days</td>
+            <td>{hours_to_days(total_leg_duration):.1f} days</td>
         </tr>
     </table>
 """
@@ -820,7 +821,7 @@ class HTMLGenerator:
                 )
 
                 # Convert to nautical miles and calculate duration
-                distance_nm = distance_km * 0.539957  # km to nautical miles
+                distance_nm = distance_km * NM_PER_KM  # km to nautical miles
                 duration_hours = distance_nm / vessel_speed_knots
                 return duration_hours * 60  # convert to minutes
             except (ValueError, AttributeError):
