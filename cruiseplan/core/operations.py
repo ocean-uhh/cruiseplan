@@ -242,10 +242,13 @@ class PointOperation(BaseOperation):
         internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
         action = obj.action.value if obj.action else None
 
+        # Use operation_depth for duration calculations, fallback to water_depth if needed
+        operation_depth = obj.operation_depth or obj.water_depth or 0.0
+        
         return cls(
             name=obj.name,
             position=pos,
-            depth=obj.depth if obj.depth else 0.0,
+            depth=operation_depth,  # This is now operation_depth for duration calculations
             duration=obj.duration if obj.duration else 0.0,
             comment=obj.comment,
             op_type=internal_op_type,

@@ -6,7 +6,7 @@ stations:
     operation_type: CTD
     action: profile
     latitude: 45.0
-    depth: 58.0
+    operation_depth: 58.0
     longitude: -50.0
 
 transits:

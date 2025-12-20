@@ -266,14 +266,23 @@ Additional commands can be used anytime:
   calculate_depth_via_bathymetry: true
   # [REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)
   start_date: '1970-01-01T00:00:00Z'
-  # [REQUIRED] Departure port details
-  # Update 'UPDATE-departure-port-name' with actual port name
-  # Update coordinates with actual port location
-  departure_port:
-    name: UPDATE-departure-port-name
-    latitude: 0.0
-    longitude: 0.0
-    timezone: GMT+0
+  # [REQUIRED] Cruise schedule organized by legs
+  # Departure/arrival ports are now defined within each leg
+  legs:
+    - name: "Main_Survey"
+      departure_port:
+        name: UPDATE-departure-port-name  # Update with actual port name
+        latitude: 0.0  # Update with actual port coordinates
+        longitude: 0.0
+        timezone: GMT+0
+      arrival_port:
+        name: UPDATE-arrival-port-name    # Update with actual port name  
+        latitude: 0.0  # Update with actual port coordinates
+        longitude: 0.0
+        timezone: GMT+0
+      first_station: "STN_001"  # First operational station
+      last_station: "STN_999"   # Last operational station
+      activities: []  # Will be populated with station/cluster references
 
 
 .. warning::
@@ -354,15 +363,43 @@ otherwise, your cruise will start at 0.0, 0.0!
    description: "Oceanographic survey of the North Atlantic"
    start_date: "2024-07-01T08:00:00Z"
    
-   departure_port:
-     name: "Reykjavik"
-     latitude: 64.1466
-     longitude: -21.9426
-   
-   arrival_port:
-     name: "St. Johns"  
-     latitude: 47.5705
-     longitude: -52.6979
+   legs:
+     - name: "Atlantic_Survey"
+       departure_port:
+         name: "Reykjavik"
+         latitude: 64.1466
+         longitude: -21.9426
+       arrival_port:
+         name: "St. Johns"  
+         latitude: 47.5705
+         longitude: -52.6979
+       first_station: "STN_001"
+       last_station: "STN_005"
+       activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]
+
+4. **Use Global Ports Reference**:
+
+CruisePlan includes a comprehensive registry of research ports worldwide. See the complete :ref:`global_ports_reference` for all available ports with coordinates.
+
+You can reference global ports directly in YAML instead of specifying coordinates:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Atlantic_Survey"  
+       departure_port: "port_reykjavik"  # Reference to global port
+       arrival_port: "port_st_johns"     # Reference to global port
+       # No need to specify coordinates - they're looked up automatically
+
+**Common Research Ports** (see full list in :ref:`global_ports_reference`):
+
+- ``port_reykjavik`` - Reykjavik, Iceland
+- ``port_bremerhaven`` - Bremerhaven, Germany  
+- ``port_woods_hole`` - Woods Hole, Massachusetts
+- ``port_st_johns`` - St. Johns, Newfoundland
+- ``port_tromso`` - Tromsø, Norway
+
+For programmatic access or regional filtering, see the :ref:`global_ports_reference` documentation.
 
 
 ----

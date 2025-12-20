@@ -39,7 +39,7 @@ def test_load_and_validate_cruise():
 
     # Item 0: Was a reference "STN_Start_01" -> Should resolve to object
     assert resolved_stations[0].name == "STN_Start_01"
-    assert resolved_stations[0].depth == 500.0
+    assert resolved_stations[0].operation_depth == 500.0
 
     # Item 2: Was inline "STN_Inline_OneOff" -> Should be object
     assert resolved_stations[2].name == "STN_Inline_OneOff"
@@ -300,8 +300,7 @@ class TestDepthValidation:
         station.name = "STN_001"
         station.position.latitude = 50.0
         station.position.longitude = -30.0
-        station.water_depth = 2000.0  # Station reported water depth (new field)
-        station.depth = None  # Legacy field not used
+        station.water_depth = 2000.0  # Station reported water depth
 
         cruise.station_registry = {"STN_001": station}
 
@@ -327,8 +326,7 @@ class TestDepthValidation:
         station.name = "STN_002"
         station.position.latitude = 50.0
         station.position.longitude = -30.0
-        station.water_depth = 1000.0  # Station reported water depth (new field)
-        station.depth = None  # Legacy field not used
+        station.water_depth = 1000.0  # Station reported water depth
 
         cruise.station_registry = {"STN_002": station}
 
@@ -352,7 +350,7 @@ class TestDepthValidation:
         station.name = "STN_003"
         station.position.latitude = 50.0
         station.position.longitude = -30.0
-        station.depth = 2000.0
+        station.water_depth = 2000.0
 
         cruise.station_registry = {"STN_003": station}
 
@@ -391,8 +389,7 @@ class TestDepthValidation:
         station.name = "STN_NO_DEPTH"
         station.latitude = 50.0
         station.longitude = -30.0
-        station.depth = None  # No depth specified
-        station.water_depth = None  # New field also not specified
+        station.water_depth = None  # No depth specified
 
         cruise.station_registry = {"STN_NO_DEPTH": station}
 

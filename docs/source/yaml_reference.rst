@@ -171,33 +171,10 @@ Cruise-wide metadata
 
 .. _ports-transfers:
 
-Ports and first/last Stations
------------------------------
+Ports and Routing Waypoints
+---------------------------
 
-.. list-table:: Departure and Arrival Points
-   :widths: 20 15 15 50
-   :header-rows: 1
-
-   * - Field
-     - Type
-     - Default
-     - Description
-   * - ``departure_port``
-     - PortDefinition
-     - *required*
-     - Port where the cruise begins
-   * - ``arrival_port``
-     - PortDefinition
-     - *required*
-     - Port where the cruise ends
-   * - ``first_station``
-     - str
-     - *required*
-     - Name of the first station in working area
-   * - ``last_station``
-     - str
-     - *required*
-     - Name of the last station in working area
+**Port Definition**: Ports are defined within legs and reference either global port definitions (see :ref:`global_ports_reference`) or inline port specifications.
 
 .. list-table:: Port Fields
    :widths: 20 15 15 50
@@ -220,12 +197,20 @@ Ports and first/last Stations
      - "UTC"
      - Timezone identifier (e.g., "America/St_Johns")
 
+**Example**: Port definitions within legs:
+
 .. code-block:: yaml
 
-   departure_port:
-     name: "St. Johns"
-     position: "47.5678, -52.1234"
-     timezone: "America/St_Johns"  # Optional, defaults to UTC
+   legs:
+     - name: "Atlantic_Survey"
+       departure_port:
+         name: "St. Johns"
+         position: "47.5678, -52.1234"
+         timezone: "America/St_Johns"  # Optional, defaults to UTC
+       arrival_port:
+         name: "Reykjavik"
+         position: "64.1355, -21.8954"
+         timezone: "Atlantic/Reykjavik"
 
 
 
@@ -267,7 +252,8 @@ Station definitions specify point operations at fixed locations. During scheduli
        action: "profile"
        latitude: 50
        longitude: -40
-       depth: 3000.0           # Optional: water depth in meters
+       operation_depth: 500.0  # CTD cast depth in meters
+       water_depth: 3000.0     # Seafloor depth in meters (optional: will be enriched from bathymetry)
        duration: 120.0         # Optional: manual override in minutes
        comment: "Deep water station"
        equipment: "SBE 911plus CTD"
@@ -305,10 +291,14 @@ Fields, Operations & Actions
      - GeoPoint
      - *required*
      - Geographic coordinates (see :ref:`coordinate-conventions`)
-   * - ``depth``
+   * - ``operation_depth``
      - float
      - None
-     - Water depth in meters (≥0, positive = below surface)
+     - Target operation depth (e.g., CTD cast depth) in meters (≥0). Used for duration calculations.
+   * - ``water_depth`` 
+     - float
+     - None
+     - Water depth at location (seafloor depth) in meters (≥0). Used for bathymetry validation and routing.
    * - ``duration``
      - float
      - None
@@ -329,6 +319,24 @@ Fields, Operations & Actions
      - float
      - None
      - Time to wait after operation ends in minutes (≥0)
+
+**Depth Field Semantics:**
+
+The distinction between ``operation_depth`` and ``water_depth`` meaningfully impacts duration calculations in the scheduler:
+
+- **``operation_depth``**: How deep the operation goes (e.g., CTD cast depth)
+  
+  - Used for duration calculations (deeper operations take longer)
+  - Can be less than, equal to, or greater than water_depth
+  - Examples: 500m CTD cast in 3000m water
+
+- **``water_depth``**: Actual seafloor depth at the location
+  
+  - Used for bathymetric validation and route planning
+  - Automatically enriched from bathymetry data if missing
+  - Should represent true seafloor depth for the coordinates
+
+**Note:** that the operation_depth only affects timing for the CTD profile calculation.  Mooring timing must be specified manually via the duration field.
 
 .. _operation-types:
 
@@ -604,10 +612,10 @@ Transit operations (scientific transits and vessel movements) calculate duration
 
 .. _area-definition:
 
-Area Definition (Area Operations)
----------------------------------
+Area Definition
+----------------
 
-Areas represent operations covering defined geographic regions.
+Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using ``first_waypoint`` and ``last_waypoint`` fields, where the area center point is used for navigation calculations.
 
 .. code-block:: yaml
 
@@ -638,7 +646,7 @@ Areas represent operations covering defined geographic regions.
    * - ``corners``
      - List[GeoPoint]
      - *required*
-     - Corner points defining the area boundary
+     - Corner points defining the area boundary (minimum 3 points for valid polygon)
    * - ``operation_type``
      - AreaOperationTypeEnum
      - ``survey``
@@ -649,12 +657,55 @@ Areas represent operations covering defined geographic regions.
      - Specific action for the area
    * - ``duration``
      - float
-     - None
-     - Duration in minutes (≥0)
+     - *required*
+     - Duration in minutes (≥0, must be specified by user)
    * - ``comment``
      - str
      - None
      - Human-readable description
+
+.. _area-routing-anchors:
+
+Area Center Point Calculation
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` in legs), CruisePlan calculates the center point of the area for navigation purposes:
+
+- **Center Point**: Calculated as the average of all corner coordinates
+- **Routing Distance**: Calculated from ship position to/from the area center point
+- **Entry/Exit Points**: The scheduler treats the center point as both entry and exit point for routing calculations
+
+.. code-block:: python
+
+   # Area center point calculation
+   center_lat = sum(corner.latitude for corner in corners) / len(corners)
+   center_lon = sum(corner.longitude for corner in corners) / len(corners)
+
+.. code-block:: yaml
+
+   # Example: Using areas as routing waypoints
+   areas:
+     - name: "Survey_Grid_Alpha"
+       corners:
+         - "50.0, -40.0"
+         - "51.0, -40.0" 
+         - "51.0, -39.0"
+         - "50.0, -39.0"
+       operation_type: "survey"
+       action: "bathymetry"
+       duration: 480.0
+   
+   legs:
+     - name: "Survey_Operations"
+       first_waypoint: "STN_001"        # Start at station
+       last_waypoint: "Survey_Grid_Alpha"  # End at area center point
+       activities: ["STN_001", "Survey_Grid_Alpha"]
+
+**Routing Benefits**:
+
+- **Simplified navigation**: No need to manually calculate area center points
+- **Flexible area operations**: Areas work seamlessly with other operation types in leg planning
+- **Automatic distance calculations**: Transit times computed using standard distance formulas to/from center point
 
 
 
@@ -778,7 +829,7 @@ Planned Leg Enhancements
 **Inheritable Cruise Parameters & Boundary Management**
    Legs will be able to override cruise-level operational parameters for specific requirements:
 
-   .. list-table:: Planned Inheritable Parameter Fields & first / last station definition.
+   .. list-table:: Planned Inheritable Parameter Fields & Waypoint Definition
       :widths: 15 15 12 57
       :header-rows: 1
 
@@ -798,14 +849,14 @@ Planned Leg Enhancements
         - float
         - None
         - Leg-specific turnaround time override (minutes, must be ≥0)
-      * - ``first_station``
+      * - ``first_waypoint``
         - str
         - None
-        - Entry point station for this leg (must exist in catalog). **Executes the defined activity by default** (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with ``duration: 0``.
-      * - ``last_station``
+        - Entry point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses center point. To use as waypoint only, define with ``duration: 0``.
+      * - ``last_waypoint``
         - str
         - None
-        - Exit point station for this leg (must exist in catalog). **Executes the defined activity by default** (CTD cast, mooring deployment, etc.). To use as waypoint only, define station with ``duration: 0``.
+        - Exit point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses center point. To use as waypoint only, define with ``duration: 0``.
 
 **Planned Usage Example**:
 
@@ -813,19 +864,19 @@ Planned Leg Enhancements
 
    legs:
      - name: "Transit_Leg"
-       vessel_speed: 12.0           # Fast transit speed
-       turnaround_time: 15.0        # Quick turnarounds  
-       first_station: "PORT_START"  # Clear entry point
-       last_station: "SURVEY_ENTRY" # Hand-off to next leg
+       vessel_speed: 12.0              # Fast transit speed
+       turnaround_time: 15.0           # Quick turnarounds  
+       first_waypoint: "PORT_START"    # Clear entry point
+       last_waypoint: "SURVEY_ENTRY"   # Hand-off to next leg
        activities: ["PORT_START", "WAYPOINT_1", "SURVEY_ENTRY"]
        
      - name: "Survey_Leg"
-       vessel_speed: 8.0                    # Slower survey speed
-       distance_between_stations: 5.0       # Close station spacing
-       turnaround_time: 45.0                # Science operations
-       first_station: "SURVEY_ENTRY"        # Pick up from transit
-       last_station: "SURVEY_EXIT"          # Define survey boundary
-       activities: ["CTD_001", "CTD_002", "SURVEY_EXIT"]
+       vessel_speed: 8.0                     # Slower survey speed
+       distance_between_stations: 5.0        # Close station spacing
+       turnaround_time: 45.0                 # Science operations
+       first_waypoint: "SURVEY_ENTRY"        # Pick up from transit
+       last_waypoint: "MAPPING_AREA"         # Define survey boundary (area center point)
+       activities: ["CTD_001", "CTD_002", "MAPPING_AREA"]
 
 **Benefits**:
 
@@ -854,14 +905,14 @@ The scheduler processes leg components in this simplified order:
 
 .. _routing-anchor-behavior:
 
-Routing Anchor Behavior (first_station & last_station)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Routing Anchor Behavior (first_waypoint & last_waypoint)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``first_station`` and ``last_station`` fields serve dual purposes as routing anchors and operational stations:
+The ``first_waypoint`` and ``last_waypoint`` fields (formerly ``first_station`` and ``last_station``) serve dual purposes as routing anchors and operational activities. These fields can reference any catalog item: stations, areas, or transit endpoints.
 
 **Default Behavior - Execute Activities**:
 
-By default, ``first_station`` and ``last_station`` **execute their defined activities** (CTD casts, mooring deployments, etc.) in addition to serving as routing waypoints. This provides a complete operational workflow where legs begin and end with actual scientific operations.
+By default, ``first_waypoint`` and ``last_waypoint`` **execute their defined activities** (CTD casts, mooring deployments, area surveys, etc.) in addition to serving as routing waypoints. This provides a complete operational workflow where legs begin and end with actual scientific operations.
 
 .. code-block:: yaml
 
@@ -875,15 +926,22 @@ By default, ``first_station`` and ``last_station`` **execute their defined activ
        action: deployment
        # No explicit duration → full mooring deployment will be performed
    
+   areas:
+     - name: "SURVEY_AREA_A"
+       operation_type: survey
+       action: bathymetry
+       duration: 360.0  # 6 hour survey
+       corners: ["50.0, -40.0", "51.0, -40.0", "51.0, -39.0", "50.0, -39.0"]
+   
    legs:
      - name: "Survey_Leg"
-       first_station: "ENTRY_CTD"    # Executes CTD cast at leg start
-       last_station: "EXIT_MOORING"  # Executes mooring deployment at leg end
+       first_waypoint: "ENTRY_CTD"      # Executes CTD cast at leg start
+       last_waypoint: "SURVEY_AREA_A"   # Executes area survey at leg end (routed to center point)
        clusters: [...]
 
 **Waypoint-Only Behavior - Zero Duration**:
 
-To use ``first_station`` and ``last_station`` as routing waypoints only (without executing activities), define them with ``duration: 0``:
+To use ``first_waypoint`` and ``last_waypoint`` as routing waypoints only (without executing activities), define them with ``duration: 0``:
 
 .. code-block:: yaml
 
@@ -896,24 +954,30 @@ To use ``first_station`` and ``last_station`` as routing waypoints only (without
        operation_type: mooring
        duration: 0  # ← Zero duration = waypoint only, no mooring operation
    
+   areas:
+     - name: "WAYPOINT_AREA"
+       operation_type: survey
+       duration: 0  # ← Zero duration = navigation waypoint only, no area survey
+       corners: ["52.0, -35.0", "53.0, -35.0", "53.0, -34.0", "52.0, -34.0"]
+   
    legs:
      - name: "Transit_Leg"
-       first_station: "WAYPOINT_START"  # Navigation waypoint only
-       last_station: "WAYPOINT_END"    # Navigation waypoint only
+       first_waypoint: "WAYPOINT_START"  # Navigation waypoint only
+       last_waypoint: "WAYPOINT_AREA"    # Navigation to area center point only
 
 **Cluster Integration**:
 
-It is completely normal for ``first_station`` and ``last_station`` to also appear in cluster activities. They will execute once as routing anchors and may execute additional times if included in cluster activities:
+It is completely normal for ``first_waypoint`` and ``last_waypoint`` to also appear in cluster activities. They will execute once as routing anchors and may execute additional times if included in cluster activities:
 
 .. code-block:: yaml
 
    legs:
      - name: "Survey_Leg"
-       first_station: "STN_001"  # Executes CTD cast as routing anchor
-       last_station: "STN_004"   # Executes CTD cast as routing anchor  
+       first_waypoint: "STN_001"    # Executes CTD cast as routing anchor
+       last_waypoint: "AREA_001"    # Executes area survey as routing anchor (routed to center)
        clusters:
          - name: "Repeat_Survey"
-           activities: ["STN_001", "STN_002", "STN_003", "STN_001"]  # STN_001 executed again in cluster
+           activities: ["STN_001", "STN_002", "AREA_001", "STN_001"]  # STN_001 and AREA_001 executed again in cluster
 
 **Benefits of Default Activity Execution**:
 

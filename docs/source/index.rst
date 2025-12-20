@@ -34,7 +34,9 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
 
    CLI Command Reference <cli_reference.rst>
    YAML Configuration Reference <yaml_reference.rst>
+   Operation Types Reference <operation_types.rst>
    Units and defaults <units_and_defaults.rst>
+   Port list <global_ports.rst>
    NetCDF Data Standards <netcdf_outputs.md>
 
 .. toctree::

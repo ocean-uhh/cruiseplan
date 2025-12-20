@@ -387,7 +387,7 @@ Adds missing or computed data (like depth or formatted coordinates) to a configu
 
 .. code-block:: bash
 
-    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
+    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [--expand-ports] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
 
 **Options:**
 
@@ -397,11 +397,13 @@ Adds missing or computed data (like depth or formatted coordinates) to a configu
    * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
      - **Required.** Input YAML configuration file.
    * - ``--add-depths``
-     - Add missing ``depth`` values to stations using bathymetry data.
+     - Add missing ``water_depth`` values to stations using bathymetry data. Only adds depths to stations that lack depth information - does not overwrite existing depth values. Skipping this flag (``add_depths=False``) is unnecessary if your configuration already contains depth information.
    * - ``--add-coords``
      - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
    * - ``--expand-sections``
      - Expand CTD sections defined in ``transits`` into individual station definitions with spherical interpolation.
+   * - ``--expand-ports``
+     - Expand global port references into inline port definitions within legs.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
      - Output directory (default: ``data``).
    * - ``--output-file OUTPUT_FILE``
@@ -459,6 +461,46 @@ The ``--expand-sections`` option processes CTD section transits and converts the
 - Handles name collisions by appending incremental suffixes
 - Updates leg definitions to reference the newly created stations
 
+**Port Expansion:**
+
+The ``--expand-ports`` option converts global port references into inline port definitions within each leg:
+
+.. code-block:: yaml
+
+    # Input: Global port references
+    ports:
+      port_reykjavik:
+        name: "Reykjavik"
+        latitude: 64.1466
+        longitude: -21.9426
+        timezone: "Atlantic/Reykjavik"
+    
+    legs:
+      - name: "Atlantic_Survey"
+        departure_port: port_reykjavik  # Reference to global port
+        arrival_port: port_reykjavik
+        
+    # Output: Inline port definitions
+    legs:
+      - name: "Atlantic_Survey"
+        departure_port:
+          name: "Reykjavik"
+          latitude: 64.1466
+          longitude: -21.9426
+          timezone: "Atlantic/Reykjavik"
+        arrival_port:
+          name: "Reykjavik"
+          latitude: 64.1466
+          longitude: -21.9426
+          timezone: "Atlantic/Reykjavik"
+
+**Port Expansion Benefits:**
+
+- Simplifies configuration by eliminating external port references
+- Makes leg definitions self-contained and portable
+- Reduces configuration complexity for single-leg cruises
+- Preserves all port metadata (coordinates, timezone, etc.)
+
 ----
 
 .. _subcommand-validate:
@@ -512,11 +554,11 @@ The validation process includes:
 `map`
 ^^^^^
 
-Generate standalone PNG cruise track maps directly from YAML configuration files, independent of scheduling.  
+Generate standalone maps (PNG, KML) directly from YAML configuration files, independent of scheduling.  
 
 .. code-block:: bash
 
-    usage: cruiseplan map [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--bathymetry-source {etopo2022,gebco2025}] [--bathymetry-stride BATHYMETRY_STRIDE] [--figsize WIDTH HEIGHT] [--show-plot] [--verbose]
+    usage: cruiseplan map [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--format {png,kml,all}] [--bathymetry-source {etopo2022,gebco2025}] [--bathymetry-stride BATHYMETRY_STRIDE] [--figsize WIDTH HEIGHT] [--show-plot] [--verbose]
 
 **Options:**
 
@@ -529,6 +571,8 @@ Generate standalone PNG cruise track maps directly from YAML configuration files
      - Output directory (default: ``current`` directory).
    * - ``--output-file OUTPUT_FILE``
      - Specific output file path (overrides auto-generated name).
+   * - ``--format {png,kml,all}``
+     - Output format to generate (default: ``all``). Can generate PNG maps, KML files, or both.
    * - ``--bathymetry-source {etopo2022,gebco2025}``
      - Bathymetry dataset (default: ``gebco2025``).
    * - ``--bathymetry-stride BATHYMETRY_STRIDE``
@@ -584,8 +628,14 @@ Compare this to ``cruiseplan schedule --format png``:
 
 .. code-block:: bash
 
-    # Generate map with default settings
+    # Generate PNG map with default settings
     $ cruiseplan map -c cruise.yaml
+    
+    # Generate KML file for Google Earth
+    $ cruiseplan map -c cruise.yaml --format kml
+    
+    # Generate both PNG and KML
+    $ cruiseplan map -c cruise.yaml --format all
     
     # Custom output directory and figure size
     $ cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10
@@ -610,7 +660,7 @@ Generate the cruise timeline and schedule outputs from a YAML configuration file
 
 .. code-block:: bash
 
-    usage: cruiseplan schedule [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--format {html,latex,csv,kml,netcdf,png,all}] [--leg LEG] [--derive-netcdf]
+    usage: cruiseplan schedule [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--format {html,latex,csv,netcdf,png,all}] [--leg LEG] [--derive-netcdf]
 
 **Options:**
 
@@ -621,8 +671,8 @@ Generate the cruise timeline and schedule outputs from a YAML configuration file
      - **Required.** YAML cruise configuration file.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
      - Output directory (default: ``data``).
-   * - ``--format {html,latex,csv,kml,netcdf,png,all}``
-     - Output formats to generate (default: ``all``). 
+   * - ``--format {html,latex,csv,netcdf,png,all}``
+     - Output formats to generate (default: ``all``).
    * - ``--leg LEG``
      - Process specific leg only (e.g., ``--leg Northern_Operations``).
    * - ``--derive-netcdf``

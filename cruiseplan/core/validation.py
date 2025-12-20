@@ -321,8 +321,6 @@ class StationDefinition(FlexibleLocationModel):
         Type of scientific operation to perform.
     action : ActionEnum
         Specific action for the operation.
-    depth : Optional[float]
-        Water depth at the station in meters (DEPRECATED: use operation_depth or water_depth).
     operation_depth : Optional[float]
         Target operation depth (e.g., CTD cast depth) in meters.
     water_depth : Optional[float]
@@ -344,9 +342,6 @@ class StationDefinition(FlexibleLocationModel):
     name: str
     operation_type: OperationTypeEnum
     action: ActionEnum
-    depth: Optional[float] = Field(
-        None, description="DEPRECATED: Use operation_depth or water_depth for clarity"
-    )
     operation_depth: Optional[float] = Field(
         None, description="Target operation depth (e.g., CTD cast depth)"
     )
@@ -452,45 +447,6 @@ class StationDefinition(FlexibleLocationModel):
             raise ValueError("delay_end cannot be negative")
         return v
 
-    @field_validator("depth")
-    def validate_depth_positive(cls, v):
-        """
-        Validate depth value to ensure it's positive.
-
-        Issues deprecation warning and validates positivity.
-
-        Parameters
-        ----------
-        v : Optional[float]
-            Depth value to validate.
-
-        Returns
-        -------
-        Optional[float]
-            Validated depth value.
-
-        Raises
-        ------
-        ValueError
-            If depth is negative.
-        """
-        if v is not None:
-            # Show deprecation warning only once per session
-            warning_key = "depth_field_deprecated"
-            if warning_key not in _shown_warnings:
-                warnings.warn(
-                    "The 'depth' field is deprecated. Use 'operation_depth' for target operation depth "
-                    "or 'water_depth' for seafloor depth. This distinction improves scientific accuracy "
-                    "and duration calculations.",
-                    UserWarning,
-                    stacklevel=2,
-                )
-                _shown_warnings.add(warning_key)
-            if v < 0:
-                raise ValueError(
-                    "Station depth must be positive (depths should be given as positive values in meters)"
-                )
-        return v
 
     @field_validator("operation_depth")
     def validate_operation_depth_positive(cls, v):
@@ -626,40 +582,43 @@ class StationDefinition(FlexibleLocationModel):
 
         return self
 
-    @model_validator(mode="after")
-    def migrate_depth_fields(self):
+    @model_validator(mode="before")
+    def reject_deprecated_depth_field(cls, values):
         """
-        Migrate from legacy depth field to new semantic depth fields.
+        Reject usage of the deprecated 'depth' field.
 
-        Provides backward compatibility by inferring operation_depth and water_depth
-        from the deprecated depth field when the new fields are not specified.
+        The 'depth' field has been removed in favor of semantically clear
+        'operation_depth' and 'water_depth' fields to prevent data confusion.
+
+        Raises
+        ------
+        ValueError
+            If the deprecated 'depth' field is found in the input.
+        """
+        if isinstance(values, dict) and 'depth' in values:
+            raise ValueError(
+                f"The 'depth' field is no longer supported. Please use:\n"
+                f"  - 'operation_depth': Target operation depth (e.g., CTD cast depth)\n"
+                f"  - 'water_depth': Water depth at location (seafloor depth)\n"
+                f"For CTD operations, these may be different values.\n"
+                f"Migration guide: If you had 'depth: {values['depth']}' and it represents:\n"
+                f"  • CTD cast depth: use 'operation_depth: {values['depth']}'\n"
+                f"  • Seafloor depth: use 'water_depth: {values['depth']}'\n"
+                f"  • Both (full water column): use both fields with the same value"
+            )
+        return values
+
+    @model_validator(mode="after")
+    def validate_depth_fields(self):
+        """
+        Validate depth field relationships and set defaults.
 
         Returns
         -------
         StationDefinition
             Self for chaining.
         """
-        # Migration logic: if depth is specified but new fields aren't, infer them
-        if (
-            self.depth is not None
-            and self.operation_depth is None
-            and self.water_depth is None
-        ):
-            # For most operations, assume the specified depth is the operation target
-            # This matches existing behavior where depth was used for duration calculations
-            self.operation_depth = self.depth
-            # Also set water_depth to same value unless enrichment fills it from bathymetry
-            self.water_depth = self.depth
-            logger.warning(
-                f"Station '{self.name}': Migrating deprecated 'depth' field ({self.depth}m) to both "
-                f"operation_depth and water_depth. For CTD operations, operation_depth and water_depth "
-                f"may differ. Please review and update your configuration to use explicit depth fields."
-            )
-        elif self.depth is not None:
-            # If new fields are specified, the depth field should not be used
-            # This prevents conflicting depth information
-            pass  # The deprecation warning will already have been issued
-        elif self.operation_depth is None and self.water_depth is not None:
+        if self.operation_depth is None and self.water_depth is not None:
             # If only water_depth specified, default operation_depth to water_depth (full water column)
             self.operation_depth = self.water_depth
         elif self.water_depth is None and self.operation_depth is not None:
@@ -3537,10 +3496,8 @@ def validate_depth_accuracy(
     warning_messages = []
 
     for station_name, station in cruise.station_registry.items():
-        # Check water_depth field first (new), then fall back to legacy depth field
-        water_depth = getattr(station, "water_depth", None) or getattr(
-            station, "depth", None
-        )
+        # Check water_depth field (preferred for bathymetry comparison)
+        water_depth = getattr(station, "water_depth", None)
         if water_depth is not None:
             stations_checked += 1
 
