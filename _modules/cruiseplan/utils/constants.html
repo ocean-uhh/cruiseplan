@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.constants &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>cruiseplan.utils.constants &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../../../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -50,28 +50,28 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -116,7 +116,18 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 
 <span class="c1"># --- Time Conversion Factors ---</span>
+<span class="n">SECONDS_PER_MINUTE</span> <span class="o">=</span> <span class="mf">60.0</span>
 <span class="n">MINUTES_PER_HOUR</span> <span class="o">=</span> <span class="mf">60.0</span>
+<span class="n">HOURS_PER_DAY</span> <span class="o">=</span> <span class="mf">24.0</span>
+
+<span class="c1"># --- Geographic and Distance Constants ---</span>
+
+<span class="c1"># Earth radius in kilometers (WGS84 approximate)</span>
+<span class="n">R_EARTH_KM</span> <span class="o">=</span> <span class="mf">6371.0</span>
+
+<span class="c1"># Distance conversion factors</span>
+<span class="n">NM_PER_KM</span> <span class="o">=</span> <span class="mf">0.539957</span>  <span class="c1"># Nautical miles per kilometer</span>
+<span class="n">KM_PER_NM</span> <span class="o">=</span> <span class="mf">1.852</span>  <span class="c1"># Kilometers per nautical mile</span>
 
 <span class="c1"># --- Depth/Bathymetry Constants ---</span>
 
@@ -200,6 +211,88 @@
 <span class="sd">        Time duration in minutes.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">hours</span> <span class="o">*</span> <span class="n">MINUTES_PER_HOUR</span></div>
+
+
+
+<div class="viewcode-block" id="seconds_to_minutes">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.constants.seconds_to_minutes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">seconds_to_minutes</span><span class="p">(</span><span class="n">seconds</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert seconds to minutes.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    seconds : float</span>
+<span class="sd">        Time duration in seconds.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Time duration in minutes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">seconds</span> <span class="o">/</span> <span class="n">SECONDS_PER_MINUTE</span></div>
+
+
+
+<div class="viewcode-block" id="rate_per_second_to_rate_per_minute">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.constants.rate_per_second_to_rate_per_minute">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">rate_per_second_to_rate_per_minute</span><span class="p">(</span><span class="n">rate_per_sec</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert rate per second to rate per minute.</span>
+
+<span class="sd">    For example: meters per second → meters per minute</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    rate_per_sec : float</span>
+<span class="sd">        Rate value per second (e.g., m/s).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Rate value per minute (e.g., m/min).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rate_per_sec</span> <span class="o">*</span> <span class="n">SECONDS_PER_MINUTE</span></div>
+
+
+
+<div class="viewcode-block" id="hours_to_days">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.constants.hours_to_days">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">hours_to_days</span><span class="p">(</span><span class="n">hours</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert hours to days.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    hours : float</span>
+<span class="sd">        Time duration in hours.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Time duration in days.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">hours</span> <span class="o">/</span> <span class="n">HOURS_PER_DAY</span></div>
+
+
+
+<div class="viewcode-block" id="minutes_to_days">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.constants.minutes_to_days">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">minutes_to_days</span><span class="p">(</span><span class="n">minutes</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert minutes to days.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    minutes : float</span>
+<span class="sd">        Time duration in minutes.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Time duration in days.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">minutes</span> <span class="o">/</span> <span class="p">(</span><span class="n">MINUTES_PER_HOUR</span> <span class="o">*</span> <span class="n">HOURS_PER_DAY</span><span class="p">)</span></div>
 
 </pre></div>
 

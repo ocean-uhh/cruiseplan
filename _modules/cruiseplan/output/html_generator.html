@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../../../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -50,28 +50,28 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -121,6 +121,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.activity_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_scientific_operation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NM_PER_KM</span><span class="p">,</span> <span class="n">hours_to_days</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -217,7 +218,7 @@
             <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">),</span>
             <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_mooring_duration_h</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_mooring_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_mooring_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_mooring_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -242,7 +243,7 @@
             <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_station_duration_h</span><span class="p">,</span>
             <span class="s2">&quot;avg_depth_m&quot;</span><span class="p">:</span> <span class="n">avg_depth</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_station_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_station_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_station_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -270,7 +271,7 @@
             <span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">:</span> <span class="n">avg_survey_distance_nm</span><span class="p">,</span>
             <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_survey_distance_nm</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_survey_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_survey_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_survey_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -291,7 +292,7 @@
             <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">),</span>
             <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_area_duration_h</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_area_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_area_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_area_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -319,7 +320,7 @@
             <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_within_distance_nm</span><span class="p">,</span>
             <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_within_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_within_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_within_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -343,7 +344,7 @@
             <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_port_distance_nm</span><span class="p">,</span>
             <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
             <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_port_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">total_port_duration_h</span> <span class="o">/</span> <span class="mi">24</span><span class="p">,</span>
+            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_port_duration_h</span><span class="p">),</span>
         <span class="p">}</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{</span>
@@ -410,7 +411,7 @@
         <span class="n">total_duration_h</span> <span class="o">=</span> <span class="p">(</span>
             <span class="nb">sum</span><span class="p">(</span><span class="n">activity</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">)</span> <span class="o">/</span> <span class="mf">60.0</span>
         <span class="p">)</span>
-        <span class="n">total_duration_days</span> <span class="o">=</span> <span class="n">total_duration_h</span> <span class="o">/</span> <span class="mi">24</span>
+        <span class="n">total_duration_days</span> <span class="o">=</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_duration_h</span><span class="p">)</span>
 
         <span class="c1"># Create HTML content</span>
         <span class="n">html_content</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;!DOCTYPE html&gt;</span>
@@ -568,6 +569,27 @@
         <span class="c1"># Add leg schedule section</span>
         <span class="n">html_content</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_leg_schedules</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
 
+        <span class="c1"># Try to embed the cruise track map if it exists</span>
+        <span class="n">map_path</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_schedule_map.png&quot;</span>
+        <span class="k">if</span> <span class="n">map_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Embed the map as a base64 image</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">img_file</span><span class="p">:</span>
+                <span class="n">img_data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">img_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
+
+            <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">    &lt;h2&gt;4. Cruise Track Map&lt;/h2&gt;</span>
+<span class="s2">    &lt;div style=&quot;text-align: center; margin: 20px 0;&quot;&gt;</span>
+<span class="s2">        &lt;img src=&quot;data:image/png;base64,</span><span class="si">{</span><span class="n">img_data</span><span class="si">}</span><span class="s2">&quot; </span>
+<span class="s2">             alt=&quot;Cruise Track Map for </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot; </span>
+<span class="s2">             style=&quot;max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);&quot;&gt;</span>
+<span class="s2">        &lt;p style=&quot;font-style: italic; color: #666; margin-top: 10px;&quot;&gt;</span>
+<span class="s2">            Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.</span>
+<span class="s2">        &lt;/p&gt;</span>
+<span class="s2">    &lt;/div&gt;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
         <span class="n">html_content</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">&lt;/body&gt;</span>
 <span class="s2">&lt;/html&gt;</span>
@@ -678,7 +700,7 @@
 <span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_leg_duration</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">total_leg_duration</span><span class="o">/</span><span class="mi">24</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> days&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_leg_duration</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> days&lt;/td&gt;</span>
 <span class="s2">        &lt;/tr&gt;</span>
 <span class="s2">    &lt;/table&gt;</span>
 <span class="s2">&quot;&quot;&quot;</span>
@@ -908,7 +930,7 @@
                 <span class="p">)</span>
 
                 <span class="c1"># Convert to nautical miles and calculate duration</span>
-                <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">distance_km</span> <span class="o">*</span> <span class="mf">0.539957</span>  <span class="c1"># km to nautical miles</span>
+                <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">distance_km</span> <span class="o">*</span> <span class="n">NM_PER_KM</span>  <span class="c1"># km to nautical miles</span>
                 <span class="n">duration_hours</span> <span class="o">=</span> <span class="n">distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed_knots</span>
                 <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mi">60</span>  <span class="c1"># convert to minutes</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>

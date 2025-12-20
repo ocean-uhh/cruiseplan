@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Units and Defaults &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>Units and Defaults &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,15 +14,15 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="_static/documentation_options.js?v=c35c452a"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="NetCDF Output Files for CruisePlan" href="netcdf_outputs.html" />
-    <link rel="prev" title="YAML Configuration Reference" href="yaml_reference.html" /> 
+    <link rel="next" title="Global Ports Reference" href="global_ports.html" />
+    <link rel="prev" title="Calculation Methods" href="calculations.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -53,38 +53,42 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Units and defaults</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-reference">Quick Reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#standard-units">Standard Units</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#time-formats">Time Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#time-and-duration-formats">Time and Duration Formats</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coordinate-systems">Coordinate Systems</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#depth-convention">Depth Convention</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#coordinate-formats">Coordinate Formats</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#default-values">Default Values</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#examples-in-yaml">Examples in YAML</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#unit-conversion-reference">Unit Conversion Reference</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#default-configuration-values">Default Configuration Values</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#examples-by-use-case">Examples by Use Case</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#advanced-topics">Advanced Topics</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#unit-conversion-functions">Unit Conversion Functions</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#best-practices-and-guidelines">Best Practices and Guidelines</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="netcdf_outputs.html">NetCDF Data Standards</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -112,12 +116,37 @@
              
   <section id="units-and-defaults">
 <h1>Units and Defaults<a class="headerlink" href="#units-and-defaults" title="Link to this heading"></a></h1>
-<p>This page documents the standard units, formats, and default values used throughout CruisePlan.</p>
-<section id="standard-units">
-<h2>Standard Units<a class="headerlink" href="#standard-units" title="Link to this heading"></a></h2>
-<p>CruisePlan uses consistent units across all components to ensure compatibility and reduce conversion errors.</p>
+<p>This reference covers units, formats, and defaults used throughout CruisePlan.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="yaml_reference.html"><span class="doc">YAML Configuration Reference</span></a> for complete YAML syntax</p></li>
+<li><p><a class="reference internal" href="calculations.html"><span class="doc">Calculation Methods</span></a> for calculation methods</p></li>
+<li><p><a class="reference internal" href="user_workflows.html"><span class="doc">Overview</span></a> for practical usage examples</p></li>
+</ul>
+</div>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#quick-reference" id="id6">Quick Reference</a></p></li>
+<li><p><a class="reference internal" href="#standard-units" id="id7">Standard Units</a></p></li>
+<li><p><a class="reference internal" href="#time-and-duration-formats" id="id8">Time and Duration Formats</a></p></li>
+<li><p><a class="reference internal" href="#coordinate-systems" id="id9">Coordinate Systems</a></p></li>
+<li><p><a class="reference internal" href="#depth-convention" id="id10">Depth Convention</a></p></li>
+<li><p><a class="reference internal" href="#default-configuration-values" id="id11">Default Configuration Values</a></p></li>
+<li><p><a class="reference internal" href="#examples-by-use-case" id="id12">Examples by Use Case</a></p></li>
+<li><p><a class="reference internal" href="#advanced-topics" id="id13">Advanced Topics</a></p>
+<ul>
+<li><p><a class="reference internal" href="#unit-conversion-functions" id="id14">Unit Conversion Functions</a></p></li>
+<li><p><a class="reference internal" href="#best-practices-and-guidelines" id="id15">Best Practices and Guidelines</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="quick-reference">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Quick Reference</a><a class="headerlink" href="#quick-reference" title="Link to this heading"></a></h2>
 <table class="docutils align-default" id="id1">
-<caption><span class="caption-text"><strong>Core Measurement Units</strong></span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
+<caption><span class="caption-text"><strong>Core Units at a Glance</strong></span><a class="headerlink" href="#id1" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 25.0%" />
@@ -153,71 +182,99 @@
 </tbody>
 </table>
 </section>
-<section id="time-formats">
-<h2>Time Formats<a class="headerlink" href="#time-formats" title="Link to this heading"></a></h2>
-<p><strong>ISO 8601 Format</strong>: All timestamps in YAML files use ISO 8601 format with timezone specification.</p>
+<section id="standard-units">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Standard Units</a><a class="headerlink" href="#standard-units" title="Link to this heading"></a></h2>
+<p>CruisePlan uses consistent units across all components to ensure compatibility and reduce conversion errors.</p>
+<p><strong>Core Measurement Units</strong>:</p>
+<p>All calculations, YAML configuration, and output formats use these standardized units. Mixing units will cause validation errors or incorrect results.</p>
+<p><strong>Unit Consistency Benefits</strong>:</p>
+<ul class="simple">
+<li><p><strong>No conversion errors</strong>: Single unit system eliminates unit mix-ups</p></li>
+<li><p><strong>Predictable calculations</strong>: All duration and distance math uses same base units</p></li>
+<li><p><strong>Validation support</strong>: CruisePlan warns about values outside expected ranges</p></li>
+</ul>
+</section>
+<section id="time-and-duration-formats">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Time and Duration Formats</a><a class="headerlink" href="#time-and-duration-formats" title="Link to this heading"></a></h2>
+<p><strong>Timestamps: ISO 8601 Format</strong></p>
+<p>All timestamps in YAML files use ISO 8601 format with timezone specification.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard timestamp format</span>
 <span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-01T08:00:00Z&quot;</span>
 
-<span class="c1"># Examples</span>
+<span class="c1"># Examples with timezones</span>
 <span class="nt">departure_time</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-01T06:00:00-04:00&quot;</span><span class="w">  </span><span class="c1"># EDT timezone</span>
 <span class="nt">arrival_time</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-15T18:30:00+00:00&quot;</span><span class="w">    </span><span class="c1"># UTC timezone</span>
 </pre></div>
 </div>
-<p><strong>Duration Fields</strong>: Specified in minutes as floating-point values.</p>
+<p><strong>Duration Fields: Minutes as Decimal</strong></p>
+<p>All duration fields are specified in minutes as floating-point values for consistent precision.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Duration examples</span>
 <span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120.0</span><span class="w">          </span><span class="c1"># 2 hours</span>
 <span class="nt">turnaround_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30.0</span><span class="w">    </span><span class="c1"># 30 minutes</span>
-<span class="nt">delay_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240.0</span><span class="w">       </span><span class="c1"># 4 hours</span>
-<span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">         </span><span class="c1"># 1 hour</span>
-<span class="nt">buffer_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">480.0</span><span class="w">      </span><span class="c1"># 8 hours</span>
+<span class="nt">delay_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240.0</span><span class="w">       </span><span class="c1"># 4 hours for daylight operations</span>
+<span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">         </span><span class="c1"># 1 hour equipment settling</span>
+<span class="nt">buffer_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">480.0</span><span class="w">      </span><span class="c1"># 8 hours weather contingency</span>
 </pre></div>
 </div>
 </section>
-<section id="depth-convention">
-<h2>Depth Convention<a class="headerlink" href="#depth-convention" title="Link to this heading"></a></h2>
-<p><strong>Water Depth</strong>: Positive values indicate depth below sea surface (oceanographic convention).</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep_Station&quot;</span>
-<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span><span class="w">      </span><span class="c1"># 4000 meters below sea surface</span>
-
-<span class="nt">transits</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Section_A&quot;</span>
-<span class="w">    </span><span class="nt">max_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2500.0</span><span class="w">  </span><span class="c1"># Maximum cast depth</span>
-</pre></div>
-</div>
-<p><strong>Rounding</strong>: Depth values are rounded to preserve meaningful precision while avoiding false accuracy.</p>
-<ul class="simple">
-<li><p><strong>Bathymetry data</strong>: Rounded to nearest meter</p></li>
-<li><p><strong>Station depths</strong>: User-specified precision preserved</p></li>
-<li><p><strong>Calculated depths</strong>: Rounded to 0.1 meter precision</p></li>
-</ul>
-</section>
-<section id="coordinate-formats">
-<h2>Coordinate Formats<a class="headerlink" href="#coordinate-formats" title="Link to this heading"></a></h2>
-<p><strong>Primary Format</strong>: Decimal degrees (WGS84)</p>
+<section id="coordinate-systems">
+<h2><a class="toc-backref" href="#id9" role="doc-backlink">Coordinate Systems</a><a class="headerlink" href="#coordinate-systems" title="Link to this heading"></a></h2>
+<p><strong>Primary Format: Decimal Degrees (WGS84)</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">position</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.58333</span><span class="w">     </span><span class="c1"># 75°35&#39;N</span>
 <span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-15.25000</span><span class="w">   </span><span class="c1"># 15°15&#39;W</span>
 </pre></div>
 </div>
-<p><strong>Output Formats</strong>: CruisePlan can generate coordinates in multiple formats for operational use:</p>
+<p><strong>Precision Standards</strong>:</p>
 <ul class="simple">
-<li><p><strong>DMM (Degrees, Decimal Minutes)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35.000'N,</span> <span class="pre">015°15.000'W</span></code></p></li>
-<li><p><strong>DMS (Degrees, Minutes, Seconds)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35'00&quot;N,</span> <span class="pre">015°15'00&quot;W</span></code> (not yet implemented)</p></li>
+<li><p><strong>Storage</strong>: 5 decimal places (±XX.XXXXX°) for ~1.1 meter accuracy at equator</p></li>
+<li><p><strong>Display</strong>: 4 decimal places for readability</p></li>
+<li><p><strong>Purpose</strong>: Reduces rounding errors in calculations</p></li>
 </ul>
-<p><strong>Coordinate Precision Details</strong>:</p>
-<p>CruisePlan stores coordinates with 5 decimal place precision:</p>
+<p><strong>Available Coordinate Formats</strong></p>
+<p>CruisePlan can generate coordinates in multiple formats for operational use:</p>
 <ul class="simple">
-<li><p><strong>Latitude</strong>: ±XX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">75.58333</span></code>)</p></li>
-<li><p><strong>Longitude</strong>: ±XXX.XXXXX° (e.g., <code class="docutils literal notranslate"><span class="pre">-15.25000</span></code>)</p></li>
-<li><p><strong>Accuracy</strong>: ~1.1 meter precision at equator - avoid calculation errors due to rounding</p></li>
-<li><p><strong>Display formats</strong>: Show 4 decimal places for readability</p></li>
+<li><p><strong>Decimal Degrees</strong>: <code class="docutils literal notranslate"><span class="pre">75.58333,</span> <span class="pre">-15.25000</span></code> (primary format)</p></li>
+<li><p><strong>DMM (Degrees, Decimal Minutes)</strong>: <code class="docutils literal notranslate"><span class="pre">75°35.000'N,</span> <span class="pre">015°15.000'W</span></code> (enrichment output)</p></li>
+</ul>
+<p><strong>Enrichment Example</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input (user specification)</span>
+<span class="nt">position</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5000</span>
+<span class="w">  </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-20.7500</span>
+
+<span class="c1"># After enrichment (DMM format added)</span>
+<span class="nt">coordinates_dmm</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;60</span><span class="nv"> </span><span class="s">30.00&#39;N,</span><span class="nv"> </span><span class="s">020</span><span class="nv"> </span><span class="s">45.00&#39;W&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="depth-convention">
+<h2><a class="toc-backref" href="#id10" role="doc-backlink">Depth Convention</a><a class="headerlink" href="#depth-convention" title="Link to this heading"></a></h2>
+<p><strong>Oceanographic Convention: Positive Down</strong></p>
+<p>Water depth uses positive values to indicate depth below sea surface.</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep_Station&quot;</span>
+<span class="w">    </span><span class="nt">operation_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500.0</span><span class="w">    </span><span class="c1"># CTD cast to 500m</span>
+<span class="w">    </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4000.0</span><span class="w">       </span><span class="c1"># Seafloor at 4000m</span>
+</pre></div>
+</div>
+<p><strong>Depth Field Semantics</strong>:</p>
+<ul class="simple">
+<li><p><strong>operation_depth</strong>: Target depth for operation (e.g., CTD cast depth)</p></li>
+<li><p><strong>water_depth</strong>: Seafloor depth at location (bathymetric depth)</p></li>
+</ul>
+<p><strong>Depth Precision</strong>:</p>
+<ul class="simple">
+<li><p><strong>Bathymetry enrichment</strong>: Rounded to nearest whole meter</p></li>
+<li><p><strong>User-specified depths</strong>: Original precision preserved</p></li>
+<li><p><strong>Configuration processing</strong>: May round to 0.1 meter in some contexts</p></li>
 </ul>
 </section>
-<section id="default-values">
-<h2>Default Values<a class="headerlink" href="#default-values" title="Link to this heading"></a></h2>
-<p>CruisePlan applies sensible defaults when values are not explicitly specified. These can be overridden at the cruise, leg, or individual operation level.</p>
+<section id="default-configuration-values">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Default Configuration Values</a><a class="headerlink" href="#default-configuration-values" title="Link to this heading"></a></h2>
+<p>CruisePlan applies sensible defaults for some of the parameters when values are not explicitly specified. These can be overridden at the cruise, leg, or individual operation level.</p>
+<p>CruisePlan applies non-sensical defaults to other operations (default mooring time is 999.0 hours) to ensure the user is forced to specify a value.</p>
+<p><strong>Vessel and Operation Defaults</strong>:</p>
 <table class="docutils align-default" id="id2">
 <caption><span class="caption-text"><strong>Configuration Defaults</strong></span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
 <colgroup>
@@ -250,6 +307,7 @@
 </tr>
 </tbody>
 </table>
+<p><strong>Timing and Buffer Defaults</strong>:</p>
 <table class="docutils align-default" id="id3">
 <caption><span class="caption-text"><strong>Operation Defaults</strong></span><a class="headerlink" href="#id3" title="Link to this table"></a></caption>
 <colgroup>
@@ -278,6 +336,7 @@
 </tr>
 </tbody>
 </table>
+<p><strong>Data Processing Defaults</strong>:</p>
 <table class="docutils align-default" id="id4">
 <caption><span class="caption-text"><strong>Enrichment Defaults</strong></span><a class="headerlink" href="#id4" title="Link to this table"></a></caption>
 <colgroup>
@@ -307,24 +366,35 @@
 </tbody>
 </table>
 </section>
-<section id="examples-in-yaml">
-<h2>Examples in YAML<a class="headerlink" href="#examples-in-yaml" title="Link to this heading"></a></h2>
-<p>For more complete examples, see the <a class="reference internal" href="yaml_reference.html"><span class="doc">YAML Configuration Reference</span></a>.</p>
-<p><strong>Complete Station Definition with Units</strong>:</p>
+<section id="examples-by-use-case">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Examples by Use Case</a><a class="headerlink" href="#examples-by-use-case" title="Link to this heading"></a></h2>
+<p><strong>Basic Station Definition</strong></p>
+<p>Complete station with all standard units clearly identified:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
 <span class="w">    </span><span class="nt">position</span><span class="p">:</span>
-<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50.5000</span><span class="w">        </span><span class="c1"># decimal degrees</span>
-<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2500</span><span class="w">      </span><span class="c1"># decimal degrees</span>
+<span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">50.5000</span><span class="w">        </span><span class="c1"># decimal degrees (WGS84)</span>
+<span class="w">      </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.2500</span><span class="w">      </span><span class="c1"># decimal degrees (WGS84)</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
-<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000.0</span><span class="w">             </span><span class="c1"># meters (positive down)</span>
-<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180.0</span><span class="w">           </span><span class="c1"># minutes (3 hours)</span>
-<span class="w">    </span><span class="nt">delay_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120.0</span><span class="w">        </span><span class="c1"># minutes (2 hours for daylight)</span>
-<span class="w">    </span><span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">           </span><span class="c1"># minutes (1 hour settling time)</span>
+<span class="w">    </span><span class="nt">operation_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500.0</span><span class="w">     </span><span class="c1"># meters (cast depth)</span>
+<span class="w">    </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000.0</span><span class="w">        </span><span class="c1"># meters (seafloor depth)</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">180.0</span><span class="w">            </span><span class="c1"># minutes (3 hours)</span>
 </pre></div>
 </div>
-<p><strong>Cruise-Level Defaults</strong>:</p>
+<p><strong>Complex Operational Timing</strong></p>
+<p>Station with advanced timing controls:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_Deploy&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mooring&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;deployment&quot;</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240.0</span><span class="w">           </span><span class="c1"># minutes (4 hours deployment)</span>
+<span class="w">    </span><span class="nt">delay_start</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120.0</span><span class="w">        </span><span class="c1"># minutes (wait for daylight)</span>
+<span class="w">    </span><span class="nt">delay_end</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">          </span><span class="c1"># minutes (anchor settling time)</span>
+</pre></div>
+</div>
+<p><strong>Cruise-Level Configuration Overrides</strong></p>
+<p>Override system defaults for specific cruise requirements:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Override system defaults</span>
 <span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span><span class="w">    </span><span class="c1"># knots (faster vessel)</span>
 <span class="nt">turnaround_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45.0</span><span class="w">         </span><span class="c1"># minutes (longer equipment changes)</span>
@@ -334,58 +404,122 @@
 </pre></div>
 </div>
 </section>
-<section id="unit-conversion-reference">
-<h2>Unit Conversion Reference<a class="headerlink" href="#unit-conversion-reference" title="Link to this heading"></a></h2>
-<p><strong>Common Conversions</strong>:</p>
-<table class="docutils align-default">
+<section id="advanced-topics">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Advanced Topics</a><a class="headerlink" href="#advanced-topics" title="Link to this heading"></a></h2>
+<section id="unit-conversion-functions">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Unit Conversion Functions</a><a class="headerlink" href="#unit-conversion-functions" title="Link to this heading"></a></h3>
+<p><strong>Helper Function Strategy</strong></p>
+<p>CruisePlan uses centralized helper functions in [<cite>utils/constants.py</cite>](<a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/constants.py">https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/constants.py</a>) instead of magic numbers:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># From cruiseplan/utils/constants.py</span>
+<span class="c1"># Geographic constants</span>
+<span class="n">R_EARTH_KM</span> <span class="o">=</span> <span class="mf">6371.0</span>
+<span class="n">NM_PER_KM</span> <span class="o">=</span> <span class="mf">0.539957</span>
+<span class="n">KM_PER_NM</span> <span class="o">=</span> <span class="mf">1.852</span>
+<span class="n">SECONDS_PER_MINUTE</span> <span class="o">=</span> <span class="mf">60.0</span>
+<span class="n">MINUTES_PER_HOUR</span> <span class="o">=</span> <span class="mf">60.0</span>
+
+<span class="c1"># Conversion helper functions</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">km_to_nm</span><span class="p">(</span><span class="n">km</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">km</span> <span class="o">*</span> <span class="n">NM_PER_KM</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">nm_to_km</span><span class="p">(</span><span class="n">nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">nm</span> <span class="o">*</span> <span class="n">KM_PER_NM</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hours_to_minutes</span><span class="p">(</span><span class="n">hours</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">hours</span> <span class="o">*</span> <span class="n">MINUTES_PER_HOUR</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">minutes_to_hours</span><span class="p">(</span><span class="n">minutes</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">minutes</span> <span class="o">/</span> <span class="n">MINUTES_PER_HOUR</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">rate_per_second_to_rate_per_minute</span><span class="p">(</span><span class="n">rate_per_sec</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert rate per second to rate per minute (e.g., m/s → m/min).&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">rate_per_sec</span> <span class="o">*</span> <span class="n">SECONDS_PER_MINUTE</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">hours_to_days</span><span class="p">(</span><span class="n">hours</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert hours to days.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">hours</span> <span class="o">/</span> <span class="n">HOURS_PER_DAY</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">minutes_to_days</span><span class="p">(</span><span class="n">minutes</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert minutes to days.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">minutes</span> <span class="o">/</span> <span class="p">(</span><span class="n">MINUTES_PER_HOUR</span> <span class="o">*</span> <span class="n">HOURS_PER_DAY</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Available Conversion Functions</strong>:</p>
+<table class="docutils align-default" id="id5">
+<caption><span class="caption-text">Standard Unit Conversions with Helper Functions</span><a class="headerlink" href="#id5" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 40.0%" />
-<col style="width: 60.0%" />
+<col style="width: 25.0%" />
+<col style="width: 35.0%" />
 </colgroup>
 <thead>
-<tr class="row-odd"><th class="head"><p><strong>Conversion</strong></p></th>
-<th class="head"><p><strong>Formula</strong></p></th>
+<tr class="row-odd"><th class="head"><p>Conversion</p></th>
+<th class="head"><p>Helper Function</p></th>
+<th class="head"><p>Usage</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Hours ↔ Minutes</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">hours</span> <span class="pre">×</span> <span class="pre">60</span> <span class="pre">=</span> <span class="pre">minutes</span></code></p></td>
+<tr class="row-even"><td><p>Kilometers ↔ Nautical Miles</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">km_to_nm()</span></code>, <code class="docutils literal notranslate"><span class="pre">nm_to_km()</span></code></p></td>
+<td><p>Distance calculations for vessel speeds</p></td>
 </tr>
-<tr class="row-odd"><td><p>Knots ↔ km/h</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">knots</span> <span class="pre">×</span> <span class="pre">1.852</span> <span class="pre">=</span> <span class="pre">km/h</span></code></p></td>
+<tr class="row-odd"><td><p>Hours ↔ Minutes</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hours_to_minutes()</span></code>, <code class="docutils literal notranslate"><span class="pre">minutes_to_hours()</span></code></p></td>
+<td><p>Duration format conversions</p></td>
 </tr>
-<tr class="row-even"><td><p>Nautical Miles ↔ Kilometers</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">nm</span> <span class="pre">×</span> <span class="pre">1.852</span> <span class="pre">=</span> <span class="pre">km</span></code></p></td>
+<tr class="row-even"><td><p>Rate per Second → Rate per Minute</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">rate_per_second_to_rate_per_minute()</span></code></p></td>
+<td><p>CTD descent/ascent rate conversions</p></td>
 </tr>
-<tr class="row-odd"><td><p>Decimal Degrees ↔ DMM</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">DD.dddd</span> <span class="pre">→</span> <span class="pre">DD°MM.mmm'</span></code></p></td>
+<tr class="row-odd"><td><p>Hours ↔ Days</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">hours_to_days()</span></code></p></td>
+<td><p>Long duration formatting for reports</p></td>
+</tr>
+<tr class="row-even"><td><p>Minutes ↔ Days</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">minutes_to_days()</span></code></p></td>
+<td><p>Duration format conversions</p></td>
 </tr>
 </tbody>
 </table>
-<p><strong>Precision Guidelines</strong>:</p>
+</section>
+<section id="best-practices-and-guidelines">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Best Practices and Guidelines</a><a class="headerlink" href="#best-practices-and-guidelines" title="Link to this heading"></a></h3>
+<p><strong>Precision Standards</strong>:</p>
+<p>Match precision to operational requirements and avoid false precision:</p>
 <ul class="simple">
-<li><p><strong>Coordinates</strong>: 5 decimal places (stored/computed precision, ~1 meter accuracy)</p></li>
+<li><p><strong>Coordinates</strong>: 5 decimal places for ~1.1 meter accuracy, display 4 decimal places</p></li>
 <li><p><strong>Durations</strong>: 1 decimal place (6-second precision)</p></li>
-<li><p><strong>Depths</strong>: Whole numbers for routine operations, decimals for precision work</p></li>
+<li><p><strong>Depths</strong>: Whole meters for bathymetry, preserve user-specified precision</p></li>
 <li><p><strong>Speeds</strong>: 1 decimal place for vessel speeds</p></li>
 </ul>
-</section>
-<section id="best-practices">
-<h2>Best Practices<a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<p><strong>Using Helper Functions</strong>:</p>
+<p>Always use the provided helper functions instead of manual calculations to avoid magic numbers and ensure consistency:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Use helper functions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span><span class="p">,</span> <span class="n">km_to_nm</span>
+
+<span class="n">duration_min</span> <span class="o">=</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="mf">3.5</span><span class="p">)</span>      <span class="c1"># Convert 3.5 hours</span>
+<span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="mf">185.2</span><span class="p">)</span>             <span class="c1"># Convert 185.2 km</span>
+
+<span class="c1"># Avoid: Manual calculations with magic numbers</span>
+<span class="n">duration_min</span> <span class="o">=</span> <span class="mf">3.5</span> <span class="o">*</span> <span class="mi">60</span>                   <span class="c1"># Magic number!</span>
+<span class="n">distance_nm</span> <span class="o">=</span> <span class="mf">185.2</span> <span class="o">*</span> <span class="mf">0.539957</span>            <span class="c1"># Magic number!</span>
+</pre></div>
+</div>
+<p><strong>Unit Consistency Guidelines</strong>:</p>
 <ol class="arabic simple">
-<li><p><strong>Consistency</strong>: Always use the standard units to avoid conversion errors</p></li>
-<li><p><strong>Precision</strong>: Match precision to operational requirements</p></li>
-<li><p><strong>Validation</strong>: CruisePlan validates some units and will warn about unusual values</p></li>
-<li><p><strong>Clear Naming</strong>: Use descriptive field names and values that make units obvious</p></li>
+<li><p><strong>Always use standard units</strong>: Prevents conversion errors and calculation mistakes</p></li>
+<li><p><strong>Use descriptive naming</strong>: Make units obvious in field names and comments</p></li>
+<li><p><strong>Leverage validation</strong>: CruisePlan warns about unusual values and unit mismatches</p></li>
+<li><p><strong>Reference this guide</strong>: When in doubt about units or precision requirements</p></li>
 </ol>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Unambiguous values following standard units</span>
-<span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240.0</span><span class="w">           </span><span class="c1"># Always minutes in CruisePlan</span>
-<span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3500.0</span><span class="w">            </span><span class="c1"># Always meters below surface</span>
-<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span><span class="w">   </span><span class="c1"># Always knots</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Good: Clear, unambiguous values following standards</span>
+<span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">240.0</span><span class="w">                  </span><span class="c1"># Always minutes in CruisePlan</span>
+<span class="nt">operation_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500.0</span><span class="w">           </span><span class="c1"># Always meters below surface</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span><span class="w">       </span><span class="c1"># Always knots</span>
 
 <span class="c1"># Avoid: Ambiguous or non-standard values</span>
-<span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">              </span><span class="c1"># Could be hours, minutes, unclear!</span>
-<span class="nt">speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span><span class="w">                </span><span class="c1"># km/h? knots? m/s? Unknown!</span>
+<span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4</span><span class="w">                      </span><span class="c1"># Hours? Minutes? Unclear!</span>
+<span class="nt">speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span><span class="w">                        </span><span class="c1"># km/h? knots? m/s? Unknown!</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -394,13 +528,14 @@
 </div>
 </section>
 </section>
+</section>
 
 
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="yaml_reference.html" class="btn btn-neutral float-left" title="YAML Configuration Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="netcdf_outputs.html" class="btn btn-neutral float-right" title="NetCDF Output Files for CruisePlan" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="calculations.html" class="btn btn-neutral float-left" title="Calculation Methods" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="global_ports.html" class="btn btn-neutral float-right" title="Global Ports Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

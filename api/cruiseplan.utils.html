@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>General Utilities &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,13 +14,14 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Project Architecture" href="../project_structure.html" />
     <link rel="prev" title="Output formats" href="cruiseplan.output.html" /> 
 </head>
 
@@ -52,22 +53,19 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul class="current">
@@ -97,8 +95,12 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.constants">cruiseplan.utils.constants module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.hours_to_days"><code class="docutils literal notranslate"><span class="pre">hours_to_days()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.hours_to_minutes"><code class="docutils literal notranslate"><span class="pre">hours_to_minutes()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.minutes_to_days"><code class="docutils literal notranslate"><span class="pre">minutes_to_days()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.minutes_to_hours"><code class="docutils literal notranslate"><span class="pre">minutes_to_hours()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.rate_per_second_to_rate_per_minute"><code class="docutils literal notranslate"><span class="pre">rate_per_second_to_rate_per_minute()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.constants.seconds_to_minutes"><code class="docutils literal notranslate"><span class="pre">seconds_to_minutes()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.coordinates">cruiseplan.utils.coordinates module</a><ul>
@@ -118,6 +120,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -460,6 +465,23 @@ for configuration parameters and standard conversion utilities.</p>
 <p>All constants are defined at the module level for easy importing and use.
 Unit conversion functions are provided for common time conversions.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.constants.hours_to_days">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">hours_to_days</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#hours_to_days"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.hours_to_days" title="Link to this definition"></a></dt>
+<dd><p>Convert hours to days.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>hours</strong> (<em>float</em>) – Time duration in hours.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time duration in days.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.utils.constants.hours_to_minutes">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">hours_to_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">hours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#hours_to_minutes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.hours_to_minutes" title="Link to this definition"></a></dt>
 <dd><p>Convert hours to minutes.</p>
@@ -477,6 +499,23 @@ Unit conversion functions are provided for common time conversions.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.constants.minutes_to_days">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">minutes_to_days</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#minutes_to_days"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.minutes_to_days" title="Link to this definition"></a></dt>
+<dd><p>Convert minutes to days.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>minutes</strong> (<em>float</em>) – Time duration in minutes.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time duration in days.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.utils.constants.minutes_to_hours">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">minutes_to_hours</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">minutes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#minutes_to_hours"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.minutes_to_hours" title="Link to this definition"></a></dt>
 <dd><p>Convert minutes to hours.</p>
@@ -486,6 +525,41 @@ Unit conversion functions are provided for common time conversions.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Time duration in hours.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.constants.rate_per_second_to_rate_per_minute">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">rate_per_second_to_rate_per_minute</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rate_per_sec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#rate_per_second_to_rate_per_minute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.rate_per_second_to_rate_per_minute" title="Link to this definition"></a></dt>
+<dd><p>Convert rate per second to rate per minute.</p>
+<p>For example: meters per second → meters per minute</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rate_per_sec</strong> (<em>float</em>) – Rate value per second (e.g., m/s).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Rate value per minute (e.g., m/min).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.constants.seconds_to_minutes">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.constants.</span></span><span class="sig-name descname"><span class="pre">seconds_to_minutes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">seconds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/constants.html#seconds_to_minutes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.constants.seconds_to_minutes" title="Link to this definition"></a></dt>
+<dd><p>Convert seconds to minutes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>seconds</strong> (<em>float</em>) – Time duration in seconds.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Time duration in minutes.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -684,7 +758,7 @@ departure_port and arrival_port are tuples of (lat, lon, name) or None</p>
 </dl>
 <p class="rubric">Examples</p>
 <div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_position_latex</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">)</span>
-<span class="go">&quot;65$^\circ$44.75&#39;$N$, 024$^\circ$28.75&#39;$W$&quot;</span>
+<span class="go">&quot;65$^\circ$44.75&#39;N, 024$^\circ$28.75&#39;W&quot;</span>
 </pre></div>
 </div>
 </dd></dl>
@@ -753,6 +827,7 @@ Default is ‘dmm’.</p></li>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="cruiseplan.output.html" class="btn btn-neutral float-left" title="Output formats" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../project_structure.html" class="btn btn-neutral float-right" title="Project Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

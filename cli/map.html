@@ -1,0 +1,290 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>map &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="schedule" href="schedule.html" />
+    <link rel="prev" title="validate" href="validate.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#general-usage">General Usage</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../cli_reference.html#subcommands">Subcommands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="download.html">download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pandoi.html">pandoi</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">map</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#options">Options</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#key-differences-from-schedule-png-output">Key Differences from Schedule PNG Output</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../cli_reference.html">CLI Command Reference</a></li>
+      <li class="breadcrumb-item active">map</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="map">
+<span id="subcommand-map"></span><h1>map<a class="headerlink" href="#map" title="Link to this heading"></a></h1>
+<p>Generate standalone maps (PNG, KML) directly from YAML configuration files, independent of scheduling.</p>
+<section id="usage">
+<h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--format<span class="w"> </span><span class="o">{</span>png,kml,all<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--bathymetry-stride<span class="w"> </span>BATHYMETRY_STRIDE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--figsize<span class="w"> </span>WIDTH<span class="w"> </span>HEIGHT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--show-plot<span class="o">]</span><span class="w"> </span><span class="o">[</span>--verbose<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="options">
+<h2>Options<a class="headerlink" href="#options" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 70.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">-c</span> <span class="pre">CONFIG_FILE,</span> <span class="pre">--config-file</span> <span class="pre">CONFIG_FILE</span></code></p></td>
+<td><p><strong>Required.</strong> YAML cruise configuration file.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
+<td><p>Output directory (default: <code class="docutils literal notranslate"><span class="pre">current</span></code> directory).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
+<td><p>Specific output file path (overrides auto-generated name).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--format</span> <span class="pre">{png,kml,all}</span></code></p></td>
+<td><p>Output format to generate (default: <code class="docutils literal notranslate"><span class="pre">all</span></code>). Can generate PNG maps, KML files, or both.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<td><p>Bathymetry dataset (default: <code class="docutils literal notranslate"><span class="pre">gebco2025</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-stride</span> <span class="pre">BATHYMETRY_STRIDE</span></code></p></td>
+<td><p>Bathymetry downsampling factor (default: <code class="docutils literal notranslate"><span class="pre">5</span></code>, higher=faster/less detailed).</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--figsize</span> <span class="pre">WIDTH</span> <span class="pre">HEIGHT</span></code></p></td>
+<td><p>Figure size in inches (default: <code class="docutils literal notranslate"><span class="pre">12</span> <span class="pre">10</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--show-plot</span></code></p></td>
+<td><p>Display plot interactively instead of saving to file.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--verbose,</span> <span class="pre">-v</span></code></p></td>
+<td><p>Enable verbose logging.</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>This command generates static PNG maps from cruise configuration files, showing stations, ports, and bathymetric background. Unlike <code class="docutils literal notranslate"><span class="pre">schedule</span> <span class="pre">--format</span> <span class="pre">png</span></code>, this command creates maps directly from the YAML configuration without requiring scheduling calculations.</p>
+</section>
+<section id="key-differences-from-schedule-png-output">
+<h2>Key Differences from Schedule PNG Output<a class="headerlink" href="#key-differences-from-schedule-png-output" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Feature</strong></p></td>
+<td><p><strong>Map Command</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Data Source</strong></p></td>
+<td><p>YAML configuration only</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Station Order</strong></p></td>
+<td><p>Configuration order (not scheduled sequence)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Cruise Track Lines</strong></p></td>
+<td><p>Only port-to-station transit lines</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Station Types</strong></p></td>
+<td><p>Stations (red circles) vs Moorings (gold stars)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Use Case</strong></p></td>
+<td><p>Initial planning and configuration review</p></td>
+</tr>
+</tbody>
+</table>
+<p>Compare this to <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span> <span class="pre">--format</span> <span class="pre">png</span></code>:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 40.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><strong>Feature</strong></p></td>
+<td><p><strong>Schedule PNG</strong></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Data Source</strong></p></td>
+<td><p>Generated timeline with scheduling</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Station Order</strong></p></td>
+<td><p>Scheduled sequence (leg-based)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Cruise Track Lines</strong></p></td>
+<td><p>Full cruise track between all operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Station Types</strong></p></td>
+<td><p>All shown as stations (operation type from timeline)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Use Case</strong></p></td>
+<td><p>Final schedule visualization and execution planning</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate PNG map with default settings</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml
+
+<span class="c1"># Generate KML file for Google Earth</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>kml
+
+<span class="c1"># Generate both PNG and KML</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>all
+
+<span class="c1"># Custom output directory and figure size</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>maps/<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># High-resolution bathymetry with custom output file</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025<span class="w"> </span>--output-file<span class="w"> </span>track_map.png
+
+<span class="c1"># Fast preview with coarse bathymetry</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022<span class="w"> </span>--bathymetry-stride<span class="w"> </span><span class="m">10</span>
+
+<span class="c1"># Interactive display instead of file output</span>
+$<span class="w"> </span>cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--show-plot
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="validate.html" class="btn btn-neutral float-left" title="validate" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="schedule.html" class="btn btn-neutral float-right" title="schedule" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

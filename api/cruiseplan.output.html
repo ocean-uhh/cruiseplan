@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Output formats &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>Output formats &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -53,22 +53,19 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul class="current">
@@ -100,6 +97,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.output.map_generator">cruiseplan.output.map_generator module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.calculate_optimal_figsize"><code class="docutils literal notranslate"><span class="pre">calculate_optimal_figsize()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_areas_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_areas_from_cruise()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_areas_from_timeline"><code class="docutils literal notranslate"><span class="pre">extract_areas_from_timeline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_lines_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_lines_from_cruise()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_lines_from_timeline"><code class="docutils literal notranslate"><span class="pre">extract_lines_from_timeline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.output.map_generator.extract_map_data"><code class="docutils literal notranslate"><span class="pre">extract_map_data()</span></code></a></li>
@@ -124,6 +122,9 @@
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -510,6 +511,23 @@ and the geographic extent of the map.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with config containing areas</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of area dictionaries with keys: name, corners, entity_type, operation_type, action</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.output.map_generator.extract_areas_from_timeline">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.output.map_generator.</span></span><span class="sig-name descname"><span class="pre">extract_areas_from_timeline</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline_data</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/output/map_generator.html#extract_areas_from_timeline"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.output.map_generator.extract_areas_from_timeline" title="Link to this definition"></a></dt>
+<dd><p>Extract area features from timeline data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timeline_data</strong> (<em>List</em><em>[</em><em>Dict</em><em>]</em>) – Timeline activity records</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of area dictionaries with keys: name, corners, entity_type, operation_type, action</p>

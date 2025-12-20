@@ -1,0 +1,289 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LaTeX Output &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CSV Output" href="csv.html" />
+    <link rel="prev" title="HTML Output" href="html.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../output_formats.html">Output formats</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../output_formats.html#overview">Overview</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../output_formats.html#output-docs">Output docs</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="png.html">PNG Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="html.html">HTML Output</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">LaTeX Output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#purpose-and-use-cases">Purpose and Use Cases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#latex-table-structure">LaTeX Table Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#professional-formatting">Professional Formatting</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="csv.html">CSV Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="netcdf.html">NetCDF Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="kml.html">KML Output</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output_formats.html#quality-assurance">Quality Assurance</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../output_formats.html">Output Formats</a></li>
+      <li class="breadcrumb-item active">LaTeX Output</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="latex-output">
+<span id="output-latex"></span><h1>LaTeX Output<a class="headerlink" href="#latex-output" title="Link to this heading"></a></h1>
+<p>LaTeX format generates tables specifically designed for DFG-style cruise proposals, including when complete station lists are requested with latitude and longitude positions.  It enables generation of these tables while minimizing the potential for user error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>LaTeX output is available from the <strong>schedule command</strong> (<code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span> <span class="pre">--format</span> <span class="pre">latex</span></code>). For configuration-based visualization, use <a class="reference internal" href="png.html"><span class="doc">PNG Output</span></a> output via the map command.</p>
+</div>
+<section id="purpose-and-use-cases">
+<h2>Purpose and Use Cases<a class="headerlink" href="#purpose-and-use-cases" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><strong>Primary Uses</strong>:</dt><dd><ul class="simple">
+<li><p>DFG (German Research Foundation) cruise proposals</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="latex-table-structure">
+<h2>LaTeX Table Structure<a class="headerlink" href="#latex-table-structure" title="Link to this heading"></a></h2>
+<p>Generated LaTeX files contain multiple specialized tables:</p>
+<dl class="simple">
+<dt><strong>1. Work Days at Sea Table</strong></dt><dd><ul class="simple">
+<li><p>Work activities and totals in hours</p></li>
+<li><p>Separate column for transit time to/from the working area</p></li>
+<li><p>Total sum of the duration in hours</p></li>
+</ul>
+</dd>
+<dt><strong>2. Station List Table</strong></dt><dd><ul class="simple">
+<li><p>Complete station catalog with coordinates (points and lines, but not areas)</p></li>
+</ul>
+</dd>
+</dl>
+<section id="working-areas-and-profiles">
+<h3>Working Areas and Profiles<a class="headerlink" href="#working-areas-and-profiles" title="Link to this heading"></a></h3>
+<p>The LaTeX output includes a working areas table following DFG cruise proposal expectations.  It is wrapped in some basic latex code for standalone compilation.</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[htbp]
+<span class="k">\caption</span><span class="nb">{</span>Work days at sea: TC4-Mixed-Test<span class="nb">}</span>
+<span class="k">\centering</span>
+<span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>llrr<span class="nb">}</span>
+<span class="k">\toprule</span>
+<span class="k">\textbf</span><span class="nb">{</span>Area<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Activity<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Duration (h)<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Transit (h)<span class="nb">}</span> <span class="k">\\</span>
+<span class="k">\midrule</span>
+<span class="nb">&amp;</span> Transit to area <span class="nb">&amp;</span>  <span class="nb">&amp;</span> 57.8 <span class="k">\\</span>
+<span class="nb">&amp;</span> CTD/Station Operations <span class="nb">&amp;</span> 0.5 <span class="nb">&amp;</span>  <span class="k">\\</span>
+<span class="nb">&amp;</span> ADCP Survey <span class="nb">&amp;</span> 12.0 <span class="nb">&amp;</span>  <span class="k">\\</span>
+<span class="nb">&amp;</span> Area Survey Operations <span class="nb">&amp;</span> 2.0 <span class="nb">&amp;</span>  <span class="k">\\</span>
+<span class="nb">&amp;</span> Within-area transits <span class="nb">&amp;</span> 12.0 <span class="nb">&amp;</span>  <span class="k">\\</span>
+<span class="nb">&amp;</span> Transit from area <span class="nb">&amp;</span>  <span class="nb">&amp;</span> 202.9 <span class="k">\\</span>
+<span class="k">\midrule</span>
+<span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>26.5<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>272.7<span class="nb">}</span> <span class="k">\\</span>
+<span class="k">\bottomrule</span>
+<span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+<span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</pre></div>
+</div>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/latex_output_example.png"><img alt="LaTeX work days at sea table showing transit and operational time breakdown" src="../_images/latex_output_example.png" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example LaTeX work days at sea table from <code class="docutils literal notranslate"><span class="pre">tc4_mixed_ops.yaml</span></code>, showing the professional DFG-style formatting with transit time, operational activities, and total sea days calculation.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+<section id="station-list-format">
+<h3>Station List Format<a class="headerlink" href="#station-list-format" title="Link to this heading"></a></h3>
+<p>Note that the jinja template will break long tables across multiple <code class="docutils literal notranslate"><span class="pre">tabular</span></code> elements as needed.  The maximum number of rows is hard-coded at the moment in <code class="docutils literal notranslate"><span class="pre">latex_generator.py</span></code> as <code class="docutils literal notranslate"><span class="pre">MAX_ROWS_PER_PAGE</span> <span class="pre">=</span> <span class="pre">45</span></code>.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="../_images/latex_stations_example.png"><img alt="LaTeX stations table showing operations, coordinates, depths and timing" src="../_images/latex_stations_example.png" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Example LaTeX stations table from <code class="docutils literal notranslate"><span class="pre">tc4_mixed_ops.yaml</span></code>, demonstrating the comprehensive station listing format including areas, scientific transits, and traditional station operations with precise coordinate and timing information.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+</section>
+</section>
+<section id="professional-formatting">
+<h2>Professional Formatting<a class="headerlink" href="#professional-formatting" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><strong>Typography</strong>:</dt><dd><ul class="simple">
+<li><p>Proper mathematical typesetting</p></li>
+<li><p>Consistent spacing and alignment</p></li>
+<li><p>Professional table formatting</p></li>
+</ul>
+</dd>
+<dt><strong>Table Design</strong>:</dt><dd><ul class="simple">
+<li><p>Clear column headers and separators</p></li>
+<li><p>Proper use of horizontal rules</p></li>
+<li><p>Consistent number formatting and units</p></li>
+</ul>
+</dd>
+<dt><strong>Document Integration</strong>:</dt><dd><ul class="simple">
+<li><p>Standard LaTeX packages and dependencies</p></li>
+<li><p>Compatible with common document classes</p></li>
+<li><p>Proper figure and table referencing</p></li>
+<li><p>Cross-reference support</p></li>
+</ul>
+</dd>
+</dl>
+<section id="integration-with-proposal-documents">
+<h3>Integration with Proposal Documents<a class="headerlink" href="#integration-with-proposal-documents" title="Link to this heading"></a></h3>
+<p><strong>Standalone Compilation</strong>:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compile LaTeX tables independently</span>
+pdflatex<span class="w"> </span>cruise_schedule.tex
+
+<span class="c1"># With bibliography and cross-references</span>
+pdflatex<span class="w"> </span>cruise_schedule.tex
+bibtex<span class="w"> </span>cruise_schedule
+pdflatex<span class="w"> </span>cruise_schedule.tex
+pdflatex<span class="w"> </span>cruise_schedule.tex
+</pre></div>
+</div>
+<p><strong>Inclusion in Main Documents</strong>:</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="c">% In main proposal document</span>
+<span class="k">\input</span><span class="nb">{</span>cruise<span class="nb">_</span>schedule.tex<span class="nb">}</span>
+
+<span class="c">% Or with path specification</span>
+<span class="k">\input</span><span class="nb">{</span>tables/cruise<span class="nb">_</span>schedule.tex<span class="nb">}</span>
+
+<span class="c">% For specific tables only</span>
+<span class="k">\input</span><span class="nb">{</span>working<span class="nb">_</span>areas<span class="nb">_</span>table.tex<span class="nb">}</span>
+<span class="k">\input</span><span class="nb">{</span>sea<span class="nb">_</span>days<span class="nb">_</span>table.tex<span class="nb">}</span>
+</pre></div>
+</div>
+<p><strong>Cross-Reference Integration</strong>:</p>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="c">% Reference tables from text</span>
+The working areas (Table~<span class="k">\ref</span><span class="nb">{</span>tab:working<span class="nb">_</span>areas<span class="nb">}</span>) show...
+
+<span class="c">% Total calculations</span>
+As shown in Table~<span class="k">\ref</span><span class="nb">{</span>tab:sea<span class="nb">_</span>days<span class="nb">}</span>, the total cruise duration
+is <span class="k">\ref</span><span class="nb">{</span>total<span class="nb">_</span>days<span class="nb">}</span> days at sea.
+</pre></div>
+</div>
+<p>The LaTeX output format ensures that CruisePlan generates tables (especially station lists) that can be included in research cruise proposals.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="html.html" class="btn btn-neutral float-left" title="HTML Output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="csv.html" class="btn btn-neutral float-right" title="CSV Output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

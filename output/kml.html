@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>KML Output &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CruisePlan API" href="../api/modules.html" />
+    <link rel="prev" title="NetCDF Output" href="netcdf.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../output_formats.html">Output formats</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../output_formats.html#overview">Overview</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../output_formats.html#output-docs">Output docs</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="png.html">PNG Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="html.html">HTML Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="latex.html">LaTeX Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="csv.html">CSV Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="netcdf.html">NetCDF Output</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">KML Output</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#purpose-and-use-cases">Purpose and Use Cases</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#kml-structure-and-features">KML Structure and Features</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#geographic-visualization">Geographic Visualization</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#future-enhancements">Future Enhancements</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#actual-kml-structure-example">Actual KML Structure Example</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-applications">Integration Applications</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../output_formats.html#quality-assurance">Quality Assurance</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../output_formats.html">Output Formats</a></li>
+      <li class="breadcrumb-item active">KML Output</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="kml-output">
+<span id="output-kml"></span><h1>KML Output<a class="headerlink" href="#kml-output" title="Link to this heading"></a></h1>
+<p>KML format provides geographic visualization compatible with Google Earth, Google Maps, and other geographic information systems. The output focuses on positional data for the scientific operations.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/kml_output_google_earth.png"><img alt="KML cruise plan displayed in Google Earth showing stations, transits, and areas" src="../_images/kml_output_google_earth.png" style="width: 90%;" />
+</a>
+<figcaption>
+<p><span class="caption-text">KML output from <code class="docutils literal notranslate"><span class="pre">tc4_mixed_ops.yaml</span></code> displayed in Google Earth, demonstrating the geographic visualization with color-coded station markers, transit routes, survey areas, and 3D bathymetric context suitable for expedition planning and public outreach.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>KML output is available from the <strong>map command</strong> (<code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span> <span class="pre">--format</span> <span class="pre">kml</span></code>), and does not include any information from the scheduling.</p>
+</div>
+<section id="purpose-and-use-cases">
+<h2>Purpose and Use Cases<a class="headerlink" href="#purpose-and-use-cases" title="Link to this heading"></a></h2>
+<dl class="simple">
+<dt><strong>Primary Uses</strong>:</dt><dd><ul class="simple">
+<li><p>Google Earth visualization and exploration</p></li>
+<li><p>Geographic information system (GIS) integration</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="kml-structure-and-features">
+<h2>KML Structure and Features<a class="headerlink" href="#kml-structure-and-features" title="Link to this heading"></a></h2>
+<p>Generated KML files contain configuration-based geographic data in a flat structure with individual placemarks:</p>
+<dl class="simple">
+<dt><strong>Configuration Elements Included:</strong></dt><dd><ul class="simple">
+<li><p><strong>Port Points</strong>: Departure and arrival ports with basic location information</p></li>
+<li><p><strong>Station Points</strong>: Individual CTD, mooring, and other operation locations</p></li>
+<li><p><strong>Scientific Transit Lines</strong>: Underway operations (e.g., ADCP surveys) with start/end coordinates</p></li>
+<li><p><strong>Area Polygons</strong>: Survey areas defined by corner coordinates</p></li>
+</ul>
+</dd>
+<dt><strong>What is NOT Included:</strong></dt><dd><ul class="simple">
+<li><p>No cruise track connections between stations/ports</p></li>
+<li><p>No timeline or scheduling information</p></li>
+<li><p>No hierarchical folder organization</p></li>
+<li><p>No detailed operation metadata or scientific objectives</p></li>
+<li><p>No time stamps or temporal data</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The KML output represents the <strong>configuration catalog only</strong>, not the scheduled timeline. It shows where operations are planned, but not when they occur or how the vessel routes between them.</p>
+</div>
+</section>
+<section id="geographic-visualization">
+<h2>Geographic Visualization<a class="headerlink" href="#geographic-visualization" title="Link to this heading"></a></h2>
+<section id="markers-and-styling">
+<h3>Markers and Styling<a class="headerlink" href="#markers-and-styling" title="Link to this heading"></a></h3>
+<p><strong>Operation Type Styling</strong>:</p>
+<table class="docutils align-default" id="id2">
+<caption><span class="caption-text">KML Element Styles</span><a class="headerlink" href="#id2" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Element Type</strong></p></th>
+<th class="head"><p><strong>Style</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Stations</p></td>
+<td><p>Red circle markers</p></td>
+<td><p>CTD and other point operations</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ports</p></td>
+<td><p>Orange marina icons</p></td>
+<td><p>Departure and arrival points</p></td>
+</tr>
+<tr class="row-even"><td><p>Scientific Transits</p></td>
+<td><p>Red lines</p></td>
+<td><p>ADCP surveys and underway operations</p></td>
+</tr>
+<tr class="row-odd"><td><p>Areas</p></td>
+<td><p>Cyan polygons</p></td>
+<td><p>Survey areas with semi-transparent fill</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="simple">
+<dt><strong>Information Content</strong>:</dt><dd><p>Basic text descriptions:</p>
+</dd>
+</dl>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>&lt;!-- Station example --&gt;
+Type: Station (OperationTypeEnum.CTD)
+Action: ActionEnum.PROFILE
+Location: 45.000000°N, -50.000000°W
+Depth: N/A m
+
+&lt;!-- Port example --&gt;
+Port: Halifax
+Type: Departure Port
+Location: 44.648800°N, -63.575200°W
+Timezone: America/Halifax
+
+&lt;!-- Transit example --&gt;
+Type: Transit
+Start: 46.000000°N, -50.000000°W
+End: 47.000000°N, -50.000000°W
+Distance: calculated nm
+
+&lt;!-- Area example --&gt;
+Type: Area
+Corners: 4
+Operation: AreaOperationTypeEnum.SURVEY
+</pre></div>
+</div>
+</section>
+<section id="transits-and-areas-lines-and-polygons">
+<h3>Transits and Areas (Lines and Polygons)<a class="headerlink" href="#transits-and-areas-lines-and-polygons" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Scientific Transit Lines</strong>:</dt><dd><ul class="simple">
+<li><p>Only underway scientific operations (e.g., ADCP surveys) are shown as lines</p></li>
+<li><p>Red lines connecting start and end coordinates of scientific transit operations</p></li>
+<li><p>Cruise track connections between stations are not shown</p></li>
+</ul>
+</dd>
+<dt><strong>Area Polygons</strong>:</dt><dd><ul class="simple">
+<li><p>Survey areas shown as closed yellow polygons</p></li>
+<li><p>Defined by corner coordinates from configuration</p></li>
+<li><p>Semi-transparent fill to show underlying map features</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="future-enhancements">
+<h2>Future Enhancements<a class="headerlink" href="#future-enhancements" title="Link to this heading"></a></h2>
+<section id="current-limitations">
+<h3>Current Limitations<a class="headerlink" href="#current-limitations" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Missing Features</strong>:</dt><dd><ul class="simple">
+<li><p>Basic popup content without HTML formatting</p></li>
+<li><p>No scientific objectives or detailed metadata</p></li>
+</ul>
+</dd>
+<dt><strong>Timing information:</strong></dt><dd><ul class="simple">
+<li><p>No time stamps or temporal data (no Google Earth time slider support)</p></li>
+<li><p>No cruise track connections between operations</p></li>
+<li><p>No scheduling or timeline information</p></li>
+</ul>
+</dd>
+</dl>
+<p>This would only be possible if we generated the KML from the schedule data (i.e., in “cruiseplan schedule”) rather than the YAML configuration (in “cruiseplan map”).</p>
+<dl class="simple">
+<dt><strong>Planned Enhancements</strong> (see todos):</dt><dd><ul class="simple">
+<li><p>Rich HTML popup content with operation details, timing and distance (where applicable)</p></li>
+<li><p>Cruise track plotting based on schedule</p></li>
+<li><p>Time-based KML with Google Earth animation support (if using schedule data)</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="actual-kml-structure-example">
+<h2>Actual KML Structure Example<a class="headerlink" href="#actual-kml-structure-example" title="Link to this heading"></a></h2>
+<section id="simple-flat-structure">
+<h3>Simple Flat Structure<a class="headerlink" href="#simple-flat-structure" title="Link to this heading"></a></h3>
+<p>Based on the actual generated file:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="cp">&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot;?&gt;</span>
+<span class="nt">&lt;kml</span><span class="w"> </span><span class="na">xmlns=</span><span class="s">&quot;http://www.opengis.net/kml/2.2&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;Document&gt;</span>
+<span class="w">    </span><span class="nt">&lt;name&gt;</span>TC4_Mixed_Test<span class="w"> </span>-<span class="w"> </span>Catalog<span class="nt">&lt;/name&gt;</span>
+<span class="w">    </span><span class="nt">&lt;description&gt;</span>Cruise<span class="w"> </span>configuration<span class="w"> </span>catalog<span class="w"> </span>including<span class="w"> </span>all<span class="w"> </span>stations,<span class="w"> </span>moorings,<span class="w"> </span>transits,<span class="w"> </span>ports,<span class="w"> </span>and<span class="w"> </span>areas<span class="nt">&lt;/description&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Style definitions --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;stationStyle&quot;</span><span class="nt">&gt;</span>
+<span class="w">      </span><span class="nt">&lt;IconStyle&gt;</span>
+<span class="w">        </span><span class="nt">&lt;color&gt;</span>ff0000ff<span class="nt">&lt;/color&gt;</span>
+<span class="w">        </span><span class="nt">&lt;scale&gt;</span>1.2<span class="nt">&lt;/scale&gt;</span>
+<span class="w">        </span><span class="nt">&lt;Icon&gt;</span>
+<span class="w">          </span><span class="nt">&lt;href&gt;</span>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png<span class="nt">&lt;/href&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/Icon&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/IconStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Style&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Port placemark --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>Departure:<span class="w"> </span>Halifax<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>
+<span class="w">        </span>Port:<span class="w"> </span>Halifax
+<span class="w">        </span>Type:<span class="w"> </span>Departure<span class="w"> </span>Port
+<span class="w">        </span>Location:<span class="w"> </span>44.648800°N,<span class="w"> </span>-63.575200°W
+<span class="w">        </span>Timezone:<span class="w"> </span>America/Halifax
+<span class="w">      </span><span class="nt">&lt;/description&gt;</span>
+<span class="w">      </span><span class="nt">&lt;styleUrl&gt;</span>#portStyle<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Point&gt;</span>
+<span class="w">        </span><span class="nt">&lt;coordinates&gt;</span>-63.5752,44.6488,0<span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/Point&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Placemark&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Station placemark --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>STN_001<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>
+<span class="w">        </span>Type:<span class="w"> </span>Station<span class="w"> </span>(OperationTypeEnum.CTD)
+<span class="w">        </span>Action:<span class="w"> </span>ActionEnum.PROFILE
+<span class="w">        </span>Location:<span class="w"> </span>45.000000°N,<span class="w"> </span>-50.000000°W
+<span class="w">        </span>Depth:<span class="w"> </span>N/A<span class="w"> </span>m
+<span class="w">      </span><span class="nt">&lt;/description&gt;</span>
+<span class="w">      </span><span class="nt">&lt;styleUrl&gt;</span>#stationStyle<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Point&gt;</span>
+<span class="w">        </span><span class="nt">&lt;coordinates&gt;</span>-50.0,45.0,0<span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/Point&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Placemark&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Scientific transit line --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>ADCP_Survey<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>
+<span class="w">        </span>Type:<span class="w"> </span>Transit
+<span class="w">        </span>Start:<span class="w"> </span>46.000000°N,<span class="w"> </span>-50.000000°W
+<span class="w">        </span>End:<span class="w"> </span>47.000000°N,<span class="w"> </span>-50.000000°W
+<span class="w">        </span>Distance:<span class="w"> </span>calculated<span class="w"> </span>nm
+<span class="w">      </span><span class="nt">&lt;/description&gt;</span>
+<span class="w">      </span><span class="nt">&lt;styleUrl&gt;</span>#transitStyle<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">      </span><span class="nt">&lt;LineString&gt;</span>
+<span class="w">        </span><span class="nt">&lt;coordinates&gt;</span>
+<span class="w">          </span>-50.0,46.0,0
+<span class="w">          </span>-50.0,47.0,0
+<span class="w">        </span><span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/LineString&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Placemark&gt;</span>
+
+<span class="w">    </span><span class="cm">&lt;!-- Area polygon --&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Placemark&gt;</span>
+<span class="w">      </span><span class="nt">&lt;name&gt;</span>Area_01<span class="nt">&lt;/name&gt;</span>
+<span class="w">      </span><span class="nt">&lt;description&gt;</span>
+<span class="w">        </span>Type:<span class="w"> </span>Area
+<span class="w">        </span>Corners:<span class="w"> </span>4
+<span class="w">        </span>Operation:<span class="w"> </span>AreaOperationTypeEnum.SURVEY
+<span class="w">      </span><span class="nt">&lt;/description&gt;</span>
+<span class="w">      </span><span class="nt">&lt;styleUrl&gt;</span>#areaStyle<span class="nt">&lt;/styleUrl&gt;</span>
+<span class="w">      </span><span class="nt">&lt;Polygon&gt;</span>
+<span class="w">        </span><span class="nt">&lt;outerBoundaryIs&gt;</span>
+<span class="w">          </span><span class="nt">&lt;LinearRing&gt;</span>
+<span class="w">            </span><span class="nt">&lt;coordinates&gt;</span>-50.5,47.5,0<span class="w"> </span>-50.5,48.5,0<span class="w"> </span>-49.5,48.5,0<span class="w"> </span>-49.5,47.5,0<span class="w"> </span>-50.5,47.5,0<span class="nt">&lt;/coordinates&gt;</span>
+<span class="w">          </span><span class="nt">&lt;/LinearRing&gt;</span>
+<span class="w">        </span><span class="nt">&lt;/outerBoundaryIs&gt;</span>
+<span class="w">      </span><span class="nt">&lt;/Polygon&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Placemark&gt;</span>
+
+<span class="w">  </span><span class="nt">&lt;/Document&gt;</span>
+<span class="nt">&lt;/kml&gt;</span>
+</pre></div>
+</div>
+</section>
+<section id="style-definitions">
+<h3>Style Definitions<a class="headerlink" href="#style-definitions" title="Link to this heading"></a></h3>
+<p><strong>Marker Styles</strong>:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;ctd_station&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;IconStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;Icon&gt;</span>
+<span class="w">      </span><span class="nt">&lt;href&gt;</span>http://maps.google.com/mapfiles/kml/shapes/sailing.png<span class="nt">&lt;/href&gt;</span>
+<span class="w">    </span><span class="nt">&lt;/Icon&gt;</span>
+<span class="w">    </span><span class="nt">&lt;scale&gt;</span>1.2<span class="nt">&lt;/scale&gt;</span>
+<span class="w">    </span><span class="nt">&lt;color&gt;</span>ff0000ff<span class="nt">&lt;/color&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/IconStyle&gt;</span>
+<span class="w">  </span><span class="nt">&lt;LabelStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;scale&gt;</span>0.8<span class="nt">&lt;/scale&gt;</span>
+<span class="w">    </span><span class="nt">&lt;color&gt;</span>ff000000<span class="nt">&lt;/color&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/LabelStyle&gt;</span>
+<span class="nt">&lt;/Style&gt;</span>
+</pre></div>
+</div>
+<p><strong>Line Styles</strong>:</p>
+<div class="highlight-xml notranslate"><div class="highlight"><pre><span></span><span class="nt">&lt;Style</span><span class="w"> </span><span class="na">id=</span><span class="s">&quot;cruise_track&quot;</span><span class="nt">&gt;</span>
+<span class="w">  </span><span class="nt">&lt;LineStyle&gt;</span>
+<span class="w">    </span><span class="nt">&lt;color&gt;</span>ff0000ff<span class="nt">&lt;/color&gt;</span>
+<span class="w">    </span><span class="nt">&lt;width&gt;</span>3<span class="nt">&lt;/width&gt;</span>
+<span class="w">  </span><span class="nt">&lt;/LineStyle&gt;</span>
+<span class="nt">&lt;/Style&gt;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-applications">
+<h2>Integration Applications<a class="headerlink" href="#integration-applications" title="Link to this heading"></a></h2>
+<section id="google-earth-integration">
+<h3>Google Earth Integration<a class="headerlink" href="#google-earth-integration" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Viewing Features</strong>:</dt><dd><ul class="simple">
+<li><p>3D terrain visualization with bathymetric context</p></li>
+<li><p>Layer control for selective data display</p></li>
+<li><p>Measurement tools for distance and area calculations</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="gis-system-import">
+<h3>GIS System Import<a class="headerlink" href="#gis-system-import" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Compatible Software</strong>:</dt><dd><ul class="simple">
+<li><p>QGIS for advanced spatial analysis</p></li>
+<li><p>ArcGIS for professional cartography</p></li>
+<li><p>Marine navigation systems (ECDIS)</p></li>
+</ul>
+</dd>
+</dl>
+<p>The KML output format provides versatile geographic visualization capabilities that serve diverse audiences.  It also allows integration with other <code class="docutils literal notranslate"><span class="pre">*.kml</span></code> based datasets.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="netcdf.html" class="btn btn-neutral float-left" title="NetCDF Output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../api/modules.html" class="btn btn-neutral float-right" title="CruisePlan API" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

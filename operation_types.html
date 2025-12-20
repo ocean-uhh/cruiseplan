@@ -1,0 +1,714 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Operation Types Reference &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=c35c452a"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Calculation Methods" href="calculations.html" />
+    <link rel="prev" title="YAML Configuration Reference" href="yaml_reference.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Operation Types Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-operations-stations">Point Operations (Stations)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#supported-operation-types">Supported Operation Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#duration-calculation">Duration Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#routing-behavior">Routing Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#line-operations-transits">Line Operations (Transits)</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Supported Operation Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Duration Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Routing Behavior</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#area-operations">Area Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id6">Supported Operation Types</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#area-definition-requirements">Area Definition Requirements</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id7">Duration Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#area-center-point-calculation">Area Center Point Calculation</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#routing-behavior-as-anchors">Routing Behavior as Anchors</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#operation-validation-rules">Operation Validation Rules</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#type-action-combinations">Type-Action Combinations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#duration-requirements">Duration Requirements</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#best-practices">Best Practices</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#operation-planning">Operation Planning</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#routing-and-integration">Routing and Integration</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#common-validation-errors">Common Validation Errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#performance-considerations">Performance Considerations</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Operation Types Reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="operation-types-reference">
+<span id="id1"></span><h1>Operation Types Reference<a class="headerlink" href="#operation-types-reference" title="Link to this heading"></a></h1>
+<p>This document provides comprehensive documentation of all operation types supported by CruisePlan, including their valid actions, duration calculations, and routing behaviors.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#overview" id="id15">Overview</a></p></li>
+<li><p><a class="reference internal" href="#point-operations-stations" id="id16">Point Operations (Stations)</a></p>
+<ul>
+<li><p><a class="reference internal" href="#supported-operation-types" id="id17">Supported Operation Types</a></p></li>
+<li><p><a class="reference internal" href="#duration-calculation" id="id18">Duration Calculation</a></p></li>
+<li><p><a class="reference internal" href="#routing-behavior" id="id19">Routing Behavior</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#line-operations-transits" id="id20">Line Operations (Transits)</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id2" id="id21">Supported Operation Types</a></p></li>
+<li><p><a class="reference internal" href="#id3" id="id22">Duration Calculation</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id23">Routing Behavior</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#area-operations" id="id24">Area Operations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id6" id="id25">Supported Operation Types</a></p></li>
+<li><p><a class="reference internal" href="#area-definition-requirements" id="id26">Area Definition Requirements</a></p></li>
+<li><p><a class="reference internal" href="#id7" id="id27">Duration Calculation</a></p></li>
+<li><p><a class="reference internal" href="#area-center-point-calculation" id="id28">Area Center Point Calculation</a></p></li>
+<li><p><a class="reference internal" href="#routing-behavior-as-anchors" id="id29">Routing Behavior as Anchors</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#operation-validation-rules" id="id30">Operation Validation Rules</a></p>
+<ul>
+<li><p><a class="reference internal" href="#type-action-combinations" id="id31">Type-Action Combinations</a></p></li>
+<li><p><a class="reference internal" href="#duration-requirements" id="id32">Duration Requirements</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#best-practices" id="id33">Best Practices</a></p>
+<ul>
+<li><p><a class="reference internal" href="#operation-planning" id="id34">Operation Planning</a></p></li>
+<li><p><a class="reference internal" href="#routing-and-integration" id="id35">Routing and Integration</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#troubleshooting" id="id36">Troubleshooting</a></p>
+<ul>
+<li><p><a class="reference internal" href="#common-validation-errors" id="id37">Common Validation Errors</a></p></li>
+<li><p><a class="reference internal" href="#performance-considerations" id="id38">Performance Considerations</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<section id="overview">
+<h2><a class="toc-backref" href="#id15" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>CruisePlan supports three categories of operations:</p>
+<ol class="arabic simple">
+<li><p><strong>Point Operations</strong> (stations): Operations at fixed geographic locations</p></li>
+<li><p><strong>Line Operations</strong> (transits): Operations along defined routes</p></li>
+<li><p><strong>Area Operations</strong> (areas): Operations covering defined geographic regions</p></li>
+</ol>
+<p>Each operation type has specific validation rules, duration calculation methods, and routing behaviors that determine how they integrate into cruise schedules.</p>
+</section>
+<section id="point-operations-stations">
+<span id="point-operations"></span><h2><a class="toc-backref" href="#id16" role="doc-backlink">Point Operations (Stations)</a><a class="headerlink" href="#point-operations-stations" title="Link to this heading"></a></h2>
+<p>Point operations represent activities conducted at fixed geographic locations. They are defined in the <code class="docutils literal notranslate"><span class="pre">stations</span></code> catalog and converted to <code class="docutils literal notranslate"><span class="pre">PointOperation</span></code> objects during scheduling.</p>
+<section id="supported-operation-types">
+<h3><a class="toc-backref" href="#id17" role="doc-backlink">Supported Operation Types</a><a class="headerlink" href="#supported-operation-types" title="Link to this heading"></a></h3>
+<table class="docutils align-default" id="id11">
+<caption><span class="caption-text">Point Operation Types</span><a class="headerlink" href="#id11" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operation Type</p></th>
+<th class="head"><p>Valid Actions</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CTD</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">profile</span></code></p></td>
+<td><p>Conductivity-Temperature-Depth profiling operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">water_sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code></p></td>
+<td><p>Water sample collection (bottles, etc.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">mooring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deployment</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery</span></code></p></td>
+<td><p>Mooring deployment or recovery operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p>Equipment calibration or validation</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="duration-calculation">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#duration-calculation" title="Link to this heading"></a></h3>
+<p>Point operations use different duration calculation methods based on operation type:</p>
+<dl>
+<dt><strong>CTD Operations</strong>:</dt><dd><p>Calculated automatically based on depth, descent/ascent rates, and turnaround time:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CTD duration calculation</span>
+<span class="n">descent_time</span> <span class="o">=</span> <span class="n">operation_depth</span> <span class="o">/</span> <span class="n">ctd_descent_rate</span>  <span class="c1"># seconds</span>
+<span class="n">ascent_time</span> <span class="o">=</span> <span class="n">operation_depth</span> <span class="o">/</span> <span class="n">ctd_ascent_rate</span>    <span class="c1"># seconds</span>
+<span class="n">total_duration</span> <span class="o">=</span> <span class="p">(</span><span class="n">descent_time</span> <span class="o">+</span> <span class="n">ascent_time</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span> <span class="o">+</span> <span class="n">turnaround_time</span>  <span class="c1"># minutes</span>
+</pre></div>
+</div>
+</dd>
+<dt><strong>Mooring Operations</strong>:</dt><dd><p>Require manual duration specification in the <code class="docutils literal notranslate"><span class="pre">duration</span></code> field. No automatic calculation available.</p>
+</dd>
+<dt><strong>Other Operations</strong>:</dt><dd><p>Use turnaround time if no manual duration specified.</p>
+</dd>
+<dt><strong>Manual Override</strong>:</dt><dd><p>All operations can use a manual <code class="docutils literal notranslate"><span class="pre">duration</span></code> field to override automatic calculations.</p>
+</dd>
+</dl>
+</section>
+<section id="routing-behavior">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Routing Behavior</a><a class="headerlink" href="#routing-behavior" title="Link to this heading"></a></h3>
+<p>Point operations serve as precise navigation targets with the following routing characteristics:</p>
+<ul class="simple">
+<li><p><strong>Entry/Exit Points</strong>: Both entry and exit use the exact station coordinates</p></li>
+<li><p><strong>Distance Calculations</strong>: Standard great circle distance to/from station position</p></li>
+<li><p><strong>Routing Anchors</strong>: Can serve as <code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> and <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code> in legs</p></li>
+</ul>
+</section>
+</section>
+<section id="line-operations-transits">
+<span id="line-operations"></span><h2><a class="toc-backref" href="#id20" role="doc-backlink">Line Operations (Transits)</a><a class="headerlink" href="#line-operations-transits" title="Link to this heading"></a></h2>
+<p>Line operations represent movement or data collection along defined routes. They are defined in the <code class="docutils literal notranslate"><span class="pre">transits</span></code> catalog and converted to <code class="docutils literal notranslate"><span class="pre">LineOperation</span></code> objects during scheduling.</p>
+<section id="id2">
+<h3><a class="toc-backref" href="#id21" role="doc-backlink">Supported Operation Types</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<table class="docutils align-default" id="id12">
+<caption><span class="caption-text">Line Operation Types</span><a class="headerlink" href="#id12" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operation Type</p></th>
+<th class="head"><p>Valid Actions</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">underway</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ADCP</span></code>, <code class="docutils literal notranslate"><span class="pre">bathymetry</span></code>, <code class="docutils literal notranslate"><span class="pre">thermosalinograph</span></code></p></td>
+<td><p>Underway data collection during vessel movement</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">towing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tow_yo</span></code>, <code class="docutils literal notranslate"><span class="pre">seismic</span></code>, <code class="docutils literal notranslate"><span class="pre">microstructure</span></code></p></td>
+<td><p>Towed instrument operations</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="simple">
+<dt><strong>Navigation-Only Transits</strong>:</dt><dd><p>When no <code class="docutils literal notranslate"><span class="pre">operation_type</span></code> is specified, transits represent pure vessel movement with no scientific activities.</p>
+</dd>
+</dl>
+</section>
+<section id="id3">
+<h3><a class="toc-backref" href="#id22" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<p>Line operations calculate duration based on route distance and vessel speed:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Line operation duration calculation</span>
+<span class="n">total_route_distance_km</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+   <span class="n">haversine_distance</span><span class="p">(</span><span class="n">p1</span><span class="p">,</span> <span class="n">p2</span><span class="p">)</span> <span class="k">for</span> <span class="n">p1</span><span class="p">,</span> <span class="n">p2</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">route</span><span class="p">,</span> <span class="n">route</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="p">)</span>
+<span class="n">route_distance_nm</span> <span class="o">=</span> <span class="n">total_route_distance_km</span> <span class="o">*</span> <span class="mf">0.539957</span>  <span class="c1"># km -&gt; nautical miles</span>
+<span class="n">vessel_speed</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="ow">or</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>  <span class="c1"># knots</span>
+<span class="n">duration_hours</span> <span class="o">=</span> <span class="n">route_distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
+<span class="n">duration_minutes</span> <span class="o">=</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mi">60</span>
+</pre></div>
+</div>
+<dl class="simple">
+<dt><strong>Speed Override</strong>:</dt><dd><p>Individual transits can specify <code class="docutils literal notranslate"><span class="pre">vessel_speed</span></code> to override the default cruise speed.</p>
+</dd>
+</dl>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id23" role="doc-backlink">Routing Behavior</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<p>Line operations provide flexible routing with the following characteristics:</p>
+<ul class="simple">
+<li><p><strong>Entry Point</strong>: First waypoint in the route</p></li>
+<li><p><strong>Exit Point</strong>: Last waypoint in the route</p></li>
+<li><p><strong>Distance Calculations</strong>: Sum of distances between all consecutive waypoints</p></li>
+<li><p><strong>Routing Anchors</strong>: Can serve as <code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> and <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code> using route endpoints</p></li>
+</ul>
+</section>
+</section>
+<section id="area-operations">
+<span id="id5"></span><h2><a class="toc-backref" href="#id24" role="doc-backlink">Area Operations</a><a class="headerlink" href="#area-operations" title="Link to this heading"></a></h2>
+<p>Area operations represent activities conducted over defined geographic regions. They are defined in the <code class="docutils literal notranslate"><span class="pre">areas</span></code> catalog and converted to <code class="docutils literal notranslate"><span class="pre">AreaOperation</span></code> objects during scheduling.</p>
+<section id="id6">
+<h3><a class="toc-backref" href="#id25" role="doc-backlink">Supported Operation Types</a><a class="headerlink" href="#id6" title="Link to this heading"></a></h3>
+<table class="docutils align-default" id="id13">
+<caption><span class="caption-text">Area Operation Types</span><a class="headerlink" href="#id13" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 20.0%" />
+<col style="width: 20.0%" />
+<col style="width: 60.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Operation Type</p></th>
+<th class="head"><p>Valid Actions</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">survey</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bathymetry</span></code>, <code class="docutils literal notranslate"><span class="pre">seismic</span></code>, <code class="docutils literal notranslate"><span class="pre">biological</span></code></p></td>
+<td><p>Systematic surveys covering the defined area</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">multibeam</span></code>, <code class="docutils literal notranslate"><span class="pre">sidescan</span></code>, <code class="docutils literal notranslate"><span class="pre">acoustic</span></code></p></td>
+<td><p>High-resolution mapping operations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sediment</span></code>, <code class="docutils literal notranslate"><span class="pre">biological</span></code>, <code class="docutils literal notranslate"><span class="pre">water</span></code></p></td>
+<td><p>Area-based sampling operations</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="area-definition-requirements">
+<h3><a class="toc-backref" href="#id26" role="doc-backlink">Area Definition Requirements</a><a class="headerlink" href="#area-definition-requirements" title="Link to this heading"></a></h3>
+<p>Areas must be properly defined with the following constraints:</p>
+<dl class="simple">
+<dt><strong>Corner Points</strong>:</dt><dd><ul class="simple">
+<li><p><strong>Minimum</strong>: 3 corner points required for a valid polygon</p></li>
+<li><p><strong>Recommended</strong>: 4+ points for rectangular/complex areas</p></li>
+<li><p><strong>Coordinate Order</strong>: Points should define a logical polygon boundary</p></li>
+<li><p><strong>Closure</strong>: Areas are automatically closed (no need to repeat first point)</p></li>
+</ul>
+</dd>
+<dt><strong>Corner Coordinate Requirements</strong>:</dt><dd><ul class="simple">
+<li><p><strong>Format</strong>: “latitude, longitude” string format (decimal degrees)</p></li>
+<li><p><strong>Precision</strong>: Standard decimal degrees precision (typically 4-6 decimal places)</p></li>
+<li><p><strong>Valid Ranges</strong>: Latitude [-90, 90], Longitude [-180, 180]</p></li>
+<li><p><strong>Consistency</strong>: All corners must use consistent coordinate system and precision</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Area Definition</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">areas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Multibeam_Grid_A&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;mapping&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;multibeam&quot;</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">480.0</span><span class="w">  </span><span class="c1"># 8 hours</span>
+<span class="w">    </span><span class="nt">corners</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;50.0000,</span><span class="nv"> </span><span class="s">-40.0000&quot;</span><span class="w">  </span><span class="c1"># Southwest corner - High precision</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;51.0000,</span><span class="nv"> </span><span class="s">-40.0000&quot;</span><span class="w">  </span><span class="c1"># Southeast corner</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;51.0000,</span><span class="nv"> </span><span class="s">-39.0000&quot;</span><span class="w">  </span><span class="c1"># Northeast corner</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;50.0000,</span><span class="nv"> </span><span class="s">-39.0000&quot;</span><span class="w">  </span><span class="c1"># Northwest corner</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High-resolution</span><span class="nv"> </span><span class="s">bathymetry</span><span class="nv"> </span><span class="s">survey&quot;</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Triangular_Survey_Zone&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;survey&quot;</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;biological&quot;</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">360.0</span><span class="w">  </span><span class="c1"># 6 hours</span>
+<span class="w">    </span><span class="nt">corners</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;52.5,</span><span class="nv"> </span><span class="s">-41.2&quot;</span><span class="w">   </span><span class="c1"># Point A - Standard precision</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;53.0,</span><span class="nv"> </span><span class="s">-40.8&quot;</span><span class="w">   </span><span class="c1"># Point B</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;52.2,</span><span class="nv"> </span><span class="s">-40.5&quot;</span><span class="w">   </span><span class="c1"># Point C</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Biological</span><span class="nv"> </span><span class="s">sampling</span><span class="nv"> </span><span class="s">area</span><span class="nv"> </span><span class="s">-</span><span class="nv"> </span><span class="s">minimum</span><span class="nv"> </span><span class="s">3</span><span class="nv"> </span><span class="s">points&quot;</span>
+</pre></div>
+</div>
+<p><strong>Center Point Calculations for Examples</strong>:
+- <strong>Multibeam_Grid_A</strong>: Center = (50.5°N, 39.5°W)
+- <strong>Triangular_Survey_Zone</strong>: Center = (52.57°N, 40.83°W)</p>
+</section>
+<section id="id7">
+<h3><a class="toc-backref" href="#id27" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#id7" title="Link to this heading"></a></h3>
+<p>Area operations require manual duration specification:</p>
+<dl class="simple">
+<dt><strong>Required Duration Field</strong>:</dt><dd><p>Areas must specify <code class="docutils literal notranslate"><span class="pre">duration</span></code> in minutes as there is no automatic calculation method for complex area operations.</p>
+</dd>
+<dt><strong>Duration Planning Considerations</strong>:</dt><dd><ul class="simple">
+<li><p>Survey line spacing and coverage patterns</p></li>
+<li><p>Vessel speed during survey operations</p></li>
+<li><p>Equipment deployment and recovery time</p></li>
+<li><p>Weather and sea state factors</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="area-center-point-calculation">
+<span id="id8"></span><h3><a class="toc-backref" href="#id28" role="doc-backlink">Area Center Point Calculation</a><a class="headerlink" href="#area-center-point-calculation" title="Link to this heading"></a></h3>
+<p>For routing purposes, CruisePlan calculates the geographic center point of each area:</p>
+<p><strong>Center Point Formula</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Area center point calculation</span>
+<span class="n">center_latitude</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">latitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span>
+<span class="n">center_longitude</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">corner</span><span class="o">.</span><span class="n">longitude</span> <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">corners</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">corners</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><strong>Routing Applications</strong>:</p>
+<p>The calculated center point is used for:</p>
+<ul class="simple">
+<li><p><strong>Distance calculations</strong> to/from other operations</p></li>
+<li><p><strong>Transit time estimation</strong> when routing to/from the area</p></li>
+<li><p><strong>Navigation waypoints</strong> when areas serve as <code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> or <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code></p></li>
+</ul>
+<p><strong>Important Notes</strong>:</p>
+<ul class="simple">
+<li><p>The center point is for routing calculations only; actual area operations may follow complex survey patterns</p></li>
+<li><p>Areas with irregular shapes may have center points outside the operational area</p></li>
+<li><p>For precise navigation within areas, define explicit waypoints or station sequences</p></li>
+<li><p><strong>Routing Integration</strong>: Area center points are used seamlessly with station coordinates and transit endpoints for distance calculations</p></li>
+<li><p><strong>Waypoint Compatibility</strong>: When areas serve as <code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> or <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code> in legs, the center point provides a consistent navigation target</p></li>
+</ul>
+</section>
+<section id="routing-behavior-as-anchors">
+<h3><a class="toc-backref" href="#id29" role="doc-backlink">Routing Behavior as Anchors</a><a class="headerlink" href="#routing-behavior-as-anchors" title="Link to this heading"></a></h3>
+<p>Areas can serve as routing anchors in legs with the following behavior:</p>
+<dl class="simple">
+<dt><strong>As ``first_waypoint``</strong>:</dt><dd><ul class="simple">
+<li><p>Vessel routes to the area center point</p></li>
+<li><p>Area operation begins upon arrival</p></li>
+<li><p>Entry point calculation uses center coordinates</p></li>
+</ul>
+</dd>
+<dt><strong>As ``last_waypoint``</strong>:</dt><dd><ul class="simple">
+<li><p>Area operation executes at the defined location</p></li>
+<li><p>Exit point calculation uses center coordinates</p></li>
+<li><p>Next leg routing begins from center point</p></li>
+</ul>
+</dd>
+</dl>
+<p><strong>Example Routing Usage</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Phase&quot;</span>
+<span class="w">    </span><span class="nt">first_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_Entry&quot;</span><span class="w">     </span><span class="c1"># Start with station operation</span>
+<span class="w">    </span><span class="nt">last_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mapping_Area&quot;</span><span class="w">   </span><span class="c1"># End with area survey</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span>
+<span class="w">      </span><span class="s">&quot;CTD_Entry&quot;</span><span class="p p-Indicator">,</span><span class="w">      </span><span class="c1"># Point operation</span>
+<span class="w">      </span><span class="s">&quot;Transit_Line&quot;</span><span class="p p-Indicator">,</span><span class="w">   </span><span class="c1"># Line operation</span>
+<span class="w">      </span><span class="s">&quot;Mapping_Area&quot;</span><span class="w">    </span><span class="c1"># Area operation (routed to center point)</span>
+<span class="w">    </span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Benefits</strong>:</p>
+<ul class="simple">
+<li><p><strong>Seamless integration</strong>: Areas work with stations and transits in unified workflows</p></li>
+<li><p><strong>Automatic routing</strong>: No manual center point calculations required</p></li>
+<li><p><strong>Flexible operations</strong>: Support for complex multi-operation legs</p></li>
+</ul>
+</section>
+</section>
+<section id="operation-validation-rules">
+<span id="operation-validation"></span><h2><a class="toc-backref" href="#id30" role="doc-backlink">Operation Validation Rules</a><a class="headerlink" href="#operation-validation-rules" title="Link to this heading"></a></h2>
+<section id="type-action-combinations">
+<h3><a class="toc-backref" href="#id31" role="doc-backlink">Type-Action Combinations</a><a class="headerlink" href="#type-action-combinations" title="Link to this heading"></a></h3>
+<p>CruisePlan enforces strict validation rules for operation type and action combinations:</p>
+<p><strong>Valid Combinations by Category</strong>:</p>
+<table class="docutils align-default" id="id14">
+<caption><span class="caption-text">Operation Type Validation Matrix</span><a class="headerlink" href="#id14" title="Link to this table"></a></caption>
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Category</p></th>
+<th class="head"><p>Operation Type</p></th>
+<th class="head"><p>Valid Actions</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Point Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CTD</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">profile</span></code></p></td>
+<td><p>Automatic duration calculation available</p></td>
+</tr>
+<tr class="row-odd"><td><p>Point Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">water_sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+<tr class="row-even"><td><p>Point Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mooring</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">deployment</span></code>, <code class="docutils literal notranslate"><span class="pre">recovery</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+<tr class="row-odd"><td><p>Point Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">calibration</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+<tr class="row-even"><td><p>Line Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">underway</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ADCP</span></code>, <code class="docutils literal notranslate"><span class="pre">bathymetry</span></code>, <code class="docutils literal notranslate"><span class="pre">thermosalinograph</span></code></p></td>
+<td><p>Duration based on route and speed</p></td>
+</tr>
+<tr class="row-odd"><td><p>Line Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">towing</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">tow_yo</span></code>, <code class="docutils literal notranslate"><span class="pre">seismic</span></code>, <code class="docutils literal notranslate"><span class="pre">microstructure</span></code></p></td>
+<td><p>Duration based on route and speed</p></td>
+</tr>
+<tr class="row-even"><td><p>Area Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">survey</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">bathymetry</span></code>, <code class="docutils literal notranslate"><span class="pre">seismic</span></code>, <code class="docutils literal notranslate"><span class="pre">biological</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+<tr class="row-odd"><td><p>Area Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mapping</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">multibeam</span></code>, <code class="docutils literal notranslate"><span class="pre">sidescan</span></code>, <code class="docutils literal notranslate"><span class="pre">acoustic</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+<tr class="row-even"><td><p>Area Operations</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sampling</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sediment</span></code>, <code class="docutils literal notranslate"><span class="pre">biological</span></code>, <code class="docutils literal notranslate"><span class="pre">water</span></code></p></td>
+<td><p>Manual duration required</p></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Validation Errors</strong>:</p>
+<p>Invalid type-action combinations will result in validation errors with specific guidance on correct combinations.</p>
+</section>
+<section id="duration-requirements">
+<h3><a class="toc-backref" href="#id32" role="doc-backlink">Duration Requirements</a><a class="headerlink" href="#duration-requirements" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Automatic Calculation Available</strong>:</dt><dd><ul class="simple">
+<li><p>CTD operations (based on depth and rates)</p></li>
+<li><p>Line operations (based on route and speed)</p></li>
+</ul>
+</dd>
+<dt><strong>Manual Duration Required</strong>:</dt><dd><ul class="simple">
+<li><p>Mooring operations (deployment/recovery complexity varies)</p></li>
+<li><p>Area operations (survey patterns and coverage vary)</p></li>
+<li><p>Water sampling operations (sample collection methods vary)</p></li>
+<li><p>Calibration operations (procedure complexity varies)</p></li>
+</ul>
+</dd>
+<dt><strong>Manual Override Always Available</strong>:</dt><dd><p>All operations can specify manual <code class="docutils literal notranslate"><span class="pre">duration</span></code> to override automatic calculations when needed.</p>
+</dd>
+</dl>
+</section>
+</section>
+<section id="best-practices">
+<span id="id9"></span><h2><a class="toc-backref" href="#id33" role="doc-backlink">Best Practices</a><a class="headerlink" href="#best-practices" title="Link to this heading"></a></h2>
+<section id="operation-planning">
+<h3><a class="toc-backref" href="#id34" role="doc-backlink">Operation Planning</a><a class="headerlink" href="#operation-planning" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Point Operations</strong>:</dt><dd><ul class="simple">
+<li><p>Use CTD automatic duration for standard profiles</p></li>
+<li><p>Specify manual duration for complex mooring operations</p></li>
+<li><p>Include buffer time for equipment setup/breakdown</p></li>
+</ul>
+</dd>
+<dt><strong>Line Operations</strong>:</dt><dd><ul class="simple">
+<li><p>Define realistic vessel speeds for scientific operations</p></li>
+<li><p>Consider sea state and weather impacts on towed operations</p></li>
+<li><p>Plan waypoint spacing for instrument performance</p></li>
+</ul>
+</dd>
+<dt><strong>Area Operations</strong>:</dt><dd><ul class="simple">
+<li><p>Plan duration based on survey line spacing and coverage requirements</p></li>
+<li><p>Consider equipment deployment/recovery time in duration estimates</p></li>
+<li><p>Define corner points to clearly encompass the operational area</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+<section id="routing-and-integration">
+<h3><a class="toc-backref" href="#id35" role="doc-backlink">Routing and Integration</a><a class="headerlink" href="#routing-and-integration" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Mixed Operation Workflows</strong>:</dt><dd><ul class="simple">
+<li><p>Use areas as natural leg boundaries for survey phases</p></li>
+<li><p>Combine point and line operations efficiently within legs</p></li>
+<li><p>Plan logical operational sequences considering setup/breakdown time</p></li>
+</ul>
+</dd>
+<dt><strong>Distance Optimization</strong>:</dt><dd><ul class="simple">
+<li><p>Consider area center points when planning approach routes</p></li>
+<li><p>Use line operations for efficient transit between distant point operations</p></li>
+<li><p>Plan area operations to minimize vessel repositioning</p></li>
+</ul>
+</dd>
+<dt><strong>Timing Considerations</strong>:</dt><dd><ul class="simple">
+<li><p>Account for weather windows in area operation planning</p></li>
+<li><p>Use buffer time fields for operational flexibility</p></li>
+<li><p>Consider day/night operation constraints for equipment limitations</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+<section id="troubleshooting">
+<span id="id10"></span><h2><a class="toc-backref" href="#id36" role="doc-backlink">Troubleshooting</a><a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
+<section id="common-validation-errors">
+<h3><a class="toc-backref" href="#id37" role="doc-backlink">Common Validation Errors</a><a class="headerlink" href="#common-validation-errors" title="Link to this heading"></a></h3>
+<p><strong>Invalid Type-Action Combinations</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Error: Operation type &#39;CTD&#39; must use action: profile. Got &#39;deployment&#39;
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Use correct action for operation type (see validation matrix above)</p>
+<p><strong>Missing Duration for Area Operations</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Error: Area operations require manual duration specification
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Add <code class="docutils literal notranslate"><span class="pre">duration</span></code> field with estimated operation time in minutes</p>
+<p><strong>Invalid Area Geometry</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Error: Area requires minimum 3 corner points for valid polygon
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Add sufficient corner points to define area boundary</p>
+<p><strong>Routing Issues</strong>:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>Warning: Area center point falls outside operational boundary
+</pre></div>
+</div>
+<p><strong>Solution</strong>: Review corner point order to ensure logical polygon definition</p>
+</section>
+<section id="performance-considerations">
+<h3><a class="toc-backref" href="#id38" role="doc-backlink">Performance Considerations</a><a class="headerlink" href="#performance-considerations" title="Link to this heading"></a></h3>
+<dl class="simple">
+<dt><strong>Large Area Operations</strong>:</dt><dd><ul class="simple">
+<li><p>Consider breaking large areas into smaller sections</p></li>
+<li><p>Plan for fuel consumption and crew endurance</p></li>
+<li><p>Account for equipment maintenance requirements</p></li>
+</ul>
+</dd>
+<dt><strong>Complex Route Planning</strong>:</dt><dd><ul class="simple">
+<li><p>Limit line operation waypoints to essential navigation points</p></li>
+<li><p>Use area operations instead of dense point grids when appropriate</p></li>
+<li><p>Consider automatic optimization algorithms for complex sequences</p></li>
+</ul>
+</dd>
+<dt><strong>Duration Estimation Accuracy</strong>:</dt><dd><ul class="simple">
+<li><p>Validate CTD duration estimates against historical operations</p></li>
+<li><p>Include safety margins for weather delays in manual durations</p></li>
+<li><p>Test area operation estimates with representative survey patterns</p></li>
+</ul>
+</dd>
+</dl>
+<p>This comprehensive operation types reference ensures proper planning and validation of all supported CruisePlan operation categories.</p>
+</section>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml_reference.html" class="btn btn-neutral float-left" title="YAML Configuration Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="calculations.html" class="btn btn-neutral float-right" title="Calculation Methods" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

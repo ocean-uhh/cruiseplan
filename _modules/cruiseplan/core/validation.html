@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../../../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -50,28 +50,28 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -457,8 +457,6 @@
 <span class="sd">        Type of scientific operation to perform.</span>
 <span class="sd">    action : ActionEnum</span>
 <span class="sd">        Specific action for the operation.</span>
-<span class="sd">    depth : Optional[float]</span>
-<span class="sd">        Water depth at the station in meters (DEPRECATED: use operation_depth or water_depth).</span>
 <span class="sd">    operation_depth : Optional[float]</span>
 <span class="sd">        Target operation depth (e.g., CTD cast depth) in meters.</span>
 <span class="sd">    water_depth : Optional[float]</span>
@@ -480,9 +478,6 @@
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">operation_type</span><span class="p">:</span> <span class="n">OperationTypeEnum</span>
     <span class="n">action</span><span class="p">:</span> <span class="n">ActionEnum</span>
-    <span class="n">depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
-        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;DEPRECATED: Use operation_depth or water_depth for clarity&quot;</span>
-    <span class="p">)</span>
     <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Target operation depth (e.g., CTD cast depth)&quot;</span>
     <span class="p">)</span>
@@ -594,49 +589,6 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;delay_end cannot be negative&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">v</span></div>
-
-
-<div class="viewcode-block" id="StationDefinition.validate_depth_positive">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_depth_positive">[docs]</a>
-    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">validate_depth_positive</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate depth value to ensure it&#39;s positive.</span>
-
-<span class="sd">        Issues deprecation warning and validates positivity.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        v : Optional[float]</span>
-<span class="sd">            Depth value to validate.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Optional[float]</span>
-<span class="sd">            Validated depth value.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If depth is negative.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># Show deprecation warning only once per session</span>
-            <span class="n">warning_key</span> <span class="o">=</span> <span class="s2">&quot;depth_field_deprecated&quot;</span>
-            <span class="k">if</span> <span class="n">warning_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_shown_warnings</span><span class="p">:</span>
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="s2">&quot;The &#39;depth&#39; field is deprecated. Use &#39;operation_depth&#39; for target operation depth &quot;</span>
-                    <span class="s2">&quot;or &#39;water_depth&#39; for seafloor depth. This distinction improves scientific accuracy &quot;</span>
-                    <span class="s2">&quot;and duration calculations.&quot;</span><span class="p">,</span>
-                    <span class="ne">UserWarning</span><span class="p">,</span>
-                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">_shown_warnings</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">warning_key</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="s2">&quot;Station depth must be positive (depths should be given as positive values in meters)&quot;</span>
-                <span class="p">)</span>
         <span class="k">return</span> <span class="n">v</span></div>
 
 
@@ -789,42 +741,49 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-<div class="viewcode-block" id="StationDefinition.migrate_depth_fields">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.migrate_depth_fields">[docs]</a>
-    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">migrate_depth_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="StationDefinition.reject_deprecated_depth_field">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.reject_deprecated_depth_field">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">reject_deprecated_depth_field</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">values</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Migrate from legacy depth field to new semantic depth fields.</span>
+<span class="sd">        Reject usage of the deprecated &#39;depth&#39; field.</span>
 
-<span class="sd">        Provides backward compatibility by inferring operation_depth and water_depth</span>
-<span class="sd">        from the deprecated depth field when the new fields are not specified.</span>
+<span class="sd">        The &#39;depth&#39; field has been removed in favor of semantically clear</span>
+<span class="sd">        &#39;operation_depth&#39; and &#39;water_depth&#39; fields to prevent data confusion.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If the deprecated &#39;depth&#39; field is found in the input.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">values</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;depth&quot;</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;The &#39;depth&#39; field is no longer supported. Please use:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;  - &#39;operation_depth&#39;: Target operation depth (e.g., CTD cast depth)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;  - &#39;water_depth&#39;: Water depth at location (seafloor depth)</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;For CTD operations, these may be different values.</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Migration guide: If you had &#39;depth: </span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; and it represents:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;  • CTD cast depth: use &#39;operation_depth: </span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;  • Seafloor depth: use &#39;water_depth: </span><span class="si">{</span><span class="n">values</span><span class="p">[</span><span class="s1">&#39;depth&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;  • Both (full water column): use both fields with the same value&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">values</span></div>
+
+
+<div class="viewcode-block" id="StationDefinition.validate_depth_fields">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.StationDefinition.validate_depth_fields">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_depth_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate depth field relationships and set defaults.</span>
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        StationDefinition</span>
 <span class="sd">            Self for chaining.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Migration logic: if depth is specified but new fields aren&#39;t, infer them</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="kc">None</span>
-            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="kc">None</span>
-        <span class="p">):</span>
-            <span class="c1"># For most operations, assume the specified depth is the operation target</span>
-            <span class="c1"># This matches existing behavior where depth was used for duration calculations</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span>
-            <span class="c1"># Also set water_depth to same value unless enrichment fills it from bathymetry</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Station &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;: Migrating deprecated &#39;depth&#39; field (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="si">}</span><span class="s2">m) to both &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;operation_depth and water_depth. For CTD operations, operation_depth and water_depth &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;may differ. Please review and update your configuration to use explicit depth fields.&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># If new fields are specified, the depth field should not be used</span>
-            <span class="c1"># This prevents conflicting depth information</span>
-            <span class="k">pass</span>  <span class="c1"># The deprecation warning will already have been issued</span>
-        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># If only water_depth specified, default operation_depth to water_depth (full water column)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
@@ -3817,10 +3776,8 @@
     <span class="n">warning_messages</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-        <span class="c1"># Check water_depth field first (new), then fall back to legacy depth field</span>
-        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
-        <span class="p">)</span>
+        <span class="c1"># Check water_depth field (preferred for bathymetry comparison)</span>
+        <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">stations_checked</span> <span class="o">+=</span> <span class="mi">1</span>
 

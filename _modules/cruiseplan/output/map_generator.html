@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev13</title>
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=08d5d5e7"></script>
+      <script src="../../../_static/documentation_options.js?v=c35c452a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -50,28 +50,28 @@
 <p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-1-basic-planning-workflow">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-2-pangaea-enhanced-workflow">Path 2: PANGAEA-Enhanced Workflow</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#path-3-configuration-only-workflow">Path 3: Configuration-Only Workflow</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Workflow</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calculations.html">Calculation Methods</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../netcdf_outputs.html">NetCDF Data Standards</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output_formats.html">Output formats</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
 </ul>
 
         </div>
@@ -295,6 +295,57 @@
 
 
 
+<div class="viewcode-block" id="extract_areas_from_timeline">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_areas_from_timeline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_areas_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Extract area features from timeline data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    timeline_data : List[Dict]</span>
+<span class="sd">        Timeline activity records</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[Dict[str, Any]]</span>
+<span class="sd">        List of area dictionaries with keys: name, corners, entity_type, operation_type, action</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">areas</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline_data</span><span class="p">:</span>
+        <span class="c1"># Check if this activity represents an area operation</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;area_operation&quot;</span>
+            <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;corners&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;corners&quot;</span><span class="p">,</span> <span class="p">[]))</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+        <span class="p">):</span>
+
+            <span class="c1"># Convert corners to the expected format</span>
+            <span class="n">corners</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]:</span>
+                <span class="n">corners</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">corner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">)),</span>
+                        <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">corner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">corner</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">)),</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+
+            <span class="n">areas</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown Area&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="n">corners</span><span class="p">,</span>
+                    <span class="s2">&quot;entity_type&quot;</span><span class="p">:</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;survey&quot;</span><span class="p">),</span>
+                    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">areas</span></div>
+
+
+
 <div class="viewcode-block" id="extract_areas_from_cruise">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.map_generator.extract_areas_from_cruise">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">extract_areas_from_cruise</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
@@ -457,6 +508,9 @@
             <span class="k">elif</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Transit&quot;</span><span class="p">]:</span>
                 <span class="c1"># Skip transit activities - they should be shown as lines, not points</span>
                 <span class="k">continue</span>
+            <span class="k">elif</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;area_operation&quot;</span><span class="p">:</span>
+                <span class="c1"># Skip area operations - they should be shown as polygons, not points</span>
+                <span class="k">continue</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">entity_type</span> <span class="o">=</span> <span class="s2">&quot;activity&quot;</span>
                 <span class="n">operation_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
@@ -575,15 +629,31 @@
         <span class="c1"># Handle both dictionary with &#39;timeline&#39; key and direct list formats</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;timeline&quot;</span> <span class="ow">in</span> <span class="n">data_source</span><span class="p">:</span>
             <span class="n">timeline_data</span> <span class="o">=</span> <span class="n">data_source</span><span class="p">[</span><span class="s2">&quot;timeline&quot;</span><span class="p">]</span>
+            <span class="c1"># Try to access cruise object for area geometry</span>
+            <span class="n">cruise_obj</span> <span class="o">=</span> <span class="n">data_source</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cruise&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_source</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
             <span class="n">timeline_data</span> <span class="o">=</span> <span class="n">data_source</span>
+            <span class="n">cruise_obj</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">timeline_data</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">cruise_obj</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Extract points from timeline activities</span>
         <span class="n">points</span> <span class="o">=</span> <span class="n">extract_points_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
-        <span class="n">lines</span> <span class="o">=</span> <span class="n">extract_lines_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
-        <span class="n">areas</span> <span class="o">=</span> <span class="p">[]</span>  <span class="c1"># Not implemented for timeline yet</span>
+
+        <span class="c1"># Extract lines from both sources to get complete transit picture</span>
+        <span class="k">if</span> <span class="n">cruise_obj</span><span class="p">:</span>
+            <span class="c1"># Get scientific transits from cruise config</span>
+            <span class="n">scientific_lines</span> <span class="o">=</span> <span class="n">extract_lines_from_cruise</span><span class="p">(</span><span class="n">cruise_obj</span><span class="p">)</span>
+            <span class="c1"># Get navigation transits from timeline</span>
+            <span class="n">navigation_lines</span> <span class="o">=</span> <span class="n">extract_lines_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
+            <span class="c1"># Combine both types of lines</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">scientific_lines</span> <span class="o">+</span> <span class="n">navigation_lines</span>
+            <span class="n">areas</span> <span class="o">=</span> <span class="n">extract_areas_from_cruise</span><span class="p">(</span><span class="n">cruise_obj</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span> <span class="o">=</span> <span class="n">extract_lines_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
+            <span class="n">areas</span> <span class="o">=</span> <span class="n">extract_areas_from_timeline</span><span class="p">(</span><span class="n">timeline_data</span><span class="p">)</span>
+
         <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;Cruise Schedule</span><span class="se">\n</span><span class="s2">Operations Timeline with Bathymetry&quot;</span>
 
     <span class="k">else</span><span class="p">:</span>
@@ -1024,27 +1094,30 @@
     <span class="c1"># Plot cruise elements using new structured data (this applies the final aspect ratio)</span>
     <span class="n">plot_cruise_elements</span><span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">map_data</span><span class="p">,</span> <span class="n">display_bounds</span><span class="p">)</span>
 
-    <span class="c1"># Create colorbar AFTER aspect ratio is applied</span>
-    <span class="k">if</span> <span class="n">cs_filled</span> <span class="ow">and</span> <span class="n">cs_filled</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
-        <span class="c1"># Calculate axis dimensions after final aspect ratio is applied</span>
-        <span class="n">bbox</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
-        <span class="n">axis_height</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">height</span>
-        <span class="n">axis_width</span> <span class="o">=</span> <span class="n">bbox</span><span class="o">.</span><span class="n">width</span>
-
-        <span class="c1"># For wide maps, use smaller shrink factor; for tall maps, use larger</span>
-        <span class="c1"># Target: colorbar no more than 10% taller than map axis</span>
-        <span class="n">aspect_ratio</span> <span class="o">=</span> <span class="n">axis_width</span> <span class="o">/</span> <span class="n">axis_height</span>
-        <span class="k">if</span> <span class="n">aspect_ratio</span> <span class="o">&gt;</span> <span class="mf">2.0</span><span class="p">:</span>  <span class="c1"># Wide map</span>
-            <span class="n">shrink_factor</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span>
-                <span class="mf">0.6</span><span class="p">,</span> <span class="mf">1.1</span> <span class="o">/</span> <span class="n">aspect_ratio</span>
-            <span class="p">)</span>  <span class="c1"># Smaller colorbar for wide maps</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># More square map</span>
-            <span class="n">shrink_factor</span> <span class="o">=</span> <span class="mf">0.8</span>  <span class="c1"># Original behavior</span>
-
-        <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cs_filled</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">shrink</span><span class="o">=</span><span class="n">shrink_factor</span><span class="p">,</span> <span class="n">pad</span><span class="o">=</span><span class="mf">0.02</span><span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Depth (m)&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
-
+    <span class="c1"># Apply tight layout BEFORE colorbar to finalize axes positioning</span>
     <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+
+    <span class="c1"># Create colorbar with direct axes manipulation for full height</span>
+    <span class="k">if</span> <span class="n">cs_filled</span> <span class="ow">and</span> <span class="n">cs_filled</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">False</span><span class="p">:</span>
+        <span class="c1"># Get current axes position after layout is finalized</span>
+        <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_position</span><span class="p">()</span>
+
+        <span class="c1"># Create colorbar axes manually with exact positioning</span>
+        <span class="c1"># Position: right of main axes, 2% width, full height, small gap</span>
+        <span class="n">cbar_ax</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">add_axes</span><span class="p">(</span>
+            <span class="p">[</span>
+                <span class="n">pos</span><span class="o">.</span><span class="n">x1</span>
+                <span class="o">+</span> <span class="mf">0.02</span><span class="p">,</span>  <span class="c1"># X position: right edge + slightly larger gap (2% of figure width)</span>
+                <span class="n">pos</span><span class="o">.</span><span class="n">y0</span><span class="p">,</span>  <span class="c1"># Y position: same as main axes bottom</span>
+                <span class="mf">0.02</span><span class="p">,</span>  <span class="c1"># Width: 2% of figure width</span>
+                <span class="n">pos</span><span class="o">.</span><span class="n">height</span><span class="p">,</span>  <span class="c1"># Height: exact same as main axes</span>
+            <span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Create colorbar in the manually positioned axes</span>
+        <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">cs_filled</span><span class="p">,</span> <span class="n">cax</span><span class="o">=</span><span class="n">cbar_ax</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="s2">&quot;Depth (m)&quot;</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">270</span><span class="p">,</span> <span class="n">labelpad</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 
     <span class="c1"># Show or save</span>
     <span class="k">if</span> <span class="n">show_plot</span><span class="p">:</span>
@@ -1154,7 +1227,7 @@
 <span class="sd">        The absolute path to the generated PNG map file, or None if failed.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Create a timeline data structure that includes config for port extraction</span>
-    <span class="n">timeline_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timeline&quot;</span><span class="p">:</span> <span class="n">timeline</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">}</span>
+    <span class="n">timeline_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;timeline&quot;</span><span class="p">:</span> <span class="n">timeline</span><span class="p">,</span> <span class="s2">&quot;cruise&quot;</span><span class="p">:</span> <span class="n">config</span><span class="p">}</span>
 
     <span class="k">return</span> <span class="n">generate_map</span><span class="p">(</span>
         <span class="n">data_source</span><span class="o">=</span><span class="n">timeline_data</span><span class="p">,</span>

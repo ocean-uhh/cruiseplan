@@ -1,0 +1,171 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Path 3: Configuration-Only Workflow &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CLI Command Reference" href="../cli_reference.html" />
+    <link rel="prev" title="Path 2: PANGAEA-Enhanced Workflow" href="path2.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.1
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="path1.html">Path 1: Basic Planning Workflow</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path2.html">Path 2: PANGAEA-Enhanced Workflow</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Path 3: Configuration-Only Workflow</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#start-with-step-4-enrichment">Start with Step 4: Enrichment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#continue-with-validation-and-scheduling">Continue with Validation and Scheduling</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="../user_workflows.html#best-practices">Best Practices</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.1</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../user_workflows.html">Overview</a></li>
+      <li class="breadcrumb-item active">Path 3: Configuration-Only Workflow</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="path-3-configuration-only-workflow">
+<span id="user-workflow-path-3"></span><h1>Path 3: Configuration-Only Workflow<a class="headerlink" href="#path-3-configuration-only-workflow" title="Link to this heading"></a></h1>
+<p><strong>Best for:</strong> Power users with existing YAML configurations, batch processing, automated workflows</p>
+<p><strong>Use cases:</strong></p>
+<ul class="simple">
+<li><p>Processing existing cruise configurations</p></li>
+<li><p>Updating configurations with new bathymetry data</p></li>
+<li><p>Re-running analysis with different parameters</p></li>
+<li><p>Integration with external planning tools</p></li>
+</ul>
+<section id="start-with-step-4-enrichment">
+<h2>Start with Step 4: Enrichment<a class="headerlink" href="#start-with-step-4-enrichment" title="Link to this heading"></a></h2>
+<p>If you have an existing YAML configuration (created manually or from external tools):</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>existing_cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords<span class="w"> </span>--expand-sections
+</pre></div>
+</div>
+</section>
+<section id="continue-with-validation-and-scheduling">
+<h2>Continue with Validation and Scheduling<a class="headerlink" href="#continue-with-validation-and-scheduling" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>enriched_cruise.yaml<span class="w"> </span>--check-depths
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>enriched_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>all
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="path2.html" class="btn btn-neutral float-left" title="Path 2: PANGAEA-Enhanced Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../cli_reference.html" class="btn btn-neutral float-right" title="CLI Command Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

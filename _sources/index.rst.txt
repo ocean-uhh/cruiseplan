@@ -24,24 +24,15 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
 
 .. toctree::
    :maxdepth: 2
-   :caption: Notebook Workflow
-
-   demo-output.ipynb
-
-.. toctree::
-   :maxdepth: 2
    :caption: Project Specifications
 
    CLI Command Reference <cli_reference.rst>
    YAML Configuration Reference <yaml_reference.rst>
+   Operation Types Reference <operation_types.rst>
+   Calculation Methods <calculations.rst>
    Units and defaults <units_and_defaults.rst>
-   NetCDF Data Standards <netcdf_outputs.md>
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Development Resources
-   Project Structure <project_structure.md>
-   Development Roadmap <https://github.com/ocean-uhh/cruiseplan/blob/main/PROJECT_SPECS.md>
+   Port list <global_ports.rst>
+   Output formats <output_formats.rst>
 
 .. toctree::
    :maxdepth: 2
@@ -50,6 +41,9 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    GitHub Repository <https://github.com/ocean-uhh/cruiseplan>
    API Reference <api/modules.rst>
    Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
+   Project Structure <project_structure.md>
+   Developer Guide <developer_guide.md>
+   Development Roadmap <roadmap.rst>
 
 Indices and tables
 ==================
