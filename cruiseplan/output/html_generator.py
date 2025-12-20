@@ -465,9 +465,10 @@ class HTMLGenerator:
         if map_path.exists():
             # Embed the map as a base64 image
             import base64
+
             with open(map_path, "rb") as img_file:
                 img_data = base64.b64encode(img_file.read()).decode()
-            
+
             html_content += f"""
     <h2>4. Cruise Track Map</h2>
     <div style="text-align: center; margin: 20px 0;">

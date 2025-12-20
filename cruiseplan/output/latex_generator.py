@@ -242,8 +242,12 @@ class LaTeXGenerator:
         ]  # Navigation transits don't have actions
 
         # Calculate major port transits (departure and arrival)
-        port_departure_activities = [a for a in timeline if a["activity"] == "Port_Departure"]
-        port_arrival_activities = [a for a in timeline if a["activity"] == "Port_Arrival"]
+        port_departure_activities = [
+            a for a in timeline if a["activity"] == "Port_Departure"
+        ]
+        port_arrival_activities = [
+            a for a in timeline if a["activity"] == "Port_Arrival"
+        ]
 
         # Transit categorization using correct port activities
         transit_to_area_h = 0.0
@@ -253,11 +257,11 @@ class LaTeXGenerator:
         # Transit to area = departure port activity duration
         if port_departure_activities:
             transit_to_area_h = port_departure_activities[0]["duration_minutes"] / 60
-        
-        # Transit from area = arrival port activity duration  
+
+        # Transit from area = arrival port activity duration
         if port_arrival_activities:
             transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
-        
+
         # Within area = navigation transits between operations
         if navigation_transits:
             transit_within_area_h = (
@@ -270,94 +274,6 @@ class LaTeXGenerator:
 
         # Generate work days rows for the timeline
         summary_rows = self._generate_work_days_rows_for_timeline(timeline)
-
-        # 2. Station Operations
-        if station_activities:
-            summary_rows.append(
-                {
-                    "area": "",  # Area will be populated by caller for multi-leg
-                    "activity": "CTD/Station Operations",
-                    "duration_h": f"{station_duration_h:.1f}",
-                    "transit_h": "",  # No transit time for this row
-                    "notes": f"{len(station_activities)} stations",
-                }
-            )
-
-        # 3. Mooring Operations
-        if mooring_activities:
-            summary_rows.append(
-                {
-                    "area": "",  # Area will be populated by caller for multi-leg
-                    "activity": "Mooring Operations",
-                    "duration_h": f"{mooring_duration_h:.1f}",
-                    "transit_h": "",  # No transit time for this row
-                    "notes": f"{len(mooring_activities)} operations",
-                }
-            )
-
-        # 4. Scientific Transits (Grouped by action)
-        # Sort keys for predictable output
-        sorted_actions = sorted(scientific_op_durations_h.keys())
-        for action in sorted_actions:
-            duration_h = scientific_op_durations_h[action]
-            display_name = ACTION_TO_DISPLAY_NAME.get(action, f"{action} Operations")
-
-            # Count the number of segments for the notes field
-            num_activities = len(
-                [a for a in scientific_transits if a.get("action") == action]
-            )
-
-            summary_rows.append(
-                {
-                    "area": "",  # Area will be populated by caller for multi-leg
-                    "activity": display_name,
-                    "duration_h": f"{duration_h:.1f}",
-                    "transit_h": "",  # Scientific transit duration counts as operation time
-                    "notes": f"{num_activities} segments",
-                }
-            )
-
-        # 5. Scientific survey (Area)
-        if area_activities:
-            summary_rows.append(
-                {
-                    "activity": "Area Survey Operations",
-                    "duration_h": f"{area_duration_h:.1f}",
-                    "transit_h": "",  # No transit time for this row
-                    "notes": f"{len(area_activities)} areas",
-                }
-            )
-
-        # 6. Navigation Transit (Within Area)
-        if transit_within_area_h > 0:
-            summary_rows.append(
-                {
-                    "activity": "Transit within area",
-                    "duration_h": f"{transit_within_area_h:.1f}",
-                    "transit_h": "",  # No operation duration
-                    "notes": "Between operations",
-                }
-            )
-
-        # 7. Navigation Transit (From Area)
-        if transit_from_area_h > 0:
-            # Find last operational activity (non-port) as working area origin
-            last_operation = None
-            for activity in reversed(timeline):
-                if activity["activity"] not in ["Port_Departure", "Port_Arrival"]:
-                    last_operation = activity
-                    break
-            origin = last_operation["label"] if last_operation else "working area"
-
-            summary_rows.append(
-                {
-                    "area": "",  # Area will be populated by caller for multi-leg
-                    "activity": "Transit from area",
-                    "duration_h": "",  # No operation duration
-                    "transit_h": f"{transit_from_area_h:.1f}",
-                    "notes": f"{origin} to arrival port",
-                }
-            )
 
         # Calculate totals
         total_operation_duration_h = (
@@ -540,17 +456,21 @@ class LaTeXGenerator:
         transit_within_area_h = 0.0
 
         # Calculate major port transits (departure and arrival)
-        port_departure_activities = [a for a in timeline if a["activity"] == "Port_Departure"]
-        port_arrival_activities = [a for a in timeline if a["activity"] == "Port_Arrival"]
+        port_departure_activities = [
+            a for a in timeline if a["activity"] == "Port_Departure"
+        ]
+        port_arrival_activities = [
+            a for a in timeline if a["activity"] == "Port_Arrival"
+        ]
 
         # Transit to area = departure port activity duration
         if port_departure_activities:
             transit_to_area_h = port_departure_activities[0]["duration_minutes"] / 60
-        
-        # Transit from area = arrival port activity duration  
+
+        # Transit from area = arrival port activity duration
         if port_arrival_activities:
             transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
-        
+
         # Within area = navigation transits between operations
         if navigation_transits:
             transit_within_area_h = (

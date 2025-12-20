@@ -191,42 +191,48 @@ def extract_lines_from_cruise(cruise) -> List[Dict[str, Any]]:
 def extract_areas_from_timeline(timeline_data) -> List[Dict[str, Any]]:
     """
     Extract area features from timeline data.
-    
+
     Parameters
     ----------
     timeline_data : List[Dict]
         Timeline activity records
-        
+
     Returns
     -------
     List[Dict[str, Any]]
         List of area dictionaries with keys: name, corners, entity_type, operation_type, action
     """
     areas = []
-    
+
     for activity in timeline_data:
         # Check if this activity represents an area operation
-        if (activity.get("category") == "area_operation" 
-            and activity.get("corners") 
-            and len(activity.get("corners", [])) >= 3):
-            
+        if (
+            activity.get("category") == "area_operation"
+            and activity.get("corners")
+            and len(activity.get("corners", [])) >= 3
+        ):
+
             # Convert corners to the expected format
             corners = []
             for corner in activity["corners"]:
-                corners.append({
-                    "lat": corner.get("latitude", corner.get("lat")),
-                    "lon": corner.get("longitude", corner.get("lon"))
-                })
-            
-            areas.append({
-                "name": activity.get("name", "Unknown Area"),
-                "corners": corners,
-                "entity_type": "area",
-                "operation_type": activity.get("operation_type", "survey"),
-                "action": activity.get("action", None),
-                "duration": activity.get("duration", None),
-            })
-    
+                corners.append(
+                    {
+                        "lat": corner.get("latitude", corner.get("lat")),
+                        "lon": corner.get("longitude", corner.get("lon")),
+                    }
+                )
+
+            areas.append(
+                {
+                    "name": activity.get("name", "Unknown Area"),
+                    "corners": corners,
+                    "entity_type": "area",
+                    "operation_type": activity.get("operation_type", "survey"),
+                    "action": activity.get("action", None),
+                    "duration": activity.get("duration", None),
+                }
+            )
+
     return areas
 
 
@@ -510,15 +516,20 @@ def extract_map_data(data_source, source_type="cruise", include_ports=True):
 
         # Extract points from timeline activities
         points = extract_points_from_timeline(timeline_data)
-        
-        # Extract lines from cruise config if available (for scientific transits)
+
+        # Extract lines from both sources to get complete transit picture
         if cruise_obj:
-            lines = extract_lines_from_cruise(cruise_obj)
+            # Get scientific transits from cruise config
+            scientific_lines = extract_lines_from_cruise(cruise_obj)
+            # Get navigation transits from timeline
+            navigation_lines = extract_lines_from_timeline(timeline_data)
+            # Combine both types of lines
+            lines = scientific_lines + navigation_lines
             areas = extract_areas_from_cruise(cruise_obj)
         else:
             lines = extract_lines_from_timeline(timeline_data)
             areas = extract_areas_from_timeline(timeline_data)
-            
+
         title = "Cruise Schedule\nOperations Timeline with Bathymetry"
 
     else:
@@ -950,27 +961,30 @@ def generate_map(
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
     plot_cruise_elements(ax, map_data, display_bounds)
 
-    # Create colorbar AFTER aspect ratio is applied
-    if cs_filled and cs_filled is not False:
-        # Calculate axis dimensions after final aspect ratio is applied
-        bbox = ax.get_position()
-        axis_height = bbox.height
-        axis_width = bbox.width
-
-        # For wide maps, use smaller shrink factor; for tall maps, use larger
-        # Target: colorbar no more than 10% taller than map axis
-        aspect_ratio = axis_width / axis_height
-        if aspect_ratio > 2.0:  # Wide map
-            shrink_factor = min(
-                0.6, 1.1 / aspect_ratio
-            )  # Smaller colorbar for wide maps
-        else:  # More square map
-            shrink_factor = 0.8  # Original behavior
-
-        cbar = plt.colorbar(cs_filled, ax=ax, shrink=shrink_factor, pad=0.02)
-        cbar.set_label("Depth (m)", rotation=270, labelpad=20)
-
+    # Apply tight layout BEFORE colorbar to finalize axes positioning
     plt.tight_layout()
+
+    # Create colorbar with direct axes manipulation for full height
+    if cs_filled and cs_filled is not False:
+        # Get current axes position after layout is finalized
+        fig = ax.get_figure()
+        pos = ax.get_position()
+
+        # Create colorbar axes manually with exact positioning
+        # Position: right of main axes, 2% width, full height, small gap
+        cbar_ax = fig.add_axes(
+            [
+                pos.x1
+                + 0.02,  # X position: right edge + slightly larger gap (2% of figure width)
+                pos.y0,  # Y position: same as main axes bottom
+                0.02,  # Width: 2% of figure width
+                pos.height,  # Height: exact same as main axes
+            ]
+        )
+
+        # Create colorbar in the manually positioned axes
+        cbar = plt.colorbar(cs_filled, cax=cbar_ax)
+        cbar.set_label("Depth (m)", rotation=270, labelpad=15)
 
     # Show or save
     if show_plot:
