@@ -23,6 +23,7 @@ Usage:
       timezone: "GMT+0"
       description: "Custom port definition"
 """
+
 import warnings
 from typing import Dict, Union
 
@@ -47,7 +48,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "GMT-3",
         "description": "Greenland capital, Arctic research gateway",
     },
-    
     # Norwegian Research Ports
     "port_tromso": {
         "name": "Tromsø",
@@ -73,7 +73,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Europe/Oslo",
         "description": "Western Norway, Nordic Seas",
     },
-    
     # UK Research Ports
     "port_southampton": {
         "name": "Southampton",
@@ -83,7 +82,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "GMT+0",
         "description": "UK south coast, Atlantic access",
     },
-    
     # German Research Ports
     "port_bremerhaven": {
         "name": "Bremerhaven",
@@ -125,7 +123,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Europe/Berlin",
         "description": "Germany, Baltic Sea research hub",
     },
-    
     # French Research Ports
     "port_brest": {
         "name": "Brest",
@@ -143,7 +140,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Europe/Paris",
         "description": "France, Mediterranean research",
     },
-    
     # Spanish Research Ports
     "port_vigo": {
         "name": "Vigo",
@@ -169,7 +165,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Europe/Madrid",
         "description": "Spain south coast, Mediterranean research",
     },
-    
     # Mediterranean Research Ports
     "port_heraklion": {
         "name": "Heraklion",
@@ -195,7 +190,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Asia/Nicosia",
         "description": "Cyprus, Eastern Mediterranean operations",
     },
-    
     # Atlantic Islands Research Ports
     "port_las_palmas": {
         "name": "Las Palmas",
@@ -221,7 +215,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Atlantic/Madeira",
         "description": "Madeira, subtropical Atlantic operations",
     },
-    
     # African Research Ports
     "port_mindelo": {
         "name": "Mindelo",
@@ -247,7 +240,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Africa/Johannesburg",
         "description": "South Africa, Indian Ocean operations",
     },
-    
     # Canadian Research Ports
     "port_halifax": {
         "name": "Halifax",
@@ -273,7 +265,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "America/Vancouver",
         "description": "British Columbia, North Pacific research",
     },
-    
     # US Research Ports
     "port_woods_hole": {
         "name": "Woods Hole",
@@ -307,7 +298,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Pacific/Honolulu",
         "description": "Hawaii, central Pacific research hub",
     },
-    
     # Central American Research Ports
     "port_ensenada": {
         "name": "Ensenada",
@@ -325,7 +315,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "America/Panama",
         "description": "Panama, Pacific-Caribbean operations",
     },
-    
     # Caribbean Research Ports
     "port_bridgetown": {
         "name": "Bridgetown",
@@ -335,7 +324,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "America/Barbados",
         "description": "Barbados, Caribbean research hub",
     },
-    
     # South American Research Ports
     "port_rio_de_janeiro": {
         "name": "Rio de Janeiro",
@@ -377,7 +365,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "America/Santiago",
         "description": "Chile, Humboldt current research",
     },
-    
     # Indian Ocean Research Ports
     "port_port_louis_mauritius": {
         "name": "Port Louis",
@@ -419,7 +406,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Asia/Singapore",
         "description": "Singapore, Southeast Asian research hub",
     },
-    
     # Pacific Research Ports
     "port_yokohama": {
         "name": "Yokohama",
@@ -461,7 +447,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "timezone": "Pacific/Tahiti",
         "description": "French Polynesia, central Pacific research",
     },
-    
     # Default/Update Port for Station Picker
     "port_update": {
         "name": "Reykjavik (DEFAULT in stations.yaml)",

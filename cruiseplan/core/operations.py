@@ -244,7 +244,7 @@ class PointOperation(BaseOperation):
 
         # Use operation_depth for duration calculations, fallback to water_depth if needed
         operation_depth = obj.operation_depth or obj.water_depth or 0.0
-        
+
         return cls(
             name=obj.name,
             position=pos,

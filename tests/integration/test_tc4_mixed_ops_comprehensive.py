@@ -23,25 +23,26 @@ class TestTC4MixedOpsComprehensive:
         if not Path(yaml_path).exists():
             pytest.skip(f"Fixture {yaml_path} not found")
 
-        # Use enrichment for metadata only (no depths to avoid CI variability)  
+        # Use enrichment for metadata only (no depths to avoid CI variability)
         import tempfile
+
         temp_dir = Path(tempfile.gettempdir())
         enriched_path = temp_dir / f"tc4_test_enriched_{hash(yaml_path) % 10000}.yaml"
-        
+
         try:
             # Ensure the file doesn't exist before we start
             if enriched_path.exists():
                 enriched_path.unlink()
-            
+
             # Enrich only for defaults and coords, skip depths to avoid CI bathymetry variability
             enrich_configuration(
                 yaml_path, output_path=enriched_path, add_depths=False, add_coords=True
             )
-            
+
             # Verify the enriched file exists and is readable
             if not enriched_path.exists():
                 pytest.fail(f"Enriched file was not created at {enriched_path}")
-                
+
             # Load enriched configuration
             loader = ConfigLoader(str(enriched_path))
             config = loader.load()
@@ -110,7 +111,12 @@ class TestTC4MixedOpsComprehensive:
             if i in expected_durations:
                 expected_duration = expected_durations[i]
                 # Use larger tolerance for CTD operations which may vary based on depth calculation
-                tolerance = 2.0 if activity_type == "Station" and "CTD" in str(activity.get("operation_type", "")) else 0.2
+                tolerance = (
+                    2.0
+                    if activity_type == "Station"
+                    and "CTD" in str(activity.get("operation_type", ""))
+                    else 0.2
+                )
                 assert (
                     abs(duration_h - expected_duration) < tolerance
                 ), f"Activity {i} duration mismatch: expected {expected_duration:.1f}h, got {duration_h:.1f}h (tolerance: {tolerance}h)"

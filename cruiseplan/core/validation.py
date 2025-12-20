@@ -447,7 +447,6 @@ class StationDefinition(FlexibleLocationModel):
             raise ValueError("delay_end cannot be negative")
         return v
 
-
     @field_validator("operation_depth")
     def validate_operation_depth_positive(cls, v):
         """
@@ -595,7 +594,7 @@ class StationDefinition(FlexibleLocationModel):
         ValueError
             If the deprecated 'depth' field is found in the input.
         """
-        if isinstance(values, dict) and 'depth' in values:
+        if isinstance(values, dict) and "depth" in values:
             raise ValueError(
                 f"The 'depth' field is no longer supported. Please use:\n"
                 f"  - 'operation_depth': Target operation depth (e.g., CTD cast depth)\n"
