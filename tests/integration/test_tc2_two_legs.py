@@ -7,6 +7,7 @@ Tests verify specific expected values like transit distances, leg durations,
 and mooring defaults.
 """
 
+import sys
 import tempfile
 from pathlib import Path
 
@@ -430,6 +431,7 @@ class TestTC2TwoLegsIntegration:
         # Cleanup
         ds.close()
 
+    @pytest.mark.skipif(sys.platform == "win32", reason="Tkinter/GUI issues on Windows CI")
     def test_complete_two_leg_workflow(self, base_config_path, temp_dir):
         """Test complete end-to-end workflow for two-leg cruise configuration."""
         # 1. Load and validate configuration
