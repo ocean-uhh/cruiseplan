@@ -7,22 +7,21 @@ This document outlines the planned improvements and fixes for CruisePlan, organi
    :local:
    :depth: 2
 
-Overview
---------
+**Overview**
 
 CruisePlan is actively developed with a focus on data integrity, operational realism, and user experience. Our roadmap prioritizes critical fixes that affect scientific accuracy, followed by feature enhancements that improve workflow efficiency.
 
 **Release Strategy**: CruisePlan is in active development with significant breaking changes planned. We use semantic versioning with 0.x releases to signal ongoing API evolution while maintaining clear migration paths.
 
 Phase 1: Critical Data Integrity 
-=================================
+--------------------------------
 
 **Target**: Version 0.2.0 (Breaking Changes Release)  
 **Timeline**: 4-6 weeks  
 **Focus**: Data accuracy and routing consistency
 
 Depth Semantics Separation 🔴
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Critical - Data Integrity Issue  
 **Breaking Change**: Yes - Major version bump required
@@ -60,7 +59,7 @@ The existing ``depth`` field conflates two distinct concepts, causing incorrect 
 - Backward compatibility maintained for 2 minor versions
 
 Area Operation Routing Fix 🟡
-------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: High - Routing Consistency  
 **Breaking Change**: Potentially - Timeline output coordinates change
@@ -79,14 +78,14 @@ Replace center point calculations with proper ``get_entry_point()`` and ``get_ex
 **Files Affected**: ``cruiseplan/calculators/scheduler.py``
 
 Phase 2: Core Feature Completion
-=================================
+--------------------------------
 
 **Target**: Version 0.3.0 (Feature Release)  
 **Timeline**: 4-6 weeks after Phase 1  
 **Focus**: Missing functionality and operational realism
 
 PNG Map Generation 🔴
-----------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Critical - Major Missing Feature  
 **Breaking Change**: No
@@ -108,7 +107,7 @@ No static map visualization capability for reports and documentation.
      cruiseplan map -c cruise.yaml --output-file cruise_track.png
 
 Enhanced Timing Controls 🟡
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: High - Operational Realism  
 **Breaking Change**: No (additive only)
@@ -138,7 +137,7 @@ Enhanced Timing Controls 🟡
 - Weather delay planning
 
 Complete YAML Reference 🟡
----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: High - User Experience  
 **Breaking Change**: No
@@ -153,14 +152,14 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 - Strategy and clustering options with examples
 
 Phase 3: Code Quality and Polish
-=================================
+--------------------------------
 
 **Target**: Version 0.4.0 (Quality Release)  
 **Timeline**: 2-4 weeks after Phase 2  
 **Focus**: Maintainability and developer experience
 
 NetCDF Generator Refactoring 🟠
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Medium - Code Quality  
 **Breaking Change**: No (internal refactoring)
@@ -176,7 +175,7 @@ NetCDF Generator Refactoring 🟠
 - Single source of truth for CF convention compliance
 
 Station Coordinate Access 🟠
------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Medium - Developer Experience  
 **Breaking Change**: No (additive)
@@ -186,41 +185,8 @@ Station Coordinate Access 🟠
 
 **Benefits**: Improved code readability throughout calculation and enrichment functions
 
-Implementation Timeline
-========================
-
-Sprint 1: Critical Fixes (2 weeks)
------------------------------------
-
-**Week 1-2**:
-1. Depth semantics separation implementation
-2. Area operation coordinates fix
-3. Migration documentation and testing
-
-**Deliverable**: Version 0.2.0 with breaking changes
-
-Sprint 2: Core Features (2 weeks)  
-----------------------------------
-
-**Week 3-4**:
-1. Basic PNG map generation
-2. Enhanced buffer time system
-3. YAML documentation completion
-
-**Deliverable**: Version 0.3.0 with new features
-
-Sprint 3: Quality and Polish (1 week)
---------------------------------------
-
-**Week 5**:
-1. NetCDF generator refactoring
-2. Station coordinate properties
-3. Final testing and validation
-
-**Deliverable**: Version 0.4.0 with improved code quality
-
 Risk Assessment
-===============
+----------------
 
 **High Risk Items**:
 - **Depth semantics**: Affects all duration calculations - requires comprehensive testing
@@ -237,9 +203,9 @@ Risk Assessment
 - Backward compatibility maintenance
 
 Contributing
-============
+------------
 
-This roadmap reflects current development priorities based on user feedback and technical analysis. 
+This roadmap reflects current development priorities.
 
 **Community Input**: We welcome feedback on priorities and feature requests through:
 
