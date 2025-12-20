@@ -26,6 +26,12 @@ Command Comparison: Schedule vs Map
 
 CruisePlan generates PNG maps through two commands with distinct characteristics:
 
+.. figure:: ../_static/screenshots/png_output_comparison.png
+   :alt: Comparison of PNG outputs from map command vs schedule command
+   :width: 100%
+   
+   **PNG Output Comparison**: Left shows ``cruiseplan map`` output (configuration-based), right shows ``cruiseplan schedule`` output (timeline-based). Note the key difference: schedule output includes departure/arrival ports while map output focuses purely on station configuration.
+
 .. list-table:: PNG Output Comparison
    :widths: 30 35 35
    :header-rows: 1
@@ -42,9 +48,12 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
    * - **Timing Information**
      - Operation start times and durations
      - No timing information displayed
+   * - **Port Visualization**
+     - ✅ Shows departure and arrival ports
+     - ❌ Ports not displayed
    * - **Cruise Track Lines**
      - Complete executed route between all operations
-     - Port-to-station transit lines only
+     - Basic station connections only
    * - **Station Visualization**
      - Uniform markers (operation type from timeline)
      - Differentiated markers (stations vs moorings)

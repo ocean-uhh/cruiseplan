@@ -1461,7 +1461,7 @@ def generate_cruise_schedule(
 
             elif format_name == "png":
                 output_file = _generate_timeline_png_map(
-                    timeline, config, output_path, base_filename
+                    timeline, cruise, output_path, base_filename
                 )
                 if output_file:
                     logger.info(f"    PNG map: {output_file.name}")
@@ -1534,7 +1534,7 @@ def _generate_netcdf_schedule(
         return None
 
 
-def _generate_timeline_png_map(timeline, config, output_path, base_filename):
+def _generate_timeline_png_map(timeline, cruise, output_path, base_filename):
     """Generate PNG map from timeline data showing scheduled sequence."""
     try:
         from cruiseplan.output.map_generator import generate_map_from_timeline
@@ -1547,7 +1547,7 @@ def _generate_timeline_png_map(timeline, config, output_path, base_filename):
             bathymetry_source="gebco2025",
             bathymetry_stride=5,
             figsize=(12, 10),
-            config=config,
+            config=cruise,
         )
 
     except ImportError:

@@ -582,6 +582,7 @@ class StationDefinition(FlexibleLocationModel):
         return self
 
     @model_validator(mode="before")
+    @classmethod
     def reject_deprecated_depth_field(cls, values):
         """
         Reject usage of the deprecated 'depth' field.

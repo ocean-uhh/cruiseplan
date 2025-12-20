@@ -188,6 +188,48 @@ def extract_lines_from_cruise(cruise) -> List[Dict[str, Any]]:
     return lines
 
 
+def extract_areas_from_timeline(timeline_data) -> List[Dict[str, Any]]:
+    """
+    Extract area features from timeline data.
+    
+    Parameters
+    ----------
+    timeline_data : List[Dict]
+        Timeline activity records
+        
+    Returns
+    -------
+    List[Dict[str, Any]]
+        List of area dictionaries with keys: name, corners, entity_type, operation_type, action
+    """
+    areas = []
+    
+    for activity in timeline_data:
+        # Check if this activity represents an area operation
+        if (activity.get("category") == "area_operation" 
+            and activity.get("corners") 
+            and len(activity.get("corners", [])) >= 3):
+            
+            # Convert corners to the expected format
+            corners = []
+            for corner in activity["corners"]:
+                corners.append({
+                    "lat": corner.get("latitude", corner.get("lat")),
+                    "lon": corner.get("longitude", corner.get("lon"))
+                })
+            
+            areas.append({
+                "name": activity.get("name", "Unknown Area"),
+                "corners": corners,
+                "entity_type": "area",
+                "operation_type": activity.get("operation_type", "survey"),
+                "action": activity.get("action", None),
+                "duration": activity.get("duration", None),
+            })
+    
+    return areas
+
+
 def extract_areas_from_cruise(cruise) -> List[Dict[str, Any]]:
     """
     Extract area features (survey areas, polygons) from cruise configuration.
@@ -342,6 +384,9 @@ def extract_points_from_timeline(timeline) -> List[Dict[str, Any]]:
             elif activity_type in ["Transit"]:
                 # Skip transit activities - they should be shown as lines, not points
                 continue
+            elif activity.get("category") == "area_operation":
+                # Skip area operations - they should be shown as polygons, not points
+                continue
             else:
                 entity_type = "activity"
                 operation_type = activity.get(
@@ -454,15 +499,26 @@ def extract_map_data(data_source, source_type="cruise", include_ports=True):
         # Handle both dictionary with 'timeline' key and direct list formats
         if isinstance(data_source, dict) and "timeline" in data_source:
             timeline_data = data_source["timeline"]
+            # Try to access cruise object for area geometry
+            cruise_obj = data_source.get("cruise", None)
         elif isinstance(data_source, list):
             timeline_data = data_source
+            cruise_obj = None
         else:
             timeline_data = []
+            cruise_obj = None
 
         # Extract points from timeline activities
         points = extract_points_from_timeline(timeline_data)
-        lines = extract_lines_from_timeline(timeline_data)
-        areas = []  # Not implemented for timeline yet
+        
+        # Extract lines from cruise config if available (for scientific transits)
+        if cruise_obj:
+            lines = extract_lines_from_cruise(cruise_obj)
+            areas = extract_areas_from_cruise(cruise_obj)
+        else:
+            lines = extract_lines_from_timeline(timeline_data)
+            areas = extract_areas_from_timeline(timeline_data)
+            
         title = "Cruise Schedule\nOperations Timeline with Bathymetry"
 
     else:
@@ -1018,7 +1074,7 @@ def generate_map_from_timeline(
         The absolute path to the generated PNG map file, or None if failed.
     """
     # Create a timeline data structure that includes config for port extraction
-    timeline_data = {"timeline": timeline, "config": config}
+    timeline_data = {"timeline": timeline, "cruise": config}
 
     return generate_map(
         data_source=timeline_data,

@@ -237,6 +237,13 @@ PLOT_STYLES = {
         "alpha": 0.7,
         "label": "Underway Operations",
     },
+    "ADCP": {
+        "color": "#FF6600",  # orange
+        "linewidth": 4,  # thicker for visibility
+        "linestyle": "-",  # solid
+        "alpha": 0.8,
+        "label": "ADCP Surveys",
+    },
     # Navigation cruise tracks (dashed lines)
     "cruise_track": {
         "color": "#4169E1",  # royal blue

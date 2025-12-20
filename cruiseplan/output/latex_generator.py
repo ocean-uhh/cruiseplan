@@ -241,22 +241,28 @@ class LaTeXGenerator:
             a for a in all_transits if not a.get("action")
         ]  # Navigation transits don't have actions
 
-        # Simple transit categorization
+        # Calculate major port transits (departure and arrival)
+        port_departure_activities = [a for a in timeline if a["activity"] == "Port_Departure"]
+        port_arrival_activities = [a for a in timeline if a["activity"] == "Port_Arrival"]
+
+        # Transit categorization using correct port activities
         transit_to_area_h = 0.0
         transit_from_area_h = 0.0
         transit_within_area_h = 0.0
 
+        # Transit to area = departure port activity duration
+        if port_departure_activities:
+            transit_to_area_h = port_departure_activities[0]["duration_minutes"] / 60
+        
+        # Transit from area = arrival port activity duration  
+        if port_arrival_activities:
+            transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
+        
+        # Within area = navigation transits between operations
         if navigation_transits:
-            # First transit is to area, last is from area, rest are within area
-            if len(navigation_transits) >= 1:
-                transit_to_area_h = navigation_transits[0]["duration_minutes"] / 60
-            if len(navigation_transits) >= 2:
-                transit_from_area_h = navigation_transits[-1]["duration_minutes"] / 60
-            if len(navigation_transits) > 2:
-                within_transits = navigation_transits[1:-1]
-                transit_within_area_h = (
-                    sum(t["duration_minutes"] for t in within_transits) / 60
-                )
+            transit_within_area_h = (
+                sum(t["duration_minutes"] for t in navigation_transits) / 60
+            )
 
         total_navigation_transit_h = (
             transit_to_area_h + transit_from_area_h + transit_within_area_h
@@ -533,18 +539,23 @@ class LaTeXGenerator:
         transit_from_area_h = 0.0
         transit_within_area_h = 0.0
 
+        # Calculate major port transits (departure and arrival)
+        port_departure_activities = [a for a in timeline if a["activity"] == "Port_Departure"]
+        port_arrival_activities = [a for a in timeline if a["activity"] == "Port_Arrival"]
+
+        # Transit to area = departure port activity duration
+        if port_departure_activities:
+            transit_to_area_h = port_departure_activities[0]["duration_minutes"] / 60
+        
+        # Transit from area = arrival port activity duration  
+        if port_arrival_activities:
+            transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
+        
+        # Within area = navigation transits between operations
         if navigation_transits:
-            # First navigation transit is to working area, last is from working area
-            if len(navigation_transits) >= 1:
-                transit_to_area_h = navigation_transits[0]["duration_minutes"] / 60
-            if len(navigation_transits) >= 2:
-                transit_from_area_h = navigation_transits[-1]["duration_minutes"] / 60
-            # Any middle navigation transits are within area
-            if len(navigation_transits) > 2:
-                middle_nav_transits = navigation_transits[1:-1]
-                transit_within_area_h = (
-                    sum(a["duration_minutes"] for a in middle_nav_transits) / 60
-                )
+            transit_within_area_h = (
+                sum(t["duration_minutes"] for t in navigation_transits) / 60
+            )
 
         total_navigation_transit_h = transit_to_area_h + transit_from_area_h
 

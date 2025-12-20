@@ -460,6 +460,26 @@ class HTMLGenerator:
         # Add leg schedule section
         html_content += self._generate_leg_schedules(config, timeline, stats)
 
+        # Try to embed the cruise track map if it exists
+        map_path = output_file.parent / f"{config.cruise_name}_schedule_map.png"
+        if map_path.exists():
+            # Embed the map as a base64 image
+            import base64
+            with open(map_path, "rb") as img_file:
+                img_data = base64.b64encode(img_file.read()).decode()
+            
+            html_content += f"""
+    <h2>4. Cruise Track Map</h2>
+    <div style="text-align: center; margin: 20px 0;">
+        <img src="data:image/png;base64,{img_data}" 
+             alt="Cruise Track Map for {config.cruise_name}" 
+             style="max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
+        <p style="font-style: italic; color: #666; margin-top: 10px;">
+            Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.
+        </p>
+    </div>
+"""
+
         html_content += """
 </body>
 </html>
