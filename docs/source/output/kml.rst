@@ -4,10 +4,17 @@
 KML Output
 ==========
 
-KML format provides geographic visualization compatible with Google Earth, Google Maps, and other geographic information systems. The output focuses on positional data and cruise tracks for visualization and integration purposes.
+KML format provides geographic visualization compatible with Google Earth, Google Maps, and other geographic information systems. The output focuses on positional data for the scientific operations.
+
+.. figure:: ../_static/screenshots/kml_output_google_earth.png
+   :alt: KML cruise plan displayed in Google Earth showing stations, transits, and areas
+   :align: center
+   :width: 90%
+
+   KML output from ``tc4_mixed_ops.yaml`` displayed in Google Earth, demonstrating the geographic visualization with color-coded station markers, transit routes, survey areas, and 3D bathymetric context suitable for expedition planning and public outreach.
 
 .. note::
-   KML output is only available from the **map command** (``cruiseplan map --format kml``). For timeline-based visualization, use :doc:`png` output from the schedule command.
+   KML output is available from the **map command** (``cruiseplan map --format kml``), and does not include any information from the scheduling. 
 
 Purpose and Use Cases
 ======================
@@ -15,213 +22,215 @@ Purpose and Use Cases
 **Primary Uses**:
   - Google Earth visualization and exploration
   - Geographic information system (GIS) integration
-  - Public outreach and communication
-  - Navigation system import and reference
-
-**Target Audiences**:
-  - Public and educational outreach coordinators
-  - Navigation officers and marine pilots
-  - GIS analysts and cartographers
-  - Scientific communication specialists
 
 KML Structure and Features
 ===========================
 
-Generated KML files contain hierarchical geographic data organized for optimal visualization:
+Generated KML files contain configuration-based geographic data in a flat structure with individual placemarks:
 
-**1. Cruise Overview Folder**
-  - Expedition summary and metadata
-  - Total cruise statistics and objectives
-  - Contact information and data sources
-  - Temporal span and geographic coverage
+**Configuration Elements Included:**
+  - **Port Points**: Departure and arrival ports with basic location information
+  - **Station Points**: Individual CTD, mooring, and other operation locations  
+  - **Scientific Transit Lines**: Underway operations (e.g., ADCP surveys) with start/end coordinates
+  - **Area Polygons**: Survey areas defined by corner coordinates
 
-**2. Station Points Folder**
-  - Individual operation locations with detailed popups
-  - Color-coded markers by operation type
-  - Hierarchical organization by leg and cluster
-  - Interactive information balloons
+**What is NOT Included:**
+  - No cruise track connections between stations/ports
+  - No timeline or scheduling information
+  - No hierarchical folder organization
+  - No detailed operation metadata or scientific objectives
+  - No time stamps or temporal data
 
-**3. Cruise Track Folder**
-  - Vessel route lines between operations
-  - Scientific transit routes with waypoints
-  - Navigation transit direct connections
-  - Time-stamped track segments
-
-**4. Area Operations Folder**
-  - Polygonal survey areas with boundaries
-  - Area center points for routing reference
-  - Coverage calculations and operational zones
-  - Scientific objectives per area
+.. note::
+   The KML output represents the **configuration catalog only**, not the scheduled timeline. It shows where operations are planned, but not when they occur or how the vessel routes between them.
 
 Geographic Visualization
 ========================
 
-Station Markers and Styling
-----------------------------
+Markers and Styling
+--------------------
 
 **Operation Type Styling**:
 
-.. list-table:: KML Station Markers
+.. list-table:: KML Element Styles
    :widths: 25 25 50
    :header-rows: 1
 
-   * - **Operation Type**
-   - **Icon Style**
+   * - **Element Type**
+     - **Style**
      - **Description**
-   * - CTD Stations
-     - Blue circle icons
-     - Size proportional to cast depth
-   * - Mooring Operations
-     - Yellow star icons
-     - Different icons for deploy/recover
-   * - Calibration Sites
-     - Green triangle icons
-     - Equipment-specific symbols
-   * - Water Sampling
-     - Purple square icons
-     - Sample type indicators
+   * - Stations
+     - Red circle markers
+     - CTD and other point operations
+   * - Ports
+     - Orange marina icons
+     - Departure and arrival points
+   * - Scientific Transits
+     - Red lines
+     - ADCP surveys and underway operations
+   * - Areas
+     - Cyan polygons
+     - Survey areas with semi-transparent fill
 
-**Information Popups**:
-  Each station marker includes detailed HTML popup content:
+**Information Content**:
+  Basic text descriptions:
 
-.. code-block:: html
+.. code-block:: text
 
-   <![CDATA[
-   <h3>CTD Station: CTD_001</h3>
-   <table border="1">
-   <tr><td><b>Coordinates:</b></td><td>62°20.0'N, 028°10.0'W</td></tr>
-   <tr><td><b>Water Depth:</b></td><td>2,847 meters</td></tr>
-   <tr><td><b>Operation Type:</b></td><td>CTD Profile</td></tr>
-   <tr><td><b>Estimated Duration:</b></td><td>2.8 hours</td></tr>
-   <tr><td><b>Start Time:</b></td><td>2024-07-01 14:12 UTC</td></tr>
-   <tr><td><b>Scientific Objective:</b></td><td>Deep water mass analysis</td></tr>
-   </table>
-   ]]>
+   <!-- Station example -->
+   Type: Station (OperationTypeEnum.CTD)
+   Action: ActionEnum.PROFILE
+   Location: 45.000000°N, -50.000000°W
+   Depth: N/A m
 
-Track Lines and Routes
+   <!-- Port example -->
+   Port: Halifax
+   Type: Departure Port
+   Location: 44.648800°N, -63.575200°W
+   Timezone: America/Halifax
+
+   <!-- Transit example -->
+   Type: Transit
+   Start: 46.000000°N, -50.000000°W
+   End: 47.000000°N, -50.000000°W
+   Distance: calculated nm
+
+   <!-- Area example -->
+   Type: Area
+   Corners: 4
+   Operation: AreaOperationTypeEnum.SURVEY
+
+
+Transits and Areas (Lines and Polygons)
+--------------------------------------
+
+**Scientific Transit Lines**:
+  - Only underway scientific operations (e.g., ADCP surveys) are shown as lines
+  - Red lines connecting start and end coordinates of scientific transit operations
+  - Cruise track connections between stations are not shown
+
+**Area Polygons**:
+  - Survey areas shown as closed yellow polygons 
+  - Defined by corner coordinates from configuration
+  - Semi-transparent fill to show underlying map features
+
+Future Enhancements
+===================
+
+Current Limitations
+-------------------
+
+**Missing Features**:
+  - Basic popup content without HTML formatting
+  - No scientific objectives or detailed metadata
+
+
+**Timing information:**
+  - No time stamps or temporal data (no Google Earth time slider support)
+  - No cruise track connections between operations
+  - No scheduling or timeline information
+
+This would only be possible if we generated the KML from the schedule data (i.e., in "cruiseplan schedule") rather than the YAML configuration (in "cruiseplan map").
+
+
+
+**Planned Enhancements** (see todos):
+  - Rich HTML popup content with operation details, timing and distance (where applicable)
+  - Cruise track plotting based on schedule
+  - Time-based KML with Google Earth animation support (if using schedule data)
+
+Actual KML Structure Example
+=============================
+
+Simple Flat Structure
 ----------------------
 
-**Cruise Track Visualization**:
-  - **Scientific Transits**: Blue lines with waypoint markers
-  - **Navigation Transits**: Gray dashed lines for efficiency
-  - **Port Approaches**: Green lines for departure/arrival
-  - **Area Surveys**: Red boundary lines with filled polygons
-
-**Route Complexity Indication**:
-  - Line thickness proportional to route complexity
-  - Waypoint density visualization
-  - Speed variation color coding
-  - Time stamp annotations along tracks
-
-Area Operations Display
------------------------
-
-**Polygon Representation**:
-
-.. code-block:: xml
-
-   <Polygon>
-     <extrude>0</extrude>
-     <altitudeMode>clampToGround</altitudeMode>
-     <outerBoundaryIs>
-       <LinearRing>
-         <coordinates>
-           -40.0,50.0,0 -40.0,51.0,0 -39.0,51.0,0 -39.0,50.0,0 -40.0,50.0,0
-         </coordinates>
-       </LinearRing>
-     </outerBoundaryIs>
-   </Polygon>
-
-**Area Styling**:
-  - Semi-transparent fill colors by operation type
-  - Distinct border colors and line styles
-  - Center point markers for routing reference
-  - Area calculation labels and statistics
-
-Time-Based Animation
-====================
-
-Temporal KML Features
----------------------
-
-**Time Stamps**:
-  - Operation start and end times embedded
-  - Time slider compatibility in Google Earth
-  - Chronological operation sequence
-  - Duration-based visibility controls
-
-**Animation Controls**:
-
-.. code-block:: xml
-
-   <TimeSpan>
-     <begin>2024-07-01T14:12:00Z</begin>
-     <end>2024-07-01T17:00:00Z</end>
-   </TimeSpan>
-
-**Temporal Visualization**:
-  - Progressive route revelation over time
-  - Operation sequence animation
-  - Real-time expedition tracking capability
-  - Historical expedition replay
-
-KML Structure Example
-=====================
-
-Complete File Organization
---------------------------
+Based on the actual generated file:
 
 .. code-block:: xml
 
    <?xml version="1.0" encoding="UTF-8"?>
    <kml xmlns="http://www.opengis.net/kml/2.2">
      <Document>
-       <name>Arctic Survey 2024 - Cruise Schedule</name>
-       <description>
-         <![CDATA[
-         Oceanographic research expedition to the North Atlantic.
-         Generated by CruisePlan software.
-         Total duration: 15.2 days at sea
-         ]]>
-       </description>
+       <name>TC4_Mixed_Test - Catalog</name>
+       <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
        
-       <!-- Cruise metadata -->
-       <ExtendedData>
-         <Data name="cruise_name">
-           <value>Arctic Survey 2024</value>
-         </Data>
-         <Data name="total_operations">
-           <value>52</value>
-         </Data>
-         <Data name="total_distance_km">
-           <value>3195</value>
-         </Data>
-       </ExtendedData>
+       <!-- Style definitions -->
+       <Style id="stationStyle">
+         <IconStyle>
+           <color>ff0000ff</color>
+           <scale>1.2</scale>
+           <Icon>
+             <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+           </Icon>
+         </IconStyle>
+       </Style>
        
-       <!-- Station markers folder -->
-       <Folder>
-         <name>Station Operations</name>
-         <Placemark>
-           <name>CTD_001</name>
-           <description>CTD Profile at North Atlantic Station</description>
-           <Point>
-             <coordinates>-28.167,62.333,0</coordinates>
-           </Point>
-         </Placemark>
-       </Folder>
+       <!-- Port placemark -->
+       <Placemark>
+         <name>Departure: Halifax</name>
+         <description>
+           Port: Halifax
+           Type: Departure Port
+           Location: 44.648800°N, -63.575200°W
+           Timezone: America/Halifax
+         </description>
+         <styleUrl>#portStyle</styleUrl>
+         <Point>
+           <coordinates>-63.5752,44.6488,0</coordinates>
+         </Point>
+       </Placemark>
        
-       <!-- Cruise track folder -->
-       <Folder>
-         <name>Vessel Track</name>
-         <Placemark>
-           <name>Transit to CTD_001</name>
-           <LineString>
-             <coordinates>
-               -21.9426,64.1466,0 -28.167,62.333,0
-             </coordinates>
-           </LineString>
-         </Placemark>
-       </Folder>
+       <!-- Station placemark -->
+       <Placemark>
+         <name>STN_001</name>
+         <description>
+           Type: Station (OperationTypeEnum.CTD)
+           Action: ActionEnum.PROFILE
+           Location: 45.000000°N, -50.000000°W
+           Depth: N/A m
+         </description>
+         <styleUrl>#stationStyle</styleUrl>
+         <Point>
+           <coordinates>-50.0,45.0,0</coordinates>
+         </Point>
+       </Placemark>
+       
+       <!-- Scientific transit line -->
+       <Placemark>
+         <name>ADCP_Survey</name>
+         <description>
+           Type: Transit
+           Start: 46.000000°N, -50.000000°W
+           End: 47.000000°N, -50.000000°W
+           Distance: calculated nm
+         </description>
+         <styleUrl>#transitStyle</styleUrl>
+         <LineString>
+           <coordinates>
+             -50.0,46.0,0
+             -50.0,47.0,0
+           </coordinates>
+         </LineString>
+       </Placemark>
+       
+       <!-- Area polygon -->
+       <Placemark>
+         <name>Area_01</name>
+         <description>
+           Type: Area
+           Corners: 4
+           Operation: AreaOperationTypeEnum.SURVEY
+         </description>
+         <styleUrl>#areaStyle</styleUrl>
+         <Polygon>
+           <outerBoundaryIs>
+             <LinearRing>
+               <coordinates>-50.5,47.5,0 -50.5,48.5,0 -49.5,48.5,0 -49.5,47.5,0 -50.5,47.5,0</coordinates>
+             </LinearRing>
+           </outerBoundaryIs>
+         </Polygon>
+       </Placemark>
        
      </Document>
    </kml>
@@ -266,15 +275,9 @@ Google Earth Integration
 
 **Viewing Features**:
   - 3D terrain visualization with bathymetric context
-  - Time slider for expedition timeline animation
   - Layer control for selective data display
   - Measurement tools for distance and area calculations
 
-**Advanced Capabilities**:
-  - Historical imagery for site comparison
-  - Weather overlay integration
-  - Ocean current visualization
-  - Collaborative annotation and markup
 
 GIS System Import
 -----------------
@@ -283,132 +286,9 @@ GIS System Import
   - QGIS for advanced spatial analysis
   - ArcGIS for professional cartography
   - Marine navigation systems (ECDIS)
-  - Web mapping platforms (OpenLayers, Leaflet)
 
-**Data Conversion**:
-  - Shapefile export for GIS analysis
-  - GPX conversion for GPS systems
-  - GeoJSON format for web applications
-  - CSV extraction for database import
 
-Navigation System Usage
-=======================
 
-Marine Navigation Integration
------------------------------
 
-**Waypoint Lists**:
-  - Extract station coordinates for GPS systems
-  - Format for Electronic Chart Display (ECDIS) import
-  - Generate backup navigation references
-  - Create approach and departure routes
 
-**Route Planning**:
-  - Import vessel tracks for autopilot systems
-  - Provide reference tracks for manual navigation
-  - Generate contingency route alternatives
-  - Document safe approach parameters
-
-**Safety and Compliance**:
-  - Export for voyage data recorder (VDR) systems
-  - Provide official position records
-  - Document planned vs actual tracks
-  - Support maritime safety investigations
-
-Customization and Extensions
-============================
-
-Content Customization
-----------------------
-
-**Information Density**:
-  - Detailed view for scientific analysis
-  - Simplified view for public outreach
-  - Operational view for vessel crews
-  - Summary view for management overview
-
-**Visual Styling**:
-  - Institution-specific color schemes
-  - Logo and branding integration
-  - Custom marker icons and symbols
-  - Thematic styling by research objectives
-
-**Language Localization**:
-  - Multi-language popup content
-  - Translated operation descriptions
-  - Local coordinate system references
-  - Cultural and regional formatting
-
-Advanced KML Features
----------------------
-
-**Network Links**:
-  - Real-time updates from vessel tracking
-  - Dynamic content from cruise databases
-  - Collaborative expedition sharing
-  - Integration with live data feeds
-
-**Balloon Styling**:
-  - Custom HTML popup layouts
-  - Interactive charts and graphs
-  - Image galleries for station documentation
-  - Video links for operational procedures
-
-Quality Assurance
-=================
-
-KML Validation
---------------
-
-**Standard Compliance**:
-  - OGC KML 2.2 specification compliance
-  - Google Earth compatibility testing
-  - Web browser rendering verification
-  - Mobile application compatibility
-
-**Data Integrity**:
-  - Coordinate accuracy validation
-  - Time stamp consistency checking
-  - Cross-reference verification
-  - Metadata completeness assessment
-
-**Performance Optimization**:
-  - File size management for large expeditions
-  - Loading time optimization
-  - Memory usage considerations
-  - Network bandwidth efficiency
-
-Best Practices
-==============
-
-File Organization
------------------
-
-**Naming Conventions**:
-  - Descriptive filenames with expedition identifiers
-  - Version numbering for updates
-  - Date stamps for temporal reference
-  - Geographic identifiers for regional focus
-
-**Distribution Methods**:
-  - Web hosting for public access
-  - Secure sharing for confidential expeditions
-  - Version control for collaborative development
-  - Archive management for historical reference
-
-Usage Guidelines
----------------
-
-**For Public Outreach**:
-  - Simplified content suitable for general audiences
-  - Educational context and scientific background
-  - Visual appeal and engagement features
-  - Clear contact information and data sources
-
-**For Operational Use**:
-  - Focus on essential navigation information
-  - Minimize visual clutter and complexity
-  - Provide accurate timing and position data
-  - Include safety and contingency information
-
-The KML output format provides versatile geographic visualization capabilities that serve diverse audiences from scientific researchers to the general public, while maintaining compatibility with standard geographic information systems and navigation tools.
+The KML output format provides versatile geographic visualization capabilities that serve diverse audiences.  It also allows integration with other ``*.kml`` based datasets.

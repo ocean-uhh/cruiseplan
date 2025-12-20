@@ -148,7 +148,7 @@ def format_position_latex(lat: float, lon: float) -> str:
     Examples
     --------
     >>> format_position_latex(65.7458, -24.4792)
-    "65$^\\circ$44.75'$N$, 024$^\\circ$28.75'$W$"
+    "65$^\\circ$44.75'N, 024$^\\circ$28.75'W"
     """
     # Convert to degrees and decimal minutes
     lat_deg, lat_min = UnitConverter.decimal_degrees_to_dmm(lat)
@@ -159,8 +159,8 @@ def format_position_latex(lat: float, lon: float) -> str:
     lon_dir = "E" if lon >= 0 else "W"
 
     # Format with LaTeX degree symbols
-    lat_str = f"{abs(int(lat_deg)):02d}$^\\circ${lat_min:05.2f}'${lat_dir}$"
-    lon_str = f"{abs(int(lon_deg)):03d}$^\\circ${lon_min:05.2f}'${lon_dir}$"
+    lat_str = f"{abs(int(lat_deg)):02d}$^\\circ${lat_min:05.2f}'{lat_dir}"
+    lon_str = f"{abs(int(lon_deg)):03d}$^\\circ${lon_min:05.2f}'{lon_dir}"
 
     return f"{lat_str}, {lon_str}"
 

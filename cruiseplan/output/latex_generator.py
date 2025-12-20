@@ -114,8 +114,8 @@ class LaTeXGenerator:
         science_operations = [
             activity
             for activity in timeline
-            if activity["activity"] in ["Station", "Mooring"]
-            or activity.get("operation_type", "") in ["station", "mooring"]
+            if activity["activity"] in ["Station", "Mooring", "Area"]
+            or activity.get("operation_type", "") in ["station", "mooring", "area"]
             or is_scientific_transit(activity)  # <-- Include scientific transits
         ]
 
@@ -150,6 +150,24 @@ class LaTeXGenerator:
                         "station": str(op["label"]).replace("_", "-"),
                         "position": end_pos_str,
                         "depth_m": depth_str,
+                        "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
+                        "duration_hours": f"{op['duration_minutes']/60:.1f}",
+                    }
+                )
+
+            elif op["activity"] == "Area" or op.get("operation_type", "") == "area":
+                # Area operations (polygon-based operations like bathymetry surveys)
+                position_str = format_position_latex(op["lat"], op["lon"])
+                action = op.get(
+                    "action", "survey"
+                )  # Default to 'survey' if no action specified
+
+                table_rows.append(
+                    {
+                        "operation": f"Area ({action})",
+                        "station": str(op["label"]).replace("_", "-"),
+                        "position": f"Center: {position_str}",
+                        "depth_m": "Variable",  # Areas typically span multiple depths
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": f"{op['duration_minutes']/60:.1f}",
                     }

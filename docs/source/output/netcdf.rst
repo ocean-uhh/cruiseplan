@@ -4,19 +4,20 @@
 NetCDF Output
 ==============
 
-CruisePlan generates CF-compliant NetCDF files containing your cruise timeline and operation data. These files provide structured datasets suitable for analysis tools, data sharing, and scientific workflows.
+CruisePlan generates CF-aligned NetCDF files containing your cruise timeline and operation data. These files provide structured datasets compatible with ``xarray`` and suitable for onward analysis or sharing.
 
 .. note::
-   NetCDF output is only available from the **schedule command** (``cruiseplan schedule --format netcdf``). For configuration-based visualization, use :doc:`png` output via the map command.
+   NetCDF output is  available from the **schedule command** (``cruiseplan schedule --format netcdf``). 
 
 Generated Files
 ===============
 
 **Master Schedule**: `cruiseplan schedule --format netcdf` generates:
+
 - ✅ **Ship Schedule** (`{cruise_name}_schedule.nc`) - Complete timeline with all operations
 
-**Specialized Files**: `cruiseplan schedule --format netcdf --derive-netcdf` generates:
-- ✅ **Ship Schedule** (`{cruise_name}_schedule.nc`) - Complete timeline with all operations  
+**Specialized Files**: `cruiseplan schedule --format netcdf --derive-netcdf` additionally generates:
+
 - 🔧 **Point Operations** (`{cruise_name}_points.nc`) - Stations and moorings only  
 - 🔧 **Line Operations** (`{cruise_name}_lines.nc`) - Scientific transits only
 - 🔧 **Area Operations** (`{cruise_name}_areas.nc`) - Empty placeholder
@@ -28,15 +29,7 @@ The specialized files are filtered views of the master schedule file, organized 
 Technical Overview
 ==================
 
-These files follow CF-1.8 discrete sampling geometry conventions (see [CF Conventions](https://cfconventions.org)) and organize cruise data by operation geometry while maintaining scientific data standards.
-
-Key Design Principles
----------------------
-
-1. **CF-1.8 Compliance**: Aligned with CF discrete sampling geometries conventions (but we have trajectory AND point featureTypes)
-3. **Schema Separation**: Pure navigation (`transits`) vs scientific operations (`surveys`)
-4. **Ship Trajectory**: Complete time-ordered vessel path including all activities
-5. **CruiseConfig Source**: Operation metadata are extracted directly from YAML configuration
+These files follow CF-1.8 discrete sampling geometry conventions (see `CF Conventions <https://cfconventions.org/>`_) and organize cruise data by operation geometry while maintaining scientific data standards.
 
 CF Convention Alignment
 -----------------------
@@ -54,324 +47,324 @@ The following files organize cruise data by operation geometry:
 1. Point Operations (`{cruise_name}_points.nc`)
 ------------------------------------------------
 
-**Status**: ✅ Fully implemented - filtered view of stations and moorings from schedule  
-**Purpose**: All discrete scientific operations at fixed locations  
-**Data Source**: Filtered from ship schedule (`category == "point_operation"`)  
-**FeatureType**: `point` (CF discrete sampling geometry)  
-**Use Case**: Station lists, mooring inventories, sampling locations
+- **Status**: ✅ Fully implemented - filtered view of stations and moorings from schedule  
+- **Purpose**: All discrete scientific operations at fixed locations  
+- **Data Source**: Filtered from ship schedule (`category == "point_operation"`)  
+- **FeatureType**: `point` (CF discrete sampling geometry)  
+- **Use Case**: Station lists, mooring inventories, sampling locations
 
-```python
-# Dimensions
-obs = N_point_operations  # Total stations + moorings
+.. code-block:: python
 
-# Coordinate variables (spatial only)
-lon(obs): float32
-    standard_name = "longitude"
-    long_name = "longitude of the operation"
-    units = "degrees_east"
+    # Dimensions
+    obs = N_point_operations  # Total stations + moorings
 
-lat(obs): float32
-    standard_name = "latitude"
-    long_name = "latitude of the operation"
-    units = "degrees_north"
+    # Coordinate variables (spatial only)
+    lon(obs): float32
+        standard_name = "longitude"
+        long_name = "longitude of the operation"
+        units = "degrees_east"
 
-# Depth coordinates  
-waterdepth(obs): float32
-    long_name = "water depth at operation location"
-    standard_name = "sea_floor_depth_below_sea_surface"
-    vocabulary = "http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/"
-    units = "m"
-    positive = "down"
-    axis = "Z"
-    _FillValue = -9999.0
+    lat(obs): float32
+        standard_name = "latitude"
+        long_name = "latitude of the operation"
+        units = "degrees_north"
 
-operation_depth(obs): float32
-    long_name = "target operation depth"
-    standard_name = "depth"
-    units = "m"
-    positive = "down"
-    axis = "Z"
-    _FillValue = -9999.0
-    comment = "Target depth for operation (e.g., CTD cast depth), NaN if not specified"
+    # Depth coordinates  
+    waterdepth(obs): float32
+        long_name = "water depth at operation location"
+        standard_name = "sea_floor_depth_below_sea_surface"
+        vocabulary = "http://vocab.nerc.ac.uk/collection/P07/current/CFV13N17/"
+        units = "m"
+        positive = "down"
+        axis = "Z"
+        _FillValue = -9999.0
 
-# Operation metadata
-name(obs): |S64
-    long_name = "operation identifier from cruise plan"
-    coordinates = "lat lon waterdepth"
+    operation_depth(obs): float32
+        long_name = "target operation depth"
+        standard_name = "depth"
+        units = "m"
+        positive = "down"
+        axis = "Z"
+        _FillValue = -9999.0
+        comment = "Target depth for operation (e.g., CTD cast depth), NaN if not specified"
 
-operation(obs): |S64
-    long_name = "type of oceanographic operation"
-    flag_values = "CTD_profile water_sampling calibration Mooring_deployment Mooring_recovery"
-    coordinates = "lat lon waterdepth"
+    # Operation metadata
+    name(obs): |S64
+        long_name = "operation identifier from cruise plan"
+        coordinates = "lat lon waterdepth"
 
-duration(obs): float32
-    long_name = "planned operation duration"
-    units = "hour"
-    coordinates = "lat lon waterdepth"
-    _FillValue = -1.0
+    operation(obs): |S64
+        long_name = "type of oceanographic operation"
+        flag_values = "CTD_profile water_sampling calibration Mooring_deployment Mooring_recovery"
+        coordinates = "lat lon waterdepth"
 
-comment(obs): |S256
-    long_name = "operation comments from cruise plan"
-    coordinates = "lat lon waterdepth"
+    duration(obs): float32
+        long_name = "planned operation duration"
+        units = "hour"
+        coordinates = "lat lon waterdepth"
+        _FillValue = -1.0
 
-# Global attributes
-:featureType = "point"
-:title = "Point Operations: {cruise_name}"
-:institution = "Generated by CruisePlan software"
-:source = "YAML configuration file"
-:Conventions = "CF-1.8"
-:cruise_name = "{cruise_name}"
-:creation_date = "{iso_timestamp}"
-:coordinate_system = "WGS84"
-:depth_datum = "Mean Sea Level"
-```
+    comment(obs): |S256
+        long_name = "operation comments from cruise plan"
+        coordinates = "lat lon waterdepth"
+
+    # Global attributes
+    :featureType = "point"
+    :title = "Point Operations: {cruise_name}"
+    :institution = "Generated by CruisePlan software"
+    :source = "YAML configuration file"
+    :Conventions = "CF-1.8"
+    :cruise_name = "{cruise_name}"
+    :creation_date = "{iso_timestamp}"
+    :coordinate_system = "WGS84"
+    :depth_datum = "Mean Sea Level"
 
 2. Line Operations (`{cruise_name}_lines.nc`)
 -----------------------------------------------
 
-**Status**: ✅ Fully implemented - filtered view of scientific transits from schedule  
-**Purpose**: Scientific operations along defined paths  
-**Data Source**: Filtered from ship schedule (`category == "line_operation"`)  
-**FeatureType**: `trajectory` (CF discrete sampling geometry)  
-**Use Case**: ADCP surveys, tow-yo operations, bathymetry transects
+- **Status**: ✅ Fully implemented - filtered view of scientific transits from schedule  
+- **Purpose**: Scientific operations along defined paths  
+- **Data Source**: Filtered from ship schedule (`category == "line_operation"`)  
+- **FeatureType**: `trajectory` (CF discrete sampling geometry)  
+- **Use Case**: ADCP surveys, tow-yo operations, bathymetry transects
 
-```python
-# Dimensions
-operations = N_line_operations    # Number of discrete line operations
-endpoints = 2                    # Start and end points (0=start, 1=end)
+.. code-block:: python
 
-# Coordinate variables (2D arrays for start/end points)
-longitude(operations, endpoints): float32
-    long_name = "longitude coordinates defining line operation"
-    units = "degrees_east"
-    comment = "endpoints dimension: 0=start point, 1=end point"
+    # Dimensions
+    operations = N_line_operations    # Number of discrete line operations
+    endpoints = 2                    # Start and end points (0=start, 1=end)
 
-latitude(operations, endpoints): float32
-    long_name = "latitude coordinates defining line operation"
-    units = "degrees_north"
-    comment = "endpoints dimension: 0=start point, 1=end point"
+    # Coordinate variables (2D arrays for start/end points)
+    longitude(operations, endpoints): float32
+        long_name = "longitude coordinates defining line operation"
+        units = "degrees_east"
+        comment = "endpoints dimension: 0=start point, 1=end point"
 
-# Operation metadata
-operation_name(operations): |S64
-    long_name = "line operation identifier"
+    latitude(operations, endpoints): float32
+        long_name = "latitude coordinates defining line operation"
+        units = "degrees_north"
+        comment = "endpoints dimension: 0=start point, 1=end point"
 
-operation_type(operations): |S32
-    long_name = "type of line operation"
-    flag_values = "underway towing"
-    flag_meanings = "underway_instruments towed_instruments"
+    # Operation metadata
+    operation_name(operations): |S64
+        long_name = "line operation identifier"
 
-action(operations): |S32
-    long_name = "specific survey instrument or method"
-    flag_values = "ADCP bathymetry thermosalinograph tow_yo seismic microstructure"
+    operation_type(operations): |S32
+        long_name = "type of line operation"
+        flag_values = "underway towing"
+        flag_meanings = "underway_instruments towed_instruments"
 
-vessel_speed(operations): float32
-    long_name = "planned vessel speed for operation"
-    units = "knots"
-    _FillValue = NaN
+    action(operations): |S32
+        long_name = "specific survey instrument or method"
+        flag_values = "ADCP bathymetry thermosalinograph tow_yo seismic microstructure"
 
-duration(operations): float32
-    long_name = "planned operation duration"
-    units = "hour"
-    _FillValue = NaN
+    vessel_speed(operations): float32
+        long_name = "planned vessel speed for operation"
+        units = "knots"
+        _FillValue = NaN
 
-# Global attributes
-:featureType = "trajectory"
-:title = "Line Operations: {cruise_name}"
-:institution = "Generated by CruisePlan software"
-:source = "YAML configuration file"
-:Conventions = "CF-1.8"
-:cruise_name = "{cruise_name}"
-:creation_date = "{iso_timestamp}"
-```
+    duration(operations): float32
+        long_name = "planned operation duration"
+        units = "hour"
+        _FillValue = NaN
+
+    # Global attributes
+    :featureType = "trajectory"
+    :title = "Line Operations: {cruise_name}"
+    :institution = "Generated by CruisePlan software"
+    :source = "YAML configuration file"
+    :Conventions = "CF-1.8"
+    :cruise_name = "{cruise_name}"
+    :creation_date = "{iso_timestamp}"
 
 3. Area Operations (`{cruise_name}_areas.nc`)
 -----------------------------------------------
 
-**Status**: ⚠️ Placeholder implementation - generates empty file  
-**Purpose**: Scientific operations over defined areas  
-**Data Source**: Filtered from ship schedule (`category == "area_operation"`)  
-**FeatureType**: `trajectory` (coverage patterns) or specialized  
-**Use Case**: Grid surveys, systematic mapping, search patterns
+- **Status**: ⚠️ Placeholder implementation - generates empty file  
+- **Purpose**: Scientific operations over defined areas  
+- **Data Source**: Filtered from ship schedule (`category == "area_operation"`)  
+- **FeatureType**: `trajectory` (coverage patterns) or specialized  
+- **Use Case**: Grid surveys, systematic mapping, search patterns
 
-```python
-# Dimensions
-operations = N_area_operations      # Number of area operations  
-max_vertices = 20                   # Maximum vertices in any polygon
+.. code-block:: python
 
-# Coordinate variables (2D arrays with ragged fill)
-longitude(operations, max_vertices): float32
-    long_name = "longitude vertices of area boundary polygon"
-    units = "degrees_east"
-    _FillValue = NaN
-    comment = "Vertices define closed polygon boundary, unused positions filled with NaN"
+    # Dimensions
+    operations = N_area_operations      # Number of area operations  
+    max_vertices = 20                   # Maximum vertices in any polygon
 
-latitude(operations, max_vertices): float32
-    long_name = "latitude vertices of area boundary polygon"
-    units = "degrees_north" 
-    _FillValue = NaN
-    comment = "Vertices define closed polygon boundary, unused positions filled with NaN"
+    # Coordinate variables (2D arrays with ragged fill)
+    longitude(operations, max_vertices): float32
+        long_name = "longitude vertices of area boundary polygon"
+        units = "degrees_east"
+        _FillValue = NaN
+        comment = "Vertices define closed polygon boundary, unused positions filled with NaN"
 
-# Vertex count for each operation
-n_boundary_vertices(operations): int32
-    long_name = "number of vertices in boundary polygon"
-    valid_range = [3, 20]
-    comment = "Actual number of vertices used (rest are NaN)"
+    latitude(operations, max_vertices): float32
+        long_name = "latitude vertices of area boundary polygon"
+        units = "degrees_north" 
+        _FillValue = NaN
+        comment = "Vertices define closed polygon boundary, unused positions filled with NaN"
 
-# Operation metadata
-area_name(operations): |S64
-    long_name = "area operation identifier"
+    # Vertex count for each operation
+    n_boundary_vertices(operations): int32
+        long_name = "number of vertices in boundary polygon"
+        valid_range = [3, 20]
+        comment = "Actual number of vertices used (rest are NaN)"
 
-pattern_type(operations): |S32
-    long_name = "area survey pattern"
-    flag_values = "grid_survey systematic_mapping search_pattern random_sampling"
+    # Operation metadata
+    area_name(operations): |S64
+        long_name = "area operation identifier"
 
-estimated_duration(operations): float32
-    long_name = "estimated operation duration"
-    units = "hours" 
-    _FillValue = NaN
+    pattern_type(operations): |S32
+        long_name = "area survey pattern"
+        flag_values = "grid_survey systematic_mapping search_pattern random_sampling"
 
-# Derived geometric properties (useful for analysis)
-area_extent_km2(operations): float32
-    long_name = "approximate area coverage"
-    units = "km^2"
-    _FillValue = NaN
+    estimated_duration(operations): float32
+        long_name = "estimated operation duration"
+        units = "hours" 
+        _FillValue = NaN
 
-# Global attributes
-:featureType = "trajectory"  # or specialized area type
-:title = "Area Operations: {cruise_name}"
-:institution = "Generated by CruisePlan software"
-:source = "YAML configuration file"
-:Conventions = "CF-1.8"
-:cruise_name = "{cruise_name}"
-:creation_date = "{iso_timestamp}"
-```
+    # Derived geometric properties (useful for analysis)
+    area_extent_km2(operations): float32
+        long_name = "approximate area coverage"
+        units = "km^2"
+        _FillValue = NaN
+
+    # Global attributes
+    :featureType = "trajectory"  # or specialized area type
+    :title = "Area Operations: {cruise_name}"
+    :institution = "Generated by CruisePlan software"
+    :source = "YAML configuration file"
+    :Conventions = "CF-1.8"
+    :cruise_name = "{cruise_name}"
+    :creation_date = "{iso_timestamp}"
 
 4. Ship Schedule (`{cruise_name}_schedule.nc`) - *Master File*
 ---------------------------------------------------------------
 
-**Status**: ✅ Fully implemented - master file containing all cruise data  
-**Purpose**: Complete ship trajectory including all operations and transits  
-**Data Source**: Timeline from scheduler (`List[ActivityRecord]`)  
-**FeatureType**: `trajectory` (ship's continuous path)  
-**Use Case**: Operational timeline, logistics, voyage tracking, source for specialized files
+- **Status**: ✅ Fully implemented - master file containing all cruise data  
+- **Purpose**: Complete ship trajectory including all operations and transits  
+- **Data Source**: Timeline from scheduler (`List[ActivityRecord]`)  
+- **FeatureType**: `trajectory` (ship's continuous path)  
+- **Use Case**: Operational timeline, logistics, voyage tracking, source for specialized files
 
-```python
-# Dimensions
-obs = N_timeline_events  # All scheduled activities in time order
+.. code-block:: python
 
-# Coordinate variables (CF required)
-time(obs): float64
-    standard_name = "time"
-    long_name = "time of ship position"
-    units = "days since 1970-01-01 00:00:00"
+    # Dimensions
+    obs = N_timeline_events  # All scheduled activities in time order
 
-lon(obs): float32
-    standard_name = "longitude"
-    long_name = "ship longitude"
-    units = "degrees_east"
+    # Coordinate variables (CF required)
+    time(obs): float64
+        standard_name = "time"
+        long_name = "time of ship position"
+        units = "days since 1970-01-01 00:00:00"
 
-lat(obs): float32
-    standard_name = "latitude"
-    long_name = "ship latitude"
-    units = "degrees_north"
+    lon(obs): float32
+        standard_name = "longitude"
+        long_name = "ship longitude"
+        units = "degrees_east"
 
-# Depth coordinates (available for point operations only)
-waterdepth(obs): float32
-    long_name = "water depth at operation location"
-    standard_name = "sea_floor_depth_below_sea_surface"
-    units = "m"
-    positive = "down"
-    axis = "Z"
-    _FillValue = -9999.0
-    comment = "Available for point operations only, NaN for transits and line operations"
+    lat(obs): float32
+        standard_name = "latitude"
+        long_name = "ship latitude"
+        units = "degrees_north"
 
-operation_depth(obs): float32
-    long_name = "target operation depth"
-    standard_name = "depth"
-    units = "m"
-    positive = "down"
-    axis = "Z"
-    _FillValue = -9999.0
-    comment = "Target depth for operation (e.g., CTD cast depth), NaN if not specified"
+    # Depth coordinates (available for point operations only)
+    waterdepth(obs): float32
+        long_name = "water depth at operation location"
+        standard_name = "sea_floor_depth_below_sea_surface"
+        units = "m"
+        positive = "down"
+        axis = "Z"
+        _FillValue = -9999.0
+        comment = "Available for point operations only, NaN for transits and line operations"
 
-# Start/end coordinates for line operations (NaN for other activities)
-start_latitude(obs): float32
-    standard_name = "latitude"
-    long_name = "line operation start latitude"
-    units = "degrees_north"
-    _FillValue = NaN
+    operation_depth(obs): float32
+        long_name = "target operation depth"
+        standard_name = "depth"
+        units = "m"
+        positive = "down"
+        axis = "Z"
+        _FillValue = -9999.0
+        comment = "Target depth for operation (e.g., CTD cast depth), NaN if not specified"
 
-start_longitude(obs): float32
-    standard_name = "longitude"
-    long_name = "line operation start longitude"
-    units = "degrees_east"
-    _FillValue = NaN
+    # Start/end coordinates for line operations (NaN for other activities)
+    start_latitude(obs): float32
+        standard_name = "latitude"
+        long_name = "line operation start latitude"
+        units = "degrees_north"
+        _FillValue = NaN
 
-end_latitude(obs): float32
-    standard_name = "latitude"
-    long_name = "line operation end latitude"
-    units = "degrees_north"
-    _FillValue = NaN
+    start_longitude(obs): float32
+        standard_name = "longitude"
+        long_name = "line operation start longitude"
+        units = "degrees_east"
+        _FillValue = NaN
 
-end_longitude(obs): float32
-    standard_name = "longitude"
-    long_name = "line operation end longitude"
-    units = "degrees_east"
-    _FillValue = NaN
+    end_latitude(obs): float32
+        standard_name = "latitude"
+        long_name = "line operation end latitude"
+        units = "degrees_north"
+        _FillValue = NaN
 
-# Schedule metadata
-name(obs): |S64
-    long_name = "activity identifier"
-    coordinates = "time latitude longitude waterdepth"
+    end_longitude(obs): float32
+        standard_name = "longitude"
+        long_name = "line operation end longitude"
+        units = "degrees_east"
+        _FillValue = NaN
 
-category(obs): |S32
-    long_name = "activity category"
-    flag_values = "point_operation line_operation area_operation transit"
-    coordinates = "time latitude longitude waterdepth"
+    # Schedule metadata
+    name(obs): |S64
+        long_name = "activity identifier"
+        coordinates = "time latitude longitude waterdepth"
 
-type(obs): |S64
-    long_name = "specific type of activity"
-    coordinates = "time latitude longitude waterdepth"
+    category(obs): |S32
+        long_name = "activity category"
+        flag_values = "point_operation line_operation area_operation transit"
+        coordinates = "time latitude longitude waterdepth"
 
-action(obs): |S64
-    long_name = "specific action or method"
-    coordinates = "time latitude longitude waterdepth"
+    type(obs): |S64
+        long_name = "specific type of activity"
+        coordinates = "time latitude longitude waterdepth"
 
-comment(obs): |S256
-    long_name = "activity comments"
-    coordinates = "time latitude longitude waterdepth"
+    action(obs): |S64
+        long_name = "specific action or method"
+        coordinates = "time latitude longitude waterdepth"
 
-leg_assignment(obs): |S32
-    long_name = "cruise leg identifier"
-    coordinates = "time latitude longitude waterdepth"
+    comment(obs): |S256
+        long_name = "activity comments"
+        coordinates = "time latitude longitude waterdepth"
 
-duration(obs): float32
-    long_name = "activity duration"
-    units = "hour"
-    coordinates = "time latitude longitude waterdepth"
+    leg_assignment(obs): |S32
+        long_name = "cruise leg identifier"
+        coordinates = "time latitude longitude waterdepth"
 
-vessel_speed(obs): float32
-    long_name = "vessel speed"
-    units = "knots"
-    coordinates = "time latitude longitude waterdepth"
+    duration(obs): float32
+        long_name = "activity duration"
+        units = "hour"
+        coordinates = "time latitude longitude waterdepth"
 
-# Global attributes
-:featureType = "trajectory"
-:title = "Ship Schedule: {cruise_name}"
-:institution = "Generated by CruisePlan software"
-:source = "Scheduler computation from YAML configuration"
-:Conventions = "CF-1.8"
-:cruise_name = "{cruise_name}"
-:total_duration_days = {total_days}
-:creation_date = "{iso_timestamp}"
-:comment = "Master file containing all cruise data - specialized files derived from this"
-```
+    vessel_speed(obs): float32
+        long_name = "vessel speed"
+        units = "knots"
+        coordinates = "time latitude longitude waterdepth"
+
+    # Global attributes
+    :featureType = "trajectory"
+    :title = "Ship Schedule: {cruise_name}"
+    :institution = "Generated by CruisePlan software"
+    :source = "Scheduler computation from YAML configuration"
+    :Conventions = "CF-1.8"
+    :cruise_name = "{cruise_name}"
+    :total_duration_days = {total_days}
+    :creation_date = "{iso_timestamp}"
+    :comment = "Master file containing all cruise data - specialized files derived from this"
 
 
-CF Compliance Requirements
-==========================
+CF Alignment (not compliance)
+=============================
 
-1. **FeatureType Specification**: Each file must have exactly one `featureType` global attribute
+1. **FeatureType Specification**: Each file must have exactly one `featureType` global attribute. The ``_schedule.nc`` file violates this because we have a mix of line and point operations.
 2. **Coordinate Variables**: Must include proper `units`, `standard_name`, and `long_name` attributes
 3. **Coordinates Attribute**: All data variables must include `coordinates = "time lat lon ..."` attribute
 4. **Time Variables**: Use CF-standard time encoding (`days since 1970-01-01 00:00:00`)
@@ -384,55 +377,27 @@ Data Type Specifications
 
 - **Coordinates**: `float64` for time precision, `float32` for spatial coordinates
 - **Time**: `float64` (days since epoch for CF compliance)
-- **Measurements**: `float32` for efficiency
-- **Strings**: Variable length based on content (`|S32`, `|S64`, `|S256`)
-- **Flags/Categories**: `|S32` for string enumerations
+- **Durations and Speeds**: `float32`
+- **Strings**: Unicode strings with maximum length (`<U32`, `<U64`, `<U256`)
 
-Controlled Vocabulary
----------------------
 
-**Point Operation Types:**
-- `"CTD_profile"` - CTD casts and water sampling
-- `"water_sampling"` - Discrete water sample collection
-- `"calibration"` - Instrument calibration activities
-- `"Mooring_deployment"` - Mooring deployment operations
-- `"Mooring_recovery"` - Mooring recovery operations
 
-**Line Operation Types:**
-- `"underway"` - Instruments operating while ship underway (nothing over the side)
-- `"towing"` - Towed instruments or devices
 
-**Line Action Types:**
-- `"ADCP"` - Acoustic Doppler Current Profiler
-- `"bathymetry"` - Multibeam or singlebeam mapping
-- `"thermosalinograph"` - Underway temperature/salinity
-- `"tow_yo"` - Tow-yo CTD operations
-- `"seismic"` - Seismic surveys
-- `"microstructure"` - Microstructure profilers
-
-Validation Requirements
------------------------
-
-Each generated file must:
-1. Pass CF checker validation (`cf-checker` tool)
-2. Include all required CF attributes for the specified featureType
-3. Have consistent dimension sizes across variables
-4. Include proper coordinate references for all data variables
-5. Use valid CF standard names and units
-6. Contain realistic values within expected ranges
 
 Cross-Reference System
 ----------------------
 
 **Operation Linking:**
+
 - Use operation `name` fields as primary keys between files
 - Ship schedule `operation_file_ref` links to catalog files
 - Maintain naming consistency across all files
 
 **File Relationships:**
-1. Point operations file ← Ship schedule (via `operation_file_ref`)
-2. Line operations file ← Ship schedule (via `operation_file_ref`)
-3. Area operations file ← Ship schedule (via `operation_file_ref`)
+
+  - **Master file**: `{cruise_name}_schedule.nc` contains all cruise operations and timeline
+  - **Filtered views**: Point/line/area files contain subsets filtered by operation category
+  - **Common identifier**: `name` field serves as primary key across all files for the same operations
 
 
 
@@ -442,50 +407,53 @@ Using NetCDF Files
 The generated NetCDF files can be used with standard scientific tools:
 
 **Python/xarray:**
-```python
-import xarray as xr
 
-# Load the master schedule file
-ds = xr.open_dataset('cruise_name_schedule.nc')
+.. code-block:: python
 
-# View all variables
-print(ds)
+    import xarray as xr
 
-# Access station data
-stations = ds.where(ds.category == 'point_operation', drop=True)
-print(stations.name.values)
+    # Load the master schedule file
+    ds = xr.open_dataset('cruise_name_schedule.nc')
 
-# Plot ship track
-import matplotlib.pyplot as plt
-ds.plot.scatter(x='longitude', y='latitude', hue='category')
-```
+    # View all variables
+    print(ds)
+
+    # Access station data
+    stations = ds.where(ds.category == 'point_operation', drop=True)
+    print(stations.name.values)
+
+    # Plot ship track
+    import matplotlib.pyplot as plt
+    ds.plot.scatter(x='longitude', y='latitude', hue='category')
 
 **MATLAB:**
-```matlab
-% Read schedule data
-schedule = ncread('cruise_name_schedule.nc');
-times = ncread('cruise_name_schedule.nc', 'time');
-lats = ncread('cruise_name_schedule.nc', 'latitude');
-lons = ncread('cruise_name_schedule.nc', 'longitude');
 
-% Plot ship track
-plot(lons, lats, 'o-');
-```
+.. code-block:: matlab
+
+    % Read schedule data
+    schedule = ncread('cruise_name_schedule.nc');
+    times = ncread('cruise_name_schedule.nc', 'time');
+    lats = ncread('cruise_name_schedule.nc', 'latitude');
+    lons = ncread('cruise_name_schedule.nc', 'longitude');
+
+    % Plot ship track
+    plot(lons, lats, 'o-');
 
 **R:**
-```r
-library(ncdf4)
 
-# Open file
-nc <- nc_open('cruise_name_schedule.nc')
+.. code-block:: r
 
-# Read variables
-lats <- ncvar_get(nc, 'latitude')
-lons <- ncvar_get(nc, 'longitude')
-names <- ncvar_get(nc, 'name')
+    library(ncdf4)
 
-# Plot
-plot(lons, lats, type='o')
-```
+    # Open file
+    nc <- nc_open('cruise_name_schedule.nc')
+
+    # Read variables
+    lats <- ncvar_get(nc, 'latitude')
+    lons <- ncvar_get(nc, 'longitude')
+    names <- ncvar_get(nc, 'name')
+
+    # Plot
+    plot(lons, lats, type='o')
 
 This provides a complete foundation for CF-1.8 compliant NetCDF outputs that properly separate operation types by geometry while maintaining scientific data standards and enabling cross-file analysis.

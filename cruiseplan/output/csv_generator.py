@@ -127,8 +127,9 @@ class CSVGenerator:
                 lon_deg_rounded = (
                     int(lon_deg_float) if lon_decimal >= 0 else -int(lon_deg_float)
                 )
-                lat_min = round(lat_min, 2)
-                lon_min = round(lon_min, 2)
+                # Preserve sign for minutes when coordinate is negative
+                lat_min = round(lat_min if lat_decimal >= 0 else -lat_min, 2)
+                lon_min = round(lon_min if lon_decimal >= 0 else -lon_min, 2)
 
                 row = {
                     "activity": activity["activity"],

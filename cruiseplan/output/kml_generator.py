@@ -91,7 +91,7 @@ class KMLGenerator:
         
         <Style id="lineOpStyle">
             <LineStyle>
-                <color>ffff0000</color>
+                <color>ff0066FF</color>
                 <width>3</width>
             </LineStyle>
         </Style>
@@ -309,7 +309,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         
         <Style id="transitStyle">
             <LineStyle>
-                <color>80ff0000</color>
+                <color>800066FF</color>
                 <width>3</width>
             </LineStyle>
         </Style>
