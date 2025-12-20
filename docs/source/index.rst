@@ -21,6 +21,11 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    
    user_workflows.rst
 
+.. toctree::
+   :maxdepth: 2
+   :caption: Notebook Demo
+   
+   demo-output.ipynb
 
 .. toctree::
    :maxdepth: 2
