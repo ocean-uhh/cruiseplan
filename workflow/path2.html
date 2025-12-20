@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.1 v0.1.0.post1.dev15</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/documentation_options.js?v=6724c133"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -54,8 +54,8 @@
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="path1.html">Path 1: Basic Planning Workflow</a></li>
-<li class="toctree-l2 current"><a class="current reference internal" href="#">Path 2: PANGAEA-Enhanced Workflow</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="path1.html">**Path 1: General Usage** - Plan stations from scratch without historical context</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">**Path 2: PANGAEA-Enhanced** - Incorporate historical station positions for context</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#step-1-download-bathymetry-data">Step 1: Download Bathymetry Data</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-2-collect-pangaea-dataset-information">Step 2: Collect PANGAEA Dataset Information</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#step-3-process-pangaea-data">Step 3: Process PANGAEA Data</a></li>
@@ -63,12 +63,15 @@
 <li class="toctree-l3"><a class="reference internal" href="#step-5-7-complete-configuration-and-scheduling">Step 5-7: Complete Configuration and Scheduling</a></li>
 </ul>
 </li>
-<li class="toctree-l2"><a class="reference internal" href="path3.html">Path 3: Configuration-Only Workflow</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../user_workflows.html#best-practices">Best Practices</a></li>
+<li class="toctree-l2"><a class="reference internal" href="path3.html">**Path 3: Configuration-Only** - Process existing YAML configurations</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
@@ -134,7 +137,7 @@
 </figure>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli_reference_old.html#subcommand-download"><span class="std std-ref">Download subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/download.html"><span class="doc">download</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/download.html#subcommand-download"><span class="std std-ref">Download subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/download.html"><span class="doc">download</span></a> for full options and examples.</p>
 </div>
 </section>
 <hr class="docutils" />
@@ -197,7 +200,7 @@ cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2"
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli_reference_old.html#subcommand-pandoi"><span class="std std-ref">Pandoi subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pandoi.html"><span class="doc">pandoi</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/pandoi.html#subcommand-pandoi"><span class="std std-ref">Pandoi subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pandoi.html"><span class="doc">pandoi</span></a> for full options and examples.</p>
 </div>
 <p><strong>Option B: Manual Collection (Alternative):</strong></p>
 <ol class="arabic simple">
@@ -258,7 +261,7 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_
 <p>⚠️ <strong>Note</strong>: This process can be slow for large DOI lists due to API rate limiting. Consider running overnight for extensive datasets.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli_reference_old.html#subcommand-pangaea"><span class="std std-ref">Pangaea subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pangaea.html"><span class="doc">pangaea</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/pangaea.html#subcommand-pangaea"><span class="std std-ref">Pangaea subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pangaea.html"><span class="doc">pangaea</span></a> for full options and examples.</p>
 </div>
 </section>
 <hr class="docutils" />

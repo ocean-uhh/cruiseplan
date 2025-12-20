@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Development Roadmap &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+  <title>Development Roadmap &mdash; CruisePlan v0.1 v0.1.0.post1.dev15</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=c35c452a"></script>
+      <script src="_static/documentation_options.js?v=6724c133"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -56,6 +56,10 @@
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
 </ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="demo-output.html">CruisePlan Demo</a></li>
+</ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
@@ -75,7 +79,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Development Roadmap</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#phase-1-critical-data-integrity">Phase 1: Critical Data Integrity</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#depth-semantics-separation">Depth Semantics Separation 🔴</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#station-coordinate-access">Station Coordinate Access 🟠</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#area-operation-routing-fix">Area Operation Routing Fix 🟡</a></li>
 </ul>
 </li>
@@ -87,7 +91,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#phase-3-code-quality-and-polish">Phase 3: Code Quality and Polish</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#netcdf-generator-refactoring">NetCDF Generator Refactoring 🟠</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#station-coordinate-access">Station Coordinate Access 🟠</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#netcdf-to-yaml-roundtrip-validation">NetCDF to YAML Roundtrip Validation 🟡</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#risk-assessment">Risk Assessment</a></li>
@@ -127,7 +131,7 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#phase-1-critical-data-integrity" id="id1">Phase 1: Critical Data Integrity</a></p>
 <ul>
-<li><p><a class="reference internal" href="#depth-semantics-separation" id="id2">Depth Semantics Separation 🔴</a></p></li>
+<li><p><a class="reference internal" href="#station-coordinate-access" id="id2">Station Coordinate Access 🟠</a></p></li>
 <li><p><a class="reference internal" href="#area-operation-routing-fix" id="id3">Area Operation Routing Fix 🟡</a></p></li>
 </ul>
 </li>
@@ -141,7 +145,7 @@
 <li><p><a class="reference internal" href="#phase-3-code-quality-and-polish" id="id8">Phase 3: Code Quality and Polish</a></p>
 <ul>
 <li><p><a class="reference internal" href="#netcdf-generator-refactoring" id="id9">NetCDF Generator Refactoring 🟠</a></p></li>
-<li><p><a class="reference internal" href="#station-coordinate-access" id="id10">Station Coordinate Access 🟠</a></p></li>
+<li><p><a class="reference internal" href="#netcdf-to-yaml-roundtrip-validation" id="id10">NetCDF to YAML Roundtrip Validation 🟡</a></p></li>
 </ul>
 </li>
 <li><p><a class="reference internal" href="#risk-assessment" id="id11">Risk Assessment</a></p></li>
@@ -153,41 +157,15 @@
 <p><strong>Release Strategy</strong>: CruisePlan is in active development with significant breaking changes planned. We use semantic versioning with 0.x releases to signal ongoing API evolution while maintaining clear migration paths.</p>
 <section id="phase-1-critical-data-integrity">
 <h2><a class="toc-backref" href="#id1" role="doc-backlink">Phase 1: Critical Data Integrity</a><a class="headerlink" href="#phase-1-critical-data-integrity" title="Link to this heading"></a></h2>
-<p><strong>Target</strong>: Version 0.2.0 (Breaking Changes Release)
-<strong>Timeline</strong>: 4-6 weeks
+<p><strong>Target</strong>: Version 0.3.0 (Breaking Changes Release)
 <strong>Focus</strong>: Data accuracy and routing consistency</p>
-<section id="depth-semantics-separation">
-<h3><a class="toc-backref" href="#id2" role="doc-backlink">Depth Semantics Separation 🔴</a><a class="headerlink" href="#depth-semantics-separation" title="Link to this heading"></a></h3>
-<p><strong>Priority</strong>: Critical - Data Integrity Issue
-<strong>Breaking Change</strong>: Yes - Major version bump required</p>
-<p><strong>Current Problem</strong>:
-The existing <code class="docutils literal notranslate"><span class="pre">depth</span></code> field conflates two distinct concepts, causing incorrect calculations:</p>
-<ul class="simple">
-<li><p>CTD cast depth vs seafloor depth ambiguity</p></li>
-<li><p>Duration calculations use wrong depth values</p></li>
-<li><p>NetCDF outputs contain incorrect depth semantics</p></li>
-</ul>
-<p><strong>Impact</strong>:
-- Incorrect CTD operation duration estimates
-- Scientific data misrepresentation in outputs
-- Validation errors when comparing bathymetry data</p>
-<p><strong>Planned Solution</strong>:</p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Current (ambiguous)</span>
-<span class="nt">stations</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
-<span class="w">    </span><span class="nt">depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span><span class="w">          </span><span class="c1"># Cast depth or water depth?</span>
-
-<span class="c1"># New (explicit semantics)</span>
-<span class="nt">stations</span><span class="p">:</span>
-<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
-<span class="w">    </span><span class="nt">operation_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">500</span><span class="w">   </span><span class="c1"># CTD cast target depth</span>
-<span class="w">    </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2000</span><span class="w">     </span><span class="c1"># Seafloor depth at location</span>
-</pre></div>
-</div>
-<p><strong>Migration Strategy</strong>:
-- Deprecation warnings for legacy <code class="docutils literal notranslate"><span class="pre">depth</span></code> field
-- Automatic conversion with user notifications
-- Backward compatibility maintained for 2 minor versions</p>
+<section id="station-coordinate-access">
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">Station Coordinate Access 🟠</a><a class="headerlink" href="#station-coordinate-access" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Medium - Developer Experience
+<strong>Breaking Change</strong>: No (additive)</p>
+<p><strong>Current Pattern</strong>: <code class="docutils literal notranslate"><span class="pre">station.position.latitude</span></code> (cumbersome)
+<strong>Planned Addition</strong>: <code class="docutils literal notranslate"><span class="pre">station.latitude</span></code> (convenience properties)</p>
+<p><strong>Benefits</strong>: Improved code readability throughout calculation and enrichment functions</p>
 </section>
 <section id="area-operation-routing-fix">
 <h3><a class="toc-backref" href="#id3" role="doc-backlink">Area Operation Routing Fix 🟡</a><a class="headerlink" href="#area-operation-routing-fix" title="Link to this heading"></a></h3>
@@ -206,8 +184,7 @@ Replace center point calculations with proper <code class="docutils literal notr
 </section>
 <section id="phase-2-core-feature-completion">
 <h2><a class="toc-backref" href="#id4" role="doc-backlink">Phase 2: Core Feature Completion</a><a class="headerlink" href="#phase-2-core-feature-completion" title="Link to this heading"></a></h2>
-<p><strong>Target</strong>: Version 0.3.0 (Feature Release)
-<strong>Timeline</strong>: 4-6 weeks after Phase 1
+<p><strong>Target</strong>: Version 0.4.0 (Feature Release)
 <strong>Focus</strong>: Missing functionality and operational realism</p>
 <section id="png-map-generation">
 <h3><a class="toc-backref" href="#id5" role="doc-backlink">PNG Map Generation 🔴</a><a class="headerlink" href="#png-map-generation" title="Link to this heading"></a></h3>
@@ -269,8 +246,7 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 </section>
 <section id="phase-3-code-quality-and-polish">
 <h2><a class="toc-backref" href="#id8" role="doc-backlink">Phase 3: Code Quality and Polish</a><a class="headerlink" href="#phase-3-code-quality-and-polish" title="Link to this heading"></a></h2>
-<p><strong>Target</strong>: Version 0.4.0 (Quality Release)
-<strong>Timeline</strong>: 2-4 weeks after Phase 2
+<p><strong>Target</strong>: Version 0.5.0 (Quality Release)
 <strong>Focus</strong>: Maintainability and developer experience</p>
 <section id="netcdf-generator-refactoring">
 <h3><a class="toc-backref" href="#id9" role="doc-backlink">NetCDF Generator Refactoring 🟠</a><a class="headerlink" href="#netcdf-generator-refactoring" title="Link to this heading"></a></h3>
@@ -285,13 +261,23 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 - Standardized variable definitions and coordinate templates
 - Single source of truth for CF convention compliance</p>
 </section>
-<section id="station-coordinate-access">
-<h3><a class="toc-backref" href="#id10" role="doc-backlink">Station Coordinate Access 🟠</a><a class="headerlink" href="#station-coordinate-access" title="Link to this heading"></a></h3>
-<p><strong>Priority</strong>: Medium - Developer Experience
+<section id="netcdf-to-yaml-roundtrip-validation">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">NetCDF to YAML Roundtrip Validation 🟡</a><a class="headerlink" href="#netcdf-to-yaml-roundtrip-validation" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Medium - Data Integrity
 <strong>Breaking Change</strong>: No (additive)</p>
-<p><strong>Current Pattern</strong>: <code class="docutils literal notranslate"><span class="pre">station.position.latitude</span></code> (cumbersome)
-<strong>Planned Addition</strong>: <code class="docutils literal notranslate"><span class="pre">station.latitude</span></code> (convenience properties)</p>
-<p><strong>Benefits</strong>: Improved code readability throughout calculation and enrichment functions</p>
+<p><strong>Requirement</strong>:
+Implement bidirectional conversion between NetCDF output and YAML configuration to validate completeness of exported data.</p>
+<p><strong>Implementation Plan</strong>:
+- Create <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">netcdf-to-yaml</span></code> command to reverse-engineer YAML from NetCDF
+- Validate that all critical cruise planning information is preserved in NetCDF export
+- Ensure roundtrip fidelity: <code class="docutils literal notranslate"><span class="pre">YAML</span> <span class="pre">→</span> <span class="pre">NetCDF</span> <span class="pre">→</span> <span class="pre">YAML</span></code> produces equivalent configurations
+- Identify any data loss during NetCDF export process</p>
+<p><strong>Use Cases</strong>:
+- <strong>Data Integrity Validation</strong>: Verify NetCDF exports contain complete cruise information
+- <strong>Configuration Recovery</strong>: Reconstruct YAML configs from archived NetCDF files
+- <strong>Format Migration</strong>: Enable users to recover configurations from legacy NetCDF outputs
+- <strong>Quality Assurance</strong>: Automated testing of export completeness</p>
+<p><strong>Success Criteria</strong>: Generated YAML produces identical schedule and station information when re-processed</p>
 </section>
 </section>
 <section id="risk-assessment">

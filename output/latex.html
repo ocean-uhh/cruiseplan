@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LaTeX Output &mdash; CruisePlan v0.1 v0.1.0.post1.dev14</title>
+  <title>LaTeX Output &mdash; CruisePlan v0.1 v0.1.0.post1.dev15</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=c35c452a"></script>
+      <script src="../_static/documentation_options.js?v=6724c133"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -56,6 +56,10 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul class="current">
@@ -191,6 +195,32 @@
 <p><span class="caption-text">Example LaTeX stations table from <code class="docutils literal notranslate"><span class="pre">tc4_mixed_ops.yaml</span></code>, demonstrating the comprehensive station listing format including areas, scientific transits, and traditional station operations with precise coordinate and timing information.</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\begin</span><span class="nb">{</span>table<span class="nb">}</span>[htbp]
+<span class="k">\caption</span><span class="nb">{</span>Working area, stations and profiles: TC5-Sections-Test<span class="nb">}</span>
+<span class="k">\centering</span>
+<span class="k">\begin</span><span class="nb">{</span>tabular<span class="nb">}{</span>llcc<span class="nb">}</span>
+<span class="k">\toprule</span>
+<span class="k">\textbf</span><span class="nb">{</span>Operation<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Station<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Position<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>Depth (m)<span class="nb">}</span> <span class="k">\\</span>
+<span class="k">\midrule</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn001 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 58 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn002 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>09.30&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>51.07&#39;W <span class="nb">&amp;</span> 58 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn003 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>18.60&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>42.10&#39;W <span class="nb">&amp;</span> 67 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn004 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>27.88&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>33.07&#39;W <span class="nb">&amp;</span> 64 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn005 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>37.14&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>23.99&#39;W <span class="nb">&amp;</span> 63 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn006 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>46.40&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>14.87&#39;W <span class="nb">&amp;</span> 61 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn007 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>55.64&#39;N, 049<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>05.69&#39;W <span class="nb">&amp;</span> 64 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn008 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>04.88&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>56.46&#39;W <span class="nb">&amp;</span> 66 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn009 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>14.10&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>47.19&#39;W <span class="nb">&amp;</span> 70 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn010 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>23.30&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>37.85&#39;W <span class="nb">&amp;</span> 85 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn011 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>32.50&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>28.47&#39;W <span class="nb">&amp;</span> 95 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn012 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>41.68&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>19.03&#39;W <span class="nb">&amp;</span> 103 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn013 <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>50.85&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>09.54&#39;W <span class="nb">&amp;</span> 115 <span class="k">\\</span>
+Station <span class="nb">&amp;</span> SEC-001-Stn014 <span class="nb">&amp;</span> 47<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 048<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 142 <span class="k">\\</span>
+<span class="k">\bottomrule</span>
+<span class="k">\end</span><span class="nb">{</span>tabular<span class="nb">}</span>
+<span class="k">\end</span><span class="nb">{</span>table<span class="nb">}</span>
+</pre></div>
+</div>
 </section>
 </section>
 <section id="professional-formatting">
