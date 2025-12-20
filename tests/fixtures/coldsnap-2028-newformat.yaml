@@ -42,16 +42,14 @@ stations:
     comment: "Deep station"
     latitude: 64.7500
     longitude: -30.3333
-    operation_type: "ctd"
-    action: "cast"
+    operation_type: "CTD"
+    action: "profile"
     water_depth: 2329.0
     operation_depth: 2329.0  # Full water column cast
 
-# ================================================================  
-# MOORING CATALOG - All mooring operations
-# ================================================================
-
-moorings:
+  # ================================================================  
+  # MOORING OPERATIONS - Combined with stations
+  # ================================================================
   # K-line moorings (53N Observatory)
   - name: "K7_Recovery"
     comment: "K7 recovery - 53N Observatory"
@@ -495,11 +493,11 @@ legs:
     arrival_port: "port_reykjavik"  # Intermediate port for crew change
     vessel_speed: 10.0
     buffer_time: 360.0  # 6h weather buffer for mooring operations
-    first_station: "K7_Recovery" 
-    last_station: "STN68"
+    first_waypoint: "K7_Recovery" 
+    last_waypoint: "STN68"
     
     # Activities include all 53N Observatory moorings in sequence
-    cluster:
+    clusters:
       - name: "53N_Observatory_Cluster"
         description: "53N Observatory mooring recovery/deployment sequence"
         strategy: "sequential"
@@ -524,279 +522,150 @@ legs:
         description: "K7 recovery/deployment sequence - strict order required"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "K7_Recovery"
-            type: "mooring"
-          - name: "K7_Deployment"
-            type: "mooring"
+        activities: ["K7_Recovery", "K7_Deployment"]
             
       - name: "K8_Sequence"
         description: "K8 recovery/deployment sequence - strict order required"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "K8_Recovery"
-            type: "mooring"
-          - name: "K8_Deployment"
-            type: "mooring"
+        activities: ["K8_Recovery", "K8_Deployment"]
             
       - name: "DSOW_Sequence_1"
         description: "DSOW1 recovery/deployment sequence"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "DSOW1_Recovery"
-            type: "mooring"
-          - name: "DSOW1_Deployment"
-            type: "mooring"
+        activities: ["DSOW1_Recovery", "DSOW1_Deployment"]
 
       - name: "K9_Sequence"
         description: "K9 recovery/deployment sequence"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "K9_Recovery"
-            type: "mooring"
-          - name: "K9_Deployment"
-            type: "mooring"
+        activities: ["K9_Recovery", "K9_Deployment"]
             
       - name: "DSOW_Sequence_2"
         description: "DSOW2 recovery/deployment sequence"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "DSOW2_Recovery"
-            type: "mooring"
-          - name: "DSOW2_Deployment"
-            type: "mooring"
+        activities: ["DSOW2_Recovery", "DSOW2_Deployment"]
 
       - name: "K10_Sequence"
         description: "K10 recovery/deployment sequence"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "K10_Recovery"
-            type: "mooring"
-          - name: "K10_Deployment"
-            type: "mooring"
+        activities: ["K10_Recovery", "K10_Deployment"]
 
       - name: "DSOW_Sequence_5"
         description: "DSOW5 recovery/deployment sequence - final"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "DSOW5_Recovery"
-            type: "mooring"
-          - name: "DSOW5_Deployment"
-            type: "mooring"
+        activities: ["DSOW5_Recovery", "DSOW5_Deployment"]
 
       - name: "West_Greenland_Operations"
         description: "Halifax to West Greenland Observatory - OSNAP West operations"
         strategy: "sequential"
         ordered: true
         # Activities for West Greenland operations + final deep station
-        activities:
-          - name: "DSOW3_Recovery"
-            type: "mooring"
-          - name: "DSOW3_Deployment"
-            type: "mooring"
-          - name: "DSOW4_Recovery"
-            type: "mooring"
-          - name: "DSOW4_Deployment"
-            type: "mooring"
-          - name: "LS7_Recovery"
-            type: "mooring"
-          - name: "LS6_Recovery"
-            type: "mooring"
-          - name: "LS5_Recovery"
-            type: "mooring"
-          - name: "LS3_Recovery"
-            type: "mooring"
-          - name: "LS1_Recovery"
-            type: "mooring"
-          - name: "LSA_Recovery"
-            type: "mooring"
-          - name: "M1a_Deployment"
-            type: "mooring"
-          - name: "M1b_Deployment"
-            type: "mooring"
-          - name: "M1c_Deployment"
-            type: "mooring"
-          - name: "M1d_Deployment"
-            type: "mooring"
-          - name: "M1e_Deployment"
-            type: "mooring"
-          - name: "M1f_Deployment"
-            type: "mooring"
-          - name: "CF1_Recovery"
-            type: "mooring"
-          - name: "CF2_Recovery"
-            type: "mooring"
-          - name: "CF3_Recovery"
-            type: "mooring"
-          - name: "CF5_Recovery"
-            type: "mooring"
-          - name: "CF6_Recovery"
-            type: "mooring"
-          - name: "CF7_Recovery"
-            type: "mooring"
-          - name: "M1_Recovery"
-            type: "mooring"
-          - name: "M2_Recovery"
-            type: "mooring"
-          - name: "M3_Recovery"
-            type: "mooring"
-          - name: "DS2_Recovery"
-            type: "mooring"
-          - name: "DS2_Deployment"
-            type: "mooring"
-          - name: "AE1_Recovery"
-            type: "mooring"
-          - name: "AE2_Recovery"
-            type: "mooring"
-          - name: "FR1_Recovery"
-            type: "mooring"
-          - name: "FR2_Recovery"
-            type: "mooring"
-          - name: "K1_Recovery"
-            type: "mooring"
-          - name: "K1_Deployment"
-            type: "mooring"
-          - name: "STN68"
-            type: "station"
+        activities: ["DSOW3_Recovery", "DSOW3_Deployment", "DSOW4_Recovery", "DSOW4_Deployment", "LS7_Recovery", "LS6_Recovery", "LS5_Recovery", "LS3_Recovery", "LS1_Recovery", "LSA_Recovery", "M1a_Deployment", "M1b_Deployment", "M1c_Deployment", "M1d_Deployment", "M1e_Deployment", "M1f_Deployment", "CF1_Recovery", "CF2_Recovery", "CF3_Recovery", "CF5_Recovery", "CF6_Recovery", "CF7_Recovery", "M1_Recovery", "M2_Recovery", "M3_Recovery", "DS2_Recovery", "DS2_Deployment", "AE1_Recovery", "AE2_Recovery", "FR1_Recovery", "FR2_Recovery", "K1_Recovery", "K1_Deployment", "STN68"]
 
-        - name: "K1_Deep_Operations"
-          description: "K1 deep mooring operations - final major deployment"
-          strategy: "sequential"
-          ordered: true
-          activities:
-            - name: "K1_Recovery"
-              type: "mooring"
-            - name: "K1_Deployment"
-              type: "mooring"
-    # Multiple clusters for different operation phases
-        - name: "West_Greenland_Deep"
-          description: "Deep water DSOW operations - flexible weather ordering"
-          strategy: "sequential" 
-          ordered: false  # Allow reordering for weather
-          activities:
-            - name: "DSOW3_Recovery"
-              type: "mooring"
-            - name: "DSOW3_Deployment"
-              type: "mooring"
-            - name: "DSOW4_Recovery"
-              type: "mooring"
-            - name: "DSOW4_Deployment"
-              type: "mooring"
+      - name: "K1_Deep_Operations"
+        description: "K1 deep mooring operations - final major deployment"
+        strategy: "sequential"
+        ordered: true
+        activities: ["K1_Recovery", "K1_Deployment"]
+        
+      # Multiple clusters for different operation phases
+      - name: "West_Greenland_Deep"
+        description: "Deep water DSOW operations - flexible weather ordering"
+        strategy: "sequential" 
+        ordered: false  # Allow reordering for weather
+        activities: ["DSOW3_Recovery", "DSOW3_Deployment", "DSOW4_Recovery", "DSOW4_Deployment"]
             
-        - name: "Labrador_Sea_Array"
-          description: "Labrador Sea mooring recoveries - sequential inshore to offshore"
-          strategy: "sequential"
-          ordered: true  # Maintain geographic sequence
-          activities:
-            - name: "LS7_Recovery"
-              type: "mooring"
-            - name: "LS6_Recovery"
-              type: "mooring"
-            - name: "LS5_Recovery"
-              type: "mooring"
-            - name: "LS3_Recovery"
-              type: "mooring"
-            - name: "LS1_Recovery"
-              type: "mooring"
-            - name: "LSA_Recovery"
-              type: "mooring"
+      - name: "Labrador_Sea_Array"
+        description: "Labrador Sea mooring recoveries - sequential inshore to offshore"
+        strategy: "sequential"
+        ordered: true  # Maintain geographic sequence
+        activities: ["LS7_Recovery", "LS6_Recovery", "LS5_Recovery", "LS3_Recovery", "LS1_Recovery", "LSA_Recovery"]
               
-        - name: "Triangle_Array_Deployment"
-          description: "Triangle mooring array deployment - multiple units at same location"
-          strategy: "sequential"
-          ordered: true  # Deploy in sequence for safety
-          activities:
-            - name: "M1a_Deployment"
-              type: "mooring"
-            - name: "M1b_Deployment"
-              type: "mooring"
-            - name: "M1c_Deployment"
-              type: "mooring"
-            - name: "M1d_Deployment"
-              type: "mooring"
-            - name: "M1e_Deployment"
-              type: "mooring"
-            - name: "M1f_Deployment"
-              type: "mooring"
+      - name: "Triangle_Array_Deployment"
+        description: "Triangle mooring array deployment - multiple units at same location"
+        strategy: "sequential"
+        ordered: true  # Deploy in sequence for safety
+        activities: ["M1a_Deployment", "M1b_Deployment", "M1c_Deployment", "M1d_Deployment", "M1e_Deployment", "M1f_Deployment"]
             
-        - name: "Coastal_Front_Array"
-          description: "Coastal front mooring recoveries - weather flexible"
-          strategy: "sequential"
-          ordered: false  # Allow weather-based reordering
-          activities:
-            - name: "CF1_Recovery"
-              type: "mooring"
-            - name: "CF2_Recovery"
-              type: "mooring"
-            - name: "CF3_Recovery"
-              type: "mooring"
-            - name: "CF5_Recovery"
-              type: "mooring"
-            - name: "CF6_Recovery"
-              type: "mooring"
-            - name: "CF7_Recovery"
-              type: "mooring"
-            - name: "M1_Recovery"
-              type: "mooring"
-            - name: "M2_Recovery"
-              type: "mooring"
-            - name: "M3_Recovery"
-              type: "mooring"
+      - name: "Coastal_Front_Array"
+        description: "Coastal front mooring recoveries - weather flexible"
+        strategy: "sequential"
+        ordered: false  # Allow weather-based reordering
+        activities: ["CF1_Recovery", "CF2_Recovery", "CF3_Recovery", "CF5_Recovery", "CF6_Recovery", "CF7_Recovery", "M1_Recovery", "M2_Recovery", "M3_Recovery"]
             
-        - name: "Denmark_Strait_Operations"
-          description: "Denmark Strait overflow monitoring - critical sequence"
-          strategy: "sequential"
-          ordered: true
-          activities:
-            - name: "DS2_Recovery"
-              type: "mooring"
-            - name: "DS2_Deployment"
-              type: "mooring"
+      - name: "Denmark_Strait_Operations"
+        description: "Denmark Strait overflow monitoring - critical sequence"
+        strategy: "sequential"
+        ordered: true
+        activities: ["DS2_Recovery", "DS2_Deployment"]
             
-        - name: "AEGIR_Kangerlussuaq"
-          description: "Kangerlussuaq fjord operations - weather dependent"
-          strategy: "sequential"
-          ordered: false  # Weather and ice dependent
-          activities:
-            - name: "AE1_Recovery"
-              type: "mooring"
-            - name: "AE2_Recovery"
-              type: "mooring"
-            - name: "FR1_Recovery"
-              type: "mooring"
-            - name: "FR2_Recovery"
-              type: "mooring"
-            
-
+      - name: "AEGIR_Kangerlussuaq"
+        description: "Kangerlussuaq fjord operations - weather dependent"
+        strategy: "sequential"
+        ordered: false  # Weather and ice dependent
+        activities: ["AE1_Recovery", "AE2_Recovery", "FR1_Recovery", "FR2_Recovery"]
             
       - name: "Final_Deep_Station"
         description: "Final deep water CTD station before return"
         strategy: "sequential"
         ordered: true
-        activities:
-          - name: "STN68"
-            type: "station"
+        activities: ["STN68"]
 
 # ================================================================
-# SPECIAL OPERATIONS (formerly misc)
+# SPECIAL AREA OPERATIONS (formerly special_operations)
 # ================================================================
 
-# Special extended operations with significant time allocations
-special_operations:
+# Special extended operations converted to area operations with locations
+areas:
   - name: "CTD_Calibration"
     description: "Full CTD sensor calibration and validation"
+    operation_type: "survey"
+    action: "bathymetry"
     duration: 1200.0  # 20 hours
+    # Location near St. Johns for calibration
+    corners:
+      - latitude: 47.5
+        longitude: -52.7
+      - latitude: 47.6
+        longitude: -52.7
+      - latitude: 47.6
+        longitude: -52.6
+      - latitude: 47.5
+        longitude: -52.6
     
   - name: "Tow_Yo_Operations"
     description: "Extended tow-yo sampling program"
+    operation_type: "survey"
+    action: "tow_yo"
     duration: 5760.0  # 5 days continuous operations
+    # Location in deep water area
+    corners:
+      - latitude: 60.0
+        longitude: -45.0
+      - latitude: 61.0
+        longitude: -45.0
+      - latitude: 61.0
+        longitude: -44.0
+      - latitude: 60.0
+        longitude: -44.0
     
   - name: "Glider_Operations"
     description: "Autonomous glider deployment and monitoring"
+    operation_type: "survey"
+    action: "bathymetry"
     duration: 1080.0  # 18 hours deployment/recovery
+    # Location for glider operations
+    corners:
+      - latitude: 59.5
+        longitude: -42.0
+      - latitude: 59.7
+        longitude: -42.0
+      - latitude: 59.7
+        longitude: -41.8
+      - latitude: 59.5
+        longitude: -41.8

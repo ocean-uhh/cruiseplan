@@ -243,8 +243,8 @@ This document outlines all screenshots needed for comprehensive user workflow do
 - **File**: `html_output_fullpage.png`
 - **Content**: Complete HTML output page showing:
   - Navigation header and cruise summary
-  - Interactive timeline table
-  - Embedded map visualization
+  - Timeline table with operation details
+  - Embedded cruise track map (PNG)
   - Station details section
   - Professional web formatting
 - **Context**: HTML output format documentation

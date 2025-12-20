@@ -123,34 +123,13 @@ Workflow Paths
   3. **Validate often:** Run validation after each major edit to catch issues early
   4. **Test scheduling:** Generate test schedules to check feasibility
 
-Choose your workflow based on your planning needs:
-
-:ref:`user_workflow_path_1` (General usage)
-   Use when you want to plan stations from scratch without historical context
-
-:ref:`user_workflow_path_2` (PANGAEA-enhanced for historical context)
-   Use when you want to incorporate historical station positions from PANGAEA, i.e. to compare a section with past occupations
-
-:ref:`user_workflow_path_3` (Configuration-only to iterate & refine)
-   Use when you already have a YAML configuration and need to process it
-
 .. toctree::
    :maxdepth: 1
-   :caption: Workflow paths
+   :caption: Choose your workflow based on your planning needs
 
-   workflow/path1.rst
-   workflow/path2.rst
-   workflow/path3.rst
-
-
-Best Practices
---------------
-
-
-
-
-----
-
+   **Path 1: General Usage** - Plan stations from scratch without historical context <workflow/path1.rst>
+   **Path 2: PANGAEA-Enhanced** - Incorporate historical station positions for context <workflow/path2.rst>
+   **Path 3: Configuration-Only** - Process existing YAML configurations <workflow/path3.rst>
 
 Advanced Topics
 ===============
