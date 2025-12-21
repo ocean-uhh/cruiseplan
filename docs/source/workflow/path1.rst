@@ -473,7 +473,7 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
 
 .. _generate_schedule_outputs:
 
-phase 3: Generate Schedule and Outputs
+Phase 3: Generate Schedule and Outputs
 --------------------------------------
 
 **Purpose:** Create detailed cruise timeline and export professional outputs.

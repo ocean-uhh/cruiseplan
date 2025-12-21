@@ -159,7 +159,9 @@ class Cruise:
 
                     # Resolve Activities (new unified field)
                     if cluster.activities:
-                        cluster.activities = self._resolve_mixed_list(cluster.activities)
+                        cluster.activities = self._resolve_mixed_list(
+                            cluster.activities
+                        )
 
                     # Resolve Buckets (deprecated field - kept for compatibility)
                     if cluster.stations:
@@ -256,7 +258,9 @@ class Cruise:
                 resolved_items.append(item)
         return resolved_items
 
-    def _convert_inline_definition(self, definition_dict: dict) -> Union[StationDefinition, TransitDefinition, AreaDefinition]:
+    def _convert_inline_definition(
+        self, definition_dict: dict
+    ) -> Union[StationDefinition, TransitDefinition, AreaDefinition]:
         """
         Convert an inline dictionary definition to the appropriate definition object.
 
@@ -285,19 +289,25 @@ class Cruise:
         elif "start" in definition_dict and "end" in definition_dict:
             # This is a transit definition
             return TransitDefinition(**definition_dict)
-        elif any(field in definition_dict for field in ["polygon", "center", "boundary"]):
+        elif any(
+            field in definition_dict for field in ["polygon", "center", "boundary"]
+        ):
             # This is an area definition
             return AreaDefinition(**definition_dict)
+        # Fallback: assume it's a station if it has common station fields
+        elif any(
+            field in definition_dict
+            for field in ["latitude", "longitude", "position", "action"]
+        ):
+            # Add default operation_type if missing
+            if "operation_type" not in definition_dict:
+                definition_dict = definition_dict.copy()
+                definition_dict["operation_type"] = "CTD"  # Default operation type
+            return StationDefinition(**definition_dict)
         else:
-            # Fallback: assume it's a station if it has common station fields
-            if any(field in definition_dict for field in ["latitude", "longitude", "position", "action"]):
-                # Add default operation_type if missing
-                if "operation_type" not in definition_dict:
-                    definition_dict = definition_dict.copy()
-                    definition_dict["operation_type"] = "CTD"  # Default operation type
-                return StationDefinition(**definition_dict)
-            else:
-                raise ValueError(f"Cannot determine definition type for inline definition: {definition_dict}")
+            raise ValueError(
+                f"Cannot determine definition type for inline definition: {definition_dict}"
+            )
 
     def _resolve_port_reference(self, port_ref) -> PortDefinition:
         """

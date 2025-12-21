@@ -287,9 +287,7 @@ class LaTeXGenerator:
                 sum(t["duration_minutes"] for t in navigation_transits) / 60
             )
         # Note that navigation transits only include to/from port transits here
-        total_navigation_transit_h = (
-            transit_to_area_h + transit_from_area_h 
-        )
+        total_navigation_transit_h = transit_to_area_h + transit_from_area_h
 
         # Generate work days rows for the timeline
         summary_rows = self._generate_work_days_rows_for_timeline(timeline)

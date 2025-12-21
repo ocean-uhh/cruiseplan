@@ -13,7 +13,7 @@ transits:
   - name: ADCP_Survey  
     operation_type: underway
     action: ADCP
-    vessel_speed: 10.0
+    vessel_speed: 5.0
     route:
       - latitude: 46.0
         longitude: -50

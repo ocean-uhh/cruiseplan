@@ -8,7 +8,7 @@ This page provides a high-level overview of how to use CruisePlan for oceanograp
    :alt: CruisePlan Process Overview
    :width: 100%
    
-   **CruisePlan Process Overview**: The complete workflow from data preparation through final deliverables, showing the unified ``cruiseplan process`` command and individual command options. CruisePlanommands are in red, files in black, and the blue box indicates where manual editing occurs.
+   **CruisePlan Process Overview**: The complete workflow from data preparation through final deliverables, showing the unified ``cruiseplan process`` command and individual command options. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.
 
 Three-Phase Workflow
 --------------------

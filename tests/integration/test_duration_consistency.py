@@ -5,13 +5,11 @@ This module tests that LaTeX and HTML generators calculate total durations
 consistently, ensuring no double-counting of transit times or other operations.
 """
 
-import pytest
-from pathlib import Path
 
-from cruiseplan.core.cruise import Cruise
+import pytest
+
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.output.html_generator import HTMLGenerator  
-from cruiseplan.output.latex_generator import LaTeXGenerator
+from cruiseplan.core.cruise import Cruise
 
 
 class TestDurationConsistency:
@@ -78,7 +76,7 @@ legs:
         """Create a cruise object from the sample configuration."""
         return Cruise(sample_cruise_config)
 
-    @pytest.fixture 
+    @pytest.fixture
     def timeline(self, cruise):
         """Generate timeline for the cruise."""
         return generate_timeline(cruise.config, cruise.runtime_legs[0])
@@ -86,68 +84,81 @@ legs:
     def test_latex_html_duration_consistency(self, cruise, timeline):
         """
         Test that LaTeX and HTML generators calculate total durations consistently.
-        
+
         Verifies that:
         LaTeX: total_navigation_transit_h + total_operation_duration_h
         equals
         HTML: total_duration_h (sum of all activity durations)
         """
         # Calculate HTML total duration (matches HTML generator logic)
-        # This is the exact logic from line ~404 in html_generator.py  
+        # This is the exact logic from line ~404 in html_generator.py
         html_total_duration_h = (
             sum(activity["duration_minutes"] for activity in timeline) / 60.0
         )
 
         # Extract LaTeX duration calculations (we need to replicate the logic)
         # Since the LaTeX calculations are internal, we'll replicate them here
-        
+
         # Categorize activities exactly like LaTeX generator does
         stations = [a for a in timeline if a.get("op_type") == "station"]
-        moorings = [a for a in timeline if a.get("op_type") == "mooring"] 
+        moorings = [a for a in timeline if a.get("op_type") == "mooring"]
         areas = [a for a in timeline if a.get("op_type") == "area"]
-        
+
         # Get all transits first
         all_transits = [a for a in timeline if a.get("op_type") == "transit"]
-        
+
         # Navigation transits don't have actions (exact LaTeX logic)
         navigation_transits = [a for a in all_transits if not a.get("action")]
-        
+
         # Scientific transits have actions
         scientific_transits = [a for a in all_transits if a.get("action")]
 
         # Calculate major port transits (exact LaTeX logic)
-        port_departure_activities = [a for a in timeline if a["activity"] == "Port_Departure"]
-        port_arrival_activities = [a for a in timeline if a["activity"] == "Port_Arrival"]
+        port_departure_activities = [
+            a for a in timeline if a["activity"] == "Port_Departure"
+        ]
+        port_arrival_activities = [
+            a for a in timeline if a["activity"] == "Port_Arrival"
+        ]
 
         # Calculate individual durations (hours)
         station_duration_h = sum(s["duration_minutes"] for s in stations) / 60
-        mooring_duration_h = sum(m["duration_minutes"] for m in moorings) / 60  
+        mooring_duration_h = sum(m["duration_minutes"] for m in moorings) / 60
         area_duration_h = sum(a["duration_minutes"] for a in areas) / 60
-        total_scientific_op_h = sum(t["duration_minutes"] for t in scientific_transits) / 60
+        total_scientific_op_h = (
+            sum(t["duration_minutes"] for t in scientific_transits) / 60
+        )
 
         # Port transit calculations (exact LaTeX logic)
         transit_to_area_h = 0.0
         transit_from_area_h = 0.0
-        
+
         # Transit to area = departure port activity duration
         if port_departure_activities:
             transit_to_area_h = port_departure_activities[0]["duration_minutes"] / 60
 
-        # Transit from area = arrival port activity duration  
+        # Transit from area = arrival port activity duration
         if port_arrival_activities:
             transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
 
-        # Within area = navigation transits EXCLUDING port transits (correct LaTeX logic)  
-        within_area_transits = [t for t in navigation_transits 
-                                if t.get("activity") not in ["Port_Departure", "Port_Arrival"]]
-        transit_within_area_h = sum(t["duration_minutes"] for t in within_area_transits) / 60
+        # Within area = navigation transits EXCLUDING port transits (correct LaTeX logic)
+        within_area_transits = [
+            t
+            for t in navigation_transits
+            if t.get("activity") not in ["Port_Departure", "Port_Arrival"]
+        ]
+        transit_within_area_h = (
+            sum(t["duration_minutes"] for t in within_area_transits) / 60
+        )
 
         # LaTeX calculations (based on your corrected logic)
-        total_navigation_transit_h = transit_to_area_h + transit_from_area_h  # Excludes within-area
-        
+        total_navigation_transit_h = (
+            transit_to_area_h + transit_from_area_h
+        )  # Excludes within-area
+
         total_operation_duration_h = (
             station_duration_h
-            + mooring_duration_h  
+            + mooring_duration_h
             + area_duration_h
             + total_scientific_op_h
             + transit_within_area_h  # Within-area transit counted as operation time
@@ -156,19 +167,33 @@ legs:
         # Optional debug output for troubleshooting (set to False for normal operation)
         debug_output = False
         if debug_output:
-            print(f"\n=== TIMELINE DEBUG INFO ===")
+            print("\n=== TIMELINE DEBUG INFO ===")
             print(f"Total timeline activities: {len(timeline)}")
             for i, activity in enumerate(timeline[:10]):  # Show first 10 activities
-                print(f"Activity {i}: {activity.get('name', 'N/A')} - op_type: {activity.get('op_type', 'N/A')} - duration: {activity.get('duration_minutes', 'N/A')}")
-                
-            print(f"Categorization counts:")
-            print(f"  stations: {len(stations)} - total duration: {station_duration_h:.3f}h")
-            print(f"  moorings: {len(moorings)} - total duration: {mooring_duration_h:.3f}h")  
+                print(
+                    f"Activity {i}: {activity.get('name', 'N/A')} - op_type: {activity.get('op_type', 'N/A')} - duration: {activity.get('duration_minutes', 'N/A')}"
+                )
+
+            print("Categorization counts:")
+            print(
+                f"  stations: {len(stations)} - total duration: {station_duration_h:.3f}h"
+            )
+            print(
+                f"  moorings: {len(moorings)} - total duration: {mooring_duration_h:.3f}h"
+            )
             print(f"  areas: {len(areas)} - total duration: {area_duration_h:.3f}h")
-            print(f"  navigation_transits: {len(navigation_transits)} - total duration: {transit_within_area_h:.3f}h")
-            print(f"  scientific_transits: {len(scientific_transits)} - total duration: {total_scientific_op_h:.3f}h")
-            print(f"  port_departure_activities: {len(port_departure_activities)} - duration: {transit_to_area_h:.3f}h")
-            print(f"  port_arrival_activities: {len(port_arrival_activities)} - duration: {transit_from_area_h:.3f}h")
+            print(
+                f"  navigation_transits: {len(navigation_transits)} - total duration: {transit_within_area_h:.3f}h"
+            )
+            print(
+                f"  scientific_transits: {len(scientific_transits)} - total duration: {total_scientific_op_h:.3f}h"
+            )
+            print(
+                f"  port_departure_activities: {len(port_departure_activities)} - duration: {transit_to_area_h:.3f}h"
+            )
+            print(
+                f"  port_arrival_activities: {len(port_arrival_activities)} - duration: {transit_from_area_h:.3f}h"
+            )
 
         # The key test: LaTeX totals should equal HTML total
         latex_total_duration_h = total_navigation_transit_h + total_operation_duration_h
@@ -191,37 +216,48 @@ legs:
     def test_no_double_counting_transit_within_area(self, cruise, timeline):
         """
         Test that transit_within_area is not double-counted.
-        
+
         Verifies that within-area navigation transits are only counted once
         in the total duration calculation.
         """
         # Extract navigation transits
         navigation_transits = [
-            a for a in timeline 
-            if a.get("activity_type") == "transit" and a.get("transit_type") == "navigation"
+            a
+            for a in timeline
+            if a.get("activity_type") == "transit"
+            and a.get("transit_type") == "navigation"
         ]
-        
+
         if not navigation_transits:
             pytest.skip("No navigation transits in timeline to test double-counting")
 
         # Calculate total duration using simple sum (HTML approach)
-        total_simple_sum_h = sum(activity["duration_minutes"] for activity in timeline) / 60.0
+        total_simple_sum_h = (
+            sum(activity["duration_minutes"] for activity in timeline) / 60.0
+        )
 
         # Calculate all individual components
         stations = [a for a in timeline if a.get("activity_type") == "station"]
         moorings = [a for a in timeline if a.get("activity_type") == "mooring"]
-        areas = [a for a in timeline if a.get("activity_type") == "area"] 
-        scientific_transits = [a for a in timeline if a.get("activity_type") == "transit" and a.get("transit_type") == "scientific"]
-        port_transits = [a for a in timeline if a.get("activity_type") == "port_transit"]
+        areas = [a for a in timeline if a.get("activity_type") == "area"]
+        scientific_transits = [
+            a
+            for a in timeline
+            if a.get("activity_type") == "transit"
+            and a.get("transit_type") == "scientific"
+        ]
+        port_transits = [
+            a for a in timeline if a.get("activity_type") == "port_transit"
+        ]
 
         # Sum all individual components (should equal simple sum)
         component_sum_h = (
-            sum(s["duration_minutes"] for s in stations) / 60 +
-            sum(m["duration_minutes"] for m in moorings) / 60 +  
-            sum(a["duration_minutes"] for a in areas) / 60 +
-            sum(t["duration_minutes"] for t in scientific_transits) / 60 +
-            sum(t["duration_minutes"] for t in navigation_transits) / 60 +
-            sum(t["duration_minutes"] for t in port_transits) / 60
+            sum(s["duration_minutes"] for s in stations) / 60
+            + sum(m["duration_minutes"] for m in moorings) / 60
+            + sum(a["duration_minutes"] for a in areas) / 60
+            + sum(t["duration_minutes"] for t in scientific_transits) / 60
+            + sum(t["duration_minutes"] for t in navigation_transits) / 60
+            + sum(t["duration_minutes"] for t in port_transits) / 60
         )
 
         # These should be identical - if not, there's double counting somewhere
@@ -235,25 +271,27 @@ legs:
     def test_activity_categorization_completeness(self, timeline):
         """
         Test that all activities in timeline are properly categorized.
-        
+
         Ensures no activities are missed in the duration calculations.
         """
         all_activities = len(timeline)
-        
+
         # Count activities by op_type (the actual field used in timeline)
         stations = len([a for a in timeline if a.get("op_type") == "station"])
         moorings = len([a for a in timeline if a.get("op_type") == "mooring"])
         areas = len([a for a in timeline if a.get("op_type") == "area"])
-        
+
         # All transits use op_type="transit"
         all_transits = [a for a in timeline if a.get("op_type") == "transit"]
         navigation_transits = len([a for a in all_transits if not a.get("action")])
         scientific_transits = len([a for a in all_transits if a.get("action")])
-        
+
         # Port transits are identified by activity field
-        port_departure = len([a for a in timeline if a.get("activity") == "Port_Departure"])
+        port_departure = len(
+            [a for a in timeline if a.get("activity") == "Port_Departure"]
+        )
         port_arrival = len([a for a in timeline if a.get("activity") == "Port_Arrival"])
-        
+
         # Note: port activities are also transits, so we need to avoid double counting
         # Total categorized activities = stations + moorings + areas + all_transits
         categorized_total = stations + moorings + areas + len(all_transits)
@@ -263,7 +301,7 @@ legs:
             f"Total activities: {all_activities}\n"
             f"Categorized: {categorized_total}\n"
             f"  - stations: {stations}\n"
-            f"  - moorings: {moorings}\n" 
+            f"  - moorings: {moorings}\n"
             f"  - areas: {areas}\n"
             f"  - all_transits: {len(all_transits)}\n"
             f"    - navigation_transits (no action): {navigation_transits}\n"
@@ -276,20 +314,28 @@ legs:
     def test_specific_duration_values(self, timeline):
         """
         Test that specific durations match expected values from the configuration.
-        
+
         Validates that the timeline generation preserves the configured durations.
         """
         # Find specific activities and verify their durations
         stn_001 = next((a for a in timeline if a.get("name") == "STN_001"), None)
-        stn_002 = next((a for a in timeline if a.get("name") == "STN_002"), None) 
-        mooring_001 = next((a for a in timeline if a.get("name") == "MOORING_001"), None)
+        stn_002 = next((a for a in timeline if a.get("name") == "STN_002"), None)
+        mooring_001 = next(
+            (a for a in timeline if a.get("name") == "MOORING_001"), None
+        )
 
         # Verify configured durations are preserved
         if stn_001:
-            assert stn_001["duration_minutes"] == 120.0, f"STN_001 duration should be 120 minutes, got {stn_001['duration_minutes']}"
-        
+            assert (
+                stn_001["duration_minutes"] == 120.0
+            ), f"STN_001 duration should be 120 minutes, got {stn_001['duration_minutes']}"
+
         if stn_002:
-            assert stn_002["duration_minutes"] == 180.0, f"STN_002 duration should be 180 minutes, got {stn_002['duration_minutes']}"
-            
+            assert (
+                stn_002["duration_minutes"] == 180.0
+            ), f"STN_002 duration should be 180 minutes, got {stn_002['duration_minutes']}"
+
         if mooring_001:
-            assert mooring_001["duration_minutes"] == 240.0, f"MOORING_001 duration should be 240 minutes, got {mooring_001['duration_minutes']}"
+            assert (
+                mooring_001["duration_minutes"] == 240.0
+            ), f"MOORING_001 duration should be 240 minutes, got {mooring_001['duration_minutes']}"
