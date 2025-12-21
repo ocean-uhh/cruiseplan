@@ -62,7 +62,7 @@ legs:
         # Testing the "Hybrid" Pattern:
         # 1. String Reference (Look up in Catalog)
         # 2. Inline Dictionary (One-off definition)
-        stations:
+        activities:
           - "STN_Start_01"                 # Reference
           - "STN_Ref_02"                   # Reference
           - name: "STN_Inline_OneOff"      # Inline

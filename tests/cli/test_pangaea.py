@@ -158,7 +158,7 @@ class TestMainCommand:
     @patch("cruiseplan.cli.pangaea.read_doi_list")
     @patch("cruiseplan.cli.pangaea.validate_dois")
     @patch("cruiseplan.cli.pangaea.validate_input_file")
-    @patch("cruiseplan.cli.pangaea.validate_output_path")
+    @patch("cruiseplan.cli.utils.validate_output_path")
     def test_main_success(
         self,
         mock_validate_output,
@@ -169,6 +169,8 @@ class TestMainCommand:
         mock_fetch,
     ):
         """Test successful main command execution."""
+        import tempfile
+
         # Setup mocks
         mock_validate_input.return_value = Path("/test/dois.txt")
         mock_validate_output.return_value = Path("/test/output.pkl")
@@ -176,19 +178,33 @@ class TestMainCommand:
         mock_validate_dois.return_value = ["10.1594/PANGAEA.12345"]
         mock_fetch.return_value = [{"label": "Campaign1"}]
 
-        # Create args
-        args = Namespace(
-            doi_file=Path("dois.txt"),
-            output_dir=Path("tests_output"),
-            output_file=None,
-            rate_limit=1.0,
-            merge_campaigns=True,
-            verbose=False,
-            quiet=False,
-        )
+        # Create temporary DOI file for workflow detection
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
+            f.write("10.1594/PANGAEA.12345\n")
+            temp_doi_file = f.name
 
-        # Should not raise exception
-        main(args)
+        try:
+            # Create args (new unified format for DOI file mode)
+            args = Namespace(
+                query_or_file=temp_doi_file,
+                output_dir=Path("tests_output"),
+                output_file=None,
+                rate_limit=1.0,
+                merge_campaigns=True,
+                verbose=False,
+                quiet=False,
+                lat=None,  # Not provided in DOI file mode
+                lon=None,  # Not provided in DOI file mode
+                limit=None,  # Not used in DOI file mode
+            )
+
+            # Should not raise exception
+            main(args)
+        finally:
+            # Clean up temporary file
+            import os
+
+            os.unlink(temp_doi_file)
 
         # Verify calls
         mock_validate_input.assert_called_once()
@@ -203,11 +219,15 @@ class TestMainCommand:
         mock_validate_input.side_effect = CLIError("File not found")
 
         args = Namespace(
-            doi_file=Path("nonexistent.txt"),
+            query_or_file="nonexistent.txt",
             output_dir=Path("tests_output"),
             output_file=None,
             rate_limit=1.0,
             merge_campaigns=True,
+            verbose=False,
+            lat=None,
+            lon=None,
+            limit=None,
         )
 
         with pytest.raises(SystemExit):
@@ -216,11 +236,15 @@ class TestMainCommand:
     def test_main_keyboard_interrupt(self):
         """Test main command handles keyboard interrupt."""
         args = Namespace(
-            doi_file=Path("dois.txt"),
+            query_or_file="dois.txt",
             output_dir=Path("tests_output"),
             output_file=None,
             rate_limit=1.0,
             merge_campaigns=True,
+            verbose=False,
+            lat=None,
+            lon=None,
+            limit=None,
         )
 
         with patch("cruiseplan.cli.pangaea.validate_input_file") as mock_validate:

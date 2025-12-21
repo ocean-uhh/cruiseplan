@@ -125,7 +125,7 @@ After installation, verify CruisePlan is working correctly:
    cruiseplan --help
 
    # Test bathymetry download (requires internet)
-   cruiseplan download --help
+   cruiseplan bathymetry --help
 
    # Verify interactive components
    python -c "import matplotlib; print('✓ Matplotlib available')"

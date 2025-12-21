@@ -101,13 +101,13 @@ def main():
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
 Examples:
-  cruiseplan schedule -c cruise.yaml -o results/
-  cruiseplan map -c cruise.yaml --figsize 14 10
+  cruiseplan bathymetry --source gebco2025
+  cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -30
   cruiseplan stations --lat 50 65 --lon -60 -30
   cruiseplan enrich -c cruise.yaml --add-depths --add-coords
   cruiseplan validate -c cruise.yaml --check-depths
-  cruiseplan pandoi "CTD" --lat 50 60 --lon -50 -40 --limit 20
-  cruiseplan pangaea doi_list.txt
+  cruiseplan schedule -c cruise.yaml -o results/
+  cruiseplan map -c cruise.yaml --figsize 14 10
 
 For detailed help on a subcommand:
   cruiseplan <subcommand> --help
@@ -125,10 +125,10 @@ For detailed help on a subcommand:
         help="Available subcommands",
     )
 
-    # --- 1. Download Subcommand ---
-    download_parser = subparsers.add_parser(
-        "download",
-        help="Download required data assets (bathymetry, etc.)",
+    # --- 1. Bathymetry Subcommand ---
+    bathymetry_parser = subparsers.add_parser(
+        "bathymetry",
+        help="Download bathymetry datasets for depth calculations",
         description="Download bathymetry datasets for cruise planning",
         epilog="""
 This command downloads bathymetry datasets for depth calculations and bathymetric analysis.
@@ -138,10 +138,63 @@ Available sources:
   gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
 
 Examples:
-  cruiseplan download                                    # Download ETOPO 2022 (default)
-  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly  
-  cruiseplan download --bathymetry-source gebco2025     # Download high-res GEBCO 2025
-  cruiseplan download --bathymetry-source etopo2022 --citation  # Show citation info only
+  cruiseplan bathymetry                                          # Download ETOPO 2022 (default)
+  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly  
+  cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025
+  cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only
+        """,
+    )
+    bathymetry_parser.add_argument(
+        "--bathy-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset to download (default: etopo2022)",
+    )
+    # Legacy parameter support
+    bathymetry_parser.add_argument(
+        "--source",
+        dest="source",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    bathymetry_parser.add_argument(
+        "--bathymetry-source",
+        dest="bathymetry_source",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    bathymetry_parser.add_argument(
+        "--citation",
+        action="store_true",
+        help="Show citation information for the bathymetry source without downloading",
+    )
+    bathymetry_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data/bathymetry"),
+        help="Output directory for bathymetry files (default: data/bathymetry)",
+    )
+
+    # --- 1b. Download Subcommand (DEPRECATED - will be removed in v0.3.0) ---
+    download_parser = subparsers.add_parser(
+        "download",
+        help="[DEPRECATED] Use 'bathymetry' instead (will be removed in v0.3.0)",
+        description="[DEPRECATED] Download bathymetry datasets - use 'cruiseplan bathymetry' instead",
+        epilog="""
+⚠️  WARNING: This command is deprecated and will be removed in v0.3.0.
+Please use 'cruiseplan bathymetry' instead.
+
+This command downloads bathymetry datasets for depth calculations and bathymetric analysis.
+
+Available sources:
+  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
+  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
+
+Examples:
+  cruiseplan bathymetry                                    # Use this instead
+  cruiseplan bathymetry --source etopo2022                # Use this instead  
+  cruiseplan bathymetry --source gebco2025                # Use this instead
         """,
     )
     download_parser.add_argument(
@@ -182,6 +235,11 @@ Examples:
         help="Output directory (default: data)",
     )
     schedule_parser.add_argument(
+        "--output",
+        type=str,
+        help="Base filename for outputs (default: use cruise name from config)",
+    )
+    schedule_parser.add_argument(
         "--format",
         choices=["html", "latex", "csv", "netcdf", "png", "all"],
         default="all",
@@ -192,6 +250,28 @@ Examples:
         "--derive-netcdf",
         action="store_true",
         help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
+    )
+
+    # Bathymetry options for PNG map generation
+    schedule_parser.add_argument(
+        "--bathy-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset for PNG maps (default: etopo2022)",
+    )
+    schedule_parser.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry contour stride for PNG maps (default: 10)",
+    )
+    schedule_parser.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        metavar=("WIDTH", "HEIGHT"),
+        default=[12.0, 8.0],
+        help="Figure size for PNG maps in inches (default: 12 8)",
     )
 
     # --- 3. Stations Subcommand ---
@@ -358,9 +438,11 @@ Examples:
         help="Directory containing bathymetry data (default: data)",
     )
 
-    # --- 6. PANDOI Subcommand ---
+    # --- 6. PANDOI Subcommand (DEPRECATED - will be removed in v0.3.0) ---
     pandoi_parser = subparsers.add_parser(
-        "pandoi", help="Search PANGAEA datasets by query and geographic bounds"
+        "pandoi",
+        help="[DEPRECATED] Use 'pangaea' instead (will be removed in v0.3.0)",
+        description="[DEPRECATED] PANGAEA dataset search - use 'cruiseplan pangaea' instead",
     )
     pandoi_parser.add_argument(
         "query", help="Search query string (e.g., 'CTD', 'temperature', 'Arctic Ocean')"
@@ -478,21 +560,244 @@ Examples:
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-    # --- 8. Pangaea Subcommand ---
+    # --- 8. Process Subcommand (Unified Configuration Processing) ---
+    process_parser = subparsers.add_parser(
+        "process",
+        help="Unified configuration processing (enrich + validate + map)",
+        description="Unified interface for complete configuration processing pipeline",
+        epilog="""
+This command provides a unified interface for the complete configuration processing pipeline,
+combining enrichment (adding missing data), validation (checking configuration integrity),
+and map generation into a single command with smart defaults and flexible control.
+
+Key Features:
+- Smart defaults: All enrichment options enabled by default
+- Flexible execution: Control which steps run with --only-* and --no-* flags  
+- Consistent output naming: Use --output for base filename across all generated files
+- Modern parameter names: Shorter --bathy-* parameters for reduced typing
+
+Examples:
+  cruiseplan process -c cruise.yaml                                    # Full processing with smart defaults
+  cruiseplan process -c cruise.yaml --output expedition_2024          # With custom base filename
+  cruiseplan process -c cruise.yaml --only-enrich --no-sections       # Only enrichment, skip CTD sections
+  cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0   # Only validation with custom tolerance
+  cruiseplan process -c cruise.yaml --only-map --format png           # Only map generation, PNG only
+  cruiseplan process -c cruise.yaml --no-map --strict                 # Skip maps, strict validation
+        """,
+    )
+    process_parser.add_argument(
+        "-c",
+        "--config-file",
+        type=Path,
+        required=True,
+        help="Input YAML configuration file",
+    )
+
+    # Processing mode flags (mutually exclusive --only-* modes)
+    process_parser.add_argument(
+        "--only-enrich", action="store_true", help="Only run enrichment step"
+    )
+    process_parser.add_argument(
+        "--only-validate",
+        action="store_true",
+        help="Only run validation step (no enrichment or map)",
+    )
+    process_parser.add_argument(
+        "--only-map",
+        action="store_true",
+        help="Only run map generation (no enrichment or validation)",
+    )
+
+    # Processing step control flags (for full processing mode)
+    process_parser.add_argument(
+        "--no-enrich", action="store_true", help="Skip enrichment step"
+    )
+    process_parser.add_argument(
+        "--no-validate", action="store_true", help="Skip validation step"
+    )
+    process_parser.add_argument(
+        "--no-map", action="store_true", help="Skip map generation step"
+    )
+
+    # Enrichment control flags (smart defaults - all enabled unless disabled)
+    process_parser.add_argument(
+        "--no-depths",
+        action="store_true",
+        help="Skip adding missing depths (default: depths added)",
+    )
+    process_parser.add_argument(
+        "--no-coords",
+        action="store_true",
+        help="Skip adding coordinate fields (default: coords added)",
+    )
+    process_parser.add_argument(
+        "--no-sections",
+        action="store_true",
+        help="Skip expanding CTD sections (default: sections expanded)",
+    )
+    process_parser.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Skip expanding port references (default: ports expanded)",
+    )
+
+    # Validation options
+    process_parser.add_argument(
+        "--no-depth-check",
+        action="store_true",
+        help="Skip depth accuracy checking (default: depths checked)",
+    )
+    process_parser.add_argument(
+        "--strict", action="store_true", help="Enable strict validation mode"
+    )
+    process_parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth difference tolerance in percent (default: 10.0)",
+    )
+
+    # Map generation options
+    process_parser.add_argument(
+        "--format", default="all", help="Map output formats: png,kml,all (default: all)"
+    )
+    process_parser.add_argument(
+        "--figsize",
+        nargs=2,
+        type=float,
+        default=[12, 8],
+        help="Figure size for PNG maps (width height, default: 12 8)",
+    )
+
+    # Output and bathymetry options
+    process_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
+    )
+    process_parser.add_argument(
+        "--output", type=str, help="Base filename for outputs (without extension)"
+    )
+    process_parser.add_argument(
+        "--bathy-source",
+        default="etopo2022",
+        choices=["etopo2022", "gebco2025"],
+        help="Bathymetry dataset (default: etopo2022)",
+    )
+    process_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+    process_parser.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=10,
+        help="Bathymetry contour stride (default: 10)",
+    )
+
+    # Legacy argument support with deprecation warnings
+    process_parser.add_argument(
+        "--bathymetry-source",
+        dest="bathy_source_legacy",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    process_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        dest="bathy_dir_legacy",
+        help="[DEPRECATED] Use --bathy-dir instead",
+    )
+    process_parser.add_argument(
+        "--bathymetry-stride",
+        type=int,
+        dest="bathy_stride_legacy",
+        help="[DEPRECATED] Use --bathy-stride instead",
+    )
+    process_parser.add_argument(
+        "--coord-format",
+        dest="coord_format_legacy",
+        choices=["dmm", "dms"],
+        help="[DEPRECATED] Coordinate format fixed to DMM",
+    )
+
+    # General options
+    process_parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+    process_parser.add_argument(
+        "--quiet", "-q", action="store_true", help="Enable quiet mode"
+    )
+
+    # --- 9. Pangaea Subcommand (Unified Search + Download) ---
     pangaea_parser = subparsers.add_parser(
-        "pangaea", help="Process PANGAEA DOI lists into campaign datasets"
+        "pangaea",
+        help="Search and download PANGAEA datasets, or process existing DOI lists",
+        description="Unified PANGAEA data processor - search by query + geographic bounds OR process existing DOI files",
+        epilog="""
+This command combines PANGAEA dataset search and download functionality:
+
+SEARCH + DOWNLOAD MODE (requires --lat and --lon):
+  cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -30 --output atlantic_study
+  → Generates: atlantic_study_dois.txt + atlantic_study_stations.pkl
+
+DOI FILE MODE (provide existing .txt file):
+  cruiseplan pangaea arctic_dois.txt --output arctic_analysis  
+  → Generates: arctic_analysis_stations.pkl
+
+Output Strategy:
+  --output: Base filename (without extension) for generated files
+  --output-dir: Directory where files are saved (default: data/)
+  
+Examples:
+  cruiseplan pangaea "CTD Arctic Ocean" --lat 70 85 --lon -180 -120 --limit 50
+  cruiseplan pangaea my_dois.txt --rate-limit 0.5 --merge-campaigns
+  cruiseplan pangaea "salinity North Atlantic" --lat 40 65 --lon -70 -10 --output north_atlantic
+        """,
     )
     pangaea_parser.add_argument(
-        "doi_file",
-        type=Path,
-        help="Text file with PANGAEA DOIs (one per line)",
+        "query_or_file",
+        help="Search query string (for search mode) or DOI file path (for file mode)",
+    )
+    pangaea_parser.add_argument(
+        "--lat",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Latitude bounds for search mode (e.g., --lat 50 70)",
+    )
+    pangaea_parser.add_argument(
+        "--lon",
+        nargs=2,
+        type=float,
+        metavar=("MIN", "MAX"),
+        help="Longitude bounds for search mode (e.g., --lon -60 -30)",
+    )
+    pangaea_parser.add_argument(
+        "--limit",
+        type=int,
+        default=10,
+        help="Maximum search results to return (default: 10, max recommended: 100)",
     )
     pangaea_parser.add_argument(
         "-o",
         "--output-dir",
         type=Path,
-        default=Path("data/"),
-        help="Output directory (default: data/)",
+        default=Path("data"),
+        help="Output directory (default: data)",
+    )
+    pangaea_parser.add_argument(
+        "--output",
+        help="Base filename for outputs (without extension or directory)",
+    )
+    pangaea_parser.add_argument(
+        "--output-file",
+        type=Path,
+        help="[DEPRECATED] Specific output file path - use --output instead (will be removed in v0.3.0)",
     )
     pangaea_parser.add_argument(
         "--rate-limit",
@@ -503,12 +808,11 @@ Examples:
     pangaea_parser.add_argument(
         "--merge-campaigns",
         action="store_true",
-        help="Merge campaigns with the same name (Default: true in logic)",
+        default=True,
+        help="Merge campaigns with the same name (default: true)",
     )
     pangaea_parser.add_argument(
-        "--output-file",
-        type=Path,
-        help="Specific pickle output file path",
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
     # Parse args
@@ -523,10 +827,20 @@ Examples:
     try:
         # We use dynamic imports here to minimize startup time and only import the
         # necessary module (e.g., cruiseplan.cli.schedule) when its command is run.
-        if args.subcommand == "download":
-            from cruiseplan.cli.download import main as download_main
+        if args.subcommand == "bathymetry":
+            from cruiseplan.cli.bathymetry import main as bathymetry_main
 
-            download_main(args)
+            bathymetry_main(args)
+        elif args.subcommand == "download":
+            # Deprecated command - show warning and redirect to bathymetry
+            print(
+                "⚠️  WARNING: 'cruiseplan download' is deprecated and will be removed in v0.3.0."
+            )
+            print("   Please use 'cruiseplan bathymetry' instead.\n")
+
+            from cruiseplan.cli.bathymetry import main as bathymetry_main
+
+            bathymetry_main(args)
         elif args.subcommand == "schedule":
             from cruiseplan.cli.schedule import main as schedule_main
 
@@ -543,10 +857,24 @@ Examples:
             from cruiseplan.cli.validate import main as validate_main
 
             validate_main(args)
-        elif args.subcommand == "pandoi":
-            from cruiseplan.cli.pandoi import main as pandoi_main
+        elif args.subcommand == "process":
+            from cruiseplan.cli.process import main as process_main
 
-            pandoi_main(args)
+            process_main(args)
+        elif args.subcommand == "pandoi":
+            # Deprecated command - show warning and redirect to unified pangaea
+            print(
+                "⚠️  WARNING: 'cruiseplan pandoi' is deprecated and will be removed in v0.3.0."
+            )
+            print("   Please use 'cruiseplan pangaea' instead.\n")
+
+            # Convert pandoi args to pangaea format for compatibility
+            # Map pandoi arguments to the new unified pangaea command structure
+            args.query_or_file = args.query
+
+            from cruiseplan.cli.pangaea import main as pangaea_main
+
+            pangaea_main(args)
         elif args.subcommand == "map":
             from cruiseplan.cli.map import main as map_main
 

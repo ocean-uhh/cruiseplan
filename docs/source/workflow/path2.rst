@@ -1,5 +1,3 @@
-----
-
 .. _user_workflow_path_2:
 
 Path 2: PANGAEA-Enhanced Workflow
@@ -44,13 +42,13 @@ Use the ``pandoi`` command to query the PANGAEA database:
 .. code-block:: bash
 
    # Basic search by instrument/parameter (saves to data/ directory by default)
-   cruiseplan pandoi "CTD"
+   cruiseplan pangaea "CTD" --lat 50 70 --lon -60 -20
    
-   # Geographic search with lat/lon bounds
-   cruiseplan pandoi "CTD" --lat 50 70 --lon -60 -20 --limit 25
+   # Geographic search with lat/lon bounds and higher limit
+   cruiseplan pangaea "CTD" --lat 50 70 --lon -60 -20 --limit 25
    
-   # Combined search terms
-   cruiseplan pandoi "CTD temperature North Atlantic" --lat 50 70 --lon -60 -20 --limit 50
+   # Combined search terms with custom output name
+   cruiseplan pangaea "CTD temperature North Atlantic" --lat 50 70 --lon -60 -20 --limit 50 --output north_atlantic_ctd
 
 **Search Examples by Use Case:**
 
@@ -61,11 +59,11 @@ Use the ``pandoi`` command to query the PANGAEA database:
    * - **Research Focus**
      - **Search Command**
    * - Arctic physical oceanography
-     - ``cruiseplan pandoi "CTD Arctic Ocean" --lat 70 90 --lon -180 180 --limit 30``
+     - ``cruiseplan pangaea "CTD Arctic Ocean" --lat 70 90 --lon -180 180 --limit 30``
    * - North Atlantic deep water
-     - ``cruiseplan pandoi "CTD deep water" --lat 50 70 --lon -50 -10 --limit 40``
+     - ``cruiseplan pangaea "CTD deep water" --lat 50 70 --lon -50 -10 --limit 40``
    * - Specific expedition data
-     - ``cruiseplan pandoi "Polarstern PS122" --limit 20``
+     - ``cruiseplan pangaea "Polarstern PS122" --lat 70 90 --lon -180 180 --limit 20``
 
 **Geographic Bounds Format:**
 
@@ -212,7 +210,7 @@ Step 5-7: Complete Configuration and Scheduling
 
 1. :ref:`Manual editing <manual_editing_configuration>` to add operation types and cruise metadata
 2. :ref:`Enrichment <enrich_configuration>` to add depths and coordinates
-3. :ref:`Validation <validate_configuration>` to check for errors
+3. :ref:`Validation <subcommand-validate>` to check for errors
 4. :ref:`Schedule generation <generate_schedule_outputs>` to create outputs
 
 The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.

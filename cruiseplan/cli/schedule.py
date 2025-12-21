@@ -115,6 +115,10 @@ def main(args: argparse.Namespace) -> None:
             formats=formats,
             selected_leg=getattr(args, "leg", None),
             derive_netcdf=derive_netcdf,
+            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_stride=getattr(args, "bathy_stride", 10),
+            figsize=getattr(args, "figsize", [12.0, 8.0]),
+            output_basename=getattr(args, "output", None),
         )
 
         logger.info("")

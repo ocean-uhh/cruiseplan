@@ -3,6 +3,13 @@ Usage Overview
 
 This page provides a high-level overview of how to use CruisePlan for oceanographic cruise planning. For detailed step-by-step instructions, see the linked workflow guides below.
 
+.. figure:: _static/diagrams/cruiseplan_process.png
+   :align: center
+   :alt: CruisePlan Process Overview
+   :width: 100%
+   
+   **CruisePlan Process Overview**: The complete workflow from data preparation through final deliverables, showing the unified ``cruiseplan process`` command and individual command options. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.
+
 Three-Phase Workflow
 --------------------
 
@@ -13,9 +20,8 @@ Phase 1: Data Preparation
 
 **Goal**: Gather *external* datasets needed for planning
 
-* **Download bathymetry**: ``cruiseplan download`` - Acquire global depth data (ETOPO/GEBCO)
-* **Search historical data**: ``cruiseplan pandoi`` - Find relevant PANGAEA datasets by query and region  
-* **Process historical data**: ``cruiseplan pangaea`` - Convert DOI lists into usable station databases
+* **Download bathymetry**: ``cruiseplan bathymetry`` - Acquire global depth data (ETOPO/GEBCO)
+* **Search and download historical data**: ``cruiseplan pangaea`` - Find and process PANGAEA datasets by query + region, or process existing DOI files
 
 This phase provides the foundational data layers for informed station placement.
 
@@ -25,13 +31,10 @@ Phase 2: Cruise Configuration
 **Goal**: Define your cruise plan and validate the configuration
 
 * **Interactive planning**: ``cruiseplan stations`` - Place stations on interactive maps with bathymetry
-* **Enrich metadata**: ``cruiseplan enrich`` - Add depths, coordinates, and expand sections automatically
-* **Validate setup**: ``cruiseplan validate`` - Check configuration for errors and consistency
-* **Generate maps**: ``cruiseplan map`` - Create standalone PNG maps from configuration
+* **Manual editing**: Edit generated YAML configuration to define operation types, actions, legs, and clusters
+* **Enrich metadata**: ``cruiseplan process`` - Add depths, coordinates, and expand sections automatically, validate configuration, and generate maps
 
 This phase creates and refines your complete cruise configuration file.
-
-Within this phase, you should also expect to do some **manual editing** of the generated YAML configuration to choose operation types and actions, and to organise the leg/cluster structure of activities.
 
 Phase 3: Schedule Generation  
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

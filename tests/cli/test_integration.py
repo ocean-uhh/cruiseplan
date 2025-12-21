@@ -49,15 +49,18 @@ class TestPangaeaIntegration:
             }
         ]
 
-        # Create args
+        # Create args (new unified format)
         args = Namespace(
-            doi_file=doi_file,
+            query_or_file=str(doi_file),
             output_dir=None,
             output_file=output_file,
             rate_limit=10.0,  # Fast for testing
             merge_campaigns=True,
             verbose=False,
             quiet=False,
+            lat=None,
+            lon=None,
+            limit=None,
         )
 
         # Execute command
@@ -213,13 +216,16 @@ class TestWorkflowIntegration:
         ]
 
         pangaea_args = Namespace(
-            doi_file=doi_file,
+            query_or_file=str(doi_file),
             output_dir=None,
             output_file=pangaea_file,
             rate_limit=10.0,
             merge_campaigns=True,
             verbose=False,
             quiet=False,
+            lat=None,
+            lon=None,
+            limit=None,
         )
 
         # Execute PANGAEA command
