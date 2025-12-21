@@ -2,6 +2,10 @@
 Tests for map generation utilities.
 """
 
+import matplotlib
+
+matplotlib.use("Agg")  # Force non-interactive backend for testing
+
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 

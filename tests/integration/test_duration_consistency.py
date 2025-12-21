@@ -5,7 +5,6 @@ This module tests that LaTeX and HTML generators calculate total durations
 consistently, ensuring no double-counting of transit times or other operations.
 """
 
-
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
