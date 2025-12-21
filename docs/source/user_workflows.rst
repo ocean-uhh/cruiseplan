@@ -127,9 +127,9 @@ Workflow Paths
    :maxdepth: 1
    :caption: Choose your workflow based on your planning needs
 
-   **Path 1: General Usage** - Plan stations from scratch without historical context <workflow/path1.rst>
-   **Path 2: PANGAEA-Enhanced** - Incorporate historical station positions for context <workflow/path2.rst>
-   **Path 3: Configuration-Only** - Process existing YAML configurations <workflow/path3.rst>
+   Path 1: General Usage - Cruise planning from scratch without historical context <workflow/path1.rst>
+   Path 2: PANGAEA-Enhanced - Incorporate historical station positions when picking stations <workflow/path2.rst>
+   Path 3: Configuration-Only - Iterate on existing YAML configurations <workflow/path3.rst>
 
 Advanced Topics
 ===============

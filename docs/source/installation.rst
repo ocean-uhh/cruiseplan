@@ -67,18 +67,8 @@ For general use, install the latest stable release from PyPI:
    # Install CruisePlan
    pip install cruiseplan
 
-   # Verify installation
-   cruiseplan --version
-   cruiseplan --help
+Then verify installation: run the steps in :ref:`verification_testing`
 
-.. figure:: _static/screenshots/installation_terminal.png
-   :alt: Successful CruisePlan installation verification
-   :width: 600px
-   :align: center
-
-   Successful CruisePlan installation showing version information and available commands
-
-After installing, verify the installation by running the steps in :ref:`verification_testing`.
 
 Option 2: Install Latest from GitHub
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -94,7 +84,7 @@ For the latest features and bug fixes:
    # Install directly from GitHub
    pip install git+https://github.com/ocean-uhh/cruiseplan.git
 
-After installing, verify the installation by running the steps in :ref:`verification_testing`.
+Then verify installation: run the steps in :ref:`verification_testing`
 
 Option 3: Development Installation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -117,7 +107,7 @@ For development or contributing to CruisePlan:
    source .venv/bin/activate  # Windows: .venv\Scripts\activate
    pip install -e ".[dev]"
 
-After installing, verify the installation by running the steps in :ref:`verification_testing`.
+Then verify installation: run the steps in :ref:`verification_testing`
 
 .. _verification_testing:
 
@@ -143,6 +133,14 @@ After installation, verify CruisePlan is working correctly:
 
 Expected output should show version information and available subcommands without errors.
 
+.. figure:: _static/screenshots/installation_terminal.png
+   :alt: Successful CruisePlan installation verification
+   :width: 600px
+   :align: center
+
+   Successful CruisePlan installation showing version information and available commands
+
+
 Core Dependencies
 -----------------
 
@@ -150,44 +148,38 @@ Core dependencies are listed in ``requirements.txt``, development tools in ``req
 
 **Scientific Computing:**
 
-- numpy >= 1.21 (numerical computing)
-- pandas >= 1.3.0 (data manipulation)
-- scipy >= 1.7.0 (scientific algorithms)
-- xarray >= 2023.12.0 (multi-dimensional data)
-- netCDF4 >= 1.5.8 (scientific data format)
+- `numpy <https://numpy.org/>`_ >= 1.21 (numerical computing)
+- `pandas <https://pandas.pydata.org/>`_ >= 1.3.0 (data manipulation)
+- `scipy <https://scipy.org/>`_ >= 1.7.0 (scientific algorithms)
+- `xarray <https://docs.xarray.dev/>`_ >= 2023.12.0 (multi-dimensional data)
+- `netCDF4 <https://unidata.github.io/netcdf4-python/>`_ >= 1.5.8 (scientific data format)
 
 **Web & Data Sources:**
 
-- requests >= 2.25.0 (HTTP requests)
-- pangaeapy >= 1.0.7 (PANGAEA database integration)
+- `requests <https://docs.python-requests.org/>`_ >= 2.25.0 (HTTP requests)
+- `pangaeapy <https://github.com/pangaea-data-publisher/pangaeapy>`_ >= 1.0.7 (PANGAEA database integration)
 
 **Configuration & Validation:**
 
-- pydantic >= 2.0.0 (data validation)
-- ruamel.yaml >= 0.18.0 (YAML processing)
+- `pydantic <https://docs.pydantic.dev/>`_ >= 2.0.0 (data validation)
+- `ruamel.yaml <https://yaml.readthedocs.io/>`_ >= 0.18.0 (YAML processing)
 
 **Visualization:**
 
-- matplotlib >= 3.7 (plotting)
-- folium (interactive maps)
-- branca (map styling)
+- `matplotlib <https://matplotlib.org/>`_ >= 3.7 (plotting)
+- `folium <https://python-visualization.github.io/folium/>`_ (interactive maps)
+- `branca <https://github.com/python-visualization/branca>`_ (map styling)
 
 **User Interface:**
 
-- tqdm >= 4.65 (progress bars)
-- jinja2 (template rendering)
+- `tqdm <https://tqdm.github.io/>`_ >= 4.65 (progress bars)
+- `jinja2 <https://jinja.palletsprojects.com/>`_ (template rendering)
 
 
 
 
 Troubleshooting
 ---------------
-
-
-
-
-Common Installation Issues
-~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Issue: "No module named 'cruiseplan'"**
 
@@ -196,6 +188,7 @@ Common Installation Issues
    ImportError: No module named 'cruiseplan'
 
 *Solution:*
+
 - Verify Python environment: ``which python`` and ``python --version``
 - Reinstall: ``pip install --force-reinstall cruiseplan``
 - Check virtual environment activation
@@ -207,8 +200,9 @@ Common Installation Issues
    ERROR: Could not install packages due to an EnvironmentError
 
 *Solution:*
+
 - Use user installation: ``pip install --user cruiseplan``
-- Or use virtual environment: ``python -m venv cruiseplan_env``
+- Or use virtual environment: ``python -m venv .venv``
 
 **Issue: Dependency conflicts**
 
@@ -217,25 +211,20 @@ Common Installation Issues
    ERROR: pip's dependency resolver does not currently consider all the packages
 
 *Solution:*
+
 - Create fresh virtual environment
 - Update pip: ``pip install --upgrade pip setuptools``
 - Install in isolated environment
 
-**Issue: Slow installation**
-
-*Solution:*
-- Use faster package resolver: ``pip install --use-feature=fast-deps cruiseplan``
-- Consider conda installation for complex environments
-
 
 Getting Help
-~~~~~~~~~~~~
+------------
 
 If installation issues persist:
 
 1. **Check existing issues**: `GitHub Issues <https://github.com/ocean-uhh/cruiseplan/issues>`_
 2. **Create new issue**: Include Python version, OS, and complete error message
-3. **Discussion forum**: For usage questions and community support
+3. **Discussion forum**: `GitHub Discussions <https://github.com/ocean-uhh/cruiseplan/discussions>`_ for usage questions and community support
 
 Include the output of:
 
