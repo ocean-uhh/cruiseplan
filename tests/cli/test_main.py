@@ -130,7 +130,7 @@ class TestSubcommandArguments:
 
                 # Check that args were parsed correctly
                 args = mock_main.call_args[0][0]
-                assert str(args.doi_file) == "dois.txt"
+                assert str(args.query_or_file) == "dois.txt"
                 assert str(args.output_dir) == "output_dir"
                 assert str(args.output_file) == "specific.pkl"
                 assert args.rate_limit == 2.0
@@ -207,9 +207,9 @@ class TestVersionAndHelp:
                     main()
                     output = mock_stdout.getvalue()
                     assert "cruiseplan" in output
-                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.1.x)
+                    # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.2.x)
                     assert (
-                        "0.1." in output or "0.0.post" in output or "0.0.dev" in output
+                        "0.2." in output or "0.1." in output or "0.0.post" in output or "0.0.dev" in output
                     )
 
     def test_subcommand_help(self):

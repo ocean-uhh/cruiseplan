@@ -7,10 +7,20 @@ Path 1: Basic Planning Workflow
 
 **Time required:** 30-60 minutes to create a first draft of a cruise
 
+.. figure:: ../_static/diagrams/cruiseplan_process.png
+   :align: center
+   :alt: CruisePlan Process Overview
+   :width: 100%
+   
+   **CruisePlan Process Overview**: The complete workflow from data preparation through final deliverables, showing the unified ``cruiseplan process`` command and individual command options. Path 1 follows Phase 1 with only the "cruiseplan bathymetry" step, then Phase 2 and Phase 3 as normal. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.
+
 ---- 
 
-Step 1: Download Bathymetry Data
+Phase 1: Data Preparation
 ---------------------------------
+
+Step 1: Download Bathymetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Provides depth information for station planning and automatic depth enrichment.
 
@@ -24,12 +34,15 @@ Essential first step:  :ref:`download_bathymetry`.  You've succeeeded when you h
    Directory structure (Mac OS Finder) showing bathymetry files in ``data/bathymetry/``
 
 .. note::
-  See :ref:`Download subcommand CLI reference <subcommand-download>` in :doc:`../cli/download` for full options and examples.
+  See :ref:`Bathymetry subcommand CLI reference <subcommand-bathymetry>` for full options and examples.
 
 ----
 
-Step 2: Interactive Station Planning
-------------------------------------
+Phase 2: Cruise Configuration
+-----------------------------
+
+Step 1: Pick Stations
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Visually select station locations using an interactive map interface.
 
@@ -153,8 +166,8 @@ Additional commands can be used anytime:
 
 .. _manual_editing_configuration:
 
-Step 3: Manual Configuration Editing
--------------------------------------
+Step 2: Manual Configuration Editing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 **Purpose:** Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as "CTD" and "profile" for stations, but will not update the YAML configuration (so you know where you've updated or not).
 
@@ -266,33 +279,60 @@ For programmatic access or regional filtering, see the :ref:`global_ports_refere
 
 .. _enrich_configuration:
 
-Step 4: Enrich Configuration
------------------------------
+Step 3: Process Configuration (enrich, validate + map)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Purpose:** Automatically add depth information and formatted coordinates to your stations.
+**Purpose:** Automatically add depth information and formatted coordinates to your stations. Checks for errors and inconsistencies before scheduling.
+
+**Option A: Unified Processing (Recommended)**
 
 .. code-block:: bash
 
-   cruiseplan enrich -c my_cruise.yaml --add-depths --add-coords --expand-sections
+   cruiseplan process -c my_cruise.yaml --output expedition_2024
 
+This unified command runs all three steps (enrichment, validation, and map generation) with smart defaults:
 
-**Options:**
+- All enrichment options enabled by default (depths, coordinates, sections, ports)
+- Comprehensive validation with depth checking
+- PNG map and KML catalog generation
+- Predictable output filenames: ``expedition_2024_enriched.yaml``, ``expedition_2024_map.png``, ``expedition_2024_catalog.kml``
 
-- ``--add-depths``: Looks up seafloor depth using bathymetry data
-- ``--add-coords``: Adds formatted coordinate strings (degrees/minutes)
-- ``--bathymetry-source gebco2025``: Use high-resolution bathymetry if available
-- ``--expand-sections``: Automatically add stations along transects at default spacing
+**Option B: Individual Commands**
 
-**What this does:**
+For fine-grained control, use individual commands:
+
+.. code-block:: bash
+
+   cruiseplan enrich -c my_cruise.yaml --output expedition_2024
+   cruiseplan validate -c data/expedition_2024_enriched.yaml --check-depths
+   cruiseplan map -c data/expedition_2024_enriched.yaml --output expedition_map
+
+.. note::
+   The unified ``cruiseplan process`` command is recommended for most users as it provides smart defaults and streamlined workflow. For advanced users who need fine-grained control over each step, individual commands offer maximum flexibility.
+   
+   See :ref:`Process subcommand CLI reference <subcommand-process>` for complete options and examples.
+
+**Common Processing Details:**
 
 - Queries bathymetry database for depth at each station
-- Adds ``depth`` field to stations that lack it
-- Adds ``position_string`` field with formatted coordinates
-- Preserves any manually specified depths
-- **Section Expansion**: Converts transit route definitions into individual station definitions
+- Adds ``depth`` field to stations that lack it (unless ``--no-depths`` specified), but note it preserves any manually specified depths
+- Adds ``position_string`` field with formatted coordinates (unless ``--no-coords`` specified)
+- **Section Expansion**: Converts transit route definitions into individual station definitions (unless ``--no-sections`` specified)
 - **Leg Anchor Updates**: Automatically updates ``first_waypoint`` and ``last_waypoint`` fields in legs to reference the newly created stations
+- Expands ports to full definitions if only a name was provided (unless ``--no-ports`` specified)
 
-**Example transformation:**
+
+**Validation checks:**
+
+- Required fields are present
+- Operation type/action combinations are valid
+- Coordinates are within valid ranges
+- **Duplicate detection**: Station names, leg names must be unique
+- **Potential duplicates**: Warns about stations with identical coordinates and operations
+- Depth values are reasonable (if ``--check-depths`` specified)
+- Leg definitions reference existing stations
+
+**Example enrichment:**
 
 .. code-block:: yaml
 
@@ -381,14 +421,6 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
 .. note::
   See :ref:`Enrich subcommand CLI reference <subcommand-enrich>` in :doc:`../cli/enrich` for full options and examples.
 
-----
-
-.. _validate_configuration:
-
-Step 5: Validate Configuration
-------------------------------
-
-**Purpose:** Check for errors and inconsistencies before scheduling.
 
 .. code-block:: bash
 
@@ -435,13 +467,13 @@ Step 5: Validate Configuration
      - Review stations with identical coordinates - may be intentional
 
 .. note::
-  See :ref:`Validate subcommand CLI reference <subcommand-validate>` in :doc:`../cli/validate` for full options and examples.
+  See :ref:`Validate subcommand CLI reference <subcommand-validate>` for full options and examples.
 
 ----
 
 .. _generate_schedule_outputs:
 
-Step 6: Generate Schedule and Outputs
+phase 3: Generate Schedule and Outputs
 --------------------------------------
 
 **Purpose:** Create detailed cruise timeline and export professional outputs.
@@ -492,7 +524,5 @@ Step 6: Generate Schedule and Outputs
 - Professional documentation ready for proposals
 
 .. note::
-  See :ref:`Schedule subcommand CLI reference <subcommand-schedule>` in :doc:`../cli/schedule` for full options and examples.
-
------ 
+  See :ref:`Schedule subcommand CLI reference <subcommand-schedule>` in :doc:`../cli/schedule` for full options and examples. 
 

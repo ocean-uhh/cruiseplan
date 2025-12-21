@@ -1313,6 +1313,10 @@ def generate_cruise_schedule(
     validate_depths: bool = False,
     selected_leg: Optional[str] = None,
     derive_netcdf: bool = False,
+    bathy_source: str = "etopo2022",
+    bathy_stride: int = 10,
+    figsize: List[float] = None,
+    output_basename: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     Generate comprehensive cruise schedules from YAML configuration.
@@ -1335,6 +1339,15 @@ def generate_cruise_schedule(
     derive_netcdf : bool, optional
         If True and NetCDF format is enabled, generate specialized NetCDF files
         (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Default is False.
+    bathy_source : str, optional
+        Bathymetry dataset to use for PNG map generation. Default is "etopo2022".
+    bathy_stride : int, optional
+        Bathymetry contour stride for PNG maps. Default is 10.
+    figsize : list of float, optional
+        Figure size for PNG maps in inches [width, height]. Default is [12.0, 8.0].
+    output_basename : str, optional
+        Base filename for output files. If None, uses cruise name from config. 
+        Default is None.
 
     Returns
     -------
@@ -1416,10 +1429,16 @@ def generate_cruise_schedule(
     output_path = Path(output_dir)
     output_path.mkdir(parents=True, exist_ok=True)
 
-    # Determine base filename
-    cruise_name = config.cruise_name.replace(" ", "_")
+    # Determine base filename for all output files
+    if output_basename:
+        # Use user-provided base name
+        base_name = output_basename.replace(" ", "_")
+    else:
+        # Use cruise name as default
+        base_name = config.cruise_name.replace(" ", "_")
+    
     leg_suffix = f"_{selected_leg}" if selected_leg else ""
-    base_filename = f"{cruise_name}{leg_suffix}_schedule"
+    base_filename = f"{base_name}{leg_suffix}_schedule"
 
     for format_name in formats:
         try:
@@ -1460,8 +1479,15 @@ def generate_cruise_schedule(
                 output_files.append(output_file)
 
             elif format_name == "png":
+                # Set default figsize if not provided
+                if figsize is None:
+                    figsize = [12.0, 8.0]
+                
                 output_file = _generate_timeline_png_map(
-                    timeline, cruise, output_path, base_filename
+                    timeline, cruise, output_path, base_filename,
+                    bathy_source=bathy_source,
+                    bathy_stride=bathy_stride,
+                    figsize=figsize,
                 )
                 if output_file:
                     logger.info(f"    PNG map: {output_file.name}")
@@ -1534,19 +1560,25 @@ def _generate_netcdf_schedule(
         return None
 
 
-def _generate_timeline_png_map(timeline, cruise, output_path, base_filename):
+def _generate_timeline_png_map(timeline, cruise, output_path, base_filename,
+                               bathy_source="etopo2022", bathy_stride=10, 
+                               figsize=None):
     """Generate PNG map from timeline data showing scheduled sequence."""
     try:
         from cruiseplan.output.map_generator import generate_map_from_timeline
 
         output_file = output_path / f"{base_filename}_map.png"
 
+        # Set default figsize if not provided
+        if figsize is None:
+            figsize = [12.0, 8.0]
+            
         return generate_map_from_timeline(
             timeline=timeline,
             output_file=output_file,
-            bathymetry_source="gebco2025",
-            bathymetry_stride=5,
-            figsize=(12, 10),
+            bathymetry_source=bathy_source,
+            bathymetry_stride=bathy_stride,
+            figsize=tuple(figsize),
             config=cruise,
         )
 

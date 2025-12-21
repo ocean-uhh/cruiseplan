@@ -38,20 +38,27 @@ def main(args: argparse.Namespace) -> int:
         # Ensure output directory exists
         args.output_dir.mkdir(parents=True, exist_ok=True)
 
-        # Clean cruise name for filenames
-        cruise_name = cruise.config.cruise_name.replace(" ", "_").replace("/", "-")
+        # Handle deprecated --output-file parameter
+        if hasattr(args, 'output_file') and args.output_file:
+            logger.warning("⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path.")
+        
+        # Determine base filename (use --output if provided, otherwise cruise name)
+        if hasattr(args, 'output') and args.output:
+            base_name = args.output
+        else:
+            base_name = cruise.config.cruise_name.replace(" ", "_").replace("/", "-")
 
         # Track generated files
         generated_files = []
 
         # Generate PNG map if requested
         if "png" in formats:
-            if args.output_file and args.format == "png":
-                # Use specific output file for PNG only
+            if hasattr(args, 'output_file') and args.output_file and args.format == "png":
+                # Use legacy specific output file for PNG only
                 png_output_file = args.output_file
             else:
-                # Auto-generate PNG filename
-                png_output_file = args.output_dir / f"{cruise_name}_map.png"
+                # Use base filename pattern
+                png_output_file = args.output_dir / f"{base_name}_map.png"
 
             logger.info(
                 f"Generating PNG map with bathymetry source: {args.bathymetry_source}"
@@ -76,12 +83,12 @@ def main(args: argparse.Namespace) -> int:
 
         # Generate KML file if requested
         if "kml" in formats:
-            if args.output_file and args.format == "kml":
-                # Use specific output file for KML only
+            if hasattr(args, 'output_file') and args.output_file and args.format == "kml":
+                # Use legacy specific output file for KML only
                 kml_output_file = args.output_file
             else:
-                # Auto-generate KML filename
-                kml_output_file = args.output_dir / f"{cruise_name}_catalog.kml"
+                # Use base filename pattern
+                kml_output_file = args.output_dir / f"{base_name}_catalog.kml"
 
             logger.info("Generating KML catalog from YAML configuration")
             from cruiseplan.output.kml_generator import generate_kml_catalog
