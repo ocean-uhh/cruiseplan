@@ -55,16 +55,18 @@ class TestWorkflowModeDetection:
         with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
             tmp.write(b"10.1594/PANGAEA.12345\n")
             tmp.flush()
+            tmp_path = tmp.name
 
+        try:
             mock_args = MagicMock()
-            mock_args.query_or_file = tmp.name
+            mock_args.query_or_file = tmp_path
             mock_args.lat = None
             mock_args.lon = None
 
             result = determine_workflow_mode(mock_args)
             assert result == "doi_file"
-
-            Path(tmp.name).unlink()  # Clean up
+        finally:
+            Path(tmp_path).unlink()  # Clean up
 
     def test_search_mode_with_query_string(self):
         """Test search mode detection with query string (no file extension)."""
@@ -283,9 +285,11 @@ class TestDoiFileMode:
         ) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n10.1594/PANGAEA.67890\n")
             tmp.flush()
+            tmp_path = tmp.name
 
+        try:
             mock_args = MagicMock()
-            mock_args.query_or_file = tmp.name
+            mock_args.query_or_file = tmp_path
             mock_args.output_dir = Path("data")
             mock_args.output = None  # Auto-generate from input filename
             mock_args.rate_limit = 1.0
@@ -304,7 +308,7 @@ class TestDoiFileMode:
                 ),
                 patch(
                     "cruiseplan.cli.pangaea.validate_input_file",
-                    return_value=Path(tmp.name),
+                    return_value=Path(tmp_path),
                 ),
                 patch("cruiseplan.cli.pangaea.read_doi_list", return_value=mock_dois),
                 patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois),
@@ -320,8 +324,8 @@ class TestDoiFileMode:
 
                 # Check that key messages were logged
                 assert "📋 Mode: DOI File Processing" in caplog.text
-
-            Path(tmp.name).unlink()
+        finally:
+            Path(tmp_path).unlink()
 
     def test_doi_file_mode_auto_base_name_generation(self):
         """Test DOI file mode with automatic base name generation from input file."""
@@ -330,9 +334,11 @@ class TestDoiFileMode:
         ) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n")
             tmp.flush()
+            tmp_path = tmp.name
 
+        try:
             mock_args = MagicMock()
-            mock_args.query_or_file = tmp.name
+            mock_args.query_or_file = tmp_path
             mock_args.output_dir = Path("data")
             mock_args.output = None  # Should auto-generate from filename
             mock_args.rate_limit = 1.0
@@ -340,7 +346,7 @@ class TestDoiFileMode:
             mock_args.output_file = None
             mock_args.verbose = False
 
-            expected_base = Path(tmp.name).stem.replace("_dois", "")
+            expected_base = Path(tmp_path).stem.replace("_dois", "")
             expected_output = Path("data") / f"{expected_base}_stations.pkl"
 
             with (
@@ -351,7 +357,7 @@ class TestDoiFileMode:
                 ),
                 patch(
                     "cruiseplan.cli.pangaea.validate_input_file",
-                    return_value=Path(tmp.name),
+                    return_value=Path(tmp_path),
                 ),
                 patch(
                     "cruiseplan.cli.pangaea.read_doi_list",
@@ -374,8 +380,8 @@ class TestDoiFileMode:
                 mock_save.assert_called_once()
                 call_args = mock_save.call_args[0]
                 assert expected_output == call_args[1]
-
-            Path(tmp.name).unlink()
+        finally:
+            Path(tmp_path).unlink()
 
 
 class TestBackwardCompatibility:
@@ -476,9 +482,11 @@ class TestBackwardCompatibility:
         with tempfile.NamedTemporaryFile(suffix=".txt", mode="w", delete=False) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n")
             tmp.flush()
+            tmp_path = tmp.name
 
+        try:
             mock_args = MagicMock()
-            mock_args.query_or_file = tmp.name
+            mock_args.query_or_file = tmp_path
             mock_args.output_dir = Path("data")
             mock_args.output = None
             mock_args.output_file = Path("/custom/path/custom_stations.pkl")
@@ -494,7 +502,7 @@ class TestBackwardCompatibility:
                 ),
                 patch(
                     "cruiseplan.cli.pangaea.validate_input_file",
-                    return_value=Path(tmp.name),
+                    return_value=Path(tmp_path),
                 ),
                 patch(
                     "cruiseplan.cli.pangaea.read_doi_list",
@@ -517,8 +525,8 @@ class TestBackwardCompatibility:
                 mock_save.assert_called_once()
                 output_file = mock_save.call_args[0][1]
                 assert output_file == Path("/custom/path/custom_stations.pkl")
-
-            Path(tmp.name).unlink()
+        finally:
+            Path(tmp_path).unlink()
 
 
 class TestErrorHandling:
