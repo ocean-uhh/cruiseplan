@@ -137,12 +137,10 @@ legs:
         if port_arrival_activities:
             transit_from_area_h = port_arrival_activities[0]["duration_minutes"] / 60
 
-        # Within area = navigation transits between operations (exact LaTeX logic)
-        transit_within_area_h = 0.0
-        if navigation_transits:
-            transit_within_area_h = (
-                sum(t["duration_minutes"] for t in navigation_transits) / 60
-            )
+        # Within area = navigation transits EXCLUDING port transits (correct LaTeX logic)  
+        within_area_transits = [t for t in navigation_transits 
+                                if t.get("activity") not in ["Port_Departure", "Port_Arrival"]]
+        transit_within_area_h = sum(t["duration_minutes"] for t in within_area_transits) / 60
 
         # LaTeX calculations (based on your corrected logic)
         total_navigation_transit_h = transit_to_area_h + transit_from_area_h  # Excludes within-area
@@ -175,18 +173,7 @@ legs:
         # The key test: LaTeX totals should equal HTML total
         latex_total_duration_h = total_navigation_transit_h + total_operation_duration_h
 
-        # Document the double-counting issue for now 
-        # TODO: Fix the LaTeX generator to eliminate port transit double-counting
-        expected_double_count = transit_to_area_h + transit_from_area_h
-        actual_difference = abs(latex_total_duration_h - html_total_duration_h)
-        
-        # Check if the difference matches the expected double-counting of port transits
-        if abs(actual_difference - expected_double_count) < 0.01:
-            print(f"\n✅ KNOWN ISSUE DETECTED: Port transit double-counting = {expected_double_count:.3f}h")
-            print("   This test confirms the LaTeX generator needs to be fixed.")
-            return  # Test passes - issue is documented
-        
-        # If it's some other inconsistency, fail the test
+        # Verify consistency (the LaTeX fix should make these equal)
         assert abs(latex_total_duration_h - html_total_duration_h) < 0.01, (
             f"Duration calculation inconsistency detected!\n"
             f"HTML total_duration_h: {html_total_duration_h:.3f}\n"
