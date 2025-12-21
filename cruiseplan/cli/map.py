@@ -39,11 +39,13 @@ def main(args: argparse.Namespace) -> int:
         args.output_dir.mkdir(parents=True, exist_ok=True)
 
         # Handle deprecated --output-file parameter
-        if hasattr(args, 'output_file') and args.output_file:
-            logger.warning("⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path.")
-        
+        if hasattr(args, "output_file") and args.output_file:
+            logger.warning(
+                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
+            )
+
         # Determine base filename (use --output if provided, otherwise cruise name)
-        if hasattr(args, 'output') and args.output:
+        if hasattr(args, "output") and args.output:
             base_name = args.output
         else:
             base_name = cruise.config.cruise_name.replace(" ", "_").replace("/", "-")
@@ -53,7 +55,11 @@ def main(args: argparse.Namespace) -> int:
 
         # Generate PNG map if requested
         if "png" in formats:
-            if hasattr(args, 'output_file') and args.output_file and args.format == "png":
+            if (
+                hasattr(args, "output_file")
+                and args.output_file
+                and args.format == "png"
+            ):
                 # Use legacy specific output file for PNG only
                 png_output_file = args.output_file
             else:
@@ -83,7 +89,11 @@ def main(args: argparse.Namespace) -> int:
 
         # Generate KML file if requested
         if "kml" in formats:
-            if hasattr(args, 'output_file') and args.output_file and args.format == "kml":
+            if (
+                hasattr(args, "output_file")
+                and args.output_file
+                and args.format == "kml"
+            ):
                 # Use legacy specific output file for KML only
                 kml_output_file = args.output_file
             else:

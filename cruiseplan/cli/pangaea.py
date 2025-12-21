@@ -20,7 +20,6 @@ from cruiseplan.cli.utils import (
     read_doi_list,
     setup_logging,
     validate_input_file,
-    validate_output_path,
 )
 from cruiseplan.data.pangaea import PangaeaManager
 from cruiseplan.utils.coordinates import format_geographic_bounds
@@ -310,21 +309,21 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
         Either 'search' or 'doi_file'
     """
     # If first positional argument looks like a file path, it's DOI file mode
-    if hasattr(args, 'query_or_file') and args.query_or_file:
+    if hasattr(args, "query_or_file") and args.query_or_file:
         potential_file = Path(args.query_or_file)
-        if potential_file.exists() and potential_file.suffix == '.txt':
-            return 'doi_file'
-    
+        if potential_file.exists() and potential_file.suffix == ".txt":
+            return "doi_file"
+
     # If lat/lon bounds provided, must be search mode
     if args.lat and args.lon:
-        return 'search'
-    
+        return "search"
+
     # If query looks like search terms (no file extension), search mode
-    if hasattr(args, 'query_or_file') and not Path(args.query_or_file).suffix:
-        return 'search'
-    
+    if hasattr(args, "query_or_file") and not Path(args.query_or_file).suffix:
+        return "search"
+
     # Default to search mode if ambiguous
-    return 'search'
+    return "search"
 
 
 def main(args: argparse.Namespace) -> None:
@@ -342,22 +341,24 @@ def main(args: argparse.Namespace) -> None:
 
         # Determine workflow mode
         mode = determine_workflow_mode(args)
-        
+
         logger.info("=" * 60)
         logger.info("🌊 CRUISEPLAN PANGAEA DATA PROCESSOR")
         logger.info("=" * 60)
 
         # Handle deprecated --output-file option
-        if hasattr(args, 'output_file') and args.output_file:
-            logger.warning("⚠️  WARNING: '--output-file' is deprecated and will be removed in v0.3.0.")
+        if hasattr(args, "output_file") and args.output_file:
+            logger.warning(
+                "⚠️  WARNING: '--output-file' is deprecated and will be removed in v0.3.0."
+            )
             logger.warning("   Please use '--output' for base filename instead.\n")
 
-        if mode == 'search':
+        if mode == "search":
             # Search + Download workflow
             query = args.query_or_file
-            logger.info(f"📋 Mode: Search + Download")
+            logger.info("📋 Mode: Search + Download")
             logger.info(f"🔍 Query: '{query}'")
-            
+
             # Validate that lat/lon are provided for search mode
             if not (args.lat and args.lon):
                 raise CLIError(
@@ -367,7 +368,7 @@ def main(args: argparse.Namespace) -> None:
 
             # Parse lat/lon bounds
             bbox = validate_lat_lon_bounds(args.lat, args.lon)
-            
+
             # Validate limit
             if args.limit <= 0:
                 raise CLIError("Limit must be a positive integer")
@@ -384,15 +385,17 @@ def main(args: argparse.Namespace) -> None:
                 sys.exit(1)
 
             # Determine output paths using base filename strategy
-            base_name = getattr(args, 'output', None)
+            base_name = getattr(args, "output", None)
             output_dir = args.output_dir
-            
+
             # Handle legacy --output-file for backwards compatibility
-            if hasattr(args, 'output_file') and args.output_file:
+            if hasattr(args, "output_file") and args.output_file:
                 # Use the provided file path directly for stations file
                 stations_file = args.output_file
                 # Generate DOI file based on stations file name
-                base_name = args.output_file.stem.replace('_stations', '').replace('_pangaea_data', '')
+                base_name = args.output_file.stem.replace("_stations", "").replace(
+                    "_pangaea_data", ""
+                )
                 dois_file = args.output_file.parent / f"{base_name}_dois.txt"
             else:
                 # Generate base filename if not provided
@@ -406,7 +409,7 @@ def main(args: argparse.Namespace) -> None:
 
             # Save DOI list (intermediate file)
             save_doi_list(dois, dois_file)
-            
+
             logger.info(f"📂 DOI file: {dois_file}")
             logger.info(f"📂 Stations file: {stations_file}")
             logger.info("")
@@ -414,26 +417,28 @@ def main(args: argparse.Namespace) -> None:
         else:
             # DOI file input workflow
             doi_file_path = validate_input_file(Path(args.query_or_file))
-            logger.info(f"📋 Mode: DOI File Processing")
+            logger.info("📋 Mode: DOI File Processing")
             logger.info(f"📁 Input file: {doi_file_path}")
-            
+
             # Determine output path using base filename strategy
-            base_name = getattr(args, 'output', None)
+            base_name = getattr(args, "output", None)
             output_dir = args.output_dir
-            
+
             # Handle legacy --output-file for backwards compatibility
-            if hasattr(args, 'output_file') and args.output_file:
+            if hasattr(args, "output_file") and args.output_file:
                 stations_file = args.output_file
             else:
                 # Generate base filename from input file if not provided
                 if not base_name:
-                    base_name = doi_file_path.stem.replace('_dois', '')  # Remove _dois suffix if present
-                
+                    base_name = doi_file_path.stem.replace(
+                        "_dois", ""
+                    )  # Remove _dois suffix if present
+
                 stations_file = output_dir / f"{base_name}_stations.pkl"
-            
+
             # Read DOI list
             dois = read_doi_list(doi_file_path)
-            
+
             logger.info(f"📂 Stations file: {stations_file}")
             logger.info("")
 
@@ -451,7 +456,9 @@ def main(args: argparse.Namespace) -> None:
         )
 
         if not datasets:
-            logger.warning("⚠️  No datasets retrieved. Check DOI list and network connection.")
+            logger.warning(
+                "⚠️  No datasets retrieved. Check DOI list and network connection."
+            )
             return
 
         # Save results
@@ -461,7 +468,7 @@ def main(args: argparse.Namespace) -> None:
         logger.info("✅ PANGAEA processing completed successfully!")
         logger.info("")
         logger.info("🚀 Next steps:")
-        if mode == 'search':
+        if mode == "search":
             logger.info(f"   1. Review DOIs: {dois_file}")
             logger.info(f"   2. Review stations: {stations_file}")
             logger.info(f"   3. Plan cruise: cruiseplan stations -p {stations_file}")
@@ -479,8 +486,9 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         logger.error(f"❌ Unexpected error: {e}")
-        if getattr(args, 'verbose', False):
+        if getattr(args, "verbose", False):
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
@@ -492,10 +500,16 @@ if __name__ == "__main__":
     parser.add_argument("--lat", nargs=2, type=float, help="Latitude bounds")
     parser.add_argument("--lon", nargs=2, type=float, help="Longitude bounds")
     parser.add_argument("--limit", type=int, default=10, help="Result limit")
-    parser.add_argument("-o", "--output-dir", type=Path, default=Path("data"), help="Output directory")
-    parser.add_argument("--output", help="Base filename for outputs (without extension)")
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=Path("data"), help="Output directory"
+    )
+    parser.add_argument(
+        "--output", help="Base filename for outputs (without extension)"
+    )
     parser.add_argument("--rate-limit", type=float, default=1.0, help="API rate limit")
-    parser.add_argument("--merge-campaigns", action="store_true", default=True, help="Merge campaigns")
+    parser.add_argument(
+        "--merge-campaigns", action="store_true", default=True, help="Merge campaigns"
+    )
     parser.add_argument("--verbose", "-v", action="store_true", help="Verbose output")
 
     args = parser.parse_args()

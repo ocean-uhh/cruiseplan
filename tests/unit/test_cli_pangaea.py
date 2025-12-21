@@ -8,9 +8,9 @@ and backward compatibility with deprecated parameters.
 
 import logging
 import sys
+import tempfile
 from pathlib import Path
 from unittest.mock import MagicMock, mock_open, patch
-import tempfile
 
 import pytest
 
@@ -18,19 +18,21 @@ import pytest
 @pytest.fixture
 def setup_stdout_logging():
     """Set up logging to stdout for tests that capture output with capsys."""
-    logging.basicConfig(level=logging.INFO, format='%(message)s', stream=sys.stdout, force=True)
+    logging.basicConfig(
+        level=logging.INFO, format="%(message)s", stream=sys.stdout, force=True
+    )
     yield
     # Reset logging after test
     logging.getLogger().handlers.clear()
 
+
 from cruiseplan.cli.pangaea import (
-    main,
     determine_workflow_mode,
-    validate_lat_lon_bounds,
-    search_pangaea_datasets,
+    main,
     save_doi_list,
-    fetch_pangaea_data,
+    search_pangaea_datasets,
     validate_dois,
+    validate_lat_lon_bounds,
 )
 from cruiseplan.cli.utils import CLIError
 
@@ -44,24 +46,24 @@ class TestWorkflowModeDetection:
         mock_args.query_or_file = "CTD temperature"
         mock_args.lat = [50, 60]
         mock_args.lon = [-50, -30]
-        
+
         result = determine_workflow_mode(mock_args)
         assert result == "search"
 
     def test_doi_file_mode_with_existing_txt_file(self):
         """Test DOI file mode detection with existing .txt file."""
-        with tempfile.NamedTemporaryFile(suffix='.txt', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".txt", delete=False) as tmp:
             tmp.write(b"10.1594/PANGAEA.12345\n")
             tmp.flush()
-            
+
             mock_args = MagicMock()
             mock_args.query_or_file = tmp.name
             mock_args.lat = None
             mock_args.lon = None
-            
+
             result = determine_workflow_mode(mock_args)
             assert result == "doi_file"
-            
+
             Path(tmp.name).unlink()  # Clean up
 
     def test_search_mode_with_query_string(self):
@@ -70,7 +72,7 @@ class TestWorkflowModeDetection:
         mock_args.query_or_file = "Arctic Ocean CTD"
         mock_args.lat = None
         mock_args.lon = None
-        
+
         result = determine_workflow_mode(mock_args)
         assert result == "search"
 
@@ -80,7 +82,7 @@ class TestWorkflowModeDetection:
         mock_args.query_or_file = "nonexistent_file.txt"  # File doesn't exist
         mock_args.lat = None
         mock_args.lon = None
-        
+
         result = determine_workflow_mode(mock_args)
         assert result == "search"
 
@@ -114,7 +116,7 @@ class TestLatLonValidation:
         """Test invalid latitude values."""
         with pytest.raises(CLIError) as excinfo:
             validate_lat_lon_bounds([-100, 60], [-90, -30])
-        
+
         assert "Latitude must be between -90 and 90" in str(excinfo.value)
 
 
@@ -123,7 +125,6 @@ class TestSearchMode:
 
     def test_search_mode_basic_workflow(self, caplog):
         """Test basic search mode workflow with query and bounds."""
-        
         mock_args = MagicMock()
         mock_args.query_or_file = "CTD temperature"
         mock_args.lat = [50, 60]
@@ -139,13 +140,21 @@ class TestSearchMode:
         mock_dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
         mock_datasets = [{"name": "Dataset1"}, {"name": "Dataset2"}]
 
-        with patch("cruiseplan.cli.pangaea.setup_logging") as mock_setup, \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=mock_dois), \
-             patch("cruiseplan.cli.pangaea.save_doi_list"), \
-             patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois), \
-             patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=mock_datasets), \
-             patch("cruiseplan.cli.pangaea.save_pangaea_pickle"):
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging") as mock_setup,
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=mock_dois
+            ),
+            patch("cruiseplan.cli.pangaea.save_doi_list"),
+            patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois),
+            patch(
+                "cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=mock_datasets
+            ),
+            patch("cruiseplan.cli.pangaea.save_pangaea_pickle"),
+        ):
 
             with caplog.at_level(logging.INFO):
                 main(mock_args)
@@ -164,9 +173,13 @@ class TestSearchMode:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 main(mock_args)
 
@@ -187,13 +200,21 @@ class TestSearchMode:
         mock_dois = ["10.1594/PANGAEA.12345"]
         mock_datasets = [{"name": "Dataset1"}]
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=mock_dois) as mock_search, \
-             patch("cruiseplan.cli.pangaea.save_doi_list") as mock_save_dois, \
-             patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois), \
-             patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=mock_datasets), \
-             patch("cruiseplan.cli.pangaea.save_pangaea_pickle"):
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=mock_dois
+            ) as mock_search,
+            patch("cruiseplan.cli.pangaea.save_doi_list") as mock_save_dois,
+            patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois),
+            patch(
+                "cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=mock_datasets
+            ),
+            patch("cruiseplan.cli.pangaea.save_pangaea_pickle"),
+        ):
 
             main(mock_args)
 
@@ -213,9 +234,13 @@ class TestSearchMode:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 main(mock_args)
 
@@ -233,13 +258,17 @@ class TestSearchMode:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=[]), \
-             pytest.raises(SystemExit):  # Will exit due to no DOIs found
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=[]),
+            pytest.raises(SystemExit),
+        ):  # Will exit due to no DOIs found
+
             main(mock_args)
-            
+
             captured = capsys.readouterr()
             assert "Large limit values may result in slow searches" in captured.out
 
@@ -249,10 +278,12 @@ class TestDoiFileMode:
 
     def test_doi_file_mode_basic_workflow(self, caplog):
         """Test basic DOI file mode workflow."""
-        with tempfile.NamedTemporaryFile(suffix='_dois.txt', mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(
+            suffix="_dois.txt", mode="w", delete=False
+        ) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n10.1594/PANGAEA.67890\n")
             tmp.flush()
-            
+
             mock_args = MagicMock()
             mock_args.query_or_file = tmp.name
             mock_args.output_dir = Path("data")
@@ -265,28 +296,41 @@ class TestDoiFileMode:
             mock_dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
             mock_datasets = [{"name": "Dataset1"}, {"name": "Dataset2"}]
 
-            with patch("cruiseplan.cli.pangaea.setup_logging"), \
-                 patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="doi_file"), \
-                 patch("cruiseplan.cli.pangaea.validate_input_file", return_value=Path(tmp.name)), \
-                 patch("cruiseplan.cli.pangaea.read_doi_list", return_value=mock_dois), \
-                 patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois), \
-                 patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=mock_datasets), \
-                 patch("cruiseplan.cli.pangaea.save_pangaea_pickle"):
+            with (
+                patch("cruiseplan.cli.pangaea.setup_logging"),
+                patch(
+                    "cruiseplan.cli.pangaea.determine_workflow_mode",
+                    return_value="doi_file",
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.validate_input_file",
+                    return_value=Path(tmp.name),
+                ),
+                patch("cruiseplan.cli.pangaea.read_doi_list", return_value=mock_dois),
+                patch("cruiseplan.cli.pangaea.validate_dois", return_value=mock_dois),
+                patch(
+                    "cruiseplan.cli.pangaea.fetch_pangaea_data",
+                    return_value=mock_datasets,
+                ),
+                patch("cruiseplan.cli.pangaea.save_pangaea_pickle"),
+            ):
 
                 with caplog.at_level(logging.INFO):
                     main(mock_args)
 
                 # Check that key messages were logged
                 assert "📋 Mode: DOI File Processing" in caplog.text
-                
+
             Path(tmp.name).unlink()
 
     def test_doi_file_mode_auto_base_name_generation(self):
         """Test DOI file mode with automatic base name generation from input file."""
-        with tempfile.NamedTemporaryFile(suffix='_dois.txt', mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(
+            suffix="_dois.txt", mode="w", delete=False
+        ) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n")
             tmp.flush()
-            
+
             mock_args = MagicMock()
             mock_args.query_or_file = tmp.name
             mock_args.output_dir = Path("data")
@@ -296,16 +340,33 @@ class TestDoiFileMode:
             mock_args.output_file = None
             mock_args.verbose = False
 
-            expected_base = Path(tmp.name).stem.replace('_dois', '')
+            expected_base = Path(tmp.name).stem.replace("_dois", "")
             expected_output = Path("data") / f"{expected_base}_stations.pkl"
 
-            with patch("cruiseplan.cli.pangaea.setup_logging"), \
-                 patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="doi_file"), \
-                 patch("cruiseplan.cli.pangaea.validate_input_file", return_value=Path(tmp.name)), \
-                 patch("cruiseplan.cli.pangaea.read_doi_list", return_value=["10.1594/PANGAEA.12345"]), \
-                 patch("cruiseplan.cli.pangaea.validate_dois", return_value=["10.1594/PANGAEA.12345"]), \
-                 patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[{"name": "Dataset"}]), \
-                 patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save:
+            with (
+                patch("cruiseplan.cli.pangaea.setup_logging"),
+                patch(
+                    "cruiseplan.cli.pangaea.determine_workflow_mode",
+                    return_value="doi_file",
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.validate_input_file",
+                    return_value=Path(tmp.name),
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.read_doi_list",
+                    return_value=["10.1594/PANGAEA.12345"],
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.validate_dois",
+                    return_value=["10.1594/PANGAEA.12345"],
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.fetch_pangaea_data",
+                    return_value=[{"name": "Dataset"}],
+                ),
+                patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save,
+            ):
 
                 main(mock_args)
 
@@ -313,7 +374,7 @@ class TestDoiFileMode:
                 mock_save.assert_called_once()
                 call_args = mock_save.call_args[0]
                 assert expected_output == call_args[1]
-                
+
             Path(tmp.name).unlink()
 
 
@@ -329,18 +390,33 @@ class TestBackwardCompatibility:
         mock_args.limit = 10
         mock_args.output_dir = Path("data")
         mock_args.output = None
-        mock_args.output_file = Path("/custom/path/stations.pkl")  # Deprecated parameter
+        mock_args.output_file = Path(
+            "/custom/path/stations.pkl"
+        )  # Deprecated parameter
         mock_args.rate_limit = 1.0
         mock_args.merge_campaigns = True
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.save_doi_list"), \
-             patch("cruiseplan.cli.pangaea.validate_dois", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[{"name": "Dataset"}]), \
-             patch("cruiseplan.cli.pangaea.save_pangaea_pickle"):
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.search_pangaea_datasets",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch("cruiseplan.cli.pangaea.save_doi_list"),
+            patch(
+                "cruiseplan.cli.pangaea.validate_dois",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.fetch_pangaea_data",
+                return_value=[{"name": "Dataset"}],
+            ),
+            patch("cruiseplan.cli.pangaea.save_pangaea_pickle"),
+        ):
 
             with caplog.at_level(logging.WARNING):
                 main(mock_args)
@@ -362,13 +438,26 @@ class TestBackwardCompatibility:
         mock_args.merge_campaigns = True
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.save_doi_list") as mock_save_dois, \
-             patch("cruiseplan.cli.pangaea.validate_dois", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[{"name": "Dataset"}]), \
-             patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save_pkl:
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.search_pangaea_datasets",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch("cruiseplan.cli.pangaea.save_doi_list") as mock_save_dois,
+            patch(
+                "cruiseplan.cli.pangaea.validate_dois",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.fetch_pangaea_data",
+                return_value=[{"name": "Dataset"}],
+            ),
+            patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save_pkl,
+        ):
 
             main(mock_args)
 
@@ -384,10 +473,10 @@ class TestBackwardCompatibility:
 
     def test_deprecated_output_file_doi_mode_functionality(self):
         """Test that deprecated --output-file still works in DOI file mode."""
-        with tempfile.NamedTemporaryFile(suffix='.txt', mode='w', delete=False) as tmp:
+        with tempfile.NamedTemporaryFile(suffix=".txt", mode="w", delete=False) as tmp:
             tmp.write("10.1594/PANGAEA.12345\n")
             tmp.flush()
-            
+
             mock_args = MagicMock()
             mock_args.query_or_file = tmp.name
             mock_args.output_dir = Path("data")
@@ -397,13 +486,30 @@ class TestBackwardCompatibility:
             mock_args.merge_campaigns = True
             mock_args.verbose = False
 
-            with patch("cruiseplan.cli.pangaea.setup_logging"), \
-                 patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="doi_file"), \
-                 patch("cruiseplan.cli.pangaea.validate_input_file", return_value=Path(tmp.name)), \
-                 patch("cruiseplan.cli.pangaea.read_doi_list", return_value=["10.1594/PANGAEA.12345"]), \
-                 patch("cruiseplan.cli.pangaea.validate_dois", return_value=["10.1594/PANGAEA.12345"]), \
-                 patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[{"name": "Dataset"}]), \
-                 patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save:
+            with (
+                patch("cruiseplan.cli.pangaea.setup_logging"),
+                patch(
+                    "cruiseplan.cli.pangaea.determine_workflow_mode",
+                    return_value="doi_file",
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.validate_input_file",
+                    return_value=Path(tmp.name),
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.read_doi_list",
+                    return_value=["10.1594/PANGAEA.12345"],
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.validate_dois",
+                    return_value=["10.1594/PANGAEA.12345"],
+                ),
+                patch(
+                    "cruiseplan.cli.pangaea.fetch_pangaea_data",
+                    return_value=[{"name": "Dataset"}],
+                ),
+                patch("cruiseplan.cli.pangaea.save_pangaea_pickle") as mock_save,
+            ):
 
                 main(mock_args)
 
@@ -411,7 +517,7 @@ class TestBackwardCompatibility:
                 mock_save.assert_called_once()
                 output_file = mock_save.call_args[0][1]
                 assert output_file == Path("/custom/path/custom_stations.pkl")
-                
+
             Path(tmp.name).unlink()
 
 
@@ -428,10 +534,14 @@ class TestErrorHandling:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=[]):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=[]),
+        ):
+
             with pytest.raises(SystemExit):
                 main(mock_args)
 
@@ -449,16 +559,26 @@ class TestErrorHandling:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"), \
-             patch("cruiseplan.cli.pangaea.search_pangaea_datasets", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.save_doi_list"), \
-             patch("cruiseplan.cli.pangaea.validate_dois", return_value=["10.1594/PANGAEA.12345"]), \
-             patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[]):  # No datasets returned
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode", return_value="search"
+            ),
+            patch(
+                "cruiseplan.cli.pangaea.search_pangaea_datasets",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch("cruiseplan.cli.pangaea.save_doi_list"),
+            patch(
+                "cruiseplan.cli.pangaea.validate_dois",
+                return_value=["10.1594/PANGAEA.12345"],
+            ),
+            patch("cruiseplan.cli.pangaea.fetch_pangaea_data", return_value=[]),
+        ):  # No datasets returned
 
             with caplog.at_level(logging.WARNING):
                 main(mock_args)
-            
+
             assert "No datasets retrieved" in caplog.text
 
     def test_keyboard_interrupt_handling(self, caplog):
@@ -470,13 +590,18 @@ class TestErrorHandling:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", side_effect=KeyboardInterrupt()):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode",
+                side_effect=KeyboardInterrupt(),
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 with caplog.at_level(logging.INFO):
                     main(mock_args)
-                
+
             assert "Operation cancelled by user" in caplog.text
 
     def test_cli_error_handling(self, caplog):
@@ -488,13 +613,18 @@ class TestErrorHandling:
         mock_args.output_file = None
         mock_args.verbose = False
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", side_effect=CLIError("Test error")):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode",
+                side_effect=CLIError("Test error"),
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 with caplog.at_level(logging.ERROR):
                     main(mock_args)
-                
+
             assert "❌ Test error" in caplog.text
 
     def test_unexpected_exception_handling(self, caplog):
@@ -504,13 +634,18 @@ class TestErrorHandling:
         mock_args.verbose = False
         mock_args.output_file = None
 
-        with patch("cruiseplan.cli.pangaea.setup_logging"), \
-             patch("cruiseplan.cli.pangaea.determine_workflow_mode", side_effect=RuntimeError("Unexpected error")):
-            
+        with (
+            patch("cruiseplan.cli.pangaea.setup_logging"),
+            patch(
+                "cruiseplan.cli.pangaea.determine_workflow_mode",
+                side_effect=RuntimeError("Unexpected error"),
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 with caplog.at_level(logging.ERROR):
                     main(mock_args)
-                
+
             assert "❌ Unexpected error: Unexpected error" in caplog.text
 
 
@@ -522,28 +657,32 @@ class TestUtilityFunctions:
         mock_datasets = [
             {"doi": "10.1594/PANGAEA.12345"},
             {"doi": "10.1594/PANGAEA.67890"},
-            {"name": "No DOI dataset"}  # No DOI field
+            {"name": "No DOI dataset"},  # No DOI field
         ]
-        
+
         with patch("cruiseplan.cli.pangaea.PangaeaManager") as mock_manager_class:
             mock_manager = mock_manager_class.return_value
             mock_manager.search.return_value = mock_datasets
-            
+
             result = search_pangaea_datasets("CTD", bbox=(-50, 50, -30, 60), limit=10)
-            
+
             assert result == ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
-            mock_manager.search.assert_called_once_with(query="CTD", bbox=(-50, 50, -30, 60), limit=10)
+            mock_manager.search.assert_called_once_with(
+                query="CTD", bbox=(-50, 50, -30, 60), limit=10
+            )
 
     def test_save_doi_list(self):
         """Test save_doi_list function."""
         dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
         output_path = Path("/tmp/test_dois.txt")
-        
-        with patch("builtins.open", mock_open()) as mock_file, \
-             patch("pathlib.Path.mkdir"):
-            
+
+        with (
+            patch("builtins.open", mock_open()) as mock_file,
+            patch("pathlib.Path.mkdir"),
+        ):
+
             save_doi_list(dois, output_path)
-            
+
             mock_file.assert_called_once_with(output_path, "w")
             handle = mock_file()
             handle.write.assert_any_call("10.1594/PANGAEA.12345\n")
@@ -556,22 +695,22 @@ class TestUtilityFunctions:
             "https://doi.org/10.1594/PANGAEA.67890",
             "doi:10.1594/PANGAEA.11111",
             "invalid_doi",
-            "  10.1594/PANGAEA.22222  "  # With whitespace
+            "  10.1594/PANGAEA.22222  ",  # With whitespace
         ]
-        
+
         with patch("cruiseplan.data.pangaea._is_valid_doi") as mock_valid:
             # Mock validation: return True for proper DOI format, False for invalid
             def validate_side_effect(doi):
                 return doi.startswith("10.1594/PANGAEA.")
-            
+
             mock_valid.side_effect = validate_side_effect
-            
+
             result = validate_dois(input_dois)
-            
+
             expected = [
                 "10.1594/PANGAEA.12345",
                 "10.1594/PANGAEA.67890",  # Cleaned from URL
                 "10.1594/PANGAEA.11111",  # Cleaned from doi: prefix
-                "10.1594/PANGAEA.22222"   # Cleaned whitespace
+                "10.1594/PANGAEA.22222",  # Cleaned whitespace
             ]
             assert result == expected

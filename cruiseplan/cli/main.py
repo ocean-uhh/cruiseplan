@@ -251,7 +251,7 @@ Examples:
         action="store_true",
         help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
     )
-    
+
     # Bathymetry options for PNG map generation
     schedule_parser.add_argument(
         "--bathy-source",
@@ -440,9 +440,9 @@ Examples:
 
     # --- 6. PANDOI Subcommand (DEPRECATED - will be removed in v0.3.0) ---
     pandoi_parser = subparsers.add_parser(
-        "pandoi", 
+        "pandoi",
         help="[DEPRECATED] Use 'pangaea' instead (will be removed in v0.3.0)",
-        description="[DEPRECATED] PANGAEA dataset search - use 'cruiseplan pangaea' instead"
+        description="[DEPRECATED] PANGAEA dataset search - use 'cruiseplan pangaea' instead",
     )
     pandoi_parser.add_argument(
         "query", help="Search query string (e.g., 'CTD', 'temperature', 'Arctic Ocean')"
@@ -586,167 +586,151 @@ Examples:
         """,
     )
     process_parser.add_argument(
-        "-c", "--config-file", 
-        type=Path, 
+        "-c",
+        "--config-file",
+        type=Path,
         required=True,
-        help="Input YAML configuration file"
+        help="Input YAML configuration file",
     )
 
     # Processing mode flags (mutually exclusive --only-* modes)
     process_parser.add_argument(
-        "--only-enrich", 
-        action="store_true",
-        help="Only run enrichment step"
+        "--only-enrich", action="store_true", help="Only run enrichment step"
     )
     process_parser.add_argument(
-        "--only-validate", 
+        "--only-validate",
         action="store_true",
-        help="Only run validation step (no enrichment or map)"
+        help="Only run validation step (no enrichment or map)",
     )
     process_parser.add_argument(
-        "--only-map", 
+        "--only-map",
         action="store_true",
-        help="Only run map generation (no enrichment or validation)"
+        help="Only run map generation (no enrichment or validation)",
     )
 
     # Processing step control flags (for full processing mode)
     process_parser.add_argument(
-        "--no-enrich", 
-        action="store_true",
-        help="Skip enrichment step"
+        "--no-enrich", action="store_true", help="Skip enrichment step"
     )
     process_parser.add_argument(
-        "--no-validate", 
-        action="store_true",
-        help="Skip validation step"
+        "--no-validate", action="store_true", help="Skip validation step"
     )
     process_parser.add_argument(
-        "--no-map", 
-        action="store_true",
-        help="Skip map generation step"
+        "--no-map", action="store_true", help="Skip map generation step"
     )
 
     # Enrichment control flags (smart defaults - all enabled unless disabled)
     process_parser.add_argument(
-        "--no-depths", 
+        "--no-depths",
         action="store_true",
-        help="Skip adding missing depths (default: depths added)"
+        help="Skip adding missing depths (default: depths added)",
     )
     process_parser.add_argument(
-        "--no-coords", 
+        "--no-coords",
         action="store_true",
-        help="Skip adding coordinate fields (default: coords added)"
+        help="Skip adding coordinate fields (default: coords added)",
     )
     process_parser.add_argument(
-        "--no-sections", 
+        "--no-sections",
         action="store_true",
-        help="Skip expanding CTD sections (default: sections expanded)"
+        help="Skip expanding CTD sections (default: sections expanded)",
     )
     process_parser.add_argument(
-        "--no-ports", 
+        "--no-ports",
         action="store_true",
-        help="Skip expanding port references (default: ports expanded)"
+        help="Skip expanding port references (default: ports expanded)",
     )
 
     # Validation options
     process_parser.add_argument(
-        "--no-depth-check", 
+        "--no-depth-check",
         action="store_true",
-        help="Skip depth accuracy checking (default: depths checked)"
+        help="Skip depth accuracy checking (default: depths checked)",
     )
     process_parser.add_argument(
-        "--strict", 
-        action="store_true",
-        help="Enable strict validation mode"
+        "--strict", action="store_true", help="Enable strict validation mode"
     )
     process_parser.add_argument(
-        "--tolerance", 
-        type=float, 
+        "--tolerance",
+        type=float,
         default=10.0,
-        help="Depth difference tolerance in percent (default: 10.0)"
+        help="Depth difference tolerance in percent (default: 10.0)",
     )
 
     # Map generation options
     process_parser.add_argument(
-        "--format", 
-        default="all",
-        help="Map output formats: png,kml,all (default: all)"
+        "--format", default="all", help="Map output formats: png,kml,all (default: all)"
     )
     process_parser.add_argument(
-        "--figsize", 
-        nargs=2, 
-        type=float, 
+        "--figsize",
+        nargs=2,
+        type=float,
         default=[12, 8],
-        help="Figure size for PNG maps (width height, default: 12 8)"
+        help="Figure size for PNG maps (width height, default: 12 8)",
     )
 
     # Output and bathymetry options
     process_parser.add_argument(
-        "-o", "--output-dir", 
-        type=Path, 
+        "-o",
+        "--output-dir",
+        type=Path,
         default=Path("data"),
-        help="Output directory (default: data)"
+        help="Output directory (default: data)",
     )
     process_parser.add_argument(
-        "--output", 
-        type=str,
-        help="Base filename for outputs (without extension)"
+        "--output", type=str, help="Base filename for outputs (without extension)"
     )
     process_parser.add_argument(
-        "--bathy-source", 
+        "--bathy-source",
         default="etopo2022",
         choices=["etopo2022", "gebco2025"],
-        help="Bathymetry dataset (default: etopo2022)"
+        help="Bathymetry dataset (default: etopo2022)",
     )
     process_parser.add_argument(
-        "--bathy-dir", 
-        type=Path, 
+        "--bathy-dir",
+        type=Path,
         default=Path("data"),
-        help="Directory containing bathymetry data (default: data)"
+        help="Directory containing bathymetry data (default: data)",
     )
     process_parser.add_argument(
-        "--bathy-stride", 
-        type=int, 
+        "--bathy-stride",
+        type=int,
         default=10,
-        help="Bathymetry contour stride (default: 10)"
+        help="Bathymetry contour stride (default: 10)",
     )
 
     # Legacy argument support with deprecation warnings
     process_parser.add_argument(
-        "--bathymetry-source", 
+        "--bathymetry-source",
         dest="bathy_source_legacy",
         choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead"
+        help="[DEPRECATED] Use --bathy-source instead",
     )
     process_parser.add_argument(
-        "--bathymetry-dir", 
-        type=Path, 
+        "--bathymetry-dir",
+        type=Path,
         dest="bathy_dir_legacy",
-        help="[DEPRECATED] Use --bathy-dir instead"
+        help="[DEPRECATED] Use --bathy-dir instead",
     )
     process_parser.add_argument(
-        "--bathymetry-stride", 
-        type=int, 
+        "--bathymetry-stride",
+        type=int,
         dest="bathy_stride_legacy",
-        help="[DEPRECATED] Use --bathy-stride instead"
+        help="[DEPRECATED] Use --bathy-stride instead",
     )
     process_parser.add_argument(
-        "--coord-format", 
-        dest="coord_format_legacy", 
+        "--coord-format",
+        dest="coord_format_legacy",
         choices=["dmm", "dms"],
-        help="[DEPRECATED] Coordinate format fixed to DMM"
+        help="[DEPRECATED] Coordinate format fixed to DMM",
     )
 
     # General options
     process_parser.add_argument(
-        "--verbose", "-v", 
-        action="store_true",
-        help="Enable verbose logging"
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
     process_parser.add_argument(
-        "--quiet", "-q", 
-        action="store_true",
-        help="Enable quiet mode"
+        "--quiet", "-q", action="store_true", help="Enable quiet mode"
     )
 
     # --- 9. Pangaea Subcommand (Unified Search + Download) ---
@@ -831,7 +815,6 @@ Examples:
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-
     # Parse args
     args = parser.parse_args()
 
@@ -850,9 +833,11 @@ Examples:
             bathymetry_main(args)
         elif args.subcommand == "download":
             # Deprecated command - show warning and redirect to bathymetry
-            print("⚠️  WARNING: 'cruiseplan download' is deprecated and will be removed in v0.3.0.")
+            print(
+                "⚠️  WARNING: 'cruiseplan download' is deprecated and will be removed in v0.3.0."
+            )
             print("   Please use 'cruiseplan bathymetry' instead.\n")
-            
+
             from cruiseplan.cli.bathymetry import main as bathymetry_main
 
             bathymetry_main(args)
@@ -878,14 +863,17 @@ Examples:
             process_main(args)
         elif args.subcommand == "pandoi":
             # Deprecated command - show warning and redirect to unified pangaea
-            print("⚠️  WARNING: 'cruiseplan pandoi' is deprecated and will be removed in v0.3.0.")
+            print(
+                "⚠️  WARNING: 'cruiseplan pandoi' is deprecated and will be removed in v0.3.0."
+            )
             print("   Please use 'cruiseplan pangaea' instead.\n")
-            
+
             # Convert pandoi args to pangaea format for compatibility
             # Map pandoi arguments to the new unified pangaea command structure
             args.query_or_file = args.query
-            
+
             from cruiseplan.cli.pangaea import main as pangaea_main
+
             pangaea_main(args)
         elif args.subcommand == "map":
             from cruiseplan.cli.map import main as map_main

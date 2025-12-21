@@ -72,7 +72,9 @@ class TestCliBathymetry:
         mock_args = MagicMock()
         mock_args.bathy_source = None  # New primary parameter not set
         mock_args.source = None  # Legacy --source parameter not set
-        mock_args.bathymetry_source = "etopo2022"  # Legacy --bathymetry-source parameter set
+        mock_args.bathymetry_source = (
+            "etopo2022"  # Legacy --bathymetry-source parameter set
+        )
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
@@ -97,7 +99,9 @@ class TestCliBathymetry:
         mock_args = MagicMock()
         mock_args.bathy_source = "gebco2025"  # New primary parameter
         mock_args.source = "etopo2022"  # Legacy --source parameter
-        mock_args.bathymetry_source = "etopo2022"  # Legacy --bathymetry-source parameter  
+        mock_args.bathymetry_source = (
+            "etopo2022"  # Legacy --bathymetry-source parameter
+        )
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
@@ -336,7 +340,10 @@ class TestCliBathymetry:
 
             # Verify citation help text uses new parameter name
             captured = capsys.readouterr()
-            assert "cruiseplan bathymetry --bathy-source etopo2022 --citation" in captured.out
+            assert (
+                "cruiseplan bathymetry --bathy-source etopo2022 --citation"
+                in captured.out
+            )
 
     def test_main_with_citation_flag_unknown_source(self, capsys):
         """Test bathymetry main with --citation flag for unknown source."""

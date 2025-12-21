@@ -112,7 +112,9 @@ def main(args=None):
     if source is None:
         source = getattr(args, "bathymetry_source", None)  # Legacy --bathymetry-source
         if source is not None:
-            print("⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead.")
+            print(
+                "⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead."
+            )
     if source is None:
         source = "etopo2022"
     show_citation_only = getattr(args, "citation", False)

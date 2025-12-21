@@ -1346,7 +1346,7 @@ def generate_cruise_schedule(
     figsize : list of float, optional
         Figure size for PNG maps in inches [width, height]. Default is [12.0, 8.0].
     output_basename : str, optional
-        Base filename for output files. If None, uses cruise name from config. 
+        Base filename for output files. If None, uses cruise name from config.
         Default is None.
 
     Returns
@@ -1436,7 +1436,7 @@ def generate_cruise_schedule(
     else:
         # Use cruise name as default
         base_name = config.cruise_name.replace(" ", "_")
-    
+
     leg_suffix = f"_{selected_leg}" if selected_leg else ""
     base_filename = f"{base_name}{leg_suffix}_schedule"
 
@@ -1482,9 +1482,12 @@ def generate_cruise_schedule(
                 # Set default figsize if not provided
                 if figsize is None:
                     figsize = [12.0, 8.0]
-                
+
                 output_file = _generate_timeline_png_map(
-                    timeline, cruise, output_path, base_filename,
+                    timeline,
+                    cruise,
+                    output_path,
+                    base_filename,
                     bathy_source=bathy_source,
                     bathy_stride=bathy_stride,
                     figsize=figsize,
@@ -1560,9 +1563,15 @@ def _generate_netcdf_schedule(
         return None
 
 
-def _generate_timeline_png_map(timeline, cruise, output_path, base_filename,
-                               bathy_source="etopo2022", bathy_stride=10, 
-                               figsize=None):
+def _generate_timeline_png_map(
+    timeline,
+    cruise,
+    output_path,
+    base_filename,
+    bathy_source="etopo2022",
+    bathy_stride=10,
+    figsize=None,
+):
     """Generate PNG map from timeline data showing scheduled sequence."""
     try:
         from cruiseplan.output.map_generator import generate_map_from_timeline
@@ -1572,7 +1581,7 @@ def _generate_timeline_png_map(timeline, cruise, output_path, base_filename,
         # Set default figsize if not provided
         if figsize is None:
             figsize = [12.0, 8.0]
-            
+
         return generate_map_from_timeline(
             timeline=timeline,
             output_file=output_file,

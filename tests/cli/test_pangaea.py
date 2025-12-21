@@ -168,9 +168,9 @@ class TestMainCommand:
         mock_save,
         mock_fetch,
     ):
-        """Test successful main command execution.""" 
+        """Test successful main command execution."""
         import tempfile
-        
+
         # Setup mocks
         mock_validate_input.return_value = Path("/test/dois.txt")
         mock_validate_output.return_value = Path("/test/output.pkl")
@@ -179,7 +179,7 @@ class TestMainCommand:
         mock_fetch.return_value = [{"label": "Campaign1"}]
 
         # Create temporary DOI file for workflow detection
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.txt', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
             f.write("10.1594/PANGAEA.12345\n")
             temp_doi_file = f.name
 
@@ -203,6 +203,7 @@ class TestMainCommand:
         finally:
             # Clean up temporary file
             import os
+
             os.unlink(temp_doi_file)
 
         # Verify calls

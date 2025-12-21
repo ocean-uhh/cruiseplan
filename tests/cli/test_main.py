@@ -209,7 +209,10 @@ class TestVersionAndHelp:
                     assert "cruiseplan" in output
                     # Accept various version patterns (dev: 0.0.post1.dev1, release: 0.2.x)
                     assert (
-                        "0.2." in output or "0.1." in output or "0.0.post" in output or "0.0.dev" in output
+                        "0.2." in output
+                        or "0.1." in output
+                        or "0.0.post" in output
+                        or "0.0.dev" in output
                     )
 
     def test_subcommand_help(self):

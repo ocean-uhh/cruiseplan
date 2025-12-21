@@ -402,49 +402,51 @@ def load_cruise_with_pretty_warnings(config_file):
         raise CLIError(f"Failed to load cruise configuration: {e}") from e
 
 
-def determine_output_path(args, default_basename: str, suffix: str = "", extension: str = "") -> Path:
+def determine_output_path(
+    args, default_basename: str, suffix: str = "", extension: str = ""
+) -> Path:
     """
     Determine output file path from CLI arguments following the standard pattern.
-    
-    This utility handles the common --output + --output-dir pattern used across 
+
+    This utility handles the common --output + --output-dir pattern used across
     multiple CLI commands, providing consistent behavior for output file naming.
-    
+
     Parameters
     ----------
     args : argparse.Namespace
         Parsed command line arguments containing output and output_dir.
-    default_basename : str  
+    default_basename : str
         Default base filename to use if --output is not provided.
     suffix : str, optional
         Suffix to append to basename (e.g., "_enriched", "_schedule"). Default "".
     extension : str, optional
         File extension including the dot (e.g., ".yaml", ".csv"). Default "".
-        
+
     Returns
     -------
     Path
         Complete output file path.
-        
+
     Examples
     --------
     >>> # With --output myfile --output-dir results/
     >>> determine_output_path(args, "cruise", "_enriched", ".yaml")
     Path("results/myfile_enriched.yaml")
-    
-    >>> # Without --output, using default 
+
+    >>> # Without --output, using default
     >>> determine_output_path(args, "My_Cruise", "_schedule", ".csv")
-    Path("data/My_Cruise_schedule.csv") 
+    Path("data/My_Cruise_schedule.csv")
     """
     # Determine base filename
-    if hasattr(args, 'output') and args.output:
+    if hasattr(args, "output") and args.output:
         base_name = args.output.replace(" ", "_")
     else:
         base_name = default_basename.replace(" ", "_")
-    
+
     # Construct full filename
     filename = f"{base_name}{suffix}{extension}"
-    
-    # Determine output directory 
-    output_dir = getattr(args, 'output_dir', Path("data"))
-    
+
+    # Determine output directory
+    output_dir = getattr(args, "output_dir", Path("data"))
+
     return Path(output_dir) / filename

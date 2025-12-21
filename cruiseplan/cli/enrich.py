@@ -46,13 +46,15 @@ def main(args: argparse.Namespace) -> None:
         config_file = validate_input_file(args.config_file)
 
         # Handle legacy --output-file parameter
-        if hasattr(args, 'output_file') and args.output_file:
-            logger.warning("⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path.")
+        if hasattr(args, "output_file") and args.output_file:
+            logger.warning(
+                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
+            )
             output_path = validate_output_path(output_file=args.output_file)
         else:
             output_dir = validate_output_path(output_dir=args.output_dir)
             # Use --output base filename if provided, otherwise use input filename
-            base_name = getattr(args, 'output', config_file.stem)
+            base_name = getattr(args, "output", config_file.stem)
             output_filename = f"{base_name}_enriched.yaml"
             output_path = output_dir / output_filename
 
@@ -255,8 +257,14 @@ if __name__ == "__main__":
         "--expand-ports", action="store_true", help="Expand global port references"
     )
     parser.add_argument("-o", "--output-dir", type=Path, default=Path("."))
-    parser.add_argument("--output", type=str, help="Base filename for output (without extension)")
-    parser.add_argument("--output-file", type=Path, help="[DEPRECATED] Use --output and --output-dir instead")
+    parser.add_argument(
+        "--output", type=str, help="Base filename for output (without extension)"
+    )
+    parser.add_argument(
+        "--output-file",
+        type=Path,
+        help="[DEPRECATED] Use --output and --output-dir instead",
+    )
     parser.add_argument("--bathymetry-source", default="etopo2022")
     parser.add_argument("--bathymetry-dir", type=Path, default=Path("data"))
     parser.add_argument("--coord-format", default="dmm", choices=["dmm", "dms"])
