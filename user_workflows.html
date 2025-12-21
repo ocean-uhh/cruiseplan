@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Overview &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=104987fd"></script>
+      <script src="_static/documentation_options.js?v=27b10d97"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -157,13 +157,13 @@
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">download</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">bathymetry</span></code></p></td>
 <td><p>Get bathymetry data</p></td>
-<td><p>User choice (ETOPO, GEBCO))</p></td>
+<td><p>User choice (ETOPO, GEBCO)</p></td>
 <td><p>NetCDF files in <code class="docutils literal notranslate"><span class="pre">data/</span></code></p></td>
 <td><p><cite>*.nc</cite></p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pandoi</span></code></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pangaea</span></code> (search)</p></td>
 <td><p>Search PANGAEA</p></td>
 <td><p>Search terms + bounds</p></td>
 <td><p>DOI list file</p></td>
@@ -226,10 +226,10 @@
 <section id="download-bathymetry">
 <span id="id1"></span><h3>Download bathymetry<a class="headerlink" href="#download-bathymetry" title="Link to this heading"></a></h3>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download default bathymetry (ETOPO 2022 - recommended)</span>
-cruiseplan<span class="w"> </span>download
+cruiseplan<span class="w"> </span>bathymetry
 
 <span class="c1"># OR download high-resolution bathymetry (larger download)</span>
-cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
+cruiseplan<span class="w"> </span>bathymetry<span class="w"> </span>--source<span class="w"> </span>gebco2025
 </pre></div>
 </div>
 <p><strong>What this does:</strong></p>
@@ -476,10 +476,10 @@ cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w
 </thead>
 <tbody>
 <tr class="row-even"><td><p>“MOCK mode” warnings</p></td>
-<td><p>Run <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> first</p></td>
+<td><p>Run <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code> first</p></td>
 </tr>
 <tr class="row-odd"><td><p>“File too small” error</p></td>
-<td><p>Redownload: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span> <span class="pre">--bathymetry-source</span> <span class="pre">etopo2022</span></code></p></td>
+<td><p>Redownload: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span> <span class="pre">--source</span> <span class="pre">etopo2022</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>Depths seem incorrect</p></td>
 <td><p>Check coordinate format (decimal degrees)</p></td>

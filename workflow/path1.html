@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path 1: Basic Planning Workflow &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Path 1: Basic Planning Workflow &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -55,12 +55,17 @@
 <li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Path 1: General Usage - Cruise planning from scratch without historical context</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-download-bathymetry-data">Step 1: Download Bathymetry Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-interactive-station-planning">Step 2: Interactive Station Planning</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-manual-configuration-editing">Step 3: Manual Configuration Editing</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4-enrich-configuration">Step 4: Enrich Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-5-validate-configuration">Step 5: Validate Configuration</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-6-generate-schedule-and-outputs">Step 6: Generate Schedule and Outputs</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-1-data-preparation">Phase 1: Data Preparation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-download-bathymetry">Step 1: Download Bathymetry</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-2-cruise-configuration">Phase 2: Cruise Configuration</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-pick-stations">Step 1: Pick Stations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-manual-configuration-editing">Step 2: Manual Configuration Editing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-3-process-configuration-enrich-validate-map">Step 3: Process Configuration (enrich, validate + map)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-3-generate-schedule-and-outputs">Phase 3: Generate Schedule and Outputs</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="path2.html">Path 2: PANGAEA-Enhanced - Incorporate historical station positions when picking stations</a></li>
@@ -122,36 +127,48 @@
 <span id="user-workflow-path-1"></span><h1>Path 1: Basic Planning Workflow<a class="headerlink" href="#path-1-basic-planning-workflow" title="Link to this heading"></a></h1>
 <p><strong>Best for:</strong> First-time users, simple cruises, when historical data is not needed</p>
 <p><strong>Time required:</strong> 30-60 minutes to create a first draft of a cruise</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="../_images/cruiseplan_process.png"><img alt="CruisePlan Process Overview" src="../_images/cruiseplan_process.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>CruisePlan Process Overview</strong>: The complete workflow from data preparation through final deliverables, showing the unified <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> command and individual command options. Path 1 follows Phase 1 with only the “cruiseplan bathymetry” step, then Phase 2 and Phase 3 as normal. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <hr class="docutils" />
-<section id="step-1-download-bathymetry-data">
-<h2>Step 1: Download Bathymetry Data<a class="headerlink" href="#step-1-download-bathymetry-data" title="Link to this heading"></a></h2>
+<section id="phase-1-data-preparation">
+<h2>Phase 1: Data Preparation<a class="headerlink" href="#phase-1-data-preparation" title="Link to this heading"></a></h2>
+<section id="step-1-download-bathymetry">
+<h3>Step 1: Download Bathymetry<a class="headerlink" href="#step-1-download-bathymetry" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Provides depth information for station planning and automatic depth enrichment.</p>
 <p>Essential first step:  <a class="reference internal" href="../user_workflows.html#download-bathymetry"><span class="std std-ref">Download bathymetry</span></a>.  You’ve succeeeded when you have the file <code class="docutils literal notranslate"><span class="pre">data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc</span></code> available.  When in doubt, start with the ETOPO (default) only.</p>
-<figure class="align-center" id="id1">
+<figure class="align-center" id="id2">
 <a class="reference internal image-reference" href="../_images/data_directory_structure.png"><img alt="Bathymetry data directory structure showing downloaded files" src="../_images/data_directory_structure.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Directory structure (Mac OS Finder) showing bathymetry files in <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code></span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+<p><span class="caption-text">Directory structure (Mac OS Finder) showing bathymetry files in <code class="docutils literal notranslate"><span class="pre">data/bathymetry/</span></code></span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli/download.html#subcommand-download"><span class="std std-ref">Download subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/download.html"><span class="doc">download</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/bathymetry.html#subcommand-bathymetry"><span class="std std-ref">Bathymetry subcommand CLI reference</span></a> for full options and examples.</p>
 </div>
 </section>
+</section>
 <hr class="docutils" />
-<section id="step-2-interactive-station-planning">
-<h2>Step 2: Interactive Station Planning<a class="headerlink" href="#step-2-interactive-station-planning" title="Link to this heading"></a></h2>
+<section id="phase-2-cruise-configuration">
+<h2>Phase 2: Cruise Configuration<a class="headerlink" href="#phase-2-cruise-configuration" title="Link to this heading"></a></h2>
+<section id="step-1-pick-stations">
+<h3>Step 1: Pick Stations<a class="headerlink" href="#step-1-pick-stations" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Visually select station locations using an interactive map interface.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">45</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-65<span class="w"> </span>-5<span class="w"> </span>-o<span class="w"> </span>output_dir
 </pre></div>
 </div>
 <p>This will plot a map within the region specified (or defaults to the subpolar North Atlantic if not specified), and add contours of bathymetry.  It has various input modes for cruise activities at fixed points (stations), along lines (transects) or within areas (box surveys).  The navigation mode allows panning and zooming to explore the map without accidently clicking to add stations.</p>
-<figure class="align-center" id="id2">
+<figure class="align-center" id="id3">
 <a class="reference internal image-reference" href="../_images/station_picker_startup.png"><img alt="Station picker interface showing three-panel layout" src="../_images/station_picker_startup.png" style="width: 800px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Interactive station picker interface with map, controls, and status panels</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+<p><span class="caption-text">Interactive station picker interface with map, controls, and status panels</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Interactive Controls:</strong></p>
@@ -162,11 +179,11 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">a</span></code>: Define area operations (box surveys)</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">n</span></code>: Navigation mode (pan/zoom)</p></li>
 </ul>
-<figure class="align-center" id="id3">
+<figure class="align-center" id="id4">
 <a class="reference internal image-reference" href="../_images/station_picker_point_mode.png"><img alt="Station picker in point placement mode" src="../_images/station_picker_point_mode.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Point placement mode for adding individual stations (CTD, moorings).  Note the status in the upper right corner has changed to “Mode: Point”.</span><a class="headerlink" href="#id3" title="Link to this image"></a></p>
+<p><span class="caption-text">Point placement mode for adding individual stations (CTD, moorings).  Note the status in the upper right corner has changed to “Mode: Point”.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p>Additional commands can be used anytime:</p>
@@ -176,11 +193,11 @@
 <li><p><code class="docutils literal notranslate"><span class="pre">y</span></code>: Save to YAML file</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">Escape</span></code>: Exit without saving</p></li>
 </ul>
-<figure class="align-center" id="id4">
+<figure class="align-center" id="id5">
 <a class="reference internal image-reference" href="../_images/station_picker_multiple_stations.png"><img alt="Multiple stations placed on the map" src="../_images/station_picker_multiple_stations.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Example cruise plan with multiple stations showing position on the map.</span><a class="headerlink" href="#id4" title="Link to this image"></a></p>
+<p><span class="caption-text">Example cruise plan with multiple stations showing position on the map.</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition warning">
@@ -254,8 +271,8 @@
 </div>
 <hr class="docutils" />
 </section>
-<section id="step-3-manual-configuration-editing">
-<span id="manual-editing-configuration"></span><h2>Step 3: Manual Configuration Editing<a class="headerlink" href="#step-3-manual-configuration-editing" title="Link to this heading"></a></h2>
+<section id="step-2-manual-configuration-editing">
+<span id="manual-editing-configuration"></span><h3>Step 2: Manual Configuration Editing<a class="headerlink" href="#step-2-manual-configuration-editing" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as “CTD” and “profile” for stations, but will not update the YAML configuration (so you know where you’ve updated or not).</p>
 <p><strong>Operation Type Guide:</strong></p>
 <table class="docutils align-default">
@@ -368,29 +385,52 @@
 <p>For programmatic access or regional filtering, see the <a class="reference internal" href="../global_ports.html#global-ports-reference"><span class="std std-ref">Global Ports Reference</span></a> documentation.</p>
 <hr class="docutils" />
 </section>
-<section id="step-4-enrich-configuration">
-<span id="enrich-configuration"></span><h2>Step 4: Enrich Configuration<a class="headerlink" href="#step-4-enrich-configuration" title="Link to this heading"></a></h2>
-<p><strong>Purpose:</strong> Automatically add depth information and formatted coordinates to your stations.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords<span class="w"> </span>--expand-sections
+<section id="step-3-process-configuration-enrich-validate-map">
+<span id="enrich-configuration"></span><h3>Step 3: Process Configuration (enrich, validate + map)<a class="headerlink" href="#step-3-process-configuration-enrich-validate-map" title="Link to this heading"></a></h3>
+<p><strong>Purpose:</strong> Automatically add depth information and formatted coordinates to your stations. Checks for errors and inconsistencies before scheduling.</p>
+<p><strong>Option A: Unified Processing (Recommended)</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--output<span class="w"> </span>expedition_2024
 </pre></div>
 </div>
-<p><strong>Options:</strong></p>
+<p>This unified command runs all three steps (enrichment, validation, and map generation) with smart defaults:</p>
 <ul class="simple">
-<li><p><code class="docutils literal notranslate"><span class="pre">--add-depths</span></code>: Looks up seafloor depth using bathymetry data</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--add-coords</span></code>: Adds formatted coordinate strings (degrees/minutes)</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">gebco2025</span></code>: Use high-resolution bathymetry if available</p></li>
-<li><p><code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code>: Automatically add stations along transects at default spacing</p></li>
+<li><p>All enrichment options enabled by default (depths, coordinates, sections, ports)</p></li>
+<li><p>Comprehensive validation with depth checking</p></li>
+<li><p>PNG map and KML catalog generation</p></li>
+<li><p>Predictable output filenames: <code class="docutils literal notranslate"><span class="pre">expedition_2024_enriched.yaml</span></code>, <code class="docutils literal notranslate"><span class="pre">expedition_2024_map.png</span></code>, <code class="docutils literal notranslate"><span class="pre">expedition_2024_catalog.kml</span></code></p></li>
 </ul>
-<p><strong>What this does:</strong></p>
+<p><strong>Option B: Individual Commands</strong></p>
+<p>For fine-grained control, use individual commands:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--output<span class="w"> </span>expedition_2024
+cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>data/expedition_2024_enriched.yaml<span class="w"> </span>--check-depths
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>data/expedition_2024_enriched.yaml<span class="w"> </span>--output<span class="w"> </span>expedition_map
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The unified <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> command is recommended for most users as it provides smart defaults and streamlined workflow. For advanced users who need fine-grained control over each step, individual commands offer maximum flexibility.</p>
+<p>See <a class="reference internal" href="../cli/process.html#subcommand-process"><span class="std std-ref">Process subcommand CLI reference</span></a> for complete options and examples.</p>
+</div>
+<p><strong>Common Processing Details:</strong></p>
 <ul class="simple">
 <li><p>Queries bathymetry database for depth at each station</p></li>
-<li><p>Adds <code class="docutils literal notranslate"><span class="pre">depth</span></code> field to stations that lack it</p></li>
-<li><p>Adds <code class="docutils literal notranslate"><span class="pre">position_string</span></code> field with formatted coordinates</p></li>
-<li><p>Preserves any manually specified depths</p></li>
-<li><p><strong>Section Expansion</strong>: Converts transit route definitions into individual station definitions</p></li>
+<li><p>Adds <code class="docutils literal notranslate"><span class="pre">depth</span></code> field to stations that lack it (unless <code class="docutils literal notranslate"><span class="pre">--no-depths</span></code> specified), but note it preserves any manually specified depths</p></li>
+<li><p>Adds <code class="docutils literal notranslate"><span class="pre">position_string</span></code> field with formatted coordinates (unless <code class="docutils literal notranslate"><span class="pre">--no-coords</span></code> specified)</p></li>
+<li><p><strong>Section Expansion</strong>: Converts transit route definitions into individual station definitions (unless <code class="docutils literal notranslate"><span class="pre">--no-sections</span></code> specified)</p></li>
 <li><p><strong>Leg Anchor Updates</strong>: Automatically updates <code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> and <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code> fields in legs to reference the newly created stations</p></li>
+<li><p>Expands ports to full definitions if only a name was provided (unless <code class="docutils literal notranslate"><span class="pre">--no-ports</span></code> specified)</p></li>
 </ul>
-<p><strong>Example transformation:</strong></p>
+<p><strong>Validation checks:</strong></p>
+<ul class="simple">
+<li><p>Required fields are present</p></li>
+<li><p>Operation type/action combinations are valid</p></li>
+<li><p>Coordinates are within valid ranges</p></li>
+<li><p><strong>Duplicate detection</strong>: Station names, leg names must be unique</p></li>
+<li><p><strong>Potential duplicates</strong>: Warns about stations with identical coordinates and operations</p></li>
+<li><p>Depth values are reasonable (if <code class="docutils literal notranslate"><span class="pre">--check-depths</span></code> specified)</p></li>
+<li><p>Leg definitions reference existing stations</p></li>
+</ul>
+<p><strong>Example enrichment:</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Before enrichment (from station picker):</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
 <span class="w">  </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
@@ -464,30 +504,25 @@
 <li><p>Leg activities are updated to include all generated stations in sequential order</p></li>
 <li><p>Original transit definitions are preserved but no longer used in scheduling</p></li>
 </ul>
-<figure class="align-center" id="id5">
+<figure class="align-center" id="id6">
 <a class="reference internal image-reference" href="../_images/yaml_enrichment_comparison.png"><img alt="YAML before and after enrichment showing added depth and position_string fields" src="../_images/yaml_enrichment_comparison.png" style="width: 600px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">YAML before and after enrichment showing added depth and position_string fields</span><a class="headerlink" href="#id5" title="Link to this image"></a></p>
+<p><span class="caption-text">YAML before and after enrichment showing added depth and position_string fields</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
 <p>See <a class="reference internal" href="../cli/enrich.html#subcommand-enrich"><span class="std std-ref">Enrich subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/enrich.html"><span class="doc">enrich</span></a> for full options and examples.</p>
 </div>
-<hr class="docutils" />
-</section>
-<section id="step-5-validate-configuration">
-<span id="validate-configuration"></span><h2>Step 5: Validate Configuration<a class="headerlink" href="#step-5-validate-configuration" title="Link to this heading"></a></h2>
-<p><strong>Purpose:</strong> Check for errors and inconsistencies before scheduling.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--check-depths
 </pre></div>
 </div>
-<figure class="align-center" id="id6">
+<figure class="align-center" id="id7">
 <a class="reference internal image-reference" href="../_images/validate_command_results.png"><img alt="Validation results showing successful checks and warnings" src="../_images/validate_command_results.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Configuration validation with station-specific error messages and depth checks</span><a class="headerlink" href="#id6" title="Link to this image"></a></p>
+<p><span class="caption-text">Configuration validation with station-specific error messages and depth checks</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Validation checks:</strong></p>
@@ -537,12 +572,13 @@
 </table>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli/validate.html#subcommand-validate"><span class="std std-ref">Validate subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/validate.html"><span class="doc">validate</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/validate.html#subcommand-validate"><span class="std std-ref">Validate subcommand CLI reference</span></a> for full options and examples.</p>
 </div>
 <hr class="docutils" />
 </section>
-<section id="step-6-generate-schedule-and-outputs">
-<span id="generate-schedule-outputs"></span><h2>Step 6: Generate Schedule and Outputs<a class="headerlink" href="#step-6-generate-schedule-and-outputs" title="Link to this heading"></a></h2>
+</section>
+<section id="phase-3-generate-schedule-and-outputs">
+<span id="generate-schedule-outputs"></span><h2>Phase 3: Generate Schedule and Outputs<a class="headerlink" href="#phase-3-generate-schedule-and-outputs" title="Link to this heading"></a></h2>
 <p><strong>Purpose:</strong> Create detailed cruise timeline and export professional outputs.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate all output formats</span>
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>all
@@ -552,11 +588,11 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--format<span class="w"> </span>latex
 </pre></div>
 </div>
-<figure class="align-center" id="id7">
+<figure class="align-center" id="id8">
 <a class="reference internal image-reference" href="../_images/schedule_generation.png"><img alt="Schedule generation process with progress output" src="../_images/schedule_generation.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Schedule generation showing timeline calculations and output file creation</span><a class="headerlink" href="#id7" title="Link to this image"></a></p>
+<p><span class="caption-text">Schedule generation showing timeline calculations and output file creation</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>Output formats:</strong></p>
@@ -567,18 +603,18 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <li><p><strong>CSV</strong>: Tabular data for Excel/analysis</p></li>
 <li><p><strong>KML</strong>: Google Earth visualization</p></li>
 </ul>
-<figure class="align-center" id="id8">
+<figure class="align-center" id="id9">
 <a class="reference internal image-reference" href="../_images/schedule_html_output.png"><img alt="Generated HTML schedule summary" src="../_images/schedule_html_output.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Professional HTML schedule output with timeline and station details</span><a class="headerlink" href="#id8" title="Link to this image"></a></p>
+<p><span class="caption-text">Professional HTML schedule output with timeline and station details</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
 </figcaption>
 </figure>
-<figure class="align-center" id="id9">
+<figure class="align-center" id="id10">
 <a class="reference internal image-reference" href="../_images/schedule_map_output.png"><img alt="Generated cruise track map" src="../_images/schedule_map_output.png" style="width: 700px;" />
 </a>
 <figcaption>
-<p><span class="caption-text">Publication-ready cruise track map with stations and bathymetric background</span><a class="headerlink" href="#id9" title="Link to this image"></a></p>
+<p><span class="caption-text">Publication-ready cruise track map with stations and bathymetric background</span><a class="headerlink" href="#id10" title="Link to this image"></a></p>
 </figcaption>
 </figure>
 <p><strong>What you get:</strong></p>
@@ -592,7 +628,6 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <p class="admonition-title">Note</p>
 <p>See <a class="reference internal" href="../cli/schedule.html#subcommand-schedule"><span class="std std-ref">Schedule subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/schedule.html"><span class="doc">schedule</span></a> for full options and examples.</p>
 </div>
-<hr class="docutils" />
 </section>
 </section>
 

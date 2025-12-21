@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>download &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>download &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -22,7 +22,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="pandoi" href="pandoi.html" />
-    <link rel="prev" title="CLI Command Reference" href="../cli_reference.html" /> 
+    <link rel="prev" title="map" href="map.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -65,7 +65,16 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#general-usage">General Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#deprecated-commands-and-parameters">Deprecated Commands and Parameters</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../cli_reference.html#subcommands">Subcommands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bathymetry.html">bathymetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="process.html"><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">download</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#options">Options</a></li>
@@ -75,12 +84,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="pandoi.html">pandoi</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
-<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
 </ul>
 </li>
 </ul>
@@ -128,6 +131,11 @@
              
   <section id="download">
 <span id="subcommand-download"></span><h1>download<a class="headerlink" href="#download" title="Link to this heading"></a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>DEPRECATED</strong>: This command is deprecated and will be removed in v0.3.0.
+Please use <a class="reference internal" href="bathymetry.html"><span class="doc">bathymetry</span></a> instead.</p>
+</div>
 <p>Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
@@ -223,7 +231,7 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>download<span class="
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="../cli_reference.html" class="btn btn-neutral float-left" title="CLI Command Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="map.html" class="btn btn-neutral float-left" title="map" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
         <a href="pandoi.html" class="btn btn-neutral float-right" title="pandoi" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 

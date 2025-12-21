@@ -336,7 +336,7 @@ Network Issues
 .. code-block:: bash
 
    # Test network connectivity
-   cruiseplan download --test-connection
+   cruiseplan bathymetry --citation
 
    # Use rate limiting for API calls
    cruiseplan pangaea dois.txt --rate-limit 0.5
@@ -355,7 +355,7 @@ Use this script to benchmark CruisePlan performance on your system:
 .. code-block:: bash
 
    # Download test data
-   cruiseplan download --bathymetry-source etopo2022
+   cruiseplan bathymetry --source etopo2022
 
    # Time basic operations
    time cruiseplan enrich -c test_cruise.yaml --add-depths

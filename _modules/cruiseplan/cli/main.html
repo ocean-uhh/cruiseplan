@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -226,13 +226,13 @@
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">Examples:</span>
-<span class="s2">  cruiseplan schedule -c cruise.yaml -o results/</span>
-<span class="s2">  cruiseplan map -c cruise.yaml --figsize 14 10</span>
+<span class="s2">  cruiseplan bathymetry --source gebco2025</span>
+<span class="s2">  cruiseplan pangaea &quot;CTD temperature&quot; --lat 50 60 --lon -50 -30</span>
 <span class="s2">  cruiseplan stations --lat 50 65 --lon -60 -30</span>
 <span class="s2">  cruiseplan enrich -c cruise.yaml --add-depths --add-coords</span>
 <span class="s2">  cruiseplan validate -c cruise.yaml --check-depths</span>
-<span class="s2">  cruiseplan pandoi &quot;CTD&quot; --lat 50 60 --lon -50 -40 --limit 20</span>
-<span class="s2">  cruiseplan pangaea doi_list.txt</span>
+<span class="s2">  cruiseplan schedule -c cruise.yaml -o results/</span>
+<span class="s2">  cruiseplan map -c cruise.yaml --figsize 14 10</span>
 
 <span class="s2">For detailed help on a subcommand:</span>
 <span class="s2">  cruiseplan &lt;subcommand&gt; --help</span>
@@ -250,10 +250,10 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Available subcommands&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># --- 1. Download Subcommand ---</span>
-    <span class="n">download_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;download&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download required data assets (bathymetry, etc.)&quot;</span><span class="p">,</span>
+    <span class="c1"># --- 1. Bathymetry Subcommand ---</span>
+    <span class="n">bathymetry_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;bathymetry&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Download bathymetry datasets for depth calculations&quot;</span><span class="p">,</span>
         <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download bathymetry datasets for cruise planning&quot;</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">This command downloads bathymetry datasets for depth calculations and bathymetric analysis.</span>
@@ -263,10 +263,63 @@
 <span class="s2">  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)</span>
 
 <span class="s2">Examples:</span>
-<span class="s2">  cruiseplan download                                    # Download ETOPO 2022 (default)</span>
-<span class="s2">  cruiseplan download --bathymetry-source etopo2022     # Download ETOPO 2022 explicitly  </span>
-<span class="s2">  cruiseplan download --bathymetry-source gebco2025     # Download high-res GEBCO 2025</span>
-<span class="s2">  cruiseplan download --bathymetry-source etopo2022 --citation  # Show citation info only</span>
+<span class="s2">  cruiseplan bathymetry                                          # Download ETOPO 2022 (default)</span>
+<span class="s2">  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly  </span>
+<span class="s2">  cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025</span>
+<span class="s2">  cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Legacy parameter support</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--citation&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show citation information for the bathymetry source without downloading&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for bathymetry files (default: data/bathymetry)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- 1b. Download Subcommand (DEPRECATED - will be removed in v0.3.0) ---</span>
+    <span class="n">download_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;download&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use &#39;bathymetry&#39; instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Download bathymetry datasets - use &#39;cruiseplan bathymetry&#39; instead&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">⚠️  WARNING: This command is deprecated and will be removed in v0.3.0.</span>
+<span class="s2">Please use &#39;cruiseplan bathymetry&#39; instead.</span>
+
+<span class="s2">This command downloads bathymetry datasets for depth calculations and bathymetric analysis.</span>
+
+<span class="s2">Available sources:</span>
+<span class="s2">  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)</span>
+<span class="s2">  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)</span>
+
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan bathymetry                                    # Use this instead</span>
+<span class="s2">  cruiseplan bathymetry --source etopo2022                # Use this instead  </span>
+<span class="s2">  cruiseplan bathymetry --source gebco2025                # Use this instead</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">download_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -307,6 +360,11 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for outputs (default: use cruise name from config)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;latex&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
@@ -317,6 +375,28 @@
         <span class="s2">&quot;--derive-netcdf&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options for PNG map generation</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-stride&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride for PNG maps (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;WIDTH&quot;</span><span class="p">,</span> <span class="s2">&quot;HEIGHT&quot;</span><span class="p">),</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps in inches (default: 12 8)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># --- 3. Stations Subcommand ---</span>
@@ -483,9 +563,11 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># --- 6. PANDOI Subcommand ---</span>
+    <span class="c1"># --- 6. PANDOI Subcommand (DEPRECATED - will be removed in v0.3.0) ---</span>
     <span class="n">pandoi_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;pandoi&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search PANGAEA datasets by query and geographic bounds&quot;</span>
+        <span class="s2">&quot;pandoi&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use &#39;pangaea&#39; instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] PANGAEA dataset search - use &#39;cruiseplan pangaea&#39; instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search query string (e.g., &#39;CTD&#39;, &#39;temperature&#39;, &#39;Arctic Ocean&#39;)&quot;</span>
@@ -603,21 +685,244 @@
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
     <span class="p">)</span>
 
-    <span class="c1"># --- 8. Pangaea Subcommand ---</span>
+    <span class="c1"># --- 8. Process Subcommand (Unified Configuration Processing) ---</span>
+    <span class="n">process_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
+        <span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Unified configuration processing (enrich + validate + map)&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unified interface for complete configuration processing pipeline&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This command provides a unified interface for the complete configuration processing pipeline,</span>
+<span class="s2">combining enrichment (adding missing data), validation (checking configuration integrity),</span>
+<span class="s2">and map generation into a single command with smart defaults and flexible control.</span>
+
+<span class="s2">Key Features:</span>
+<span class="s2">- Smart defaults: All enrichment options enabled by default</span>
+<span class="s2">- Flexible execution: Control which steps run with --only-* and --no-* flags  </span>
+<span class="s2">- Consistent output naming: Use --output for base filename across all generated files</span>
+<span class="s2">- Modern parameter names: Shorter --bathy-* parameters for reduced typing</span>
+
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan process -c cruise.yaml                                    # Full processing with smart defaults</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --output expedition_2024          # With custom base filename</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --only-enrich --no-sections       # Only enrichment, skip CTD sections</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0   # Only validation with custom tolerance</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --only-map --format png           # Only map generation, PNG only</span>
+<span class="s2">  cruiseplan process -c cruise.yaml --no-map --strict                 # Skip maps, strict validation</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input YAML configuration file&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Processing mode flags (mutually exclusive --only-* modes)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--only-enrich&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run enrichment step&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--only-validate&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run validation step (no enrichment or map)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--only-map&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run map generation (no enrichment or validation)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Processing step control flags (for full processing mode)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-enrich&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip enrichment step&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-validate&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip validation step&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-map&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip map generation step&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Enrichment control flags (smart defaults - all enabled unless disabled)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-depths&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip adding missing depths (default: depths added)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-coords&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip adding coordinate fields (default: coords added)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-sections&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip expanding CTD sections (default: sections expanded)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-ports&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip expanding port references (default: ports expanded)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Validation options</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-depth-check&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip depth accuracy checking (default: depths checked)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--strict&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable strict validation mode&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--tolerance&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth difference tolerance in percent (default: 10.0)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Map generation options</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Map output formats: png,kml,all (default: all)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps (width height, default: 12 8)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output and bathymetry options</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for outputs (without extension)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-stride&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride (default: 10)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Legacy argument support with deprecation warnings</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-stride&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_stride_legacy&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-stride instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--coord-format&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;coord_format_legacy&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dmm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Coordinate format fixed to DMM&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># General options</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
+    <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--quiet&quot;</span><span class="p">,</span> <span class="s2">&quot;-q&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable quiet mode&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># --- 9. Pangaea Subcommand (Unified Search + Download) ---</span>
     <span class="n">pangaea_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;pangaea&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process PANGAEA DOI lists into campaign datasets&quot;</span>
+        <span class="s2">&quot;pangaea&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search and download PANGAEA datasets, or process existing DOI lists&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unified PANGAEA data processor - search by query + geographic bounds OR process existing DOI files&quot;</span><span class="p">,</span>
+        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">This command combines PANGAEA dataset search and download functionality:</span>
+
+<span class="s2">SEARCH + DOWNLOAD MODE (requires --lat and --lon):</span>
+<span class="s2">  cruiseplan pangaea &quot;CTD temperature&quot; --lat 50 60 --lon -50 -30 --output atlantic_study</span>
+<span class="s2">  → Generates: atlantic_study_dois.txt + atlantic_study_stations.pkl</span>
+
+<span class="s2">DOI FILE MODE (provide existing .txt file):</span>
+<span class="s2">  cruiseplan pangaea arctic_dois.txt --output arctic_analysis  </span>
+<span class="s2">  → Generates: arctic_analysis_stations.pkl</span>
+
+<span class="s2">Output Strategy:</span>
+<span class="s2">  --output: Base filename (without extension) for generated files</span>
+<span class="s2">  --output-dir: Directory where files are saved (default: data/)</span>
+<span class="s2">  </span>
+<span class="s2">Examples:</span>
+<span class="s2">  cruiseplan pangaea &quot;CTD Arctic Ocean&quot; --lat 70 85 --lon -180 -120 --limit 50</span>
+<span class="s2">  cruiseplan pangaea my_dois.txt --rate-limit 0.5 --merge-campaigns</span>
+<span class="s2">  cruiseplan pangaea &quot;salinity North Atlantic&quot; --lat 40 65 --lon -70 -10 --output north_atlantic</span>
+<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;doi_file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Text file with PANGAEA DOIs (one per line)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;query_or_file&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search query string (for search mode) or DOI file path (for file mode)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds for search mode (e.g., --lat 50 70)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds for search mode (e.g., --lon -60 -30)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum search results to return (default: 10, max recommended: 100)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data/)&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for outputs (without extension or directory)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Specific output file path - use --output instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--rate-limit&quot;</span><span class="p">,</span>
@@ -628,12 +933,11 @@
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--merge-campaigns&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Merge campaigns with the same name (Default: true in logic)&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Merge campaigns with the same name (default: true)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific pickle output file path&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
     <span class="p">)</span>
 
     <span class="c1"># Parse args</span>
@@ -648,10 +952,20 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># We use dynamic imports here to minimize startup time and only import the</span>
         <span class="c1"># necessary module (e.g., cruiseplan.cli.schedule) when its command is run.</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;download&quot;</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.download</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">download_main</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">bathymetry_main</span>
 
-            <span class="n">download_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">bathymetry_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;download&quot;</span><span class="p">:</span>
+            <span class="c1"># Deprecated command - show warning and redirect to bathymetry</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;⚠️  WARNING: &#39;cruiseplan download&#39; is deprecated and will be removed in v0.3.0.&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   Please use &#39;cruiseplan bathymetry&#39; instead.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">bathymetry_main</span>
+
+            <span class="n">bathymetry_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;schedule&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">schedule_main</span>
 
@@ -668,10 +982,24 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">validate_main</span>
 
             <span class="n">validate_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;pandoi&quot;</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pandoi</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pandoi_main</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;process&quot;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">process_main</span>
 
-            <span class="n">pandoi_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+            <span class="n">process_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;pandoi&quot;</span><span class="p">:</span>
+            <span class="c1"># Deprecated command - show warning and redirect to unified pangaea</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="s2">&quot;⚠️  WARNING: &#39;cruiseplan pandoi&#39; is deprecated and will be removed in v0.3.0.&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   Please use &#39;cruiseplan pangaea&#39; instead.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Convert pandoi args to pangaea format for compatibility</span>
+            <span class="c1"># Map pandoi arguments to the new unified pangaea command structure</span>
+            <span class="n">args</span><span class="o">.</span><span class="n">query_or_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">query</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pangaea_main</span>
+
+            <span class="n">pangaea_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;map&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.map</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">map_main</span>
 

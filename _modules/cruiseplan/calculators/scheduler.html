@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1438,6 +1438,10 @@
     <span class="n">validate_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">selected_leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">output_basename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate comprehensive cruise schedules from YAML configuration.</span>
@@ -1460,6 +1464,15 @@
 <span class="sd">    derive_netcdf : bool, optional</span>
 <span class="sd">        If True and NetCDF format is enabled, generate specialized NetCDF files</span>
 <span class="sd">        (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Default is False.</span>
+<span class="sd">    bathy_source : str, optional</span>
+<span class="sd">        Bathymetry dataset to use for PNG map generation. Default is &quot;etopo2022&quot;.</span>
+<span class="sd">    bathy_stride : int, optional</span>
+<span class="sd">        Bathymetry contour stride for PNG maps. Default is 10.</span>
+<span class="sd">    figsize : list of float, optional</span>
+<span class="sd">        Figure size for PNG maps in inches [width, height]. Default is [12.0, 8.0].</span>
+<span class="sd">    output_basename : str, optional</span>
+<span class="sd">        Base filename for output files. If None, uses cruise name from config.</span>
+<span class="sd">        Default is None.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -1541,10 +1554,16 @@
     <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span>
     <span class="n">output_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-    <span class="c1"># Determine base filename</span>
-    <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="c1"># Determine base filename for all output files</span>
+    <span class="k">if</span> <span class="n">output_basename</span><span class="p">:</span>
+        <span class="c1"># Use user-provided base name</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">output_basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Use cruise name as default</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
     <span class="n">leg_suffix</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;_</span><span class="si">{</span><span class="n">selected_leg</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">selected_leg</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">base_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">cruise_name</span><span class="si">}{</span><span class="n">leg_suffix</span><span class="si">}</span><span class="s2">_schedule&quot;</span>
+    <span class="n">base_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}{</span><span class="n">leg_suffix</span><span class="si">}</span><span class="s2">_schedule&quot;</span>
 
     <span class="k">for</span> <span class="n">format_name</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
@@ -1585,8 +1604,18 @@
                 <span class="n">output_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
 
             <span class="k">elif</span> <span class="n">format_name</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
+                <span class="c1"># Set default figsize if not provided</span>
+                <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">figsize</span> <span class="o">=</span> <span class="p">[</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">]</span>
+
                 <span class="n">output_file</span> <span class="o">=</span> <span class="n">_generate_timeline_png_map</span><span class="p">(</span>
-                    <span class="n">timeline</span><span class="p">,</span> <span class="n">cruise</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span>
+                    <span class="n">timeline</span><span class="p">,</span>
+                    <span class="n">cruise</span><span class="p">,</span>
+                    <span class="n">output_path</span><span class="p">,</span>
+                    <span class="n">base_filename</span><span class="p">,</span>
+                    <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+                    <span class="n">bathy_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
+                    <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
                     <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    PNG map: </span><span class="si">{</span><span class="n">output_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1660,19 +1689,31 @@
         <span class="k">return</span> <span class="kc">None</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_generate_timeline_png_map</span><span class="p">(</span><span class="n">timeline</span><span class="p">,</span> <span class="n">cruise</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">base_filename</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_timeline_png_map</span><span class="p">(</span>
+    <span class="n">timeline</span><span class="p">,</span>
+    <span class="n">cruise</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">,</span>
+    <span class="n">base_filename</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate PNG map from timeline data showing scheduled sequence.&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_map_from_timeline</span>
 
         <span class="n">output_file</span> <span class="o">=</span> <span class="n">output_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_filename</span><span class="si">}</span><span class="s2">_map.png&quot;</span>
 
+        <span class="c1"># Set default figsize if not provided</span>
+        <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">figsize</span> <span class="o">=</span> <span class="p">[</span><span class="mf">12.0</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">]</span>
+
         <span class="k">return</span> <span class="n">generate_map_from_timeline</span><span class="p">(</span>
             <span class="n">timeline</span><span class="o">=</span><span class="n">timeline</span><span class="p">,</span>
             <span class="n">output_file</span><span class="o">=</span><span class="n">output_file</span><span class="p">,</span>
-            <span class="n">bathymetry_source</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
-            <span class="n">bathymetry_stride</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-            <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">10</span><span class="p">),</span>
+            <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+            <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
+            <span class="n">figsize</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">figsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figsize</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">figsize</span><span class="p">,</span>
             <span class="n">config</span><span class="o">=</span><span class="n">cruise</span><span class="p">,</span>
         <span class="p">)</span>
 

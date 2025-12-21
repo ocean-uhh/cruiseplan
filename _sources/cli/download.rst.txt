@@ -4,6 +4,10 @@
 download
 ========
 
+.. warning::
+   **DEPRECATED**: This command is deprecated and will be removed in v0.3.0. 
+   Please use :doc:`bathymetry` instead.
+
 Download and manage external data assets required by CruisePlan, such as bathymetry grids and other geospatial datasets.
 
 Usage

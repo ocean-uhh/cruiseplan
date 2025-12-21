@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Performance &amp; Scalability &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Performance &amp; Scalability &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=104987fd"></script>
+      <script src="_static/documentation_options.js?v=27b10d97"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -508,7 +508,7 @@ python<span class="w"> </span>-m<span class="w"> </span>cProfile<span class="w">
 - Incomplete data retrieval</p>
 <p><strong>Solutions:</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Test network connectivity</span>
-cruiseplan<span class="w"> </span>download<span class="w"> </span>--test-connection
+cruiseplan<span class="w"> </span>bathymetry<span class="w"> </span>--citation
 
 <span class="c1"># Use rate limiting for API calls</span>
 cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt<span class="w"> </span>--rate-limit<span class="w"> </span><span class="m">0</span>.5
@@ -525,7 +525,7 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>dois.txt<span c
 <h3><a class="toc-backref" href="#id17" role="doc-backlink">System Performance Test</a><a class="headerlink" href="#system-performance-test" title="Link to this heading"></a></h3>
 <p>Use this script to benchmark CruisePlan performance on your system:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Download test data</span>
-cruiseplan<span class="w"> </span>download<span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022
+cruiseplan<span class="w"> </span>bathymetry<span class="w"> </span>--source<span class="w"> </span>etopo2022
 
 <span class="c1"># Time basic operations</span>
 <span class="nb">time</span><span class="w"> </span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>test_cruise.yaml<span class="w"> </span>--add-depths

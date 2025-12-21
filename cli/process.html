@@ -1,0 +1,528 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan process &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="schedule" href="schedule.html" />
+    <link rel="prev" title="stations" href="stations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.2
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#general-usage">General Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#deprecated-commands-and-parameters">Deprecated Commands and Parameters</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../cli_reference.html#subcommands">Subcommands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bathymetry.html">bathymetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#"><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#synopsis">Synopsis</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#description">Description</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#arguments">Arguments</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#flag-validation-rules">Flag Validation Rules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#processing-modes">Processing Modes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#examples">Examples</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#comparison-with-individual-commands">Comparison with Individual Commands</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#notes">Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#see-also">See Also</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="download.html">download</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pandoi.html">pandoi</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../cli_reference.html">CLI Command Reference</a></li>
+      <li class="breadcrumb-item active"><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code></li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="cruiseplan-process">
+<span id="subcommand-process"></span><h1><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code><a class="headerlink" href="#cruiseplan-process" title="Link to this heading"></a></h1>
+<p><strong>Unified configuration processing command for enrichment, validation, and map generation.</strong></p>
+<section id="synopsis">
+<h2>Synopsis<a class="headerlink" href="#synopsis" title="Link to this heading"></a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>CONFIG_FILE<span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</pre></div>
+</div>
+</section>
+<section id="description">
+<h2>Description<a class="headerlink" href="#description" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">process</span></code> command provides a unified interface for the complete configuration processing pipeline. It combines enrichment (adding missing data), validation (checking configuration integrity), and map generation into a single command with smart defaults and flexible control.</p>
+<p>This command is designed to replace the need to run <code class="docutils literal notranslate"><span class="pre">enrich</span></code>, <code class="docutils literal notranslate"><span class="pre">validate</span></code>, and <code class="docutils literal notranslate"><span class="pre">map</span></code> separately, while still allowing granular control through various flags.</p>
+<p><strong>Key Features:</strong></p>
+<ul class="simple">
+<li><p><strong>Smart defaults</strong>: All enrichment options enabled by default</p></li>
+<li><p><strong>Flexible execution</strong>: Control which steps run with <code class="docutils literal notranslate"><span class="pre">--only-*</span></code> and <code class="docutils literal notranslate"><span class="pre">--no-*</span></code> flags</p></li>
+<li><p><strong>Consistent output naming</strong>: Use <code class="docutils literal notranslate"><span class="pre">--output</span></code> for base filename across all generated files</p></li>
+<li><p><strong>Modern parameter names</strong>: Shorter <code class="docutils literal notranslate"><span class="pre">--bathy-*</span></code> parameters for reduced typing</p></li>
+</ul>
+</section>
+<section id="arguments">
+<h2>Arguments<a class="headerlink" href="#arguments" title="Link to this heading"></a></h2>
+<p><strong>Required:</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-c">
+<span class="sig-name descname"><span class="pre">-c</span></span><span class="sig-prename descclassname"> <span class="pre">CONFIG_FILE</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--config-file</span></span><span class="sig-prename descclassname"> <span class="pre">CONFIG_FILE</span></span><a class="headerlink" href="#cmdoption-c" title="Link to this definition"></a></dt>
+<dd><p>Input YAML configuration file to process.</p>
+</dd></dl>
+
+<p><strong>Processing Mode Control (Mutually Exclusive):</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-only-enrich">
+<span class="sig-name descname"><span class="pre">--only-enrich</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-only-enrich" title="Link to this definition"></a></dt>
+<dd><p>Only run enrichment step. Skips validation and map generation.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-only-validate">
+<span class="sig-name descname"><span class="pre">--only-validate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-only-validate" title="Link to this definition"></a></dt>
+<dd><p>Only run validation step. Skips enrichment and map generation.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-only-map">
+<span class="sig-name descname"><span class="pre">--only-map</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-only-map" title="Link to this definition"></a></dt>
+<dd><p>Only run map generation step. Skips enrichment and validation.</p>
+</dd></dl>
+
+<p><strong>Processing Step Control (For Full Processing Mode):</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-enrich">
+<span class="sig-name descname"><span class="pre">--no-enrich</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-enrich" title="Link to this definition"></a></dt>
+<dd><p>Skip enrichment step in full processing mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-validate">
+<span class="sig-name descname"><span class="pre">--no-validate</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-validate" title="Link to this definition"></a></dt>
+<dd><p>Skip validation step in full processing mode.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-map">
+<span class="sig-name descname"><span class="pre">--no-map</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-map" title="Link to this definition"></a></dt>
+<dd><p>Skip map generation step in full processing mode.</p>
+</dd></dl>
+
+<p><strong>Enrichment Control (Smart Defaults):</strong></p>
+<p>All enrichment operations are enabled by default. Use these flags to disable specific operations:</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-depths">
+<span class="sig-name descname"><span class="pre">--no-depths</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-depths" title="Link to this definition"></a></dt>
+<dd><p>Skip adding missing depths from bathymetry data.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-coords">
+<span class="sig-name descname"><span class="pre">--no-coords</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-coords" title="Link to this definition"></a></dt>
+<dd><p>Skip adding formatted coordinate fields (DMM format).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-sections">
+<span class="sig-name descname"><span class="pre">--no-sections</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-sections" title="Link to this definition"></a></dt>
+<dd><p>Skip expanding CTD sections into individual stations.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-ports">
+<span class="sig-name descname"><span class="pre">--no-ports</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-ports" title="Link to this definition"></a></dt>
+<dd><p>Skip expanding global port references.</p>
+</dd></dl>
+
+<p><strong>Validation Options:</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-no-depth-check">
+<span class="sig-name descname"><span class="pre">--no-depth-check</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-no-depth-check" title="Link to this definition"></a></dt>
+<dd><p>Skip depth accuracy checking against bathymetry data.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-strict">
+<span class="sig-name descname"><span class="pre">--strict</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-strict" title="Link to this definition"></a></dt>
+<dd><p>Enable strict validation mode (treat warnings as errors).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-tolerance">
+<span class="sig-name descname"><span class="pre">--tolerance</span></span><span class="sig-prename descclassname"> <span class="pre">FLOAT</span></span><a class="headerlink" href="#cmdoption-tolerance" title="Link to this definition"></a></dt>
+<dd><p>Depth difference tolerance in percent for validation (default: 10.0).</p>
+</dd></dl>
+
+<p><strong>Map Generation Options:</strong></p>
+<p>These options only apply when map generation is enabled:</p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-format">
+<span class="sig-name descname"><span class="pre">--format</span></span><span class="sig-prename descclassname"> <span class="pre">FORMAT</span></span><a class="headerlink" href="#cmdoption-format" title="Link to this definition"></a></dt>
+<dd><p>Map output formats: <code class="docutils literal notranslate"><span class="pre">png</span></code>, <code class="docutils literal notranslate"><span class="pre">kml</span></code>, <code class="docutils literal notranslate"><span class="pre">all</span></code> (default: <code class="docutils literal notranslate"><span class="pre">all</span></code>).</p>
+<p>Cannot be used with <code class="docutils literal notranslate"><span class="pre">--only-enrich</span></code> or <code class="docutils literal notranslate"><span class="pre">--only-validate</span></code>.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-figsize">
+<span class="sig-name descname"><span class="pre">--figsize</span></span><span class="sig-prename descclassname"> <span class="pre">WIDTH</span> <span class="pre">HEIGHT</span></span><a class="headerlink" href="#cmdoption-figsize" title="Link to this definition"></a></dt>
+<dd><p>Figure size for PNG maps in inches (default: <code class="docutils literal notranslate"><span class="pre">12</span> <span class="pre">8</span></code>).</p>
+<p>Only applies when PNG format is selected.</p>
+</dd></dl>
+
+<p><strong>Output Options:</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-o">
+<span class="sig-name descname"><span class="pre">-o</span></span><span class="sig-prename descclassname"> <span class="pre">OUTPUT_DIR</span></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">--output-dir</span></span><span class="sig-prename descclassname"> <span class="pre">OUTPUT_DIR</span></span><a class="headerlink" href="#cmdoption-o" title="Link to this definition"></a></dt>
+<dd><p>Output directory for all generated files (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-output">
+<span class="sig-name descname"><span class="pre">--output</span></span><span class="sig-prename descclassname"> <span class="pre">BASENAME</span></span><a class="headerlink" href="#cmdoption-output" title="Link to this definition"></a></dt>
+<dd><p>Base filename for outputs (without extension). Generates:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">BASENAME_enriched.yaml</span></code> (enriched configuration)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BASENAME_map.png</span></code> (PNG map)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">BASENAME_catalog.kml</span></code> (KML catalog)</p></li>
+</ul>
+</dd></dl>
+
+<p><strong>Bathymetry Options:</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathy-source">
+<span class="sig-name descname"><span class="pre">--bathy-source</span></span><span class="sig-prename descclassname"> <span class="pre">{etopo2022,gebco2025}</span></span><a class="headerlink" href="#cmdoption-bathy-source" title="Link to this definition"></a></dt>
+<dd><p>Bathymetry dataset to use (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathy-dir">
+<span class="sig-name descname"><span class="pre">--bathy-dir</span></span><span class="sig-prename descclassname"> <span class="pre">PATH</span></span><a class="headerlink" href="#cmdoption-bathy-dir" title="Link to this definition"></a></dt>
+<dd><p>Directory containing bathymetry data (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathy-stride">
+<span class="sig-name descname"><span class="pre">--bathy-stride</span></span><span class="sig-prename descclassname"> <span class="pre">INT</span></span><a class="headerlink" href="#cmdoption-bathy-stride" title="Link to this definition"></a></dt>
+<dd><p>Bathymetry contour stride for maps (default: <code class="docutils literal notranslate"><span class="pre">10</span></code>).</p>
+</dd></dl>
+
+<p><strong>Legacy Parameters (Deprecated):</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathymetry-source">
+<span class="sig-name descname"><span class="pre">--bathymetry-source</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-bathymetry-source" title="Link to this definition"></a></dt>
+<dd><p><strong>[DEPRECATED]</strong> Use <code class="docutils literal notranslate"><span class="pre">--bathy-source</span></code> instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathymetry-dir">
+<span class="sig-name descname"><span class="pre">--bathymetry-dir</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-bathymetry-dir" title="Link to this definition"></a></dt>
+<dd><p><strong>[DEPRECATED]</strong> Use <code class="docutils literal notranslate"><span class="pre">--bathy-dir</span></code> instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-bathymetry-stride">
+<span class="sig-name descname"><span class="pre">--bathymetry-stride</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-bathymetry-stride" title="Link to this definition"></a></dt>
+<dd><p><strong>[DEPRECATED]</strong> Use <code class="docutils literal notranslate"><span class="pre">--bathy-stride</span></code> instead.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-coord-format">
+<span class="sig-name descname"><span class="pre">--coord-format</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-coord-format" title="Link to this definition"></a></dt>
+<dd><p><strong>[DEPRECATED]</strong> Coordinate format is now fixed to DMM.</p>
+</dd></dl>
+
+<p><strong>General Options:</strong></p>
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-verbose">
+<span class="sig-name descname"><span class="pre">--verbose</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">-v</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-verbose" title="Link to this definition"></a></dt>
+<dd><p>Enable verbose logging output.</p>
+</dd></dl>
+
+<dl class="std option">
+<dt class="sig sig-object std" id="cmdoption-quiet">
+<span class="sig-name descname"><span class="pre">--quiet</span></span><span class="sig-prename descclassname"></span><span class="sig-prename descclassname"><span class="pre">,</span> </span><span class="sig-name descname"><span class="pre">-q</span></span><span class="sig-prename descclassname"></span><a class="headerlink" href="#cmdoption-quiet" title="Link to this definition"></a></dt>
+<dd><p>Enable quiet mode (suppress non-essential output).</p>
+</dd></dl>
+
+</section>
+<section id="flag-validation-rules">
+<h2>Flag Validation Rules<a class="headerlink" href="#flag-validation-rules" title="Link to this heading"></a></h2>
+<p>The command validates flag combinations to prevent conflicts:</p>
+<ul class="simple">
+<li><p><strong>Cannot specify multiple</strong> <code class="docutils literal notranslate"><span class="pre">--only-*</span></code> <strong>flags together</strong></p></li>
+<li><p><strong>Cannot specify</strong> <code class="docutils literal notranslate"><span class="pre">--only-X</span></code> <strong>with</strong> <code class="docutils literal notranslate"><span class="pre">--no-X</span></code> <strong>for the same operation</strong></p></li>
+<li><p><strong>Cannot specify</strong> <code class="docutils literal notranslate"><span class="pre">--no-map</span></code> <strong>with</strong> <code class="docutils literal notranslate"><span class="pre">--format</span></code> (map generation disabled but format specified)</p></li>
+<li><p><strong>Cannot specify</strong> <code class="docutils literal notranslate"><span class="pre">--only-enrich</span></code> <strong>with</strong> <code class="docutils literal notranslate"><span class="pre">--format</span></code> (enrichment doesn’t generate maps)</p></li>
+<li><p><strong>Cannot specify</strong> <code class="docutils literal notranslate"><span class="pre">--only-validate</span></code> <strong>with</strong> <code class="docutils literal notranslate"><span class="pre">--format</span></code> (validation doesn’t generate maps)</p></li>
+<li><p><strong>figsize warning</strong>: <code class="docutils literal notranslate"><span class="pre">--figsize</span></code> only applies when PNG format is selected</p></li>
+</ul>
+</section>
+<section id="processing-modes">
+<h2>Processing Modes<a class="headerlink" href="#processing-modes" title="Link to this heading"></a></h2>
+<p><strong>Full Processing Mode (Default)</strong></p>
+<p>Runs enrichment → validation → map generation with smart defaults:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml
+</pre></div>
+</div>
+<p>Equivalent to:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords<span class="w"> </span>--expand-sections<span class="w"> </span>--expand-ports
+cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--check-depths
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--format<span class="w"> </span>all
+</pre></div>
+</div>
+<p><strong>Selective Step Control</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Skip map generation</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--no-map
+
+<span class="c1"># Skip enrichment, only validate and map</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--no-enrich
+
+<span class="c1"># Only enrichment with selective options</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-enrich<span class="w"> </span>--no-sections
+</pre></div>
+</div>
+<p><strong>Exclusive Mode Control</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only enrichment</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-enrich
+
+<span class="c1"># Only validation (great for regenerating maps without changing YAML)</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-validate
+
+<span class="c1"># Only map generation</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-map<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--figsize<span class="w"> </span><span class="m">16</span><span class="w"> </span><span class="m">10</span>
+</pre></div>
+</div>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading"></a></h2>
+<p><strong>Basic Usage</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Full processing with smart defaults</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml
+
+<span class="c1"># With custom base filename</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--output<span class="w"> </span>expedition_2024
+
+<span class="c1"># With high-resolution bathymetry</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--bathy-source<span class="w"> </span>gebco2025
+</pre></div>
+</div>
+<p><strong>Selective Processing</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Only enrichment with custom options</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-enrich<span class="w"> </span>--no-sections<span class="w"> </span>--no-ports
+
+<span class="c1"># Validation only (useful for checking existing enriched files)</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--only-validate<span class="w"> </span>--tolerance<span class="w"> </span><span class="m">5</span>.0
+
+<span class="c1"># Map generation only with custom settings</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--only-map<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--figsize<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">12</span>
+</pre></div>
+</div>
+<p><strong>Full Processing with Customization</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Skip specific enrichment operations</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--no-sections<span class="w"> </span>--output<span class="w"> </span>final_cruise
+
+<span class="c1"># Custom validation tolerance and KML only</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--tolerance<span class="w"> </span><span class="m">15</span>.0<span class="w"> </span>--format<span class="w"> </span>kml
+
+<span class="c1"># No map generation, strict validation</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--no-map<span class="w"> </span>--strict
+</pre></div>
+</div>
+<p><strong>Output Examples</strong></p>
+<p>With <code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">expedition_2024</span></code>:</p>
+<ul class="simple">
+<li><p>Enriched config: <code class="docutils literal notranslate"><span class="pre">data/expedition_2024_enriched.yaml</span></code></p></li>
+<li><p>PNG map: <code class="docutils literal notranslate"><span class="pre">data/expedition_2024_map.png</span></code></p></li>
+<li><p>KML catalog: <code class="docutils literal notranslate"><span class="pre">data/expedition_2024_catalog.kml</span></code></p></li>
+</ul>
+<p>Without <code class="docutils literal notranslate"><span class="pre">--output</span></code> (uses cruise name from config):</p>
+<ul class="simple">
+<li><p>Enriched config: <code class="docutils literal notranslate"><span class="pre">data/My_Cruise_Name_enriched.yaml</span></code></p></li>
+<li><p>PNG map: <code class="docutils literal notranslate"><span class="pre">data/My_Cruise_Name_map.png</span></code></p></li>
+<li><p>KML catalog: <code class="docutils literal notranslate"><span class="pre">data/My_Cruise_Name_catalog.kml</span></code></p></li>
+</ul>
+<p><strong>Error Examples</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># These will produce errors:</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-enrich<span class="w"> </span>--only-map<span class="w">    </span><span class="c1"># Multiple --only-* flags</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--no-map<span class="w"> </span>--format<span class="w"> </span>png<span class="w">      </span><span class="c1"># Conflicting map settings</span>
+cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--only-validate<span class="w"> </span>--format<span class="w"> </span>all<span class="w">  </span><span class="c1"># Validation doesn&#39;t generate maps</span>
+</pre></div>
+</div>
+</section>
+<section id="comparison-with-individual-commands">
+<h2>Comparison with Individual Commands<a class="headerlink" href="#comparison-with-individual-commands" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">process</span></code> command replaces the need to run multiple commands:</p>
+<p><strong>Before (Individual Commands):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--add-depths<span class="w"> </span>--add-coords<span class="w"> </span>--expand-sections<span class="w"> </span>--expand-ports
+cruiseplan<span class="w"> </span>validate<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--check-depths<span class="w"> </span>--tolerance<span class="w"> </span><span class="m">10</span>.0
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise_enriched.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">12</span><span class="w"> </span><span class="m">8</span><span class="w"> </span>--format<span class="w"> </span>all
+</pre></div>
+</div>
+<p><strong>After (Unified Command):</strong></p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>cruise.yaml
+</pre></div>
+</div>
+<p><strong>Benefits of Unified Command:</strong></p>
+<ul class="simple">
+<li><p><strong>Fewer commands to remember</strong> and type</p></li>
+<li><p><strong>Consistent output naming</strong> across all generated files</p></li>
+<li><p><strong>Smart defaults</strong> eliminate need to specify common options</p></li>
+<li><p><strong>Automatic file chaining</strong> (enriched file feeds into validation/maps)</p></li>
+<li><p><strong>Better error handling</strong> with comprehensive flag validation</p></li>
+<li><p><strong>Modern parameter names</strong> (<code class="docutils literal notranslate"><span class="pre">--bathy-*</span></code> instead of <code class="docutils literal notranslate"><span class="pre">--bathymetry-*</span></code>)</p></li>
+</ul>
+<p><strong>When to Use Individual Commands:</strong></p>
+<ul class="simple">
+<li><p><strong>Learning the system</strong>: Individual commands help understand each step</p></li>
+<li><p><strong>Debugging specific steps</strong>: Isolate issues in enrichment, validation, or mapping</p></li>
+<li><p><strong>Integration with scripts</strong>: Fine-grained control in automated workflows</p></li>
+<li><p><strong>Backward compatibility</strong>: Existing scripts using individual commands</p></li>
+</ul>
+</section>
+<section id="notes">
+<h2>Notes<a class="headerlink" href="#notes" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Smart Defaults</strong>: All enrichment operations are enabled by default (depths, coordinates, sections, ports)</p></li>
+<li><p><strong>File Chaining</strong>: When running multiple steps, the enriched configuration automatically feeds into validation and mapping</p></li>
+<li><p><strong>Coordinate Format</strong>: Fixed to DMM (degrees decimal minutes) format - no longer configurable</p></li>
+<li><p><strong>Legacy Support</strong>: Deprecated parameters show warnings but still function for backward compatibility</p></li>
+<li><p><strong>Performance</strong>: Map generation can be slow with large datasets - use <code class="docutils literal notranslate"><span class="pre">--no-map</span></code> to skip when only processing configuration</p></li>
+</ul>
+</section>
+<section id="see-also">
+<h2>See Also<a class="headerlink" href="#see-also" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><a class="reference internal" href="enrich.html"><span class="doc">enrich</span></a> - Individual enrichment command</p></li>
+<li><p><a class="reference internal" href="validate.html"><span class="doc">validate</span></a> - Individual validation command</p></li>
+<li><p><a class="reference internal" href="map.html"><span class="doc">map</span></a> - Individual map generation command</p></li>
+<li><p><a class="reference internal" href="schedule.html"><span class="doc">schedule</span></a> - Generate cruise timeline and outputs</p></li>
+<li><p><a class="reference internal" href="../user_workflows.html"><span class="doc">Overview</span></a> - Complete workflow examples</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="stations.html" class="btn btn-neutral float-left" title="stations" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="schedule.html" class="btn btn-neutral float-right" title="schedule" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

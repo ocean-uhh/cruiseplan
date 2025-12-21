@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.utils &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>cruiseplan.cli.utils &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -546,6 +546,59 @@
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to load cruise configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+
+
+<div class="viewcode-block" id="determine_output_path">
+<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.utils.determine_output_path">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">determine_output_path</span><span class="p">(</span>
+    <span class="n">args</span><span class="p">,</span> <span class="n">default_basename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">suffix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">extension</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine output file path from CLI arguments following the standard pattern.</span>
+
+<span class="sd">    This utility handles the common --output + --output-dir pattern used across</span>
+<span class="sd">    multiple CLI commands, providing consistent behavior for output file naming.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    args : argparse.Namespace</span>
+<span class="sd">        Parsed command line arguments containing output and output_dir.</span>
+<span class="sd">    default_basename : str</span>
+<span class="sd">        Default base filename to use if --output is not provided.</span>
+<span class="sd">    suffix : str, optional</span>
+<span class="sd">        Suffix to append to basename (e.g., &quot;_enriched&quot;, &quot;_schedule&quot;). Default &quot;&quot;.</span>
+<span class="sd">    extension : str, optional</span>
+<span class="sd">        File extension including the dot (e.g., &quot;.yaml&quot;, &quot;.csv&quot;). Default &quot;&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Path</span>
+<span class="sd">        Complete output file path.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # With --output myfile --output-dir results/</span>
+<span class="sd">    &gt;&gt;&gt; determine_output_path(args, &quot;cruise&quot;, &quot;_enriched&quot;, &quot;.yaml&quot;)</span>
+<span class="sd">    Path(&quot;results/myfile_enriched.yaml&quot;)</span>
+
+<span class="sd">    &gt;&gt;&gt; # Without --output, using default</span>
+<span class="sd">    &gt;&gt;&gt; determine_output_path(args, &quot;My_Cruise&quot;, &quot;_schedule&quot;, &quot;.csv&quot;)</span>
+<span class="sd">    Path(&quot;data/My_Cruise_schedule.csv&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Determine base filename</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">default_basename</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Construct full filename</span>
+    <span class="n">filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}{</span><span class="n">extension</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="c1"># Determine output directory</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span> <span class="o">/</span> <span class="n">filename</span></div>
 
 </pre></div>
 

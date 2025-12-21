@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -117,8 +117,7 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
            <div itemprop="articleBody">
              
-  <hr class="docutils" />
-<section id="path-2-pangaea-enhanced-workflow">
+  <section id="path-2-pangaea-enhanced-workflow">
 <span id="user-workflow-path-2"></span><h1>Path 2: PANGAEA-Enhanced Workflow<a class="headerlink" href="#path-2-pangaea-enhanced-workflow" title="Link to this heading"></a></h1>
 <p><strong>Best for:</strong> Research cruises that benefit from historical data context, repeat surveys, comparative studies</p>
 <p><strong>Time required:</strong> 1-2 hours (including PANGAEA data collection)</p>
@@ -147,13 +146,13 @@
 <p><strong>Option A: Automated Search (Recommended):</strong></p>
 <p>Use the <code class="docutils literal notranslate"><span class="pre">pandoi</span></code> command to query the PANGAEA database:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic search by instrument/parameter (saves to data/ directory by default)</span>
-cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20
 
-<span class="c1"># Geographic search with lat/lon bounds</span>
-cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">25</span>
+<span class="c1"># Geographic search with lat/lon bounds and higher limit</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">25</span>
 
-<span class="c1"># Combined search terms</span>
-cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2">&quot;CTD temperature North Atlantic&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">50</span>
+<span class="c1"># Combined search terms with custom output name</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2">&quot;CTD temperature North Atlantic&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>--limit<span class="w"> </span><span class="m">50</span><span class="w"> </span>--output<span class="w"> </span>north_atlantic_ctd
 </pre></div>
 </div>
 <p><strong>Search Examples by Use Case:</strong></p>
@@ -169,13 +168,13 @@ cruiseplan<span class="w"> </span>pandoi<span class="w"> </span><span class="s2"
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Arctic physical oceanography</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;CTD</span> <span class="pre">Arctic</span> <span class="pre">Ocean&quot;</span> <span class="pre">--lat</span> <span class="pre">70</span> <span class="pre">90</span> <span class="pre">--lon</span> <span class="pre">-180</span> <span class="pre">180</span> <span class="pre">--limit</span> <span class="pre">30</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span> <span class="pre">&quot;CTD</span> <span class="pre">Arctic</span> <span class="pre">Ocean&quot;</span> <span class="pre">--lat</span> <span class="pre">70</span> <span class="pre">90</span> <span class="pre">--lon</span> <span class="pre">-180</span> <span class="pre">180</span> <span class="pre">--limit</span> <span class="pre">30</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>North Atlantic deep water</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;CTD</span> <span class="pre">deep</span> <span class="pre">water&quot;</span> <span class="pre">--lat</span> <span class="pre">50</span> <span class="pre">70</span> <span class="pre">--lon</span> <span class="pre">-50</span> <span class="pre">-10</span> <span class="pre">--limit</span> <span class="pre">40</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span> <span class="pre">&quot;CTD</span> <span class="pre">deep</span> <span class="pre">water&quot;</span> <span class="pre">--lat</span> <span class="pre">50</span> <span class="pre">70</span> <span class="pre">--lon</span> <span class="pre">-50</span> <span class="pre">-10</span> <span class="pre">--limit</span> <span class="pre">40</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>Specific expedition data</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span> <span class="pre">&quot;Polarstern</span> <span class="pre">PS122&quot;</span> <span class="pre">--limit</span> <span class="pre">20</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span> <span class="pre">&quot;Polarstern</span> <span class="pre">PS122&quot;</span> <span class="pre">--lat</span> <span class="pre">70</span> <span class="pre">90</span> <span class="pre">--lon</span> <span class="pre">-180</span> <span class="pre">180</span> <span class="pre">--limit</span> <span class="pre">20</span></code></p></td>
 </tr>
 </tbody>
 </table>
@@ -309,7 +308,7 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_
 <ol class="arabic simple">
 <li><p><a class="reference internal" href="path1.html#manual-editing-configuration"><span class="std std-ref">Manual editing</span></a> to add operation types and cruise metadata</p></li>
 <li><p><a class="reference internal" href="path1.html#enrich-configuration"><span class="std std-ref">Enrichment</span></a> to add depths and coordinates</p></li>
-<li><p><a class="reference internal" href="path1.html#validate-configuration"><span class="std std-ref">Validation</span></a> to check for errors</p></li>
+<li><p><a class="reference internal" href="../cli/validate.html#subcommand-validate"><span class="std std-ref">Validation</span></a> to check for errors</p></li>
 <li><p><a class="reference internal" href="path1.html#generate-schedule-outputs"><span class="std std-ref">Schedule generation</span></a> to create outputs</p></li>
 </ol>
 <p>The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.</p>

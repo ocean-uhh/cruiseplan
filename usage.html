@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Usage Overview &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Usage Overview &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=104987fd"></script>
+      <script src="_static/documentation_options.js?v=27b10d97"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -117,6 +117,13 @@
   <section id="usage-overview">
 <h1>Usage Overview<a class="headerlink" href="#usage-overview" title="Link to this heading"></a></h1>
 <p>This page provides a high-level overview of how to use CruisePlan for oceanographic cruise planning. For detailed step-by-step instructions, see the linked workflow guides below.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="_images/cruiseplan_process.png"><img alt="CruisePlan Process Overview" src="_images/cruiseplan_process.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>CruisePlan Process Overview</strong>: The complete workflow from data preparation through final deliverables, showing the unified <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> command and individual command options. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 <section id="three-phase-workflow">
 <h2>Three-Phase Workflow<a class="headerlink" href="#three-phase-workflow" title="Link to this heading"></a></h2>
 <p>CruisePlan follows a systematic three-phase approach to cruise planning:</p>
@@ -124,9 +131,8 @@
 <h3>Phase 1: Data Preparation<a class="headerlink" href="#phase-1-data-preparation" title="Link to this heading"></a></h3>
 <p><strong>Goal</strong>: Gather <em>external</em> datasets needed for planning</p>
 <ul class="simple">
-<li><p><strong>Download bathymetry</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> - Acquire global depth data (ETOPO/GEBCO)</p></li>
-<li><p><strong>Search historical data</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span></code> - Find relevant PANGAEA datasets by query and region</p></li>
-<li><p><strong>Process historical data</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> - Convert DOI lists into usable station databases</p></li>
+<li><p><strong>Download bathymetry</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code> - Acquire global depth data (ETOPO/GEBCO)</p></li>
+<li><p><strong>Search and download historical data</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> - Find and process PANGAEA datasets by query + region, or process existing DOI files</p></li>
 </ul>
 <p>This phase provides the foundational data layers for informed station placement.</p>
 </section>
@@ -135,12 +141,10 @@
 <p><strong>Goal</strong>: Define your cruise plan and validate the configuration</p>
 <ul class="simple">
 <li><p><strong>Interactive planning</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">stations</span></code> - Place stations on interactive maps with bathymetry</p></li>
-<li><p><strong>Enrich metadata</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">enrich</span></code> - Add depths, coordinates, and expand sections automatically</p></li>
-<li><p><strong>Validate setup</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">validate</span></code> - Check configuration for errors and consistency</p></li>
-<li><p><strong>Generate maps</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code> - Create standalone PNG maps from configuration</p></li>
+<li><p><strong>Manual editing</strong>: Edit generated YAML configuration to define operation types, actions, legs, and clusters</p></li>
+<li><p><strong>Enrich metadata</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> - Add depths, coordinates, and expand sections automatically, validate configuration, and generate maps</p></li>
 </ul>
 <p>This phase creates and refines your complete cruise configuration file.</p>
-<p>Within this phase, you should also expect to do some <strong>manual editing</strong> of the generated YAML configuration to choose operation types and actions, and to organise the leg/cluster structure of activities.</p>
 </section>
 <section id="phase-3-schedule-generation">
 <h3>Phase 3: Schedule Generation<a class="headerlink" href="#phase-3-schedule-generation" title="Link to this heading"></a></h3>

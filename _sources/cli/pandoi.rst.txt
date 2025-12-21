@@ -4,6 +4,11 @@
 pandoi
 ======
 
+.. warning::
+   **DEPRECATED**: This command is deprecated and will be removed in v0.3.0. 
+   Please use ``cruiseplan pangaea`` search mode instead: 
+   ``cruiseplan pangaea "query" --lat MIN MAX --lon MIN MAX``
+
 Search PANGAEA datasets by query terms and geographic bounding box, generating a DOI list for subsequent use with the ``pangaea`` command.
 
 Usage

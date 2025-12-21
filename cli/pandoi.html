@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>pandoi &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>pandoi &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,14 +14,14 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <script src="../_static/js/theme.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="pangaea" href="pangaea.html" />
+    <link rel="next" title="YAML Configuration Reference" href="../yaml_reference.html" />
     <link rel="prev" title="download" href="download.html" /> 
 </head>
 
@@ -65,7 +65,16 @@
 <ul class="current">
 <li class="toctree-l1 current"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#general-usage">General Usage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#deprecated-commands-and-parameters">Deprecated Commands and Parameters</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../cli_reference.html#subcommands">Subcommands</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bathymetry.html">bathymetry</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
+<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="process.html"><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
+<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
 <li class="toctree-l3"><a class="reference internal" href="download.html">download</a></li>
 <li class="toctree-l3 current"><a class="current reference internal" href="#">pandoi</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#usage">Usage</a></li>
@@ -80,12 +89,6 @@
 <li class="toctree-l4"><a class="reference internal" href="#workflow-integration">Workflow Integration</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
-<li class="toctree-l3"><a class="reference internal" href="stations.html">stations</a></li>
-<li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
-<li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
-<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="schedule.html">schedule</a></li>
 </ul>
 </li>
 </ul>
@@ -133,6 +136,12 @@
              
   <section id="pandoi">
 <span id="subcommand-pandoi"></span><h1>pandoi<a class="headerlink" href="#pandoi" title="Link to this heading"></a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p><strong>DEPRECATED</strong>: This command is deprecated and will be removed in v0.3.0.
+Please use <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> search mode instead:
+<code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span> <span class="pre">&quot;query&quot;</span> <span class="pre">--lat</span> <span class="pre">MIN</span> <span class="pre">MAX</span> <span class="pre">--lon</span> <span class="pre">MIN</span> <span class="pre">MAX</span></code></p>
+</div>
 <p>Search PANGAEA datasets by query terms and geographic bounding box, generating a DOI list for subsequent use with the <code class="docutils literal notranslate"><span class="pre">pangaea</span></code> command.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
@@ -307,7 +316,7 @@ $<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
         <a href="download.html" class="btn btn-neutral float-left" title="download" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="pangaea.html" class="btn btn-neutral float-right" title="pangaea" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="../yaml_reference.html" class="btn btn-neutral float-right" title="YAML Configuration Reference" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

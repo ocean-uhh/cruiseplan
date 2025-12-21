@@ -24,12 +24,12 @@ Quick Reference
      - **Input**
      - **Output**
      - **File type**
-   * - ``download``
+   * - ``bathymetry``
      - Get bathymetry data
-     - User choice (ETOPO, GEBCO))
+     - User choice (ETOPO, GEBCO)
      - NetCDF files in ``data/``
      - `*.nc`
-   * - ``pandoi``
+   * - ``pangaea`` (search)
      - Search PANGAEA
      - Search terms + bounds
      - DOI list file
@@ -85,10 +85,10 @@ Download bathymetry
 .. code-block:: bash
 
    # Download default bathymetry (ETOPO 2022 - recommended)
-   cruiseplan download
+   cruiseplan bathymetry
    
    # OR download high-resolution bathymetry (larger download)
-   cruiseplan download --bathymetry-source gebco2025
+   cruiseplan bathymetry --source gebco2025
 
 
 **What this does:**
@@ -332,9 +332,9 @@ Common Issues and Solutions
    * - **Problem**
      - **Solution**
    * - "MOCK mode" warnings
-     - Run ``cruiseplan download`` first
+     - Run ``cruiseplan bathymetry`` first
    * - "File too small" error
-     - Redownload: ``cruiseplan download --bathymetry-source etopo2022``
+     - Redownload: ``cruiseplan bathymetry --source etopo2022``
    * - Depths seem incorrect
      - Check coordinate format (decimal degrees)
 

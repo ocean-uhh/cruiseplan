@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=104987fd"></script>
+      <script src="../_static/documentation_options.js?v=27b10d97"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -87,10 +87,14 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.pangaea">cruiseplan.cli.pangaea module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.determine_workflow_mode"><code class="docutils literal notranslate"><span class="pre">determine_workflow_mode()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.fetch_pangaea_data"><code class="docutils literal notranslate"><span class="pre">fetch_pangaea_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.save_doi_list"><code class="docutils literal notranslate"><span class="pre">save_doi_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.save_pangaea_pickle"><code class="docutils literal notranslate"><span class="pre">save_pangaea_pickle()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.search_pangaea_datasets"><code class="docutils literal notranslate"><span class="pre">search_pangaea_datasets()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.validate_dois"><code class="docutils literal notranslate"><span class="pre">validate_dois()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.pangaea.validate_lat_lon_bounds"><code class="docutils literal notranslate"><span class="pre">validate_lat_lon_bounds()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.stations">cruiseplan.cli.stations module</a><ul>
@@ -118,6 +122,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.capture_and_format_warnings"><code class="docutils literal notranslate"><span class="pre">capture_and_format_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.confirm_operation"><code class="docutils literal notranslate"><span class="pre">confirm_operation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.count_individual_warnings"><code class="docutils literal notranslate"><span class="pre">count_individual_warnings()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.determine_output_path"><code class="docutils literal notranslate"><span class="pre">determine_output_path()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.display_user_warnings"><code class="docutils literal notranslate"><span class="pre">display_user_warnings()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.format_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">format_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.generate_output_filename"><code class="docutils literal notranslate"><span class="pre">generate_output_filename()</span></code></a></li>
@@ -268,23 +273,45 @@ planning, data processing, and output generation.</p>
 </section>
 <section id="module-cruiseplan.cli.pangaea">
 <span id="cruiseplan-cli-pangaea-module"></span><h2>cruiseplan.cli.pangaea module<a class="headerlink" href="#module-cruiseplan.cli.pangaea" title="Link to this heading"></a></h2>
-<p>PANGAEA DOI processing command.</p>
-<p>This module implements the ‘cruiseplan pangaea’ command for processing
-PANGAEA DOI lists into campaign datasets with progress tracking and
-rate limiting.</p>
+<p>Unified PANGAEA command combining search and download functionality.</p>
+<p>This module implements the ‘cruiseplan pangaea’ command that can either:
+1. Search PANGAEA datasets by query + geographic bounds, then download station data
+2. Process an existing DOI list file directly into station data</p>
+<p>Supports base filename output strategy for consistent file naming.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.determine_workflow_mode">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">determine_workflow_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#determine_workflow_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.determine_workflow_mode" title="Link to this definition"></a></dt>
+<dd><p>Determine whether we’re in search mode or DOI file mode.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Either ‘search’ or ‘doi_file’</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.fetch_pangaea_data">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">fetch_pangaea_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">doi_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rate_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">merge_campaigns</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#fetch_pangaea_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.fetch_pangaea_data" title="Link to this definition"></a></dt>
 <dd><p>CLI wrapper for fetching PANGAEA datasets with logging.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>doi_list: List of DOI strings to fetch
-rate_limit: Requests per second limit
-merge_campaigns: Whether to merge campaigns with same name</p>
-</dd>
-</dl>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>doi_list</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of DOI strings to fetch</p></li>
+<li><p><strong>rate_limit</strong> (<em>float</em>) – Requests per second limit</p></li>
+<li><p><strong>merge_campaigns</strong> (<em>bool</em>) – Whether to merge campaigns with same name</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of dataset dictionaries</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of dataset dictionaries</p>
+<dd class="field-odd"><p>List[dict]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -292,9 +319,27 @@ merge_campaigns: Whether to merge campaigns with same name</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for PANGAEA command.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>args: Parsed command line arguments</p>
+<dd><p>Main entry point for unified PANGAEA command.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.save_doi_list">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">save_doi_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dois</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#save_doi_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.save_doi_list" title="Link to this definition"></a></dt>
+<dd><p>Save DOI list to text file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dois</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of DOI strings to save</p></li>
+<li><p><strong>output_path</strong> (<em>Path</em>) – Output file path</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If save operation fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -303,10 +348,37 @@ merge_campaigns: Whether to merge campaigns with same name</p>
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.save_pangaea_pickle">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">save_pangaea_pickle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">datasets</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">original_count</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#save_pangaea_pickle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.save_pangaea_pickle" title="Link to this definition"></a></dt>
 <dd><p>CLI wrapper for saving PANGAEA datasets to pickle file.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>datasets: List of dataset dictionaries
-output_path: Output file path
-original_count: Count of datasets before any merging (for accurate summary)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>datasets</strong> (<em>List</em><em>[</em><em>dict</em><em>]</em>) – List of dataset dictionaries</p></li>
+<li><p><strong>output_path</strong> (<em>Path</em>) – Output file path</p></li>
+<li><p><strong>original_count</strong> (<em>int</em><em>, </em><em>optional</em>) – Count of datasets before any merging (for accurate summary)</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.search_pangaea_datasets">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">search_pangaea_datasets</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">query</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bbox</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#search_pangaea_datasets"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.search_pangaea_datasets" title="Link to this definition"></a></dt>
+<dd><p>Search PANGAEA datasets and return list of DOIs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>query</strong> (<em>str</em>) – Search query string</p></li>
+<li><p><strong>bbox</strong> (<em>Optional</em><em>[</em><em>Tuple</em><em>[</em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>, </em><em>float</em><em>]</em><em>]</em>) – Bounding box as (min_lon, min_lat, max_lon, max_lat)</p></li>
+<li><p><strong>limit</strong> (<em>int</em>) – Maximum number of results to return</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of DOI strings found</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If search fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -317,13 +389,38 @@ original_count: Count of datasets before any merging (for accurate summary)</p>
 <dd><p>Validate DOI format and filter invalid entries.</p>
 <p>Uses the existing DOI validation from data.pangaea module with
 CLI-friendly prefix cleanup.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>doi_list: List of DOI strings</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>doi_list</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of DOI strings</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of valid DOIs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[str]</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.pangaea.validate_lat_lon_bounds">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">validate_lat_lon_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#validate_lat_lon_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.validate_lat_lon_bounds" title="Link to this definition"></a></dt>
+<dd><p>Validate and convert latitude/longitude bounds into bounding box tuple.</p>
 <dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>lat_bounds</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – List of [min_lat, max_lat]</p></li>
+<li><p><strong>lon_bounds</strong> (<em>List</em><em>[</em><em>float</em><em>]</em>) – List of [min_lon, max_lon]</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bounding box as (min_lon, min_lat, max_lon, max_lat)</p>
+</dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of valid DOIs</p>
+<dd class="field-odd"><p>Tuple[float, float, float, float]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If bounds are invalid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -542,6 +639,41 @@ generate Pydantic validation warnings.</p>
 <dd class="field-odd"><p>int</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.cli.utils.determine_output_path">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">determine_output_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_basename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#determine_output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.determine_output_path" title="Link to this definition"></a></dt>
+<dd><p>Determine output file path from CLI arguments following the standard pattern.</p>
+<p>This utility handles the common –output + –output-dir pattern used across
+multiple CLI commands, providing consistent behavior for output file naming.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing output and output_dir.</p></li>
+<li><p><strong>default_basename</strong> (<em>str</em>) – Default base filename to use if –output is not provided.</p></li>
+<li><p><strong>suffix</strong> (<em>str</em><em>, </em><em>optional</em>) – Suffix to append to basename (e.g., “_enriched”, “_schedule”). Default “”.</p></li>
+<li><p><strong>extension</strong> (<em>str</em><em>, </em><em>optional</em>) – File extension including the dot (e.g., “.yaml”, “.csv”). Default “”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complete output file path.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Path</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># With --output myfile --output-dir results/</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">determine_output_path</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;cruise&quot;</span><span class="p">,</span> <span class="s2">&quot;_enriched&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">)</span>
+<span class="go">Path(&quot;results/myfile_enriched.yaml&quot;)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without --output, using default</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">determine_output_path</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;My_Cruise&quot;</span><span class="p">,</span> <span class="s2">&quot;_schedule&quot;</span><span class="p">,</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
+<span class="go">Path(&quot;data/My_Cruise_schedule.csv&quot;)</span>
+</pre></div>
+</div>
 </dd></dl>
 
 <dl class="py function">
