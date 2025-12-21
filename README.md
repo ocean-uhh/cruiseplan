@@ -1,22 +1,22 @@
 # CruisePlan
 
-> 🌊 **Comprehensive Oceanographic Research Cruise Planning System** — Streamlining the complex process of designing, optimizing, and planning oceanographic research expeditions.
+> 🌊 **Comprehensive Oceanographic Research Cruise Planning System** — Streamlining the  process of planning oceanographic research expeditions.
 
 [![Tests](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml/badge.svg)](https://github.com/ocean-uhh/cruiseplan/actions/workflows/tests.yml)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Documentation](https://img.shields.io/badge/docs-sphinx-blue)](https://ocean-uhh.github.io/cruiseplan/)
 
-## Statement of Need
+## Background & Context
 
-**The Challenge:** Oceanographic cruise planning involves precise timing and geographic calculations which may need frequent updating. Researchers currently face:
+**The Challenge:** Oceanographic cruise planning involves complex route and timing calculations, frequent unit conversions (nautical miles <-> kilometers, decimal degrees <-> degrees decimal minutes), and rapid plan updates.  Different people may need different formats--spreadsheets for quick calculations, degrees/decimal minutes for navigation, kilometers for station spacing, knots for voyage timing.  Using historical station locations may be preferred, but can be tricky to access.
 
-- **Fragmented Tools**: Scattered spreadsheets, manual calculations, and discipline-specific software
+- **Fragmented Tools**: Scattered spreadsheets, manual calculations, custom code snippets
 - **Time-Intensive Processes**: Semi-manual station planning, timing calculations, and proposal formatting  
 - **Error-Prone Workflows**: Manual depth lookups, coordinate formatting, and schedule validation
-- **Limited Historical Context**: Difficulty incorporating past cruise data and lessons learned
 
-**The Solution:** CruisePlan provides an integrated, semi-automated, flexible solution that transforms drafting of cruise plans into an efficient workflow.
+**The Solution:** CruisePlan provides an integrated, semi-automated system for an efficient cruise-planning workflow.
+
 
 ## Target Audience
 
@@ -30,13 +30,32 @@ The primary development of CruisePlan is for physical oceanographers, with CTD s
 
 CruisePlan transforms complex cruise planning from a weeks-long manual process into a structured, validated workflow that produces proposal-ready documentation with some checks on operational feasibility.
 
-**Important - Version 0.2.0 Release:** This release includes breaking changes to depth field semantics. See our [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html) for migration guidance.
+
+
+**Important - Version 0.2.0 Release:** This release includes breaking changes to depth field semantics. See our [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html) for future plans.
 
 **Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 
 📘 Full documentation available at:  
 👉 https://ocean-uhh.github.io/cruiseplan/
 
+### Related Software
+
+The following cruise planning tools may also be of interest (*Disclaimer: We have not tested these*):
+
+**Python/GIS:**
+- [cruisetools](https://github.com/simondreutter/cruisetools) - Python plugin for QGIS.
+
+**Python:**
+- [dreamcoat](https://github.com/mvdh7/dreamcoat) - Personal tools for cruise planning
+
+**R:**
+- [cruisePlanning](https://github.com/clayton33/cruisePlanning) - R package for cruise planning based on DFO's AZMP
+- [cruisePlanningStatic](https://github.com/clayton33/cruisePlanningStatic) - similar to the above
+- [cruisetrack-planner](https://github.com/fribalet/cruisetrack-planner) - Cruise track planning in R plus Shiny App (https://seaflow.shinyapps.io/cruisetrackplanner/)
+
+**MATLAB:**
+- [PlanCampanha](https://github.com/PedroVelez/PlanCampanha) - Cruise planning with CSV as input
 ---
 
 ## 🚀 What's Included
@@ -159,7 +178,6 @@ make html
 - [Usage Guide](https://ocean-uhh.github.io/cruiseplan/usage.html)
 - [API Reference](https://ocean-uhh.github.io/cruiseplan/api/modules.html)
 - [Development Roadmap](https://ocean-uhh.github.io/cruiseplan/roadmap.html)
-- [Contributing Guidelines](https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md)
 
 ---
 
@@ -173,7 +191,7 @@ For information about planned improvements and development priorities, see our [
 
 ## 🙏 Acknowledgments & Citation
 
-The original timing algorithms were developed by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and [Sunke Trace-Kleeberg](https://orcid.org/0000-0002-5980-2492).  CruisePlan software development and maintenance by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and [Eleanor Frajka-Williams](https://orcid.org/0000-0001-8773-7838).
+The original timing algorithms were developed by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and [Sunke Trace-Kleeberg](https://orcid.org/0000-0002-5980-2492).  CruisePlan initial software development by [Yves Sorge](https://orcid.org/0009-0007-0043-9207) and redesigned by [Eleanor Frajka-Williams](https://orcid.org/0000-0001-8773-7838).
 
 If you use CruisePlan in your research, please cite it using the information in [CITATION.cff](CITATION.cff).
 
