@@ -158,7 +158,7 @@ class TestMainCommand:
     @patch("cruiseplan.cli.pangaea.read_doi_list")
     @patch("cruiseplan.cli.pangaea.validate_dois")
     @patch("cruiseplan.cli.pangaea.validate_input_file")
-    @patch("cruiseplan.cli.pangaea.validate_output_path")
+    @patch("cruiseplan.cli.utils.validate_output_path")
     def test_main_success(
         self,
         mock_validate_output,

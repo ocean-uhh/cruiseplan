@@ -157,7 +157,11 @@ class Cruise:
                         # Sequence can contain anything, check all registries
                         cluster.sequence = self._resolve_mixed_list(cluster.sequence)
 
-                    # Resolve Buckets
+                    # Resolve Activities (new unified field)
+                    if cluster.activities:
+                        cluster.activities = self._resolve_mixed_list(cluster.activities)
+
+                    # Resolve Buckets (deprecated field - kept for compatibility)
                     if cluster.stations:
                         cluster.stations = self._resolve_list(
                             cluster.stations, self.station_registry, "Station"
@@ -208,21 +212,22 @@ class Cruise:
 
     def _resolve_mixed_list(self, items: List[Union[str, Any]]) -> List[Any]:
         """
-        Resolve a mixed sequence list containing stations or transits.
+        Resolve a mixed sequence list containing stations, transits, or areas.
 
-        Searches through all available registries (stations and transits) to
-        resolve string references. This is used for cluster sequences which
-        can contain heterogeneous types of operations.
+        Searches through all available registries to resolve string references
+        and converts inline dictionary definitions to proper object types.
 
         Parameters
         ----------
         items : List[Union[str, Any]]
-            List of items that may be strings (references) or objects.
+            List of items that may be strings (references), dictionaries
+            (inline definitions), or already-resolved objects.
 
         Returns
         -------
         List[Any]
-            List with string references resolved to their corresponding objects.
+            List with string references resolved and dictionaries converted
+            to their corresponding definition objects.
 
         Raises
         ------
@@ -237,13 +242,62 @@ class Cruise:
                     resolved_items.append(self.station_registry[item])
                 elif item in self.transit_registry:
                     resolved_items.append(self.transit_registry[item])
+                elif item in self.area_registry:
+                    resolved_items.append(self.area_registry[item])
                 else:
                     raise ReferenceError(
-                        f"Sequence ID '{item}' not found in any Catalog (Stations, Transits)."
+                        f"Activity ID '{item}' not found in any Catalog (Stations, Transits, Areas)."
                     )
+            elif isinstance(item, dict):
+                # Convert inline dictionary definition to proper object type
+                resolved_items.append(self._convert_inline_definition(item))
             else:
+                # Item is already a resolved object
                 resolved_items.append(item)
         return resolved_items
+
+    def _convert_inline_definition(self, definition_dict: dict) -> Union[StationDefinition, TransitDefinition, AreaDefinition]:
+        """
+        Convert an inline dictionary definition to the appropriate definition object.
+
+        Determines the type of definition based on the presence of key fields
+        and creates the corresponding Pydantic object.
+
+        Parameters
+        ----------
+        definition_dict : dict
+            Dictionary containing the inline definition fields.
+
+        Returns
+        -------
+        Union[StationDefinition, TransitDefinition, AreaDefinition]
+            The appropriate definition object created from the dictionary.
+
+        Raises
+        ------
+        ValueError
+            If the definition type cannot be determined or validation fails.
+        """
+        # Determine definition type based on key fields
+        if "operation_type" in definition_dict:
+            # This is a station definition
+            return StationDefinition(**definition_dict)
+        elif "start" in definition_dict and "end" in definition_dict:
+            # This is a transit definition
+            return TransitDefinition(**definition_dict)
+        elif any(field in definition_dict for field in ["polygon", "center", "boundary"]):
+            # This is an area definition
+            return AreaDefinition(**definition_dict)
+        else:
+            # Fallback: assume it's a station if it has common station fields
+            if any(field in definition_dict for field in ["latitude", "longitude", "position", "action"]):
+                # Add default operation_type if missing
+                if "operation_type" not in definition_dict:
+                    definition_dict = definition_dict.copy()
+                    definition_dict["operation_type"] = "CTD"  # Default operation type
+                return StationDefinition(**definition_dict)
+            else:
+                raise ValueError(f"Cannot determine definition type for inline definition: {definition_dict}")
 
     def _resolve_port_reference(self, port_ref) -> PortDefinition:
         """

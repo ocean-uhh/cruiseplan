@@ -33,8 +33,8 @@ def test_load_and_validate_cruise():
     leg1 = cruise.config.legs[0]
     cluster = leg1.clusters[0]
 
-    # The 'stations' list in the cluster should now be FULL OBJECTS, not strings
-    resolved_stations = cluster.stations
+    # The 'activities' list in the cluster should now be FULL OBJECTS, not strings
+    resolved_stations = cluster.activities
     assert len(resolved_stations) == 4  # Updated to 4 since mooring moved to stations
 
     # Item 0: Was a reference "STN_Start_01" -> Should resolve to object

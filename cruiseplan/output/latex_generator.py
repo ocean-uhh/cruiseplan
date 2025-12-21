@@ -286,9 +286,9 @@ class LaTeXGenerator:
             transit_within_area_h = (
                 sum(t["duration_minutes"] for t in navigation_transits) / 60
             )
-
+        # Note that navigation transits only include to/from port transits here
         total_navigation_transit_h = (
-            transit_to_area_h + transit_from_area_h + transit_within_area_h
+            transit_to_area_h + transit_from_area_h 
         )
 
         # Generate work days rows for the timeline
