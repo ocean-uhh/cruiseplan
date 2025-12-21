@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Installation &mdash; CruisePlan v0.1 v0.1.0.post1.dev16</title>
+  <title>Installation &mdash; CruisePlan v0.2 v0.2.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=50dc4b59"></script>
+      <script src="_static/documentation_options.js?v=104987fd"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -34,7 +34,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            CruisePlan v0.1
+            CruisePlan v0.2
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -57,11 +57,8 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#core-dependencies">Core Dependencies</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#common-installation-issues">Common Installation Issues</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#getting-help">Getting Help</a></li>
-</ul>
-</li>
+<li class="toctree-l2"><a class="reference internal" href="#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#getting-help">Getting Help</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
@@ -103,7 +100,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CruisePlan v0.1</a>
+          <a href="index.html">CruisePlan v0.2</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -190,20 +187,9 @@ python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </s
 
 <span class="c1"># Install CruisePlan</span>
 pip<span class="w"> </span>install<span class="w"> </span>cruiseplan
-
-<span class="c1"># Verify installation</span>
-cruiseplan<span class="w"> </span>--version
-cruiseplan<span class="w"> </span>--help
 </pre></div>
 </div>
-<figure class="align-center" id="id2">
-<a class="reference internal image-reference" href="_images/installation_terminal.png"><img alt="Successful CruisePlan installation verification" src="_images/installation_terminal.png" style="width: 600px;" />
-</a>
-<figcaption>
-<p><span class="caption-text">Successful CruisePlan installation showing version information and available commands</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
-</figcaption>
-</figure>
-<p>After installing, verify the installation by running the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a>.</p>
+<p>Then verify installation: run the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a></p>
 </section>
 <section id="option-2-install-latest-from-github">
 <h3>Option 2: Install Latest from GitHub<a class="headerlink" href="#option-2-install-latest-from-github" title="Link to this heading"></a></h3>
@@ -216,7 +202,7 @@ python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </s
 pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/ocean-uhh/cruiseplan.git
 </pre></div>
 </div>
-<p>After installing, verify the installation by running the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a>.</p>
+<p>Then verify installation: run the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a></p>
 </section>
 <section id="option-3-development-installation">
 <h3>Option 3: Development Installation<a class="headerlink" href="#option-3-development-installation" title="Link to this heading"></a></h3>
@@ -236,7 +222,7 @@ python<span class="w"> </span>-m<span class="w"> </span>venv<span class="w"> </s
 pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
 </pre></div>
 </div>
-<p>After installing, verify the installation by running the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a>.</p>
+<p>Then verify installation: run the steps in <a class="reference internal" href="#verification-testing"><span class="std std-ref">Verification &amp; Testing</span></a></p>
 </section>
 <section id="verification-testing">
 <span id="id1"></span><h3>Verification &amp; Testing<a class="headerlink" href="#verification-testing" title="Link to this heading"></a></h3>
@@ -256,6 +242,13 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 </pre></div>
 </div>
 <p>Expected output should show version information and available subcommands without errors.</p>
+<figure class="align-center" id="id2">
+<a class="reference internal image-reference" href="_images/installation_terminal.png"><img alt="Successful CruisePlan installation verification" src="_images/installation_terminal.png" style="width: 600px;" />
+</a>
+<figcaption>
+<p><span class="caption-text">Successful CruisePlan installation showing version information and available commands</span><a class="headerlink" href="#id2" title="Link to this image"></a></p>
+</figcaption>
+</figure>
 </section>
 </section>
 <section id="core-dependencies">
@@ -263,73 +256,73 @@ python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;i
 <p>Core dependencies are listed in <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code>, development tools in <code class="docutils literal notranslate"><span class="pre">requirements-dev.txt</span></code>. The conda <code class="docutils literal notranslate"><span class="pre">environment.yml</span></code> loads from these files automatically.  CruisePlan automatically installs these core dependencies:</p>
 <p><strong>Scientific Computing:</strong></p>
 <ul class="simple">
-<li><p>numpy &gt;= 1.21 (numerical computing)</p></li>
-<li><p>pandas &gt;= 1.3.0 (data manipulation)</p></li>
-<li><p>scipy &gt;= 1.7.0 (scientific algorithms)</p></li>
-<li><p>xarray &gt;= 2023.12.0 (multi-dimensional data)</p></li>
-<li><p>netCDF4 &gt;= 1.5.8 (scientific data format)</p></li>
+<li><p><a class="reference external" href="https://numpy.org/">numpy</a> &gt;= 1.21 (numerical computing)</p></li>
+<li><p><a class="reference external" href="https://pandas.pydata.org/">pandas</a> &gt;= 1.3.0 (data manipulation)</p></li>
+<li><p><a class="reference external" href="https://scipy.org/">scipy</a> &gt;= 1.7.0 (scientific algorithms)</p></li>
+<li><p><a class="reference external" href="https://docs.xarray.dev/">xarray</a> &gt;= 2023.12.0 (multi-dimensional data)</p></li>
+<li><p><a class="reference external" href="https://unidata.github.io/netcdf4-python/">netCDF4</a> &gt;= 1.5.8 (scientific data format)</p></li>
 </ul>
 <p><strong>Web &amp; Data Sources:</strong></p>
 <ul class="simple">
-<li><p>requests &gt;= 2.25.0 (HTTP requests)</p></li>
-<li><p>pangaeapy &gt;= 1.0.7 (PANGAEA database integration)</p></li>
+<li><p><a class="reference external" href="https://docs.python-requests.org/">requests</a> &gt;= 2.25.0 (HTTP requests)</p></li>
+<li><p><a class="reference external" href="https://github.com/pangaea-data-publisher/pangaeapy">pangaeapy</a> &gt;= 1.0.7 (PANGAEA database integration)</p></li>
 </ul>
 <p><strong>Configuration &amp; Validation:</strong></p>
 <ul class="simple">
-<li><p>pydantic &gt;= 2.0.0 (data validation)</p></li>
-<li><p>ruamel.yaml &gt;= 0.18.0 (YAML processing)</p></li>
+<li><p><a class="reference external" href="https://docs.pydantic.dev/">pydantic</a> &gt;= 2.0.0 (data validation)</p></li>
+<li><p><a class="reference external" href="https://yaml.readthedocs.io/">ruamel.yaml</a> &gt;= 0.18.0 (YAML processing)</p></li>
 </ul>
 <p><strong>Visualization:</strong></p>
 <ul class="simple">
-<li><p>matplotlib &gt;= 3.7 (plotting)</p></li>
-<li><p>folium (interactive maps)</p></li>
-<li><p>branca (map styling)</p></li>
+<li><p><a class="reference external" href="https://matplotlib.org/">matplotlib</a> &gt;= 3.7 (plotting)</p></li>
+<li><p><a class="reference external" href="https://python-visualization.github.io/folium/">folium</a> (interactive maps)</p></li>
+<li><p><a class="reference external" href="https://github.com/python-visualization/branca">branca</a> (map styling)</p></li>
 </ul>
 <p><strong>User Interface:</strong></p>
 <ul class="simple">
-<li><p>tqdm &gt;= 4.65 (progress bars)</p></li>
-<li><p>jinja2 (template rendering)</p></li>
+<li><p><a class="reference external" href="https://tqdm.github.io/">tqdm</a> &gt;= 4.65 (progress bars)</p></li>
+<li><p><a class="reference external" href="https://jinja.palletsprojects.com/">jinja2</a> (template rendering)</p></li>
 </ul>
 </section>
 <section id="troubleshooting">
 <h2>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Link to this heading"></a></h2>
-<section id="common-installation-issues">
-<h3>Common Installation Issues<a class="headerlink" href="#common-installation-issues" title="Link to this heading"></a></h3>
 <p><strong>Issue: “No module named ‘cruiseplan’”</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ImportError: No module named &#39;cruiseplan&#39;
 </pre></div>
 </div>
-<p><em>Solution:</em>
-- Verify Python environment: <code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">python</span></code> and <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">--version</span></code>
-- Reinstall: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--force-reinstall</span> <span class="pre">cruiseplan</span></code>
-- Check virtual environment activation</p>
+<p><em>Solution:</em></p>
+<ul class="simple">
+<li><p>Verify Python environment: <code class="docutils literal notranslate"><span class="pre">which</span> <span class="pre">python</span></code> and <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">--version</span></code></p></li>
+<li><p>Reinstall: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--force-reinstall</span> <span class="pre">cruiseplan</span></code></p></li>
+<li><p>Check virtual environment activation</p></li>
+</ul>
 <p><strong>Issue: Permission denied during installation</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ERROR: Could not install packages due to an EnvironmentError
 </pre></div>
 </div>
-<p><em>Solution:</em>
-- Use user installation: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--user</span> <span class="pre">cruiseplan</span></code>
-- Or use virtual environment: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">cruiseplan_env</span></code></p>
+<p><em>Solution:</em></p>
+<ul class="simple">
+<li><p>Use user installation: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--user</span> <span class="pre">cruiseplan</span></code></p></li>
+<li><p>Or use virtual environment: <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">-m</span> <span class="pre">venv</span> <span class="pre">.venv</span></code></p></li>
+</ul>
 <p><strong>Issue: Dependency conflicts</strong></p>
 <div class="highlight-text notranslate"><div class="highlight"><pre><span></span>ERROR: pip&#39;s dependency resolver does not currently consider all the packages
 </pre></div>
 </div>
-<p><em>Solution:</em>
-- Create fresh virtual environment
-- Update pip: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span> <span class="pre">setuptools</span></code>
-- Install in isolated environment</p>
-<p><strong>Issue: Slow installation</strong></p>
-<p><em>Solution:</em>
-- Use faster package resolver: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--use-feature=fast-deps</span> <span class="pre">cruiseplan</span></code>
-- Consider conda installation for complex environments</p>
+<p><em>Solution:</em></p>
+<ul class="simple">
+<li><p>Create fresh virtual environment</p></li>
+<li><p>Update pip: <code class="docutils literal notranslate"><span class="pre">pip</span> <span class="pre">install</span> <span class="pre">--upgrade</span> <span class="pre">pip</span> <span class="pre">setuptools</span></code></p></li>
+<li><p>Install in isolated environment</p></li>
+</ul>
 </section>
 <section id="getting-help">
-<h3>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h3>
+<h2>Getting Help<a class="headerlink" href="#getting-help" title="Link to this heading"></a></h2>
 <p>If installation issues persist:</p>
 <ol class="arabic simple">
 <li><p><strong>Check existing issues</strong>: <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/issues">GitHub Issues</a></p></li>
 <li><p><strong>Create new issue</strong>: Include Python version, OS, and complete error message</p></li>
-<li><p><strong>Discussion forum</strong>: For usage questions and community support</p></li>
+<li><p><strong>Discussion forum</strong>: <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/discussions">GitHub Discussions</a> for usage questions and community support</p></li>
 </ol>
 <p>Include the output of:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>--version
@@ -337,7 +330,6 @@ pip<span class="w"> </span>show<span class="w"> </span>cruiseplan
 cruiseplan<span class="w"> </span>--version
 </pre></div>
 </div>
-</section>
 </section>
 </section>
 
