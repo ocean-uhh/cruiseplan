@@ -195,8 +195,6 @@ def pangaea(
     )
 
     if verbose:
-        import logging
-
         logging.basicConfig(level=logging.DEBUG)
 
     try:
@@ -942,9 +940,9 @@ def map(
                 data_source=cruise,
                 source_type="cruise",
                 output_file=png_file,
-                bathymetry_source=bathy_source,
-                bathymetry_dir=bathy_dir,
-                bathymetry_stride=bathy_stride,
+                bathy_source=bathy_source,
+                bathy_dir=bathy_dir,
+                bathy_stride=bathy_stride,
                 figsize=tuple(figsize),
                 show_plot=show_plot,
             )
