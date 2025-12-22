@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
+      <script src="../../../_static/documentation_options.js?v=7898d619"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -31,7 +31,7 @@
           
           
           <a href="../../../index.html" class="icon icon-home">
-            CruisePlan v0.2
+            CruisePlan v0.2.1
               <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -60,6 +60,7 @@
 </ul>
 <p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
 <ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cruise_architecture.html">Cruise Specifications</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
@@ -84,7 +85,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="../../../index.html">CruisePlan v0.2</a>
+          <a href="../../../index.html">CruisePlan v0.2.1</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -1749,7 +1750,7 @@
     <span class="n">transits</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">TransitDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">areas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">AreaDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">ports</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PortDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">legs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LegDefinition</span><span class="p">]</span>
+    <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">LegDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
 
@@ -1762,12 +1763,28 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">check_forbidden_cruise_level_fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Prevent confusing leg-level fields from being used at cruise level.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="c1"># Check if legs are defined</span>
+            <span class="n">has_legs</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;legs&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+                <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">])</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="p">)</span>
+
             <span class="n">forbidden_fields</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use departure_port within individual leg definitions instead&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use arrival_port within individual leg definitions instead&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;first_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;Waypoint fields belong in leg definitions&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;last_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;Waypoint fields belong in leg definitions&quot;</span><span class="p">,</span>
             <span class="p">}</span>
+
+            <span class="c1"># Forbid departure/arrival ports when explicit legs are defined</span>
+            <span class="c1"># (When no legs exist, ports are allowed for default leg auto-creation)</span>
+            <span class="k">if</span> <span class="n">has_legs</span><span class="p">:</span>
+                <span class="n">forbidden_fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use departure_port within individual leg definitions instead&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use arrival_port within individual leg definitions instead&quot;</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
 
             <span class="n">found_forbidden</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">forbidden_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
@@ -1775,13 +1792,16 @@
                     <span class="n">found_forbidden</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">found_forbidden</span><span class="p">:</span>
-                <span class="n">fields_list</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">found_forbidden</span><span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Global cruise-level fields no longer supported: </span><span class="si">{</span><span class="n">fields_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; (&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">. &quot;</span>
+                <span class="c1"># Extract just field names (before the parentheses) from the error list</span>
+                <span class="n">field_names</span> <span class="o">=</span> <span class="p">[</span><span class="n">item</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot; (&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">found_forbidden</span><span class="p">]</span>
+                <span class="n">fields_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">field_names</span><span class="p">)</span>
+                <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Global cruise-level fields no longer supported when legs are defined: </span><span class="si">{</span><span class="n">fields_str</span><span class="si">}</span><span class="s2">. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;These fields must be defined within individual leg definitions to avoid &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;conflicts during section expansion and multi-leg processing. &quot;</span>
                     <span class="sa">f</span><span class="s2">&quot;Please move these fields into the &#39;legs&#39; section of your configuration.&quot;</span>
                 <span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">data</span></div>
 
@@ -2028,46 +2048,6 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-<div class="viewcode-block" id="CruiseConfig.validate_no_global_leg_fields">
-<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.CruiseConfig.validate_no_global_leg_fields">[docs]</a>
-    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">validate_no_global_leg_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Validate that departure_port and arrival_port are not defined at cruise level.</span>
-
-<span class="sd">        These fields must now be defined only at the leg level to avoid conflicts</span>
-<span class="sd">        during section expansion and multi-leg cruise processing.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        CruiseConfig</span>
-<span class="sd">            Self for chaining.</span>
-
-<span class="sd">        Raises</span>
-<span class="sd">        ------</span>
-<span class="sd">        ValueError</span>
-<span class="sd">            If departure_port or arrival_port are defined at the cruise level.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">global_fields_errors</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">departure_port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">global_fields_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;departure_port&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrival_port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">global_fields_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">global_fields_errors</span><span class="p">:</span>
-            <span class="n">fields_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">global_fields_errors</span><span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Global cruise-level fields no longer supported: </span><span class="si">{</span><span class="n">fields_str</span><span class="si">}</span><span class="s2">. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;These fields must be defined within individual leg definitions to &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;avoid conflicts during section expansion and multi-leg processing. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Please move these fields into the &#39;legs&#39; section of your configuration.&quot;</span>
-            <span class="p">)</span>
-
-        <span class="k">return</span> <span class="bp">self</span></div>
-
-
 <div class="viewcode-block" id="CruiseConfig.check_longitude_consistency">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.CruiseConfig.check_longitude_consistency">[docs]</a>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
@@ -2182,7 +2162,19 @@
 <span class="sd">            If cruise-level and leg-level definitions conflict.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;At least one leg must be defined&quot;</span><span class="p">)</span>
+            <span class="c1"># Try to create a default leg if we have the necessary information</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_can_create_default_leg</span><span class="p">():</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_default_leg</span><span class="p">()</span>
+                <span class="c1"># Set flag for YAML export - don&#39;t include auto-created legs</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_default_leg_created</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;At least one leg must be defined. For automatic leg creation, provide &quot;</span>
+                    <span class="s2">&quot;departure_port and arrival_port at the cruise level.&quot;</span>
+                <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Explicit legs provided</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_default_leg_created</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="n">is_single_leg</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">legs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
         <span class="n">first_leg</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">legs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -2236,7 +2228,75 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Leg </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2"> (&#39;</span><span class="si">{</span><span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39;) must define arrival_port&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_can_create_default_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Check if we have sufficient information to create a default leg.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bool</span>
+<span class="sd">            True if we can create a default leg, False otherwise.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># We need departure and arrival ports to create a leg</span>
+        <span class="n">has_departure</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">departure_port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="n">has_arrival</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">arrival_port</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+        <span class="c1"># We also need at least some activities to put in the leg</span>
+        <span class="n">has_activities</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transits</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transits</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">has_departure</span> <span class="ow">and</span> <span class="n">has_arrival</span> <span class="ow">and</span> <span class="n">has_activities</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_default_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Create a default leg from cruise-level information.</span>
+
+<span class="sd">        Creates a single leg containing all cruise activities with the cruise</span>
+<span class="sd">        name as the leg name and the cruise&#39;s departure/arrival ports.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Collect all activity names from the cruise</span>
+        <span class="n">activities</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Add all stations</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+            <span class="n">activities</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">station</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">])</span>
+
+        <span class="c1"># Add all transits</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+            <span class="n">activities</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">transit</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">transit</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transits</span><span class="p">])</span>
+
+        <span class="c1"># Add all areas</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+            <span class="n">activities</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">area</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">])</span>
+
+        <span class="c1"># Create the default leg</span>
+        <span class="n">default_leg_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_DefaultLeg&quot;</span>
+
+        <span class="c1"># Create LegDefinition directly (we&#39;re already in the same module)</span>
+        <span class="n">default_leg</span> <span class="o">=</span> <span class="n">LegDefinition</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">default_leg_name</span><span class="p">,</span>
+            <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Auto-generated default leg for </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">departure_port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">departure_port</span><span class="p">,</span>
+            <span class="n">arrival_port</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">,</span>
+            <span class="n">activities</span><span class="o">=</span><span class="n">activities</span><span class="p">,</span>
+            <span class="c1"># Inherit cruise-level parameters</span>
+            <span class="n">vessel_speed</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+            <span class="n">turnaround_time</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">turnaround_time</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Set the legs list with our default leg</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">legs</span> <span class="o">=</span> <span class="p">[</span><span class="n">default_leg</span><span class="p">]</span>
+
+        <span class="c1"># Log the creation for user awareness</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Auto-created default leg &#39;</span><span class="si">{</span><span class="n">default_leg_name</span><span class="si">}</span><span class="s2">&#39; with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities: &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">departure_port</span><span class="si">}</span><span class="s2"> → </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">arrival_port</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
 
 
 
