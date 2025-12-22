@@ -72,7 +72,7 @@ class TestEnrichConfiguration:
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.cli.utils.save_yaml_config")
-    @patch("cruiseplan.core.validation.format_dmm_comment")
+    @patch("cruiseplan.core.validation.format_ddm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
     @patch("cruiseplan.utils.yaml_io.load_yaml")
@@ -81,7 +81,7 @@ class TestEnrichConfiguration:
         mock_yaml_load,
         mock_open,
         mock_cruise_class,
-        mock_format_dmm,
+        mock_format_ddm,
         mock_save_yaml,
     ):
         """Test enriching coordinates only."""
@@ -101,21 +101,21 @@ class TestEnrichConfiguration:
         mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
-        mock_format_dmm.return_value = "50 00.00'N, 040 00.00'W"
+        mock_format_ddm.return_value = "50 00.00'N, 040 00.00'W"
 
         # Test
         result = enrich_configuration(
             config_path=Path("test.yaml"),
             add_depths=False,
             add_coords=True,
-            coord_format="dmm",
+            coord_format="ddm",
             output_path=Path("output.yaml"),
         )
 
         # Verify
         assert result["stations_with_depths_added"] == 0
         assert result["stations_with_coords_added"] == 1
-        mock_format_dmm.assert_called_once_with(50.0, -40.0)
+        mock_format_ddm.assert_called_once_with(50.0, -40.0)
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.core.cruise.Cruise")

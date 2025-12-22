@@ -331,7 +331,7 @@ CruisePlan uses centralized helper functions in [`utils/constants.py`](https://g
 
 
 Best Practices and Guidelines
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Precision Standards**:
 

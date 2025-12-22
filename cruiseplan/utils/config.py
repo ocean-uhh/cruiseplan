@@ -1,7 +1,7 @@
 # cruiseplan/utils/config.py
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import ValidationError
 
@@ -456,3 +456,38 @@ class ConfigLoader:
         """
         self.load_raw_data()
         return self.validate_and_parse()
+
+
+def setup_output_paths(
+    config_file: Union[str, Path],
+    output_dir: str = "data",
+    output: Optional[str] = None,
+) -> Tuple[Path, str]:
+    """
+    Helper function to set up output directory and base filename from config file and parameters.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    output_dir : str
+        Output directory (default: "data")
+    output : str, optional
+        Base filename for outputs (default: use config filename)
+
+    Returns
+    -------
+    tuple
+        (output_dir_path, base_name) where output_dir_path is resolved Path
+        and base_name is the filename stem to use for outputs
+    """
+    output_dir_path = Path(output_dir).resolve()
+    output_dir_path.mkdir(parents=True, exist_ok=True)
+
+    if output:
+        base_name = output
+    else:
+        # Use config file stem as base name, with safe character replacement
+        base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
+
+    return output_dir_path, base_name

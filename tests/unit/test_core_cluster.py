@@ -175,3 +175,225 @@ class TestClusterBoundaryLogic:
         cluster.add_operation(operation)
 
         assert len(cluster.operations) == 1
+
+
+class TestClusterOperationMethods:
+    """Test cluster operation management methods."""
+
+    def test_remove_operation_success(self):
+        """Test removing operation that exists."""
+        cluster = Cluster(name="Test_Cluster")
+
+        # Create mock operations with name attribute
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        op2 = type("MockOperation", (), {"name": "STN_002"})()
+
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        result = cluster.remove_operation("STN_001")
+        assert result is True
+        assert len(cluster.operations) == 1
+        assert cluster.operations[0].name == "STN_002"
+
+    def test_remove_operation_not_found(self):
+        """Test removing operation that doesn't exist."""
+        cluster = Cluster(name="Test_Cluster")
+
+        result = cluster.remove_operation("NonExistent")
+        assert result is False
+        assert len(cluster.operations) == 0
+
+    def test_get_operation_success(self):
+        """Test getting operation by name."""
+        cluster = Cluster(name="Test_Cluster")
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        cluster.add_operation(op1)
+
+        result = cluster.get_operation("STN_001")
+        assert result == op1
+
+    def test_get_operation_not_found(self):
+        """Test getting operation that doesn't exist."""
+        cluster = Cluster(name="Test_Cluster")
+
+        result = cluster.get_operation("NonExistent")
+        assert result is None
+
+    def test_get_all_operations(self):
+        """Test getting all operations returns copy."""
+        cluster = Cluster(name="Test_Cluster")
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        op2 = type("MockOperation", (), {"name": "STN_002"})()
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        operations = cluster.get_all_operations()
+        assert len(operations) == 2
+        assert operations is not cluster.operations  # Should be a copy
+        assert operations[0] == op1
+        assert operations[1] == op2
+
+    def test_calculate_total_duration(self):
+        """Test calculating total duration for cluster operations."""
+        cluster = Cluster(name="Test_Cluster")
+
+        # Mock operations with calculate_duration method
+        # Note: The lambda needs to accept 'self' as first argument since it's a method
+        op1 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_001", "calculate_duration": lambda self, rules: 60.0},
+        )()
+        op2 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_002", "calculate_duration": lambda self, rules: 90.0},
+        )()
+
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        total_duration = cluster.calculate_total_duration("mock_rules")
+        assert total_duration == 150.0
+
+    def test_is_empty(self):
+        """Test checking if cluster is empty."""
+        cluster = Cluster(name="Test_Cluster")
+
+        assert cluster.is_empty() is True
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        cluster.add_operation(op1)
+
+        assert cluster.is_empty() is False
+
+    def test_get_operation_count(self):
+        """Test getting operation count."""
+        cluster = Cluster(name="Test_Cluster")
+
+        assert cluster.get_operation_count() == 0
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        op2 = type("MockOperation", (), {"name": "STN_002"})()
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        assert cluster.get_operation_count() == 2
+
+    def test_allows_reordering(self):
+        """Test checking if cluster allows reordering."""
+        ordered_cluster = Cluster(name="Ordered_Cluster", ordered=True)
+        unordered_cluster = Cluster(name="Unordered_Cluster", ordered=False)
+
+        assert ordered_cluster.allows_reordering() is False
+        assert unordered_cluster.allows_reordering() is True
+
+    def test_get_operation_names(self):
+        """Test getting list of operation names."""
+        cluster = Cluster(name="Test_Cluster")
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        op2 = type("MockOperation", (), {"name": "STN_002"})()
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        names = cluster.get_operation_names()
+        assert names == ["STN_001", "STN_002"]
+
+    def test_get_entry_point_no_operations(self):
+        """Test getting entry point when cluster is empty."""
+        cluster = Cluster(name="Test_Cluster")
+
+        entry_point = cluster.get_entry_point()
+        assert entry_point is None
+
+    def test_get_entry_point_with_operations(self):
+        """Test getting entry point with operations."""
+        cluster = Cluster(name="Test_Cluster")
+
+        # Mock operation with position
+        position = type("Position", (), {"latitude": 60.0, "longitude": -20.0})()
+        op1 = type("MockOperation", (), {"name": "STN_001", "position": position})()
+        cluster.add_operation(op1)
+
+        entry_point = cluster.get_entry_point()
+        assert entry_point == (60.0, -20.0)
+
+    def test_get_entry_point_no_position_attribute(self):
+        """Test getting entry point when operations lack position attribute."""
+        cluster = Cluster(name="Test_Cluster")
+
+        op1 = type("MockOperation", (), {"name": "STN_001"})()
+        cluster.add_operation(op1)
+
+        entry_point = cluster.get_entry_point()
+        assert entry_point is None
+
+    def test_get_exit_point_no_operations(self):
+        """Test getting exit point when cluster is empty."""
+        cluster = Cluster(name="Test_Cluster")
+
+        exit_point = cluster.get_exit_point()
+        assert exit_point is None
+
+    def test_get_exit_point_with_operations(self):
+        """Test getting exit point with operations."""
+        cluster = Cluster(name="Test_Cluster")
+
+        # Mock operations with position
+        position1 = type("Position", (), {"latitude": 60.0, "longitude": -20.0})()
+        position2 = type("Position", (), {"latitude": 65.0, "longitude": -25.0})()
+        op1 = type("MockOperation", (), {"name": "STN_001", "position": position1})()
+        op2 = type("MockOperation", (), {"name": "STN_002", "position": position2})()
+        cluster.add_operation(op1)
+        cluster.add_operation(op2)
+
+        exit_point = cluster.get_exit_point()
+        assert exit_point == (65.0, -25.0)  # Should be last operation
+
+    def test_repr(self):
+        """Test __repr__ method."""
+        cluster = Cluster(name="Test_Cluster", ordered=False)
+
+        repr_str = repr(cluster)
+        assert "Test_Cluster" in repr_str
+        assert "operations=0" in repr_str
+        assert "ordered=False" in repr_str
+
+    def test_str(self):
+        """Test __str__ method."""
+        ordered_cluster = Cluster(name="Ordered_Cluster", ordered=True)
+        unordered_cluster = Cluster(name="Unordered_Cluster", ordered=False)
+
+        ordered_str = str(ordered_cluster)
+        unordered_str = str(unordered_cluster)
+
+        assert "Ordered_Cluster" in ordered_str
+        assert "strict order" in ordered_str
+
+        assert "Unordered_Cluster" in unordered_str
+        assert "flexible order" in unordered_str
+
+    def test_from_definition_defaults(self):
+        """Test from_definition with None values uses defaults."""
+        cluster_def = type(
+            "ClusterDefinition",
+            (),
+            {
+                "name": "Default_Cluster",
+                "description": None,
+                "strategy": None,
+                "ordered": None,
+                "activities": ["STN_001"],
+            },
+        )()
+
+        cluster = Cluster.from_definition(cluster_def)
+
+        assert cluster.name == "Default_Cluster"
+        assert cluster.description is None
+        assert cluster.strategy == StrategyEnum.SEQUENTIAL  # Default
+        assert cluster.ordered is True  # Default

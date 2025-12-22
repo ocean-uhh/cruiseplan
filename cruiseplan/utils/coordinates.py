@@ -3,7 +3,7 @@ Coordinate formatting utilities for scientific and maritime applications.
 
 This module provides functions to format coordinates in various standard formats
 used in oceanographic and maritime contexts, including decimal degrees, degrees
-and decimal minutes (DMM), and LaTeX-formatted output. Also includes utilities
+and decimal minutes (DDM), and LaTeX-formatted output. Also includes utilities
 for extracting coordinates from cruise configurations and calculating map bounds.
 
 Notes
@@ -27,7 +27,7 @@ class UnitConverter:
     """
 
     @staticmethod
-    def decimal_degrees_to_dmm(decimal_degrees: float) -> Tuple[float, float]:
+    def decimal_degrees_to_ddm(decimal_degrees: float) -> Tuple[float, float]:
         """
         Convert decimal degrees to degrees and decimal minutes.
 
@@ -43,7 +43,7 @@ class UnitConverter:
 
         Examples
         --------
-        >>> UnitConverter.decimal_degrees_to_dmm(65.7458)
+        >>> UnitConverter.decimal_degrees_to_ddm(65.7458)
         (65.0, 44.75)
         """
         degrees = int(abs(decimal_degrees))
@@ -51,11 +51,11 @@ class UnitConverter:
         return float(degrees), minutes
 
 
-def format_dmm_comment(lat: float, lon: float) -> str:
+def format_ddm_comment(lat: float, lon: float) -> str:
     """
     Format coordinates as degrees/decimal minutes comment for validator compliance.
 
-    This function generates DMM format that passes the strict validator requirements:
+    This function generates ddm format that passes the strict validator requirements:
     - DD MM.MM'N, DDD MM.MM'W format (degrees and decimal minutes)
     - No degree symbols (°)
     - 2-digit latitude degrees, 3-digit longitude degrees with leading zeros
@@ -71,16 +71,16 @@ def format_dmm_comment(lat: float, lon: float) -> str:
     Returns
     -------
     str
-        DMM comment like "65 44.75'N, 024 28.75'W".
+        ddm comment like "65 44.75'N, 024 28.75'W".
 
     Examples
     --------
-    >>> format_dmm_comment(65.7458, -24.4792)
+    >>> format_ddm_comment(65.7458, -24.4792)
     "65 44.75'N, 024 28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = UnitConverter.decimal_degrees_to_dmm(lat)
-    lon_deg, lon_min = UnitConverter.decimal_degrees_to_dmm(lon)
+    lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
+    lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"
@@ -93,7 +93,7 @@ def format_dmm_comment(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def format_position_string(lat: float, lon: float, format_type: str = "dmm") -> str:
+def format_position_string(lat: float, lon: float, format_type: str = "ddm") -> str:
     """
     Format coordinate pair as a position string.
 
@@ -104,8 +104,8 @@ def format_position_string(lat: float, lon: float, format_type: str = "dmm") -> 
     lon : float
         Longitude in decimal degrees.
     format_type : str, optional
-        Format type - 'dmm' for degrees/decimal minutes, 'decimal' for decimal degrees.
-        Default is 'dmm'.
+        Format type - 'ddm' for degrees/decimal minutes, 'decimal' for decimal degrees.
+        Default is 'ddm'.
 
     Returns
     -------
@@ -114,13 +114,13 @@ def format_position_string(lat: float, lon: float, format_type: str = "dmm") -> 
 
     Examples
     --------
-    >>> format_position_string(65.7458, -24.4792, "dmm")
+    >>> format_position_string(65.7458, -24.4792, "ddm")
     "65 44.75'N, 024 28.75'W"
     >>> format_position_string(65.7458, -24.4792, "decimal")
     "65.7458°N, 24.4792°W"
     """
-    if format_type == "dmm":
-        return format_dmm_comment(lat, lon)
+    if format_type == "ddm":
+        return format_ddm_comment(lat, lon)
     elif format_type == "decimal":
         lat_dir = "N" if lat >= 0 else "S"
         lon_dir = "E" if lon >= 0 else "W"
@@ -151,8 +151,8 @@ def format_position_latex(lat: float, lon: float) -> str:
     "65$^\\circ$44.75'N, 024$^\\circ$28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = UnitConverter.decimal_degrees_to_dmm(lat)
-    lon_deg, lon_min = UnitConverter.decimal_degrees_to_dmm(lon)
+    lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
+    lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"
@@ -165,7 +165,7 @@ def format_position_latex(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def parse_dmm_format(coords_str: str) -> Tuple[float, float]:
+def parse_ddm_format(coords_str: str) -> Tuple[float, float]:
     """
     Parse degrees/decimal minutes format with direction indicators.
 
@@ -174,7 +174,7 @@ def parse_dmm_format(coords_str: str) -> Tuple[float, float]:
     Parameters
     ----------
     coords_str : str
-        Coordinate string in DMM format.
+        Coordinate string in DDM format.
 
     Returns
     -------
@@ -183,11 +183,11 @@ def parse_dmm_format(coords_str: str) -> Tuple[float, float]:
 
     Examples
     --------
-    >>> parse_dmm_format("52° 49.99' N, 51° 32.81' W")
+    >>> parse_ddm_format("52° 49.99' N, 51° 32.81' W")
     (52.83316666666667, -51.54683333333333)
-    >>> parse_dmm_format("52°49.99'N,51°32.81'W")
+    >>> parse_ddm_format("52°49.99'N,51°32.81'W")
     (52.83316666666667, -51.54683333333333)
-    >>> parse_dmm_format("56° 34,50' N, 52° 40,33' W")  # European comma
+    >>> parse_ddm_format("56° 34,50' N, 52° 40,33' W")  # European comma
     (56.575, -52.6721666666667)
     """
     # Handle different quote characters and European decimal comma
@@ -201,7 +201,7 @@ def parse_dmm_format(coords_str: str) -> Tuple[float, float]:
 
     match = re.search(pattern, coords_str)
     if not match:
-        raise ValueError(f"DMM format not recognized: '{coords_str}'")
+        raise ValueError(f"DDM format not recognized: '{coords_str}'")
 
     lat_deg = int(match.group(1))
     lat_min = float(match.group(2))

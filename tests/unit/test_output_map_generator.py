@@ -529,8 +529,8 @@ class TestGenerateMapFromYaml:
         result = generate_map_from_yaml(
             mock_cruise,
             output_file=output_file,
-            bathymetry_source="etopo2022",
-            bathymetry_stride=10,
+            bathy_source="etopo2022",
+            bathy_stride=10,
             show_plot=True,
             figsize=(14, 12),
         )
@@ -540,9 +540,9 @@ class TestGenerateMapFromYaml:
             data_source=mock_cruise,
             source_type="cruise",
             output_file=output_file,
-            bathymetry_source="etopo2022",
-            bathymetry_stride=10,
-            bathymetry_dir="data",
+            bathy_source="etopo2022",
+            bathy_stride=10,
+            bathy_dir="data",
             show_plot=True,
             figsize=(14, 12),
             include_ports=True,  # Default value
@@ -564,8 +564,8 @@ class TestGenerateMapFromTimeline:
         result = generate_map_from_timeline(
             timeline,
             output_file=output_file,
-            bathymetry_source="gebco2025",
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_stride=5,
             figsize=(12, 10),
             config=config,
         )
@@ -576,8 +576,8 @@ class TestGenerateMapFromTimeline:
         call_args = mock_generate.call_args
         assert call_args.kwargs["source_type"] == "timeline"
         assert call_args.kwargs["output_file"] == output_file
-        assert call_args.kwargs["bathymetry_source"] == "gebco2025"
-        assert call_args.kwargs["bathymetry_stride"] == 5
+        assert call_args.kwargs["bathy_source"] == "gebco2025"
+        assert call_args.kwargs["bathy_stride"] == 5
         assert call_args.kwargs["figsize"] == (12, 10)
 
         # Check that timeline data includes config

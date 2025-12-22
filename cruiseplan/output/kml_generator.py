@@ -27,6 +27,47 @@ from cruiseplan.utils.activity_utils import is_line_operation, is_scientific_ope
 
 logger = logging.getLogger(__name__)
 
+# KML styles for different operation types
+# TODO: Refactor to use centralized PLOT_STYLES from utils/plot_config.py
+KML_STYLES = """
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="lineOpStyle">
+            <LineStyle>
+                <color>ff0066FF</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ffFFD700</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>66FFD700</color>
+            </PolyStyle>
+        </Style>
+"""
+
 
 class KMLGenerator:
     """
@@ -355,6 +396,25 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 Type: Arrival Port
                 Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
                 Timezone: {getattr(port, 'timezone', 'N/A')}
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>{port.longitude},{port.latitude},0</coordinates>
+            </Point>
+        </Placemark>"""
+
+    # Add ports from configuration catalog
+    if hasattr(config, "ports") and config.ports:
+        for port in config.ports:
+            timezone_str = getattr(port, "timezone", "N/A")
+            kml_content += f"""
+        <Placemark>
+            <name>{port.name}</name>
+            <description>
+                Port: {port.name}
+                Type: Catalog Port
+                Location: {port.latitude:.6f}°N, {port.longitude:.6f}°W
+                Timezone: {timezone_str}
             </description>
             <styleUrl>#portStyle</styleUrl>
             <Point>

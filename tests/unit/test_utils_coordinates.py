@@ -9,38 +9,38 @@ from cruiseplan.utils.coordinates import (
     calculate_map_bounds,
     compute_final_limits,
     extract_coordinates_from_cruise,
-    format_dmm_comment,
+    format_ddm_comment,
     format_geographic_bounds,
     format_position_latex,
     format_position_string,
-    parse_dmm_format,
+    parse_ddm_format,
 )
 
 
 class TestUnitConverter:
     """Test coordinate unit conversion utilities."""
 
-    def test_decimal_degrees_to_dmm_positive(self):
+    def test_decimal_degrees_to_ddm_positive(self):
         """Test conversion of positive decimal degrees to DMM."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_dmm(65.7458)
+        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(65.7458)
         assert degrees == 65.0
         assert minutes == pytest.approx(44.75, abs=0.01)
 
-    def test_decimal_degrees_to_dmm_negative(self):
+    def test_decimal_degrees_to_ddm_negative(self):
         """Test conversion of negative decimal degrees to DMM."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_dmm(-24.4792)
+        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(-24.4792)
         assert degrees == 24.0
         assert minutes == pytest.approx(28.75, abs=0.01)
 
-    def test_decimal_degrees_to_dmm_zero(self):
+    def test_decimal_degrees_to_ddm_zero(self):
         """Test conversion of zero degrees."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_dmm(0.0)
+        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(0.0)
         assert degrees == 0.0
         assert minutes == 0.0
 
-    def test_decimal_degrees_to_dmm_exact_degrees(self):
+    def test_decimal_degrees_to_ddm_exact_degrees(self):
         """Test conversion of exact degree values."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_dmm(45.0)
+        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(45.0)
         assert degrees == 45.0
         assert minutes == 0.0
 
@@ -48,43 +48,43 @@ class TestUnitConverter:
 class TestFormatDmmComment:
     """Test DMM format comment generation."""
 
-    def test_format_dmm_comment_north_west(self):
+    def test_format_ddm_comment_north_west(self):
         """Test formatting coordinates in NW quadrant."""
-        result = format_dmm_comment(65.7458, -24.4792)
+        result = format_ddm_comment(65.7458, -24.4792)
         assert result == "65 44.75'N, 024 28.75'W"
 
-    def test_format_dmm_comment_south_east(self):
+    def test_format_ddm_comment_south_east(self):
         """Test formatting coordinates in SE quadrant."""
-        result = format_dmm_comment(-33.8568, 151.2153)
+        result = format_ddm_comment(-33.8568, 151.2153)
         assert result == "33 51.41'S, 151 12.92'E"
 
-    def test_format_dmm_comment_zero_coordinates(self):
+    def test_format_ddm_comment_zero_coordinates(self):
         """Test formatting zero coordinates."""
-        result = format_dmm_comment(0.0, 0.0)
+        result = format_ddm_comment(0.0, 0.0)
         assert result == "00 00.00'N, 000 00.00'E"
 
-    def test_format_dmm_comment_precise_minutes(self):
+    def test_format_ddm_comment_precise_minutes(self):
         """Test formatting with precise decimal minutes."""
-        result = format_dmm_comment(50.1234, -40.5678)
+        result = format_ddm_comment(50.1234, -40.5678)
         assert result == "50 07.40'N, 040 34.07'W"
 
-    def test_format_dmm_comment_leading_zeros(self):
+    def test_format_ddm_comment_leading_zeros(self):
         """Test that longitude gets proper leading zeros."""
-        result = format_dmm_comment(5.1234, -8.5678)
+        result = format_ddm_comment(5.1234, -8.5678)
         assert result == "05 07.40'N, 008 34.07'W"
 
 
 class TestFormatPositionString:
     """Test position string formatting with different formats."""
 
-    def test_format_position_string_dmm_default(self):
+    def test_format_position_string_ddm_default(self):
         """Test default DMM formatting."""
         result = format_position_string(65.7458, -24.4792)
         assert result == "65 44.75'N, 024 28.75'W"
 
-    def test_format_position_string_dmm_explicit(self):
+    def test_format_position_string_ddm_explicit(self):
         """Test explicit DMM formatting."""
-        result = format_position_string(65.7458, -24.4792, "dmm")
+        result = format_position_string(65.7458, -24.4792, "ddm")
         assert result == "65 44.75'N, 024 28.75'W"
 
     def test_format_position_string_decimal(self):
@@ -148,13 +148,13 @@ class TestCoordinateFormatConsistency:
     def test_coordinate_format_consistency(self, lat, lon):
         """Test that all formats produce consistent coordinate values."""
         # Get DMM values from UnitConverter
-        lat_deg, lat_min = UnitConverter.decimal_degrees_to_dmm(lat)
-        lon_deg, lon_min = UnitConverter.decimal_degrees_to_dmm(lon)
+        lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
+        lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
 
         # Test DMM comment format
-        dmm_result = format_dmm_comment(lat, lon)
-        assert f"{abs(int(lat_deg)):02d} {lat_min:05.2f}'" in dmm_result
-        assert f"{abs(int(lon_deg)):03d} {lon_min:05.2f}'" in dmm_result
+        ddm_result = format_ddm_comment(lat, lon)
+        assert f"{abs(int(lat_deg)):02d} {lat_min:05.2f}'" in ddm_result
+        assert f"{abs(int(lon_deg)):03d} {lon_min:05.2f}'" in ddm_result
 
         # Test LaTeX format contains same numeric values
         latex_result = format_position_latex(lat, lon)
@@ -175,8 +175,8 @@ class TestRealWorldCoordinates:
         # Example: OSNAP mooring site
         lat, lon = 59.7583, -39.7333
 
-        dmm = format_dmm_comment(lat, lon)
-        assert dmm == "59 45.50'N, 039 44.00'W"
+        ddm = format_ddm_comment(lat, lon)
+        assert ddm == "59 45.50'N, 039 44.00'W"
 
         latex = format_position_latex(lat, lon)
         assert latex == "59$^\\circ$45.50'N, 039$^\\circ$44.00'W"
@@ -186,51 +186,51 @@ class TestRealWorldCoordinates:
         # Example: Fram Strait moorings
         lat, lon = 78.8333, 0.0
 
-        dmm = format_dmm_comment(lat, lon)
-        assert dmm == "78 50.00'N, 000 00.00'E"
+        ddm = format_ddm_comment(lat, lon)
+        assert ddm == "78 50.00'N, 000 00.00'E"
 
     def test_southern_ocean_station(self):
         """Test Southern Ocean coordinates."""
         # Example: Drake Passage
         lat, lon = -60.5, -65.0
 
-        dmm = format_dmm_comment(lat, lon)
-        assert dmm == "60 30.00'S, 065 00.00'W"
+        ddm = format_ddm_comment(lat, lon)
+        assert ddm == "60 30.00'S, 065 00.00'W"
 
 
 class TestParseDmmFormat:
     """Test parsing of DMM coordinate strings."""
 
-    def test_parse_dmm_standard_format(self):
+    def test_parse_ddm_standard_format(self):
         """Test parsing standard DMM format with degree symbols."""
-        result = parse_dmm_format("52° 49.99' N, 51° 32.81' W")
+        result = parse_ddm_format("52° 49.99' N, 51° 32.81' W")
         assert result[0] == pytest.approx(52.83316666666667, abs=0.0001)
         assert result[1] == pytest.approx(-51.54683333333333, abs=0.0001)
 
-    def test_parse_dmm_compact_format(self):
+    def test_parse_ddm_compact_format(self):
         """Test parsing compact DMM format without spaces."""
-        result = parse_dmm_format("52°49.99'N,51°32.81'W")
+        result = parse_ddm_format("52°49.99'N,51°32.81'W")
         assert result[0] == pytest.approx(52.83316666666667, abs=0.0001)
         assert result[1] == pytest.approx(-51.54683333333333, abs=0.0001)
 
-    def test_parse_dmm_european_comma(self):
+    def test_parse_ddm_european_comma(self):
         """Test parsing European format with comma as decimal separator."""
-        result = parse_dmm_format("56° 34,50' N, 52° 40,33' W")
+        result = parse_ddm_format("56° 34,50' N, 52° 40,33' W")
         assert result[0] == pytest.approx(56.575, abs=0.0001)
         assert result[1] == pytest.approx(-52.672166666667, abs=0.0001)
 
-    def test_parse_dmm_south_east_quadrant(self):
+    def test_parse_ddm_south_east_quadrant(self):
         """Test parsing coordinates in SE quadrant."""
-        result = parse_dmm_format("33° 51.41' S, 151° 12.92' E")
+        result = parse_ddm_format("33° 51.41' S, 151° 12.92' E")
         assert result[0] == pytest.approx(-33.8568333, abs=0.0001)
         assert result[1] == pytest.approx(151.215333, abs=0.0001)
 
-    def test_parse_dmm_different_quote_chars(self):
+    def test_parse_ddm_different_quote_chars(self):
         """Test parsing with different quote characters."""
         # Test with prime symbol
-        result1 = parse_dmm_format("52° 49.99′ N, 51° 32.81′ W")
+        result1 = parse_ddm_format("52° 49.99′ N, 51° 32.81′ W")
         # Test with regular single quote (which the parser expects)
-        result2 = parse_dmm_format("52° 49.99' N, 51° 32.81' W")
+        result2 = parse_ddm_format("52° 49.99' N, 51° 32.81' W")
 
         expected_lat = pytest.approx(52.83316666666667, abs=0.0001)
         expected_lon = pytest.approx(-51.54683333333333, abs=0.0001)
@@ -238,56 +238,56 @@ class TestParseDmmFormat:
         assert result1[0] == expected_lat and result1[1] == expected_lon
         assert result2[0] == expected_lat and result2[1] == expected_lon
 
-    def test_parse_dmm_zero_coordinates(self):
+    def test_parse_ddm_zero_coordinates(self):
         """Test parsing zero coordinates."""
-        result = parse_dmm_format("0° 00.00' N, 0° 00.00' E")
+        result = parse_ddm_format("0° 00.00' N, 0° 00.00' E")
         assert result[0] == pytest.approx(0.0, abs=0.0001)
         assert result[1] == pytest.approx(0.0, abs=0.0001)
 
-    def test_parse_dmm_invalid_format(self):
+    def test_parse_ddm_invalid_format(self):
         """Test that invalid format raises ValueError."""
-        with pytest.raises(ValueError, match="DMM format not recognized"):
-            parse_dmm_format("invalid coordinate string")
+        with pytest.raises(ValueError, match="DDM format not recognized"):
+            parse_ddm_format("invalid coordinate string")
 
-    def test_parse_dmm_missing_direction(self):
+    def test_parse_ddm_missing_direction(self):
         """Test that missing direction raises ValueError."""
-        with pytest.raises(ValueError, match="DMM format not recognized"):
-            parse_dmm_format("52° 49.99', 51° 32.81'")
+        with pytest.raises(ValueError, match="DDM format not recognized"):
+            parse_ddm_format("52° 49.99', 51° 32.81'")
 
-    def test_parse_dmm_roundtrip_consistency(self):
+    def test_parse_ddm_roundtrip_consistency(self):
         """Test that parsing and formatting are consistent."""
         # Original coordinates
         orig_lat, orig_lon = 65.7458, -24.4792
 
         # Format to DMM
-        dmm_str = format_dmm_comment(orig_lat, orig_lon)
+        ddm_str = format_ddm_comment(orig_lat, orig_lon)
         # Add degree symbols for parsing
-        dmm_str_with_degrees = (
-            dmm_str.replace(" ", "° ", 1)
+        ddm_str_with_degrees = (
+            ddm_str.replace(" ", "° ", 1)
             .replace("'N", "' N")
             .replace("'S", "' S")
             .replace("'E", "' E")
             .replace("'W", "' W")
         )
-        dmm_str_with_degrees = dmm_str_with_degrees.replace(", ", ", ").replace(
+        ddm_str_with_degrees = ddm_str_with_degrees.replace(", ", ", ").replace(
             ", ", "° ", 1
         )
-        dmm_str_with_degrees = dmm_str_with_degrees.replace("° °", "°")
+        ddm_str_with_degrees = ddm_str_with_degrees.replace("° °", "°")
 
         # Properly format for parsing (add degree symbol to longitude)
-        parts = dmm_str.split(", ")
+        parts = ddm_str.split(", ")
         lat_part = parts[0].replace(" ", "° ", 1)
         lon_part = parts[1].replace(" ", "° ", 1)
-        dmm_str_parseable = f"{lat_part}, {lon_part}"
+        ddm_str_parseable = f"{lat_part}, {lon_part}"
 
         # Parse back
-        parsed_lat, parsed_lon = parse_dmm_format(dmm_str_parseable)
+        parsed_lat, parsed_lon = parse_ddm_format(ddm_str_parseable)
 
         # Should be very close to original (within rounding precision)
         assert parsed_lat == pytest.approx(orig_lat, abs=0.001)
         assert parsed_lon == pytest.approx(orig_lon, abs=0.001)
 
-    def test_parse_dmm_various_spacing(self):
+    def test_parse_ddm_various_spacing(self):
         """Test parsing with various spacing patterns."""
         coords_list = [
             "52°49.99'N, 51°32.81'W",  # No spaces
@@ -299,7 +299,7 @@ class TestParseDmmFormat:
         expected_lon = pytest.approx(-51.54683333333333, abs=0.0001)
 
         for coords_str in coords_list:
-            result = parse_dmm_format(coords_str)
+            result = parse_ddm_format(coords_str)
             assert result[0] == expected_lat
             assert result[1] == expected_lon
 
@@ -307,7 +307,7 @@ class TestParseDmmFormat:
 class TestCoordinateParsingIntegration:
     """Test integration between parsing and formatting functions."""
 
-    def test_format_parse_roundtrip_dmm(self):
+    def test_format_parse_roundtrip_ddm(self):
         """Test that DMM formatting and parsing are inverse operations."""
         test_coords = [
             (65.7458, -24.4792),  # North Atlantic
@@ -319,16 +319,16 @@ class TestCoordinateParsingIntegration:
 
         for orig_lat, orig_lon in test_coords:
             # Format to DMM comment
-            dmm_comment = format_dmm_comment(orig_lat, orig_lon)
+            ddm_comment = format_ddm_comment(orig_lat, orig_lon)
 
             # Convert to parseable format (add degree symbols)
-            parts = dmm_comment.split(", ")
+            parts = ddm_comment.split(", ")
             lat_part = parts[0].replace(" ", "° ", 1)
             lon_part = parts[1].replace(" ", "° ", 1)
-            dmm_parseable = f"{lat_part}, {lon_part}"
+            ddm_parseable = f"{lat_part}, {lon_part}"
 
             # Parse back
-            parsed_lat, parsed_lon = parse_dmm_format(dmm_parseable)
+            parsed_lat, parsed_lon = parse_ddm_format(ddm_parseable)
 
             # Should match within reasonable precision (0.001 degrees ≈ 100m)
             assert parsed_lat == pytest.approx(orig_lat, abs=0.001)
@@ -347,12 +347,12 @@ class TestCoordinateParsingIntegration:
 
         for lat, lon in boundary_coords:
             # Test all formatting functions don't crash
-            dmm = format_dmm_comment(lat, lon)
+            ddm = format_ddm_comment(lat, lon)
             latex = format_position_latex(lat, lon)
             decimal = format_position_string(lat, lon, "decimal")
 
             # Basic validation that strings are properly formatted
-            assert "'" in dmm  # Contains minute symbol
+            assert "'" in ddm  # Contains minute symbol
             assert "$" in latex  # Contains LaTeX formatting
             assert "°" in decimal  # Contains degree symbol
 

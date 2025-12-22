@@ -15,7 +15,7 @@ from cruiseplan.utils.constants import (
     DEFAULT_TURNAROUND_TIME_MIN,
     DEFAULT_VESSEL_SPEED_KT,
 )
-from cruiseplan.utils.coordinates import format_dmm_comment
+from cruiseplan.utils.coordinates import format_ddm_comment
 from cruiseplan.utils.global_ports import resolve_port_reference
 
 logger = logging.getLogger(__name__)
@@ -356,7 +356,7 @@ class StationDefinition(FlexibleLocationModel):
     comment: Optional[str] = None
     equipment: Optional[str] = None
     position_string: Optional[str] = None
-    coordinates_dmm: Optional[str] = Field(
+    coordinates_ddm: Optional[str] = Field(
         None, description="Degrees decimal minutes coordinate string"
     )
 
@@ -1518,9 +1518,37 @@ class CruiseConfig(BaseModel):
     ports: Optional[List[PortDefinition]] = []
     legs: List[LegDefinition]
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
 
     # --- VALIDATORS ---
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_forbidden_cruise_level_fields(cls, data):
+        """Prevent confusing leg-level fields from being used at cruise level."""
+        if isinstance(data, dict):
+            forbidden_fields = {
+                "departure_port": "Use departure_port within individual leg definitions instead",
+                "arrival_port": "Use arrival_port within individual leg definitions instead",
+                "first_waypoint": "Waypoint fields belong in leg definitions",
+                "last_waypoint": "Waypoint fields belong in leg definitions",
+            }
+
+            found_forbidden = []
+            for field, message in forbidden_fields.items():
+                if field in data:
+                    found_forbidden.append(f"{field} ({message})")
+
+            if found_forbidden:
+                fields_list = ", ".join(found_forbidden)
+                raise ValueError(
+                    f"Global cruise-level fields no longer supported: {fields_list.split(' (')[0]}. "
+                    f"These fields must be defined within individual leg definitions to avoid "
+                    f"conflicts during section expansion and multi-leg processing. "
+                    f"Please move these fields into the 'legs' section of your configuration."
+                )
+
+        return data
 
     @field_validator("default_vessel_speed")
     def validate_speed(cls, v):
@@ -2491,7 +2519,7 @@ def enrich_configuration(
     expand_ports: bool = False,
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
-    coord_format: str = "dmm",
+    coord_format: str = "ddm",
     output_path: Optional[Path] = None,
 ) -> Dict[str, Any]:
     """
@@ -2515,7 +2543,7 @@ def enrich_configuration(
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "etopo2022").
     coord_format : str, optional
-        Coordinate format ("dmm" or "dms", default: "dmm").
+        Coordinate format ("ddm" or "dms", default: "ddm").
     output_path : Optional[Path], optional
         Path for output file (if None, modifies in place).
 
@@ -2632,16 +2660,16 @@ def enrich_configuration(
     # Note: Keep using original config_dict to preserve comments, don't overwrite with cruise.raw_data
     coord_changes_made = 0
 
-    def add_dmm_coordinates(data_dict, lat, lon, coord_field_name):
-        """Helper function to add DMM coordinates to a data dictionary."""
+    def add_ddm_coordinates(data_dict, lat, lon, coord_field_name):
+        """Helper function to add ddm coordinates to a data dictionary."""
         nonlocal coord_changes_made
-        if coord_format == "dmm":
+        if coord_format == "ddm":
             if coord_field_name not in data_dict or not data_dict.get(coord_field_name):
-                dmm_comment = format_dmm_comment(lat, lon)
+                ddm_comment = format_ddm_comment(lat, lon)
 
                 # For ruamel.yaml CommentedMap, insert coordinates right after the name field
                 if hasattr(data_dict, "insert"):
-                    # Strategy: Insert coordinates_dmm right after the 'name' field (which is required)
+                    # Strategy: Insert coordinates_ddm right after the 'name' field (which is required)
                     if "name" in data_dict:
                         name_pos = list(data_dict.keys()).index("name")
                         insert_pos = name_pos + 1
@@ -2652,13 +2680,13 @@ def enrich_configuration(
                     logger.debug(
                         f"Inserting {coord_field_name} at position {insert_pos} after 'name' field in {type(data_dict).__name__}"
                     )
-                    data_dict.insert(insert_pos, coord_field_name, dmm_comment)
+                    data_dict.insert(insert_pos, coord_field_name, ddm_comment)
                 else:
                     # Fallback for regular dict
-                    data_dict[coord_field_name] = dmm_comment
+                    data_dict[coord_field_name] = ddm_comment
 
                 coord_changes_made += 1
-                return dmm_comment
+                return ddm_comment
         elif coord_format == "dms":
             warnings.warn(
                 "DMS coordinate format is not yet supported. No coordinates were added.",
@@ -2703,15 +2731,15 @@ def enrich_configuration(
 
                 # Add coordinate fields if requested
                 if add_coords:
-                    dmm_result = add_dmm_coordinates(
+                    ddm_result = add_ddm_coordinates(
                         station_data,
                         station_obj.latitude,
                         station_obj.longitude,
-                        "coordinates_dmm",
+                        "coordinates_ddm",
                     )
-                    if dmm_result:
+                    if ddm_result:
                         logger.debug(
-                            f"Added DMM coordinates to station {station_name}: {dmm_result}"
+                            f"Added ddm coordinates to station {station_name}: {ddm_result}"
                         )
 
     # Process coordinate additions for departure and arrival ports
@@ -2722,15 +2750,15 @@ def enrich_configuration(
                 if hasattr(cruise.config, port_key):
                     port_obj = getattr(cruise.config, port_key)
                     if hasattr(port_obj, "position") and port_obj.position:
-                        dmm_result = add_dmm_coordinates(
+                        ddm_result = add_ddm_coordinates(
                             port_data,
                             port_obj.latitude,
                             port_obj.longitude,
-                            "coordinates_dmm",
+                            "coordinates_ddm",
                         )
-                        if dmm_result:
+                        if ddm_result:
                             logger.debug(
-                                f"Added DMM coordinates to {port_key}: {dmm_result}"
+                                f"Added ddm coordinates to {port_key}: {ddm_result}"
                             )
 
     # Expand global port references to ports catalog if requested
@@ -2800,42 +2828,42 @@ def enrich_configuration(
     if add_coords and "transits" in config_dict:
         for transit_data in config_dict["transits"]:
             if "route" in transit_data and transit_data["route"]:
-                # Add route_dmm field with list of position_dmm entries
-                if "route_dmm" not in transit_data:
-                    route_dmm_list = []
+                # Add route_ddm field with list of position_ddm entries
+                if "route_ddm" not in transit_data:
+                    route_ddm_list = []
                     for point in transit_data["route"]:
                         if "latitude" in point and "longitude" in point:
-                            dmm_comment = format_dmm_comment(
+                            ddm_comment = format_ddm_comment(
                                 point["latitude"], point["longitude"]
                             )
-                            route_dmm_list.append({"position_dmm": dmm_comment})
+                            route_ddm_list.append({"position_ddm": ddm_comment})
                             coord_changes_made += 1
 
-                    if route_dmm_list:
-                        transit_data["route_dmm"] = route_dmm_list
+                    if route_ddm_list:
+                        transit_data["route_ddm"] = route_ddm_list
                         logger.debug(
-                            f"Added DMM coordinates to transit {transit_data.get('name', 'unnamed')} route: {len(route_dmm_list)} points"
+                            f"Added ddm coordinates to transit {transit_data.get('name', 'unnamed')} route: {len(route_ddm_list)} points"
                         )
 
     # Process coordinate additions for area corners
     if add_coords and "areas" in config_dict:
         for area_data in config_dict["areas"]:
             if "corners" in area_data and area_data["corners"]:
-                # Add corners_dmm field with list of position_dmm entries
-                if "corners_dmm" not in area_data:
-                    corners_dmm_list = []
+                # Add corners_ddm field with list of position_ddm entries
+                if "corners_ddm" not in area_data:
+                    corners_ddm_list = []
                     for corner in area_data["corners"]:
                         if "latitude" in corner and "longitude" in corner:
-                            dmm_comment = format_dmm_comment(
+                            ddm_comment = format_ddm_comment(
                                 corner["latitude"], corner["longitude"]
                             )
-                            corners_dmm_list.append({"position_dmm": dmm_comment})
+                            corners_ddm_list.append({"position_ddm": ddm_comment})
                             coord_changes_made += 1
 
-                    if corners_dmm_list:
-                        area_data["corners_dmm"] = corners_dmm_list
+                    if corners_ddm_list:
+                        area_data["corners_ddm"] = corners_ddm_list
                         logger.debug(
-                            f"Added DMM coordinates to area {area_data.get('name', 'unnamed')} corners: {len(corners_dmm_list)} points"
+                            f"Added ddm coordinates to area {area_data.get('name', 'unnamed')} corners: {len(corners_ddm_list)} points"
                         )
     # Update the enrichment summary
     enrichment_summary["stations_with_coords_added"] = coord_changes_made
@@ -2860,7 +2888,7 @@ def enrich_configuration(
 
     # Save enriched configuration if output path is specified (always save for testing purposes)
     if output_path:
-        save_yaml_config(config_dict, output_path, backup=True)
+        save_yaml_config(config_dict, output_path, backup=False)
 
     return enrichment_summary
 

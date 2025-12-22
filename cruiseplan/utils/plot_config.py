@@ -198,7 +198,7 @@ PLOT_STYLES = {
         "marker": "o",  # circle
         "color": "#FF0000",  # red
         "edgecolor": "#800000",  # maroon
-        "size": 80,
+        "size": 60,
         "alpha": 0.8,
         "linewidth": 1,
         "label": "Stations",
@@ -207,7 +207,7 @@ PLOT_STYLES = {
         "marker": "o",  # circle
         "color": "#FF0000",  # red
         "edgecolor": "#800000",  # maroon
-        "size": 70,
+        "size": 20,
         "alpha": 0.8,
         "linewidth": 1.5,
         "label": "CTD Stations",

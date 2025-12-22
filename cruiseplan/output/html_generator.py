@@ -84,7 +84,9 @@ def _calculate_summary_statistics(timeline):
     within_area_transits = []
 
     # Categorize every activity in the timeline
-    for activity in timeline:
+    logger.info(f"🔍 HTML Generator: Processing {len(timeline)} timeline activities")
+    for i, activity in enumerate(timeline):
+        logger.debug(f"   Activity {i}: type={type(activity)}, content={activity}")
         activity_type = activity["activity"]
 
         if activity_type == "Station":
@@ -430,8 +432,8 @@ class HTMLGenerator:
 
         if stats["mooring_activities"]:
             for mooring in stats["mooring_activities"]:
-                lat_dmm = _convert_decimal_to_deg_min_html(mooring["lat"])
-                lon_dmm = _convert_decimal_to_deg_min_html(mooring["lon"])
+                lat_ddm = _convert_decimal_to_deg_min_html(mooring["lat"])
+                lon_ddm = _convert_decimal_to_deg_min_html(mooring["lon"])
                 comment = mooring.get("comment", "")
                 depth = mooring.get("depth", 0)
                 action = mooring.get("action", "N/A")
@@ -441,7 +443,7 @@ class HTMLGenerator:
             <td>{mooring['label']}</td>
             <td>{comment}</td>
             <td>{mooring['lat']:.6f}, {mooring['lon']:.6f}</td>
-            <td>{lat_dmm}, {lon_dmm}</td>
+            <td>{lat_ddm}, {lon_ddm}</td>
             <td class="number">{depth:.0f}</td>
             <td class="number">{mooring['duration_minutes']/60:.1f}</td>
             <td>{action}</td>
@@ -857,5 +859,8 @@ def generate_html_schedule(
     Path
         Path to generated HTML file
     """
+    logger.info(f"🌐 HTML Generator: Starting generation of {output_file}")
+    logger.info(f"   Timeline contains {len(timeline)} activities")
+
     generator = HTMLGenerator()
     return generator.generate_schedule_report(config, timeline, output_file)

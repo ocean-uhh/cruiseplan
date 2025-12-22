@@ -267,7 +267,7 @@ if __name__ == "__main__":
     )
     parser.add_argument("--bathymetry-source", default="etopo2022")
     parser.add_argument("--bathymetry-dir", type=Path, default=Path("data"))
-    parser.add_argument("--coord-format", default="dmm", choices=["dmm", "dms"])
+    parser.add_argument("--coord-format", default="ddm", choices=["ddm", "dms"])
 
     args = parser.parse_args()
     main(args)

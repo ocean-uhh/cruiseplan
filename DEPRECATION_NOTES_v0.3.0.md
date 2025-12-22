@@ -92,6 +92,21 @@ cruiseplan process -c cruise.yaml --coord-format dmm
 cruiseplan process -c cruise.yaml
 ```
 
+### 6. Bathymetry parameter consolidation in `cruiseplan map`
+- **Status**: Parameter names updated for consistency with other commands
+- **Deprecated Parameters**: `--bathymetry-source`, `--bathymetry-dir`, `--bathymetry-stride`, `--output-file`
+- **Replacement Parameters**: `--bathy-source`, `--bathy-dir`, `--bathy-stride`, `--output`
+- **Migration**: Shorter parameter names and base filename strategy
+
+**Example Migration:**
+```bash
+# Old (deprecated)
+cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 --bathymetry-dir data/bathy --bathymetry-stride 3 --output-file /path/to/cruise_map.png
+
+# New
+cruiseplan map -c cruise.yaml --bathy-source gebco2025 --bathy-dir data/bathy --bathy-stride 3 --output-dir /path/to --output cruise_map
+```
+
 ## Test Files to be Removed in v0.3.0
 
 ### ❌ Complete Removal Required
@@ -174,6 +189,21 @@ process_parser.add_argument(
     "--coord-format", dest="coord_format_legacy",  # ← Remove entirely
     choices=["dmm", "dms"],
     help="[DEPRECATED] Coordinate format fixed to DMM"
+)
+
+# Remove from map_parser (these will be legacy by v0.3.0):
+map_parser.add_argument(
+    "--bathymetry-source", dest="bathymetry_source_legacy",  # ← Remove entirely
+    choices=["etopo2022", "gebco2025"],
+    help="[DEPRECATED] Use --bathy-source instead"
+)
+map_parser.add_argument(
+    "--bathymetry-dir", type=Path, dest="bathymetry_dir_legacy",  # ← Remove entirely
+    help="[DEPRECATED] Use --bathy-dir instead"
+)
+map_parser.add_argument(
+    "--bathymetry-stride", type=int, dest="bathymetry_stride_legacy",  # ← Remove entirely
+    help="[DEPRECATED] Use --bathy-stride instead"
 )
 ```
 

@@ -55,7 +55,7 @@ class BathymetryManager:
         Longitude coordinate array.
     """
 
-    def __init__(self, source: str = "etopo2022", data_dir: str = "data"):
+    def __init__(self, source: str = "etopo2022", data_dir: str = "data/bathymetry"):
         """
         Initialize the bathymetry manager.
 
@@ -64,12 +64,11 @@ class BathymetryManager:
         source : str, optional
             Bathymetry data source (default: "etopo2022").
         data_dir : str, optional
-            Data directory relative to project root (default: "data").
+            Data directory. Can be absolute path or relative to current working directory (default: "data/bathymetry").
         """
         self.source = source
-        # Resolve path relative to this file's location to be safe
-        root = Path(__file__).parent.parent.parent
-        self.data_dir = root / data_dir / "bathymetry"
+        # Use the provided data_dir exactly as specified - no automatic modifications
+        self.data_dir = Path(data_dir).resolve()
 
         self._is_mock = True
         self._dataset = None
@@ -386,7 +385,7 @@ class BathymetryManager:
                     "  • Size: ~4GB download, ~7.5GB extracted\n"
                     "  • Time: May take 10-30 minutes depending on connection\n"
                     "  • Space: Requires ~12GB free disk space\n"
-                    "Continue? (y/n): "
+                    "Continue? (y/N): "
                 )
                 .lower()
                 .strip()
@@ -537,7 +536,7 @@ class BathymetryManager:
             self._dataset.close()
 
 
-def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
+def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etopo2022"):
     """
     Download bathymetry dataset with progress bar.
 
@@ -547,8 +546,8 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
     Parameters
     ----------
     target_dir : str, optional
-        Target directory relative to project root (default: "data").
-        The file will be saved in a "bathymetry" subdirectory.
+        Target directory for bathymetry files (default: "data/bathymetry").
+        Files will be saved directly in this directory.
     source : str, optional
         Bathymetry source to download (default: "etopo2022").
         Options: "etopo2022", "gebco2025".
@@ -561,8 +560,7 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
     """
     if source == "gebco2025":
         # Handle GEBCO 2025 download
-        root = Path(__file__).parent.parent.parent
-        output_dir = root / target_dir / "bathymetry"
+        output_dir = Path(target_dir).resolve()
         output_dir.mkdir(parents=True, exist_ok=True)
 
         gebco_path = output_dir / GEBCO_NC_FILENAME
@@ -579,7 +577,7 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
                 )
                 try:
                     response = (
-                        input("Delete incomplete file and redownload? (y/n): ")
+                        input("Delete incomplete file and redownload? (y/N): ")
                         .lower()
                         .strip()
                     )
@@ -604,8 +602,7 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
         return success
 
     # Handle ETOPO 2022 download (existing logic)
-    root = Path(__file__).parent.parent.parent
-    output_dir = root / target_dir / "bathymetry"
+    output_dir = Path(target_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
     local_path = output_dir / ETOPO_FILENAME
@@ -622,7 +619,7 @@ def download_bathymetry(target_dir: str = "data", source: str = "etopo2022"):
             )
             try:
                 response = (
-                    input("Delete incomplete file and redownload? (y/n): ")
+                    input("Delete incomplete file and redownload? (y/N): ")
                     .lower()
                     .strip()
                 )

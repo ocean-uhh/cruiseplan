@@ -113,9 +113,14 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
         if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
             port = cruise.config.departure_port
             if hasattr(port, "latitude"):
+                # Use display_name if available, otherwise fall back to name
+                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
+                port_label = (
+                    getattr(port, "display_name", port.name) or port.name
+                ).split(",")[0]
                 points.append(
                     {
-                        "name": port.name,
+                        "name": port_label,
                         "lat": port.latitude,
                         "lon": port.longitude,
                         "entity_type": "departure_port",
@@ -129,9 +134,14 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
         if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
             port = cruise.config.arrival_port
             if hasattr(port, "latitude"):
+                # Use display_name if available, otherwise fall back to name
+                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
+                port_label = (
+                    getattr(port, "display_name", port.name) or port.name
+                ).split(",")[0]
                 points.append(
                     {
-                        "name": port.name,
+                        "name": port_label,
                         "lat": port.latitude,
                         "lon": port.longitude,
                         "entity_type": "arrival_port",
@@ -576,9 +586,9 @@ def plot_bathymetry(
     bathy_max_lon: float,
     bathy_min_lat: float,
     bathy_max_lat: float,
-    bathymetry_source: str = "gebco2025",
-    stride: int = 5,
-    bathymetry_dir: str = "data",
+    bathy_source: str = "gebco2025",
+    bathy_stride: int = 5,
+    bathy_dir: str = "data",
 ) -> bool:
     """
     Plot bathymetry contours on a matplotlib axis.
@@ -591,9 +601,9 @@ def plot_bathymetry(
         Longitude bounds for bathymetry data
     bathy_min_lat, bathy_max_lat : float
         Latitude bounds for bathymetry data
-    bathymetry_source : str, optional
+    bathy_source : str, optional
         Bathymetry dataset to use (default "gebco2025")
-    stride : int, optional
+    bathy_stride : int, optional
         Downsampling factor for bathymetry (default 5)
 
     Returns
@@ -610,15 +620,13 @@ def plot_bathymetry(
         )
 
         # Initialize bathymetry
-        bathymetry = BathymetryManager(
-            source=bathymetry_source, data_dir=bathymetry_dir
-        )
+        bathymetry = BathymetryManager(source=bathy_source, data_dir=bathy_dir)
         bathy_data = bathymetry.get_grid_subset(
             lat_min=bathy_min_lat,
             lat_max=bathy_max_lat,
             lon_min=bathy_min_lon,
             lon_max=bathy_max_lon,
-            stride=stride,
+            stride=bathy_stride,
         )
 
         if bathy_data is None:
@@ -853,9 +861,9 @@ def generate_map(
     data_source,
     source_type: str = "cruise",
     output_file: Union[str, Path] = "cruise_map.png",
-    bathymetry_source: str = "gebco2025",
-    bathymetry_stride: int = 5,
-    bathymetry_dir: str = "data",
+    bathy_source: str = "gebco2025",
+    bathy_stride: int = 5,
+    bathy_dir: str = "data",
     show_plot: bool = False,
     figsize: Tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
@@ -874,9 +882,9 @@ def generate_map(
         "cruise" for Cruise object, "timeline" for timeline data (default: "cruise")
     output_file : str or Path, optional
         Path or string for the output PNG file. Default is "cruise_map.png".
-    bathymetry_source : str, optional
+    bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
-    bathymetry_stride : int, optional
+    bathy_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     show_plot : bool, optional
         Whether to display the plot inline (useful for notebooks). Default is False.
@@ -955,7 +963,7 @@ def generate_map(
 
     # Plot bathymetry and get contour object for colorbar
     cs_filled = plot_bathymetry(
-        ax, *bathy_limits, bathymetry_source, bathymetry_stride, bathymetry_dir
+        ax, *bathy_limits, bathy_source, bathy_stride, bathy_dir
     )
 
     # Plot cruise elements using new structured data (this applies the final aspect ratio)
@@ -1006,9 +1014,9 @@ def generate_map(
 def generate_map_from_yaml(
     cruise,
     output_file: Union[str, Path] = "cruise_map.png",
-    bathymetry_source: str = "gebco2025",
-    bathymetry_stride: int = 5,
-    bathymetry_dir: str = "data",
+    bathy_source: str = "gebco2025",
+    bathy_stride: int = 5,
+    bathy_dir: str = "data",
     show_plot: bool = False,
     figsize: Tuple[float, float] = (10, 8),
     include_ports: bool = True,
@@ -1024,9 +1032,9 @@ def generate_map_from_yaml(
         Cruise object with station registry and configuration
     output_file : str or Path, optional
         Path or string for the output PNG file. Default is "cruise_map.png".
-    bathymetry_source : str, optional
+    bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
-    bathymetry_stride : int, optional
+    bathy_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     show_plot : bool, optional
         Whether to display the plot inline (useful for notebooks). Default is False.
@@ -1044,9 +1052,9 @@ def generate_map_from_yaml(
         data_source=cruise,
         source_type="cruise",
         output_file=output_file,
-        bathymetry_source=bathymetry_source,
-        bathymetry_stride=bathymetry_stride,
-        bathymetry_dir=bathymetry_dir,
+        bathy_source=bathy_source,
+        bathy_stride=bathy_stride,
+        bathy_dir=bathy_dir,
         show_plot=show_plot,
         figsize=figsize,
         include_ports=include_ports,
@@ -1056,8 +1064,9 @@ def generate_map_from_yaml(
 def generate_map_from_timeline(
     timeline,
     output_file: Union[str, Path] = "timeline_map.png",
-    bathymetry_source: str = "gebco2025",
-    bathymetry_stride: int = 5,
+    bathy_source: str = "gebco2025",
+    bathy_dir: str = "data",
+    bathy_stride: int = 5,
     figsize: Tuple[float, float] = (10, 8),
     config=None,
 ) -> Optional[Path]:
@@ -1073,9 +1082,11 @@ def generate_map_from_timeline(
         Timeline data from scheduler with activities and coordinates
     output_file : str or Path, optional
         Path or string for the output PNG file. Default is "timeline_map.png".
-    bathymetry_source : str, optional
+    bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
-    bathymetry_stride : int, optional
+    bathy_dir : str, optional
+        Directory containing bathymetry data. Default is "data".
+    bathy_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     figsize : tuple of float, optional
         Figure size as (width, height) in inches. Default is (10, 8).
@@ -1094,8 +1105,9 @@ def generate_map_from_timeline(
         data_source=timeline_data,
         source_type="timeline",
         output_file=output_file,
-        bathymetry_source=bathymetry_source,
-        bathymetry_stride=bathymetry_stride,
+        bathy_source=bathy_source,
+        bathy_dir=bathy_dir,
+        bathy_stride=bathy_stride,
         show_plot=False,
         figsize=figsize,
     )

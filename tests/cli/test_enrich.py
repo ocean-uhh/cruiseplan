@@ -67,7 +67,7 @@ class TestEnrichCommand:
             output_dir=None,
             bathymetry_source="etopo2022",
             bathymetry_dir=Path("data"),
-            coord_format="dmm",
+            coord_format="ddm",
             verbose=False,
             quiet=False,
         )
@@ -89,7 +89,7 @@ class TestEnrichCommand:
             output_dir=None,
             bathymetry_source="etopo2022",
             bathymetry_dir=Path("data"),
-            coord_format="dmm",
+            coord_format="ddm",
             verbose=False,
             quiet=False,
         )
@@ -127,7 +127,7 @@ legs: []
             output_dir=None,
             bathymetry_source="etopo2022",
             bathymetry_dir=Path("data"),
-            coord_format="dmm",
+            coord_format="ddm",
             verbose=False,
             quiet=False,
         )
@@ -152,7 +152,7 @@ legs: []
             output_dir=None,
             bathymetry_source="etopo2022",
             bathymetry_dir=Path("data"),
-            coord_format="dmm",
+            coord_format="ddm",
             verbose=False,
             quiet=False,
         )

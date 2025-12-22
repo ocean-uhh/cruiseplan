@@ -1,0 +1,58 @@
+\documentclass[11pt, oneside]{article}
+\usepackage{booktabs}
+
+\begin{document}
+
+% Stations Table
+\BLOCK{if stations_pages}
+\BLOCK{for page in stations_pages}
+\begin{table}[htbp]
+\caption{Working area, stations and profiles: \VAR{cruise_name}\VAR{page.caption_suffix}}
+\centering
+\begin{tabular}{llcc}
+\toprule
+\textbf{Operation} & \textbf{Station} & \textbf{Position} & \textbf{Depth (m)} \\
+\midrule
+\BLOCK{for row in page.rows}
+\VAR{row.operation} & \VAR{row.station} & \VAR{row.position} & \VAR{row.depth_m} \\
+\BLOCK{endfor}
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endfor}
+\BLOCK{else}
+\begin{table}[htbp]
+\caption{Working area, stations and profiles: \VAR{cruise_name}}
+\centering
+\begin{tabular}{llrl}
+\toprule
+\textbf{Operation} & \textbf{Station} & \textbf{Position} & \textbf{Water depth (m)} \\
+\midrule
+\textit{No stations defined} & & & \\
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endif}
+
+\vspace{1em}
+
+% Work Days Table  
+\BLOCK{for page in work_days_pages}
+\begin{table}[htbp]
+\caption{Work days at sea: \VAR{cruise_name}\VAR{page.caption_suffix}}
+\centering
+\begin{tabular}{llrr}
+\toprule
+\textbf{Area} & \textbf{Activity} & \textbf{Duration (h)} & \textbf{Transit (h)} \\
+\midrule
+\BLOCK{for row in page.rows}
+\VAR{row.area} & \VAR{row.activity} & \VAR{row.duration_h} & \VAR{row.transit_h} \\
+\BLOCK{endfor}
+\midrule
+\textbf{Total duration} & & \textbf{\VAR{total_duration_h}} & \textbf{\VAR{total_transit_h}} \\
+\bottomrule
+\end{tabular}
+\end{table}
+\BLOCK{endfor}
+
+\end{document}

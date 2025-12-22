@@ -162,7 +162,7 @@ def create_enrich_args(
     # Bathymetry options
     enrich_args.bathymetry_source = args.bathy_source
     enrich_args.bathymetry_dir = args.bathy_dir
-    enrich_args.coord_format = "dmm"  # Fixed format
+    enrich_args.coord_format = "ddm"  # Fixed format
 
     # General options
     enrich_args.verbose = getattr(args, "verbose", False)
@@ -296,7 +296,7 @@ def main(args: argparse.Namespace) -> None:
 
         if hasattr(args, "coord_format_legacy") and args.coord_format_legacy:
             logger.warning(
-                "⚠️  WARNING: '--coord-format' is deprecated. Coordinate format is now fixed to DMM."
+                "⚠️  WARNING: '--coord-format' is deprecated. Coordinate format is now fixed to DDM."
             )
 
         # Validate input file
@@ -557,8 +557,8 @@ if __name__ == "__main__":
     parser.add_argument(
         "--coord-format",
         dest="coord_format_legacy",
-        choices=["dmm", "dms"],
-        help="[DEPRECATED] Coordinate format fixed to DMM",
+        choices=["ddm", "dms"],
+        help="[DEPRECATED] Coordinate format fixed to DDM",
     )
 
     # General options
