@@ -17,7 +17,7 @@ CruisePlan uses YAML configuration files to define oceanographic cruises. The co
 
 1. **:ref:`Cruise-wide metadata and settings <cruise-wide-metadata>`**: Cruise-level fields defining defaults and settings
 2. **Global Catalog**: Definitions of stations, transits, areas, and sections (reusable components)
-3. **Schedule Organization**: Legs and clusters that organize catalog items into execution order
+3. **Schedule Organization**: Legs and clusters that organize catalog items into execution order (see :ref:`simplified-leg-creation` for default leg behavior)
 
 .. tip::
   **Comments in YAML are preserved**: CruisePlan uses ``ruamel.yaml`` which maintains comments when reading and writing files. You can rely on comments remaining in your YAML through the `cruiseplan enrich` command.
@@ -70,6 +70,59 @@ Formats and data conventions
 
 
 See also :doc:`units_and_defaults` for detailed conventions on units and default values used throughout CruisePlan.
+
+.. _simplified-leg-creation:
+
+Simplified Leg Creation
+-----------------------
+
+For simple single-leg cruises, you can omit the ``legs`` section entirely. When **departure_port** and **arrival_port** are specified at the cruise level along with activities (stations, transits, areas), CruisePlan automatically creates a default leg.
+
+**Automatic Default Leg Creation**:
+
+.. code-block:: yaml
+
+   # Simple configuration - no legs required!
+   cruise_name: "Simple Survey 2025"
+   departure_port: "port_reykjavik"    # Allowed when no explicit legs
+   arrival_port: "port_reykjavik"      # Allowed when no explicit legs
+   default_vessel_speed: 8.0
+   
+   stations:
+     - name: "STN_001"
+       latitude: 64.0
+       longitude: -22.0
+       operation_type: "CTD"
+       action: "profile"
+   
+   # CruisePlan automatically creates:
+   # legs:
+   #   - name: "Simple Survey 2025_DefaultLeg"
+   #     departure_port: "port_reykjavik"
+   #     arrival_port: "port_reykjavik"
+   #     activities: ["STN_001"]
+
+**Port Restrictions**:
+
+- **Cruise-level ports ALLOWED**: When no ``legs`` section is defined (enables automatic default leg creation)
+- **Cruise-level ports FORBIDDEN**: When explicit ``legs`` are defined (prevents configuration conflicts)
+
+.. code-block:: yaml
+
+   # ✅ VALID: Ports allowed for automatic leg creation
+   cruise_name: "Auto Leg Example"
+   departure_port: "port_halifax"      # OK - no explicit legs
+   arrival_port: "port_st_johns"       # OK - no explicit legs
+   stations: [...]
+
+   # ❌ INVALID: Ports forbidden with explicit legs
+   cruise_name: "Manual Leg Example"
+   departure_port: "port_halifax"      # ERROR - explicit legs defined
+   arrival_port: "port_st_johns"       # ERROR - explicit legs defined
+   legs:
+     - name: "Custom_Leg"
+       departure_port: "port_halifax"  # Use ports here instead
+       arrival_port: "port_st_johns"
 
 .. _cruise-wide-metadata:
 
@@ -1114,7 +1167,7 @@ The interaction between ``strategy`` and ``ordered`` determines execution order:
 Deprecated Fields
 ~~~~~~~~~~~~~~~~~
 
-The following fields are **deprecated** and will be removed in future versions:
+The following fields are **deprecated** and will be removed in future versions (v0.3.0). CruisePlan will issue **deprecation warnings** when these fields are used, but they remain functional for backward compatibility.
 
 .. list-table:: Deprecated Leg/Cluster Fields
    :widths: 25 75
@@ -1130,6 +1183,9 @@ The following fields are **deprecated** and will be removed in future versions:
      - Expand sections to individual stations first with ``cruiseplan enrich --expand-sections``
    * - ``generate_transect``
      - Create explicit stations in catalog and reference via ``activities``
+
+.. note::
+   **Deprecation Timeline**: These fields will be **removed in v0.3.0**. Update your configurations to use the ``activities`` field to avoid future compatibility issues.
 
 **Migration Example**:
 

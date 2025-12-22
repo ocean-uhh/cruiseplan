@@ -1,7 +1,9 @@
 """Tests for cruiseplan.core.leg module - Maritime Leg architecture."""
 
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
+
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
 from cruiseplan.core.validation import StrategyEnum
@@ -218,7 +220,7 @@ class TestLegOperationsManagement:
         cluster_op1.name = "Cluster_Op1"
         cluster_op2 = MagicMock()
         cluster_op2.name = "Cluster_Op2"
-        
+
         cluster.add_operation(cluster_op1)
         cluster.add_operation(cluster_op2)
         leg.add_cluster(cluster)
@@ -478,7 +480,7 @@ class TestLegOperationalWaypoints:
         # So we test the basic structure
         entry_point = leg.get_operational_entry_point(mock_resolver)
         exit_point = leg.get_operational_exit_point(mock_resolver)
-        
+
         # These should return None since _resolve_station_details is from scheduler
         assert entry_point is None
         assert exit_point is None
@@ -512,10 +514,10 @@ class TestLegDurationCalculations:
 
         # Test the calculation
         duration = leg._calculate_port_to_port_transit(rules)
-        
+
         # Verify calls
         mock_distance.assert_called_once()
-        
+
         # 100 km * 0.539957 nm/km = 53.9957 nm
         # 53.9957 nm / 10 knots = 5.39957 hours = 323.97 minutes
         expected_duration = pytest.approx(323.97, abs=1.0)
@@ -566,7 +568,7 @@ class TestLegDurationCalculations:
         mock_op1.calculate_duration.return_value = 60.0
         mock_op2 = MagicMock()
         mock_op2.calculate_duration.return_value = 90.0
-        
+
         leg.add_operation(mock_op1)
         leg.add_operation(mock_op2)
 
@@ -579,15 +581,15 @@ class TestLegDurationCalculations:
 
         # Calculate total duration
         total_duration = leg.calculate_total_duration(rules)
-        
+
         # Should include transit time + operation durations
         assert total_duration > 150.0  # At least the operation durations
-        
+
         # Verify operation durations were calculated
         mock_op1.calculate_duration.assert_called_once_with(rules)
         mock_op2.calculate_duration.assert_called_once_with(rules)
 
-    @patch("cruiseplan.calculators.distance.haversine_distance") 
+    @patch("cruiseplan.calculators.distance.haversine_distance")
     def test_calculate_total_duration_empty_leg(self, mock_distance):
         """Test calculate_total_duration for leg with no operations."""
         # Setup mocks
@@ -597,7 +599,7 @@ class TestLegDurationCalculations:
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
 
         leg = Leg(
-            name="Empty_Leg", 
+            name="Empty_Leg",
             departure_port=departure_port,
             arrival_port=arrival_port,
         )
@@ -631,8 +633,10 @@ class TestLegDurationCalculations:
         # Add cluster with operations
         cluster = Cluster(name="TestCluster")
         mock_cluster_duration = 120.0
-        
-        with patch.object(cluster, 'calculate_total_duration', return_value=mock_cluster_duration):
+
+        with patch.object(
+            cluster, "calculate_total_duration", return_value=mock_cluster_duration
+        ):
             leg.add_cluster(cluster)
 
             class MockRules:
@@ -644,7 +648,7 @@ class TestLegDurationCalculations:
 
             # Calculate total duration
             total_duration = leg.calculate_total_duration(rules)
-            
+
             # Should include transit time + cluster duration
             assert total_duration > mock_cluster_duration
 
@@ -658,9 +662,7 @@ class TestLegFactoryMethod:
 
         # Create mock definition using actual global ports
         leg_def = LegDefinition(
-            name="Test_Leg",
-            departure_port="port_halifax",
-            arrival_port="port_st_johns"
+            name="Test_Leg", departure_port="port_halifax", arrival_port="port_st_johns"
         )
 
         # Create leg from definition
@@ -678,9 +680,9 @@ class TestLegFactoryMethod:
         leg_def = LegDefinition(
             name="Test_Leg",
             departure_port="port_halifax",
-            arrival_port="port_st_johns", 
+            arrival_port="port_st_johns",
             first_waypoint="start_wp",
-            last_waypoint="end_wp"
+            last_waypoint="end_wp",
         )
 
         leg = Leg.from_definition(leg_def)
@@ -699,7 +701,7 @@ class TestLegFactoryMethod:
             arrival_port="port_st_johns",
             vessel_speed=15.0,
             turnaround_time=45.0,
-            distance_between_stations=20.0
+            distance_between_stations=20.0,
         )
 
         leg = Leg.from_definition(leg_def)

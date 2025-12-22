@@ -1516,7 +1516,7 @@ class CruiseConfig(BaseModel):
     transits: Optional[List[TransitDefinition]] = []
     areas: Optional[List[AreaDefinition]] = []
     ports: Optional[List[PortDefinition]] = []
-    legs: List[LegDefinition]
+    legs: Optional[List[LegDefinition]] = []
 
     model_config = ConfigDict(extra="allow")
 
@@ -1527,12 +1527,28 @@ class CruiseConfig(BaseModel):
     def check_forbidden_cruise_level_fields(cls, data):
         """Prevent confusing leg-level fields from being used at cruise level."""
         if isinstance(data, dict):
+            # Check if legs are defined
+            has_legs = (
+                "legs" in data
+                and data["legs"] is not None
+                and isinstance(data["legs"], list)
+                and len(data["legs"]) > 0
+            )
+
             forbidden_fields = {
-                "departure_port": "Use departure_port within individual leg definitions instead",
-                "arrival_port": "Use arrival_port within individual leg definitions instead",
                 "first_waypoint": "Waypoint fields belong in leg definitions",
                 "last_waypoint": "Waypoint fields belong in leg definitions",
             }
+
+            # Forbid departure/arrival ports when explicit legs are defined
+            # (When no legs exist, ports are allowed for default leg auto-creation)
+            if has_legs:
+                forbidden_fields.update(
+                    {
+                        "departure_port": "Use departure_port within individual leg definitions instead",
+                        "arrival_port": "Use arrival_port within individual leg definitions instead",
+                    }
+                )
 
             found_forbidden = []
             for field, message in forbidden_fields.items():
@@ -1540,13 +1556,16 @@ class CruiseConfig(BaseModel):
                     found_forbidden.append(f"{field} ({message})")
 
             if found_forbidden:
-                fields_list = ", ".join(found_forbidden)
-                raise ValueError(
-                    f"Global cruise-level fields no longer supported: {fields_list.split(' (')[0]}. "
+                # Extract just field names (before the parentheses) from the error list
+                field_names = [item.split(" (")[0] for item in found_forbidden]
+                fields_str = ", ".join(field_names)
+                error_msg = (
+                    f"Global cruise-level fields no longer supported when legs are defined: {fields_str}. "
                     f"These fields must be defined within individual leg definitions to avoid "
                     f"conflicts during section expansion and multi-leg processing. "
                     f"Please move these fields into the 'legs' section of your configuration."
                 )
+                raise ValueError(error_msg)
 
         return data
 
@@ -1772,43 +1791,6 @@ class CruiseConfig(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def validate_no_global_leg_fields(self):
-        """
-        Validate that departure_port and arrival_port are not defined at cruise level.
-
-        These fields must now be defined only at the leg level to avoid conflicts
-        during section expansion and multi-leg cruise processing.
-
-        Returns
-        -------
-        CruiseConfig
-            Self for chaining.
-
-        Raises
-        ------
-        ValueError
-            If departure_port or arrival_port are defined at the cruise level.
-        """
-        global_fields_errors = []
-
-        if self.departure_port is not None:
-            global_fields_errors.append("departure_port")
-
-        if self.arrival_port is not None:
-            global_fields_errors.append("arrival_port")
-
-        if global_fields_errors:
-            fields_str = ", ".join(global_fields_errors)
-            raise ValueError(
-                f"Global cruise-level fields no longer supported: {fields_str}. "
-                f"These fields must be defined within individual leg definitions to "
-                f"avoid conflicts during section expansion and multi-leg processing. "
-                f"Please move these fields into the 'legs' section of your configuration."
-            )
-
-        return self
-
-    @model_validator(mode="after")
     def check_longitude_consistency(self):
         """
         Ensure the entire cruise uses consistent longitude coordinate systems.
@@ -1917,7 +1899,19 @@ class CruiseConfig(BaseModel):
             If cruise-level and leg-level definitions conflict.
         """
         if not self.legs:
-            raise ValueError("At least one leg must be defined")
+            # Try to create a default leg if we have the necessary information
+            if self._can_create_default_leg():
+                self._create_default_leg()
+                # Set flag for YAML export - don't include auto-created legs
+                self._default_leg_created = True
+            else:
+                raise ValueError(
+                    "At least one leg must be defined. For automatic leg creation, provide "
+                    "departure_port and arrival_port at the cruise level."
+                )
+        else:
+            # Explicit legs provided
+            self._default_leg_created = False
 
         is_single_leg = len(self.legs) == 1
         first_leg = self.legs[0]
@@ -1971,6 +1965,74 @@ class CruiseConfig(BaseModel):
                 raise ValueError(f"Leg {i+1} ('{leg.name}') must define arrival_port")
 
         return self
+
+    def _can_create_default_leg(self) -> bool:
+        """
+        Check if we have sufficient information to create a default leg.
+
+        Returns
+        -------
+        bool
+            True if we can create a default leg, False otherwise.
+        """
+        # We need departure and arrival ports to create a leg
+        has_departure = self.departure_port is not None
+        has_arrival = self.arrival_port is not None
+
+        # We also need at least some activities to put in the leg
+        has_activities = bool(
+            (self.stations and len(self.stations) > 0)
+            or (self.transits and len(self.transits) > 0)
+            or (self.areas and len(self.areas) > 0)
+        )
+
+        return has_departure and has_arrival and has_activities
+
+    def _create_default_leg(self) -> None:
+        """
+        Create a default leg from cruise-level information.
+
+        Creates a single leg containing all cruise activities with the cruise
+        name as the leg name and the cruise's departure/arrival ports.
+        """
+        # Collect all activity names from the cruise
+        activities = []
+
+        # Add all stations
+        if self.stations:
+            activities.extend([station.name for station in self.stations])
+
+        # Add all transits
+        if self.transits:
+            activities.extend([transit.name for transit in self.transits])
+
+        # Add all areas
+        if self.areas:
+            activities.extend([area.name for area in self.areas])
+
+        # Create the default leg
+        default_leg_name = f"{self.cruise_name}_DefaultLeg"
+
+        # Create LegDefinition directly (we're already in the same module)
+        default_leg = LegDefinition(
+            name=default_leg_name,
+            description=f"Auto-generated default leg for {self.cruise_name}",
+            departure_port=self.departure_port,
+            arrival_port=self.arrival_port,
+            activities=activities,
+            # Inherit cruise-level parameters
+            vessel_speed=self.default_vessel_speed,
+            turnaround_time=self.turnaround_time,
+        )
+
+        # Set the legs list with our default leg
+        self.legs = [default_leg]
+
+        # Log the creation for user awareness
+        logger.info(
+            f"Auto-created default leg '{default_leg_name}' with {len(activities)} activities: "
+            f"{self.departure_port} → {self.arrival_port}"
+        )
 
 
 # ===== Configuration Enrichment and Validation Functions =====

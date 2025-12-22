@@ -4,16 +4,19 @@ Tests the smaller, focused functions in the scheduler module that can be
 tested in isolation without complex integration setups.
 """
 
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
 
 from cruiseplan.calculators.scheduler import (
     _calculate_inter_operation_transit,
-    get_operation_entry_exit_points,
-    _resolve_station_details,
     _extract_activities_from_leg,
+    _resolve_station_details,
+    get_operation_entry_exit_points,
 )
-from cruiseplan.core.validation import CruiseConfig, StationDefinition, OperationTypeEnum
+from cruiseplan.core.validation import (
+    CruiseConfig,
+)
 
 
 class TestCalculateInterOperationTransit:
@@ -327,13 +330,21 @@ class TestResolveStationDetails:
         mock_station = MagicMock()
         mock_station.name = "BAD_STATION"
         # Make hasattr checks fail for latitude and position
-        mock_station.configure_mock(**{"latitude": MagicMock(side_effect=AttributeError), "position": MagicMock(side_effect=AttributeError)})
+        mock_station.configure_mock(
+            **{
+                "latitude": MagicMock(side_effect=AttributeError),
+                "position": MagicMock(side_effect=AttributeError),
+            }
+        )
         mock_config.stations = [mock_station]
         mock_config.areas = []
         mock_config.transits = []
 
         # Mock hasattr to return False for both latitude and position
-        with patch('builtins.hasattr', side_effect=lambda obj, attr: attr not in ['latitude', 'position']):
+        with patch(
+            "builtins.hasattr",
+            side_effect=lambda obj, attr: attr not in ["latitude", "position"],
+        ):
             result = _resolve_station_details(mock_config, "BAD_STATION")
 
         assert result is None
@@ -373,7 +384,7 @@ class TestResolveStationDetails:
         """Test handling of missing optional attributes."""
         # Create mock config with minimal station
         mock_config = MagicMock(spec=CruiseConfig)
-        
+
         # Create a more controlled mock with spec_set to prevent auto-creation
         class MinimalStation:
             def __init__(self):
@@ -387,7 +398,7 @@ class TestResolveStationDetails:
                 self.operation_depth = None
                 self.duration = None
                 # delay_start and delay_end are intentionally NOT set
-        
+
         mock_station = MinimalStation()
         mock_config.stations = [mock_station]
         mock_config.areas = []
@@ -410,7 +421,7 @@ class TestResolveStationDetails:
     def test_operation_type_mapping(self):
         """Test operation type mapping to legacy op_type."""
         mock_config = MagicMock(spec=CruiseConfig)
-        
+
         # Test different operation types
         test_cases = [
             ("CTD", "station"),
@@ -419,7 +430,7 @@ class TestResolveStationDetails:
             ("mooring", "mooring"),
             ("survey", "area"),
         ]
-        
+
         for operation_type, expected_op_type in test_cases:
             mock_station = MagicMock()
             mock_station.name = f"TEST_{operation_type}"
@@ -429,72 +440,154 @@ class TestResolveStationDetails:
             mock_config.stations = [mock_station]
 
             result = _resolve_station_details(mock_config, f"TEST_{operation_type}")
-            
+
             assert result["op_type"] == expected_op_type, f"Failed for {operation_type}"
 
 
 class TestExtractActivitiesFromLeg:
     """Test the _extract_activities_from_leg function."""
 
-    def test_leg_with_direct_sequence(self):
-        """Test extracting activities from leg with direct sequence."""
+    def test_leg_with_direct_activities(self):
+        """Test extracting activities from leg with direct activities (Priority 1)."""
         mock_leg = MagicMock()
-        mock_leg.sequence = ["STN_001", "STN_002", "MOORING_A"]
+        mock_leg.activities = [
+            "STN_001",
+            "TRANSIT_001",
+            "STN_002",
+        ]  # Priority 1 (preferred)
+        mock_leg.clusters = ["CLUSTER_001"]  # Should be ignored
+        mock_leg.sequence = ["SEQ_001"]  # Should be ignored
+        mock_leg.stations = ["STATION_001"]  # Should be ignored
+
+        result = _extract_activities_from_leg(mock_leg)
+
+        # Should only use activities, ignore all other fields
+        assert result == ["STN_001", "TRANSIT_001", "STN_002"]
+
+    def test_leg_with_activities_as_objects(self):
+        """Test extracting activities from leg with activity objects having names."""
+        mock_leg = MagicMock()
+
+        # Create mock activity objects with name attributes
+        mock_activity1 = MagicMock()
+        mock_activity1.name = "ACT_001"
+        mock_activity2 = {"name": "ACT_002"}  # Dict format
+
+        mock_leg.activities = [
+            mock_activity1,
+            mock_activity2,
+            "ACT_003",
+        ]  # Mixed formats
         mock_leg.clusters = None
+        mock_leg.sequence = None
         mock_leg.stations = None
 
         result = _extract_activities_from_leg(mock_leg)
 
+        assert result == ["ACT_001", "ACT_002", "ACT_003"]
+
+    def test_leg_with_empty_activities(self):
+        """Test that empty activities list falls back to lower priorities."""
+        mock_leg = MagicMock()
+        mock_leg.activities = []  # Empty activities list
+
+        # Create cluster that should be used (Priority 2)
+        mock_cluster = MagicMock()
+        mock_cluster.name = "TestCluster"
+        mock_cluster.activities = ["CLUSTER_ACT_001"]
+        mock_cluster.sequence = None
+        mock_cluster.stations = None
+        mock_leg.clusters = [mock_cluster]
+
+        mock_leg.sequence = None
+        mock_leg.stations = None
+
+        result = _extract_activities_from_leg(mock_leg)
+
+        # Should fall back to cluster activities
+        assert result == ["CLUSTER_ACT_001"]
+
+    def test_leg_with_direct_sequence(self):
+        """Test extracting activities from leg with direct sequence (deprecated priority)."""
+        mock_leg = MagicMock()
+        mock_leg.name = "TestLeg"  # Add name for deprecation warning
+        mock_leg.activities = None  # No activities (Priority 1)
+        mock_leg.clusters = None  # No clusters (Priority 2)
+        mock_leg.sequence = [
+            "STN_001",
+            "STN_002",
+            "MOORING_A",
+        ]  # Priority 3 (deprecated)
+        mock_leg.stations = None
+
+        with pytest.warns(DeprecationWarning, match="uses deprecated 'sequence' field"):
+            result = _extract_activities_from_leg(mock_leg)
+
         assert result == ["STN_001", "STN_002", "MOORING_A"]
 
     def test_leg_with_object_sequence(self):
-        """Test extracting activities from sequence with objects having names."""
+        """Test extracting activities from sequence with objects having names (deprecated priority)."""
         mock_leg = MagicMock()
-        
+        mock_leg.name = "TestLeg"  # Add name for deprecation warning
+
         # Create mock objects with name attributes
         mock_obj1 = MagicMock()
         mock_obj1.name = "OBJ_001"
         mock_obj2 = MagicMock()
         mock_obj2.name = "OBJ_002"
-        
-        mock_leg.sequence = [mock_obj1, mock_obj2]
-        mock_leg.clusters = None
+
+        mock_leg.activities = None  # No activities (Priority 1)
+        mock_leg.clusters = None  # No clusters (Priority 2)
+        mock_leg.sequence = [mock_obj1, mock_obj2]  # Priority 3 (deprecated)
         mock_leg.stations = None
 
-        result = _extract_activities_from_leg(mock_leg)
+        with pytest.warns(DeprecationWarning, match="uses deprecated 'sequence' field"):
+            result = _extract_activities_from_leg(mock_leg)
 
         assert result == ["OBJ_001", "OBJ_002"]
 
     def test_leg_with_mixed_sequence(self):
-        """Test extracting activities from sequence with mixed strings and objects."""
+        """Test extracting activities from sequence with mixed strings and objects (deprecated priority)."""
         mock_leg = MagicMock()
-        
+        mock_leg.name = "TestLeg"  # Add name for deprecation warning
+
         mock_obj = MagicMock()
         mock_obj.name = "OBJ_001"
-        
-        mock_leg.sequence = ["STN_001", mock_obj, "STN_003"]
-        mock_leg.clusters = None
+
+        mock_leg.activities = None  # No activities (Priority 1)
+        mock_leg.clusters = None  # No clusters (Priority 2)
+        mock_leg.sequence = ["STN_001", mock_obj, "STN_003"]  # Priority 3 (deprecated)
         mock_leg.stations = None
 
-        result = _extract_activities_from_leg(mock_leg)
+        with pytest.warns(DeprecationWarning, match="uses deprecated 'sequence' field"):
+            result = _extract_activities_from_leg(mock_leg)
 
         assert result == ["STN_001", "OBJ_001", "STN_003"]
 
     def test_leg_with_cluster_sequences(self):
-        """Test extracting activities from clusters when no direct sequence."""
+        """Test extracting activities from clusters with deprecated sequence fields."""
         mock_leg = MagicMock()
-        mock_leg.sequence = None  # No direct sequence
-        
-        # Create clusters with sequences
+        mock_leg.activities = None  # No direct activities
+
+        # Create clusters with deprecated sequence fields
         mock_cluster1 = MagicMock()
-        mock_cluster1.sequence = ["STN_001", "STN_002"]
+        mock_cluster1.name = "Cluster1"  # Add names for deprecation warnings
+        mock_cluster1.activities = None  # No cluster activities
+        mock_cluster1.sequence = ["STN_001", "STN_002"]  # Deprecated
+        mock_cluster1.stations = None
+
         mock_cluster2 = MagicMock()
-        mock_cluster2.sequence = ["STN_003"]
-        
+        mock_cluster2.name = "Cluster2"
+        mock_cluster2.activities = None
+        mock_cluster2.sequence = ["STN_003"]  # Deprecated
+        mock_cluster2.stations = None
+
         mock_leg.clusters = [mock_cluster1, mock_cluster2]
+        mock_leg.sequence = None
         mock_leg.stations = None
 
-        result = _extract_activities_from_leg(mock_leg)
+        with pytest.warns(DeprecationWarning, match="uses deprecated 'sequence' field"):
+            result = _extract_activities_from_leg(mock_leg)
 
         assert result == ["STN_001", "STN_002", "STN_003"]
 
@@ -558,7 +651,7 @@ class TestExtractActivitiesFromLeg:
         """Test handling cluster with empty sequence."""
         mock_leg = MagicMock()
         mock_leg.sequence = None
-        
+
         mock_cluster = MagicMock()
         mock_cluster.sequence = []  # Empty cluster sequence
         mock_leg.clusters = [mock_cluster]
@@ -572,7 +665,7 @@ class TestExtractActivitiesFromLeg:
         """Test handling cluster without sequence attribute."""
         mock_leg = MagicMock()
         mock_leg.sequence = None
-        
+
         mock_cluster = MagicMock()
         # Remove sequence attribute
         del mock_cluster.sequence
@@ -583,18 +676,64 @@ class TestExtractActivitiesFromLeg:
 
         assert result == []
 
-    def test_priority_sequence_over_clusters(self):
-        """Test that direct sequence takes priority over clusters."""
+    def test_priority_clusters_over_sequence(self):
+        """Test that clusters take priority over direct sequence (new priority order)."""
         mock_leg = MagicMock()
-        mock_leg.sequence = ["SEQ_001"]  # Direct sequence should be used
-        
-        # Create cluster that would be ignored
+        mock_leg.activities = None  # No activities (Priority 1)
+
+        # Create cluster that should be used (Priority 2)
         mock_cluster = MagicMock()
-        mock_cluster.sequence = ["CLUSTER_001"]
+        mock_cluster.name = "TestCluster"  # Add name for potential warnings
+        mock_cluster.activities = ["CLUSTER_001"]  # Use new activities field
+        mock_cluster.sequence = None
+        mock_cluster.stations = None
         mock_leg.clusters = [mock_cluster]
+
+        mock_leg.sequence = ["SEQ_001"]  # Should be ignored due to lower priority
         mock_leg.stations = None
 
         result = _extract_activities_from_leg(mock_leg)
 
-        # Should only use direct sequence, ignore clusters
-        assert result == ["SEQ_001"]
+        # Should use cluster activities, ignore direct sequence
+        assert result == ["CLUSTER_001"]
+
+    def test_priority_activities_over_all(self):
+        """Test that leg.activities takes priority over all other fields."""
+        mock_leg = MagicMock()
+        mock_leg.activities = ["PRIORITY_1"]  # Should be used (Priority 1)
+
+        # Create cluster with activities (would be Priority 2)
+        mock_cluster = MagicMock()
+        mock_cluster.activities = ["CLUSTER_ACT"]
+        mock_cluster.sequence = ["CLUSTER_SEQ"]
+        mock_cluster.stations = ["CLUSTER_STN"]
+        mock_leg.clusters = [mock_cluster]
+
+        mock_leg.sequence = ["SEQ_001"]  # Priority 3
+        mock_leg.stations = ["STN_001"]  # Priority 4
+
+        result = _extract_activities_from_leg(mock_leg)
+
+        # Should only use leg.activities, ignore everything else
+        assert result == ["PRIORITY_1"]
+
+    def test_priority_cluster_activities_over_deprecated(self):
+        """Test that cluster.activities takes priority over cluster deprecated fields."""
+        mock_leg = MagicMock()
+        mock_leg.activities = None  # No leg activities
+
+        # Create cluster with mixed fields
+        mock_cluster = MagicMock()
+        mock_cluster.name = "TestCluster"
+        mock_cluster.activities = ["NEW_ACT"]  # Should be used (cluster priority 1)
+        mock_cluster.sequence = ["OLD_SEQ"]  # Should be ignored (cluster priority 2)
+        mock_cluster.stations = ["OLD_STN"]  # Should be ignored (cluster priority 3)
+        mock_leg.clusters = [mock_cluster]
+
+        mock_leg.sequence = None
+        mock_leg.stations = None
+
+        result = _extract_activities_from_leg(mock_leg)
+
+        # Should only use cluster.activities
+        assert result == ["NEW_ACT"]

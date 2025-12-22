@@ -21,7 +21,7 @@ try:
     from cruiseplan._version import __version__
 
     release = __version__
-    version = __version__.split(".")[0:2]  # Short version (e.g., "0.1")
+    version = __version__.split(".")[0:3]  # Short version (e.g., "0.1")
     version = ".".join(version)
     print(f"✓ Sphinx: Using version {version}, release {release}")
 except ImportError:

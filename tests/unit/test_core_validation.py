@@ -444,3 +444,167 @@ class TestValidationEdgeCases:
         # Should handle special characters in names
         result = _warning_relates_to_entity(warning_msg, station)
         assert isinstance(result, bool)
+
+
+class TestDefaultLegCreation:
+    """Test automatic default leg creation functionality."""
+
+    def test_default_leg_creation_success(self):
+        """Test that default leg is created when no legs defined but ports exist."""
+        from cruiseplan.core.validation import CruiseConfig
+
+        # Configuration with no legs but with ports and activities
+        test_config = {
+            "cruise_name": "Test_Cruise_2024",
+            "departure_port": "port_reykjavik",
+            "arrival_port": "port_reykjavik",
+            "default_vessel_speed": 8.0,
+            "turnaround_time": 30.0,
+            "calculate_transfer_between_sections": False,
+            "calculate_depth_via_bathymetry": False,
+            "stations": [
+                {
+                    "name": "STN_001",
+                    "latitude": 64.0,
+                    "longitude": -22.0,
+                    "operation_type": "CTD",
+                    "action": "profile",
+                    "duration": 120.0,
+                },
+                {
+                    "name": "STN_002",
+                    "latitude": 64.5,
+                    "longitude": -21.5,
+                    "operation_type": "CTD",
+                    "action": "profile",
+                    "duration": 120.0,
+                },
+            ],
+            "transits": [
+                {
+                    "name": "TRANSIT_001",
+                    "operation_type": "underway",
+                    "action": "ADCP",
+                    "vessel_speed": 5.0,
+                    "route": [
+                        {"latitude": 64.0, "longitude": -22.0},
+                        {"latitude": 64.25, "longitude": -21.75},
+                    ],
+                }
+            ],
+        }
+
+        # Should successfully create default leg
+        cruise_config = CruiseConfig(**test_config)
+
+        # Verify default leg was created
+        assert len(cruise_config.legs) == 1
+        default_leg = cruise_config.legs[0]
+
+        # Check leg properties
+        assert default_leg.name == "Test_Cruise_2024_DefaultLeg"
+        assert default_leg.departure_port == "port_reykjavik"
+        assert default_leg.arrival_port == "port_reykjavik"
+
+        # Check activities were collected
+        assert len(default_leg.activities) == 3  # 2 stations + 1 transit
+        assert "STN_001" in default_leg.activities
+        assert "STN_002" in default_leg.activities
+        assert "TRANSIT_001" in default_leg.activities
+
+        # Verify flag is set for YAML export
+        assert hasattr(cruise_config, "_default_leg_created")
+        assert cruise_config._default_leg_created is True
+
+    def test_explicit_legs_still_work(self):
+        """Test that explicit legs still work normally."""
+        from cruiseplan.core.validation import CruiseConfig
+
+        test_config = {
+            "cruise_name": "Explicit_Leg_Test",
+            "default_vessel_speed": 8.0,
+            "calculate_transfer_between_sections": False,
+            "calculate_depth_via_bathymetry": False,
+            "stations": [
+                {
+                    "name": "STN_001",
+                    "latitude": 64.0,
+                    "longitude": -22.0,
+                    "operation_type": "CTD",
+                    "action": "profile",
+                    "duration": 120.0,
+                }
+            ],
+            "legs": [
+                {
+                    "name": "Manual_Leg",
+                    "departure_port": "port_reykjavik",
+                    "arrival_port": "port_reykjavik",
+                    "activities": ["STN_001"],
+                }
+            ],
+        }
+
+        # Should use explicit leg without creating default
+        cruise_config = CruiseConfig(**test_config)
+        assert len(cruise_config.legs) == 1
+        assert cruise_config.legs[0].name == "Manual_Leg"
+
+        # Verify flag is false for explicit legs
+        assert hasattr(cruise_config, "_default_leg_created")
+        assert cruise_config._default_leg_created is False
+
+    def test_error_case_no_ports_no_legs(self):
+        """Test that proper error is raised when neither ports nor legs are provided."""
+        from cruiseplan.core.validation import CruiseConfig
+
+        test_config = {
+            "cruise_name": "No_Ports_No_Legs",
+            "default_vessel_speed": 8.0,
+            "calculate_transfer_between_sections": False,
+            "calculate_depth_via_bathymetry": False,
+            "stations": [
+                {
+                    "name": "STN_001",
+                    "latitude": 64.0,
+                    "longitude": -22.0,
+                    "operation_type": "CTD",
+                    "action": "profile",
+                    "duration": 120.0,
+                }
+            ],
+        }
+
+        # Should raise validation error
+        with pytest.raises(ValueError) as exc_info:
+            CruiseConfig(**test_config)
+
+        assert "At least one leg must be defined" in str(exc_info.value)
+        assert "departure_port and arrival_port" in str(exc_info.value)
+
+    def test_ports_forbidden_when_legs_exist(self):
+        """Test that global ports are forbidden when explicit legs are defined."""
+        from cruiseplan.core.validation import CruiseConfig
+
+        test_config = {
+            "cruise_name": "Test_Cruise",
+            "departure_port": "port_reykjavik",  # Should be forbidden
+            "arrival_port": "port_reykjavik",  # Should be forbidden
+            "default_vessel_speed": 8.0,
+            "legs": [
+                {
+                    "name": "Test_Leg",
+                    "departure_port": "port_bergen",
+                    "arrival_port": "port_bergen",
+                    "activities": [],
+                }
+            ],
+        }
+
+        # Should raise validation error about forbidden fields
+        with pytest.raises(ValueError) as exc_info:
+            CruiseConfig(**test_config)
+
+        assert "Global cruise-level fields no longer supported" in str(exc_info.value)
+        assert "departure_port" in str(exc_info.value)
+        assert "arrival_port" in str(exc_info.value)

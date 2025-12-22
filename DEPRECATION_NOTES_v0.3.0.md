@@ -107,6 +107,37 @@ cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 --bathymetry-dir dat
 cruiseplan map -c cruise.yaml --bathy-source gebco2025 --bathy-dir data/bathy --bathy-stride 3 --output-dir /path/to --output cruise_map
 ```
 
+### 7. LegDefinition Deprecated Fields
+- **Status**: Deprecated fields in YAML configuration, warnings issued when used
+- **Deprecated Fields**: `sequence`, `stations`, `sections` in LegDefinition
+- **Replacement**: `activities` field for unified activity management
+- **Migration**: Convert leg definitions to use activities list
+
+**Example Migration:**
+```yaml
+# Old (deprecated) - will show warnings and be removed in v0.3.0
+legs:
+  - name: "Main_Survey"
+    departure_port: "port_reykjavik"
+    arrival_port: "port_bergen"
+    sequence: [STN_001, Transit_01, STN_002]  # ← DEPRECATED
+    stations: [STN_003, STN_004]             # ← DEPRECATED
+    sections: [Section_01]                    # ← DEPRECATED
+
+# New (recommended) - use activities field
+legs:
+  - name: "Main_Survey" 
+    departure_port: "port_reykjavik"
+    arrival_port: "port_bergen"
+    activities: [STN_001, Transit_01, STN_002, STN_003, STN_004, Section_01]
+```
+
+**Implementation Status:**
+- ✅ Deprecation warnings added in scheduler.py when deprecated fields are used
+- ✅ Warning message indicates removal in v0.3.0
+- ✅ Scheduler priority updated: leg.activities → leg.clusters → leg.sequence → leg.stations
+- ❌ Full activities-only architecture not yet implemented (see CLAUDE-activities.md)
+
 ## Test Files to be Removed in v0.3.0
 
 ### ❌ Complete Removal Required

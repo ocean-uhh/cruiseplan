@@ -2,8 +2,8 @@
 Tests for cluster processing functionality in scheduler.
 
 This module tests the _extract_activities_from_leg function which handles
-the priority order: sequence > clusters > stations, and properly processes
-cluster definitions containing sequences or stations.
+the priority order: activities > clusters > sequence > stations, and properly processes
+cluster definitions containing activities, sequences, or stations.
 """
 
 from unittest.mock import MagicMock
@@ -14,17 +14,20 @@ from cruiseplan.calculators.scheduler import _extract_activities_from_leg
 class TestClusterProcessing:
     """Test cluster processing in activity extraction."""
 
-    def test_priority_sequence_over_clusters(self):
-        """Test that leg.sequence takes priority over clusters."""
+    def test_priority_clusters_over_sequence(self):
+        """Test that clusters take priority over deprecated leg.sequence."""
         leg = MagicMock()
-        leg.sequence = ["STN001", "STN002", "STN003"]
-        leg.clusters = [MagicMock(sequence=["CLST001", "CLST002"])]
+        leg.activities = None  # No direct activities
+        leg.sequence = ["STN001", "STN002", "STN003"]  # Deprecated
+        leg.clusters = [
+            MagicMock(sequence=["CLST001", "CLST002"], activities=None, stations=None)
+        ]
         leg.stations = ["FALLBACK001"]
 
         result = _extract_activities_from_leg(leg)
 
-        # Should return sequence, ignoring clusters and stations
-        assert result == ["STN001", "STN002", "STN003"]
+        # Should return cluster sequence, ignoring deprecated leg.sequence
+        assert result == ["CLST001", "CLST002"]
 
     def test_clusters_when_no_sequence(self):
         """Test that clusters are processed when no sequence exists."""
@@ -189,12 +192,14 @@ class TestClusterProcessing:
     def test_cluster_with_empty_sequence_and_stations(self):
         """Test cluster with both empty sequence and stations."""
         cluster = MagicMock()
-        cluster.sequence = []  # Empty
-        cluster.stations = []  # Empty
+        cluster.activities = []  # Empty (new field)
+        cluster.sequence = []  # Empty (deprecated)
+        cluster.stations = []  # Empty (deprecated)
 
         leg = MagicMock()
-        leg.sequence = None
-        leg.clusters = [cluster]
+        leg.activities = None  # No direct activities
+        leg.sequence = None  # No sequence
+        leg.clusters = [cluster]  # Empty cluster
         leg.stations = ["FALLBACK001"]
 
         result = _extract_activities_from_leg(leg)

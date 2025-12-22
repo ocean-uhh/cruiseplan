@@ -7,6 +7,7 @@ and scheduling algorithms that transform cruise configurations into executable p
 """
 
 import logging
+import warnings
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -1609,10 +1610,11 @@ def _extract_activities_from_leg(leg) -> List[str]:
     """
     Extract all activity names from a leg, including those in clusters.
 
-    Processes:
-    - Direct sequence in leg.sequence
-    - Direct stations in leg.stations
-    - Clusters containing sequences or stations
+    Processes in priority order:
+    1. Direct activities in leg.activities
+    2. Clusters containing activities, sequences, or stations
+    3. Direct sequence in leg.sequence (deprecated)
+    4. Direct stations in leg.stations (deprecated)
 
     Parameters
     ----------
@@ -1626,13 +1628,19 @@ def _extract_activities_from_leg(leg) -> List[str]:
     """
     activity_names = []
 
-    # Priority 1: Direct sequence (only if not None/empty)
-    if hasattr(leg, "sequence") and leg.sequence is not None and len(leg.sequence) > 0:
-        for item in leg.sequence:
-            if isinstance(item, str):
-                activity_names.append(item)
-            elif hasattr(item, "name"):
-                activity_names.append(item.name)
+    # Priority 1: Direct activities (new unified field)
+    if (
+        hasattr(leg, "activities")
+        and leg.activities is not None
+        and len(leg.activities) > 0
+    ):
+        for activity in leg.activities:
+            if isinstance(activity, str):
+                activity_names.append(activity)
+            elif isinstance(activity, dict) and "name" in activity:
+                activity_names.append(activity["name"])
+            elif hasattr(activity, "name"):
+                activity_names.append(activity.name)
 
     # Priority 2: Process clusters (only if not None/empty)
     elif (
@@ -1640,21 +1648,8 @@ def _extract_activities_from_leg(leg) -> List[str]:
     ):
         cluster_activities_found = False
         for cluster in leg.clusters:
-            # Process cluster sequence
-            if (
-                hasattr(cluster, "sequence")
-                and cluster.sequence is not None
-                and len(cluster.sequence) > 0
-            ):
-                for item in cluster.sequence:
-                    if isinstance(item, str):
-                        activity_names.append(item)
-                        cluster_activities_found = True
-                    elif hasattr(item, "name"):
-                        activity_names.append(item.name)
-                        cluster_activities_found = True
             # Process cluster activities (new format)
-            elif (
+            if (
                 hasattr(cluster, "activities")
                 and cluster.activities is not None
                 and len(cluster.activities) > 0
@@ -1669,12 +1664,37 @@ def _extract_activities_from_leg(leg) -> List[str]:
                     elif hasattr(activity, "name"):
                         activity_names.append(activity.name)
                         cluster_activities_found = True
+            # Process cluster sequence (deprecated)
+            elif (
+                hasattr(cluster, "sequence")
+                and cluster.sequence is not None
+                and len(cluster.sequence) > 0
+            ):
+                warnings.warn(
+                    f"Cluster '{cluster.name}' uses deprecated 'sequence' field. "
+                    f"Use 'activities' field instead. Support will be removed in v0.3.0.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
+                for item in cluster.sequence:
+                    if isinstance(item, str):
+                        activity_names.append(item)
+                        cluster_activities_found = True
+                    elif hasattr(item, "name"):
+                        activity_names.append(item.name)
+                        cluster_activities_found = True
             # Process cluster stations (deprecated)
             elif (
                 hasattr(cluster, "stations")
                 and cluster.stations is not None
                 and len(cluster.stations) > 0
             ):
+                warnings.warn(
+                    f"Cluster '{cluster.name}' uses deprecated 'stations' field. "
+                    f"Use 'activities' field instead. Support will be removed in v0.3.0.",
+                    DeprecationWarning,
+                    stacklevel=2,
+                )
                 for station in cluster.stations:
                     if isinstance(station, str):
                         activity_names.append(station)
@@ -1683,23 +1703,38 @@ def _extract_activities_from_leg(leg) -> List[str]:
                         activity_names.append(station.name)
                         cluster_activities_found = True
 
-        # If no cluster activities were found, fall back to leg stations
-        if (
-            not cluster_activities_found
-            and hasattr(leg, "stations")
-            and leg.stations is not None
-            and len(leg.stations) > 0
-        ):
-            for station in leg.stations:
-                if isinstance(station, str):
-                    activity_names.append(station)
-                elif hasattr(station, "name"):
-                    activity_names.append(station.name)
-
-    # Priority 3: Direct stations (fallback when no clusters exist)
-    elif (
-        hasattr(leg, "stations") and leg.stations is not None and len(leg.stations) > 0
+    # Priority 3: Direct sequence (deprecated, fallback if no activities found)
+    if (
+        len(activity_names) == 0
+        and hasattr(leg, "sequence")
+        and leg.sequence is not None
+        and len(leg.sequence) > 0
     ):
+        warnings.warn(
+            f"Leg '{leg.name}' uses deprecated 'sequence' field. "
+            f"Use 'activities' field instead. Support will be removed in v0.3.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        for item in leg.sequence:
+            if isinstance(item, str):
+                activity_names.append(item)
+            elif hasattr(item, "name"):
+                activity_names.append(item.name)
+
+    # Priority 4: Direct stations (deprecated, final fallback)
+    if (
+        len(activity_names) == 0
+        and hasattr(leg, "stations")
+        and leg.stations is not None
+        and len(leg.stations) > 0
+    ):
+        warnings.warn(
+            f"Leg '{leg.name}' uses deprecated 'stations' field. "
+            f"Use 'activities' field instead. Support will be removed in v0.3.0.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         for station in leg.stations:
             if isinstance(station, str):
                 activity_names.append(station)

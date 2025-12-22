@@ -184,10 +184,10 @@ class TestEnrichSuccessfulOperations:
         """Test successful depth addition."""
         input_file = self.get_fixture_path("tc1_single.yaml")
         output_file = tmp_path / "enriched.yaml"
-        
+
         # Mock validate_input_file to return the input file path
         mock_validate_input.return_value = input_file
-        
+
         # Mock successful enrichment
         mock_enrich.return_value = {
             "stations_with_depths_added": 3,
@@ -213,7 +213,7 @@ class TestEnrichSuccessfulOperations:
 
         # Should not raise an exception
         main(args)
-        
+
         # Verify enrich_configuration was called with correct parameters
         mock_enrich.assert_called_once_with(
             config_path=input_file,
@@ -232,10 +232,10 @@ class TestEnrichSuccessfulOperations:
     def test_add_coords_success(self, mock_enrich, mock_validate_input, tmp_path):
         """Test successful coordinate addition."""
         input_file = self.get_fixture_path("tc1_single.yaml")
-        
+
         # Mock validate_input_file to return the input file path
         mock_validate_input.return_value = input_file
-        
+
         # Mock successful enrichment
         mock_enrich.return_value = {
             "stations_with_depths_added": 0,
@@ -262,7 +262,7 @@ class TestEnrichSuccessfulOperations:
 
         # Should not raise an exception
         main(args)
-        
+
         # Verify enrich_configuration was called with correct parameters
         expected_output = tmp_path / "custom_name_enriched.yaml"
         mock_enrich.assert_called_once_with(
@@ -277,15 +277,17 @@ class TestEnrichSuccessfulOperations:
             output_path=expected_output,
         )
 
-    @patch("cruiseplan.cli.enrich.validate_input_file") 
+    @patch("cruiseplan.cli.enrich.validate_input_file")
     @patch("cruiseplan.cli.enrich.enrich_configuration")
-    def test_expansion_operations_success(self, mock_enrich, mock_validate_input, tmp_path):
+    def test_expansion_operations_success(
+        self, mock_enrich, mock_validate_input, tmp_path
+    ):
         """Test successful section and port expansion."""
         input_file = self.get_fixture_path("tc1_single.yaml")
-        
+
         # Mock validate_input_file to return the input file path
         mock_validate_input.return_value = input_file
-        
+
         # Mock successful enrichment with expansions
         mock_enrich.return_value = {
             "stations_with_depths_added": 0,
@@ -314,7 +316,7 @@ class TestEnrichSuccessfulOperations:
 
         # Should not raise an exception
         main(args)
-        
+
         # Verify expansion flags were passed correctly
         mock_enrich.assert_called_once_with(
             config_path=input_file,
@@ -333,10 +335,10 @@ class TestEnrichSuccessfulOperations:
     def test_no_enhancements_needed(self, mock_enrich, mock_validate_input, tmp_path):
         """Test when configuration is already complete."""
         input_file = self.get_fixture_path("tc1_single.yaml")
-        
+
         # Mock validate_input_file to return the input file path
         mock_validate_input.return_value = input_file
-        
+
         # Mock no changes needed
         mock_enrich.return_value = {
             "stations_with_depths_added": 0,
@@ -365,11 +367,13 @@ class TestEnrichSuccessfulOperations:
 
     @patch("cruiseplan.cli.enrich.validate_output_path")
     @patch("cruiseplan.cli.enrich.enrich_configuration")
-    def test_legacy_output_file_warning(self, mock_enrich, mock_validate_output, tmp_path):
+    def test_legacy_output_file_warning(
+        self, mock_enrich, mock_validate_output, tmp_path
+    ):
         """Test that legacy --output-file parameter shows deprecation warning."""
         input_file = self.get_fixture_path("tc1_single.yaml")
         output_file = tmp_path / "legacy_output.yaml"
-        
+
         # Mock successful validation and enrichment
         mock_validate_output.return_value = output_file
         mock_enrich.return_value = {
@@ -396,21 +400,23 @@ class TestEnrichSuccessfulOperations:
 
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             main(args)
-            
+
             # Verify deprecation warning was logged
             mock_logger.warning.assert_called_with(
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
             )
 
     @patch("cruiseplan.cli.enrich.validate_input_file")
-    @patch("cruiseplan.cli.enrich.enrich_configuration") 
-    def test_all_enhancement_types_combined(self, mock_enrich, mock_validate_input, tmp_path):
+    @patch("cruiseplan.cli.enrich.enrich_configuration")
+    def test_all_enhancement_types_combined(
+        self, mock_enrich, mock_validate_input, tmp_path
+    ):
         """Test all enhancement types working together."""
         input_file = self.get_fixture_path("tc1_single.yaml")
-        
+
         # Mock validate_input_file to return the input file path
         mock_validate_input.return_value = input_file
-        
+
         # Mock all types of enhancements
         mock_enrich.return_value = {
             "stations_with_depths_added": 2,
