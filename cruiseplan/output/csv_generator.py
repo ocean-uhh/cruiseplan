@@ -114,10 +114,10 @@ class CSVGenerator:
                 # Coordinate conversions using existing utilities
                 lat_decimal = activity["lat"]
                 lon_decimal = activity["lon"]
-                lat_deg_float, lat_min = UnitConverter.decimal_degrees_to_dmm(
+                lat_deg_float, lat_min = UnitConverter.decimal_degrees_to_ddm(
                     lat_decimal
                 )
-                lon_deg_float, lon_min = UnitConverter.decimal_degrees_to_dmm(
+                lon_deg_float, lon_min = UnitConverter.decimal_degrees_to_ddm(
                     lon_decimal
                 )
                 # Preserve sign for rounded degrees
@@ -181,5 +181,11 @@ def generate_csv_schedule(
     Path
         Path to generated CSV file
     """
+    import logging
+
+    logger = logging.getLogger(__name__)
+    logger.info(f"📊 CSV Generator: Starting generation of {output_file}")
+    logger.info(f"   Timeline contains {len(timeline)} activities")
+
     generator = CSVGenerator()
     return generator.generate_schedule_csv(config, timeline, output_file)

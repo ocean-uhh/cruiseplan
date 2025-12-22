@@ -234,7 +234,9 @@ class NetCDFGenerator:
         )
         ds.attrs.update(global_attrs)
 
-        # Write to NetCDF file
+        # Write to NetCDF file - remove existing file first to avoid permission issues
+        if output_path.exists():
+            output_path.unlink()
         ds.to_netcdf(output_path, format="NETCDF4")
         logger.info(f"Point operations NetCDF written to: {output_path}")
 
@@ -668,7 +670,9 @@ class NetCDFGenerator:
             }
         )
 
-        # Write to NetCDF file
+        # Write to NetCDF file - remove existing file first to avoid permission issues
+        if output_path.exists():
+            output_path.unlink()
         ds.to_netcdf(output_path, format="NETCDF4")
 
     def _create_empty_derived_dataset(
@@ -1214,7 +1218,9 @@ class NetCDFGenerator:
             }
         )
 
-        # Write to NetCDF file
+        # Write to NetCDF file - remove existing file first to avoid permission issues
+        if output_path.exists():
+            output_path.unlink()
         ds.to_netcdf(output_path, format="NETCDF4")
         logger.info(f"Ship schedule NetCDF written to: {output_path}")
 
@@ -1419,7 +1425,9 @@ class NetCDFGenerator:
             }
         )
 
-        # Write to NetCDF file
+        # Write to NetCDF file - remove existing file first to avoid permission issues
+        if output_path.exists():
+            output_path.unlink()
         ds.to_netcdf(output_path, format="NETCDF4")
         logger.info(f"Line operations NetCDF written to: {output_path}")
 
@@ -1446,7 +1454,9 @@ class NetCDFGenerator:
             }
         )
 
-        # Write to NetCDF file
+        # Write to NetCDF file - remove existing file first to avoid permission issues
+        if output_path.exists():
+            output_path.unlink()
         ds.to_netcdf(output_path, format="NETCDF4")
         logger.info(f"Area operations NetCDF (placeholder) written to: {output_path}")
 

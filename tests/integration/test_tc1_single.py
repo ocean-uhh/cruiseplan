@@ -164,7 +164,7 @@ class TestTC1SingleIntegration:
             output_path=output_path,
             add_coords=True,
             add_depths=False,
-            coord_format="dmm",
+            coord_format="ddm",
         )
 
         # Load and validate coordinate enrichment
@@ -173,11 +173,11 @@ class TestTC1SingleIntegration:
 
         # Check coordinate enrichment with precise DMM format
         assert hasattr(
-            enriched_station, "coordinates_dmm"
+            enriched_station, "coordinates_ddm"
         ), "Coordinates should be enriched"
         assert (
-            enriched_station.coordinates_dmm == "45 00.00'N, 045 00.00'W"
-        ), f"Expected DMM '45 00.00'N, 045 00.00'W', got {enriched_station.coordinates_dmm}"
+            enriched_station.coordinates_ddm == "45 00.00'N, 045 00.00'W"
+        ), f"Expected DMM '45 00.00'N, 045 00.00'W', got {enriched_station.coordinates_ddm}"
 
     def test_enrichment_gebco2025_depth(self, yaml_path, temp_dir):
         """Test depth enrichment with GEBCO2025 bathymetry source."""
@@ -215,7 +215,7 @@ class TestTC1SingleIntegration:
             add_depths=True,
             bathymetry_source="etopo2022",
             bathymetry_dir="data",
-            coord_format="dmm",
+            coord_format="ddm",
         )
 
         # Check that defaults exist (either already present or added by enrichment)
@@ -244,9 +244,9 @@ class TestTC1SingleIntegration:
 
         # Check coordinate enrichment
         assert hasattr(
-            enriched_station, "coordinates_dmm"
+            enriched_station, "coordinates_ddm"
         ), "Coordinates should be enriched"
-        assert enriched_station.coordinates_dmm == "45 00.00'N, 045 00.00'W"
+        assert enriched_station.coordinates_ddm == "45 00.00'N, 045 00.00'W"
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"

@@ -117,7 +117,7 @@ def dump_yaml_simple(data: Dict[str, Any], file_handle) -> None:
 def save_yaml(
     config: Dict[str, Any],
     file_path: Union[str, Path],
-    backup: bool = True,
+    backup: bool = False,
     encoding: str = "utf-8",
 ) -> None:
     """

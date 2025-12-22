@@ -377,9 +377,9 @@ Examples:
     )
     enrich_parser.add_argument(
         "--coord-format",
-        choices=["dmm", "dms"],
-        default="dmm",
-        help="Coordinate format (default: dmm)",
+        choices=["ddm", "dms"],
+        default="ddm",
+        help="Coordinate format (default: ddm)",
     )
     enrich_parser.add_argument(
         "--expand-sections",
@@ -494,10 +494,10 @@ PNG maps show stations, cruise tracks, ports, and bathymetric background.
 KML files contain geographic data for Google Earth viewing of all catalog entities.
 
 Examples:
-  cruiseplan map -c cruise.yaml                                # Generate map with default settings
-  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10      # Custom output dir and size  
-  cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 # High-resolution bathymetry
-  cruiseplan map -c cruise.yaml --output-file track_map.png   # Specific output file
+  cruiseplan map -c cruise.yaml                              # Generate map with default settings
+  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size  
+  cruiseplan map -c cruise.yaml --bathy-source gebco2025     # High-resolution bathymetry
+  cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename
         """,
     )
     map_parser.add_argument(
@@ -515,9 +515,14 @@ Examples:
         help="Output directory (default: data)",
     )
     map_parser.add_argument(
+        "--output",
+        type=str,
+        help="Base filename for output maps (default: use config filename)",
+    )
+    map_parser.add_argument(
         "--output-file",
         type=Path,
-        help="Specific output file path (overrides auto-generated name)",
+        help="[DEPRECATED] Specific output file path - use --output instead (overrides auto-generated name)",
     )
     map_parser.add_argument(
         "--format",
@@ -526,22 +531,41 @@ Examples:
         help="Output format: png (map), kml (geographic data), or all (default: all)",
     )
     map_parser.add_argument(
-        "--bathymetry-source",
+        "--bathy-source",
         choices=["etopo2022", "gebco2025"],
         default="gebco2025",
         help="Bathymetry dataset (default: gebco2025)",
     )
     map_parser.add_argument(
-        "--bathymetry-dir",
+        "--bathy-dir",
         type=Path,
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     map_parser.add_argument(
-        "--bathymetry-stride",
+        "--bathy-stride",
         type=int,
         default=5,
         help="Bathymetry downsampling factor (default: 5, higher=faster/less detailed)",
+    )
+    # Legacy parameter support with deprecation warnings
+    map_parser.add_argument(
+        "--bathymetry-source",
+        dest="bathymetry_source_legacy",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    map_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        dest="bathymetry_dir_legacy",
+        help="[DEPRECATED] Use --bathy-dir instead",
+    )
+    map_parser.add_argument(
+        "--bathymetry-stride",
+        type=int,
+        dest="bathymetry_stride_legacy",
+        help="[DEPRECATED] Use --bathy-stride instead",
     )
     map_parser.add_argument(
         "--figsize",
@@ -721,8 +745,8 @@ Examples:
     process_parser.add_argument(
         "--coord-format",
         dest="coord_format_legacy",
-        choices=["dmm", "dms"],
-        help="[DEPRECATED] Coordinate format fixed to DMM",
+        choices=["ddm", "dms"],
+        help="[DEPRECATED] Coordinate format fixed to DDM",
     )
 
     # General options

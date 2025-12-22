@@ -35,9 +35,9 @@ class TestMapCommand:
             output_dir=tmp_path,
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -55,8 +55,8 @@ class TestMapCommand:
         call_args = mock_generate.call_args
         assert call_args[0][0] == mock_load_cruise_instance  # cruise object
         assert call_args[1]["output_file"] == tmp_path / "Test_Cruise_2028_map.png"
-        assert call_args[1]["bathymetry_source"] == "gebco2025"
-        assert call_args[1]["bathymetry_stride"] == 5
+        assert call_args[1]["bathy_source"] == "gebco2025"
+        assert call_args[1]["bathy_stride"] == 5
         assert call_args[1]["show_plot"] == False
         assert call_args[1]["figsize"] == (12, 10)
 
@@ -79,9 +79,9 @@ class TestMapCommand:
             output_dir=tmp_path,
             output_file=custom_output,
             format="png",
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=10,
+            bathy_source="etopo2022",
+            bathy_dir=Path("data"),
+            bathy_stride=10,
             show_plot=False,
             figsize=[14, 12],
             verbose=False,
@@ -97,8 +97,8 @@ class TestMapCommand:
         # Verify generate_map_from_yaml was called with custom output file
         call_args = mock_generate.call_args
         assert call_args[1]["output_file"] == custom_output
-        assert call_args[1]["bathymetry_source"] == "etopo2022"
-        assert call_args[1]["bathymetry_stride"] == 10
+        assert call_args[1]["bathy_source"] == "etopo2022"
+        assert call_args[1]["bathy_stride"] == 10
         assert call_args[1]["figsize"] == (14, 12)
 
     @patch("cruiseplan.cli.map.generate_map_from_yaml")
@@ -123,9 +123,9 @@ class TestMapCommand:
             output_dir=tmp_path,
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -172,9 +172,9 @@ class TestMapCommand:
             output_dir=tmp_path,
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -202,9 +202,9 @@ class TestMapCommand:
             output_dir=Path("."),
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -231,9 +231,9 @@ class TestMapCommand:
             output_dir=Path("."),
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -260,9 +260,9 @@ class TestMapCommand:
             output_dir=Path("."),
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=False,
@@ -289,9 +289,9 @@ class TestMapCommand:
             output_dir=Path("."),
             output_file=None,
             format="png",
-            bathymetry_source="gebco2025",
-            bathymetry_dir=Path("data"),
-            bathymetry_stride=5,
+            bathy_source="gebco2025",
+            bathy_dir=Path("data"),
+            bathy_stride=5,
             show_plot=False,
             figsize=[12, 10],
             verbose=True,

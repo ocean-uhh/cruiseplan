@@ -1585,8 +1585,8 @@ def _generate_timeline_png_map(
         return generate_map_from_timeline(
             timeline=timeline,
             output_file=output_file,
-            bathymetry_source=bathy_source,
-            bathymetry_stride=bathy_stride,
+            bathy_source=bathy_source,
+            bathy_stride=bathy_stride,
             figsize=tuple(figsize) if isinstance(figsize, list) else figsize,
             config=cruise,
         )

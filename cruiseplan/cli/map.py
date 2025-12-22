@@ -24,6 +24,25 @@ def main(args: argparse.Namespace) -> int:
         Parsed command-line arguments containing config_file, output options, etc.
     """
     try:
+        # Handle legacy parameter deprecation warnings and parameter mapping
+        if hasattr(args, "bathymetry_source_legacy") and args.bathymetry_source_legacy:
+            logger.warning(
+                "⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead."
+            )
+            args.bathy_source = args.bathymetry_source_legacy
+
+        if hasattr(args, "bathymetry_dir_legacy") and args.bathymetry_dir_legacy:
+            logger.warning(
+                "⚠️  WARNING: '--bathymetry-dir' is deprecated. Use '--bathy-dir' instead."
+            )
+            args.bathy_dir = args.bathymetry_dir_legacy
+
+        if hasattr(args, "bathymetry_stride_legacy") and args.bathymetry_stride_legacy:
+            logger.warning(
+                "⚠️  WARNING: '--bathymetry-stride' is deprecated. Use '--bathy-stride' instead."
+            )
+            args.bathy_stride = args.bathymetry_stride_legacy
+
         # Load cruise configuration with pretty warning formatting
         logger.info(f"Loading cruise configuration from {args.config_file}")
         cruise = load_cruise_with_pretty_warnings(args.config_file)
@@ -67,14 +86,14 @@ def main(args: argparse.Namespace) -> int:
                 png_output_file = args.output_dir / f"{base_name}_map.png"
 
             logger.info(
-                f"Generating PNG map with bathymetry source: {args.bathymetry_source}"
+                f"Generating PNG map with bathymetry source: {args.bathy_source}"
             )
             png_result = generate_map_from_yaml(
                 cruise,
                 output_file=png_output_file,
-                bathymetry_source=args.bathymetry_source,
-                bathymetry_stride=args.bathymetry_stride,
-                bathymetry_dir=str(args.bathymetry_dir),
+                bathy_source=args.bathy_source,
+                bathy_stride=args.bathy_stride,
+                bathy_dir=str(args.bathy_dir),
                 show_plot=args.show_plot,
                 figsize=tuple(args.figsize),
                 include_ports=False,  # Focus on scientific operations only
