@@ -413,6 +413,49 @@ legs:
 3. **Consider cluster boundaries**: Strategies only operate within clusters
 4. **Test edge cases**: Empty clusters, single operations, etc.
 
+### Entry/Exit Point Abstraction
+
+**Core Routing Principle**: 
+Scheduling creates a continuous expedition path by connecting exit points to entry points between operations
+
+**Implementation Concept**:
+
+```python
+def generate_cruise_track(operations: List[Operation]):
+    """
+    Connect exit point of one operation to entry point of next operation
+    to create complete cruise track
+    """
+    cruise_track = []
+    for i in range(len(operations) - 1):
+        current_op = operations[i]
+        next_op = operations[i+1]
+        
+        # Connect exit of current operation to entry of next operation
+        transit = create_transit(
+            start=current_op.get_exit_point(), 
+            end=next_op.get_entry_point()
+        )
+        
+        cruise_track.extend([
+            current_op,
+            transit,
+            next_op
+        ])
+    
+    return cruise_track
+```
+
+**Key Characteristics**:
+- **Seamless Transitions**: Automatic connection between operations
+- **Flexible Path Generation**: Works across different operation types
+- **Predictable Routing**: Clear method for determining cruise track
+
+**Benefits**:
+- Enables complex expedition routing
+- Works across different operation types
+- Provides a standardized way to generate cruise tracks
+
 ## Migration from Legacy Architecture
 
 ### Deprecated Fields

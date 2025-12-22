@@ -39,23 +39,7 @@ CruisePlan transforms complex cruise planning from a weeks-long manual process i
 📘 Full documentation available at:  
 👉 https://ocean-uhh.github.io/cruiseplan/
 
-### Related Software
 
-The following cruise planning tools may also be of interest (*Disclaimer: We have not tested these*):
-
-**Python/GIS:**
-- [cruisetools](https://github.com/simondreutter/cruisetools) - Python plugin for QGIS.
-
-**Python:**
-- [dreamcoat](https://github.com/mvdh7/dreamcoat) - Personal tools for cruise planning
-
-**R:**
-- [cruisePlanning](https://github.com/clayton33/cruisePlanning) - R package for cruise planning based on DFO's AZMP
-- [cruisePlanningStatic](https://github.com/clayton33/cruisePlanningStatic) - similar to the above
-- [cruisetrack-planner](https://github.com/fribalet/cruisetrack-planner) - Cruise track planning in R plus Shiny App (https://seaflow.shinyapps.io/cruisetrackplanner/)
-
-**MATLAB:**
-- [PlanCampanha](https://github.com/PedroVelez/PlanCampanha) - Cruise planning with CSV as input
 ---
 
 ## 🚀 What's Included
@@ -195,3 +179,22 @@ The original timing algorithms were developed by [Yves Sorge](https://orcid.org/
 
 If you use CruisePlan in your research, please cite it using the information in [CITATION.cff](CITATION.cff).
 
+---
+
+### Related Software
+
+The following cruise planning tools may also be of interest (*Disclaimer: We have not tested these*):
+
+**Python/GIS:**
+- [cruisetools](https://github.com/simondreutter/cruisetools) - Python plugin for QGIS.
+
+**Python:**
+- [dreamcoat](https://github.com/mvdh7/dreamcoat) - Personal tools for cruise planning
+
+**R:**
+- [cruisePlanning](https://github.com/clayton33/cruisePlanning) - R package for cruise planning based on DFO's AZMP
+- [cruisePlanningStatic](https://github.com/clayton33/cruisePlanningStatic) - similar to the above
+- [cruisetrack-planner](https://github.com/fribalet/cruisetrack-planner) - Cruise track planning in R plus Shiny App (https://seaflow.shinyapps.io/cruisetrackplanner/)
+
+**MATLAB:**
+- [PlanCampanha](https://github.com/PedroVelez/PlanCampanha) - Cruise planning with CSV as input
