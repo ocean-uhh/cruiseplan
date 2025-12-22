@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAML Configuration Reference &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev2</title>
+  <title>YAML Configuration Reference &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=7898d619"></script>
+      <script src="_static/documentation_options.js?v=dce05200"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -1128,6 +1128,44 @@
 <span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
 <span class="w">    </span><span class="nt">ordered</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span><span class="w">  </span><span class="c1"># Ordered sequence - maintain exact order</span>
 <span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;MOOR_Deploy&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Trilateration_Survey&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_Release&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+<p><strong>Advanced Cluster Features</strong></p>
+<p><strong>Duplicate Activity Support</strong></p>
+<p>Clusters support intentional duplication of activities for repeated operations:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Calibration_Sequence&quot;</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CALIB_STN&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Repeat STN_001 for validation</span>
+
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep_Sampling&quot;</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_DEEP&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_DEEP&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_DEEP&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Triple sampling for statistics</span>
+</pre></div>
+</div>
+<p>⚠️ <strong>Duplicate Activity Warning</strong>: When duplicate activities are detected, CruisePlan issues a warning but proceeds with execution:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>⚠️ Duplicate activity names in cluster: STN_001. These activities will be executed multiple times as specified.
+</pre></div>
+</div>
+<p><strong>Waypoint vs Activity Execution</strong></p>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p><strong>Navigation waypoints do NOT execute operations</strong>. Waypoints (<code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code>, <code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code>) are used only for routing calculations. To execute an operation at a waypoint location, you must explicitly include it in the <code class="docutils literal notranslate"><span class="pre">activities</span></code> list.</p>
+</div>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Leg&quot;</span>
+<span class="w">    </span><span class="nt">first_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="w">    </span><span class="c1"># Navigation only - NO execution</span>
+<span class="w">    </span><span class="nt">last_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="w">     </span><span class="c1"># Navigation only - NO execution</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_004&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Only these execute</span>
+
+<span class="c1"># To execute operations at waypoint locations:</span>
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Leg_With_Execution&quot;</span>
+<span class="w">    </span><span class="nt">first_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="w">    </span><span class="c1"># Navigation waypoint</span>
+<span class="w">    </span><span class="nt">last_waypoint</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="w">     </span><span class="c1"># Navigation waypoint</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_004&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="p p-Indicator">]</span><span class="w">  </span><span class="c1"># Explicit execution</span>
+</pre></div>
+</div>
+<p>⚠️ <strong>Waypoint Inclusion Warning</strong>: When waypoints appear in activity lists, CruisePlan warns about the dual role:</p>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>⚠️ first_waypoint &#39;STN_001&#39; appears in activities. This station will serve dual roles: navigation waypoint AND executed operation.
 </pre></div>
 </div>
 <section id="leg-cluster-fields">

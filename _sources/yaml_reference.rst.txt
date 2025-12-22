@@ -860,6 +860,53 @@ A cluster is a sub-division within a leg that groups related operations with spe
        ordered: true  # Ordered sequence - maintain exact order
        activities: ["MOOR_Deploy", "Trilateration_Survey", "MOOR_Release"]
 
+**Advanced Cluster Features**
+
+**Duplicate Activity Support**
+
+Clusters support intentional duplication of activities for repeated operations:
+
+.. code-block:: yaml
+
+   clusters:
+     - name: "Calibration_Sequence"
+       activities: ["STN_001", "CALIB_STN", "STN_001"]  # Repeat STN_001 for validation
+       
+     - name: "Deep_Sampling"  
+       activities: ["STN_DEEP", "STN_DEEP", "STN_DEEP"]  # Triple sampling for statistics
+
+⚠️ **Duplicate Activity Warning**: When duplicate activities are detected, CruisePlan issues a warning but proceeds with execution:
+
+.. code-block:: text
+
+   ⚠️ Duplicate activity names in cluster: STN_001. These activities will be executed multiple times as specified.
+
+**Waypoint vs Activity Execution**
+
+.. important::
+   **Navigation waypoints do NOT execute operations**. Waypoints (``first_waypoint``, ``last_waypoint``) are used only for routing calculations. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Survey_Leg"
+       first_waypoint: "STN_001"    # Navigation only - NO execution
+       last_waypoint: "STN_005"     # Navigation only - NO execution
+       activities: ["STN_002", "STN_003", "STN_004"]  # Only these execute
+       
+   # To execute operations at waypoint locations:
+   legs:
+     - name: "Survey_Leg_With_Execution"
+       first_waypoint: "STN_001"    # Navigation waypoint
+       last_waypoint: "STN_005"     # Navigation waypoint  
+       activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]  # Explicit execution
+
+⚠️ **Waypoint Inclusion Warning**: When waypoints appear in activity lists, CruisePlan warns about the dual role:
+
+.. code-block:: text
+
+   ⚠️ first_waypoint 'STN_001' appears in activities. This station will serve dual roles: navigation waypoint AND executed operation.
+
 
 .. _leg-fields:
 

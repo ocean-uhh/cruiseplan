@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev2</title>
+  <title>Path 2: PANGAEA-Enhanced Workflow &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7898d619"></script>
+      <script src="../_static/documentation_options.js?v=dce05200"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -56,11 +56,16 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="path1.html">Path 1: General Usage - Cruise planning from scratch without historical context</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Path 2: PANGAEA-Enhanced - Incorporate historical station positions when picking stations</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#step-1-download-bathymetry-data">Step 1: Download Bathymetry Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-2-collect-pangaea-dataset-information">Step 2: Collect PANGAEA Dataset Information</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-3-process-pangaea-data">Step 3: Process PANGAEA Data</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-4-interactive-station-planning-with-pangaea-context">Step 4: Interactive Station Planning with PANGAEA Context</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#step-5-7-complete-configuration-and-scheduling">Step 5-7: Complete Configuration and Scheduling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-1-data-preparation">Phase 1: Data Preparation</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-1-download-bathymetry-data">Step 1.1: Download Bathymetry Data</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-2-collect-pangaea-dataset-information">Step 1.2: Collect PANGAEA Dataset Information</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#phase-2-interactive-station-planning-with-pangaea-context">Phase 2: Interactive Station Planning with PANGAEA Context</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-1-pick-stations-with-pangaea-overlay">Step 2.1: Pick Stations with PANGAEA Overlay</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#remaining-steps-complete-configuration-and-scheduling">Remaining Steps: Complete Configuration and Scheduling</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="path3.html">Path 3: Configuration-Only - Iterate on existing YAML configurations</a></li>
@@ -124,8 +129,10 @@
 <p><strong>Time required:</strong> 1-2 hours (including PANGAEA data collection)</p>
 <p>This workflow incorporates historical oceanographic station data from the PANGAEA database to inform your station planning.</p>
 <hr class="docutils" />
-<section id="step-1-download-bathymetry-data">
-<h2>Step 1: Download Bathymetry Data<a class="headerlink" href="#step-1-download-bathymetry-data" title="Link to this heading"></a></h2>
+<section id="phase-1-data-preparation">
+<h2>Phase 1: Data Preparation<a class="headerlink" href="#phase-1-data-preparation" title="Link to this heading"></a></h2>
+<section id="step-1-1-download-bathymetry-data">
+<h3>Step 1.1: Download Bathymetry Data<a class="headerlink" href="#step-1-1-download-bathymetry-data" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Provides depth information for station planning and automatic depth enrichment.</p>
 <p>Essential first step:  <a class="reference internal" href="../user_workflows.html#download-bathymetry"><span class="std std-ref">Download bathymetry</span></a>.  You’ve succeeeded when you have the file <code class="docutils literal notranslate"><span class="pre">data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc</span></code> available.  When in doubt, start with the ETOPO (default) only.</p>
 <figure class="align-center" id="id1">
@@ -141,11 +148,11 @@
 </div>
 </section>
 <hr class="docutils" />
-<section id="step-2-collect-pangaea-dataset-information">
-<h2>Step 2: Collect PANGAEA Dataset Information<a class="headerlink" href="#step-2-collect-pangaea-dataset-information" title="Link to this heading"></a></h2>
+<section id="step-1-2-collect-pangaea-dataset-information">
+<h3>Step 1.2: Collect PANGAEA Dataset Information<a class="headerlink" href="#step-1-2-collect-pangaea-dataset-information" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Identify relevant historical cruises and datasets for your region.</p>
 <p><strong>Option A: Automated Search (Recommended):</strong></p>
-<p>Use the <code class="docutils literal notranslate"><span class="pre">pandoi</span></code> command to query the PANGAEA database:</p>
+<p>Use the <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> command to search and process PANGAEA data:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Basic search by instrument/parameter (saves to data/ directory by default)</span>
 cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2">&quot;CTD&quot;</span><span class="w"> </span>--lat<span class="w"> </span><span class="m">50</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20
 
@@ -200,7 +207,7 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>See <a class="reference internal" href="../cli/pandoi.html#subcommand-pandoi"><span class="std std-ref">Pandoi subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pandoi.html"><span class="doc">pandoi</span></a> for full options and examples.</p>
+<p>See <a class="reference internal" href="../cli/pangaea.html#subcommand-pangaea"><span class="std std-ref">Pangaea subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pangaea.html"><span class="doc">pangaea</span></a> for full options and examples.</p>
 </div>
 <p><strong>Option B: Manual Collection (Alternative):</strong></p>
 <ol class="arabic simple">
@@ -228,16 +235,26 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span><span class="s2
 <li><p>Use narrow geographic bounds initially</p></li>
 <li><p>Focus on similar research objectives (physical oceanography vs biogeochemistry)</p></li>
 </ul>
-</section>
 <hr class="docutils" />
-<section id="step-3-process-pangaea-data">
-<h2>Step 3: Process PANGAEA Data<a class="headerlink" href="#step-3-process-pangaea-data" title="Link to this heading"></a></h2>
-<p><strong>Purpose:</strong> Convert PANGAEA datasets into a searchable station database.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using file from automated search</span>
-cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_ctd_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
-
-<span class="c1"># Or using manually created DOI list</span>
-cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_dois.txt<span class="w"> </span>-o<span class="w"> </span>pangaea_data/
+<p><strong>What this unified command does:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Searches PANGAEA database</strong> using your text query and geographic bounds</p></li>
+<li><p><strong>Retrieves dataset DOIs</strong> matching your criteria</p></li>
+<li><p><strong>Downloads metadata</strong> for each dataset</p></li>
+<li><p><strong>Extracts station coordinates</strong> and event information</p></li>
+<li><p><strong>Groups stations by campaign/cruise</strong></p></li>
+<li><p><strong>Creates output files</strong> ready for station planning</p></li>
+</ol>
+<p><strong>Output files:</strong></p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">{search_name}_dois.txt</span></code>: List of found dataset DOIs</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{search_name}_campaigns.pickle</span></code>: Station database for interactive picker</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">{search_name}_summary.yaml</span></code>: Human-readable campaign summary</p></li>
+</ul>
+<p><strong>Alternative: Process existing DOI list</strong></p>
+<p>If you already have PANGAEA DOI identifiers:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Process existing DOI list</span>
+cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>my_dois.txt<span class="w"> </span>--output<span class="w"> </span>north_atlantic_data
 </pre></div>
 </div>
 <p><strong>Options:</strong></p>
@@ -264,9 +281,12 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_
 <p>See <a class="reference internal" href="../cli/pangaea.html#subcommand-pangaea"><span class="std std-ref">Pangaea subcommand CLI reference</span></a> in <a class="reference internal" href="../cli/pangaea.html"><span class="doc">pangaea</span></a> for full options and examples.</p>
 </div>
 </section>
+</section>
 <hr class="docutils" />
-<section id="step-4-interactive-station-planning-with-pangaea-context">
-<h2>Step 4: Interactive Station Planning with PANGAEA Context<a class="headerlink" href="#step-4-interactive-station-planning-with-pangaea-context" title="Link to this heading"></a></h2>
+<section id="phase-2-interactive-station-planning-with-pangaea-context">
+<h2>Phase 2: Interactive Station Planning with PANGAEA Context<a class="headerlink" href="#phase-2-interactive-station-planning-with-pangaea-context" title="Link to this heading"></a></h2>
+<section id="step-2-1-pick-stations-with-pangaea-overlay">
+<h3>Step 2.1: Pick Stations with PANGAEA Overlay<a class="headerlink" href="#step-2-1-pick-stations-with-pangaea-overlay" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Plan new stations while viewing historical data locations.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>-p<span class="w"> </span>pangaea_data/campaigns.pickle<span class="w"> </span>--lat<span class="w"> </span><span class="m">55</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-60<span class="w"> </span>-20<span class="w"> </span>-o<span class="w"> </span>output_dir/
 </pre></div>
@@ -302,14 +322,14 @@ cruiseplan<span class="w"> </span>pangaea<span class="w"> </span>north_atlantic_
 </ul>
 <p><strong>Benefits:</strong> Including PANGAEA historical stations allows you to revisit identical locations, if desired, rather than selecting new positions blindly.</p>
 </section>
+</section>
 <hr class="docutils" />
-<section id="step-5-7-complete-configuration-and-scheduling">
-<h2>Step 5-7: Complete Configuration and Scheduling<a class="headerlink" href="#step-5-7-complete-configuration-and-scheduling" title="Link to this heading"></a></h2>
-<p><em>Same as Path 1, Steps 3-6</em></p>
+<section id="remaining-steps-complete-configuration-and-scheduling">
+<h2>Remaining Steps: Complete Configuration and Scheduling<a class="headerlink" href="#remaining-steps-complete-configuration-and-scheduling" title="Link to this heading"></a></h2>
+<p><em>Same as Path 1: Step 2.2-2.3 and Phase 3 Steps</em></p>
 <ol class="arabic simple">
 <li><p><a class="reference internal" href="path1.html#manual-editing-configuration"><span class="std std-ref">Manual editing</span></a> to add operation types and cruise metadata</p></li>
-<li><p><a class="reference internal" href="path1.html#enrich-configuration"><span class="std std-ref">Enrichment</span></a> to add depths and coordinates</p></li>
-<li><p><a class="reference internal" href="../cli/validate.html#subcommand-validate"><span class="std std-ref">Validation</span></a> to check for errors</p></li>
+<li><p><a class="reference internal" href="path1.html#process-configuration"><span class="std std-ref">Enrichment</span></a> to add depths and coordinates</p></li>
 <li><p><a class="reference internal" href="path1.html#generate-schedule-outputs"><span class="std std-ref">Schedule generation</span></a> to create outputs</p></li>
 </ol>
 <p>The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.</p>

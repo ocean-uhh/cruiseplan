@@ -14,19 +14,18 @@ Path 3: Configuration-Only Workflow
 - Re-running analysis with different parameters
 - Integration with external planning tools
 
-Start with Step 4: Enrichment
-------------------------------
+Phase 2, Step 2.2: Process Existing Configuration
+------------------------------------------------
 
 If you have an existing YAML configuration (created manually or from external tools):
 
 .. code-block:: bash
 
-   cruiseplan enrich -c existing_cruise.yaml --add-depths --add-coords --expand-sections
+   cruiseplan process -c existing_cruise.yaml 
 
-Continue with Validation and Scheduling
----------------------------------------
+Phase 3: Scheduling
+-------------------
 
 .. code-block:: bash
 
-   cruiseplan validate -c enriched_cruise.yaml --check-depths
-   cruiseplan schedule -c enriched_cruise.yaml --format all
+   cruiseplan schedule -c enriched_cruise.yaml  

@@ -11,8 +11,11 @@ This workflow incorporates historical oceanographic station data from the PANGAE
 
 ----
 
-Step 1: Download Bathymetry Data
----------------------------------
+Phase 1: Data Preparation
+-------------------------
+
+Step 1.1: Download Bathymetry Data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Provides depth information for station planning and automatic depth enrichment.
 
@@ -30,14 +33,14 @@ Essential first step:  :ref:`download_bathymetry`.  You've succeeeded when you h
 
 ----
 
-Step 2: Collect PANGAEA Dataset Information
---------------------------------------------
+Step 1.2: Collect PANGAEA Dataset Information
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Identify relevant historical cruises and datasets for your region.
 
 **Option A: Automated Search (Recommended):**
 
-Use the ``pandoi`` command to query the PANGAEA database:
+Use the ``cruiseplan pangaea`` command to search and process PANGAEA data:
 
 .. code-block:: bash
 
@@ -88,7 +91,7 @@ Use ``--lat MIN MAX`` and ``--lon MIN MAX`` to specify search regions:
    --lat 70 90 --lon -180 180
 
 .. note::
-  See :ref:`Pandoi subcommand CLI reference <subcommand-pandoi>` in :doc:`../cli/pandoi` for full options and examples.
+  See :ref:`Pangaea subcommand CLI reference <subcommand-pangaea>` in :doc:`../cli/pangaea` for full options and examples.
 
 
 **Option B: Manual Collection (Alternative):**
@@ -119,18 +122,29 @@ Use ``--lat MIN MAX`` and ``--lon MIN MAX`` to specify search regions:
 
 ----
 
-Step 3: Process PANGAEA Data
-----------------------------
+**What this unified command does:**
 
-**Purpose:** Convert PANGAEA datasets into a searchable station database.
+1. **Searches PANGAEA database** using your text query and geographic bounds
+2. **Retrieves dataset DOIs** matching your criteria  
+3. **Downloads metadata** for each dataset
+4. **Extracts station coordinates** and event information
+5. **Groups stations by campaign/cruise**
+6. **Creates output files** ready for station planning
+
+**Output files:**
+
+- ``{search_name}_dois.txt``: List of found dataset DOIs
+- ``{search_name}_campaigns.pickle``: Station database for interactive picker
+- ``{search_name}_summary.yaml``: Human-readable campaign summary
+
+**Alternative: Process existing DOI list**
+
+If you already have PANGAEA DOI identifiers:
 
 .. code-block:: bash
 
-   # Using file from automated search
-   cruiseplan pangaea north_atlantic_ctd_dois.txt -o pangaea_data/
-   
-   # Or using manually created DOI list
-   cruiseplan pangaea north_atlantic_dois.txt -o pangaea_data/
+   # Process existing DOI list
+   cruiseplan pangaea my_dois.txt --output north_atlantic_data
 
 **Options:**
 
@@ -157,8 +171,12 @@ Step 3: Process PANGAEA Data
 
 ----
 
-Step 4: Interactive Station Planning with PANGAEA Context
+Phase 2: Interactive Station Planning with PANGAEA Context
 ---------------------------------------------------------
+
+
+Step 2.1: Pick Stations with PANGAEA Overlay
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Plan new stations while viewing historical data locations.
 
@@ -202,15 +220,13 @@ Additional commands can be used anytime:
 
 ----
 
+Remaining Steps: Complete Configuration and Scheduling
+-----------------------------------------------------
 
-Step 5-7: Complete Configuration and Scheduling
------------------------------------------------
-
-*Same as Path 1, Steps 3-6*
+*Same as Path 1: Step 2.2-2.3 and Phase 3 Steps*
 
 1. :ref:`Manual editing <manual_editing_configuration>` to add operation types and cruise metadata
-2. :ref:`Enrichment <enrich_configuration>` to add depths and coordinates
-3. :ref:`Validation <subcommand-validate>` to check for errors
-4. :ref:`Schedule generation <generate_schedule_outputs>` to create outputs
+2. :ref:`Enrichment <process_configuration>` to add depths and coordinates
+3. :ref:`Schedule generation <generate_schedule_outputs>` to create outputs
 
 The PANGAEA-enhanced workflow follows the same final steps but benefits from the historical context during station selection.

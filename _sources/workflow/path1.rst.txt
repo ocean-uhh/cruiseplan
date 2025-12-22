@@ -19,8 +19,8 @@ Path 1: Basic Planning Workflow
 Phase 1: Data Preparation
 ---------------------------------
 
-Step 1: Download Bathymetry
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 1.1: Download Bathymetry
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Provides depth information for station planning and automatic depth enrichment.
 
@@ -41,8 +41,8 @@ Essential first step:  :ref:`download_bathymetry`.  You've succeeeded when you h
 Phase 2: Cruise Configuration
 -----------------------------
 
-Step 1: Pick Stations
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 2.1: Pick Stations
+~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Visually select station locations using an interactive map interface.
 
@@ -166,8 +166,8 @@ Additional commands can be used anytime:
 
 .. _manual_editing_configuration:
 
-Step 2: Manual Configuration Editing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Step 2.2: Manual Configuration Editing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 **Purpose:** Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as "CTD" and "profile" for stations, but will not update the YAML configuration (so you know where you've updated or not).
 
@@ -277,9 +277,9 @@ For programmatic access or regional filtering, see the :ref:`global_ports_refere
 
 ----
 
-.. _enrich_configuration:
+.. _process_configuration:
 
-Step 3: Process Configuration (enrich, validate + map)
+Step 2.3: Process Configuration (enrich, validate + map)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Purpose:** Automatically add depth information and formatted coordinates to your stations. Checks for errors and inconsistencies before scheduling.

@@ -130,7 +130,7 @@ Current Limitations
   - No cruise track connections between operations
   - No scheduling or timeline information
 
-This would only be possible if we generated the KML from the schedule data (i.e., in "cruiseplan schedule") rather than the YAML configuration (in "cruiseplan map").
+This would only be possible if we generated the KML from the schedule data rather than the YAML configuration (which is what "cruiseplan map" currently does).
 
 
 

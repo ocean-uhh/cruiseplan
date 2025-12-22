@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Path 1: Basic Planning Workflow &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev2</title>
+  <title>Path 1: Basic Planning Workflow &mdash; CruisePlan v0.2.1 v0.2.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=7898d619"></script>
+      <script src="../_static/documentation_options.js?v=dce05200"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -56,13 +56,13 @@
 <li class="toctree-l1 current"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Path 1: General Usage - Cruise planning from scratch without historical context</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#phase-1-data-preparation">Phase 1: Data Preparation</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#step-1-download-bathymetry">Step 1: Download Bathymetry</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-1-1-download-bathymetry">Step 1.1: Download Bathymetry</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#phase-2-cruise-configuration">Phase 2: Cruise Configuration</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#step-1-pick-stations">Step 1: Pick Stations</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#step-2-manual-configuration-editing">Step 2: Manual Configuration Editing</a></li>
-<li class="toctree-l4"><a class="reference internal" href="#step-3-process-configuration-enrich-validate-map">Step 3: Process Configuration (enrich, validate + map)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-1-pick-stations">Step 2.1: Pick Stations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-2-manual-configuration-editing">Step 2.2: Manual Configuration Editing</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#step-2-3-process-configuration-enrich-validate-map">Step 2.3: Process Configuration (enrich, validate + map)</a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#phase-3-generate-schedule-and-outputs">Phase 3: Generate Schedule and Outputs</a></li>
@@ -138,8 +138,8 @@
 <hr class="docutils" />
 <section id="phase-1-data-preparation">
 <h2>Phase 1: Data Preparation<a class="headerlink" href="#phase-1-data-preparation" title="Link to this heading"></a></h2>
-<section id="step-1-download-bathymetry">
-<h3>Step 1: Download Bathymetry<a class="headerlink" href="#step-1-download-bathymetry" title="Link to this heading"></a></h3>
+<section id="step-1-1-download-bathymetry">
+<h3>Step 1.1: Download Bathymetry<a class="headerlink" href="#step-1-1-download-bathymetry" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Provides depth information for station planning and automatic depth enrichment.</p>
 <p>Essential first step:  <a class="reference internal" href="../user_workflows.html#download-bathymetry"><span class="std std-ref">Download bathymetry</span></a>.  You’ve succeeeded when you have the file <code class="docutils literal notranslate"><span class="pre">data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc</span></code> available.  When in doubt, start with the ETOPO (default) only.</p>
 <figure class="align-center" id="id2">
@@ -158,8 +158,8 @@
 <hr class="docutils" />
 <section id="phase-2-cruise-configuration">
 <h2>Phase 2: Cruise Configuration<a class="headerlink" href="#phase-2-cruise-configuration" title="Link to this heading"></a></h2>
-<section id="step-1-pick-stations">
-<h3>Step 1: Pick Stations<a class="headerlink" href="#step-1-pick-stations" title="Link to this heading"></a></h3>
+<section id="step-2-1-pick-stations">
+<h3>Step 2.1: Pick Stations<a class="headerlink" href="#step-2-1-pick-stations" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Visually select station locations using an interactive map interface.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>stations<span class="w"> </span>--lat<span class="w"> </span><span class="m">45</span><span class="w"> </span><span class="m">70</span><span class="w"> </span>--lon<span class="w"> </span>-65<span class="w"> </span>-5<span class="w"> </span>-o<span class="w"> </span>output_dir
 </pre></div>
@@ -272,8 +272,8 @@
 </div>
 <hr class="docutils" />
 </section>
-<section id="step-2-manual-configuration-editing">
-<span id="manual-editing-configuration"></span><h3>Step 2: Manual Configuration Editing<a class="headerlink" href="#step-2-manual-configuration-editing" title="Link to this heading"></a></h3>
+<section id="step-2-2-manual-configuration-editing">
+<span id="manual-editing-configuration"></span><h3>Step 2.2: Manual Configuration Editing<a class="headerlink" href="#step-2-2-manual-configuration-editing" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as “CTD” and “profile” for stations, but will not update the YAML configuration (so you know where you’ve updated or not).</p>
 <p><strong>Operation Type Guide:</strong></p>
 <table class="docutils align-default">
@@ -386,8 +386,8 @@
 <p>For programmatic access or regional filtering, see the <a class="reference internal" href="../global_ports.html#global-ports-reference"><span class="std std-ref">Global Ports Reference</span></a> documentation.</p>
 <hr class="docutils" />
 </section>
-<section id="step-3-process-configuration-enrich-validate-map">
-<span id="enrich-configuration"></span><h3>Step 3: Process Configuration (enrich, validate + map)<a class="headerlink" href="#step-3-process-configuration-enrich-validate-map" title="Link to this heading"></a></h3>
+<section id="step-2-3-process-configuration-enrich-validate-map">
+<span id="process-configuration"></span><h3>Step 2.3: Process Configuration (enrich, validate + map)<a class="headerlink" href="#step-2-3-process-configuration-enrich-validate-map" title="Link to this heading"></a></h3>
 <p><strong>Purpose:</strong> Automatically add depth information and formatted coordinates to your stations. Checks for errors and inconsistencies before scheduling.</p>
 <p><strong>Option A: Unified Processing (Recommended)</strong></p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>process<span class="w"> </span>-c<span class="w"> </span>my_cruise.yaml<span class="w"> </span>--output<span class="w"> </span>expedition_2024
