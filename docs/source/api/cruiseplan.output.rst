@@ -55,3 +55,11 @@ cruiseplan.output.netcdf_generator module
    :members:
    :undoc-members:
    :show-inheritance:
+
+cruiseplan.output.netcdf_metadata module
+--------------------------------------------
+
+.. automodule:: cruiseplan.output.netcdf_metadata
+   :members:
+   :undoc-members:
+   :show-inheritance:

@@ -45,37 +45,44 @@ logger = logging.getLogger(__name__)
 
 def _setup_output_paths(
     config_file: Union[str, Path],
-    output_dir: str = "data",
+    output_dir: Optional[Union[str, Path]] = None,
     output: Optional[str] = None,
 ) -> Tuple[Path, str]:
     """
-    Helper function to set up output directory and base filename from config file and parameters.
+    Internal helper function to setup output directory and base filename.
 
     Parameters
     ----------
     config_file : str or Path
-        Input YAML configuration file
-    output_dir : str
+        Path to the configuration file
+    output_dir : str or Path, optional
         Output directory (default: "data")
     output : str, optional
-        Base filename for outputs (default: use config filename)
+        Base filename for outputs (default: extracted from config_file)
 
     Returns
     -------
-    tuple
-        (output_dir_path, base_name) where output_dir_path is resolved Path
-        and base_name is the filename stem to use for outputs
+    tuple[Path, str]
+        Tuple of (output_directory, base_filename)
     """
-    from pathlib import Path
+    # Handle config file path
+    config_path = Path(config_file)
 
-    output_dir_path = Path(output_dir).resolve()
+    # Setup output directory
+    if output_dir is None:
+        output_dir_path = Path("data")
+    else:
+        output_dir_path = Path(output_dir)
+
+    # Resolve to absolute path and create directory
+    output_dir_path = output_dir_path.resolve()
     output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    if output:
-        base_name = output
+    # Setup base filename
+    if output is None:
+        base_name = config_path.stem
     else:
-        # Use config file stem as base name, with safe character replacement
-        base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
+        base_name = output
 
     return output_dir_path, base_name
 
@@ -353,7 +360,9 @@ def enrich(
     config_path = Path(config_file).resolve()
 
     # Setup output paths using helper function
-    output_dir_path, base_name = _setup_output_paths(config_file, output_dir, output)
+    from cruiseplan.utils.config import setup_output_paths
+
+    output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
 
     # Determine final output file path - CLI behavior is to append "_enriched"
     # Always append "_enriched" to maintain consistency with CLI and other commands
@@ -579,14 +588,14 @@ def schedule(
             return timeline, None
 
         # Setup output paths using helper function
-        output_dir_path, base_name = _setup_output_paths(
-            config_file, output_dir, output
-        )
+        from cruiseplan.utils.config import setup_output_paths
+
+        output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
 
         # Parse format list
         formats = []
         if format == "all":
-            formats = ["html", "latex", "csv", "netcdf"]
+            formats = ["html", "latex", "csv", "netcdf", "png"]
             if derive_netcdf:
                 formats.append("netcdf_specialized")
         else:
@@ -605,10 +614,16 @@ def schedule(
                 logger.info(f"✅ Generated HTML schedule: {output_path}")
 
             elif fmt == "latex":
-                output_path = output_dir_path / f"{base_name}_schedule.tex"
-                from cruiseplan.output.latex_generator import generate_latex_schedule
+                from cruiseplan.output.latex_generator import generate_latex_tables
 
-                generate_latex_schedule(timeline, cruise.config, output_path)
+                latex_files = generate_latex_tables(
+                    cruise.config, timeline, output_dir_path
+                )
+                output_path = (
+                    latex_files[0]
+                    if latex_files
+                    else output_dir_path / f"{base_name}_schedule.tex"
+                )
                 generated_files.append(output_path)
                 logger.info(f"✅ Generated LaTeX schedule: {output_path}")
 
@@ -644,6 +659,28 @@ def schedule(
                 logger.info(
                     f"✅ Generated specialized NetCDF files: {len(specialized_files)} files"
                 )
+
+            elif fmt == "png":
+                output_path = output_dir_path / f"{base_name}_map.png"
+                from cruiseplan.output.map_generator import generate_map_from_timeline
+
+                logger.info(
+                    f"🗺️ PNG Map Generator: Starting generation of {output_path}"
+                )
+                map_file = generate_map_from_timeline(
+                    timeline=timeline,
+                    output_file=output_path,
+                    bathy_source=bathy_source,
+                    bathy_dir=bathy_dir,
+                    bathy_stride=bathy_stride,
+                    figsize=tuple(figsize) if isinstance(figsize, list) else figsize,
+                    config=cruise,
+                )
+                if map_file:
+                    generated_files.append(map_file)
+                    logger.info(f"✅ Generated PNG map: {map_file}")
+                else:
+                    logger.warning("PNG map generation failed")
 
             else:
                 logger.warning(
@@ -894,7 +931,9 @@ def map(
         cruise = Cruise(Path(config_file))
 
         # Setup output paths using helper function
-        output_path, base_name = _setup_output_paths(config_file, output_dir, output)
+        from cruiseplan.utils.config import setup_output_paths
+
+        output_path, base_name = setup_output_paths(config_file, output_dir, output)
 
         # Generate maps based on format - direct core calls
         if format == "png" or format == "all":

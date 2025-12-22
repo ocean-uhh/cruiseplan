@@ -167,7 +167,7 @@ Additional commands can be used anytime:
 .. _manual_editing_configuration:
 
 Step 2: Manual Configuration Editing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
  
 **Purpose:** Define what scientific operations will happen at each location. If you do not, however, the validation (Step 4) will still pass with warnings.  Operations will default to the same values as "CTD" and "profile" for stations, but will not update the YAML configuration (so you know where you've updated or not).
 

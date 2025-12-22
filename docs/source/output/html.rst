@@ -82,7 +82,7 @@ File Structure
 
 
 Usage Recommendations
---------------------
+~~~~~~~~~~~~~~~~~~~~~~
 
 **For Proposal Preparation**:
   - Generate HTML for initial review and feedback

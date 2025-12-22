@@ -103,14 +103,17 @@ class LaTeXGenerator:
 
         return pages
 
-    def generate_stations_table(
+    def _generate_stations_rows(
         self, config: CruiseConfig, timeline: List[ActivityRecord]
-    ) -> str:
+    ) -> List[Dict[str, str]]:
         """
-        Generates the Working Area, Stations and Profiles table from scheduler timeline.
-        """
-        template = self.env.get_template("stations_table.tex.j2")
+        Extract station/operation data from timeline for table generation.
 
+        Returns
+        -------
+        List[Dict[str, str]]
+            List of dictionaries with station data for LaTeX table.
+        """
         # Filter out non-science operations (exclude pure transit activities)
         science_operations = [
             activity
@@ -189,6 +192,17 @@ class LaTeXGenerator:
                     }
                 )
 
+        return table_rows
+
+    def generate_stations_table(
+        self, config: CruiseConfig, timeline: List[ActivityRecord]
+    ) -> str:
+        """
+        Generates the Working Area, Stations and Profiles table from scheduler timeline.
+        """
+        template = self.env.get_template("stations_table.tex.j2")
+
+        table_rows = self._generate_stations_rows(config, timeline)
         paginated_data = self._paginate_data(table_rows, "stations")
 
         cruise_name = str(config.cruise_name).replace("_", "-")
@@ -609,6 +623,90 @@ class LaTeXGenerator:
 
         return summary_rows
 
+    def generate_combined_tables(
+        self, config: CruiseConfig, timeline: List[ActivityRecord]
+    ) -> str:
+        """
+        Generate a combined LaTeX document with both stations and work days tables.
+
+        Parameters
+        ----------
+        config : CruiseConfig
+            The cruise configuration object.
+        timeline : List[ActivityRecord]
+            List of activity records from the scheduler.
+
+        Returns
+        -------
+        str
+            LaTeX document content containing both tables.
+        """
+        template = self.env.get_template("combined_tables.tex.j2")
+
+        # Generate stations data
+        stations_data = self._generate_stations_rows(config, timeline)
+        stations_paginated = self._paginate_data(stations_data, "stations")
+
+        # Generate work days data
+        work_days_data = self._generate_work_days_rows_for_timeline(timeline)
+        work_days_paginated = self._paginate_data(work_days_data, "work_days")
+
+        # Calculate totals for work days table (copied from generate_work_days_table method)
+        station_activities = [a for a in timeline if a["activity"] == "Station"]
+        mooring_activities = [a for a in timeline if a["activity"] == "Mooring"]
+        area_activities = [a for a in timeline if a["activity"] == "Area"]
+
+        # Calculate transit times - include all transit-type activities
+        all_transits = [
+            a
+            for a in timeline
+            if a["activity"] in ["Transit", "Port_Departure", "Port_Arrival"]
+        ]
+        scientific_transits = [a for a in all_transits if a.get("action")]
+
+        station_duration_h = sum(a["duration_minutes"] for a in station_activities) / 60
+        mooring_duration_h = sum(a["duration_minutes"] for a in mooring_activities) / 60
+        area_duration_h = sum(a["duration_minutes"] for a in area_activities) / 60
+
+        # Calculate scientific operation durations
+        scientific_op_durations_h = {}
+        for activity in scientific_transits:
+            duration_h = activity["duration_minutes"] / 60
+            scientific_op_durations_h["scientific"] = (
+                scientific_op_durations_h.get("scientific", 0.0) + duration_h
+            )
+
+        total_scientific_op_h = sum(scientific_op_durations_h.values())
+
+        # Calculate navigation transit times (all transits without scientific actions)
+        navigation_transits = [a for a in all_transits if not a.get("action")]
+        total_navigation_transit_h = (
+            sum(a["duration_minutes"] for a in navigation_transits) / 60
+        )
+
+        # Within-area transit (simplified calculation)
+        transit_within_area_h = (
+            0.0  # This would need more complex logic for actual calculation
+        )
+
+        total_operation_duration_h = (
+            station_duration_h
+            + mooring_duration_h
+            + area_duration_h
+            + total_scientific_op_h
+            + transit_within_area_h
+        )
+        total_transit_h = total_navigation_transit_h
+
+        cruise_name = str(config.cruise_name).replace("_", "-")
+        return template.render(
+            cruise_name=cruise_name,
+            stations_pages=stations_paginated,
+            work_days_pages=work_days_paginated,
+            total_duration_h=f"{total_operation_duration_h:.1f}",
+            total_transit_h=f"{total_transit_h:.1f}",
+        )
+
 
 def generate_latex_tables(
     config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
@@ -632,7 +730,7 @@ def generate_latex_tables(
     generator = LaTeXGenerator()
     files_created = []
 
-    # 1. Generate individual tables
+    # Generate individual tables (revert to separate files for multi-leg support)
     try:
         stations_table = generator.generate_stations_table(config, timeline)
         work_days_table = generator.generate_work_days_table(config, timeline)
@@ -640,11 +738,22 @@ def generate_latex_tables(
         logging.error(f"Failed to generate LaTeX tables: {e}")
         return []
 
-    # 2. Write to files
+    # Write to files
     output_dir.mkdir(exist_ok=True, parents=True)
 
-    stations_file = output_dir / f"{config.cruise_name}_stations.tex"
-    work_days_file = output_dir / f"{config.cruise_name}_work_days.tex"
+    # Use standardized base name generation
+    from cruiseplan.utils.config import setup_output_paths
+
+    _, base_name = setup_output_paths(
+        config_file="dummy", output_dir=str(output_dir), output=None
+    )
+    # Override with actual cruise name if available
+    if hasattr(config, "cruise_name") and config.cruise_name:
+        base_name = str(config.cruise_name).replace(" ", "_").replace("/", "-")
+
+    # Generate separate files with consistent naming
+    stations_file = output_dir / f"{base_name}_stations.tex"
+    work_days_file = output_dir / f"{base_name}_work_days.tex"
 
     stations_file.write_text(stations_table, encoding="utf-8")
     work_days_file.write_text(work_days_table, encoding="utf-8")

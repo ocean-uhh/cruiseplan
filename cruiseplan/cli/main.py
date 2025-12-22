@@ -260,6 +260,12 @@ Examples:
         help="Bathymetry dataset for PNG maps (default: etopo2022)",
     )
     schedule_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+    schedule_parser.add_argument(
         "--bathy-stride",
         type=int,
         default=10,

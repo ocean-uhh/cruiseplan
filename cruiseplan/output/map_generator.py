@@ -113,9 +113,14 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
         if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
             port = cruise.config.departure_port
             if hasattr(port, "latitude"):
+                # Use display_name if available, otherwise fall back to name
+                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
+                port_label = (
+                    getattr(port, "display_name", port.name) or port.name
+                ).split(",")[0]
                 points.append(
                     {
-                        "name": port.name,
+                        "name": port_label,
                         "lat": port.latitude,
                         "lon": port.longitude,
                         "entity_type": "departure_port",
@@ -129,9 +134,14 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
         if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
             port = cruise.config.arrival_port
             if hasattr(port, "latitude"):
+                # Use display_name if available, otherwise fall back to name
+                # Truncate at comma for cleaner labeling (e.g., "Halifax" instead of "Halifax, Nova Scotia")
+                port_label = (
+                    getattr(port, "display_name", port.name) or port.name
+                ).split(",")[0]
                 points.append(
                     {
-                        "name": port.name,
+                        "name": port_label,
                         "lat": port.latitude,
                         "lon": port.longitude,
                         "entity_type": "arrival_port",
@@ -1055,6 +1065,7 @@ def generate_map_from_timeline(
     timeline,
     output_file: Union[str, Path] = "timeline_map.png",
     bathy_source: str = "gebco2025",
+    bathy_dir: str = "data",
     bathy_stride: int = 5,
     figsize: Tuple[float, float] = (10, 8),
     config=None,
@@ -1073,6 +1084,8 @@ def generate_map_from_timeline(
         Path or string for the output PNG file. Default is "timeline_map.png".
     bathy_source : str, optional
         Bathymetry dataset to use ("etopo2022" or "gebco2025"). Default is "gebco2025".
+    bathy_dir : str, optional
+        Directory containing bathymetry data. Default is "data".
     bathy_stride : int, optional
         Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.
     figsize : tuple of float, optional
@@ -1093,6 +1106,7 @@ def generate_map_from_timeline(
         source_type="timeline",
         output_file=output_file,
         bathy_source=bathy_source,
+        bathy_dir=bathy_dir,
         bathy_stride=bathy_stride,
         show_plot=False,
         figsize=figsize,

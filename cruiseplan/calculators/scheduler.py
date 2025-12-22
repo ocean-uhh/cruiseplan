@@ -998,7 +998,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     ActivityRecord(
                         {
                             "activity": "Port_Departure",
-                            "label": f"Departure: {runtime_leg.departure_port.name} to Operations",
+                            "label": f"Departure: {(getattr(runtime_leg.departure_port, 'display_name', runtime_leg.departure_port.name) or runtime_leg.departure_port.name).split(',')[0]} to Operations",
                             "lat": port_pos[0],  # Record departure port coordinates
                             "lon": port_pos[1],  # Record departure port coordinates
                             "depth": 0.0,
@@ -1065,7 +1065,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                         {
                             "activity": "Port_Arrival",
                             "operation_type": "port_arrival",
-                            "label": f"Arrival: Operations to {runtime_leg.arrival_port.name}",
+                            "label": f"Arrival: Operations to {(getattr(runtime_leg.arrival_port, 'display_name', runtime_leg.arrival_port.name) or runtime_leg.arrival_port.name).split(',')[0]}",
                             "lat": runtime_leg.arrival_port.latitude,
                             "lon": runtime_leg.arrival_port.longitude,
                             "depth": 0.0,
@@ -1314,6 +1314,7 @@ def generate_cruise_schedule(
     selected_leg: Optional[str] = None,
     derive_netcdf: bool = False,
     bathy_source: str = "etopo2022",
+    bathy_dir: str = "data",
     bathy_stride: int = 10,
     figsize: List[float] = None,
     output_basename: Optional[str] = None,
@@ -1341,6 +1342,8 @@ def generate_cruise_schedule(
         (_points.nc, _lines.nc, _areas.nc) in addition to master schedule. Default is False.
     bathy_source : str, optional
         Bathymetry dataset to use for PNG map generation. Default is "etopo2022".
+    bathy_dir : str, optional
+        Directory containing bathymetry data for PNG maps. Default is "data".
     bathy_stride : int, optional
         Bathymetry contour stride for PNG maps. Default is 10.
     figsize : list of float, optional
@@ -1449,7 +1452,7 @@ def generate_cruise_schedule(
 
                 output_file = output_path / f"{base_filename}.html"
                 generate_html_schedule(config, timeline, output_file)
-                logger.info(f"    HTML schedule: {cruise_name}_summary.html")
+                logger.info(f"    HTML schedule: {base_filename}_summary.html")
                 formats_generated.append("html")
                 output_files.append(output_file)
 
@@ -1466,7 +1469,7 @@ def generate_cruise_schedule(
                 output_file = _generate_latex_schedule(
                     timeline, config, output_path, base_filename
                 )
-                logger.info(f"    LaTeX tables: {cruise_name}_tables.tex")
+                logger.info(f"    LaTeX tables: {base_filename}_tables.tex")
                 formats_generated.append("latex")
                 output_files.append(output_file)
 
@@ -1489,6 +1492,7 @@ def generate_cruise_schedule(
                     output_path,
                     base_filename,
                     bathy_source=bathy_source,
+                    bathy_dir=bathy_dir,
                     bathy_stride=bathy_stride,
                     figsize=figsize,
                 )
@@ -1569,6 +1573,7 @@ def _generate_timeline_png_map(
     output_path,
     base_filename,
     bathy_source="etopo2022",
+    bathy_dir="data",
     bathy_stride=10,
     figsize=None,
 ):
@@ -1586,6 +1591,7 @@ def _generate_timeline_png_map(
             timeline=timeline,
             output_file=output_file,
             bathy_source=bathy_source,
+            bathy_dir=bathy_dir,
             bathy_stride=bathy_stride,
             figsize=tuple(figsize) if isinstance(figsize, list) else figsize,
             config=cruise,

@@ -1518,9 +1518,37 @@ class CruiseConfig(BaseModel):
     ports: Optional[List[PortDefinition]] = []
     legs: List[LegDefinition]
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="allow")
 
     # --- VALIDATORS ---
+
+    @model_validator(mode="before")
+    @classmethod
+    def check_forbidden_cruise_level_fields(cls, data):
+        """Prevent confusing leg-level fields from being used at cruise level."""
+        if isinstance(data, dict):
+            forbidden_fields = {
+                "departure_port": "Use departure_port within individual leg definitions instead",
+                "arrival_port": "Use arrival_port within individual leg definitions instead",
+                "first_waypoint": "Waypoint fields belong in leg definitions",
+                "last_waypoint": "Waypoint fields belong in leg definitions",
+            }
+
+            found_forbidden = []
+            for field, message in forbidden_fields.items():
+                if field in data:
+                    found_forbidden.append(f"{field} ({message})")
+
+            if found_forbidden:
+                fields_list = ", ".join(found_forbidden)
+                raise ValueError(
+                    f"Global cruise-level fields no longer supported: {fields_list.split(' (')[0]}. "
+                    f"These fields must be defined within individual leg definitions to avoid "
+                    f"conflicts during section expansion and multi-leg processing. "
+                    f"Please move these fields into the 'legs' section of your configuration."
+                )
+
+        return data
 
     @field_validator("default_vessel_speed")
     def validate_speed(cls, v):

@@ -1,8 +1,8 @@
 .. _operation-types-reference:
 
-========================
+==========================
 Operation Types Reference  
-========================
+==========================
 
 This document provides comprehensive documentation of all operation types supported by CruisePlan, including their valid actions, duration calculations, and routing behaviors.
 
