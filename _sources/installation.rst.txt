@@ -54,7 +54,7 @@ Install options (PyPI, GitHub)
 ------------------------------
 
 Option 1: Install from PyPI (Most Users)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 For general use, install the latest stable release from PyPI:
 

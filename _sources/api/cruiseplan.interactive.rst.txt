@@ -32,7 +32,7 @@ cruiseplan.interactive.widgets module
    :show-inheritance:
 
 cruiseplan.interactive.colormaps module
--------------------------------------
+---------------------------------------
 
 .. automodule:: cruiseplan.interactive.colormaps
    :members:

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -189,7 +189,9 @@
     <span class="n">within_area_transits</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># Categorize every activity in the timeline</span>
-    <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 HTML Generator: Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> timeline activities&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Activity </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span><span class="si">}</span><span class="s2">, content=</span><span class="si">{</span><span class="n">activity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span>
 
         <span class="k">if</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">:</span>
@@ -542,8 +544,8 @@
 
         <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
-                <span class="n">lat_dmm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
-                <span class="n">lon_dmm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                <span class="n">lat_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
+                <span class="n">lon_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
                 <span class="n">comment</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">depth</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
                 <span class="n">action</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
@@ -553,7 +555,7 @@
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">lat_dmm</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_dmm</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">lat_ddm</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_ddm</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
@@ -973,6 +975,9 @@
 <span class="sd">    Path</span>
 <span class="sd">        Path to generated HTML file</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🌐 HTML Generator: Starting generation of </span><span class="si">{</span><span class="n">output_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Timeline contains </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> activities&quot;</span><span class="p">)</span>
+
     <span class="n">generator</span> <span class="o">=</span> <span class="n">HTMLGenerator</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_schedule_report</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_file</span><span class="p">)</span></div>
 

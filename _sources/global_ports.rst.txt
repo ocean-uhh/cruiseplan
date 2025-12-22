@@ -1,8 +1,8 @@
 .. _global_ports_reference:
 
-=====================
+=======================
 Global Ports Reference
-=====================
+=======================
 
 CruisePlan includes a comprehensive registry of global research ports that can be referenced directly in YAML configurations. Instead of manually specifying coordinates for common ports, you can use their predefined identifiers.
 

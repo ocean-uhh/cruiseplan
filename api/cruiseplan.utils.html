@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>General Utilities &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -96,6 +96,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.format_station_for_yaml"><code class="docutils literal notranslate"><span class="pre">format_station_for_yaml()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.format_transect_for_yaml"><code class="docutils literal notranslate"><span class="pre">format_transect_for_yaml()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.save_cruise_config"><code class="docutils literal notranslate"><span class="pre">save_cruise_config()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.setup_output_paths"><code class="docutils literal notranslate"><span class="pre">setup_output_paths()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.constants">cruiseplan.utils.constants module</a><ul>
@@ -112,11 +113,35 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.calculate_map_bounds"><code class="docutils literal notranslate"><span class="pre">calculate_map_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.compute_final_limits"><code class="docutils literal notranslate"><span class="pre">compute_final_limits()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.extract_coordinates_from_cruise"><code class="docutils literal notranslate"><span class="pre">extract_coordinates_from_cruise()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_dmm_comment"><code class="docutils literal notranslate"><span class="pre">format_dmm_comment()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_ddm_comment"><code class="docutils literal notranslate"><span class="pre">format_ddm_comment()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_geographic_bounds"><code class="docutils literal notranslate"><span class="pre">format_geographic_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_position_latex"><code class="docutils literal notranslate"><span class="pre">format_position_latex()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.format_position_string"><code class="docutils literal notranslate"><span class="pre">format_position_string()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.parse_dmm_format"><code class="docutils literal notranslate"><span class="pre">parse_dmm_format()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.parse_ddm_format"><code class="docutils literal notranslate"><span class="pre">parse_ddm_format()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.global_ports">cruiseplan.utils.global_ports module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.add_custom_port"><code class="docutils literal notranslate"><span class="pre">add_custom_port()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.get_available_ports"><code class="docutils literal notranslate"><span class="pre">get_available_ports()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.list_ports_in_region"><code class="docutils literal notranslate"><span class="pre">list_ports_in_region()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.resolve_port_reference"><code class="docutils literal notranslate"><span class="pre">resolve_port_reference()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.plot_config">cruiseplan.utils.plot_config module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap"><code class="docutils literal notranslate"><span class="pre">create_bathymetry_colormap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap_v2"><code class="docutils literal notranslate"><span class="pre">create_bathymetry_colormap_v2()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.get_colormap"><code class="docutils literal notranslate"><span class="pre">get_colormap()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.get_legend_entries"><code class="docutils literal notranslate"><span class="pre">get_legend_entries()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.get_plot_style"><code class="docutils literal notranslate"><span class="pre">get_plot_style()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.load_cpt_colormap"><code class="docutils literal notranslate"><span class="pre">load_cpt_colormap()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.yaml_io">cruiseplan.utils.yaml_io module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError"><code class="docutils literal notranslate"><span class="pre">YAMLIOError</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.dump_yaml_simple"><code class="docutils literal notranslate"><span class="pre">dump_yaml_simple()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.load_yaml_safe"><code class="docutils literal notranslate"><span class="pre">load_yaml_safe()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.save_yaml"><code class="docutils literal notranslate"><span class="pre">save_yaml()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -458,6 +483,28 @@ with preserved key ordering. When add_documentation=True, includes
 comprehensive field documentation and workflow guidance.</p>
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.config.setup_output_paths">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.config.</span></span><span class="sig-name descname"><span class="pre">setup_output_paths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Path</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/config.html#setup_output_paths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.config.setup_output_paths" title="Link to this definition"></a></dt>
+<dd><p>Helper function to set up output directory and base filename from config file and parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Input YAML configuration file</p></li>
+<li><p><strong>output_dir</strong> (<em>str</em>) – Output directory (default: “data”)</p></li>
+<li><p><strong>output</strong> (<em>str</em><em>, </em><em>optional</em>) – Base filename for outputs (default: use config filename)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>(output_dir_path, base_name) where output_dir_path is resolved Path
+and base_name is the filename stem to use for outputs</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-cruiseplan.utils.constants">
 <span id="cruiseplan-utils-constants-module"></span><h2>cruiseplan.utils.constants module<a class="headerlink" href="#module-cruiseplan.utils.constants" title="Link to this heading"></a></h2>
@@ -577,7 +624,7 @@ Unit conversion functions are provided for common time conversions.</p>
 <p>Coordinate formatting utilities for scientific and maritime applications.</p>
 <p>This module provides functions to format coordinates in various standard formats
 used in oceanographic and maritime contexts, including decimal degrees, degrees
-and decimal minutes (DMM), and LaTeX-formatted output. Also includes utilities
+and decimal minutes (DDM), and LaTeX-formatted output. Also includes utilities
 for extracting coordinates from cruise configurations and calculating map bounds.</p>
 <p class="rubric">Notes</p>
 <p>All coordinate functions expect input in decimal degrees and handle both
@@ -591,8 +638,8 @@ The UnitConverter class provides static methods for coordinate conversions.</p>
 <p>This class provides static methods for converting between different
 coordinate representations commonly used in maritime and scientific contexts.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_dmm">
-<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decimal_degrees_to_dmm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decimal_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#UnitConverter.decimal_degrees_to_dmm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_dmm" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_ddm">
+<em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">decimal_degrees_to_ddm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decimal_degrees</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#UnitConverter.decimal_degrees_to_ddm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_ddm" title="Link to this definition"></a></dt>
 <dd><p>Convert decimal degrees to degrees and decimal minutes.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -606,7 +653,7 @@ coordinate representations commonly used in maritime and scientific contexts.</p
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_dmm</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">)</span>
 <span class="go">(65.0, 44.75)</span>
 </pre></div>
 </div>
@@ -679,10 +726,10 @@ departure_port and arrival_port are tuples of (lat, lon, name) or None</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.format_dmm_comment">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">format_dmm_comment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#format_dmm_comment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.format_dmm_comment" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.format_ddm_comment">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">format_ddm_comment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#format_ddm_comment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.format_ddm_comment" title="Link to this definition"></a></dt>
 <dd><p>Format coordinates as degrees/decimal minutes comment for validator compliance.</p>
-<p>This function generates DMM format that passes the strict validator requirements:
+<p>This function generates ddm format that passes the strict validator requirements:
 - DD MM.MM’N, DDD MM.MM’W format (degrees and decimal minutes)
 - No degree symbols (°)
 - 2-digit latitude degrees, 3-digit longitude degrees with leading zeros
@@ -695,14 +742,14 @@ departure_port and arrival_port are tuples of (lat, lon, name) or None</p>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>DMM comment like “65 44.75’N, 024 28.75’W”.</p>
+<dd class="field-even"><p>ddm comment like “65 44.75’N, 024 28.75’W”.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_dmm_comment</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_ddm_comment</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">)</span>
 <span class="go">&quot;65 44.75&#39;N, 024 28.75&#39;W&quot;</span>
 </pre></div>
 </div>
@@ -769,15 +816,15 @@ departure_port and arrival_port are tuples of (lat, lon, name) or None</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.utils.coordinates.format_position_string">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">format_position_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'dmm'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#format_position_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.format_position_string" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">format_position_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">format_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ddm'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#format_position_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.format_position_string" title="Link to this definition"></a></dt>
 <dd><p>Format coordinate pair as a position string.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>lat</strong> (<em>float</em>) – Latitude in decimal degrees.</p></li>
 <li><p><strong>lon</strong> (<em>float</em>) – Longitude in decimal degrees.</p></li>
-<li><p><strong>format_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Format type - ‘dmm’ for degrees/decimal minutes, ‘decimal’ for decimal degrees.
-Default is ‘dmm’.</p></li>
+<li><p><strong>format_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Format type - ‘ddm’ for degrees/decimal minutes, ‘decimal’ for decimal degrees.
+Default is ‘ddm’.</p></li>
 </ul>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
@@ -788,7 +835,7 @@ Default is ‘dmm’.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_position_string</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">,</span> <span class="s2">&quot;dmm&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">format_position_string</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">,</span> <span class="s2">&quot;ddm&quot;</span><span class="p">)</span>
 <span class="go">&quot;65 44.75&#39;N, 024 28.75&#39;W&quot;</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">format_position_string</span><span class="p">(</span><span class="mf">65.7458</span><span class="p">,</span> <span class="o">-</span><span class="mf">24.4792</span><span class="p">,</span> <span class="s2">&quot;decimal&quot;</span><span class="p">)</span>
 <span class="go">&quot;65.7458°N, 24.4792°W&quot;</span>
@@ -797,13 +844,13 @@ Default is ‘dmm’.</p></li>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.parse_dmm_format">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">parse_dmm_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#parse_dmm_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.parse_dmm_format" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.utils.coordinates.parse_ddm_format">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.coordinates.</span></span><span class="sig-name descname"><span class="pre">parse_ddm_format</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coords_str</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/coordinates.html#parse_ddm_format"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.coordinates.parse_ddm_format" title="Link to this definition"></a></dt>
 <dd><p>Parse degrees/decimal minutes format with direction indicators.</p>
 <p>A simpler version that handles common coordinate string formats.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>coords_str</strong> (<em>str</em>) – Coordinate string in DMM format.</p>
+<dd class="field-odd"><p><strong>coords_str</strong> (<em>str</em>) – Coordinate string in DDM format.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Tuple of (latitude, longitude) in decimal degrees.</p>
@@ -813,14 +860,325 @@ Default is ‘dmm’.</p></li>
 </dd>
 </dl>
 <p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_dmm_format</span><span class="p">(</span><span class="s2">&quot;52° 49.99&#39; N, 51° 32.81&#39; W&quot;</span><span class="p">)</span>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ddm_format</span><span class="p">(</span><span class="s2">&quot;52° 49.99&#39; N, 51° 32.81&#39; W&quot;</span><span class="p">)</span>
 <span class="go">(52.83316666666667, -51.54683333333333)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">parse_dmm_format</span><span class="p">(</span><span class="s2">&quot;52°49.99&#39;N,51°32.81&#39;W&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ddm_format</span><span class="p">(</span><span class="s2">&quot;52°49.99&#39;N,51°32.81&#39;W&quot;</span><span class="p">)</span>
 <span class="go">(52.83316666666667, -51.54683333333333)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">parse_dmm_format</span><span class="p">(</span><span class="s2">&quot;56° 34,50&#39; N, 52° 40,33&#39; W&quot;</span><span class="p">)</span>  <span class="c1"># European comma</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">parse_ddm_format</span><span class="p">(</span><span class="s2">&quot;56° 34,50&#39; N, 52° 40,33&#39; W&quot;</span><span class="p">)</span>  <span class="c1"># European comma</span>
 <span class="go">(56.575, -52.6721666666667)</span>
 </pre></div>
 </div>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.utils.global_ports">
+<span id="cruiseplan-utils-global-ports-module"></span><h2>cruiseplan.utils.global_ports module<a class="headerlink" href="#module-cruiseplan.utils.global_ports" title="Link to this heading"></a></h2>
+<p>Global port configuration system for maritime cruise planning.</p>
+<p>This module provides a registry of common maritime ports with their coordinates,
+timezones, and metadata. Users can reference these ports by standard identifiers
+(e.g., ‘port_reykjavik’) or override them with custom definitions in their YAML.</p>
+<p>Features:
+- Standard port registry with common research cruise destinations
+- Timezone information for port operations
+- Extensible system allowing user-defined port overrides
+- Support for both string references and PortDefinition objects</p>
+<dl>
+<dt>Usage:</dt><dd><p># In YAML configuration
+departure_port: “port_reykjavik”  # Reference to global port</p>
+<p># Or override with custom definition
+departure_port:</p>
+<blockquote>
+<div><p>name: “Reykjavik_Custom”
+latitude: 64.1466
+longitude: -21.9426
+timezone: “GMT+0”
+description: “Custom port definition”</p>
+</div></blockquote>
+</dd>
+</dl>
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.add_custom_port">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">add_custom_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#add_custom_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.add_custom_port" title="Link to this definition"></a></dt>
+<dd><p>Add a custom port to the global registry at runtime.</p>
+<p>Useful for adding project-specific ports that aren’t in the default registry.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>port_id</strong> (<em>str</em>) – Port identifier (should start with ‘<a href="#id1"><span class="problematic" id="id2">port_</span></a>’).</p></li>
+<li><p><strong>port_data</strong> (<em>dict</em>) – Port data dictionary with required fields (name, latitude, longitude).</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If port_id doesn’t follow naming convention or required fields are missing.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.get_available_ports">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">get_available_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#get_available_ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.get_available_ports" title="Link to this definition"></a></dt>
+<dd><p>Get a dictionary of available global ports with descriptions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Mapping of port identifiers to descriptions.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.list_ports_in_region">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">list_ports_in_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#list_ports_in_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.list_ports_in_region" title="Link to this definition"></a></dt>
+<dd><p>List ports within a geographic bounding box.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>min_lat</strong> (<em>float</em>) – Latitude bounds in degrees.</p></li>
+<li><p><strong>max_lat</strong> (<em>float</em>) – Latitude bounds in degrees.</p></li>
+<li><p><strong>min_lon</strong> (<em>float</em>) – Longitude bounds in degrees.</p></li>
+<li><p><strong>max_lon</strong> (<em>float</em>) – Longitude bounds in degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Mapping of port identifiers to names for ports in the region.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.resolve_port_reference">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">resolve_port_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#resolve_port_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.resolve_port_reference" title="Link to this definition"></a></dt>
+<dd><p>Resolve a port reference to a complete PortDefinition object.</p>
+<p>Handles three types of input:
+1. String reference to global port registry (e.g., ‘port_reykjavik’)
+2. Dictionary with port data (user-defined override)
+3. Already instantiated PortDefinition object</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>port_ref</strong> – Port reference to resolve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Complete port definition object.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>PortDefinition</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If string reference is not found in global registry.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.utils.plot_config">
+<span id="cruiseplan-utils-plot-config-module"></span><h2>cruiseplan.utils.plot_config module<a class="headerlink" href="#module-cruiseplan.utils.plot_config" title="Link to this heading"></a></h2>
+<p>Centralized plotting configuration for consistent visualization across cruiseplan.</p>
+<p>This module provides:
+1. Colormaps for bathymetry and oceanographic data (moved from interactive/colormaps.py)
+2. Centralized styling configuration for all plot elements
+3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.create_bathymetry_colormap">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#create_bathymetry_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap" title="Link to this definition"></a></dt>
+<dd><p>Create a custom bathymetry colormap based on the Flemish Cap CPT.</p>
+<p>This colormap provides a more oceanographically-appropriate color scheme
+with deeper blues for abyssal depths and yellows for land areas.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Custom colormap for bathymetry visualization</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib.colors.LinearSegmentedColormap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.create_bathymetry_colormap_v2">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap_v2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#create_bathymetry_colormap_v2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap_v2" title="Link to this definition"></a></dt>
+<dd><p>Create the Flemish Cap bathymetry colormap matching the CPT specification.</p>
+<p>This creates a colormap with constant colors within each depth range,
+exactly matching the CPT specification.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Bathymetry colormap with proper depth-color mapping</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>matplotlib.colors.LinearSegmentedColormap</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.get_colormap">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">get_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Colormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#get_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.get_colormap" title="Link to this definition"></a></dt>
+<dd><p>Get a colormap by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the colormap (‘bathymetry’ or ‘blues_r’)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The requested colormap</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.colors.Colormap</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If the colormap name is not recognized</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.get_legend_entries">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">get_legend_entries</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#get_legend_entries"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.get_legend_entries" title="Link to this definition"></a></dt>
+<dd><p>Get legend entries for all plot styles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary mapping labels to style dictionaries for legend creation</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Dict[str, Any]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.get_plot_style">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">get_plot_style</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entity_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#get_plot_style"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.get_plot_style" title="Link to this definition"></a></dt>
+<dd><p>Get plot styling for a specific entity type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>entity_type</strong> (<em>str</em>) – Type of entity (‘station’, ‘mooring’, ‘transit’, ‘area’, ‘departure_port’, ‘arrival_port’)</p></li>
+<li><p><strong>operation_type</strong> (<em>str</em><em>, </em><em>optional</em>) – Operation type (e.g., ‘CTD’, ‘mooring’, ‘underway’, ‘survey’)</p></li>
+<li><p><strong>action</strong> (<em>str</em><em>, </em><em>optional</em>) – Specific action (e.g., ‘profile’, ‘deployment’, ‘ADCP’, ‘bathymetry’)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary of matplotlib styling parameters</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.plot_config.load_cpt_colormap">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.plot_config.</span></span><span class="sig-name descname"><span class="pre">load_cpt_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpt_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/plot_config.html#load_cpt_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.plot_config.load_cpt_colormap" title="Link to this definition"></a></dt>
+<dd><p>Load a colormap from a GMT-style CPT file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cpt_file</strong> (<em>str</em>) – Path to the CPT file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Colormap loaded from the CPT file</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>matplotlib.colors.LinearSegmentedColormap</p>
+</dd>
+</dl>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This is a placeholder for future CPT file support.
+Currently only supports the hardcoded Flemish Cap colormap.</p>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-cruiseplan.utils.yaml_io">
+<span id="cruiseplan-utils-yaml-io-module"></span><h2>cruiseplan.utils.yaml_io module<a class="headerlink" href="#module-cruiseplan.utils.yaml_io" title="Link to this heading"></a></h2>
+<p>Centralized YAML I/O utilities with comment preservation.</p>
+<p>This module provides all YAML reading and writing functionality for the
+cruiseplan package, using ruamel.yaml to preserve comments, formatting,
+and whitespace during configuration enrichment operations.</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.YAMLIOError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">YAMLIOError</span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#YAMLIOError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Custom exception for YAML I/O operations.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.dump_yaml_simple">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">dump_yaml_simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#dump_yaml_simple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.dump_yaml_simple" title="Link to this definition"></a></dt>
+<dd><p>Dump YAML data to file handle without comment preservation.</p>
+<p>This function provides basic YAML dumping for cases like temp files
+where comment preservation is not needed.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>data: Dictionary to dump
+file_handle: Open file handle to write to</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If dumping fails:</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.load_yaml">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">load_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#load_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.load_yaml" title="Link to this definition"></a></dt>
+<dd><p>Load YAML configuration file with comment preservation.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path: Path to YAML file
+encoding: File encoding</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parsed YAML content as dictionary</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be loaded or parsed:</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.load_yaml_safe">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">load_yaml_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#load_yaml_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.load_yaml_safe" title="Link to this definition"></a></dt>
+<dd><p>Load YAML file using ruamel.yaml safe loading (returns plain dict).</p>
+<p>This function provides basic dictionary loading without comment preservation.
+Returns a plain Python dictionary instead of ruamel.yaml’s CommentedMap.
+Use load_yaml() for comment-preserving operations.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>file_path: Path to YAML file</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Parsed YAML content as basic dictionary</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be loaded or parsed:</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.save_yaml">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">save_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#save_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.save_yaml" title="Link to this definition"></a></dt>
+<dd><p>Save configuration to YAML file with comment preservation.</p>
+<dl class="simple">
+<dt>Args:</dt><dd><p>config: Configuration dictionary to save
+file_path: Output file path
+backup: Whether to create backup of existing file
+encoding: File encoding</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Raises<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be written:</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>

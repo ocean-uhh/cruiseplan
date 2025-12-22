@@ -61,7 +61,7 @@ CruisePlan generates PNG maps through two commands with distinct characteristics
 ----
 
 Schedule PNG Output (Timeline-Based)
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 
@@ -95,7 +95,7 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 ----
 
 Map PNG Output (Configuration-Based)
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Generated via: ``cruiseplan map -c cruise.yaml --format png``
 

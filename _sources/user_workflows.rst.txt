@@ -206,7 +206,7 @@ GEBCO is generally considered to be more accurate.
 ----
 
 Duration Calculation Rules
--------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Automatic calculations:**
 

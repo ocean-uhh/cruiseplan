@@ -1,0 +1,430 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.output.netcdf_metadata &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.2
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../roadmap.html">Development Roadmap</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.output.netcdf_metadata</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.output.netcdf_metadata</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Centralized NetCDF metadata management for CF-1.8 compliant outputs.</span>
+
+<span class="sd">This module provides standardized metadata definitions and factory functions</span>
+<span class="sd">for creating consistent NetCDF global attributes and variable attributes</span>
+<span class="sd">across all NetCDF output types. Eliminates duplication and ensures adherence</span>
+<span class="sd">to CF conventions.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
+
+
+<span class="c1"># Global attributes factory functions</span>
+<div class="viewcode-block" id="create_global_attributes">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_metadata.create_global_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_global_attributes</span><span class="p">(</span>
+    <span class="n">feature_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span>
+    <span class="n">title_template</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;YAML configuration file&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create standardized global attributes for NetCDF files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    feature_type : str</span>
+<span class="sd">        CF feature type (&quot;point&quot;, &quot;trajectory&quot;, &quot;timeSeries&quot;, etc.)</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration object containing metadata</span>
+<span class="sd">    title_template : str</span>
+<span class="sd">        Template for the title (e.g., &quot;Point Operations: {cruise_name}&quot;)</span>
+<span class="sd">    source : str, optional</span>
+<span class="sd">        Data source description</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, Any]</span>
+<span class="sd">        Dictionary of global attributes following CF-1.8 conventions</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;featureType&quot;</span><span class="p">:</span> <span class="n">feature_type</span><span class="p">,</span>
+        <span class="s2">&quot;title&quot;</span><span class="p">:</span> <span class="n">title_template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cruise_name</span><span class="o">=</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">),</span>
+        <span class="s2">&quot;institution&quot;</span><span class="p">:</span> <span class="s2">&quot;Generated by CruisePlan software&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="n">source</span><span class="p">,</span>
+        <span class="s2">&quot;Conventions&quot;</span><span class="p">:</span> <span class="s2">&quot;CF-1.8&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="p">,</span>
+        <span class="s2">&quot;creation_date&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="s2">&quot;coordinate_system&quot;</span><span class="p">:</span> <span class="s2">&quot;WGS84&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;depth_datum&quot;</span><span class="p">:</span> <span class="s2">&quot;Mean Sea Level&quot;</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<span class="c1"># Standard variable attribute templates</span>
+<span class="n">COORDINATE_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ship longitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_east&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;ship latitude&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;degrees_north&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;time of ship position&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;calendar&quot;</span><span class="p">:</span> <span class="s2">&quot;gregorian&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="c1"># Updated depth variables with semantic clarity</span>
+<span class="n">DEPTH_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;water_depth&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;sea_floor_depth_below_sea_surface&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;water depth at station location&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;meters&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive&quot;</span><span class="p">:</span> <span class="s2">&quot;down&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Depth from sea level to seafloor at station location&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operation_depth&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;target operation depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;meters&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive&quot;</span><span class="p">:</span> <span class="s2">&quot;down&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Target depth for operation (e.g., CTD cast depth)&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="c1"># Legacy depth variable for backward compatibility</span>
+    <span class="s2">&quot;waterdepth&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;water depth&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;meters&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;positive&quot;</span><span class="p">:</span> <span class="s2">&quot;down&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;DEPRECATED: Use water_depth for seafloor depth or operation_depth for target operation depth&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">STATION_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;station_name&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;station identifier&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Unique identifier for the sampling station&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of scientific operation performed&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation action&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Specific action taken during the operation&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation duration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;hours&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Duration of the operation in hours&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;operation comment&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Human-readable comment about the operation&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">SCHEDULE_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity type&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Type of cruise activity (Station, Transit, etc.)&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity label&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Human-readable label for the activity&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity start time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;calendar&quot;</span><span class="p">:</span> <span class="s2">&quot;gregorian&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;standard_name&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity end time&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;days since 1970-01-01 00:00:00&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;calendar&quot;</span><span class="p">:</span> <span class="s2">&quot;gregorian&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;activity duration&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;minutes&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Duration of the activity in minutes&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;transit distance&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;nautical_miles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Distance traveled to reach this operation&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+<span class="n">TRANSIT_VARIABLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;route_length&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;route length&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;nautical_miles&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Total length of the transit route&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;long_name&quot;</span><span class="p">:</span> <span class="s2">&quot;vessel speed&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;units&quot;</span><span class="p">:</span> <span class="s2">&quot;knots&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Vessel speed during transit&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="get_variable_attributes">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_metadata.get_variable_attributes">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_variable_attributes</span><span class="p">(</span><span class="n">variable_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get standardized attributes for a variable name.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    variable_name : str</span>
+<span class="sd">        Name of the variable to get attributes for</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, Any]</span>
+<span class="sd">        Dictionary of variable attributes, empty dict if not found</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check all variable dictionaries for the variable name</span>
+    <span class="k">for</span> <span class="n">var_dict</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">COORDINATE_VARIABLES</span><span class="p">,</span>
+        <span class="n">DEPTH_VARIABLES</span><span class="p">,</span>
+        <span class="n">STATION_VARIABLES</span><span class="p">,</span>
+        <span class="n">SCHEDULE_VARIABLES</span><span class="p">,</span>
+        <span class="n">TRANSIT_VARIABLES</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">variable_name</span> <span class="ow">in</span> <span class="n">var_dict</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">var_dict</span><span class="p">[</span><span class="n">variable_name</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Return empty dict for unknown variables (will use defaults)</span>
+    <span class="k">return</span> <span class="p">{}</span></div>
+
+
+
+<div class="viewcode-block" id="create_coordinate_variables">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_metadata.create_coordinate_variables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_coordinate_variables</span><span class="p">(</span>
+    <span class="n">times</span><span class="p">,</span> <span class="n">lats</span><span class="p">,</span> <span class="n">lons</span><span class="p">,</span> <span class="n">depths</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">operation_depths</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create standardized coordinate variable definitions for xarray Dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    times : array_like</span>
+<span class="sd">        Time values</span>
+<span class="sd">    lats : array_like</span>
+<span class="sd">        Latitude values</span>
+<span class="sd">    lons : array_like</span>
+<span class="sd">        Longitude values</span>
+<span class="sd">    depths : array_like, optional</span>
+<span class="sd">        Water depth values (seafloor depth)</span>
+<span class="sd">    operation_depths : array_like, optional</span>
+<span class="sd">        Operation depth values (target depth for operations)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, tuple]</span>
+<span class="sd">        Dictionary of coordinate variable definitions for xarray.Dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coord_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">lats</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">lons</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)),</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">times</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coord_vars</span><span class="p">[</span><span class="s2">&quot;time&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">times</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;time&quot;</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">depths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coord_vars</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+            <span class="n">depths</span><span class="p">,</span>
+            <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;water_depth&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">operation_depths</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coord_vars</span><span class="p">[</span><span class="s2">&quot;operation_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="p">[</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span>
+            <span class="n">operation_depths</span><span class="p">,</span>
+            <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;operation_depth&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">coord_vars</span></div>
+
+
+
+<div class="viewcode-block" id="create_operation_variables">
+<a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_metadata.create_operation_variables">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">create_operation_variables</span><span class="p">(</span>
+    <span class="n">names</span><span class="p">,</span> <span class="n">types</span><span class="p">,</span> <span class="n">actions</span><span class="p">,</span> <span class="n">durations</span><span class="p">,</span> <span class="n">comments</span><span class="o">=</span><span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Create standardized operation variable definitions for xarray Dataset.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    names : array_like</span>
+<span class="sd">        Station/operation names</span>
+<span class="sd">    types : array_like</span>
+<span class="sd">        Operation types</span>
+<span class="sd">    actions : array_like</span>
+<span class="sd">        Operation actions</span>
+<span class="sd">    durations : array_like</span>
+<span class="sd">        Operation durations</span>
+<span class="sd">    comments : array_like, optional</span>
+<span class="sd">        Operation comments</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, tuple]</span>
+<span class="sd">        Dictionary of operation variable definitions for xarray.Dataset</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">op_vars</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;station_name&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">names</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;station_name&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">types</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">actions</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)),</span>
+        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">durations</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;duration&quot;</span><span class="p">)),</span>
+    <span class="p">}</span>
+
+    <span class="k">if</span> <span class="n">comments</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">op_vars</span><span class="p">[</span><span class="s2">&quot;comment&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">([</span><span class="s2">&quot;obs&quot;</span><span class="p">],</span> <span class="n">comments</span><span class="p">,</span> <span class="n">get_variable_attributes</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">op_vars</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

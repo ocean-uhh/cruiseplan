@@ -49,7 +49,7 @@ This allows complex paths not just straight-line distance, for improved timing c
 
 **Distance Calculation for Routing *Between* Operations**:
 
-.. list-table:: Entry/Exit Points for **Inter-operation* Routing 
+.. list-table:: Entry/Exit Points for **Inter-operation** Routing 
     :widths: 25 25 50
     :header-rows: 1
 

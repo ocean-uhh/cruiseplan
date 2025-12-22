@@ -13,6 +13,15 @@ cruiseplan.cli.main module
    :undoc-members:
    :show-inheritance:
 
+
+cruiseplan.cli.bathymetry module
+--------------------------------
+
+.. automodule:: cruiseplan.cli.bathymetry
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 cruiseplan.cli.pangaea module
 -----------------------------
 
@@ -29,18 +38,10 @@ cruiseplan.cli.stations module
    :undoc-members:
    :show-inheritance:
 
-cruiseplan.cli.enrich module
-----------------------------
+cruiseplan.cli.process module
+-----------------------------
 
-.. automodule:: cruiseplan.cli.enrich
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cruiseplan.cli.validate module
-------------------------------
-
-.. automodule:: cruiseplan.cli.validate
+.. automodule:: cruiseplan.cli.process
    :members:
    :undoc-members:
    :show-inheritance:
@@ -57,6 +58,56 @@ cruiseplan.cli.utils module
 ---------------------------
 
 .. automodule:: cruiseplan.cli.utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+cruiseplan.cli.enrich module (part of cruiseplan.cli.process)
+-------------------------------------------------------------   
+
+.. automodule:: cruiseplan.cli.enrich
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.cli.validate module (part of cruiseplan.cli.process)
+-------------------------------------------------------------   
+
+.. automodule:: cruiseplan.cli.validate
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   
+cruiseplan.cli.map module (part of cruiseplan.cli.process)
+-----------------------------------------------------------------
+
+.. automodule:: cruiseplan.cli.map
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.cli.download module [DEPRECATED, will be removed in v0.3.0]
+----------------------------------------------------------------------
+
+.. automodule:: cruiseplan.cli.download
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.cli.pandoi module [DEPRECATED, will be removed in v0.3.0]
+--------------------------------------------------------------------
+
+.. automodule:: cruiseplan.cli.pandoi
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+
+cruiseplan.cli.demo module (not up to date)
+------------------------------------------
+
+.. automodule:: cruiseplan.cli.demo
    :members:
    :undoc-members:
    :show-inheritance:

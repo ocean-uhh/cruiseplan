@@ -102,7 +102,7 @@ Markers and Styling
 
 
 Transits and Areas (Lines and Polygons)
---------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Scientific Transit Lines**:
   - Only underway scientific operations (e.g., ADCP surveys) are shown as lines

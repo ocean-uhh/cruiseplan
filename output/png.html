@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNG Output &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>PNG Output &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -268,8 +268,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 <hr class="docutils" />
 <section id="integration-and-workflows">
 <h2>Integration and workflows<a class="headerlink" href="#integration-and-workflows" title="Link to this heading"></a></h2>
-<section id="visualisation-and-customization">
-<h3>Visualisation and Customization<a class="headerlink" href="#visualisation-and-customization" title="Link to this heading"></a></h3>
 <p>Both PNG outputs include bathymetric background visualization.  For <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code>, the bathymetry source can be selected, while for <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span></code>, GEBCO 2025 is always used.</p>
 <dl class="simple">
 <dt><strong>Bathymetry Sources</strong>:</dt><dd><ul class="simple">
@@ -291,9 +289,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 --bathymetry-source<span class="w"> </span>etopo2022<span class="w"> </span>--bathymetry-stride<span class="w"> </span><span class="m">10</span>
 </pre></div>
 </div>
-</section>
-<section id="default-operation-markers">
-<h3>Default Operation Markers<a class="headerlink" href="#default-operation-markers" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Station Markers</strong> (Red Circles):</dt><dd><ul class="simple">
 <li><p>Labels with station names</p></li>
@@ -314,9 +309,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </dd>
 </dl>
 <p>These are not user-configurable unless you clone the repository and edit <code class="docutils literal notranslate"><span class="pre">cruiseplan/utils/plot_config.py</span></code>. See the file on GitHub: <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/cruiseplan/utils/plot_config.py">cruiseplan/utils/plot_config.py on GitHub</a>.</p>
-</section>
-<section id="figure-customization">
-<h3>Figure Customization<a class="headerlink" href="#figure-customization" title="Link to this heading"></a></h3>
 <p><strong>Figure Size Options</strong> for <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code> only:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Standard size (default)</span>
 --figsize<span class="w"> </span><span class="m">12</span><span class="w"> </span><span class="m">10</span>
@@ -330,9 +322,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </ul>
 </dd>
 </dl>
-</section>
-<section id="workflow-integration">
-<h3>Workflow Integration<a class="headerlink" href="#workflow-integration" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Initial Planning Phase</strong> (use <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code>):</dt><dd><ol class="arabic simple">
 <li><p>Create initial YAML configuration</p></li>
@@ -349,9 +338,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </ol>
 </dd>
 </dl>
-</section>
-<section id="file-naming-conventions">
-<h3>File-Naming Conventions<a class="headerlink" href="#file-naming-conventions" title="Link to this heading"></a></h3>
 <dl class="simple">
 <dt><strong>Schedule PNG Files</strong>:</dt><dd><ul class="simple">
 <li><p>Format: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule_map.png</span></code></p></li>
@@ -372,7 +358,6 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>schedules/<span class="w"> </span>--format<span class="w"> </span>all
 </pre></div>
 </div>
-</section>
 </section>
 <section id="visual-quality-checks">
 <h2>Visual Quality Checks<a class="headerlink" href="#visual-quality-checks" title="Link to this heading"></a></h2>

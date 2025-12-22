@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -385,6 +385,12 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset for PNG maps (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-stride&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
@@ -502,9 +508,9 @@
     <span class="p">)</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--coord-format&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dmm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;dmm&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Coordinate format (default: dmm)&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Coordinate format (default: ddm)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--expand-sections&quot;</span><span class="p">,</span>
@@ -619,10 +625,10 @@
 <span class="s2">KML files contain geographic data for Google Earth viewing of all catalog entities.</span>
 
 <span class="s2">Examples:</span>
-<span class="s2">  cruiseplan map -c cruise.yaml                                # Generate map with default settings</span>
-<span class="s2">  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10      # Custom output dir and size  </span>
-<span class="s2">  cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 # High-resolution bathymetry</span>
-<span class="s2">  cruiseplan map -c cruise.yaml --output-file track_map.png   # Specific output file</span>
+<span class="s2">  cruiseplan map -c cruise.yaml                              # Generate map with default settings</span>
+<span class="s2">  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size  </span>
+<span class="s2">  cruiseplan map -c cruise.yaml --bathy-source gebco2025     # High-resolution bathymetry</span>
+<span class="s2">  cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
@@ -640,9 +646,14 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for output maps (default: use config filename)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path (overrides auto-generated name)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Specific output file path - use --output instead (overrides auto-generated name)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
@@ -651,22 +662,41 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format: png (map), kml (geographic data), or all (default: all)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;gebco2025&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: gebco2025)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-stride&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--bathy-stride&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry downsampling factor (default: 5, higher=faster/less detailed)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># Legacy parameter support with deprecation warnings</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_source_legacy&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_dir_legacy&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-stride&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_stride_legacy&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-stride instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
@@ -846,8 +876,8 @@
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--coord-format&quot;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;coord_format_legacy&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;dmm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Coordinate format fixed to DMM&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Coordinate format fixed to DDM&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># General options</span>

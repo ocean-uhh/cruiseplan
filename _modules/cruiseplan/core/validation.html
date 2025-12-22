@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,7 +120,7 @@
     <span class="n">DEFAULT_TURNAROUND_TIME_MIN</span><span class="p">,</span>
     <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_dmm_comment</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_ddm_comment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_port_reference</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -496,7 +496,7 @@
     <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">equipment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">position_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">coordinates_dmm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+    <span class="n">coordinates_ddm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Degrees decimal minutes coordinate string&quot;</span>
     <span class="p">)</span>
 
@@ -1751,9 +1751,40 @@
     <span class="n">ports</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">PortDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">legs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LegDefinition</span><span class="p">]</span>
 
-    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;forbid&quot;</span><span class="p">)</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
 
     <span class="c1"># --- VALIDATORS ---</span>
+
+<div class="viewcode-block" id="CruiseConfig.check_forbidden_cruise_level_fields">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.CruiseConfig.check_forbidden_cruise_level_fields">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_forbidden_cruise_level_fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Prevent confusing leg-level fields from being used at cruise level.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">forbidden_fields</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use departure_port within individual leg definitions instead&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Use arrival_port within individual leg definitions instead&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;first_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;Waypoint fields belong in leg definitions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;last_waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;Waypoint fields belong in leg definitions&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="n">found_forbidden</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">field</span><span class="p">,</span> <span class="n">message</span> <span class="ow">in</span> <span class="n">forbidden_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">field</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+                    <span class="n">found_forbidden</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">found_forbidden</span><span class="p">:</span>
+                <span class="n">fields_list</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">found_forbidden</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Global cruise-level fields no longer supported: </span><span class="si">{</span><span class="n">fields_list</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39; (&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;These fields must be defined within individual leg definitions to avoid &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;conflicts during section expansion and multi-leg processing. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Please move these fields into the &#39;legs&#39; section of your configuration.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">data</span></div>
+
 
 <div class="viewcode-block" id="CruiseConfig.validate_speed">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.CruiseConfig.validate_speed">[docs]</a>
@@ -2769,7 +2800,7 @@
     <span class="n">expand_ports</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
     <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;dmm&quot;</span><span class="p">,</span>
+    <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ddm&quot;</span><span class="p">,</span>
     <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -2793,7 +2824,7 @@
 <span class="sd">    bathymetry_source : str, optional</span>
 <span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;).</span>
 <span class="sd">    coord_format : str, optional</span>
-<span class="sd">        Coordinate format (&quot;dmm&quot; or &quot;dms&quot;, default: &quot;dmm&quot;).</span>
+<span class="sd">        Coordinate format (&quot;ddm&quot; or &quot;dms&quot;, default: &quot;ddm&quot;).</span>
 <span class="sd">    output_path : Optional[Path], optional</span>
 <span class="sd">        Path for output file (if None, modifies in place).</span>
 
@@ -2910,16 +2941,16 @@
     <span class="c1"># Note: Keep using original config_dict to preserve comments, don&#39;t overwrite with cruise.raw_data</span>
     <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">add_dmm_coordinates</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to add DMM coordinates to a data dictionary.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_ddm_coordinates</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to add ddm coordinates to a data dictionary.&quot;&quot;&quot;</span>
         <span class="k">nonlocal</span> <span class="n">coord_changes_made</span>
-        <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dmm&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;ddm&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">coord_field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">coord_field_name</span><span class="p">):</span>
-                <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
+                <span class="n">ddm_comment</span> <span class="o">=</span> <span class="n">format_ddm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
 
                 <span class="c1"># For ruamel.yaml CommentedMap, insert coordinates right after the name field</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="s2">&quot;insert&quot;</span><span class="p">):</span>
-                    <span class="c1"># Strategy: Insert coordinates_dmm right after the &#39;name&#39; field (which is required)</span>
+                    <span class="c1"># Strategy: Insert coordinates_ddm right after the &#39;name&#39; field (which is required)</span>
                     <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">data_dict</span><span class="p">:</span>
                         <span class="n">name_pos</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">data_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">)</span>
                         <span class="n">insert_pos</span> <span class="o">=</span> <span class="n">name_pos</span> <span class="o">+</span> <span class="mi">1</span>
@@ -2930,13 +2961,13 @@
                     <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Inserting </span><span class="si">{</span><span class="n">coord_field_name</span><span class="si">}</span><span class="s2"> at position </span><span class="si">{</span><span class="n">insert_pos</span><span class="si">}</span><span class="s2"> after &#39;name&#39; field in </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">data_dict</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="p">)</span>
-                    <span class="n">data_dict</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_pos</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">,</span> <span class="n">dmm_comment</span><span class="p">)</span>
+                    <span class="n">data_dict</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="n">insert_pos</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">,</span> <span class="n">ddm_comment</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Fallback for regular dict</span>
-                    <span class="n">data_dict</span><span class="p">[</span><span class="n">coord_field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">dmm_comment</span>
+                    <span class="n">data_dict</span><span class="p">[</span><span class="n">coord_field_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ddm_comment</span>
 
                 <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">return</span> <span class="n">dmm_comment</span>
+                <span class="k">return</span> <span class="n">ddm_comment</span>
         <span class="k">elif</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;dms&quot;</span><span class="p">:</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="s2">&quot;DMS coordinate format is not yet supported. No coordinates were added.&quot;</span><span class="p">,</span>
@@ -2981,15 +3012,15 @@
 
                 <span class="c1"># Add coordinate fields if requested</span>
                 <span class="k">if</span> <span class="n">add_coords</span><span class="p">:</span>
-                    <span class="n">dmm_result</span> <span class="o">=</span> <span class="n">add_dmm_coordinates</span><span class="p">(</span>
+                    <span class="n">ddm_result</span> <span class="o">=</span> <span class="n">add_ddm_coordinates</span><span class="p">(</span>
                         <span class="n">station_data</span><span class="p">,</span>
                         <span class="n">station_obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                         <span class="n">station_obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                        <span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;coordinates_ddm&quot;</span><span class="p">,</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">dmm_result</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">ddm_result</span><span class="p">:</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dmm_result</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added ddm coordinates to station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ddm_result</span><span class="si">}</span><span class="s2">&quot;</span>
                         <span class="p">)</span>
 
     <span class="c1"># Process coordinate additions for departure and arrival ports</span>
@@ -3000,15 +3031,15 @@
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">):</span>
                     <span class="n">port_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">)</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
-                        <span class="n">dmm_result</span> <span class="o">=</span> <span class="n">add_dmm_coordinates</span><span class="p">(</span>
+                        <span class="n">ddm_result</span> <span class="o">=</span> <span class="n">add_ddm_coordinates</span><span class="p">(</span>
                             <span class="n">port_data</span><span class="p">,</span>
                             <span class="n">port_obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                             <span class="n">port_obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                            <span class="s2">&quot;coordinates_dmm&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;coordinates_ddm&quot;</span><span class="p">,</span>
                         <span class="p">)</span>
-                        <span class="k">if</span> <span class="n">dmm_result</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">ddm_result</span><span class="p">:</span>
                             <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to </span><span class="si">{</span><span class="n">port_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">dmm_result</span><span class="si">}</span><span class="s2">&quot;</span>
+                                <span class="sa">f</span><span class="s2">&quot;Added ddm coordinates to </span><span class="si">{</span><span class="n">port_key</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">ddm_result</span><span class="si">}</span><span class="s2">&quot;</span>
                             <span class="p">)</span>
 
     <span class="c1"># Expand global port references to ports catalog if requested</span>
@@ -3078,42 +3109,42 @@
     <span class="k">if</span> <span class="n">add_coords</span> <span class="ow">and</span> <span class="s2">&quot;transits&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">transit_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;transits&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="s2">&quot;route&quot;</span> <span class="ow">in</span> <span class="n">transit_data</span> <span class="ow">and</span> <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">]:</span>
-                <span class="c1"># Add route_dmm field with list of position_dmm entries</span>
-                <span class="k">if</span> <span class="s2">&quot;route_dmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transit_data</span><span class="p">:</span>
-                    <span class="n">route_dmm_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># Add route_ddm field with list of position_ddm entries</span>
+                <span class="k">if</span> <span class="s2">&quot;route_ddm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">transit_data</span><span class="p">:</span>
+                    <span class="n">route_ddm_list</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">point</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">point</span><span class="p">:</span>
-                            <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span>
+                            <span class="n">ddm_comment</span> <span class="o">=</span> <span class="n">format_ddm_comment</span><span class="p">(</span>
                                 <span class="n">point</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">point</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
                             <span class="p">)</span>
-                            <span class="n">route_dmm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_dmm&quot;</span><span class="p">:</span> <span class="n">dmm_comment</span><span class="p">})</span>
+                            <span class="n">route_ddm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_ddm&quot;</span><span class="p">:</span> <span class="n">ddm_comment</span><span class="p">})</span>
                             <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                    <span class="k">if</span> <span class="n">route_dmm_list</span><span class="p">:</span>
-                        <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route_dmm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">route_dmm_list</span>
+                    <span class="k">if</span> <span class="n">route_ddm_list</span><span class="p">:</span>
+                        <span class="n">transit_data</span><span class="p">[</span><span class="s2">&quot;route_ddm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">route_ddm_list</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to transit </span><span class="si">{</span><span class="n">transit_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> route: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">route_dmm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added ddm coordinates to transit </span><span class="si">{</span><span class="n">transit_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> route: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">route_ddm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
                         <span class="p">)</span>
 
     <span class="c1"># Process coordinate additions for area corners</span>
     <span class="k">if</span> <span class="n">add_coords</span> <span class="ow">and</span> <span class="s2">&quot;areas&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">area_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">]:</span>
             <span class="k">if</span> <span class="s2">&quot;corners&quot;</span> <span class="ow">in</span> <span class="n">area_data</span> <span class="ow">and</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]:</span>
-                <span class="c1"># Add corners_dmm field with list of position_dmm entries</span>
-                <span class="k">if</span> <span class="s2">&quot;corners_dmm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">:</span>
-                    <span class="n">corners_dmm_list</span> <span class="o">=</span> <span class="p">[]</span>
+                <span class="c1"># Add corners_ddm field with list of position_ddm entries</span>
+                <span class="k">if</span> <span class="s2">&quot;corners_ddm&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">:</span>
+                    <span class="n">corners_ddm_list</span> <span class="o">=</span> <span class="p">[]</span>
                     <span class="k">for</span> <span class="n">corner</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners&quot;</span><span class="p">]:</span>
                         <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">corner</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">corner</span><span class="p">:</span>
-                            <span class="n">dmm_comment</span> <span class="o">=</span> <span class="n">format_dmm_comment</span><span class="p">(</span>
+                            <span class="n">ddm_comment</span> <span class="o">=</span> <span class="n">format_ddm_comment</span><span class="p">(</span>
                                 <span class="n">corner</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span> <span class="n">corner</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span>
                             <span class="p">)</span>
-                            <span class="n">corners_dmm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_dmm&quot;</span><span class="p">:</span> <span class="n">dmm_comment</span><span class="p">})</span>
+                            <span class="n">corners_ddm_list</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;position_ddm&quot;</span><span class="p">:</span> <span class="n">ddm_comment</span><span class="p">})</span>
                             <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
 
-                    <span class="k">if</span> <span class="n">corners_dmm_list</span><span class="p">:</span>
-                        <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners_dmm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corners_dmm_list</span>
+                    <span class="k">if</span> <span class="n">corners_ddm_list</span><span class="p">:</span>
+                        <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;corners_ddm&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">corners_ddm_list</span>
                         <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;Added DMM coordinates to area </span><span class="si">{</span><span class="n">area_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> corners: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">corners_dmm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Added ddm coordinates to area </span><span class="si">{</span><span class="n">area_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> corners: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">corners_ddm_list</span><span class="p">)</span><span class="si">}</span><span class="s2"> points&quot;</span>
                         <span class="p">)</span>
     <span class="c1"># Update the enrichment summary</span>
     <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">coord_changes_made</span>
@@ -3138,7 +3169,7 @@
 
     <span class="c1"># Save enriched configuration if output path is specified (always save for testing purposes)</span>
     <span class="k">if</span> <span class="n">output_path</span><span class="p">:</span>
-        <span class="n">save_yaml_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">save_yaml_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">enrichment_summary</span></div>
 

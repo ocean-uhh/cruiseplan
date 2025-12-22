@@ -36,3 +36,27 @@ cruiseplan.utils.coordinates module
    :members:
    :undoc-members:
    :show-inheritance:
+
+cruiseplan.utils.global_ports module
+------------------------------------
+
+.. automodule:: cruiseplan.utils.global_ports
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.utils.plot_config module
+-----------------------------------
+
+.. automodule:: cruiseplan.utils.plot_config
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.utils.yaml_io module
+-------------------------------
+
+.. automodule:: cruiseplan.utils.yaml_io
+   :members:
+   :undoc-members:
+   :show-inheritance:

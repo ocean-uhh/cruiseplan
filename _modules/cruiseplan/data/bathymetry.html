@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.2 v0.2.0.post1.dev2</title>
+  <title>cruiseplan.data.bathymetry &mdash; CruisePlan v0.2 v0.2.1.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=27b10d97"></script>
+      <script src="../../../_static/documentation_options.js?v=4f605c73"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -164,7 +164,7 @@
 
 <div class="viewcode-block" id="BathymetryManager.__init__">
 <a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.BathymetryManager.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="n">data_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize the bathymetry manager.</span>
 
@@ -173,12 +173,11 @@
 <span class="sd">        source : str, optional</span>
 <span class="sd">            Bathymetry data source (default: &quot;etopo2022&quot;).</span>
 <span class="sd">        data_dir : str, optional</span>
-<span class="sd">            Data directory relative to project root (default: &quot;data&quot;).</span>
+<span class="sd">            Data directory. Can be absolute path or relative to current working directory (default: &quot;data/bathymetry&quot;).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">source</span> <span class="o">=</span> <span class="n">source</span>
-        <span class="c1"># Resolve path relative to this file&#39;s location to be safe</span>
-        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">data_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+        <span class="c1"># Use the provided data_dir exactly as specified - no automatic modifications</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">data_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_is_mock</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_dataset</span> <span class="o">=</span> <span class="kc">None</span>
@@ -504,7 +503,7 @@
                     <span class="s2">&quot;  • Size: ~4GB download, ~7.5GB extracted</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="s2">&quot;  • Time: May take 10-30 minutes depending on connection</span><span class="se">\n</span><span class="s2">&quot;</span>
                     <span class="s2">&quot;  • Space: Requires ~12GB free disk space</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="s2">&quot;Continue? (y/n): &quot;</span>
+                    <span class="s2">&quot;Continue? (y/N): &quot;</span>
                 <span class="p">)</span>
                 <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                 <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
@@ -662,7 +661,7 @@
 
 <div class="viewcode-block" id="download_bathymetry">
 <a class="viewcode-back" href="../../../api/cruiseplan.data.html#cruiseplan.data.bathymetry.download_bathymetry">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">download_bathymetry</span><span class="p">(</span><span class="n">target_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span> <span class="n">source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Download bathymetry dataset with progress bar.</span>
 
@@ -672,8 +671,8 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    target_dir : str, optional</span>
-<span class="sd">        Target directory relative to project root (default: &quot;data&quot;).</span>
-<span class="sd">        The file will be saved in a &quot;bathymetry&quot; subdirectory.</span>
+<span class="sd">        Target directory for bathymetry files (default: &quot;data/bathymetry&quot;).</span>
+<span class="sd">        Files will be saved directly in this directory.</span>
 <span class="sd">    source : str, optional</span>
 <span class="sd">        Bathymetry source to download (default: &quot;etopo2022&quot;).</span>
 <span class="sd">        Options: &quot;etopo2022&quot;, &quot;gebco2025&quot;.</span>
@@ -686,8 +685,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
         <span class="c1"># Handle GEBCO 2025 download</span>
-        <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">target_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
         <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
         <span class="n">gebco_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">GEBCO_NC_FILENAME</span>
@@ -704,7 +702,7 @@
                 <span class="p">)</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/n): &quot;</span><span class="p">)</span>
+                        <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span>
                         <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                         <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                     <span class="p">)</span>
@@ -729,8 +727,7 @@
         <span class="k">return</span> <span class="n">success</span>
 
     <span class="c1"># Handle ETOPO 2022 download (existing logic)</span>
-    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
-    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">root</span> <span class="o">/</span> <span class="n">target_dir</span> <span class="o">/</span> <span class="s2">&quot;bathymetry&quot;</span>
+    <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">target_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
     <span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
     <span class="n">local_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">ETOPO_FILENAME</span>
@@ -747,7 +744,7 @@
             <span class="p">)</span>
             <span class="k">try</span><span class="p">:</span>
                 <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/n): &quot;</span><span class="p">)</span>
+                    <span class="nb">input</span><span class="p">(</span><span class="s2">&quot;Delete incomplete file and redownload? (y/N): &quot;</span><span class="p">)</span>
                     <span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                     <span class="o">.</span><span class="n">strip</span><span class="p">()</span>
                 <span class="p">)</span>
