@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Operation Types Reference &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>Operation Types Reference &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -298,10 +298,33 @@
 <td><p><code class="docutils literal notranslate"><span class="pre">tow_yo</span></code>, <code class="docutils literal notranslate"><span class="pre">seismic</span></code>, <code class="docutils literal notranslate"><span class="pre">microstructure</span></code></p></td>
 <td><p>Towed instrument operations</p></td>
 </tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CTD</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">section</span></code></p></td>
+<td><p>Scientific transit with multiple CTD stations that can be expanded into individual stations</p></td>
+</tr>
 </tbody>
 </table>
-<dl class="simple">
+<dl>
 <dt><strong>Navigation-Only Transits</strong>:</dt><dd><p>When no <code class="docutils literal notranslate"><span class="pre">operation_type</span></code> is specified, transits represent pure vessel movement with no scientific activities.</p>
+</dd>
+<dt><strong>Section Expansion</strong>:</dt><dd><p>Special transit types like CTD sections can be automatically expanded into individual stations using the <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">enrich</span> <span class="pre">--expand-sections</span></code> command:</p>
+<ul class="simple">
+<li><p><strong>Interpolation</strong>: Creates individual stations along the transit route</p></li>
+<li><p><strong>Naming Convention</strong>: Generated stations use a sequential naming pattern (e.g., “Section_001”, “Section_002”)</p></li>
+<li><p><strong>Metadata Preservation</strong>:
+* Original transit metadata (spacing, route) is used for station generation
+* Station depths derived from transit max_depth
+* Unique station names generated to avoid conflicts</p></li>
+</ul>
+<dl class="simple">
+<dt><strong>Automatic Routing Updates</strong>:</dt><dd><p>When a section is expanded, leg definitions are automatically updated:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">first_waypoint</span></code> references the first generated station</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">last_waypoint</span></code> references the last generated station</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">activities</span></code> expanded to include all generated stations</p></li>
+</ul>
+</dd>
+</dl>
 </dd>
 </dl>
 </section>

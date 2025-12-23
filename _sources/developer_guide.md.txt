@@ -166,14 +166,14 @@ class Leg:
           if not self.operations:
               return None
           first_op = self.operations[0]
-          return (first_op.position.latitude, first_op.position.longitude)
+          return (first_op.latitude, first_op.longitude)
 
       def get_exit_point(self) -> Optional[tuple[float, float]]:
           # Last operation position in cluster
           if not self.operations:
               return None
           last_op = self.operations[-1]
-          return (last_op.position.latitude, last_op.position.longitude)
+          return (last_op.latitude, last_op.longitude)
 ```
 
 **Note:** Activity generation is handled by scheduler, not cluster directly.
@@ -362,11 +362,11 @@ station1 = StationDefinition(latitude=60.0, longitude=-30.0)
 station2 = StationDefinition(coordinates="60.0, -30.0")
 
 # Both formats are normalized to internal GeoPoint storage
-# Current access: station.position.latitude, station.position.longitude
+# Access: station.latitude, station.longitude
 ```
 
 The current FlexibleLocationModel system adds complexity:
-- Requires indirect access via `station.position.latitude` instead of `station.latitude`
+- Direct access via `station.latitude` and `station.longitude`
 - Intermediate GeoPoint objects for simple coordinate storage
 - String parsing for coordinates that are rarely used in practice
 
@@ -387,9 +387,9 @@ class FlexibleLocationModel(BaseModel):
           # Converts latitude/longitude fields or coordinate strings
           # into position: GeoPoint object
 
-      # Current access pattern:
-      # station.position.latitude  
-      # station.position.longitude
+      # Access pattern:
+      # station.latitude  
+      # station.longitude
 
       # Note: Convenience @property methods do not exist yet
 ```

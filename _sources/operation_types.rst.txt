@@ -107,9 +107,29 @@ Supported Operation Types
    * - ``towing``
      - ``tow_yo``, ``seismic``, ``microstructure``
      - Towed instrument operations
+   * - ``CTD``
+     - ``section``
+     - Scientific transit with multiple CTD stations that can be expanded into individual stations
 
 **Navigation-Only Transits**:
   When no ``operation_type`` is specified, transits represent pure vessel movement with no scientific activities.
+
+**Section Expansion**:
+  Special transit types like CTD sections can be automatically expanded into individual stations using the ``cruiseplan enrich --expand-sections`` command:
+
+  - **Interpolation**: Creates individual stations along the transit route
+  - **Naming Convention**: Generated stations use a sequential naming pattern (e.g., "Section_001", "Section_002")
+  - **Metadata Preservation**: 
+    * Original transit metadata (spacing, route) is used for station generation
+    * Station depths derived from transit max_depth
+    * Unique station names generated to avoid conflicts
+
+  **Automatic Routing Updates**:
+    When a section is expanded, leg definitions are automatically updated:
+    
+    - ``first_waypoint`` references the first generated station
+    - ``last_waypoint`` references the last generated station
+    - ``activities`` expanded to include all generated stations
 
 Duration Calculation  
 --------------------

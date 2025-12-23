@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=000c92bf"></script>
+      <script src="../../../_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -326,16 +326,19 @@
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Base class that allows users to define location in multiple formats.</span>
 
-<span class="sd">    Supports both explicit latitude/longitude fields and string position format</span>
-<span class="sd">    (&quot;lat, lon&quot;) for backward compatibility.</span>
+<span class="sd">    Supports both explicit latitude/longitude fields and string format</span>
+<span class="sd">    (&quot;lat, lon&quot;) in YAML input for user convenience.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
-<span class="sd">    position : Optional[GeoPoint]</span>
-<span class="sd">        Internal storage of the geographic position.</span>
+<span class="sd">    latitude : Optional[float]</span>
+<span class="sd">        Latitude in decimal degrees.</span>
+<span class="sd">    longitude : Optional[float]</span>
+<span class="sd">        Longitude in decimal degrees.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">position</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Internal storage</span>
+    <span class="n">latitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">longitude</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
 
 <div class="viewcode-block" id="FlexibleLocationModel.unify_coordinates">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.FlexibleLocationModel.unify_coordinates">[docs]</a>
@@ -343,7 +346,7 @@
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">unify_coordinates</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Unify different coordinate input formats into a single GeoPoint.</span>
+<span class="sd">        Unify different coordinate input formats.</span>
 
 <span class="sd">        Handles both explicit lat/lon fields and string position format.</span>
 
@@ -355,7 +358,7 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Any</span>
-<span class="sd">            Processed data with unified position field.</span>
+<span class="sd">            Processed data with latitude and longitude fields.</span>
 
 <span class="sd">        Raises</span>
 <span class="sd">        ------</span>
@@ -376,69 +379,19 @@
                     <span class="s2">&quot;Both latitude and longitude must be provided together&quot;</span>
                 <span class="p">)</span>
 
-            <span class="c1"># Case A: Explicit Lat/Lon</span>
-            <span class="k">if</span> <span class="n">has_lat</span> <span class="ow">and</span> <span class="n">has_lon</span><span class="p">:</span>
-                <span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                    <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">data</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">),</span>
-                <span class="p">}</span>
-            <span class="c1"># Case B: String Position</span>
-            <span class="k">elif</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="c1"># Case B: String Position (convert to lat/lon)</span>
+            <span class="k">if</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="k">try</span><span class="p">:</span>
                     <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="nb">float</span><span class="p">,</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">))</span>
-                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">}</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lat</span>
+                    <span class="n">data</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">lon</span>
+                    <span class="k">del</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>  <span class="c1"># Remove the position field</span>
                 <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                         <span class="sa">f</span><span class="s2">&quot;Invalid position string: &#39;</span><span class="si">{</span><span class="n">data</span><span class="p">[</span><span class="s1">&#39;position&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39;. Expected &#39;lat, lon&#39;&quot;</span>
                     <span class="p">)</span>
         <span class="k">return</span> <span class="n">data</span></div>
-
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">latitude</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convenient access to latitude coordinate.</span>
-
-<span class="sd">        Returns the latitude from the internal position storage, providing</span>
-<span class="sd">        direct access without needing to navigate through the position attribute.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Optional[float]</span>
-<span class="sd">            Latitude in decimal degrees, or None if position not set.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; station = StationDefinition(name=&quot;CTD_001&quot;, latitude=60.0, longitude=-20.0, ...)</span>
-<span class="sd">        &gt;&gt;&gt; station.latitude  # Direct access</span>
-<span class="sd">        60.0</span>
-<span class="sd">        &gt;&gt;&gt; station.position.latitude  # Traditional access (still works)</span>
-<span class="sd">        60.0</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="k">else</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">longitude</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Convenient access to longitude coordinate.</span>
-
-<span class="sd">        Returns the longitude from the internal position storage, providing</span>
-<span class="sd">        direct access without needing to navigate through the position attribute.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Optional[float]</span>
-<span class="sd">            Longitude in decimal degrees, or None if position not set.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; station = StationDefinition(name=&quot;CTD_001&quot;, latitude=60.0, longitude=-20.0, ...)</span>
-<span class="sd">        &gt;&gt;&gt; station.longitude  # Direct access</span>
-<span class="sd">        -20.0</span>
-<span class="sd">        &gt;&gt;&gt; station.position.longitude  # Traditional access (still works)</span>
-<span class="sd">        -20.0</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="k">else</span> <span class="kc">None</span></div>
+</div>
 
 
 
@@ -2100,9 +2053,7 @@
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">items</span><span class="p">:</span>
                     <span class="k">return</span>
                 <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
-                        <span class="n">item</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="n">GeoPoint</span>
-                    <span class="p">):</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
                         <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;start&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="o">.</span><span class="n">start</span><span class="p">,</span> <span class="n">GeoPoint</span><span class="p">):</span>
                         <span class="c1"># Sections / Generators</span>
@@ -2898,7 +2849,7 @@
 <span class="sd">        - stations_from_expansion: Number of stations generated from expansion</span>
 <span class="sd">        - total_stations_processed: Total stations processed</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml_config</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml_config</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">save_yaml</span>
@@ -3090,7 +3041,7 @@
                 <span class="n">port_data</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="n">port_key</span><span class="p">]</span>
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">):</span>
                     <span class="n">port_obj</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">port_key</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">position</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
                         <span class="n">ddm_result</span> <span class="o">=</span> <span class="n">add_ddm_coordinates</span><span class="p">(</span>
                             <span class="n">port_data</span><span class="p">,</span>
                             <span class="n">port_obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
@@ -3142,10 +3093,6 @@
                         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_ref</span><span class="p">,</span>  <span class="c1"># Keep the full port_* name as catalog identifier</span>
                         <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                         <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                        <span class="s2">&quot;position&quot;</span><span class="p">:</span> <span class="p">{</span>
-                            <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                            <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                        <span class="p">},</span>
                     <span class="p">}</span>
                     <span class="c1"># Add display_name if available</span>
                     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">):</span>
@@ -3463,8 +3410,8 @@
 <span class="sd">    Format error location path to be more user-friendly.</span>
 
 <span class="sd">    Converts array indices to meaningful names when possible.</span>
-<span class="sd">    E.g., &quot;stations -&gt; 0 -&gt; position -&gt; latitude&quot; becomes</span>
-<span class="sd">    &quot;station &#39;Station_A&#39; -&gt; position -&gt; latitude&quot;</span>
+<span class="sd">    E.g., &quot;stations -&gt; 0 -&gt; latitude&quot; becomes</span>
+<span class="sd">    &quot;station &#39;Station_A&#39; -&gt; latitude&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">location_path</span><span class="p">:</span>
         <span class="k">return</span> <span class="s2">&quot;unknown&quot;</span>
@@ -3568,7 +3515,7 @@
                 <span class="s2">&quot;Departure port name is set to placeholder &#39;UPDATE-departure-port-name&#39;. Please update with actual port name.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">longitude</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
@@ -3587,7 +3534,7 @@
                 <span class="s2">&quot;Arrival port name is set to placeholder &#39;UPDATE-arrival-port-name&#39;. Please update with actual port name.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;position&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
             <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">latitude</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">longitude</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
@@ -3646,9 +3593,8 @@
                 <span class="s2">&quot;Departure port name is set to placeholder &#39;UPDATE-departure-port-name&#39;. Please update with actual port name.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
-            <span class="n">position</span> <span class="o">=</span> <span class="n">port</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
                 <span class="p">)</span>
@@ -3666,9 +3612,8 @@
                 <span class="s2">&quot;Arrival port name is set to placeholder &#39;UPDATE-arrival-port-name&#39;. Please update with actual port name.&quot;</span>
             <span class="p">)</span>
 
-        <span class="k">if</span> <span class="s2">&quot;position&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
-            <span class="n">position</span> <span class="o">=</span> <span class="n">port</span><span class="p">[</span><span class="s2">&quot;position&quot;</span><span class="p">]</span>
-            <span class="k">if</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">position</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
                 <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                     <span class="s2">&quot;Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
                 <span class="p">)</span>
@@ -4015,7 +3960,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.check_complete_duplicates">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">check_complete_duplicates</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Check for completely identical entries (same name, position, operation, etc.).</span>
+<span class="sd">    Check for completely identical entries (same name, coordinates, operation, etc.).</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -4040,10 +3985,10 @@
                 <span class="k">if</span> <span class="p">(</span>
                     <span class="n">station1</span><span class="o">.</span><span class="n">name</span>
                     <span class="o">!=</span> <span class="n">station2</span><span class="o">.</span><span class="n">name</span>  <span class="c1"># Don&#39;t compare same names (handled above)</span>
-                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="o">.</span><span class="n">position</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                    <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="o">==</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station2</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                     <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station1</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>

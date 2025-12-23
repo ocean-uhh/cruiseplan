@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Developer Guide &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>CruisePlan Developer Guide &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -341,14 +341,14 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
           <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
               <span class="k">return</span> <span class="kc">None</span>
           <span class="n">first_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-          <span class="k">return</span> <span class="p">(</span><span class="n">first_op</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">first_op</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">first_op</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">first_op</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 
       <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
           <span class="c1"># Last operation position in cluster</span>
           <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">:</span>
               <span class="k">return</span> <span class="kc">None</span>
           <span class="n">last_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">operations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-          <span class="k">return</span> <span class="p">(</span><span class="n">last_op</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">last_op</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+          <span class="k">return</span> <span class="p">(</span><span class="n">last_op</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">last_op</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 </pre></div>
 </div>
 <p><strong>Note:</strong> Activity generation is handled by scheduler, not cluster directly.</p>
@@ -539,12 +539,12 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
 <span class="n">station2</span> <span class="o">=</span> <span class="n">StationDefinition</span><span class="p">(</span><span class="n">coordinates</span><span class="o">=</span><span class="s2">&quot;60.0, -30.0&quot;</span><span class="p">)</span>
 
 <span class="c1"># Both formats are normalized to internal GeoPoint storage</span>
-<span class="c1"># Current access: station.position.latitude, station.position.longitude</span>
+<span class="c1"># Access: station.latitude, station.longitude</span>
 </pre></div>
 </div>
 <p>The current FlexibleLocationModel system adds complexity:</p>
 <ul class="simple">
-<li><p>Requires indirect access via <code class="docutils literal notranslate"><span class="pre">station.position.latitude</span></code> instead of <code class="docutils literal notranslate"><span class="pre">station.latitude</span></code></p></li>
+<li><p>Direct access via <code class="docutils literal notranslate"><span class="pre">station.latitude</span></code> and <code class="docutils literal notranslate"><span class="pre">station.longitude</span></code></p></li>
 <li><p>Intermediate GeoPoint objects for simple coordinate storage</p></li>
 <li><p>String parsing for coordinates that are rarely used in practice</p></li>
 </ul>
@@ -562,9 +562,9 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
           <span class="c1"># Converts latitude/longitude fields or coordinate strings</span>
           <span class="c1"># into position: GeoPoint object</span>
 
-      <span class="c1"># Current access pattern:</span>
-      <span class="c1"># station.position.latitude  </span>
-      <span class="c1"># station.position.longitude</span>
+      <span class="c1"># Access pattern:</span>
+      <span class="c1"># station.latitude  </span>
+      <span class="c1"># station.longitude</span>
 
       <span class="c1"># Note: Convenience @property methods do not exist yet</span>
 </pre></div>

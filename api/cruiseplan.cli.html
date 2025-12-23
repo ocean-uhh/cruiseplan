@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=000c92bf"></script>
+      <script src="../_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -124,24 +124,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.schedule.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.utils">cruiseplan.cli.utils module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.CLIError"><code class="docutils literal notranslate"><span class="pre">CLIError</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.capture_and_format_warnings"><code class="docutils literal notranslate"><span class="pre">capture_and_format_warnings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.confirm_operation"><code class="docutils literal notranslate"><span class="pre">confirm_operation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.count_individual_warnings"><code class="docutils literal notranslate"><span class="pre">count_individual_warnings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.determine_output_path"><code class="docutils literal notranslate"><span class="pre">determine_output_path()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.display_user_warnings"><code class="docutils literal notranslate"><span class="pre">display_user_warnings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.format_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">format_coordinate_bounds()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.generate_output_filename"><code class="docutils literal notranslate"><span class="pre">generate_output_filename()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.load_cruise_with_pretty_warnings"><code class="docutils literal notranslate"><span class="pre">load_cruise_with_pretty_warnings()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.load_yaml_config"><code class="docutils literal notranslate"><span class="pre">load_yaml_config()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.read_doi_list"><code class="docutils literal notranslate"><span class="pre">read_doi_list()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.save_yaml_config"><code class="docutils literal notranslate"><span class="pre">save_yaml_config()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.setup_logging"><code class="docutils literal notranslate"><span class="pre">setup_logging()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.validate_input_file"><code class="docutils literal notranslate"><span class="pre">validate_input_file()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.utils.validate_output_path"><code class="docutils literal notranslate"><span class="pre">validate_output_path()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-cli-utils-module">cruiseplan.cli.utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.enrich">cruiseplan.cli.enrich module (part of cruiseplan.cli.process)</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.enrich.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
@@ -417,7 +400,7 @@ planning, data processing, and output generation.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If save operation fails</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If save operation fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -456,7 +439,7 @@ planning, data processing, and output generation.</p>
 <dd class="field-odd"><p>List[str]</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If search fails</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If search fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -498,7 +481,7 @@ CLI-friendly prefix cleanup.</p>
 <dd class="field-odd"><p>Tuple[float, float, float, float]</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If bounds are invalid</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If bounds are invalid</p>
 </dd>
 </dl>
 </dd></dl>
@@ -576,7 +559,7 @@ campaign_data: Loaded PANGAEA campaign data</p>
 <dd class="field-odd"><p>list</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If file cannot be loaded or contains no data.</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If file cannot be loaded or contains no data.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -703,299 +686,14 @@ comprehensive cruise schedules from YAML configuration files.</p>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing config_file, output_dir, format, etc.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If input validation fails or schedule generation encounters errors.</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If input validation fails or schedule generation encounters errors.</p>
 </dd>
 </dl>
 </dd></dl>
 
 </section>
-<section id="module-cruiseplan.cli.utils">
-<span id="cruiseplan-cli-utils-module"></span><h2>cruiseplan.cli.utils module<a class="headerlink" href="#module-cruiseplan.cli.utils" title="Link to this heading"></a></h2>
-<p>Common utilities for CLI commands.</p>
-<p>This module provides shared functionality across CLI modules including
-file path validation, output directory management, progress indicators,
-and error message formatting.</p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.CLIError">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">CLIError</span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#CLIError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.CLIError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Custom exception for CLI-related errors.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.capture_and_format_warnings">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">capture_and_format_warnings</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#capture_and_format_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.capture_and_format_warnings" title="Link to this definition"></a></dt>
-<dd><p>Context manager to capture and format Pydantic warnings consistently.</p>
-<p>Captures Python warnings during execution and formats them in a user-friendly
-way instead of showing raw tracebacks. Use this around operations that might
-generate Pydantic validation warnings.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Yields<span class="colon">:</span></dt>
-<dd class="field-odd"><p><em>List[str]</em> – List of captured warning messages</p>
-</dd>
-</dl>
-<p class="rubric">Example</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="k">with</span> <span class="n">capture_and_format_warnings</span><span class="p">()</span> <span class="k">as</span> <span class="n">captured_warnings</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>  <span class="c1"># May generate warnings</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="k">if</span> <span class="n">captured_warnings</span><span class="p">:</span>
-<span class="gp">... </span>    <span class="n">display_user_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="s2">&quot;Validation Warnings&quot;</span><span class="p">)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.confirm_operation">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">confirm_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#confirm_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.confirm_operation" title="Link to this definition"></a></dt>
-<dd><p>Prompt user for confirmation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>message</strong> (<em>str</em>) – Confirmation message.</p></li>
-<li><p><strong>default</strong> (<em>bool</em><em>, </em><em>optional</em>) – Default response if user just presses enter. Default is True.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if user confirms, False otherwise.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.count_individual_warnings">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">count_individual_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#count_individual_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.count_individual_warnings" title="Link to this definition"></a></dt>
-<dd><p>Count individual warning messages from formatted warning groups.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>warnings</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of formatted warning group strings.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Total number of individual warning messages.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.determine_output_path">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">determine_output_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_basename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#determine_output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.determine_output_path" title="Link to this definition"></a></dt>
-<dd><p>Determine output file path from CLI arguments following the standard pattern.</p>
-<p>This utility handles the common –output + –output-dir pattern used across
-multiple CLI commands, providing consistent behavior for output file naming.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing output and output_dir.</p></li>
-<li><p><strong>default_basename</strong> (<em>str</em>) – Default base filename to use if –output is not provided.</p></li>
-<li><p><strong>suffix</strong> (<em>str</em><em>, </em><em>optional</em>) – Suffix to append to basename (e.g., “_enriched”, “_schedule”). Default “”.</p></li>
-<li><p><strong>extension</strong> (<em>str</em><em>, </em><em>optional</em>) – File extension including the dot (e.g., “.yaml”, “.csv”). Default “”.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Complete output file path.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># With --output myfile --output-dir results/</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">determine_output_path</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;cruise&quot;</span><span class="p">,</span> <span class="s2">&quot;_enriched&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span><span class="p">)</span>
-<span class="go">Path(&quot;results/myfile_enriched.yaml&quot;)</span>
-</pre></div>
-</div>
-<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Without --output, using default</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">determine_output_path</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;My_Cruise&quot;</span><span class="p">,</span> <span class="s2">&quot;_schedule&quot;</span><span class="p">,</span> <span class="s2">&quot;.csv&quot;</span><span class="p">)</span>
-<span class="go">Path(&quot;data/My_Cruise_schedule.csv&quot;)</span>
-</pre></div>
-</div>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.display_user_warnings">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">display_user_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warnings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Configuration</span> <span class="pre">Warnings'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#display_user_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.display_user_warnings" title="Link to this definition"></a></dt>
-<dd><p>Display validation or configuration warnings in a consistent, user-friendly format.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>warnings</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – List of warning messages to display.</p></li>
-<li><p><strong>title</strong> (<em>str</em><em>, </em><em>optional</em>) – Title for the warning section (default: “Configuration Warnings”).</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.format_coordinate_bounds">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">format_coordinate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lon_bounds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tuple</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#format_coordinate_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.format_coordinate_bounds" title="Link to this definition"></a></dt>
-<dd><p>Format coordinate bounds for display.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>lat_bounds: (min_lat, max_lat)
-lon_bounds: (min_lon, max_lon)</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Formatted bounds string</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.generate_output_filename">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">generate_output_filename</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">suffix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extension</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#generate_output_filename"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.generate_output_filename" title="Link to this definition"></a></dt>
-<dd><p>Generate output filename by adding suffix to input filename.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>input_path: Input file path
-suffix: Suffix to add (e.g., “_with_depths”)
-extension: New extension (defaults to input extension)</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Generated filename</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.load_cruise_with_pretty_warnings">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">load_cruise_with_pretty_warnings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_file</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#load_cruise_with_pretty_warnings"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.load_cruise_with_pretty_warnings" title="Link to this definition"></a></dt>
-<dd><p>Load a Cruise object with consistent warning formatting.</p>
-<p>This function wraps Cruise loading with warning capture to ensure
-any Pydantic validation warnings are displayed in a user-friendly
-format instead of showing raw Python warning tracebacks.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>config_file</strong> (<em>str</em><em> or </em><em>Path</em>) – Path to the cruise configuration YAML file</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Loaded cruise object</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise">Cruise</a></p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If cruise loading fails</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.load_yaml_config">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">load_yaml_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#load_yaml_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.load_yaml_config" title="Link to this definition"></a></dt>
-<dd><p>Load and validate YAML configuration file.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>file_path: Path to YAML file</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Parsed YAML content</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If file cannot be loaded or parsed:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.read_doi_list">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">read_doi_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#read_doi_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.read_doi_list" title="Link to this definition"></a></dt>
-<dd><p>Read DOI list from text file, filtering out comments and empty lines.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>file_path: Path to DOI list file</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List of DOI strings</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If file cannot be read:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.save_yaml_config">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">save_yaml_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#save_yaml_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.save_yaml_config" title="Link to this definition"></a></dt>
-<dd><p>Save configuration to YAML file with optional backup.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>config: Configuration dictionary to save
-file_path: Output file path
-backup: Whether to create backup of existing file</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If file cannot be written:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.setup_logging">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">setup_logging</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">quiet</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#setup_logging"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.setup_logging" title="Link to this definition"></a></dt>
-<dd><p>Setup logging configuration for CLI commands.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>verbose</strong> (<em>bool</em><em>, </em><em>optional</em>) – Enable verbose output. Default is False.</p></li>
-<li><p><strong>quiet</strong> (<em>bool</em><em>, </em><em>optional</em>) – Suppress non-essential output. Default is False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.validate_input_file">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">validate_input_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">must_exist</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#validate_input_file"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.validate_input_file" title="Link to this definition"></a></dt>
-<dd><p>Validate input file path and ensure it exists.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>file_path</strong> (<em>Path</em>) – Path to validate.</p></li>
-<li><p><strong>must_exist</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether file must exist. Default is True.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Resolved and validated file path.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If file path is invalid or file doesn’t exist when required.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.utils.validate_output_path">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.utils.</span></span><span class="sig-name descname"><span class="pre">validate_output_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">PosixPath('.')</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">default_filename</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Path</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/utils.html#validate_output_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.utils.validate_output_path" title="Link to this definition"></a></dt>
-<dd><p>Validate and resolve output path from directory and optional filename.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>output_dir: Output directory path
-output_file: Specific output file path (overrides output_dir)
-default_dir: Default directory if none specified
-default_filename: Default filename to use with output_dir</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Resolved output path</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If paths are invalid:</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="cruiseplan-cli-utils-module">
+<h2>cruiseplan.cli.utils module<a class="headerlink" href="#cruiseplan-cli-utils-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-cruiseplan.cli.enrich">
 <span id="cruiseplan-cli-enrich-module-part-of-cruiseplan-cli-process"></span><h2>cruiseplan.cli.enrich module (part of cruiseplan.cli.process)<a class="headerlink" href="#module-cruiseplan.cli.enrich" title="Link to this heading"></a></h2>
@@ -1027,7 +725,7 @@ validation of YAML configuration files without modification.</p>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing config_file, check_depths, tolerance, etc.</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If input validation fails or configuration validation encounters errors.</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If input validation fails or configuration validation encounters errors.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1116,7 +814,7 @@ DOI lists that can be used with ‘cruiseplan pangaea’.</p>
 </ul>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If save operation fails</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If save operation fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1140,7 +838,7 @@ DOI lists that can be used with ‘cruiseplan pangaea’.</p>
 <dd class="field-odd"><p>List[str]</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If search fails</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If search fails</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1163,7 +861,7 @@ DOI lists that can be used with ‘cruiseplan pangaea’.</p>
 <dd class="field-odd"><p>Tuple[float, float, float, float]</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.cli.utils.CLIError" title="cruiseplan.cli.utils.CLIError"><strong>CLIError</strong></a> – If bounds are invalid</p>
+<dd class="field-even"><p><strong>CLIError</strong> – If bounds are invalid</p>
 </dd>
 </dl>
 </dd></dl>

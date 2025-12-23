@@ -19,14 +19,14 @@ Phase 1: Critical Data Integrity
 **Target**: Version 0.3.0 (Breaking Changes Release)  
 **Focus**: Data accuracy and routing consistency
 
-Station Coordinate Access 🟠
+Station Coordinate Access ✅
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Medium - Developer Experience  
-**Breaking Change**: No (additive)
+**Status**: Completed in v0.2.x
 
-**Current Pattern**: ``station.position.latitude`` (cumbersome)  
-**Planned Addition**: ``station.latitude`` (convenience properties)
+**Implementation**: Direct ``station.latitude`` and ``station.longitude`` attributes  
+**Previous Pattern**: ``station.position.latitude`` (removed)
 
 **Benefits**: Improved code readability throughout calculation and enrichment functions
 
@@ -167,6 +167,69 @@ Implement bidirectional conversion between NetCDF output and YAML configuration 
 
 **Success Criteria**: Generated YAML produces identical schedule and station information when re-processed
 
+
+Phase 4: Architecture and Performance
+--------------------------------------
+
+**Target**: Version 1.0.0 (Stable Release)  
+**Focus**: Architectural improvements and performance optimization
+
+Scheduler Architecture Refactoring 🟠
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Priority**: Medium - Architecture & Maintainability  
+**Breaking Change**: No (internal refactoring)
+
+**Current Architecture Issues**:
+
+The scheduler currently follows a two-phase conversion pattern that introduces unnecessary complexity:
+
+1. **Early Conversion to Dictionaries**: Operation objects (PointOperation, LineOperation, AreaOperation) are converted to dictionary-based ActivityRecord structures early in the scheduling process
+2. **Loss of Abstraction**: Once converted, the scheduler works with raw dictionaries containing fields like ``"lat"``, ``"lon"``, ``"start_lat"``, ``"end_lat"``, etc.
+3. **Manual Coordinate Extraction**: Code must explicitly know dictionary field names and manually construct coordinate tuples throughout the scheduling logic
+4. **Duplicated Logic**: Entry/exit point logic exists both in operation objects (``get_entry_point()``, ``get_exit_point()``) and separately in scheduler helper functions
+
+**Problems This Creates**:
+
+- **Maintenance Burden**: Changes to coordinate representation require updates in multiple places
+- **Error-Prone**: Manual field access with string keys (``activity["start_lat"]``) is susceptible to typos and refactoring issues  
+- **Loss of Type Safety**: Dictionary access provides no IDE support or type checking
+- **Conceptual Gap**: Developers must understand both the operation object model AND the internal dictionary structure
+
+**Proposed Solution**:
+
+Maintain operation objects throughout the scheduling process:
+
+- Keep operations as typed objects (PointOperation, LineOperation, etc.) during scheduling
+- Use object methods (``get_entry_point()``, ``get_exit_point()``, ``calculate_duration()``) consistently
+- Only convert to ActivityRecord dictionaries at the final output stage
+- Leverage polymorphism for operation-specific behavior
+
+**Implementation Approach**:
+
+1. Create an enhanced ActivityRecord class that wraps operation objects
+2. Add scheduling-specific attributes (start_time, end_time) to the wrapper
+3. Use operation methods for all coordinate and duration calculations
+4. Convert to dictionary format only for serialization/output
+
+**Benefits**:
+
+- **Single Source of Truth**: Coordinate access logic lives only in operation classes
+- **Type Safety**: Full IDE support and type checking throughout scheduling
+- **Cleaner Code**: Replace ``activity["start_lat"]`` with ``operation.get_entry_point()``
+- **Easier Testing**: Mock operation objects instead of constructing complex dictionaries
+- **Future-Proof**: Changes to operation structure don't ripple through scheduler code
+
+**Migration Strategy**:
+
+For backward compatibility, the refactoring can be done incrementally:
+
+1. Current helper functions (``_get_activity_entry_position()``, etc.) provide an abstraction layer
+2. Gradually replace dictionary creation with operation object retention
+3. Update scheduler functions one at a time to work with objects
+4. Final step: remove dictionary conversion until the output stage
+
+This architectural improvement will significantly reduce code complexity and improve maintainability while maintaining full backward compatibility with existing cruise configurations and output formats.
 
 
 Risk Assessment

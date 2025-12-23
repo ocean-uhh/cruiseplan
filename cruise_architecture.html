@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Architecture &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>CruisePlan Architecture &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=000c92bf"></script>
+      <script src="_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -108,6 +108,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#adding-new-ports">Adding New Ports</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#extending-operation-types">Extending Operation Types</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#custom-scheduling-strategies">Custom Scheduling Strategies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#entry-exit-point-abstraction">Entry/Exit Point Abstraction</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#migration-from-legacy-architecture">Migration from Legacy Architecture</a><ul>
@@ -603,6 +604,49 @@ legs:
 <li><p><strong>Consider cluster boundaries</strong>: Strategies only operate within clusters</p></li>
 <li><p><strong>Test edge cases</strong>: Empty clusters, single operations, etc.</p></li>
 </ol>
+</section>
+<section id="entry-exit-point-abstraction">
+<h3>Entry/Exit Point Abstraction<a class="headerlink" href="#entry-exit-point-abstraction" title="Link to this heading"></a></h3>
+<p><strong>Core Routing Principle</strong>:
+Scheduling creates a continuous expedition path by connecting exit points to entry points between operations</p>
+<p><strong>Implementation Concept</strong>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_track</span><span class="p">(</span><span class="n">operations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Connect exit point of one operation to entry point of next operation</span>
+<span class="sd">    to create complete cruise track</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cruise_track</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">operations</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">current_op</span> <span class="o">=</span> <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">next_op</span> <span class="o">=</span> <span class="n">operations</span><span class="p">[</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+        
+        <span class="c1"># Connect exit of current operation to entry of next operation</span>
+        <span class="n">transit</span> <span class="o">=</span> <span class="n">create_transit</span><span class="p">(</span>
+            <span class="n">start</span><span class="o">=</span><span class="n">current_op</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">(),</span> 
+            <span class="n">end</span><span class="o">=</span><span class="n">next_op</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span>
+        <span class="p">)</span>
+        
+        <span class="n">cruise_track</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span>
+            <span class="n">current_op</span><span class="p">,</span>
+            <span class="n">transit</span><span class="p">,</span>
+            <span class="n">next_op</span>
+        <span class="p">])</span>
+    
+    <span class="k">return</span> <span class="n">cruise_track</span>
+</pre></div>
+</div>
+<p><strong>Key Characteristics</strong>:</p>
+<ul class="simple">
+<li><p><strong>Seamless Transitions</strong>: Automatic connection between operations</p></li>
+<li><p><strong>Flexible Path Generation</strong>: Works across different operation types</p></li>
+<li><p><strong>Predictable Routing</strong>: Clear method for determining cruise track</p></li>
+</ul>
+<p><strong>Benefits</strong>:</p>
+<ul class="simple">
+<li><p>Enables complex expedition routing</p></li>
+<li><p>Works across different operation types</p></li>
+<li><p>Provides a standardized way to generate cruise tracks</p></li>
+</ul>
 </section>
 </section>
 <section id="migration-from-legacy-architecture">

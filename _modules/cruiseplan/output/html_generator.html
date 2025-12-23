@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2.2 v0.2.2</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=000c92bf"></script>
+      <script src="../../../_static/documentation_options.js?v=ae1a30e1"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -576,19 +576,14 @@
         <span class="c1"># Add leg schedule section</span>
         <span class="n">html_content</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_leg_schedules</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">stats</span><span class="p">)</span>
 
-        <span class="c1"># Try to embed the cruise track map if it exists</span>
-        <span class="n">map_path</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_schedule_map.png&quot;</span>
+        <span class="c1"># Try to link to the cruise track map if it exists</span>
+        <span class="n">map_filename</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">_schedule_map.png&quot;</span>
+        <span class="n">map_path</span> <span class="o">=</span> <span class="n">output_file</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">map_filename</span>
         <span class="k">if</span> <span class="n">map_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="c1"># Embed the map as a base64 image</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">base64</span>
-
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">map_path</span><span class="p">,</span> <span class="s2">&quot;rb&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">img_file</span><span class="p">:</span>
-                <span class="n">img_data</span> <span class="o">=</span> <span class="n">base64</span><span class="o">.</span><span class="n">b64encode</span><span class="p">(</span><span class="n">img_file</span><span class="o">.</span><span class="n">read</span><span class="p">())</span><span class="o">.</span><span class="n">decode</span><span class="p">()</span>
-
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    &lt;h2&gt;4. Cruise Track Map&lt;/h2&gt;</span>
 <span class="s2">    &lt;div style=&quot;text-align: center; margin: 20px 0;&quot;&gt;</span>
-<span class="s2">        &lt;img src=&quot;data:image/png;base64,</span><span class="si">{</span><span class="n">img_data</span><span class="si">}</span><span class="s2">&quot; </span>
+<span class="s2">        &lt;img src=&quot;</span><span class="si">{</span><span class="n">map_filename</span><span class="si">}</span><span class="s2">&quot; </span>
 <span class="s2">             alt=&quot;Cruise Track Map for </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot; </span>
 <span class="s2">             style=&quot;max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);&quot;&gt;</span>
 <span class="s2">        &lt;p style=&quot;font-style: italic; color: #666; margin-top: 10px;&quot;&gt;</span>
