@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ae1a30e1"></script>
+      <script src="../../../_static/documentation_options.js?v=99e2ba8b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -601,18 +601,10 @@
     <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># 1. Initialize start time and duration calculator</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_start_datetime</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Handle different start_date formats</span>
-        <span class="k">if</span> <span class="s2">&quot;T&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
-            <span class="c1"># ISO format with time included (e.g., &quot;2028-06-01T08:00:00Z&quot;)</span>
-            <span class="c1"># Remove timezone suffix and parse</span>
-            <span class="n">start_date_clean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">start_date_clean</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Separate date and time (e.g., start_date=&quot;2028-06-01&quot;, start_time=&quot;08:00&quot;)</span>
-            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span>
-            <span class="p">)</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">_parse_start_datetime</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid start_date or start_time format in config: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -710,28 +702,18 @@
         <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="c1"># Handle leg-level buffer time when transitioning between legs</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_leg_buffer_time</span>
+
         <span class="n">leg_name</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">current_leg_name</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">leg_name</span> <span class="o">!=</span> <span class="n">current_leg_name</span><span class="p">:</span>
             <span class="c1"># We&#39;ve moved to a new leg - check if previous leg has buffer time</span>
             <span class="n">previous_leg</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
                 <span class="p">(</span><span class="n">leg</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">current_leg_name</span><span class="p">),</span> <span class="kc">None</span>
             <span class="p">)</span>
-            <span class="c1"># Check for real buffer_time attribute (not MagicMock)</span>
-            <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
-            <span class="k">if</span> <span class="n">previous_leg</span><span class="p">:</span>
-                <span class="k">try</span><span class="p">:</span>
-                    <span class="c1"># Only use buffer_time if it&#39;s actually defined (not a MagicMock)</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">previous_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">):</span>
-                        <span class="n">raw_buffer_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">previous_leg</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                        <span class="c1"># Check if it&#39;s a real value, not a MagicMock</span>
-                        <span class="k">if</span> <span class="p">(</span>
-                            <span class="n">raw_buffer_time</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                            <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="s2">&quot;_mock_name&quot;</span><span class="p">)</span>
-                            <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
-                        <span class="p">):</span>
-                            <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">raw_buffer_time</span><span class="p">)</span>
-                <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
-                    <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+            <span class="n">buffer_time_min</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">_extract_leg_buffer_time</span><span class="p">(</span><span class="n">previous_leg</span><span class="p">)</span> <span class="k">if</span> <span class="n">previous_leg</span> <span class="k">else</span> <span class="mf">0.0</span>
+            <span class="p">)</span>
 
             <span class="k">if</span> <span class="n">buffer_time_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
@@ -823,38 +805,9 @@
             <span class="n">op_duration_min</span> <span class="o">=</span> <span class="mf">60.0</span>  <span class="c1"># Default fallback for non-CTD/Mooring ops</span>
 
         <span class="c1"># 3c. Handle Activity-Level Buffer Times</span>
-        <span class="c1"># Safely get delay values, treating MagicMock as 0.0</span>
-        <span class="n">delay_start_raw</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delay_start&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-        <span class="n">delay_end_raw</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;delay_end&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_activity_delays</span>
 
-        <span class="c1"># Convert to float, treating MagicMocks as 0.0</span>
-        <span class="n">delay_start_min</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="n">delay_end_min</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Check if delay_start is a real value (not MagicMock from tests)</span>
-            <span class="n">is_real_value</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">delay_start_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delay_start_raw</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span>
-                    <span class="n">delay_start_raw</span><span class="p">,</span> <span class="s2">&quot;_mock_name&quot;</span>
-                <span class="p">)</span>  <span class="c1"># More robust MagicMock detection</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="n">is_real_value</span><span class="p">:</span>
-                <span class="n">delay_start_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delay_start_raw</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
-            <span class="n">delay_start_min</span> <span class="o">=</span> <span class="mf">0.0</span>
-
-        <span class="k">try</span><span class="p">:</span>
-            <span class="c1"># Only use if it&#39;s a real number, not a MagicMock</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="n">delay_end_raw</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-                <span class="ow">and</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">,</span> <span class="s2">&quot;_mock_name&quot;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))</span>
-            <span class="p">):</span>
-                <span class="n">delay_end_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">delay_end_raw</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">TypeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
-            <span class="n">delay_end_min</span> <span class="o">=</span> <span class="mf">0.0</span>
+        <span class="n">delay_start_min</span><span class="p">,</span> <span class="n">delay_end_min</span> <span class="o">=</span> <span class="n">_extract_activity_delays</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
 
         <span class="c1"># Add delay_start to current_time (wait before operation begins)</span>
         <span class="k">if</span> <span class="n">delay_start_min</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1010,14 +963,10 @@
     <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="c1"># Initialize timing and calculators</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_parse_start_datetime</span>
+
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">if</span> <span class="s2">&quot;T&quot;</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="p">:</span>
-            <span class="n">start_date_clean</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Z&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromisoformat</span><span class="p">(</span><span class="n">start_date_clean</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">current_time</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span>
-            <span class="p">)</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">_parse_start_datetime</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid start_date or start_time format in config: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
@@ -1121,87 +1070,18 @@
                     <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">)</span>
 
         <span class="c1"># 2. Process leg departure from port to first operation</span>
-        <span class="c1"># Check for activities (either direct or extracted from clusters)</span>
-        <span class="n">has_activities</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">bool</span><span class="p">(</span>
-            <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">_calculate_port_to_operations_transit</span><span class="p">,</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">has_activities</span><span class="p">:</span>
-            <span class="c1"># Get first activity name - prioritize first_waypoint, then activities</span>
-            <span class="n">first_activity_name</span> <span class="o">=</span> <span class="kc">None</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;first_waypoint&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">first_waypoint</span><span class="p">:</span>
-                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">first_waypoint</span>
-            <span class="k">elif</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
-                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">activities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">extracted_activities</span> <span class="o">=</span> <span class="n">_extract_activities_from_leg</span><span class="p">(</span><span class="n">leg_def</span><span class="p">)</span>
-                <span class="n">first_activity_name</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">extracted_activities</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">extracted_activities</span> <span class="k">else</span> <span class="kc">None</span>
-                <span class="p">)</span>
-            <span class="n">first_activity_details</span> <span class="o">=</span> <span class="kc">None</span>
 
-            <span class="k">if</span> <span class="n">first_activity_name</span><span class="p">:</span>
-                <span class="c1"># Resolve first activity details using specialized resolvers</span>
-                <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_station_details</span><span class="p">(</span>
-                    <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
-                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_mooring_details</span><span class="p">(</span>
-                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
-                    <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
-                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_area_details</span><span class="p">(</span>
-                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
-                    <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">first_activity_details</span><span class="p">:</span>
-                    <span class="n">first_activity_details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span>
-                        <span class="n">config</span><span class="p">,</span> <span class="n">first_activity_name</span>
-                    <span class="p">)</span>
+        <span class="n">transit_activity</span><span class="p">,</span> <span class="n">operation_pos</span> <span class="o">=</span> <span class="n">_calculate_port_to_operations_transit</span><span class="p">(</span>
+            <span class="n">config</span><span class="p">,</span> <span class="n">runtime_leg</span><span class="p">,</span> <span class="n">leg_def</span><span class="p">,</span> <span class="n">current_time</span>
+        <span class="p">)</span>
 
-            <span class="c1"># Add transit from departure port to first operation</span>
-            <span class="k">if</span> <span class="n">first_activity_details</span><span class="p">:</span>
-                <span class="n">port_pos</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
-                    <span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">operation_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
-                    <span class="n">latitude</span><span class="o">=</span><span class="n">first_activity_details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span>
-                    <span class="n">longitude</span><span class="o">=</span><span class="n">first_activity_details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">],</span>
-                <span class="p">)</span>
-
-                <span class="c1"># Use leg&#39;s effective speed with parameter inheritance</span>
-                <span class="n">effective_speed</span> <span class="o">=</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
-                    <span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">8.0</span>
-                <span class="p">)</span>
-                <span class="n">transit_time</span> <span class="o">=</span> <span class="n">_calculate_inter_port_transit</span><span class="p">(</span>
-                    <span class="n">port_pos</span><span class="p">,</span>
-                    <span class="n">operation_pos</span><span class="p">,</span>
-                    <span class="n">effective_speed</span><span class="p">,</span>
-                <span class="p">)</span>
-
-                <span class="c1"># Calculate distance for CSV output</span>
-                <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">port_pos</span><span class="p">,</span> <span class="n">operation_pos</span><span class="p">)</span>
-                <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
-
-                <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">ActivityRecord</span><span class="p">(</span>
-                        <span class="p">{</span>
-                            <span class="s2">&quot;activity&quot;</span><span class="p">:</span> <span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;label&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Departure: </span><span class="si">{</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;display_name&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">runtime_leg</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;,&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2"> to Operations&quot;</span><span class="p">,</span>
-                            <span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">port_pos</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>  <span class="c1"># Record departure port coordinates</span>
-                            <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">port_pos</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>  <span class="c1"># Record departure port coordinates</span>
-                            <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>
-                            <span class="s2">&quot;start_time&quot;</span><span class="p">:</span> <span class="n">current_time</span><span class="p">,</span>
-                            <span class="s2">&quot;end_time&quot;</span><span class="p">:</span> <span class="n">current_time</span> <span class="o">+</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">),</span>
-                            <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time</span><span class="p">,</span>
-                            <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">:</span> <span class="n">distance_nm</span><span class="p">,</span>
-                            <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">effective_speed</span><span class="p">,</span>
-                            <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-                            <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
-                        <span class="p">}</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
-                <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_time</span><span class="p">)</span>
-                <span class="n">current_position</span> <span class="o">=</span> <span class="n">operation_pos</span>
+        <span class="k">if</span> <span class="n">transit_activity</span><span class="p">:</span>
+            <span class="n">timeline</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ActivityRecord</span><span class="p">(</span><span class="n">transit_activity</span><span class="p">))</span>
+            <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">transit_activity</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">])</span>
+            <span class="n">current_position</span> <span class="o">=</span> <span class="n">operation_pos</span>
 
         <span class="c1"># 3. Process activities within leg using cluster boundaries</span>
         <span class="n">leg_activities</span> <span class="o">=</span> <span class="n">_process_leg_activities_with_clusters</span><span class="p">(</span>

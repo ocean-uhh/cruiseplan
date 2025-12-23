@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev1</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ae1a30e1"></script>
+      <script src="../../../_static/documentation_options.js?v=99e2ba8b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -119,7 +119,6 @@
     <span class="n">DEFAULT_START_DATE</span><span class="p">,</span>
     <span class="n">DEFAULT_STATION_SPACING_KM</span><span class="p">,</span>
     <span class="n">DEFAULT_TURNAROUND_TIME_MIN</span><span class="p">,</span>
-    <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_ddm_comment</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_port_reference</span>
@@ -2299,13 +2298,15 @@
 <span class="sd">    ----------</span>
 <span class="sd">    config : Dict[str, Any]</span>
 <span class="sd">        The cruise configuration dictionary</span>
+<span class="sd">    default_depth : float, optional</span>
+<span class="sd">        Default depth value to use for stations. Default is -9999.0 (placeholder).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    Tuple[Dict[str, Any], Dict[str, int]]</span>
 <span class="sd">        Modified configuration and summary with sections_expanded and stations_from_expansion counts</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_expand_single_ctd_section</span>
 
     <span class="c1"># Preserve comments by avoiding deepcopy - modify config in place if it&#39;s a CommentedMap</span>
     <span class="c1"># or create a shallow working copy for plain dictionaries</span>
@@ -2317,124 +2318,6 @@
         <span class="kn">import</span><span class="w"> </span><span class="nn">copy</span>
 
         <span class="n">config</span> <span class="o">=</span> <span class="n">copy</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">interpolate_position</span><span class="p">(</span>
-        <span class="n">start_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">start_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">end_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">end_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Interpolate position along great circle route.&quot;&quot;&quot;</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-
-        <span class="c1"># Convert degrees to radians</span>
-        <span class="n">lat1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lat</span><span class="p">)</span>
-        <span class="n">lon1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lon</span><span class="p">)</span>
-        <span class="n">lat2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lat</span><span class="p">)</span>
-        <span class="n">lon2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lon</span><span class="p">)</span>
-
-        <span class="c1"># Calculate angular distance</span>
-        <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span>
-            <span class="nb">min</span><span class="p">(</span>
-                <span class="mi">1</span><span class="p">,</span>
-                <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
-                <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span><span class="p">),</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-
-        <span class="c1"># Handle edge case for very short distances</span>
-        <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span>
-
-        <span class="c1"># Spherical interpolation</span>
-        <span class="n">A</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fraction</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-        <span class="n">B</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">fraction</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
-
-        <span class="n">x</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
-        <span class="n">y</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
-        <span class="n">z</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
-
-        <span class="c1"># Convert back to lat/lon</span>
-        <span class="n">lat_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">))</span>
-        <span class="n">lon_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lat_result</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lon_result</span><span class="p">)</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">expand_section</span><span class="p">(</span><span class="n">transit</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Expand a single CTD section transit into stations.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">transit</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">])</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Transit </span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> has insufficient route points for expansion&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">start</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
-        <span class="n">end</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-
-        <span class="n">start_lat</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
-        <span class="n">start_lon</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
-        <span class="n">end_lat</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
-        <span class="n">end_lon</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">]):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Transit </span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> has missing coordinates&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="p">[]</span>
-
-        <span class="n">total_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>
-            <span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">),</span> <span class="p">(</span><span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">spacing_km</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;distance_between_stations&quot;</span><span class="p">,</span> <span class="mf">20.0</span><span class="p">)</span>
-        <span class="n">num_stations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_distance_km</span> <span class="o">/</span> <span class="n">spacing_km</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
-
-        <span class="n">stations</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-
-        <span class="c1"># Robust sanitization of station names - replace all non-alphanumeric with underscores</span>
-        <span class="n">base_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^a-zA-Z0-9_]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">transit</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span>
-        <span class="c1"># Remove duplicate underscores and strip leading/trailing underscores</span>
-        <span class="n">base_name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">base_name</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stations</span><span class="p">):</span>
-            <span class="n">fraction</span> <span class="o">=</span> <span class="n">i</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_stations</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_stations</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
-            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">interpolate_position</span><span class="p">(</span>
-                <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">,</span> <span class="n">fraction</span>
-            <span class="p">)</span>
-
-            <span class="n">station</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_Stn</span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Modern flat structure</span>
-                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Modern flat structure</span>
-                <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Station </span><span class="si">{</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">num_stations</span><span class="si">}</span><span class="s2"> on </span><span class="si">{</span><span class="n">transit</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> section&quot;</span><span class="p">,</span>
-                <span class="c1"># Only set water_depth if we have a valid default value</span>
-                <span class="c1"># None will trigger bathymetry lookup during enrichment</span>
-                <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">120.0</span><span class="p">,</span>  <span class="c1"># Duration in minutes for consistency</span>
-            <span class="p">}</span>
-
-            <span class="c1"># Copy additional fields if present, converting to modern field names</span>
-            <span class="k">if</span> <span class="s2">&quot;max_depth&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="p">:</span>
-                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">transit</span><span class="p">[</span>
-                    <span class="s2">&quot;max_depth&quot;</span>
-                <span class="p">]</span>  <span class="c1"># Use semantic water_depth</span>
-            <span class="k">elif</span> <span class="n">default_depth</span> <span class="o">!=</span> <span class="o">-</span><span class="mf">9999.0</span><span class="p">:</span>
-                <span class="c1"># Use provided default depth if valid (not the placeholder value)</span>
-                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">default_depth</span>
-            <span class="c1"># If no depth is specified, let enrichment process handle bathymetry lookup</span>
-
-            <span class="k">if</span> <span class="s2">&quot;planned_duration_hours&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="p">:</span>
-                <span class="c1"># Convert hours to minutes for consistency</span>
-                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">transit</span><span class="p">[</span><span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">])</span> <span class="o">*</span> <span class="mf">60.0</span>
-            <span class="k">if</span> <span class="s2">&quot;duration&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="p">:</span>
-                <span class="n">station</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">transit</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">])</span>  <span class="c1"># Already in minutes</span>
-
-            <span class="n">stations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Expanded &#39;</span><span class="si">{</span><span class="n">transit</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; into </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stations</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations&quot;</span><span class="p">)</span>
-        <span class="k">return</span> <span class="n">stations</span>
 
     <span class="c1"># Find CTD sections in transits</span>
     <span class="n">ctd_sections</span> <span class="o">=</span> <span class="p">[]</span>
@@ -2452,7 +2335,7 @@
 
     <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">ctd_sections</span><span class="p">:</span>
         <span class="n">section_name</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-        <span class="n">new_stations</span> <span class="o">=</span> <span class="n">expand_section</span><span class="p">(</span><span class="n">section</span><span class="p">)</span>
+        <span class="n">new_stations</span> <span class="o">=</span> <span class="n">_expand_single_ctd_section</span><span class="p">(</span><span class="n">section</span><span class="p">,</span> <span class="n">default_depth</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">new_stations</span><span class="p">:</span>
             <span class="c1"># Add to stations catalog</span>
@@ -2605,26 +2488,47 @@
 <span class="sd">    Tuple[Dict[str, Any], List[str]]</span>
 <span class="sd">        Updated configuration dictionary and list of fields that were added</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">_add_configuration_fields</span><span class="p">,</span>
+        <span class="n">_add_cruise_level_defaults</span><span class="p">,</span>
+        <span class="n">_add_port_defaults</span><span class="p">,</span>
+        <span class="n">_insert_missing_fields</span><span class="p">,</span>
+        <span class="n">_validate_required_structure</span><span class="p">,</span>
+    <span class="p">)</span>
 
-    <span class="n">defaults_added</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">all_defaults_added</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Check which fields need to be added</span>
-    <span class="n">fields_to_add</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Add cruise-level defaults</span>
+    <span class="n">cruise_defaults</span> <span class="o">=</span> <span class="n">_add_cruise_level_defaults</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cruise_defaults</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="s2">&quot;default_vessel_speed&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
-        <span class="n">fields_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="p">(</span>
-                <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span>
-                <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="si">}</span><span class="s2"> knots&quot;</span><span class="p">,</span>
-            <span class="p">)</span>
-        <span class="p">)</span>
-        <span class="n">defaults_added</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;default_vessel_speed = </span><span class="si">{</span><span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;⚠️ Added missing field: default_vessel_speed = </span><span class="si">{</span><span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="si">}</span><span class="s2"> knots&quot;</span>
-        <span class="p">)</span>
+    <span class="c1"># Add port defaults</span>
+    <span class="n">port_defaults</span> <span class="o">=</span> <span class="n">_add_port_defaults</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">port_defaults</span><span class="p">)</span>
 
+    <span class="c1"># Add missing configuration fields</span>
+    <span class="n">fields_to_add</span><span class="p">,</span> <span class="n">config_defaults</span> <span class="o">=</span> <span class="n">_add_configuration_fields</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config_defaults</span><span class="p">)</span>
+
+    <span class="c1"># Insert missing fields with proper formatting</span>
+    <span class="n">_insert_missing_fields</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">fields_to_add</span><span class="p">)</span>
+
+    <span class="c1"># Validate and add required structure</span>
+    <span class="n">structure_defaults</span> <span class="o">=</span> <span class="n">_validate_required_structure</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">structure_defaults</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">config_dict</span><span class="p">,</span> <span class="n">all_defaults_added</span></div>
+
+
+
+<div class="viewcode-block" id="add_missing_required_fields_DISABLED_OLD_VERSION">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.validation.add_missing_required_fields_DISABLED_OLD_VERSION">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_missing_required_fields_DISABLED_OLD_VERSION</span><span class="p">(</span>
+    <span class="n">config_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;DISABLED - Old version kept for reference only.&quot;&quot;&quot;</span>
+    <span class="c1"># This function has been refactored into smaller utilities</span>
+    <span class="c1"># See validation_utils.py for the extracted functions</span>
     <span class="k">if</span> <span class="s2">&quot;calculate_transfer_between_sections&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
         <span class="n">fields_to_add</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="p">(</span>
@@ -2877,19 +2781,9 @@
     <span class="c1"># Create temporary file with processed config for Cruise loading</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
 
-    <span class="c1"># Capture Python warnings for better formatting</span>
-    <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">python_warnings</span>
+    <span class="c1"># Use context manager for safe temporary file handling and warning capture</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validation_warning_capture</span>
 
-    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
-
-    <span class="c1"># Set up warning capture</span>
-    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
-    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
-
-    <span class="c1"># Use context manager for safe temporary file handling</span>
     <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">NamedTemporaryFile</span><span class="p">(</span>
         <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span><span class="p">,</span> <span class="n">delete</span><span class="o">=</span><span class="kc">False</span>
     <span class="p">)</span> <span class="k">as</span> <span class="n">tmp_file</span><span class="p">:</span>
@@ -2898,14 +2792,14 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="c1"># Use comment-preserving YAML save for temp file</span>
         <span class="n">save_yaml</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">temp_config_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-        <span class="c1"># Load cruise configuration from preprocessed data</span>
-        <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">temp_config_path</span><span class="p">)</span>
+
+        <span class="c1"># Load cruise configuration with warning capture</span>
+        <span class="k">with</span> <span class="n">_validation_warning_capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">captured_warnings</span><span class="p">:</span>
+            <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">temp_config_path</span><span class="p">)</span>
     <span class="k">finally</span><span class="p">:</span>
         <span class="c1"># Clean up temporary file safely</span>
         <span class="k">if</span> <span class="n">temp_config_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
             <span class="n">temp_config_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
-        <span class="c1"># Restore original warning handler</span>
-        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span>
 
     <span class="n">enrichment_summary</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
@@ -2955,6 +2849,11 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">add_ddm_coordinates</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">coord_field_name</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function to add ddm coordinates to a data dictionary.&quot;&quot;&quot;</span>
         <span class="k">nonlocal</span> <span class="n">coord_changes_made</span>
+
+        <span class="c1"># Skip if data_dict is not a dictionary (e.g., a string port reference)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data_dict</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
         <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;ddm&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">coord_field_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data_dict</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">data_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">coord_field_name</span><span class="p">):</span>
                 <span class="n">ddm_comment</span> <span class="o">=</span> <span class="n">format_ddm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
