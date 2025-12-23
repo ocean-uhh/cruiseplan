@@ -480,18 +480,10 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
     timeline: List[ActivityRecord] = []
 
     # 1. Initialize start time and duration calculator
+    from cruiseplan.calculators.scheduler_utils import _parse_start_datetime
+
     try:
-        # Handle different start_date formats
-        if "T" in config.start_date:
-            # ISO format with time included (e.g., "2028-06-01T08:00:00Z")
-            # Remove timezone suffix and parse
-            start_date_clean = config.start_date.replace("Z", "").replace("+00:00", "")
-            current_time = datetime.fromisoformat(start_date_clean)
-        else:
-            # Separate date and time (e.g., start_date="2028-06-01", start_time="08:00")
-            current_time = datetime.strptime(
-                f"{config.start_date} {config.start_time}", "%Y-%m-%d %H:%M"
-            )
+        current_time = _parse_start_datetime(config)
     except (ValueError, AttributeError) as e:
         logger.error(f"Invalid start_date or start_time format in config: {e}")
         return []
@@ -589,28 +581,18 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
         action = activity.get("action", None)
 
         # Handle leg-level buffer time when transitioning between legs
+        from cruiseplan.calculators.scheduler_utils import _extract_leg_buffer_time
+
         leg_name = activity.get("leg_name")
         if current_leg_name is not None and leg_name != current_leg_name:
             # We've moved to a new leg - check if previous leg has buffer time
             previous_leg = next(
                 (leg for leg in config.legs if leg.name == current_leg_name), None
             )
-            # Check for real buffer_time attribute (not MagicMock)
-            buffer_time_min = 0.0
-            if previous_leg:
-                try:
-                    # Only use buffer_time if it's actually defined (not a MagicMock)
-                    if hasattr(previous_leg, "buffer_time"):
-                        raw_buffer_time = getattr(previous_leg, "buffer_time", None)
-                        # Check if it's a real value, not a MagicMock
-                        if (
-                            raw_buffer_time is not None
-                            and not hasattr(raw_buffer_time, "_mock_name")
-                            and isinstance(raw_buffer_time, (int, float))
-                        ):
-                            buffer_time_min = float(raw_buffer_time)
-                except (TypeError, ValueError, AttributeError):
-                    buffer_time_min = 0.0
+
+            buffer_time_min = (
+                _extract_leg_buffer_time(previous_leg) if previous_leg else 0.0
+            )
 
             if buffer_time_min > 0:
                 logger.info(
@@ -702,38 +684,9 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
             op_duration_min = 60.0  # Default fallback for non-CTD/Mooring ops
 
         # 3c. Handle Activity-Level Buffer Times
-        # Safely get delay values, treating MagicMock as 0.0
-        delay_start_raw = activity.get("delay_start", 0.0)
-        delay_end_raw = activity.get("delay_end", 0.0)
+        from cruiseplan.calculators.scheduler_utils import _extract_activity_delays
 
-        # Convert to float, treating MagicMocks as 0.0
-        delay_start_min = 0.0
-        delay_end_min = 0.0
-
-        try:
-            # Check if delay_start is a real value (not MagicMock from tests)
-            is_real_value = (
-                delay_start_raw is not None
-                and isinstance(delay_start_raw, (int, float))
-                and not hasattr(
-                    delay_start_raw, "_mock_name"
-                )  # More robust MagicMock detection
-            )
-            if is_real_value:
-                delay_start_min = float(delay_start_raw)
-        except (TypeError, ValueError, AttributeError):
-            delay_start_min = 0.0
-
-        try:
-            # Only use if it's a real number, not a MagicMock
-            if (
-                delay_end_raw is not None
-                and not hasattr(delay_end_raw, "_mock_name")
-                and isinstance(delay_end_raw, (int, float))
-            ):
-                delay_end_min = float(delay_end_raw)
-        except (TypeError, ValueError, AttributeError):
-            delay_end_min = 0.0
+        delay_start_min, delay_end_min = _extract_activity_delays(activity)
 
         # Add delay_start to current_time (wait before operation begins)
         if delay_start_min > 0:
@@ -887,14 +840,10 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
     timeline: List[ActivityRecord] = []
 
     # Initialize timing and calculators
+    from cruiseplan.calculators.scheduler_utils import _parse_start_datetime
+
     try:
-        if "T" in config.start_date:
-            start_date_clean = config.start_date.replace("Z", "").replace("+00:00", "")
-            current_time = datetime.fromisoformat(start_date_clean)
-        else:
-            current_time = datetime.strptime(
-                f"{config.start_date} {config.start_time}", "%Y-%m-%d %H:%M"
-            )
+        current_time = _parse_start_datetime(config)
     except (ValueError, AttributeError) as e:
         logger.error(f"Invalid start_date or start_time format in config: {e}")
         return []
@@ -998,87 +947,18 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     current_time += timedelta(minutes=transit_time)
 
         # 2. Process leg departure from port to first operation
-        # Check for activities (either direct or extracted from clusters)
-        has_activities = bool(leg_def.activities) or bool(
-            _extract_activities_from_leg(leg_def)
+        from cruiseplan.calculators.scheduler_utils import (
+            _calculate_port_to_operations_transit,
         )
-        if has_activities:
-            # Get first activity name - prioritize first_waypoint, then activities
-            first_activity_name = None
-            if hasattr(leg_def, "first_waypoint") and leg_def.first_waypoint:
-                first_activity_name = leg_def.first_waypoint
-            elif leg_def.activities:
-                first_activity_name = leg_def.activities[0]
-            else:
-                extracted_activities = _extract_activities_from_leg(leg_def)
-                first_activity_name = (
-                    extracted_activities[0] if extracted_activities else None
-                )
-            first_activity_details = None
 
-            if first_activity_name:
-                # Resolve first activity details using specialized resolvers
-                first_activity_details = _resolve_station_details(
-                    config, first_activity_name
-                )
-                if not first_activity_details:
-                    first_activity_details = _resolve_mooring_details(
-                        config, first_activity_name
-                    )
-                if not first_activity_details:
-                    first_activity_details = _resolve_area_details(
-                        config, first_activity_name
-                    )
-                if not first_activity_details:
-                    first_activity_details = _resolve_transit_details(
-                        config, first_activity_name
-                    )
+        transit_activity, operation_pos = _calculate_port_to_operations_transit(
+            config, runtime_leg, leg_def, current_time
+        )
 
-            # Add transit from departure port to first operation
-            if first_activity_details:
-                port_pos = (
-                    runtime_leg.departure_port.latitude,
-                    runtime_leg.departure_port.longitude,
-                )
-                operation_pos = GeoPoint(
-                    latitude=first_activity_details["lat"],
-                    longitude=first_activity_details["lon"],
-                )
-
-                # Use leg's effective speed with parameter inheritance
-                effective_speed = runtime_leg.vessel_speed or getattr(
-                    config, "default_vessel_speed", 8.0
-                )
-                transit_time = _calculate_inter_port_transit(
-                    port_pos,
-                    operation_pos,
-                    effective_speed,
-                )
-
-                # Calculate distance for CSV output
-                distance_km = haversine_distance(port_pos, operation_pos)
-                distance_nm = km_to_nm(distance_km)
-
-                timeline.append(
-                    ActivityRecord(
-                        {
-                            "activity": "Port_Departure",
-                            "label": f"Departure: {(getattr(runtime_leg.departure_port, 'display_name', runtime_leg.departure_port.name) or runtime_leg.departure_port.name).split(',')[0]} to Operations",
-                            "lat": port_pos[0],  # Record departure port coordinates
-                            "lon": port_pos[1],  # Record departure port coordinates
-                            "depth": 0.0,
-                            "start_time": current_time,
-                            "end_time": current_time + timedelta(minutes=transit_time),
-                            "duration_minutes": transit_time,
-                            "transit_dist_nm": distance_nm,
-                            "vessel_speed_kt": effective_speed,
-                            "leg_name": runtime_leg.name,
-                            "op_type": "transit",
-                        }
-                    )
-                )
-                current_time += timedelta(minutes=transit_time)
-                current_position = operation_pos
+        if transit_activity:
+            timeline.append(ActivityRecord(transit_activity))
+            current_time += timedelta(minutes=transit_activity["duration_minutes"])
+            current_position = operation_pos
 
         # 3. Process activities within leg using cluster boundaries
         leg_activities = _process_leg_activities_with_clusters(

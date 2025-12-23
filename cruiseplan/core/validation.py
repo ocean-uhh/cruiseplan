@@ -13,7 +13,6 @@ from cruiseplan.utils.constants import (
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
-    DEFAULT_VESSEL_SPEED_KT,
 )
 from cruiseplan.utils.coordinates import format_ddm_comment
 from cruiseplan.utils.global_ports import resolve_port_reference
@@ -2029,13 +2028,15 @@ def expand_ctd_sections(
     ----------
     config : Dict[str, Any]
         The cruise configuration dictionary
+    default_depth : float, optional
+        Default depth value to use for stations. Default is -9999.0 (placeholder).
 
     Returns
     -------
     Tuple[Dict[str, Any], Dict[str, int]]
         Modified configuration and summary with sections_expanded and stations_from_expansion counts
     """
-    from cruiseplan.calculators.distance import haversine_distance
+    from cruiseplan.core.validation_utils import _expand_single_ctd_section
 
     # Preserve comments by avoiding deepcopy - modify config in place if it's a CommentedMap
     # or create a shallow working copy for plain dictionaries
@@ -2047,124 +2048,6 @@ def expand_ctd_sections(
         import copy
 
         config = copy.copy(config)
-
-    def interpolate_position(
-        start_lat: float,
-        start_lon: float,
-        end_lat: float,
-        end_lon: float,
-        fraction: float,
-    ) -> Tuple[float, float]:
-        """Interpolate position along great circle route."""
-        import math
-
-        # Convert degrees to radians
-        lat1 = math.radians(start_lat)
-        lon1 = math.radians(start_lon)
-        lat2 = math.radians(end_lat)
-        lon2 = math.radians(end_lon)
-
-        # Calculate angular distance
-        d = math.acos(
-            min(
-                1,
-                math.sin(lat1) * math.sin(lat2)
-                + math.cos(lat1) * math.cos(lat2) * math.cos(lon2 - lon1),
-            )
-        )
-
-        # Handle edge case for very short distances
-        if d < 1e-9:
-            return start_lat, start_lon
-
-        # Spherical interpolation
-        A = math.sin((1 - fraction) * d) / math.sin(d)
-        B = math.sin(fraction * d) / math.sin(d)
-
-        x = A * math.cos(lat1) * math.cos(lon1) + B * math.cos(lat2) * math.cos(lon2)
-        y = A * math.cos(lat1) * math.sin(lon1) + B * math.cos(lat2) * math.sin(lon2)
-        z = A * math.sin(lat1) + B * math.sin(lat2)
-
-        # Convert back to lat/lon
-        lat_result = math.atan2(z, math.sqrt(x * x + y * y))
-        lon_result = math.atan2(y, x)
-
-        return math.degrees(lat_result), math.degrees(lon_result)
-
-    def expand_section(transit: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Expand a single CTD section transit into stations."""
-        if not transit.get("route") or len(transit["route"]) < 2:
-            logger.warning(
-                f"Transit {transit.get('name', 'unnamed')} has insufficient route points for expansion"
-            )
-            return []
-
-        start = transit["route"][0]
-        end = transit["route"][-1]
-
-        start_lat = start.get("latitude", start.get("lat"))
-        start_lon = start.get("longitude", start.get("lon"))
-        end_lat = end.get("latitude", end.get("lat"))
-        end_lon = end.get("longitude", end.get("lon"))
-
-        if any(coord is None for coord in [start_lat, start_lon, end_lat, end_lon]):
-            logger.warning(
-                f"Transit {transit.get('name', 'unnamed')} has missing coordinates"
-            )
-            return []
-
-        total_distance_km = haversine_distance(
-            (start_lat, start_lon), (end_lat, end_lon)
-        )
-        spacing_km = transit.get("distance_between_stations", 20.0)
-        num_stations = max(2, int(total_distance_km / spacing_km) + 1)
-
-        stations = []
-        import re
-
-        # Robust sanitization of station names - replace all non-alphanumeric with underscores
-        base_name = re.sub(r"[^a-zA-Z0-9_]", "_", transit["name"])
-        # Remove duplicate underscores and strip leading/trailing underscores
-        base_name = re.sub(r"_+", "_", base_name).strip("_")
-
-        for i in range(num_stations):
-            fraction = i / (num_stations - 1) if num_stations > 1 else 0
-            lat, lon = interpolate_position(
-                start_lat, start_lon, end_lat, end_lon, fraction
-            )
-
-            station = {
-                "name": f"{base_name}_Stn{i+1:03d}",
-                "operation_type": "CTD",
-                "action": "profile",
-                "latitude": round(lat, 5),  # Modern flat structure
-                "longitude": round(lon, 5),  # Modern flat structure
-                "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
-                # Only set water_depth if we have a valid default value
-                # None will trigger bathymetry lookup during enrichment
-                "duration": 120.0,  # Duration in minutes for consistency
-            }
-
-            # Copy additional fields if present, converting to modern field names
-            if "max_depth" in transit:
-                station["water_depth"] = transit[
-                    "max_depth"
-                ]  # Use semantic water_depth
-            elif default_depth != -9999.0:
-                # Use provided default depth if valid (not the placeholder value)
-                station["water_depth"] = default_depth
-            # If no depth is specified, let enrichment process handle bathymetry lookup
-
-            if "planned_duration_hours" in transit:
-                # Convert hours to minutes for consistency
-                station["duration"] = float(transit["planned_duration_hours"]) * 60.0
-            if "duration" in transit:
-                station["duration"] = float(transit["duration"])  # Already in minutes
-
-            stations.append(station)
-
-        logger.info(f"Expanded '{transit['name']}' into {len(stations)} stations")
-        return stations
 
     # Find CTD sections in transits
     ctd_sections = []
@@ -2182,7 +2065,7 @@ def expand_ctd_sections(
 
     for section in ctd_sections:
         section_name = section["name"]
-        new_stations = expand_section(section)
+        new_stations = _expand_single_ctd_section(section, default_depth)
 
         if new_stations:
             # Add to stations catalog
@@ -2332,26 +2215,44 @@ def add_missing_required_fields(
     Tuple[Dict[str, Any], List[str]]
         Updated configuration dictionary and list of fields that were added
     """
-    from ruamel.yaml.comments import CommentedMap
+    from cruiseplan.core.validation_utils import (
+        _add_configuration_fields,
+        _add_cruise_level_defaults,
+        _add_port_defaults,
+        _insert_missing_fields,
+        _validate_required_structure,
+    )
 
-    defaults_added = []
+    all_defaults_added = []
 
-    # Check which fields need to be added
-    fields_to_add = []
+    # Add cruise-level defaults
+    cruise_defaults = _add_cruise_level_defaults(config_dict)
+    all_defaults_added.extend(cruise_defaults)
 
-    if "default_vessel_speed" not in config_dict:
-        fields_to_add.append(
-            (
-                "default_vessel_speed",
-                DEFAULT_VESSEL_SPEED_KT,
-                f"{DEFAULT_VESSEL_SPEED_KT} knots",
-            )
-        )
-        defaults_added.append(f"default_vessel_speed = {DEFAULT_VESSEL_SPEED_KT}")
-        logger.warning(
-            f"⚠️ Added missing field: default_vessel_speed = {DEFAULT_VESSEL_SPEED_KT} knots"
-        )
+    # Add port defaults
+    port_defaults = _add_port_defaults(config_dict)
+    all_defaults_added.extend(port_defaults)
 
+    # Add missing configuration fields
+    fields_to_add, config_defaults = _add_configuration_fields(config_dict)
+    all_defaults_added.extend(config_defaults)
+
+    # Insert missing fields with proper formatting
+    _insert_missing_fields(config_dict, fields_to_add)
+
+    # Validate and add required structure
+    structure_defaults = _validate_required_structure(config_dict)
+    all_defaults_added.extend(structure_defaults)
+
+    return config_dict, all_defaults_added
+
+
+def add_missing_required_fields_DISABLED_OLD_VERSION(
+    config_dict: Dict[str, Any],
+) -> Tuple[Dict[str, Any], List[str]]:
+    """DISABLED - Old version kept for reference only."""
+    # This function has been refactored into smaller utilities
+    # See validation_utils.py for the extracted functions
     if "calculate_transfer_between_sections" not in config_dict:
         fields_to_add.append(
             (
@@ -2598,19 +2499,9 @@ def enrich_configuration(
     # Create temporary file with processed config for Cruise loading
     import tempfile
 
-    # Capture Python warnings for better formatting
-    import warnings as python_warnings
+    # Use context manager for safe temporary file handling and warning capture
+    from cruiseplan.core.validation_utils import _validation_warning_capture
 
-    captured_warnings = []
-
-    def warning_handler(message, category, filename, lineno, file=None, line=None):
-        captured_warnings.append(str(message))
-
-    # Set up warning capture
-    old_showwarning = python_warnings.showwarning
-    python_warnings.showwarning = warning_handler
-
-    # Use context manager for safe temporary file handling
     with tempfile.NamedTemporaryFile(
         mode="w", suffix=".yaml", delete=False
     ) as tmp_file:
@@ -2619,14 +2510,14 @@ def enrich_configuration(
     try:
         # Use comment-preserving YAML save for temp file
         save_yaml(config_dict, temp_config_path, backup=False)
-        # Load cruise configuration from preprocessed data
-        cruise = Cruise(temp_config_path)
+
+        # Load cruise configuration with warning capture
+        with _validation_warning_capture() as captured_warnings:
+            cruise = Cruise(temp_config_path)
     finally:
         # Clean up temporary file safely
         if temp_config_path.exists():
             temp_config_path.unlink()
-        # Restore original warning handler
-        python_warnings.showwarning = old_showwarning
 
     enrichment_summary = {
         "stations_with_depths_added": 0,
@@ -2676,6 +2567,11 @@ def enrich_configuration(
     def add_ddm_coordinates(data_dict, lat, lon, coord_field_name):
         """Helper function to add ddm coordinates to a data dictionary."""
         nonlocal coord_changes_made
+
+        # Skip if data_dict is not a dictionary (e.g., a string port reference)
+        if not isinstance(data_dict, dict):
+            return None
+
         if coord_format == "ddm":
             if coord_field_name not in data_dict or not data_dict.get(coord_field_name):
                 ddm_comment = format_ddm_comment(lat, lon)
