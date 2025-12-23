@@ -3,6 +3,11 @@ Configuration enrichment command.
 
 This module implements the 'cruiseplan enrich' command for adding missing
 data to existing YAML configuration files.
+
+Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling
 """
 
 import argparse
@@ -12,221 +17,212 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
+import cruiseplan
 from cruiseplan.cli.cli_utils import (
     CLIError,
-    setup_logging,
-    validate_input_file,
-    validate_output_path,
+    _format_error_message,
+    _format_progress_header,
+    _format_success_message,
+    _setup_cli_logging,
+    _collect_generated_files,
 )
-from cruiseplan.core.validation import enrich_configuration
+from cruiseplan.init_utils import (
+    _convert_api_response_to_cli,
+    _resolve_cli_to_api_params,
+)
+from cruiseplan.utils.input_validation import _validate_config_file
+from cruiseplan.utils.output_formatting import _format_operation_summary
 
 logger = logging.getLogger(__name__)
 
 
+def _format_validation_errors(errors: list) -> None:
+    """Format detailed validation errors using existing logic."""
+    for error in errors:
+        field_path = ".".join(str(loc) for loc in error["loc"])
+        field_type = error["type"]
+        input_value = error.get("input", "")
+        msg = error["msg"]
+
+        # Extract entity type and name for better formatting
+        if field_path.startswith("stations."):
+            parts = field_path.split(".")
+            if len(parts) > 1 and parts[1].isdigit():
+                logger.error("- Stations:")
+                if field_type == "missing":
+                    field_name = parts[2] if len(parts) > 2 else "field"
+                    logger.error(f"    Station field missing: {field_name} (required field in yaml)")
+                else:
+                    logger.error(f"    STN_{int(parts[1])+1:02d} value error: {input_value}")
+                    logger.error(f"    {msg}")
+            else:
+                logger.error(f"- Stations: {msg}")
+        elif field_path.startswith("moorings."):
+            parts = field_path.split(".")
+            if len(parts) > 1 and parts[1].isdigit():
+                logger.error("- Moorings:")
+                if field_type == "missing":
+                    field_name = parts[2] if len(parts) > 2 else "field"
+                    logger.error(f"    Mooring field missing: {field_name} (required field in yaml)")
+                else:
+                    logger.error(f"    Mooring_{int(parts[1])+1:02d} value error: {input_value}")
+                    logger.error(f"    {msg}")
+            else:
+                logger.error(f"- Moorings: {msg}")
+        elif field_path.startswith("transits."):
+            parts = field_path.split(".")
+            if len(parts) > 1 and parts[1].isdigit():
+                logger.error("- Transits:")
+                if field_type == "missing":
+                    field_name = parts[2] if len(parts) > 2 else "field"
+                    logger.error(f"    Transit field missing: {field_name} (required field in yaml)")
+                else:
+                    logger.error(f"    Transit_{int(parts[1])+1:02d} value error: {input_value}")
+                    logger.error(f"    {msg}")
+            else:
+                logger.error(f"- Transits: {msg}")
+        elif field_path.startswith("legs."):
+            parts = field_path.split(".")
+            if len(parts) > 1 and parts[1].isdigit():
+                logger.error("- Legs:")
+                if field_type == "missing":
+                    field_name = parts[2] if len(parts) > 2 else "field"
+                    logger.error(f"    Leg field missing: {field_name} (required field in yaml)")
+                else:
+                    logger.error(f"    Leg_{int(parts[1])+1:02d} value error: {input_value}")
+                    logger.error(f"    {msg}")
+            else:
+                logger.error(f"- Legs: {msg}")
+        elif field_path.startswith("areas."):
+            parts = field_path.split(".")
+            if len(parts) > 1 and parts[1].isdigit():
+                logger.error("- Areas:")
+                if field_type == "missing":
+                    field_name = parts[2] if len(parts) > 2 else "field"
+                    logger.error(f"    Area field missing: {field_name} (required field in yaml)")
+                else:
+                    logger.error(f"    Area_{int(parts[1])+1:02d} value error: {input_value}")
+                    logger.error(f"    {msg}")
+            else:
+                logger.error(f"- Areas: {msg}")
+        else:
+            logger.error(f"- {field_path}: {msg}")
+
+
+def _show_enrichment_summary(summary: dict, args: argparse.Namespace) -> None:
+    """Show enrichment operation summary using existing detailed logic."""
+    # Calculate total enriched items
+    total_enriched = (
+        summary.get("stations_with_depths_added", 0)
+        + summary.get("stations_with_coords_added", 0)
+        + summary.get("sections_expanded", 0)
+        + summary.get("ports_expanded", 0)
+    )
+
+    # Show specific operation results
+    if getattr(args, "add_depths", False) and summary.get("stations_with_depths_added", 0) > 0:
+        logger.info(f"✓ Added depths to {summary['stations_with_depths_added']} stations")
+
+    if getattr(args, "add_coords", False) and summary.get("stations_with_coords_added", 0) > 0:
+        logger.info(f"✓ Added coordinate fields to {summary['stations_with_coords_added']} stations")
+
+    if getattr(args, "expand_sections", False) and summary.get("sections_expanded", 0) > 0:
+        logger.info(
+            f"✓ Expanded {summary['sections_expanded']} CTD sections into {summary.get('stations_from_expansion', 0)} stations"
+        )
+
+    if getattr(args, "expand_ports", False) and summary.get("ports_expanded", 0) > 0:
+        logger.info(f"✓ Expanded {summary['ports_expanded']} global port references")
+
+    if summary.get("defaults_added", 0) > 0:
+        logger.info(f"✓ Added {summary['defaults_added']} missing required fields with defaults")
+
+    if summary.get("station_defaults_added", 0) > 0:
+        logger.info(f"✓ Added {summary['station_defaults_added']} missing station defaults (e.g., mooring durations)")
+
+    # Show final summary
+    if total_enriched > 0:
+        logger.info(f"\n✅ Total enhancements: {total_enriched}")
+    else:
+        logger.info("ℹ️ No enhancements were needed - configuration is already complete")
+
+
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for enrich command.
+    Main entry point for enrich command using API-first architecture.
 
     Args:
         args: Parsed command line arguments
     """
     try:
-        # Setup logging
-        setup_logging(
-            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
+        # Setup logging using new utility
+        _setup_cli_logging(
+            verbose=getattr(args, "verbose", False), 
+            quiet=getattr(args, "quiet", False)
         )
-
-        # Get expansion flags (optional operations)
-        expand_sections = getattr(args, "expand_sections", False)
-        expand_ports = getattr(args, "expand_ports", False)
-
-        # Note: At minimum, enrichment will add missing defaults even with no explicit flags
-
-        # Validate input file
-        config_file = validate_input_file(args.config_file)
 
         # Handle legacy --output-file parameter
         if hasattr(args, "output_file") and args.output_file:
             logger.warning(
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
             )
-            output_path = validate_output_path(output_file=args.output_file)
-        else:
-            output_dir = validate_output_path(output_dir=args.output_dir)
-            # Use --output base filename if provided, otherwise use input filename
-            base_name = getattr(args, "output", config_file.stem)
-            output_filename = f"{base_name}_enriched.yaml"
-            output_path = output_dir / output_filename
 
-        logger.info("=" * 50)
-        logger.info("Configuration Enrichment")
-        logger.info("=" * 50)
-        logger.info(f"Input file: {config_file}")
-        logger.info(f"Output file: {output_path}")
-        logger.info("")
+        # Validate input file using new utility
+        config_file = _validate_config_file(args.config_file)
 
-        # Call core enrichment function
-        logger.info("Processing configuration...")
-        summary = enrich_configuration(
-            config_path=config_file,
-            add_depths=args.add_depths,
-            add_coords=args.add_coords,
+        # Format progress header using new utility
+        _format_progress_header(
+            operation="Configuration Enrichment",
+            config_file=config_file,
+            add_depths=getattr(args, "add_depths", False),
+            add_coords=getattr(args, "add_coords", False),
             expand_sections=getattr(args, "expand_sections", False),
-            expand_ports=getattr(args, "expand_ports", False),
-            bathymetry_source=args.bathymetry_source,
-            bathymetry_dir=str(args.bathymetry_dir),
-            coord_format=args.coord_format,
-            output_path=output_path,
+            expand_ports=getattr(args, "expand_ports", False)
         )
 
-        # Report results
-        total_enriched = (
-            summary["stations_with_depths_added"]
-            + summary["stations_with_coords_added"]
-            + summary.get("sections_expanded", 0)
-            + summary.get("ports_expanded", 0)
+        # Convert CLI args to API parameters using bridge utility
+        api_params = _resolve_cli_to_api_params(args, "enrich")
+        
+        # Call API function instead of core directly
+        logger.info("Processing configuration...")
+        api_response = cruiseplan.enrich(**api_params)
+
+        # Convert API response to CLI format using bridge utility
+        cli_response = _convert_api_response_to_cli(api_response, "enrich")
+
+        # Collect generated files using utility
+        generated_files = _collect_generated_files(
+            cli_response, 
+            base_patterns=["*_enriched.yaml"]
         )
 
-        if args.add_depths and summary["stations_with_depths_added"] > 0:
-            logger.info(
-                f"✓ Added depths to {summary['stations_with_depths_added']} stations"
-            )
-
-        if args.add_coords and summary["stations_with_coords_added"] > 0:
-            logger.info(
-                f"✓ Added coordinate fields to {summary['stations_with_coords_added']} stations"
-            )
-
-        if expand_sections and summary.get("sections_expanded", 0) > 0:
-            logger.info(
-                f"✓ Expanded {summary['sections_expanded']} CTD sections into {summary.get('stations_from_expansion', 0)} stations"
-            )
-
-        if expand_ports and summary.get("ports_expanded", 0) > 0:
-            logger.info(
-                f"✓ Expanded {summary['ports_expanded']} global port references"
-            )
-
-        if summary.get("defaults_added", 0) > 0:
-            logger.info(
-                f"✓ Added {summary['defaults_added']} missing required fields with defaults"
-            )
-
-        if summary.get("station_defaults_added", 0) > 0:
-            logger.info(
-                f"✓ Added {summary['station_defaults_added']} missing station defaults (e.g., mooring durations)"
-            )
-
-        if total_enriched > 0:
-            logger.info("")
-            logger.info("✅ Configuration enriched successfully!")
-            logger.info(f"Total enhancements: {total_enriched}")
-            logger.info(f"Output saved to: {output_path}")
+        if cli_response.get("success", True) and generated_files:
+            # Format success message using new utility
+            _format_success_message("configuration enrichment", generated_files)
+            
+            # Show operation summary if available in response data
+            if cli_response.get("data"):
+                summary = cli_response["data"]
+                if isinstance(summary, dict):
+                    _show_enrichment_summary(summary, args)
         else:
-            logger.info(
-                "ℹ️ No enhancements were needed - configuration is already complete"
-            )
+            errors = cli_response.get("errors", ["Enrichment failed"])
+            for error in errors:
+                logger.error(f"❌ {error}")
+            sys.exit(1)
 
     except CLIError as e:
-        logger.error(f"❌ {e}")
+        _format_error_message("enrich", e)
         sys.exit(1)
 
     except ValidationError as e:
+        # Handle ValidationError with existing detailed formatting
         error_count = len(e.errors())
         plural = "error" if error_count == 1 else "errors"
         logger.error(f"❌ CruiseConfig: {error_count} validation {plural}")
-
-        # Group errors by field prefix for better organization
-        for error in e.errors():
-            field_path = ".".join(str(loc) for loc in error["loc"])
-            field_type = error["type"]
-            input_value = error.get("input", "")
-            msg = error["msg"]
-
-            # Extract entity type and name for better formatting
-            if field_path.startswith("stations."):
-                parts = field_path.split(".")
-                if len(parts) > 1 and parts[1].isdigit():
-                    logger.error("- Stations:")
-                    if field_type == "missing":
-                        field_name = parts[2] if len(parts) > 2 else "field"
-                        logger.error(
-                            f"    Station field missing: {field_name} (required field in yaml)"
-                        )
-                    else:
-                        logger.error(
-                            f"    STN_{int(parts[1])+1:02d} value error: {input_value}"
-                        )
-                        logger.error(f"    {msg}")
-                else:
-                    logger.error(f"- Stations: {msg}")
-            elif field_path.startswith("moorings."):
-                parts = field_path.split(".")
-                if len(parts) > 1 and parts[1].isdigit():
-                    logger.error("- Moorings:")
-                    if field_type == "missing":
-                        field_name = parts[2] if len(parts) > 2 else "field"
-                        logger.error(
-                            f"    Mooring field missing: {field_name} (required field in yaml)"
-                        )
-                    else:
-                        logger.error(
-                            f"    Mooring_{int(parts[1])+1:02d} value error: {input_value}"
-                        )
-                        logger.error(f"    {msg}")
-                else:
-                    logger.error(f"- Moorings: {msg}")
-            elif field_path.startswith("transits."):
-                parts = field_path.split(".")
-                if len(parts) > 1 and parts[1].isdigit():
-                    logger.error("- Transits:")
-                    if field_type == "missing":
-                        field_name = parts[2] if len(parts) > 2 else "field"
-                        logger.error(
-                            f"    Transit field missing: {field_name} (required field in yaml)"
-                        )
-                    else:
-                        logger.error(
-                            f"    Transit_{int(parts[1])+1:02d} value error: {input_value}"
-                        )
-                        logger.error(f"    {msg}")
-                else:
-                    logger.error(f"- Transits: {msg}")
-            elif field_path.startswith("legs."):
-                parts = field_path.split(".")
-                if len(parts) > 1 and parts[1].isdigit():
-                    logger.error("- Legs:")
-                    if field_type == "missing":
-                        field_name = parts[2] if len(parts) > 2 else "field"
-                        logger.error(
-                            f"    Leg field missing: {field_name} (required field in yaml)"
-                        )
-                    else:
-                        logger.error(
-                            f"    Leg_{int(parts[1])+1:02d} value error: {input_value}"
-                        )
-                        logger.error(f"    {msg}")
-                else:
-                    logger.error(f"- Legs: {msg}")
-            elif field_path.startswith("areas."):
-                parts = field_path.split(".")
-                if len(parts) > 1 and parts[1].isdigit():
-                    logger.error("- Areas:")
-                    if field_type == "missing":
-                        field_name = parts[2] if len(parts) > 2 else "field"
-                        logger.error(
-                            f"    Area field missing: {field_name} (required field in yaml)"
-                        )
-                    else:
-                        logger.error(
-                            f"    Area_{int(parts[1])+1:02d} value error: {input_value}"
-                        )
-                        logger.error(f"    {msg}")
-                else:
-                    logger.error(f"- Areas: {msg}")
-            else:
-                logger.error(f"- {field_path}: {msg}")
-
+        
+        # Use existing detailed validation error formatting
+        _format_validation_errors(e.errors())
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -234,7 +230,11 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        _format_error_message(
+            "enrich", 
+            e, 
+            ["Check configuration file syntax", "Verify bathymetry data availability", "Check output directory permissions"]
+        )
         sys.exit(1)
 
 

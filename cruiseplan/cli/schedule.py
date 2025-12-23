@@ -3,6 +3,11 @@ Cruise schedule generation command.
 
 This module implements the 'cruiseplan schedule' command for generating
 comprehensive cruise schedules from YAML configuration files.
+
+Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling
 """
 
 import argparse
@@ -10,21 +15,28 @@ import logging
 import sys
 from pathlib import Path
 
+import cruiseplan
 from cruiseplan.cli.cli_utils import (
     CLIError,
-    count_individual_warnings,
-    display_user_warnings,
-    setup_logging,
-    validate_input_file,
-    validate_output_path,
+    _format_error_message,
+    _format_progress_header,
+    _format_success_message,
+    _setup_cli_logging,
+    _collect_generated_files,
 )
+from cruiseplan.init_utils import (
+    _convert_api_response_to_cli,
+    _resolve_cli_to_api_params,
+)
+from cruiseplan.utils.input_validation import _validate_config_file
+from cruiseplan.utils.output_formatting import _format_timeline_summary
 
 logger = logging.getLogger(__name__)
 
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for schedule command.
+    Main entry point for schedule command using API-first architecture.
 
     Parameters
     ----------
@@ -37,105 +49,69 @@ def main(args: argparse.Namespace) -> None:
         If input validation fails or schedule generation encounters errors.
     """
     try:
-        # Setup logging
-        setup_logging(
-            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
+        # Setup logging using new utility
+        _setup_cli_logging(
+            verbose=getattr(args, "verbose", False), 
+            quiet=getattr(args, "quiet", False)
         )
 
-        # Validate input file
-        config_file = validate_input_file(args.config_file)
+        # Validate input file using new utility
+        config_file = _validate_config_file(args.config_file)
 
-        # Determine output directory
-        if args.output_dir:
-            output_dir = validate_output_path(output_dir=args.output_dir)
-        else:
-            # Default to current directory with cruise name subdirectory
-            output_dir = Path.cwd()
-
-        # Parse formats list
-        formats = []
-        if args.format:
-            if args.format == "all":
-                formats = ["html", "csv", "latex", "netcdf", "png"]
-            elif isinstance(args.format, str):
-                formats = [f.strip().lower() for f in args.format.split(",")]
-            elif isinstance(args.format, list):
-                formats = [f.strip().lower() for f in args.format]
-            else:
-                formats = [args.format.strip().lower()]
-        else:
-            # Default formats
-            formats = ["html", "csv"]
-
-        # Check --derive-netcdf flag compatibility
+        # Check --derive-netcdf flag compatibility (CLI-specific logic)
         derive_netcdf = getattr(args, "derive_netcdf", False)
-        if derive_netcdf and "netcdf" not in formats:
+        format_str = getattr(args, "format", "all")
+        if derive_netcdf and format_str != "all" and "netcdf" not in format_str:
             logger.warning("⚠️  --derive-netcdf flag requires NetCDF output format")
             logger.warning("   Either add 'netcdf' to --format or use --format all")
             logger.warning("   Ignoring --derive-netcdf flag.")
             derive_netcdf = False
 
-        logger.info("=" * 60)
-        logger.info("Cruise Schedule Generation")
-        logger.info("=" * 60)
-        logger.info(f"Configuration: {config_file}")
-        logger.info(f"Output directory: {output_dir}")
-        logger.info(f"Formats: {', '.join(formats)}")
-        logger.info("")
-
-        # Run validation first to catch any issues and show warnings
-        from cruiseplan.core.validation import validate_configuration_file
-
-        success, errors, warnings = validate_configuration_file(
-            config_path=config_file,
-            check_depths=False,
-            strict=False,
+        # Format progress header using new utility
+        _format_progress_header(
+            operation="Cruise Schedule Generation",
+            config_file=config_file,
+            format=format_str,
+            leg=getattr(args, "leg", None),
+            derive_netcdf=derive_netcdf
         )
 
-        if errors:
-            logger.error("❌ Configuration validation failed:")
+        # Convert CLI args to API parameters using bridge utility
+        api_params = _resolve_cli_to_api_params(args, "schedule")
+        
+        # Call API function instead of core directly
+        logger.info("Generating cruise schedule and timeline...")
+        timeline, generated_files = cruiseplan.schedule(**api_params)
+
+        # Convert API response to CLI format using bridge utility
+        api_response = (timeline, generated_files)
+        cli_response = _convert_api_response_to_cli(api_response, "schedule")
+
+        # Collect generated files using utility
+        all_generated_files = _collect_generated_files(
+            cli_response, 
+            base_patterns=["*_schedule.*", "*_timeline.*", "*_map.png", "*_catalog.kml"]
+        )
+
+        if cli_response.get("success", True) and timeline:
+            # Show timeline summary using utility function
+            total_duration_hours = sum(
+                activity.get('duration_minutes', 0) for activity in timeline
+            ) / 60.0
+            
+            timeline_summary = _format_timeline_summary(timeline, total_duration_hours)
+            logger.info(f"\n{timeline_summary}")
+
+            # Format success message using new utility
+            _format_success_message("schedule generation", all_generated_files)
+        else:
+            errors = cli_response.get("errors", ["Schedule generation failed"])
             for error in errors:
-                logger.error(f"  • {error}")
-            raise CLIError(
-                "Cannot proceed with schedule generation due to validation errors"
-            )
-
-        if warnings:
-            warning_count = count_individual_warnings(warnings)
-            logger.info(f"✅ Validation passed with {warning_count} warnings")
-            display_user_warnings(warnings, "")  # Empty title since we show it above
-            logger.info("")
-
-        # Import and call core scheduling function
-        from cruiseplan.calculators.scheduler import generate_cruise_schedule
-
-        schedule_result = generate_cruise_schedule(
-            config_path=config_file,
-            output_dir=output_dir,
-            formats=formats,
-            selected_leg=getattr(args, "leg", None),
-            derive_netcdf=derive_netcdf,
-            bathy_source=getattr(args, "bathy_source", "etopo2022"),
-            bathy_dir=getattr(args, "bathy_dir", "data"),
-            bathy_stride=getattr(args, "bathy_stride", 10),
-            figsize=getattr(args, "figsize", [12.0, 8.0]),
-            output_basename=getattr(args, "output", None),
-        )
-
-        logger.info("")
-        logger.info("=" * 60)
-        logger.info("Schedule Generation Complete")
-        logger.info("=" * 60)
-        logger.info(f"Total activities: {schedule_result['total_activities']}")
-        logger.info(
-            f"Total duration: {schedule_result['total_duration_hours']:.1f} hours"
-        )
-
-        logger.info("")
-        logger.info("✅ Schedule generation successful!")
+                logger.error(f"❌ {error}")
+            sys.exit(1)
 
     except CLIError as e:
-        logger.error(f"❌ {e}")
+        _format_error_message("schedule", e)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -143,7 +119,11 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        _format_error_message(
+            "schedule", 
+            e, 
+            ["Check configuration file syntax", "Verify bathymetry data availability", "Ensure sufficient disk space"]
+        )
         sys.exit(1)
 
 
