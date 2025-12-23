@@ -17,7 +17,7 @@ from cruiseplan.core.validation import (
 class TestEnrichConfiguration:
     """Test the enrich_configuration core function."""
 
-    @patch("cruiseplan.cli.utils.save_yaml_config")
+    @patch("cruiseplan.cli.cli_utils.save_yaml_config")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
@@ -46,8 +46,8 @@ class TestEnrichConfiguration:
         mock_station = MagicMock()
         mock_station.depth = None
         mock_station.water_depth = None
-        mock_station.position.latitude = 50.0
-        mock_station.position.longitude = -40.0
+        mock_station.latitude = 50.0
+        mock_station.longitude = -40.0
         mock_cruise.station_registry = {"STN_001": mock_station}
 
         # Mock bathymetry
@@ -71,7 +71,7 @@ class TestEnrichConfiguration:
         assert mock_station.water_depth == 1000.0  # Should be converted to positive
         mock_save_yaml.assert_called_once()
 
-    @patch("cruiseplan.cli.utils.save_yaml_config")
+    @patch("cruiseplan.cli.cli_utils.save_yaml_config")
     @patch("cruiseplan.core.validation.format_ddm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")

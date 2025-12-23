@@ -34,7 +34,7 @@ from cruiseplan.cli.pangaea import (
     validate_dois,
     validate_lat_lon_bounds,
 )
-from cruiseplan.cli.utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestWorkflowModeDetection:

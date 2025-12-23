@@ -16,7 +16,7 @@ from cruiseplan.cli.pandoi import (
     search_pangaea_datasets,
     validate_lat_lon_bounds,
 )
-from cruiseplan.cli.utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestValidateLatLonBounds:

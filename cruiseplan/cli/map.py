@@ -8,7 +8,7 @@ directly from YAML cruise configuration files, independent of scheduling.
 import argparse
 import logging
 
-from cruiseplan.cli.utils import load_cruise_with_pretty_warnings
+from cruiseplan.cli.cli_utils import load_cruise_with_pretty_warnings
 from cruiseplan.output.map_generator import generate_map_from_yaml
 
 logger = logging.getLogger(__name__)

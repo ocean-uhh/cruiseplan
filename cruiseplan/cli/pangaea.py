@@ -15,7 +15,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from cruiseplan.cli.utils import (
+from cruiseplan.cli.cli_utils import (
     CLIError,
     read_doi_list,
     setup_logging,

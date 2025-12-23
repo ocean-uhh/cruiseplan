@@ -12,7 +12,7 @@ from unittest.mock import patch
 import pytest
 
 from cruiseplan.cli.process import determine_steps, main
-from cruiseplan.cli.utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestProcessFlagValidation:
@@ -604,7 +604,7 @@ class TestProcessEdgeCases:
     @patch("cruiseplan.cli.process.validate_input_file")
     def test_invalid_config_file(self, mock_validate_input):
         """Test handling of invalid configuration file."""
-        from cruiseplan.cli.utils import CLIError
+        from cruiseplan.cli.cli_utils import CLIError
 
         mock_validate_input.side_effect = CLIError("File not found")
 

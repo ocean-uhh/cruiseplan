@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import List
 
-from cruiseplan.cli.utils import (
+from cruiseplan.cli.cli_utils import (
     CLIError,
     setup_logging,
     validate_input_file,

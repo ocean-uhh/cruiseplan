@@ -160,16 +160,13 @@ class TestPointOperation:
     def test_from_pydantic_station(self):
         """Test creating PointOperation from StationDefinition."""
         # Mock StationDefinition
-        mock_position = MagicMock()
-        mock_position.latitude = 65.0
-        mock_position.longitude = -25.0
-
         mock_operation_type = MagicMock()
         mock_operation_type.value = "CTD"
 
         mock_station = MagicMock()
         mock_station.name = "STN_002"
-        mock_station.position = mock_position
+        mock_station.latitude = 65.0
+        mock_station.longitude = -25.0
         mock_station.operation_type = mock_operation_type
         mock_station.action = None
         mock_station.operation_depth = 800.0
@@ -188,10 +185,6 @@ class TestPointOperation:
 
     def test_from_pydantic_mooring(self):
         """Test creating PointOperation from mooring definition."""
-        mock_position = MagicMock()
-        mock_position.latitude = 70.0
-        mock_position.longitude = -30.0
-
         mock_operation_type = MagicMock()
         mock_operation_type.value = "mooring"
 
@@ -200,7 +193,8 @@ class TestPointOperation:
 
         mock_mooring = MagicMock()
         mock_mooring.name = "MOOR_001"
-        mock_mooring.position = mock_position
+        mock_mooring.latitude = 70.0
+        mock_mooring.longitude = -30.0
         mock_mooring.operation_type = mock_operation_type
         mock_mooring.action = mock_action
         mock_mooring.operation_depth = None

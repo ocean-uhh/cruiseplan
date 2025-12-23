@@ -7,7 +7,7 @@ from pathlib import Path
 import pytest
 import yaml
 
-from cruiseplan.cli.utils import (
+from cruiseplan.cli.cli_utils import (
     CLIError,
     format_coordinate_bounds,
     generate_output_filename,

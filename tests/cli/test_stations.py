@@ -13,7 +13,7 @@ from cruiseplan.cli.stations import (
     load_pangaea_data,
     main,
 )
-from cruiseplan.cli.utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestPangaeaDataLoading:

@@ -49,15 +49,11 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
     # Extract stations
     if hasattr(cruise, "station_registry") and cruise.station_registry:
         for station_name, station in cruise.station_registry.items():
-            lat = (
-                station.latitude
-                if hasattr(station, "latitude")
-                else station.position.latitude
-            )
+            lat = station.latitude if hasattr(station, "latitude") else station.latitude
             lon = (
                 station.longitude
                 if hasattr(station, "longitude")
-                else station.position.longitude
+                else station.longitude
             )
             # Determine entity type based on operation type
             operation_type = getattr(station, "operation_type", "station")
@@ -83,16 +79,8 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
     # Extract moorings
     if hasattr(cruise, "mooring_registry") and cruise.mooring_registry:
         for mooring_name, mooring in cruise.mooring_registry.items():
-            lat = (
-                mooring.latitude
-                if hasattr(mooring, "latitude")
-                else mooring.position.latitude
-            )
-            lon = (
-                mooring.longitude
-                if hasattr(mooring, "longitude")
-                else mooring.position.longitude
-            )
+            lat = mooring.latitude
+            lon = mooring.longitude
             points.append(
                 {
                     "name": mooring_name,

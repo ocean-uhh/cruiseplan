@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 import pytest
 
-from cruiseplan.cli.utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.validate import main
 
 

@@ -12,7 +12,7 @@ from pathlib import Path
 
 from pydantic import ValidationError
 
-from cruiseplan.cli.utils import (
+from cruiseplan.cli.cli_utils import (
     CLIError,
     setup_logging,
     validate_input_file,
