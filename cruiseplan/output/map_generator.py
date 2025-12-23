@@ -49,12 +49,8 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
     # Extract stations
     if hasattr(cruise, "station_registry") and cruise.station_registry:
         for station_name, station in cruise.station_registry.items():
-            lat = station.latitude if hasattr(station, "latitude") else station.latitude
-            lon = (
-                station.longitude
-                if hasattr(station, "longitude")
-                else station.longitude
-            )
+            lat = station.latitude
+            lon = station.longitude
             # Determine entity type based on operation type
             operation_type = getattr(station, "operation_type", "station")
             if operation_type == "mooring":

@@ -962,10 +962,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
             # Transit from previous leg's arrival port to current leg's departure port
             prev_runtime_leg = runtime_legs[i - 1]
             prev_arrival_pos = _extract_coordinates(prev_runtime_leg.arrival_port)
-            curr_departure_pos = (
-                runtime_leg.departure_port.latitude,
-                runtime_leg.departure_port.longitude,
-            )
+            curr_departure_pos = _extract_coordinates(runtime_leg.departure_port)
 
             # Only add transit if ports are different and transit time > 0
             if prev_arrival_pos != curr_departure_pos:

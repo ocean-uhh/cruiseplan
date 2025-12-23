@@ -422,8 +422,8 @@ def extract_coordinates_from_cruise(
 
     # Extract coordinates from all stations
     for station_name, station in cruise.station_registry.items():
-        lat = station.latitude if hasattr(station, "latitude") else station.latitude
-        lon = station.longitude if hasattr(station, "longitude") else station.longitude
+        lat = station.latitude
+        lon = station.longitude
         all_lats.append(lat)
         all_lons.append(lon)
         station_names.append(station_name)
