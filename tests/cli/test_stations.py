@@ -8,12 +8,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.stations import (
     determine_coordinate_bounds,
     load_pangaea_data,
     main,
 )
-from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestPangaeaDataLoading:

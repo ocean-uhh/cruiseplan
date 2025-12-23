@@ -10,13 +10,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.pangaea import (
     fetch_pangaea_data,
     main,
     save_pangaea_pickle,
     validate_dois,
 )
-from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestDoiValidation:

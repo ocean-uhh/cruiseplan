@@ -28,15 +28,16 @@ logger = logging.getLogger(__name__)
 
 # --- Helper Functions ---
 
+
 def _extract_coordinates(obj: Any) -> GeoPoint:
     """
     Extract coordinates as a GeoPoint from an object.
-    
+
     Parameters
     ----------
     obj : Any
         Object with latitude and longitude attributes.
-        
+
     Returns
     -------
     GeoPoint
@@ -48,12 +49,12 @@ def _extract_coordinates(obj: Any) -> GeoPoint:
 def _get_activity_position(activity: dict) -> GeoPoint:
     """
     Get the primary position of an activity record.
-    
+
     Parameters
     ----------
     activity : dict
         Activity record dictionary.
-        
+
     Returns
     -------
     GeoPoint
@@ -65,15 +66,15 @@ def _get_activity_position(activity: dict) -> GeoPoint:
 def _get_activity_entry_position(activity: dict) -> GeoPoint:
     """
     Get the entry position of an activity record.
-    
+
     For transits with start coordinates, returns the start position.
     Otherwise returns the main position.
-    
+
     Parameters
     ----------
     activity : dict
         Activity record dictionary.
-        
+
     Returns
     -------
     GeoPoint
@@ -87,15 +88,15 @@ def _get_activity_entry_position(activity: dict) -> GeoPoint:
 def _get_activity_exit_position(activity: dict) -> GeoPoint:
     """
     Get the exit position of an activity record.
-    
+
     For transits with end coordinates, returns the end position.
     Otherwise returns the main position.
-    
+
     Parameters
     ----------
     activity : dict
         Activity record dictionary.
-        
+
     Returns
     -------
     GeoPoint
@@ -512,7 +513,10 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
     )
     if first_station_details:
         start_pos = _extract_coordinates(config.departure_port)
-        end_pos = GeoPoint(latitude=first_station_details["lat"], longitude=first_station_details["lon"])
+        end_pos = GeoPoint(
+            latitude=first_station_details["lat"],
+            longitude=first_station_details["lon"],
+        )
 
         distance_km = haversine_distance(start_pos, end_pos)
         distance_nm = km_to_nm(distance_km)
@@ -978,20 +982,21 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                 # Only add if transit time is meaningful (> 0)
                 if transit_time > 0:
                     timeline.append(
-                    ActivityRecord(
-                        {
-                            "activity": "Port_Transit",
-                            "label": f"Transit: {prev_runtime_leg.arrival_port.name} → {runtime_leg.departure_port.name}",
-                            "lat": runtime_leg.departure_port.latitude,
-                            "lon": runtime_leg.departure_port.longitude,
-                            "depth": 0.0,
-                            "start_time": current_time,
-                            "end_time": current_time + timedelta(minutes=transit_time),
-                            "duration_minutes": transit_time,
-                            "leg_name": runtime_leg.name,
-                            "op_type": "transit",
-                        }
-                    )
+                        ActivityRecord(
+                            {
+                                "activity": "Port_Transit",
+                                "label": f"Transit: {prev_runtime_leg.arrival_port.name} → {runtime_leg.departure_port.name}",
+                                "lat": runtime_leg.departure_port.latitude,
+                                "lon": runtime_leg.departure_port.longitude,
+                                "depth": 0.0,
+                                "start_time": current_time,
+                                "end_time": current_time
+                                + timedelta(minutes=transit_time),
+                                "duration_minutes": transit_time,
+                                "leg_name": runtime_leg.name,
+                                "op_type": "transit",
+                            }
+                        )
                     )
                     current_time += timedelta(minutes=transit_time)
 
@@ -1330,7 +1335,9 @@ def _process_leg_activities_with_clusters(
             and "end_lat" in details
             and "end_lon" in details
         ):
-            last_position = GeoPoint(latitude=details["end_lat"], longitude=details["end_lon"])
+            last_position = GeoPoint(
+                latitude=details["end_lat"], longitude=details["end_lon"]
+            )
         else:
             last_position = current_pos
 
@@ -1850,8 +1857,12 @@ def _resolve_transit_details(
 
                 # Calculate route distance if needed
                 if details.get("start_lat") and details.get("lat"):
-                    start_pos = GeoPoint(latitude=details["start_lat"], longitude=details["start_lon"])
-                    end_pos = GeoPoint(latitude=details["lat"], longitude=details["lon"])
+                    start_pos = GeoPoint(
+                        latitude=details["start_lat"], longitude=details["start_lon"]
+                    )
+                    end_pos = GeoPoint(
+                        latitude=details["lat"], longitude=details["lon"]
+                    )
                     distance_km = haversine_distance(start_pos, end_pos)
                     details["route_distance_km"] = distance_km
                     details["route_distance_nm"] = km_to_nm(distance_km)

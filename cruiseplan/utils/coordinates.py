@@ -15,23 +15,23 @@ The UnitConverter class provides static methods for coordinate conversions.
 
 import math
 import re
-from typing import Any, List, NamedTuple, Optional, Tuple, Union
+from typing import Any, List, NamedTuple, Optional, Tuple
 
 
 class Position(NamedTuple):
     """
     Lightweight position representation with named coordinates.
-    
+
     This provides a simple, immutable way to pass around coordinates with
     semantic meaning while avoiding the overhead of full objects.
-    
+
     Attributes
     ----------
     latitude : float
         Latitude in decimal degrees.
     longitude : float
         Longitude in decimal degrees.
-        
+
     Examples
     --------
     >>> pos = Position(65.5, -24.3)
@@ -43,28 +43,29 @@ class Position(NamedTuple):
     >>> pos.to_tuple()
     (65.5, -24.3)
     """
+
     latitude: float
     longitude: float
-    
+
     def to_tuple(self) -> Tuple[float, float]:
         """Convert to tuple for functions expecting (lat, lon)."""
         return (self.latitude, self.longitude)
-    
+
     @classmethod
     def from_object(cls, obj: Any) -> "Position":
         """
         Create Position from an object with latitude/longitude attributes.
-        
+
         Parameters
         ----------
         obj : Any
             Object with latitude and longitude attributes.
-            
+
         Returns
         -------
         Position
             New Position instance.
-            
+
         Examples
         --------
         >>> class Station:
@@ -77,12 +78,14 @@ class Position(NamedTuple):
         Position(latitude=60.0, longitude=-20.0)
         """
         return cls(obj.latitude, obj.longitude)
-    
+
     @classmethod
-    def from_dict(cls, data: dict, lat_key: str = "lat", lon_key: str = "lon") -> "Position":
+    def from_dict(
+        cls, data: dict, lat_key: str = "lat", lon_key: str = "lon"
+    ) -> "Position":
         """
         Create Position from a dictionary.
-        
+
         Parameters
         ----------
         data : dict
@@ -91,12 +94,12 @@ class Position(NamedTuple):
             Key for latitude value (default "lat").
         lon_key : str, optional
             Key for longitude value (default "lon").
-            
+
         Returns
         -------
         Position
             New Position instance.
-            
+
         Examples
         --------
         >>> data = {"lat": 65.0, "lon": -25.0}
@@ -374,12 +377,12 @@ def format_geographic_bounds(
 def _extract_port_info(port: Any) -> Optional[Tuple[float, float, str]]:
     """
     Extract port information from a port object.
-    
+
     Parameters
     ----------
     port : Any
         Port object (PortDefinition or string reference)
-        
+
     Returns
     -------
     Optional[Tuple[float, float, str]]
@@ -387,11 +390,11 @@ def _extract_port_info(port: Any) -> Optional[Tuple[float, float, str]]:
     """
     if port is None:
         return None
-        
+
     # Check if it's a resolved PortDefinition object
     if hasattr(port, "latitude") and hasattr(port, "longitude"):
         return (port.latitude, port.longitude, port.name)
-    
+
     # String reference or invalid - return None
     return None
 

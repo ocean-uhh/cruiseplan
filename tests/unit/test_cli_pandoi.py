@@ -10,13 +10,13 @@ from unittest.mock import MagicMock, call, mock_open, patch
 
 import pytest
 
+from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.pandoi import (
     main,
     save_doi_list,
     search_pangaea_datasets,
     validate_lat_lon_bounds,
 )
-from cruiseplan.cli.cli_utils import CLIError
 
 
 class TestValidateLatLonBounds:

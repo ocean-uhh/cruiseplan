@@ -315,7 +315,11 @@ class TestClusterOperationMethods:
         cluster = Cluster(name="Test_Cluster")
 
         # Mock operation with direct latitude/longitude
-        op1 = type("MockOperation", (), {"name": "STN_001", "latitude": 60.0, "longitude": -20.0})()
+        op1 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_001", "latitude": 60.0, "longitude": -20.0},
+        )()
         cluster.add_operation(op1)
 
         entry_point = cluster.get_entry_point()
@@ -343,8 +347,16 @@ class TestClusterOperationMethods:
         cluster = Cluster(name="Test_Cluster")
 
         # Mock operations with direct latitude/longitude
-        op1 = type("MockOperation", (), {"name": "STN_001", "latitude": 60.0, "longitude": -20.0})()
-        op2 = type("MockOperation", (), {"name": "STN_002", "latitude": 65.0, "longitude": -25.0})()
+        op1 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_001", "latitude": 60.0, "longitude": -20.0},
+        )()
+        op2 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_002", "latitude": 65.0, "longitude": -25.0},
+        )()
         cluster.add_operation(op1)
         cluster.add_operation(op2)
 

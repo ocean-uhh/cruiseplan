@@ -11,8 +11,8 @@ from unittest.mock import patch
 
 import pytest
 
-from cruiseplan.cli.process import determine_steps, main
 from cruiseplan.cli.cli_utils import CLIError
+from cruiseplan.cli.process import determine_steps, main
 
 
 class TestProcessFlagValidation:
