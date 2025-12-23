@@ -3,20 +3,40 @@ Map generation CLI command for creating cruise track visualizations.
 
 This module provides command-line functionality for generating PNG maps
 directly from YAML cruise configuration files, independent of scheduling.
+
+Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling
 """
 
 import argparse
 import logging
+from pathlib import Path
 
-from cruiseplan.cli.cli_utils import load_cruise_with_pretty_warnings
-from cruiseplan.output.map_generator import generate_map_from_yaml
+import cruiseplan
+from cruiseplan.cli.cli_utils import (
+    _format_error_message,
+    _format_progress_header,
+    _format_success_message,
+    _setup_cli_logging,
+    _collect_generated_files,
+)
+from cruiseplan.init_utils import (
+    _convert_api_response_to_cli,
+    _resolve_cli_to_api_params,
+)
+from cruiseplan.utils.input_validation import (
+    _validate_config_file,
+    _validate_directory_writable,
+)
 
 logger = logging.getLogger(__name__)
 
 
 def main(args: argparse.Namespace) -> int:
     """
-    Generate PNG maps and/or KML files from cruise configuration.
+    Generate PNG maps and/or KML files from cruise configuration using API-first architecture.
 
     Parameters
     ----------
@@ -24,38 +44,17 @@ def main(args: argparse.Namespace) -> int:
         Parsed command-line arguments containing config_file, output options, etc.
     """
     try:
-        # Handle legacy parameter deprecation warnings and parameter mapping
-        if hasattr(args, "bathymetry_source_legacy") and args.bathymetry_source_legacy:
-            logger.warning(
-                "⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead."
-            )
-            args.bathy_source = args.bathymetry_source_legacy
+        # Setup logging using new utility
+        _setup_cli_logging(verbose=getattr(args, "verbose", False))
 
-        if hasattr(args, "bathymetry_dir_legacy") and args.bathymetry_dir_legacy:
-            logger.warning(
-                "⚠️  WARNING: '--bathymetry-dir' is deprecated. Use '--bathy-dir' instead."
-            )
-            args.bathy_dir = args.bathymetry_dir_legacy
-
-        if hasattr(args, "bathymetry_stride_legacy") and args.bathymetry_stride_legacy:
-            logger.warning(
-                "⚠️  WARNING: '--bathymetry-stride' is deprecated. Use '--bathy-stride' instead."
-            )
-            args.bathy_stride = args.bathymetry_stride_legacy
-
-        # Load cruise configuration with pretty warning formatting
-        logger.info(f"Loading cruise configuration from {args.config_file}")
-        cruise = load_cruise_with_pretty_warnings(args.config_file)
-
-        # Parse format selection
-        formats = []
-        if args.format == "all":
-            formats = ["png", "kml"]
-        else:
-            formats = [args.format]
-
-        # Ensure output directory exists
-        args.output_dir.mkdir(parents=True, exist_ok=True)
+        # Handle legacy parameter deprecation warnings using utility function
+        from cruiseplan.cli.cli_utils import _handle_deprecated_params
+        param_map = {
+            "bathymetry_source_legacy": "bathy_source",
+            "bathymetry_dir_legacy": "bathy_dir", 
+            "bathymetry_stride_legacy": "bathy_stride"
+        }
+        _handle_deprecated_params(args, param_map)
 
         # Handle deprecated --output-file parameter
         if hasattr(args, "output_file") and args.output_file:
@@ -63,125 +62,54 @@ def main(args: argparse.Namespace) -> int:
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
             )
 
-        # Determine base filename (use --output if provided, otherwise cruise name)
-        if hasattr(args, "output") and args.output:
-            base_name = args.output
+        # Validate input file and output directory using new utilities
+        config_file = _validate_config_file(args.config_file)
+        output_dir = _validate_directory_writable(args.output_dir, create_if_missing=True)
+
+        # Format progress header using new utility
+        _format_progress_header(
+            operation="Map Generation",
+            config_file=config_file,
+            format=getattr(args, "format", "all"),
+            bathy_source=getattr(args, "bathy_source", "etopo2022")
+        )
+
+        # Convert CLI args to API parameters using bridge utility
+        api_params = _resolve_cli_to_api_params(args, "map")
+        
+        # Call API function instead of core directly
+        logger.info("Generating maps and visualizations...")
+        api_response = cruiseplan.map(**api_params)
+
+        # Convert API response to CLI format using bridge utility
+        cli_response = _convert_api_response_to_cli(api_response, "map")
+
+        # Collect generated files using utility
+        generated_files = _collect_generated_files(
+            cli_response, 
+            base_patterns=["*_map.png", "*_catalog.kml"]
+        )
+
+        if cli_response.get("success", True) and generated_files:
+            # Format success message using new utility
+            _format_success_message("map generation", generated_files)
         else:
-            base_name = cruise.config.cruise_name.replace(" ", "_").replace("/", "-")
-
-        # Track generated files
-        generated_files = []
-
-        # Generate PNG map if requested
-        if "png" in formats:
-            if (
-                hasattr(args, "output_file")
-                and args.output_file
-                and args.format == "png"
-            ):
-                # Use legacy specific output file for PNG only
-                png_output_file = args.output_file
-            else:
-                # Use base filename pattern
-                png_output_file = args.output_dir / f"{base_name}_map.png"
-
-            logger.info(
-                f"Generating PNG map with bathymetry source: {args.bathy_source}"
-            )
-            png_result = generate_map_from_yaml(
-                cruise,
-                output_file=png_output_file,
-                bathy_source=args.bathy_source,
-                bathy_stride=args.bathy_stride,
-                bathy_dir=str(args.bathy_dir),
-                show_plot=args.show_plot,
-                figsize=tuple(args.figsize),
-                include_ports=False,  # Focus on scientific operations only
-            )
-
-            if png_result:
-                generated_files.append(("PNG map", png_result))
-                logger.info(f"✅ PNG map generated: {png_result}")
-            else:
-                logger.error("❌ PNG map generation failed")
-                return 1
-
-        # Generate KML file if requested
-        if "kml" in formats:
-            if (
-                hasattr(args, "output_file")
-                and args.output_file
-                and args.format == "kml"
-            ):
-                # Use legacy specific output file for KML only
-                kml_output_file = args.output_file
-            else:
-                # Use base filename pattern
-                kml_output_file = args.output_dir / f"{base_name}_catalog.kml"
-
-            logger.info("Generating KML catalog from YAML configuration")
-            from cruiseplan.output.kml_generator import generate_kml_catalog
-
-            kml_result = generate_kml_catalog(cruise.config, kml_output_file)
-
-            if kml_result:
-                generated_files.append(("KML catalog", kml_result))
-                logger.info(f"✅ KML catalog generated: {kml_result}")
-            else:
-                logger.error("❌ KML catalog generation failed")
-                return 1
-
-        # Print summary of generated files
-        print("✅ Map generation complete!")
-        for file_type, file_path in generated_files:
-            print(f"📁 {file_type}: {file_path}")
-
-        # Print statistics based on operation types
-        station_count = 0
-        mooring_count = 0
-
-        # Count stations by operation type
-        if hasattr(cruise, "station_registry") and cruise.station_registry:
-            for station in cruise.station_registry.values():
-                operation_type = getattr(station, "operation_type", "station")
-                if operation_type == "mooring":
-                    mooring_count += 1
-                else:
-                    station_count += 1
-
-        # Add dedicated moorings from mooring_registry
-        if hasattr(cruise, "mooring_registry") and cruise.mooring_registry:
-            mooring_count += len(cruise.mooring_registry)
-        transit_count = (
-            len(cruise.transit_registry)
-            if hasattr(cruise, "transit_registry") and cruise.transit_registry
-            else 0
-        )
-        area_count = (
-            len(cruise.area_registry)
-            if hasattr(cruise, "area_registry") and cruise.area_registry
-            else 0
-        )
-
-        print("\n📊 Catalog summary:")
-        print(f"   📍 Stations: {station_count}")
-        print(f"   ⚓ Moorings: {mooring_count}")
-        print(f"   🚢 Transits: {transit_count}")
-        print(f"   📐 Areas: {area_count}")
-
-        if hasattr(cruise.config, "departure_port") and cruise.config.departure_port:
-            print(f"   🚢 Departure: {cruise.config.departure_port.name}")
-        if hasattr(cruise.config, "arrival_port") and cruise.config.arrival_port:
-            print(f"   🏁 Arrival: {cruise.config.arrival_port.name}")
+            errors = cli_response.get("errors", ["Map generation failed"])
+            for error in errors:
+                logger.error(f"❌ {error}")
+            return 1
 
     except FileNotFoundError:
-        logger.error(f"❌ Configuration file not found: {args.config_file}")
+        _format_error_message("map", FileNotFoundError(f"Configuration file not found: {args.config_file}"))
         return 1
     except Exception as e:
-        logger.error(f"❌ Map generation failed: {e}")
-        if args.verbose:
+        _format_error_message(
+            "map", 
+            e, 
+            ["Check configuration file syntax", "Verify bathymetry data availability", "Check output directory permissions"]
+        )
+        if getattr(args, "verbose", False):
             import traceback
-
             traceback.print_exc()
         return 1
 

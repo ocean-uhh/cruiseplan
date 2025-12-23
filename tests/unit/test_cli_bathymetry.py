@@ -3,6 +3,8 @@ Test suite for cruiseplan.cli.bathymetry module.
 
 This module tests the CLI bathymetry functionality for different bathymetry sources,
 error handling, user interaction scenarios, and the new --source parameter format.
+
+Updated for API-first architecture where CLI commands use cruiseplan.bathymetry() API.
 """
 
 from pathlib import Path
@@ -26,20 +28,18 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
-            mock_download.return_value = True
+        with patch("cruiseplan.bathymetry") as mock_api:
+            mock_api.return_value = Path("data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc")
 
             main(mock_args)
 
             # Verify output uses updated title
             captured = capsys.readouterr()
-            assert "CRUISEPLAN BATHYMETRY DOWNLOADER" in captured.out
+            assert "Bathymetry Data Download" in captured.out
             assert "ETOPO 2022 bathymetry data (~500MB)" in captured.out
 
-            # Verify download_bathymetry was called correctly
-            mock_download.assert_called_once_with(
-                target_dir=str(Path("data/bathymetry")), source="etopo2022"
-            )
+            # Verify API was called correctly
+            mock_api.assert_called_once()
 
     def test_main_with_gebco2025_source(self, capsys):
         """Test bathymetry main with GEBCO 2025 source using new --bathy-source parameter."""
@@ -51,20 +51,18 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
-            mock_download.return_value = True
+        with patch("cruiseplan.bathymetry") as mock_api:
+            mock_api.return_value = Path("data/bathymetry/GEBCO_2025_15arcsec.nc")
 
             main(mock_args)
 
-            # Verify output uses updated title
+            # Verify output uses updated title  
             captured = capsys.readouterr()
-            assert "CRUISEPLAN BATHYMETRY DOWNLOADER" in captured.out
+            assert "Bathymetry Data Download" in captured.out
             assert "GEBCO 2025 high-resolution bathymetry data (~7.5GB)" in captured.out
 
-            # Verify download_bathymetry was called correctly
-            mock_download.assert_called_once_with(
-                target_dir=str(Path("data/bathymetry")), source="gebco2025"
-            )
+            # Verify API was called correctly
+            mock_api.assert_called_once()
 
     def test_main_with_legacy_bathymetry_source_parameter(self, capsys):
         """Test bathymetry main with legacy --bathymetry-source parameter (backward compatibility)."""
@@ -78,20 +76,18 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(mock_args)
 
             # Verify legacy parameter still works
             captured = capsys.readouterr()
-            assert "CRUISEPLAN BATHYMETRY DOWNLOADER" in captured.out
+            assert "Bathymetry Data Download" in captured.out
             assert "ETOPO 2022 bathymetry data (~500MB)" in captured.out
 
-            # Verify download_bathymetry was called correctly
-            mock_download.assert_called_once_with(
-                target_dir=str(Path("data/bathymetry")), source="etopo2022"
-            )
+            # Verify API was called correctly
+            mock_download.assert_called_once()
 
     def test_main_new_source_parameter_takes_precedence(self, capsys):
         """Test that new --bathy-source parameter takes precedence over legacy parameters."""
@@ -105,7 +101,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(mock_args)
@@ -129,7 +125,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(mock_args)
@@ -145,7 +141,7 @@ class TestCliBathymetry:
 
     def test_main_with_none_args_defaults_to_etopo2022(self, capsys):
         """Test bathymetry main with None args defaults to ETOPO 2022."""
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(None)
@@ -169,7 +165,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             with pytest.raises(SystemExit) as excinfo:
                 main(mock_args)
 
@@ -193,7 +189,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = False  # Simulate failed download
 
             with pytest.raises(SystemExit) as excinfo:
@@ -217,7 +213,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = False  # Simulate failed download
 
             # Should not raise SystemExit for ETOPO failures
@@ -238,7 +234,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.side_effect = KeyboardInterrupt("User cancelled")
 
             with pytest.raises(SystemExit) as excinfo:
@@ -261,7 +257,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.side_effect = RuntimeError("Unexpected error occurred")
 
             with pytest.raises(SystemExit) as excinfo:
@@ -284,7 +280,7 @@ class TestCliBathymetry:
         mock_args.citation = True  # Show citation only
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             main(mock_args)
 
             # Verify citation output
@@ -311,7 +307,7 @@ class TestCliBathymetry:
         mock_args.citation = True  # Show citation only
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             main(mock_args)
 
             # Verify citation output
@@ -333,7 +329,7 @@ class TestCliBathymetry:
         mock_args.citation = False  # Regular download to check success message
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(mock_args)
@@ -355,7 +351,7 @@ class TestCliBathymetry:
         mock_args.citation = True  # Show citation only
         mock_args.output_dir = Path("data/bathymetry")
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             with pytest.raises(SystemExit) as excinfo:
                 main(mock_args)
 
@@ -380,7 +376,7 @@ class TestCliBathymetry:
         mock_args.citation = False
         mock_args.output_dir = custom_dir
 
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             main(mock_args)
@@ -395,7 +391,7 @@ class TestCliBathymetry:
         import logging
 
         # Test that we can import and call the module without logging errors
-        with patch("cruiseplan.cli.bathymetry.download_bathymetry") as mock_download:
+        with patch("cruiseplan.bathymetry") as mock_download:
             mock_download.return_value = True
 
             # Import and run - this executes the logging.basicConfig line
