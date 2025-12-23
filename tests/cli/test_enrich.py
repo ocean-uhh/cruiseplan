@@ -138,7 +138,7 @@ legs: []
     @patch("cruiseplan.cli.enrich.validate_output_path")
     def test_enrich_cli_error_formatting(self, mock_validate_output, tmp_path):
         """Test that CLIError is properly handled."""
-        from cruiseplan.cli.utils import CLIError
+        from cruiseplan.cli.cli_utils import CLIError
 
         # Mock validate_output_path to raise CLIError
         mock_validate_output.side_effect = CLIError("Invalid output path")

@@ -314,16 +314,19 @@ class TestClusterOperationMethods:
         """Test getting entry point with operations."""
         cluster = Cluster(name="Test_Cluster")
 
-        # Mock operation with position
-        position = type("Position", (), {"latitude": 60.0, "longitude": -20.0})()
-        op1 = type("MockOperation", (), {"name": "STN_001", "position": position})()
+        # Mock operation with direct latitude/longitude
+        op1 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_001", "latitude": 60.0, "longitude": -20.0},
+        )()
         cluster.add_operation(op1)
 
         entry_point = cluster.get_entry_point()
         assert entry_point == (60.0, -20.0)
 
     def test_get_entry_point_no_position_attribute(self):
-        """Test getting entry point when operations lack position attribute."""
+        """Test getting entry point when operations lack latitude/longitude attributes."""
         cluster = Cluster(name="Test_Cluster")
 
         op1 = type("MockOperation", (), {"name": "STN_001"})()
@@ -343,11 +346,17 @@ class TestClusterOperationMethods:
         """Test getting exit point with operations."""
         cluster = Cluster(name="Test_Cluster")
 
-        # Mock operations with position
-        position1 = type("Position", (), {"latitude": 60.0, "longitude": -20.0})()
-        position2 = type("Position", (), {"latitude": 65.0, "longitude": -25.0})()
-        op1 = type("MockOperation", (), {"name": "STN_001", "position": position1})()
-        op2 = type("MockOperation", (), {"name": "STN_002", "position": position2})()
+        # Mock operations with direct latitude/longitude
+        op1 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_001", "latitude": 60.0, "longitude": -20.0},
+        )()
+        op2 = type(
+            "MockOperation",
+            (),
+            {"name": "STN_002", "latitude": 65.0, "longitude": -25.0},
+        )()
         cluster.add_operation(op1)
         cluster.add_operation(op2)
 

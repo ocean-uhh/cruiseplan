@@ -12,7 +12,7 @@ import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
 
-from cruiseplan.cli.utils import CLIError, setup_logging
+from cruiseplan.cli.cli_utils import CLIError, setup_logging
 from cruiseplan.data.pangaea import PangaeaManager
 from cruiseplan.utils.coordinates import format_geographic_bounds
 

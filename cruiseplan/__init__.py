@@ -29,16 +29,16 @@ that mirror the CLI commands:
 
 For more advanced usage, import the underlying classes directly:
 
-    from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
+    from cruiseplan.data.bathymetry import download_bathymetry
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.calculators.scheduler import generate_timeline
 """
 
 import logging
 from pathlib import Path
-from typing import Any, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
-from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
+from cruiseplan.data.bathymetry import download_bathymetry
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ def _setup_output_paths(
     config_file: Union[str, Path],
     output_dir: Optional[Union[str, Path]] = None,
     output: Optional[str] = None,
-) -> Tuple[Path, str]:
+) -> tuple[Path, str]:
     """
     Internal helper function to setup output directory and base filename.
 
@@ -88,7 +88,9 @@ def _setup_output_paths(
 
 
 def bathymetry(
-    bathy_source: str = "etopo2022", output_dir: str = None, citation: bool = False
+    bathy_source: str = "etopo2022",
+    output_dir: Optional[str] = None,
+    citation: bool = False,
 ) -> Path:
     """
     Download bathymetry data (mirrors: cruiseplan bathymetry).
@@ -119,28 +121,29 @@ def bathymetry(
     if output_dir is None:
         # Find project root (directory containing cruiseplan package)
         package_dir = Path(__file__).parent.parent  # Go up from cruiseplan/__init__.py
-        output_dir = package_dir / "data" / "bathymetry"
+        data_dir = package_dir / "data" / "bathymetry"
     else:
-        output_dir = Path(output_dir)
+        data_dir = Path(output_dir)
 
-    data_dir = Path(output_dir).resolve()
+    data_dir = data_dir.resolve()
     data_dir.mkdir(parents=True, exist_ok=True)
 
     logger.info(f"=� Downloading {bathy_source} bathymetry data to {data_dir}")
-    return download_bathymetry(target_dir=str(data_dir), source=bathy_source)
+    result = download_bathymetry(target_dir=str(data_dir), source=bathy_source)
+    return Path(result) if result else data_dir
 
 
 def pangaea(
     query_terms: str,
     output_dir: str = "data",
     output: Optional[str] = None,
-    lat_bounds: Optional[List[float]] = None,
-    lon_bounds: Optional[List[float]] = None,
+    lat_bounds: Optional[list[float]] = None,
+    lon_bounds: Optional[list[float]] = None,
     max_results: int = 100,
     rate_limit: float = 1.0,
     merge_campaigns: bool = True,
     verbose: bool = False,
-) -> Tuple[Optional[Any], Optional[List[Path]]]:
+) -> tuple[Optional[Any], Optional[list[Path]]]:
     """
     Search and download PANGAEA oceanographic data (mirrors: cruiseplan pangaea).
 
@@ -193,34 +196,19 @@ def pangaea(
         search_pangaea_datasets,
         validate_dois,
     )
+    from cruiseplan.init_utils import (
+        _handle_error_with_logging,
+        _setup_verbose_logging,
+        _validate_lat_lon_bounds,
+    )
 
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
+    _setup_verbose_logging(verbose)
 
     try:
         # Validate lat/lon bounds if provided
-        if lat_bounds or lon_bounds:
-            if not (lat_bounds and lon_bounds):
-                logger.error(
-                    "Both lat_bounds and lon_bounds must be provided for geographic search"
-                )
-                return None
-
-            # Validate bounds format (similar to CLI validation)
-            if len(lat_bounds) != 2 or len(lon_bounds) != 2:
-                logger.error(
-                    "lat_bounds and lon_bounds must each contain exactly 2 values [min, max]"
-                )
-                return None
-
-            bbox = (
-                lon_bounds[0],
-                lat_bounds[0],
-                lon_bounds[1],
-                lat_bounds[1],
-            )  # (min_lon, min_lat, max_lon, max_lat)
-        else:
-            bbox = None
+        bbox = _validate_lat_lon_bounds(lat_bounds, lon_bounds)
+        if (lat_bounds or lon_bounds) and bbox is None:
+            return None, None
 
         # Setup output paths
         output_dir_path = Path(output_dir).resolve()
@@ -288,11 +276,7 @@ def pangaea(
         return datasets, generated_files
 
     except Exception as e:
-        logger.error(f"❌ PANGAEA search failed: {e}")
-        if verbose:
-            import traceback
-
-            traceback.print_exc()
+        _handle_error_with_logging(e, "PANGAEA search failed", verbose)
         return None, None
 
 
@@ -486,7 +470,7 @@ def schedule(
     bathy_stride: int = 10,
     figsize: list = [12, 8],
     verbose: bool = False,
-) -> Tuple[Optional[List[Any]], Optional[List[Path]]]:
+) -> tuple[Optional[list[Any]], Optional[list[Path]]]:
     """
     Generate cruise schedule (mirrors: cruiseplan schedule).
 
@@ -549,9 +533,9 @@ def schedule(
     """
     from cruiseplan.calculators.scheduler import generate_timeline
     from cruiseplan.core.cruise import Cruise
+    from cruiseplan.init_utils import _parse_schedule_formats, _setup_verbose_logging
 
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
+    _setup_verbose_logging(verbose)
 
     config_path = Path(config_file).resolve()
     logger.info(f"📅 Generating schedule from {config_path}")
@@ -591,94 +575,69 @@ def schedule(
         output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
 
         # Parse format list
-        formats = []
-        if format == "all":
-            formats = ["html", "latex", "csv", "netcdf", "png"]
-            if derive_netcdf:
-                formats.append("netcdf_specialized")
-        else:
-            formats = [fmt.strip() for fmt in format.split(",")]
+        formats = _parse_schedule_formats(format, derive_netcdf)
+
+        # Import generator helpers
+        from cruiseplan.init_utils import (
+            generate_csv_format,
+            generate_html_format,
+            generate_latex_format,
+            generate_netcdf_format,
+            generate_png_format,
+            generate_specialized_netcdf,
+        )
 
         generated_files = []
 
         # Generate each requested format
         for fmt in formats:
             if fmt == "html":
-                output_path = output_dir_path / f"{base_name}_schedule.html"
-                from cruiseplan.output.html_generator import generate_html_schedule
-
-                generate_html_schedule(cruise.config, timeline, output_path)
-                generated_files.append(output_path)
-                logger.info(f"✅ Generated HTML schedule: {output_path}")
+                output_file = generate_html_format(
+                    cruise.config, timeline, output_dir_path, base_name
+                )
+                if output_file:
+                    generated_files.append(output_file)
 
             elif fmt == "latex":
-                from cruiseplan.output.latex_generator import generate_latex_tables
-
-                latex_files = generate_latex_tables(
-                    cruise.config, timeline, output_dir_path
+                output_file = generate_latex_format(
+                    cruise.config, timeline, output_dir_path, base_name
                 )
-                output_path = (
-                    latex_files[0]
-                    if latex_files
-                    else output_dir_path / f"{base_name}_schedule.tex"
-                )
-                generated_files.append(output_path)
-                logger.info(f"✅ Generated LaTeX schedule: {output_path}")
+                if output_file:
+                    generated_files.append(output_file)
 
             elif fmt == "csv":
-                output_path = output_dir_path / f"{base_name}_schedule.csv"
-                from cruiseplan.output.csv_generator import generate_csv_schedule
-
-                generate_csv_schedule(cruise.config, timeline, output_path)
-                generated_files.append(output_path)
-                logger.info(f"✅ Generated CSV schedule: {output_path}")
+                output_file = generate_csv_format(
+                    cruise.config, timeline, output_dir_path, base_name
+                )
+                if output_file:
+                    generated_files.append(output_file)
 
             elif fmt == "netcdf":
-                output_path = output_dir_path / f"{base_name}_schedule.nc"
-                from cruiseplan.output.netcdf_generator import NetCDFGenerator
-
-                logger.info(
-                    f"📄 NetCDF Generator: Starting generation of {output_path}"
+                output_file = generate_netcdf_format(
+                    cruise.config, timeline, output_dir_path, base_name
                 )
-                logger.info(f"   Timeline contains {len(timeline)} activities")
-                generator = NetCDFGenerator()
-                generator.generate_ship_schedule(timeline, cruise.config, output_path)
-                generated_files.append(output_path)
-                logger.info(f"✅ Generated NetCDF schedule: {output_path}")
+                if output_file:
+                    generated_files.append(output_file)
 
             elif fmt == "netcdf_specialized" and derive_netcdf:
-                from cruiseplan.output.netcdf_generator import NetCDFGenerator
-
-                generator = NetCDFGenerator()
-                specialized_files = generator.generate_all_netcdf_outputs(
-                    cruise.config, output_dir_path, base_name
+                specialized_files = generate_specialized_netcdf(
+                    cruise.config, timeline, output_dir_path
                 )
                 generated_files.extend(specialized_files)
-                logger.info(
-                    f"✅ Generated specialized NetCDF files: {len(specialized_files)} files"
-                )
 
             elif fmt == "png":
-                output_path = output_dir_path / f"{base_name}_map.png"
-                from cruiseplan.output.map_generator import generate_map_from_timeline
-
-                logger.info(
-                    f"🗺️ PNG Map Generator: Starting generation of {output_path}"
+                output_file = generate_png_format(
+                    cruise,
+                    timeline,
+                    output_dir_path,
+                    base_name,
+                    bathy_source,
+                    bathy_dir,
+                    bathy_stride,
+                    tuple(figsize) if isinstance(figsize, list) else figsize,
                 )
-                map_file = generate_map_from_timeline(
-                    timeline=timeline,
-                    output_file=output_path,
-                    bathy_source=bathy_source,
-                    bathy_dir=bathy_dir,
-                    bathy_stride=bathy_stride,
-                    figsize=tuple(figsize) if isinstance(figsize, list) else figsize,
-                    config=cruise,
-                )
-                if map_file:
-                    generated_files.append(map_file)
-                    logger.info(f"✅ Generated PNG map: {map_file}")
-                else:
-                    logger.warning("PNG map generation failed")
+                if output_file:
+                    generated_files.append(output_file)
 
             else:
                 logger.warning(
@@ -726,7 +685,7 @@ def process(
     bathy_stride: int = 10,
     figsize: list = [12, 8],
     verbose: bool = False,
-) -> Tuple[Optional[Any], Optional[List[Path]]]:
+) -> tuple[Optional[Any], Optional[list[Path]]]:
     """
     Process cruise configuration with unified workflow (mirrors: cruiseplan process).
 
@@ -782,10 +741,9 @@ def process(
     >>> enriched_file = next(f for f in files if 'enriched' in f.name)
     >>> map_file = next((f for f in files if f.suffix == '.png'), None)
     """
-    if verbose:
-        import logging
+    from cruiseplan.init_utils import _setup_verbose_logging
 
-        logging.basicConfig(level=logging.DEBUG)
+    _setup_verbose_logging(verbose)
 
     try:
         # Initialize with the original config file
@@ -856,11 +814,9 @@ def process(
         return cruise.config, generated_files
 
     except Exception as e:
-        logger.error(f"❌ Processing failed: {e}")
-        if verbose:
-            import traceback
+        from cruiseplan.init_utils import _handle_error_with_logging
 
-            traceback.print_exc()
+        _handle_error_with_logging(e, "Processing failed", verbose)
         raise
 
 
@@ -916,13 +872,11 @@ def map(
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
     from cruiseplan.core.cruise import Cruise
+    from cruiseplan.init_utils import _parse_map_formats, _setup_verbose_logging
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
 
-    if verbose:
-        import logging
-
-        logging.basicConfig(level=logging.DEBUG)
+    _setup_verbose_logging(verbose)
 
     try:
         # Load cruise configuration - direct core call
@@ -933,8 +887,13 @@ def map(
 
         output_path, base_name = setup_output_paths(config_file, output_dir, output)
 
+        # Parse formats to generate
+        formats = _parse_map_formats(format)
+
+        generated_files = []
+
         # Generate maps based on format - direct core calls
-        if format == "png" or format == "all":
+        if "png" in formats:
             png_file = output_path / f"{base_name}_map.png"
             result = generate_map(
                 data_source=cruise,
@@ -946,27 +905,30 @@ def map(
                 figsize=tuple(figsize),
                 show_plot=show_plot,
             )
+            if result:
+                generated_files.append(result)
 
-            if format == "png":
-                return result
-
-        if format == "kml" or format == "all":
+        if "kml" in formats:
             kml_file = output_path / f"{base_name}_catalog.kml"
             generate_kml_catalog(cruise.config, kml_file)
+            generated_files.append(kml_file)
 
-            if format == "kml":
-                return kml_file
-
-        # If "all" format, return PNG file path
-        if format == "all":
-            return output_path / f"{base_name}_map.png"
+        # Return appropriate file based on format
+        if format == "png" and generated_files:
+            return generated_files[0]
+        elif format == "kml" and len(generated_files) > 0:
+            # Return KML file if it was generated
+            kml_files = [f for f in generated_files if str(f).endswith(".kml")]
+            return kml_files[0] if kml_files else None
+        elif format == "all" and generated_files:
+            # For "all", return the PNG file for backward compatibility
+            png_files = [f for f in generated_files if str(f).endswith(".png")]
+            return png_files[0] if png_files else generated_files[0]
 
         return None
 
     except Exception as e:
-        logger.error(f"Map generation failed: {e}")
-        if verbose:
-            import traceback
+        from cruiseplan.init_utils import _handle_error_with_logging
 
-            traceback.print_exc()
+        _handle_error_with_logging(e, "Map generation failed", verbose)
         return None

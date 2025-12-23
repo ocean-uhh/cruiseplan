@@ -333,22 +333,22 @@ class TestDuplicateNameDetection:
         # Create stations with identical coordinates and operations
         station1 = MagicMock()
         station1.name = "STN_A"
-        station1.position.latitude = 50.0
-        station1.position.longitude = -30.0
+        station1.latitude = 50.0
+        station1.longitude = -30.0
         station1.operation_type = ctd_op_type  # Same object reference
         station1.action = profile_action  # Same object reference
 
         station2 = MagicMock()
         station2.name = "STN_B"
-        station2.position.latitude = 50.0  # Same coordinates
-        station2.position.longitude = -30.0
+        station2.latitude = 50.0  # Same coordinates
+        station2.longitude = -30.0
         station2.operation_type = ctd_op_type  # Same object reference
         station2.action = profile_action  # Same object reference
 
         station3 = MagicMock()
         station3.name = "STN_C"
-        station3.position.latitude = 51.0  # Different coordinates
-        station3.position.longitude = -31.0
+        station3.latitude = 51.0  # Different coordinates
+        station3.longitude = -31.0
         station3.operation_type = ctd_op_type
         station3.action = profile_action
 

@@ -43,7 +43,7 @@ def test_load_and_validate_cruise():
 
     # Item 2: Was inline "STN_Inline_OneOff" -> Should be object
     assert resolved_stations[2].name == "STN_Inline_OneOff"
-    assert resolved_stations[2].position.latitude == 62.25
+    assert resolved_stations[2].latitude == 62.25
 
     # Item 3: Should be the mooring "M_End_01"
     assert resolved_stations[3].name == "M_End_01"
@@ -298,8 +298,8 @@ class TestDepthValidation:
 
         station = MagicMock()
         station.name = "STN_001"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.water_depth = 2000.0  # Station reported water depth
 
         cruise.station_registry = {"STN_001": station}
@@ -324,8 +324,8 @@ class TestDepthValidation:
 
         station = MagicMock()
         station.name = "STN_002"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.water_depth = 1000.0  # Station reported water depth
 
         cruise.station_registry = {"STN_002": station}
@@ -348,8 +348,8 @@ class TestDepthValidation:
 
         station = MagicMock()
         station.name = "STN_003"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.water_depth = 2000.0
 
         cruise.station_registry = {"STN_003": station}

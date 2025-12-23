@@ -15,7 +15,99 @@ The UnitConverter class provides static methods for coordinate conversions.
 
 import math
 import re
-from typing import List, Optional, Tuple
+from typing import Any, List, NamedTuple, Optional, Tuple
+
+
+class Position(NamedTuple):
+    """
+    Lightweight position representation with named coordinates.
+
+    This provides a simple, immutable way to pass around coordinates with
+    semantic meaning while avoiding the overhead of full objects.
+
+    Attributes
+    ----------
+    latitude : float
+        Latitude in decimal degrees.
+    longitude : float
+        Longitude in decimal degrees.
+
+    Examples
+    --------
+    >>> pos = Position(65.5, -24.3)
+    >>> pos.latitude
+    65.5
+    >>> pos.longitude
+    -24.3
+    >>> lat, lon = pos  # Tuple unpacking works
+    >>> pos.to_tuple()
+    (65.5, -24.3)
+    """
+
+    latitude: float
+    longitude: float
+
+    def to_tuple(self) -> Tuple[float, float]:
+        """Convert to tuple for functions expecting (lat, lon)."""
+        return (self.latitude, self.longitude)
+
+    @classmethod
+    def from_object(cls, obj: Any) -> "Position":
+        """
+        Create Position from an object with latitude/longitude attributes.
+
+        Parameters
+        ----------
+        obj : Any
+            Object with latitude and longitude attributes.
+
+        Returns
+        -------
+        Position
+            New Position instance.
+
+        Examples
+        --------
+        >>> class Station:
+        ...     def __init__(self):
+        ...         self.latitude = 60.0
+        ...         self.longitude = -20.0
+        >>> station = Station()
+        >>> pos = Position.from_object(station)
+        >>> pos
+        Position(latitude=60.0, longitude=-20.0)
+        """
+        return cls(obj.latitude, obj.longitude)
+
+    @classmethod
+    def from_dict(
+        cls, data: dict, lat_key: str = "lat", lon_key: str = "lon"
+    ) -> "Position":
+        """
+        Create Position from a dictionary.
+
+        Parameters
+        ----------
+        data : dict
+            Dictionary containing coordinate data.
+        lat_key : str, optional
+            Key for latitude value (default "lat").
+        lon_key : str, optional
+            Key for longitude value (default "lon").
+
+        Returns
+        -------
+        Position
+            New Position instance.
+
+        Examples
+        --------
+        >>> data = {"lat": 65.0, "lon": -25.0}
+        >>> pos = Position.from_dict(data)
+        >>> pos
+        Position(latitude=65.0, longitude=-25.0)
+        """
+        return cls(data[lat_key], data[lon_key])
 
 
 class UnitConverter:
@@ -282,8 +374,33 @@ def format_geographic_bounds(
     return f"{lat_bounds}, {lon_bounds}"
 
 
+def _extract_port_info(port: Any) -> Optional[Tuple[float, float, str]]:
+    """
+    Extract port information from a port object.
+
+    Parameters
+    ----------
+    port : Any
+        Port object (PortDefinition or string reference)
+
+    Returns
+    -------
+    Optional[Tuple[float, float, str]]
+        (latitude, longitude, name) tuple or None if port is invalid
+    """
+    if port is None:
+        return None
+
+    # Check if it's a resolved PortDefinition object
+    if hasattr(port, "latitude") and hasattr(port, "longitude"):
+        return (port.latitude, port.longitude, port.name)
+
+    # String reference or invalid - return None
+    return None
+
+
 def extract_coordinates_from_cruise(
-    cruise,
+    cruise: Any,
 ) -> Tuple[List[float], List[float], List[str], Optional[Tuple], Optional[Tuple]]:
     """
     Extract coordinates from cruise configuration.
@@ -305,16 +422,8 @@ def extract_coordinates_from_cruise(
 
     # Extract coordinates from all stations
     for station_name, station in cruise.station_registry.items():
-        lat = (
-            station.latitude
-            if hasattr(station, "latitude")
-            else station.position.latitude
-        )
-        lon = (
-            station.longitude
-            if hasattr(station, "longitude")
-            else station.position.longitude
-        )
+        lat = station.latitude
+        lon = station.longitude
         all_lats.append(lat)
         all_lons.append(lon)
         station_names.append(station_name)
@@ -329,11 +438,6 @@ def extract_coordinates_from_cruise(
             # Resolved PortDefinition object
             dep_lat = cruise.config.departure_port.latitude
             dep_lon = cruise.config.departure_port.longitude
-            dep_name = cruise.config.departure_port.name
-        elif hasattr(cruise.config.departure_port, "position"):
-            # Legacy format with nested position object
-            dep_lat = cruise.config.departure_port.position.latitude
-            dep_lon = cruise.config.departure_port.position.longitude
             dep_name = cruise.config.departure_port.name
         else:
             # String reference - skip for now
@@ -350,11 +454,6 @@ def extract_coordinates_from_cruise(
             # Resolved PortDefinition object
             arr_lat = cruise.config.arrival_port.latitude
             arr_lon = cruise.config.arrival_port.longitude
-            arr_name = cruise.config.arrival_port.name
-        elif hasattr(cruise.config.arrival_port, "position"):
-            # Legacy format with nested position object
-            arr_lat = cruise.config.arrival_port.position.latitude
-            arr_lon = cruise.config.arrival_port.position.longitude
             arr_name = cruise.config.arrival_port.name
         else:
             # String reference - skip for now
@@ -418,10 +517,10 @@ def calculate_map_bounds(
 
     # Round outwards to whole degrees (optional)
     if round_to_degrees:
-        min_lat = math.floor(min_lat_padded)
-        max_lat = math.ceil(max_lat_padded)
-        min_lon = math.floor(min_lon_padded)
-        max_lon = math.ceil(max_lon_padded)
+        min_lat: float = math.floor(min_lat_padded)
+        max_lat: float = math.ceil(max_lat_padded)
+        min_lon: float = math.floor(min_lon_padded)
+        max_lon: float = math.ceil(max_lon_padded)
     else:
         min_lat = min_lat_padded
         max_lat = max_lat_padded

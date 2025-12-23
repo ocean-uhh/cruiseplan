@@ -26,6 +26,87 @@ from cruiseplan.utils.constants import hours_to_minutes
 
 logger = logging.getLogger(__name__)
 
+# --- Helper Functions ---
+
+
+def _extract_coordinates(obj: Any) -> GeoPoint:
+    """
+    Extract coordinates as a GeoPoint from an object.
+
+    Parameters
+    ----------
+    obj : Any
+        Object with latitude and longitude attributes.
+
+    Returns
+    -------
+    GeoPoint
+        Geographic point with latitude and longitude.
+    """
+    return GeoPoint(latitude=obj.latitude, longitude=obj.longitude)
+
+
+def _get_activity_position(activity: dict) -> GeoPoint:
+    """
+    Get the primary position of an activity record.
+
+    Parameters
+    ----------
+    activity : dict
+        Activity record dictionary.
+
+    Returns
+    -------
+    GeoPoint
+        Geographic point with latitude and longitude.
+    """
+    return GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
+
+
+def _get_activity_entry_position(activity: dict) -> GeoPoint:
+    """
+    Get the entry position of an activity record.
+
+    For transits with start coordinates, returns the start position.
+    Otherwise returns the main position.
+
+    Parameters
+    ----------
+    activity : dict
+        Activity record dictionary.
+
+    Returns
+    -------
+    GeoPoint
+        Geographic point with latitude and longitude.
+    """
+    if activity.get("op_type") == "transit" and "start_lat" in activity:
+        return GeoPoint(latitude=activity["start_lat"], longitude=activity["start_lon"])
+    return _get_activity_position(activity)
+
+
+def _get_activity_exit_position(activity: dict) -> GeoPoint:
+    """
+    Get the exit position of an activity record.
+
+    For transits with end coordinates, returns the end position.
+    Otherwise returns the main position.
+
+    Parameters
+    ----------
+    activity : dict
+        Activity record dictionary.
+
+    Returns
+    -------
+    GeoPoint
+        Geographic point with latitude and longitude.
+    """
+    if activity.get("op_type") == "transit" and "end_lat" in activity:
+        return GeoPoint(latitude=activity["end_lat"], longitude=activity["end_lon"])
+    return _get_activity_position(activity)
+
+
 # --- Data Structure Definitions ---
 
 
@@ -431,7 +512,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
         else None
     )
     if first_station_details:
-        start_pos = config.departure_port.position
+        start_pos = _extract_coordinates(config.departure_port)
         end_pos = GeoPoint(
             latitude=first_station_details["lat"],
             longitude=first_station_details["lon"],
@@ -541,14 +622,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
 
         # 3a. Calculate Transit time from last activity
         # For transits, calculate distance to the START of the route, not the end
-        if activity["op_type"] == "transit" and "start_lat" in activity:
-            target_position = GeoPoint(
-                latitude=activity["start_lat"], longitude=activity["start_lon"]
-            )
-        else:
-            target_position = GeoPoint(
-                latitude=activity["lat"], longitude=activity["lon"]
-            )
+        target_position = _get_activity_entry_position(activity)
 
         transit_time_min, transit_dist_nm = _calculate_inter_operation_transit(
             last_position,
@@ -594,10 +668,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                 if i > 0 and last_position:
                     distance_km = haversine_distance(
                         last_position,
-                        GeoPoint(
-                            latitude=route_start.latitude,
-                            longitude=route_start.longitude,
-                        ),
+                        _extract_coordinates(route_start),
                     )
                     transit_dist_nm = km_to_nm(distance_km)
                     transit_time_h = transit_dist_nm / config.default_vessel_speed
@@ -605,14 +676,10 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     current_time += timedelta(minutes=transit_time_min)
 
                 # Current position for this activity is the route END (for next operation's distance calculation)
-                current_pos = GeoPoint(
-                    latitude=route_end.latitude, longitude=route_end.longitude
-                )
+                current_pos = _extract_coordinates(route_end)
             else:
                 # Fallback if route not found
-                current_pos = GeoPoint(
-                    latitude=activity["lat"], longitude=activity["lon"]
-                )
+                current_pos = _get_activity_position(activity)
                 if i > 0 and last_position:
                     distance_km = haversine_distance(last_position, current_pos)
                     transit_dist_nm = km_to_nm(distance_km)
@@ -621,7 +688,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     current_time += timedelta(minutes=transit_time_min)
         else:
             # Regular operations (stations, moorings)
-            current_pos = GeoPoint(latitude=activity["lat"], longitude=activity["lon"])
+            current_pos = _get_activity_position(activity)
 
             # Note: Inter-operation transit time is now handled by explicit transit records above
             # so we don't add it to current_time here to avoid double-counting
@@ -751,7 +818,7 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
 
     # --- Step 4: Transit from Working Area ---
     if last_position:
-        end_pos = config.arrival_port.position
+        end_pos = _extract_coordinates(config.arrival_port)
         distance_km = haversine_distance(last_position, end_pos)
         distance_nm = km_to_nm(distance_km)
         transit_time_h = distance_nm / config.default_vessel_speed
@@ -894,16 +961,10 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
         if i > 0:
             # Transit from previous leg's arrival port to current leg's departure port
             prev_runtime_leg = runtime_legs[i - 1]
-            prev_arrival_pos = (
-                prev_runtime_leg.arrival_port.latitude,
-                prev_runtime_leg.arrival_port.longitude,
-            )
-            curr_departure_pos = (
-                runtime_leg.departure_port.latitude,
-                runtime_leg.departure_port.longitude,
-            )
+            prev_arrival_pos = _extract_coordinates(prev_runtime_leg.arrival_port)
+            curr_departure_pos = _extract_coordinates(runtime_leg.departure_port)
 
-            # Only add transit if ports are different
+            # Only add transit if ports are different and transit time > 0
             if prev_arrival_pos != curr_departure_pos:
                 # Use leg's effective speed with parameter inheritance
                 effective_speed = runtime_leg.vessel_speed or getattr(
@@ -915,23 +976,26 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     effective_speed,
                 )
 
-                timeline.append(
-                    ActivityRecord(
-                        {
-                            "activity": "Port_Transit",
-                            "label": f"Transit: {prev_runtime_leg.arrival_port.name} → {runtime_leg.departure_port.name}",
-                            "lat": runtime_leg.departure_port.latitude,
-                            "lon": runtime_leg.departure_port.longitude,
-                            "depth": 0.0,
-                            "start_time": current_time,
-                            "end_time": current_time + timedelta(minutes=transit_time),
-                            "duration_minutes": transit_time,
-                            "leg_name": runtime_leg.name,
-                            "op_type": "transit",
-                        }
+                # Only add if transit time is meaningful (> 0)
+                if transit_time > 0:
+                    timeline.append(
+                        ActivityRecord(
+                            {
+                                "activity": "Port_Transit",
+                                "label": f"Transit: {prev_runtime_leg.arrival_port.name} → {runtime_leg.departure_port.name}",
+                                "lat": runtime_leg.departure_port.latitude,
+                                "lon": runtime_leg.departure_port.longitude,
+                                "depth": 0.0,
+                                "start_time": current_time,
+                                "end_time": current_time
+                                + timedelta(minutes=transit_time),
+                                "duration_minutes": transit_time,
+                                "leg_name": runtime_leg.name,
+                                "op_type": "transit",
+                            }
+                        )
                     )
-                )
-                current_time += timedelta(minutes=transit_time)
+                    current_time += timedelta(minutes=transit_time)
 
         # 2. Process leg departure from port to first operation
         # Check for activities (either direct or extracted from clusters)
@@ -976,9 +1040,9 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     runtime_leg.departure_port.latitude,
                     runtime_leg.departure_port.longitude,
                 )
-                operation_pos = (
-                    first_activity_details["lat"],
-                    first_activity_details["lon"],
+                operation_pos = GeoPoint(
+                    latitude=first_activity_details["lat"],
+                    longitude=first_activity_details["lon"],
                 )
 
                 # Use leg's effective speed with parameter inheritance
@@ -1014,9 +1078,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     )
                 )
                 current_time += timedelta(minutes=transit_time)
-                current_position = GeoPoint(
-                    latitude=operation_pos[0], longitude=operation_pos[1]
-                )
+                current_position = operation_pos
 
         # 3. Process activities within leg using cluster boundaries
         leg_activities = _process_leg_activities_with_clusters(
@@ -1029,9 +1091,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
         if leg_activities:
             last_activity = leg_activities[-1]
             current_time = last_activity["end_time"]
-            current_position = GeoPoint(
-                latitude=last_activity["lat"], longitude=last_activity["lon"]
-            )
+            current_position = _get_activity_position(last_activity)
 
         # 4. Add transit from last operation to arrival port
         # Check for activities (either direct or extracted from clusters)
@@ -1039,11 +1099,8 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
             _extract_activities_from_leg(leg_def)
         )
         if has_activities_for_arrival and current_position:
-            arrival_pos = (
-                runtime_leg.arrival_port.latitude,
-                runtime_leg.arrival_port.longitude,
-            )
-            operation_pos = (current_position.latitude, current_position.longitude)
+            arrival_pos = _extract_coordinates(runtime_leg.arrival_port)
+            operation_pos = current_position
 
             # Only add transit if positions are different
             if arrival_pos != operation_pos:
@@ -1081,9 +1138,7 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                     )
                 )
                 current_time += timedelta(minutes=transit_time)
-                current_position = GeoPoint(
-                    latitude=arrival_pos[0], longitude=arrival_pos[1]
-                )
+                current_position = arrival_pos
 
     logger.info(f"Generated maritime timeline with {len(timeline)} activities")
     return timeline

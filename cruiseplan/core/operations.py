@@ -230,7 +230,7 @@ class PointOperation(BaseOperation):
             New PointOperation instance.
         """
         # 1. Extract Position (Guaranteed by validation.py to exist)
-        pos = (obj.position.latitude, obj.position.longitude)
+        pos = (obj.latitude, obj.longitude)
 
         # 2. Map operation types to legacy internal types
         op_type_mapping = {
@@ -413,9 +413,9 @@ class AreaOperation(BaseOperation):
     duration : Optional[float]
         User-specified duration in minutes (required like moorings).
     start_point : Tuple[float, float]
-        Starting position for area operation (latitude, longitude).
+        Starting coordinates for area operation (latitude, longitude).
     end_point : Tuple[float, float]
-        Ending position for area operation (latitude, longitude).
+        Ending coordinates for area operation (latitude, longitude).
     """
 
     def __init__(
@@ -443,9 +443,9 @@ class AreaOperation(BaseOperation):
         duration : Optional[float], optional
             User-specified duration in minutes (required for scheduling).
         start_point : Optional[Tuple[float, float]], optional
-            Starting position (latitude, longitude). Defaults to first corner.
+            Starting coordinates (latitude, longitude). Defaults to first corner.
         end_point : Optional[Tuple[float, float]], optional
-            Ending position (latitude, longitude). Defaults to last corner.
+            Ending coordinates (latitude, longitude). Defaults to last corner.
         sampling_density : float, optional
             Sampling density factor for duration calculations (default: 1.0).
         comment : str, optional

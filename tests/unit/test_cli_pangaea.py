@@ -26,6 +26,7 @@ def setup_stdout_logging():
     logging.getLogger().handlers.clear()
 
 
+from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.pangaea import (
     determine_workflow_mode,
     main,
@@ -34,7 +35,6 @@ from cruiseplan.cli.pangaea import (
     validate_dois,
     validate_lat_lon_bounds,
 )
-from cruiseplan.cli.utils import CLIError
 
 
 class TestWorkflowModeDetection:

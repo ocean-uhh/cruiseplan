@@ -613,11 +613,8 @@ class TestExtractCoordinatesFromCruise:
         mock_station1.longitude = -20.0
 
         mock_station2 = MagicMock()
-        # Remove latitude/longitude attributes to force position access
-        del mock_station2.latitude
-        del mock_station2.longitude
-        mock_station2.position.latitude = 61.0
-        mock_station2.position.longitude = -21.0
+        mock_station2.latitude = 61.0
+        mock_station2.longitude = -21.0
 
         mock_cruise.station_registry = {
             "STN_001": mock_station1,
@@ -656,19 +653,15 @@ class TestExtractCoordinatesFromCruise:
 
         # Mock departure port (support both formats)
         mock_dep_port = MagicMock()
-        mock_dep_port.latitude = 64.0  # Direct attribute format
+        mock_dep_port.latitude = 64.0
         mock_dep_port.longitude = -22.0
-        mock_dep_port.position.latitude = 64.0  # Nested position format
-        mock_dep_port.position.longitude = -22.0
         mock_dep_port.name = "Reykjavik"
         mock_cruise.config.departure_port = mock_dep_port
 
         # Mock arrival port (support both formats)
         mock_arr_port = MagicMock()
-        mock_arr_port.latitude = 78.0  # Direct attribute format
+        mock_arr_port.latitude = 78.0
         mock_arr_port.longitude = 15.0
-        mock_arr_port.position.latitude = 78.0  # Nested position format
-        mock_arr_port.position.longitude = 15.0
         mock_arr_port.name = "Longyearbyen"
         mock_cruise.config.arrival_port = mock_arr_port
 
@@ -698,11 +691,8 @@ class TestExtractCoordinatesFromCruise:
 
         # Station with position object
         mock_station2 = MagicMock()
-        # Remove latitude/longitude attributes to force position access
-        del mock_station2.latitude
-        del mock_station2.longitude
-        mock_station2.position.latitude = 61.0
-        mock_station2.position.longitude = -21.0
+        mock_station2.latitude = 61.0
+        mock_station2.longitude = -21.0
 
         mock_cruise.station_registry = {
             "STN_001": mock_station1,

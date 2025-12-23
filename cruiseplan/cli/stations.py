@@ -10,7 +10,7 @@ import logging
 import sys
 from pathlib import Path
 
-from cruiseplan.cli.utils import (
+from cruiseplan.cli.cli_utils import (
     CLIError,
     format_coordinate_bounds,
     generate_output_filename,

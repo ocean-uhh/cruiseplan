@@ -191,22 +191,25 @@ class FlexibleLocationModel(BaseModel):
     """
     Base class that allows users to define location in multiple formats.
 
-    Supports both explicit latitude/longitude fields and string position format
-    ("lat, lon") for backward compatibility.
+    Supports both explicit latitude/longitude fields and string format
+    ("lat, lon") in YAML input for user convenience.
 
     Attributes
     ----------
-    position : Optional[GeoPoint]
-        Internal storage of the geographic position.
+    latitude : Optional[float]
+        Latitude in decimal degrees.
+    longitude : Optional[float]
+        Longitude in decimal degrees.
     """
 
-    position: Optional[GeoPoint] = None  # Internal storage
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
 
     @model_validator(mode="before")
     @classmethod
     def unify_coordinates(cls, data: Any) -> Any:
         """
-        Unify different coordinate input formats into a single GeoPoint.
+        Unify different coordinate input formats.
 
         Handles both explicit lat/lon fields and string position format.
 
@@ -218,7 +221,7 @@ class FlexibleLocationModel(BaseModel):
         Returns
         -------
         Any
-            Processed data with unified position field.
+            Processed data with latitude and longitude fields.
 
         Raises
         ------
@@ -239,68 +242,18 @@ class FlexibleLocationModel(BaseModel):
                     "Both latitude and longitude must be provided together"
                 )
 
-            # Case A: Explicit Lat/Lon
-            if has_lat and has_lon:
-                data["position"] = {
-                    "latitude": data.pop("latitude"),
-                    "longitude": data.pop("longitude"),
-                }
-            # Case B: String Position
-            elif "position" in data and isinstance(data["position"], str):
+            # Case B: String Position (convert to lat/lon)
+            if "position" in data and isinstance(data["position"], str):
                 try:
                     lat, lon = map(float, data["position"].split(","))
-                    data["position"] = {"latitude": lat, "longitude": lon}
+                    data["latitude"] = lat
+                    data["longitude"] = lon
+                    del data["position"]  # Remove the position field
                 except ValueError:
                     raise ValueError(
                         f"Invalid position string: '{data['position']}'. Expected 'lat, lon'"
                     )
         return data
-
-    @property
-    def latitude(self) -> Optional[float]:
-        """
-        Convenient access to latitude coordinate.
-
-        Returns the latitude from the internal position storage, providing
-        direct access without needing to navigate through the position attribute.
-
-        Returns
-        -------
-        Optional[float]
-            Latitude in decimal degrees, or None if position not set.
-
-        Examples
-        --------
-        >>> station = StationDefinition(name="CTD_001", latitude=60.0, longitude=-20.0, ...)
-        >>> station.latitude  # Direct access
-        60.0
-        >>> station.position.latitude  # Traditional access (still works)
-        60.0
-        """
-        return self.position.latitude if self.position else None
-
-    @property
-    def longitude(self) -> Optional[float]:
-        """
-        Convenient access to longitude coordinate.
-
-        Returns the longitude from the internal position storage, providing
-        direct access without needing to navigate through the position attribute.
-
-        Returns
-        -------
-        Optional[float]
-            Longitude in decimal degrees, or None if position not set.
-
-        Examples
-        --------
-        >>> station = StationDefinition(name="CTD_001", latitude=60.0, longitude=-20.0, ...)
-        >>> station.longitude  # Direct access
-        -20.0
-        >>> station.position.longitude  # Traditional access (still works)
-        -20.0
-        """
-        return self.position.longitude if self.position else None
 
 
 # --- Catalog Definitions ---
@@ -1840,9 +1793,7 @@ class CruiseConfig(BaseModel):
                 if not items:
                     return
                 for item in items:
-                    if hasattr(item, "position") and isinstance(
-                        item.position, GeoPoint
-                    ):
+                    if hasattr(item, "latitude") and hasattr(item, "longitude"):
                         lons.append(item.longitude)
                     elif hasattr(item, "start") and isinstance(item.start, GeoPoint):
                         # Sections / Generators
@@ -2619,7 +2570,7 @@ def enrich_configuration(
         - stations_from_expansion: Number of stations generated from expansion
         - total_stations_processed: Total stations processed
     """
-    from cruiseplan.cli.utils import save_yaml_config
+    from cruiseplan.cli.cli_utils import save_yaml_config
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.data.bathymetry import BathymetryManager
     from cruiseplan.utils.yaml_io import load_yaml, save_yaml
@@ -2811,7 +2762,7 @@ def enrich_configuration(
                 port_data = config_dict[port_key]
                 if hasattr(cruise.config, port_key):
                     port_obj = getattr(cruise.config, port_key)
-                    if hasattr(port_obj, "position") and port_obj.position:
+                    if hasattr(port_obj, "latitude") and hasattr(port_obj, "longitude"):
                         ddm_result = add_ddm_coordinates(
                             port_data,
                             port_obj.latitude,
@@ -2863,10 +2814,6 @@ def enrich_configuration(
                         "name": port_ref,  # Keep the full port_* name as catalog identifier
                         "latitude": port_definition.latitude,
                         "longitude": port_definition.longitude,
-                        "position": {
-                            "latitude": port_definition.latitude,
-                            "longitude": port_definition.longitude,
-                        },
                     }
                     # Add display_name if available
                     if hasattr(port_definition, "display_name"):
@@ -3180,8 +3127,8 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
     Format error location path to be more user-friendly.
 
     Converts array indices to meaningful names when possible.
-    E.g., "stations -> 0 -> position -> latitude" becomes
-    "station 'Station_A' -> position -> latitude"
+    E.g., "stations -> 0 -> latitude" becomes
+    "station 'Station_A' -> latitude"
     """
     if not location_path:
         return "unknown"
@@ -3285,7 +3232,7 @@ def _check_cruise_metadata(cruise) -> List[str]:
                 "Departure port name is set to placeholder 'UPDATE-departure-port-name'. Please update with actual port name."
             )
 
-        if hasattr(port, "position"):
+        if hasattr(port, "latitude") and hasattr(port, "longitude"):
             if port.latitude == 0.0 and port.longitude == 0.0:
                 metadata_warnings.append(
                     "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
@@ -3304,7 +3251,7 @@ def _check_cruise_metadata(cruise) -> List[str]:
                 "Arrival port name is set to placeholder 'UPDATE-arrival-port-name'. Please update with actual port name."
             )
 
-        if hasattr(port, "position"):
+        if hasattr(port, "latitude") and hasattr(port, "longitude"):
             if port.latitude == 0.0 and port.longitude == 0.0:
                 metadata_warnings.append(
                     "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
@@ -3363,9 +3310,8 @@ def _check_cruise_metadata_raw(raw_config: dict) -> List[str]:
                 "Departure port name is set to placeholder 'UPDATE-departure-port-name'. Please update with actual port name."
             )
 
-        if "position" in port:
-            position = port["position"]
-            if position.get("latitude") == 0.0 and position.get("longitude") == 0.0:
+        if "latitude" in port and "longitude" in port:
+            if port.get("latitude") == 0.0 and port.get("longitude") == 0.0:
                 metadata_warnings.append(
                     "Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
                 )
@@ -3383,9 +3329,8 @@ def _check_cruise_metadata_raw(raw_config: dict) -> List[str]:
                 "Arrival port name is set to placeholder 'UPDATE-arrival-port-name'. Please update with actual port name."
             )
 
-        if "position" in port:
-            position = port["position"]
-            if position.get("latitude") == 0.0 and position.get("longitude") == 0.0:
+        if "latitude" in port and "longitude" in port:
+            if port.get("latitude") == 0.0 and port.get("longitude") == 0.0:
                 metadata_warnings.append(
                     "Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates."
                 )
@@ -3724,7 +3669,7 @@ def check_duplicate_names(cruise) -> Tuple[List[str], List[str]]:
 
 def check_complete_duplicates(cruise) -> Tuple[List[str], List[str]]:
     """
-    Check for completely identical entries (same name, position, operation, etc.).
+    Check for completely identical entries (same name, coordinates, operation, etc.).
 
     Parameters
     ----------
@@ -3749,10 +3694,10 @@ def check_complete_duplicates(cruise) -> Tuple[List[str], List[str]]:
                 if (
                     station1.name
                     != station2.name  # Don't compare same names (handled above)
-                    and getattr(station1.position, "latitude", None)
-                    == getattr(station2.position, "latitude", None)
-                    and getattr(station1.position, "longitude", None)
-                    == getattr(station2.position, "longitude", None)
+                    and getattr(station1, "latitude", None)
+                    == getattr(station2, "latitude", None)
+                    and getattr(station1, "longitude", None)
+                    == getattr(station2, "longitude", None)
                     and getattr(station1, "operation_type", None)
                     == getattr(station2, "operation_type", None)
                     and getattr(station1, "action", None)

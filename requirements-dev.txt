@@ -23,3 +23,5 @@ pre-commit>=3.5
 codespell
 mypy>=1.0
 types-requests
+types-tqdm
+pandas-stubs

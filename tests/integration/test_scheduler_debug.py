@@ -61,9 +61,9 @@ class TestSchedulerDebug:
             print(f"\n   Stations: {len(config.stations or [])}")
             if config.stations:
                 for i, stn in enumerate(config.stations):
-                    if hasattr(stn, "position") and stn.position:
+                    if hasattr(stn, "latitude") and stn.latitude is not None:
                         print(
-                            f"     {i+1}. {stn.name} at {stn.position.latitude}, {stn.position.longitude}"
+                            f"     {i+1}. {stn.name} at {stn.latitude}, {stn.longitude}"
                         )
                     else:
                         print(f"     {i+1}. {stn.name} - NO POSITION!")
@@ -77,10 +77,10 @@ class TestSchedulerDebug:
             print(f"\n   Mooring operations: {len(mooring_operations)}")
             if mooring_operations:
                 for i, mooring in enumerate(mooring_operations):
-                    if hasattr(mooring, "position") and mooring.position:
+                    if hasattr(mooring, "latitude") and mooring.latitude is not None:
                         duration = getattr(mooring, "duration", "not set")
                         print(
-                            f"     {i+1}. {mooring.name} at {mooring.position.latitude}, {mooring.position.longitude} ({duration} min)"
+                            f"     {i+1}. {mooring.name} at {mooring.latitude}, {mooring.longitude} ({duration} min)"
                         )
                     else:
                         print(f"     {i+1}. {mooring.name} - NO POSITION!")

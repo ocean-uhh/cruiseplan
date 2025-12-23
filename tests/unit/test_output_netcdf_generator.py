@@ -209,8 +209,8 @@ class TestNetCDFCoverageBoost:
         # Add mock station
         station = MagicMock()
         station.name = "STN_001"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.operation_type.value = "CTD"
         station.action = "profile"
 
@@ -346,8 +346,8 @@ class TestNetCDFErrorPaths:
         # Station with operation_type as string (no .value attribute)
         station = MagicMock()
         station.name = "STN_001"
-        station.position.latitude = 50.0
-        station.position.longitude = -30.0
+        station.latitude = 50.0
+        station.longitude = -30.0
         station.operation_type = "water_sampling"  # String instead of enum
         station.action = "sample"
 

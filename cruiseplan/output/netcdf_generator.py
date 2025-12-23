@@ -116,7 +116,11 @@ class NetCDFGenerator:
                 station_name = event["label"]
                 station = station_lookup.get(station_name)
 
-                if station and hasattr(station, "position") and station.position:
+                if (
+                    station
+                    and hasattr(station, "latitude")
+                    and hasattr(station, "longitude")
+                ):
                     # Map operation_type enum to string
                     operation_type = (
                         station.operation_type.value

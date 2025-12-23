@@ -318,7 +318,7 @@ class TestOutputGeneration:
 
     def test_auto_generated_filenames(self, tmp_path):
         """Test automatic filename generation."""
-        from cruiseplan.cli.utils import generate_output_filename
+        from cruiseplan.cli.cli_utils import generate_output_filename
 
         # Test different input files and suffixes
         test_cases = [
@@ -333,7 +333,7 @@ class TestOutputGeneration:
 
     def test_output_directory_creation(self, tmp_path):
         """Test output directory creation."""
-        from cruiseplan.cli.utils import validate_output_path
+        from cruiseplan.cli.cli_utils import validate_output_path
 
         # Test nested directory creation
         nested_path = tmp_path / "level1" / "level2" / "output.txt"
