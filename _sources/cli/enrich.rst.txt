@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: bash
 
-    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [--expand-ports] [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [...]
+    usage: cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] [--expand-sections] [--expand-ports] [-o OUTPUT_DIR] [--output OUTPUT] [...]
 
 Options
 -------
@@ -31,9 +31,9 @@ Options
      - Expand global port references into inline port definitions within legs.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
      - Output directory (default: ``data``).
-   * - ``--output-file OUTPUT_FILE``
-     - Specific output file path.
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
+   * - ``--output OUTPUT``
+     - Base filename for outputs (without extension). Generates ``{OUTPUT}_enriched.yaml``.
+   * - ``--bathy-source {etopo2022,gebco2025}``
      - Bathymetry dataset (default: ``etopo2022``).
    * - ``--coord-format {dmm,dms}``
      - Format for adding coordinates (default: ``dmm``).

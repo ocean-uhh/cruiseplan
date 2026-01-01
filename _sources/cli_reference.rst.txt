@@ -10,7 +10,7 @@ The `cruiseplan` CLI uses a "git-style" subcommand architecture.
 
 .. code-block:: bash
 
-    usage: cruiseplan [-h] [--version] {bathymetry,process,schedule,stations,enrich,validate,map,pangaea,download,pandoi} ...
+    usage: cruiseplan [-h] [--version] {bathymetry,process,schedule,stations,enrich,validate,map,pangaea} ...
 
 **Options:**
 

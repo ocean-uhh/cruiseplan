@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: bash
 
-    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [...]
+    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [--bathy-source {etopo2022,gebco2025}] [--output-format {text,json}] [-v]
 
 Options
 -------
@@ -29,7 +29,7 @@ Options
      - Show warnings but do not fail the exit code.
    * - ``--tolerance TOLERANCE``
      - Depth difference tolerance in percent (default: ``10.0``).
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
+   * - ``--bathy-source {etopo2022,gebco2025}``
      - Bathymetry dataset (default: ``etopo2022``).
    * - ``--output-format {text,json}``
      - Output format for validation results (default: ``text``).
