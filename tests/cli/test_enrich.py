@@ -58,7 +58,6 @@ class TestEnrichCommand:
                 return_value=[Path("test_enriched.yaml")],
             ),
             patch("cruiseplan.cli.enrich._format_success_message"),
-            patch("cruiseplan.cli.enrich._format_operation_summary"),
         ):
 
             # Mock successful API response
@@ -442,7 +441,6 @@ class TestEnrichCommand:
                 return_value=[Path("test_enriched.yaml")],
             ),
             patch("cruiseplan.cli.enrich._format_success_message"),
-            patch("cruiseplan.cli.enrich._format_operation_summary"),
             patch("cruiseplan.cli.enrich.logger") as mock_logger,
         ):
 
@@ -495,7 +493,6 @@ class TestEnrichCommand:
                 return_value=[Path("test_enriched.yaml")],
             ),
             patch("cruiseplan.cli.enrich._format_success_message"),
-            patch("cruiseplan.cli.enrich._format_operation_summary"),
         ):
 
             # Mock comprehensive enhancement result
@@ -630,14 +627,13 @@ class TestEnrichCommand:
 
     def test_main_module_executable(self):
         """Test that the __main__ block is executable (covers lines 243-273)."""
-        # Import the module to trigger the __main__ block coverage
-        # We can't easily test the actual argparse execution, but we can at least
+        # We can test the actual argparse execution, but we can at least
         # verify the imports and basic structure work
-        import cruiseplan.cli.enrich as enrich_module
+        from cruiseplan.cli import enrich
 
         # Verify the main function exists and is callable
-        assert hasattr(enrich_module, "main")
-        assert callable(enrich_module.main)
+        assert hasattr(enrich, "main")
+        assert callable(enrich.main)
 
 
 class TestEnrichCommandExecution:

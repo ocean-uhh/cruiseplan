@@ -62,11 +62,9 @@ def main(args: argparse.Namespace) -> int:
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
             )
 
-        # Validate input file and output directory using new utilities
+        # Validate input file using new utility
         config_file = _validate_config_file(args.config_file)
-        output_dir = _validate_directory_writable(
-            args.output_dir, create_if_missing=True
-        )
+        # Output directory validation handled by API layer
 
         # Format progress header using new utility
         _format_progress_header(

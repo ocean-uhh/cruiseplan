@@ -177,7 +177,7 @@ class TestCLIAPIIntegrationFlow:
             # This should not raise TypeError about unexpected parameters
             try:
                 # Call the actual API function with resolved parameters
-                result = cruiseplan.process(**api_params)
+                cruiseplan.process(**api_params)
             except TypeError as e:
                 if "unexpected keyword argument" in str(e):
                     pytest.fail(f"Parameter mapping error in process command: {e}")
@@ -212,7 +212,7 @@ class TestCLIAPIIntegrationFlow:
             api_params = _resolve_cli_to_api_params(args, "schedule")
 
             try:
-                result = cruiseplan.schedule(**api_params)
+                cruiseplan.schedule(**api_params)
             except TypeError as e:
                 if "unexpected keyword argument" in str(e):
                     pytest.fail(f"Parameter mapping error in schedule command: {e}")
