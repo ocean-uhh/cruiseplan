@@ -281,3 +281,152 @@ class TestConfigUtils:
         assert formatted["route"][0]["latitude"] == 50.12346
         assert formatted["route"][1]["longitude"] == -11.44444
         # Note: reversible field removed from transit format
+
+
+class TestSetupOutputPaths:
+    """Test the setup_output_paths function for correct filename derivation."""
+
+    def test_setup_output_paths_uses_cruise_name_from_yaml(self, tmp_path):
+        """Test that setup_output_paths extracts cruise name from YAML content."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Create a test YAML file with specific cruise name
+        test_config = tmp_path / "random_filename.yaml"
+        test_config.write_text("cruise_name: 'My_Atlantic_Survey'\nstart_date: '2024-01-01'")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir="test_output",
+            output=None
+        )
+        
+        # Should use cruise name from YAML, not filename
+        assert base_name == "My_Atlantic_Survey"
+        assert output_dir.name == "test_output"
+
+    def test_setup_output_paths_falls_back_to_filename(self, tmp_path):
+        """Test fallback to filename when cruise name is missing from YAML."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Create a test YAML file without cruise_name
+        test_config = tmp_path / "test_cruise.yaml"
+        test_config.write_text("start_date: '2024-01-01'\ndefault_vessel_speed: 10.0")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir="test_output",
+            output=None
+        )
+        
+        # Should fall back to filename when cruise_name is missing
+        assert base_name == "test_cruise"
+
+    def test_setup_output_paths_falls_back_on_yaml_error(self, tmp_path):
+        """Test fallback to filename when YAML file cannot be read."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Create an invalid YAML file
+        test_config = tmp_path / "invalid_yaml.yaml"
+        test_config.write_text("invalid: yaml: [missing bracket")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir="test_output",
+            output=None
+        )
+        
+        # Should fall back to filename when YAML parsing fails
+        assert base_name == "invalid_yaml"
+
+    def test_setup_output_paths_falls_back_on_file_not_found(self):
+        """Test fallback to filename when file doesn't exist."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        nonexistent_file = Path("nonexistent.yaml")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=nonexistent_file,
+            output_dir="test_output", 
+            output=None
+        )
+        
+        # Should fall back to filename when file doesn't exist
+        assert base_name == "nonexistent"
+
+    def test_setup_output_paths_respects_explicit_output(self, tmp_path):
+        """Test that explicit output parameter overrides cruise name."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Create a test YAML file with cruise name
+        test_config = tmp_path / "test.yaml"
+        test_config.write_text("cruise_name: 'Should_Be_Ignored'")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir="test_output",
+            output="Explicit_Override"
+        )
+        
+        # Should use explicit output parameter, not cruise name
+        assert base_name == "Explicit_Override"
+
+    def test_setup_output_paths_sanitizes_cruise_name(self, tmp_path):
+        """Test that cruise name is properly sanitized for filesystem use."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Create a test YAML file with cruise name containing special characters
+        test_config = tmp_path / "test.yaml"
+        test_config.write_text('cruise_name: "My Special/Survey 2024"')
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir="test_output",
+            output=None
+        )
+        
+        # Should sanitize special characters
+        assert base_name == "My_Special-Survey_2024"
+        assert "/" not in base_name  # No slashes
+        assert " " not in base_name  # No spaces
+
+    def test_setup_output_paths_creates_output_directory(self, tmp_path):
+        """Test that output directory is created if it doesn't exist."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        test_config = tmp_path / "test.yaml"
+        test_config.write_text("cruise_name: 'Test'")
+        
+        new_output_dir = tmp_path / "new_output_dir"
+        assert not new_output_dir.exists()
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=test_config,
+            output_dir=str(new_output_dir),
+            output=None
+        )
+        
+        # Should create the output directory
+        assert output_dir.exists()
+        assert output_dir.is_dir()
+        assert output_dir.resolve() == new_output_dir.resolve()
+
+    def test_setup_output_paths_integration_with_real_fixture(self):
+        """Test with real fixture file to ensure it works with actual YAML."""
+        from cruiseplan.utils.config import setup_output_paths
+        
+        # Use actual fixture file
+        fixture_file = Path("tests/fixtures/tc1_single.yaml")
+        if not fixture_file.exists():
+            pytest.skip("Fixture file not found - test environment issue")
+        
+        output_dir, base_name = setup_output_paths(
+            config_file=fixture_file,
+            output_dir="test_output",
+            output=None
+        )
+        
+        # Should extract cruise name from actual fixture
+        # (The exact name depends on fixture content, but should not be filename)
+        assert base_name != "tc1_single"  # Should not be filename
+        assert isinstance(base_name, str)
+        assert len(base_name) > 0
