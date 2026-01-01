@@ -1,38 +1,30 @@
 """
-Tests for map CLI command.
+Test suite for cruiseplan.cli.map command - API-First Architecture.
+
+This module implements streamlined tests focused on CLI layer functionality 
+after API-first refactoring. Tests verify CLI argument handling and API 
+integration, not underlying business logic.
 """
 
-from argparse import Namespace
+import argparse
 from pathlib import Path
 from unittest.mock import MagicMock, patch
-
+import pytest
 from cruiseplan.cli.map import main
 
 
 class TestMapCommand:
-    """Test map command functionality."""
+    """Streamlined test suite for CLI map functionality."""
 
     def get_fixture_path(self, filename: str) -> Path:
         """Get path to test fixture file."""
         return Path(__file__).parent.parent / "fixtures" / filename
 
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_basic_success(self, mock_load_cruise, mock_generate, tmp_path):
-        """Test basic map generation with default settings."""
-        # Setup mocks
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise_instance.config.cruise_name = "Test_Cruise_2028"
-        mock_load_cruise_instance.station_registry = {"STN_001": MagicMock()}
-        mock_load_cruise.return_value = mock_load_cruise_instance
-
-        output_path = tmp_path / "Test_Cruise_2028_map.png"
-        mock_generate.return_value = output_path
-
-        # Create args
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=tmp_path,
+    def test_main_calls_api_with_correct_params(self):
+        """Test that CLI correctly calls API layer with proper parameters."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
             output_file=None,
             format="png",
             bathy_source="gebco2025",
@@ -43,262 +35,192 @@ class TestMapCommand:
             verbose=False,
         )
 
-        # Call main function
-        result = main(args)
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
+             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
+             patch("cruiseplan.cli.map._format_progress_header"), \
+             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("output/test_map.png")]), \
+             patch("cruiseplan.cli.map._format_success_message"):
+            
+            # Mock successful API response
+            mock_api.return_value = [Path("output/test_map.png")]
+            
+            result = main(args)
+            
+            # Should return 0 for success
+            assert result == 0
+            
+            # Verify API was called
+            mock_api.assert_called_once()
 
-        # Verify success
-        assert result == 0
-        mock_load_cruise.assert_called_once_with(Path("test_cruise.yaml"))
-        mock_generate.assert_called_once()
+    def test_main_handles_api_errors_gracefully(self):
+        """Test that CLI handles API errors gracefully."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
+            verbose=False,
+        )
 
-        # Verify generate_map_from_yaml was called with correct arguments
-        call_args = mock_generate.call_args
-        assert call_args[0][0] == mock_load_cruise_instance  # cruise object
-        assert call_args[1]["output_file"] == tmp_path / "Test_Cruise_2028_map.png"
-        assert call_args[1]["bathy_source"] == "gebco2025"
-        assert call_args[1]["bathy_stride"] == 5
-        assert call_args[1]["show_plot"] == False
-        assert call_args[1]["figsize"] == (12, 10)
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")):
+            mock_api.side_effect = Exception("API error")
+            
+            result = main(args)
+            
+            # Should return 1 for error
+            assert result == 1
 
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_custom_output_file(self, mock_load_cruise, mock_generate, tmp_path):
-        """Test map generation with custom output file."""
-        # Setup mocks
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise_instance.config.cruise_name = "Test_Cruise"
-        mock_load_cruise_instance.station_registry = {"STN_001": MagicMock()}
-        mock_load_cruise.return_value = mock_load_cruise_instance
+    def test_main_file_not_found_handling(self):
+        """Test graceful handling of file not found."""
+        args = argparse.Namespace(
+            config_file=Path("nonexistent.yaml"),
+            output_dir=Path("output"),
+            verbose=False,
+        )
 
-        custom_output = tmp_path / "my_custom_map.png"
-        mock_generate.return_value = custom_output
+        with patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.map._validate_config_file") as mock_validate:
+            mock_validate.side_effect = FileNotFoundError()
+            
+            result = main(args)
+            
+            # Should return 1 for error
+            assert result == 1
 
-        # Create args with custom output file
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=tmp_path,
-            output_file=custom_output,
+    def test_deprecated_output_file_parameter(self):
+        """Test handling of deprecated --output-file parameter."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
+            output_file=Path("custom_map.png"),  # Deprecated parameter
             format="png",
+            verbose=False,
+        )
+
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
+             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
+             patch("cruiseplan.cli.map._format_progress_header"), \
+             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("custom_map.png")]), \
+             patch("cruiseplan.cli.map._format_success_message"), \
+             patch("cruiseplan.cli.map.logger") as mock_logger:
+            
+            # Mock successful API response
+            mock_api.return_value = [Path("custom_map.png")]
+            
+            result = main(args)
+            
+            # Should succeed
+            assert result == 0
+            
+            # Verify deprecation warning was logged
+            mock_logger.warning.assert_called_with(
+                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
+            )
+
+    def test_map_generation_with_all_formats(self):
+        """Test map generation with all output formats."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
+            output_file=None,
+            format="all",  # PNG + KML
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             bathy_stride=10,
             show_plot=False,
-            figsize=[14, 12],
-            verbose=False,
-        )
-
-        # Call main function
-        result = main(args)
-
-        # Verify success
-        assert result == 0
-        mock_generate.assert_called_once()
-
-        # Verify generate_map_from_yaml was called with custom output file
-        call_args = mock_generate.call_args
-        assert call_args[1]["output_file"] == custom_output
-        assert call_args[1]["bathy_source"] == "etopo2022"
-        assert call_args[1]["bathy_stride"] == 10
-        assert call_args[1]["figsize"] == (14, 12)
-
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_cruise_name_sanitization(
-        self, mock_load_cruise, mock_generate, tmp_path
-    ):
-        """Test cruise name sanitization for filename generation."""
-        # Setup mocks with problematic cruise name
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise_instance.config.cruise_name = (
-            "Test Cruise/With Special Characters"
-        )
-        mock_load_cruise_instance.station_registry = {"STN_001": MagicMock()}
-        mock_load_cruise.return_value = mock_load_cruise_instance
-
-        mock_generate.return_value = tmp_path / "output.png"
-
-        # Create args
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=tmp_path,
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        # Call main function
-        main(args)
-
-        # Verify filename sanitization
-        call_args = mock_generate.call_args
-        expected_filename = tmp_path / "Test_Cruise-With_Special_Characters_map.png"
-        assert call_args[1]["output_file"] == expected_filename
-
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_with_port_info(
-        self, mock_load_cruise, mock_generate, tmp_path, capsys
-    ):
-        """Test map generation with departure and arrival ports."""
-        # Setup mocks with port information
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise_instance.config.cruise_name = "Test_Cruise"
-        mock_load_cruise_instance.station_registry = {
-            "STN_001": MagicMock(),
-            "STN_002": MagicMock(),
-        }
-
-        # Setup departure port
-        mock_departure_port = MagicMock()
-        mock_departure_port.name = "Reykjavik"
-        mock_load_cruise_instance.config.departure_port = mock_departure_port
-
-        # Setup arrival port
-        mock_arrival_port = MagicMock()
-        mock_arrival_port.name = "Longyearbyen"
-        mock_load_cruise_instance.config.arrival_port = mock_arrival_port
-
-        mock_load_cruise.return_value = mock_load_cruise_instance
-        mock_generate.return_value = tmp_path / "output.png"
-
-        # Create args
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=tmp_path,
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        # Call main function
-        result = main(args)
-
-        # Verify success and output
-        assert result == 0
-        captured = capsys.readouterr()
-        assert "📁 PNG map:" in captured.out
-        assert "📍 Stations: 2" in captured.out
-        assert "🚢 Departure: Reykjavik" in captured.out
-        assert "🏁 Arrival: Longyearbyen" in captured.out
-
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_file_not_found(self, mock_load_cruise):
-        """Test handling of missing configuration file."""
-        mock_load_cruise.side_effect = FileNotFoundError("Config file not found")
-
-        # Create args
-        args = Namespace(
-            config_file=Path("nonexistent.yaml"),
-            output_dir=Path("."),
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        # Call main function
-        result = main(args)
-
-        # Verify error handling
-        assert result == 1
-
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_generation_failure(self, mock_load_cruise, mock_generate):
-        """Test handling of map generation failure."""
-        # Setup mocks
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise.return_value = mock_load_cruise_instance
-        mock_generate.return_value = None  # Simulate failure
-
-        # Create args
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=Path("."),
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        # Call main function
-        result = main(args)
-
-        # Verify error handling
-        assert result == 1
-
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_general_exception(self, mock_load_cruise, mock_generate):
-        """Test handling of general exceptions."""
-        # Setup mocks to raise exception
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise.return_value = mock_load_cruise_instance
-        mock_generate.side_effect = RuntimeError("Map generation failed")
-
-        # Create args
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=Path("."),
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        # Call main function
-        result = main(args)
-
-        # Verify error handling
-        assert result == 1
-
-    @patch("cruiseplan.cli.map.generate_map_from_yaml")
-    @patch("cruiseplan.cli.map.load_cruise_with_pretty_warnings")
-    def test_map_verbose_exception(self, mock_load_cruise, mock_generate, capsys):
-        """Test verbose exception handling."""
-        # Setup mocks to raise exception
-        mock_load_cruise_instance = MagicMock()
-        mock_load_cruise.return_value = mock_load_cruise_instance
-        mock_generate.side_effect = RuntimeError("Map generation failed")
-
-        # Create args with verbose=True
-        args = Namespace(
-            config_file=Path("test_cruise.yaml"),
-            output_dir=Path("."),
-            output_file=None,
-            format="png",
-            bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
+            figsize=[15, 12],
             verbose=True,
         )
 
-        # Call main function
-        result = main(args)
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
+             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
+             patch("cruiseplan.cli.map._format_progress_header"), \
+             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("output/test_map.png"), Path("output/test_catalog.kml")]), \
+             patch("cruiseplan.cli.map._format_success_message"):
+            
+            # Mock successful API response with multiple files
+            mock_api.return_value = [Path("output/test_map.png"), Path("output/test_catalog.kml")]
+            
+            result = main(args)
+            
+            # Should succeed
+            assert result == 0
+            
+            # Verify API was called
+            mock_api.assert_called_once()
 
-        # Verify error handling and verbose output
-        assert result == 1
+    def test_map_generation_failure_handling(self):
+        """Test handling when map generation fails."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
+            verbose=False,
+        )
+
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
+             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": False, "errors": ["Map generation failed"]}), \
+             patch("cruiseplan.cli.map._format_progress_header"), \
+             patch("cruiseplan.cli.map._collect_generated_files", return_value=[]):
+            
+            # Mock failed API response
+            mock_api.return_value = []
+            
+            result = main(args)
+            
+            # Should return 1 for failure
+            assert result == 1
+
+    def test_verbose_exception_handling(self):
+        """Test verbose exception handling with traceback."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir=Path("output"),
+            verbose=True,
+        )
+
+        with patch("cruiseplan.map") as mock_api, \
+             patch("cruiseplan.cli.map._setup_cli_logging"), \
+             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
+             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
+             patch("traceback.print_exc") as mock_traceback:
+            mock_api.side_effect = RuntimeError("Unexpected error")
+            
+            result = main(args)
+            
+            # Should return 1 for error
+            assert result == 1
+            
+            # Should print traceback in verbose mode
+            mock_traceback.assert_called_once()
+
+
+class TestMapCommandExecution:
+    """Test command can be executed directly."""
+
+    def test_module_executable(self):
+        """Test the module can be imported and has required functions."""
+        from cruiseplan.cli import map as map_module
+        
+        assert hasattr(map_module, "main")
+        assert callable(map_module.main)

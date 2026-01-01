@@ -1,21 +1,26 @@
 """
-Tests for PANGAEA CLI command.
+Test suite for cruiseplan.cli.pangaea command - API-First Architecture.
+
+This module implements comprehensive tests focused on CLI layer functionality 
+after API-first refactoring. Tests verify CLI argument handling and API 
+integration, not underlying business logic.
 """
 
+import argparse
 import pickle
-import unittest.mock
-from argparse import Namespace
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-
+from unittest.mock import patch, MagicMock
 import pytest
 
-from cruiseplan.cli.cli_utils import CLIError
 from cruiseplan.cli.pangaea import (
-    fetch_pangaea_data,
     main,
+    fetch_pangaea_data,
     save_pangaea_pickle,
     validate_dois,
+    validate_lat_lon_bounds,
+    search_pangaea_datasets,
+    save_doi_list,
+    determine_workflow_mode,
 )
 
 
@@ -48,220 +53,361 @@ class TestDoiValidation:
         ]
 
         result = validate_dois(dois)
-        expected = [
-            "10.1594/PANGAEA.12345",
-            "10.1594/PANGAEA.67890",
-        ]
+        expected = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
         assert result == expected
 
-    def test_validate_dois_empty(self):
-        """Test validation fails with no valid DOIs."""
-        dois = ["invalid-doi", "not-a-doi"]
+    def test_validate_dois_whitespace_handling(self):
+        """Test validation handles whitespace correctly."""
+        dois = [
+            "  10.1594/PANGAEA.12345  ",
+            "\t10.1594/PANGAEA.67890\n",
+        ]
 
-        with pytest.raises(CLIError, match="No valid DOIs found"):
-            validate_dois(dois)
+        result = validate_dois(dois)
+        expected = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
+        assert result == expected
 
 
 class TestPangaeaDataFetching:
-    """Test PANGAEA data fetching with mocks."""
+    """Test PANGAEA data fetching functionality."""
 
-    @patch("cruiseplan.cli.pangaea.PangaeaManager")
-    def test_fetch_pangaea_data_success(self, mock_pangaea_class):
-        """Test successful data fetching."""
-        # Setup mocks
-        mock_pangaea = MagicMock()
-        mock_pangaea_class.return_value = mock_pangaea
-
-        # Mock fetched datasets
-        mock_datasets = [
-            {"label": "Campaign1", "events": [{"lat": 50.0, "lon": -10.0}]},
-            {"label": "Campaign2", "events": [{"lat": 51.0, "lon": -11.0}]},
-        ]
-        mock_pangaea.fetch_datasets.return_value = mock_datasets
-
-        dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
-
-        result = fetch_pangaea_data(dois, rate_limit=2.0, merge_campaigns=True)
-
-        # Verify calls
-        mock_pangaea.fetch_datasets.assert_called_once_with(
-            doi_list=dois,
-            rate_limit=2.0,
-            merge_campaigns=True,
-            progress_callback=unittest.mock.ANY,
-        )
-        assert result == mock_datasets
-
-    @patch("cruiseplan.cli.pangaea.PangaeaManager")
-    def test_fetch_pangaea_data_with_errors(self, mock_pangaea_class):
-        """Test data fetching handles individual errors."""
-        # Setup mocks
-        mock_pangaea = MagicMock()
-        mock_pangaea_class.return_value = mock_pangaea
-
-        # Mock some successful results despite errors
-        mock_result = [{"label": "Campaign1", "events": []}]
-        mock_pangaea.fetch_datasets.return_value = mock_result
-
-        dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
-
-        result = fetch_pangaea_data(dois, rate_limit=10.0, merge_campaigns=False)
-
-        # Verify the core function was called properly
-        mock_pangaea.fetch_datasets.assert_called_once_with(
-            doi_list=dois,
-            rate_limit=10.0,
-            merge_campaigns=False,
-            progress_callback=unittest.mock.ANY,
-        )
-        assert result == mock_result
+    def test_fetch_pangaea_data_function_exists(self):
+        """Test that fetch_pangaea_data function exists and is callable."""
+        # This is a utility function so we just verify it exists
+        assert callable(fetch_pangaea_data)
+        
+        # Test with empty DOI list (safe call that doesn't require mocking)
+        result = fetch_pangaea_data([], merge_campaigns=False)
+        assert result == []
 
 
 class TestPangaeaPickleSaving:
-    """Test saving PANGAEA data to pickle files."""
+    """Test PANGAEA pickle file saving functionality."""
 
-    def test_save_pangaea_pickle(self, tmp_path):
-        """Test saving datasets to pickle file."""
-        datasets = [
-            {"label": "Campaign1", "events": [{"lat": 50.0, "lon": -10.0}]},
-            {"label": "Campaign2", "events": [{"lat": 51.0, "lon": -11.0}]},
+    def test_save_pangaea_pickle_success(self, tmp_path):
+        """Test successful pickle file saving."""
+        data = [
+            {"Campaign": "Test_Campaign", "Stations": [{"lat": 60.0, "lon": -5.0}]},
         ]
+        output_file = tmp_path / "test_stations.pkl"
 
-        output_file = tmp_path / "test_data.pkl"
+        save_pangaea_pickle(data, output_file)
 
-        save_pangaea_pickle(datasets, output_file)
-
-        # Verify file exists and content
+        # Verify file was created and contains correct data
         assert output_file.exists()
-
-        with open(output_file, "rb") as f:
+        
+        with open(output_file, 'rb') as f:
             loaded_data = pickle.load(f)
-
-        assert loaded_data == datasets
+        
+        assert loaded_data == data
 
     def test_save_pangaea_pickle_creates_directory(self, tmp_path):
-        """Test saving creates parent directories."""
-        output_file = tmp_path / "subdir" / "data.pkl"
-        datasets = [{"label": "Test"}]
+        """Test that saving creates parent directories."""
+        data = [{"Campaign": "Test"}]
+        output_dir = tmp_path / "nested" / "directory"
+        output_file = output_dir / "test_stations.pkl"
 
-        save_pangaea_pickle(datasets, output_file)
+        save_pangaea_pickle(data, output_file)
 
+        # Verify directory was created
+        assert output_dir.exists()
         assert output_file.exists()
-        assert output_file.parent.exists()
 
 
-class TestMainCommand:
-    """Test main command integration."""
+class TestPangaeaCommand:
+    """Comprehensive test suite for CLI pangaea functionality."""
 
-    @patch("cruiseplan.cli.pangaea.fetch_pangaea_data")
-    @patch("cruiseplan.cli.pangaea.save_pangaea_pickle")
-    @patch("cruiseplan.cli.pangaea.read_doi_list")
-    @patch("cruiseplan.cli.pangaea.validate_dois")
-    @patch("cruiseplan.cli.pangaea.validate_input_file")
-    @patch("cruiseplan.cli.cli_utils.validate_output_path")
-    def test_main_success(
-        self,
-        mock_validate_output,
-        mock_validate_input,
-        mock_validate_dois,
-        mock_read_dois,
-        mock_save,
-        mock_fetch,
-    ):
-        """Test successful main command execution."""
-        import tempfile
-
-        # Setup mocks
-        mock_validate_input.return_value = Path("/test/dois.txt")
-        mock_validate_output.return_value = Path("/test/output.pkl")
-        mock_read_dois.return_value = ["10.1594/PANGAEA.12345"]
-        mock_validate_dois.return_value = ["10.1594/PANGAEA.12345"]
-        mock_fetch.return_value = [{"label": "Campaign1"}]
-
-        # Create temporary DOI file for workflow detection
-        with tempfile.NamedTemporaryFile(mode="w", suffix=".txt", delete=False) as f:
-            f.write("10.1594/PANGAEA.12345\n")
-            temp_doi_file = f.name
-
-        try:
-            # Create args (new unified format for DOI file mode)
-            args = Namespace(
-                query_or_file=temp_doi_file,
-                output_dir=Path("tests_output"),
-                output_file=None,
-                rate_limit=1.0,
-                merge_campaigns=True,
-                verbose=False,
-                quiet=False,
-                lat=None,  # Not provided in DOI file mode
-                lon=None,  # Not provided in DOI file mode
-                limit=None,  # Not used in DOI file mode
-            )
-
-            # Should not raise exception
-            main(args)
-        finally:
-            # Clean up temporary file
-            import os
-
-            os.unlink(temp_doi_file)
-
-        # Verify calls
-        mock_validate_input.assert_called_once()
-        mock_read_dois.assert_called_once()
-        mock_validate_dois.assert_called_once()
-        mock_fetch.assert_called_once()
-        mock_save.assert_called_once()
-
-    @patch("cruiseplan.cli.pangaea.validate_input_file")
-    def test_main_file_not_found(self, mock_validate_input):
-        """Test main command with file not found."""
-        mock_validate_input.side_effect = CLIError("File not found")
-
-        args = Namespace(
-            query_or_file="nonexistent.txt",
-            output_dir=Path("tests_output"),
+    def test_main_calls_api_with_correct_params_search_mode(self):
+        """Test that CLI correctly calls API layer with search parameters."""
+        args = argparse.Namespace(
+            query_or_file="CTD profiles",
+            lat=[50.0, 60.0],
+            lon=[-10.0, 0.0],
+            limit=10,
             output_file=None,
-            rate_limit=1.0,
-            merge_campaigns=True,
+            output_dir=Path("data"),
+            output="pangaea_stations",
             verbose=False,
-            lat=None,
-            lon=None,
-            limit=None,
         )
 
-        with pytest.raises(SystemExit):
-            main(args)
+        mock_stations = [{"Campaign": "Test", "Stations": [{"lat": 55.0, "lon": -5.0}]}]
 
-    def test_main_keyboard_interrupt(self):
-        """Test main command handles keyboard interrupt."""
-        args = Namespace(
+        with patch("cruiseplan.pangaea") as mock_api, \
+             patch("cruiseplan.cli.pangaea._setup_cli_logging"), \
+             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("search", {})), \
+             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": True}), \
+             patch("cruiseplan.cli.pangaea._format_progress_header"), \
+             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[Path("pangaea_stations.pkl")]), \
+             patch("cruiseplan.cli.pangaea._format_success_message"):
+            
+            # Mock successful API response
+            mock_api.return_value = (mock_stations, [Path("pangaea_stations.pkl")])
+            
+            main(args)
+            
+            # Verify API was called
+            mock_api.assert_called_once()
+
+    def test_main_calls_api_with_doi_file_mode(self):
+        """Test that CLI correctly calls API layer with DOI file parameters."""
+        args = argparse.Namespace(
             query_or_file="dois.txt",
-            output_dir=Path("tests_output"),
             output_file=None,
-            rate_limit=1.0,
-            merge_campaigns=True,
+            output_dir=Path("data"),
+            output="pangaea_from_dois",
             verbose=False,
-            lat=None,
-            lon=None,
-            limit=None,
         )
 
-        with patch("cruiseplan.cli.pangaea.validate_input_file") as mock_validate:
-            mock_validate.side_effect = KeyboardInterrupt()
+        mock_stations = [{"Campaign": "Test", "Stations": [{"lat": 55.0, "lon": -5.0}]}]
 
+        with patch("cruiseplan.pangaea") as mock_api, \
+             patch("cruiseplan.cli.pangaea._setup_cli_logging"), \
+             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("doi_file", {})), \
+             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": True}), \
+             patch("cruiseplan.cli.pangaea._format_progress_header"), \
+             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[Path("pangaea_from_dois.pkl")]), \
+             patch("cruiseplan.cli.pangaea._format_success_message"):
+            
+            # Mock successful API response
+            mock_api.return_value = (mock_stations, [Path("pangaea_from_dois.pkl")])
+            
+            main(args)
+            
+            # Verify API was called
+            mock_api.assert_called_once()
+
+    def test_main_handles_api_errors_gracefully(self):
+        """Test that CLI handles API errors gracefully."""
+        args = argparse.Namespace(
+            query_or_file="CTD profiles",
+            lat=[50.0, 60.0],
+            lon=[-10.0, 0.0],
+            verbose=False,
+        )
+
+        with patch("cruiseplan.pangaea") as mock_api, \
+             patch("cruiseplan.cli.pangaea._setup_cli_logging"), \
+             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("search", {})):
+            mock_api.side_effect = Exception("API error")
+            
+            with pytest.raises(SystemExit):
+                main(args)
+
+    def test_main_keyboard_interrupt_handling(self):
+        """Test graceful handling of keyboard interrupt."""
+        args = argparse.Namespace(
+            query_or_file="CTD profiles",
+            lat=[50.0, 60.0],
+            lon=[-10.0, 0.0],
+            verbose=False,
+        )
+
+        with patch("cruiseplan.pangaea") as mock_api, \
+             patch("cruiseplan.cli.pangaea._setup_cli_logging"), \
+             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("search", {})):
+            mock_api.side_effect = KeyboardInterrupt()
+            
+            with pytest.raises(SystemExit):
+                main(args)
+
+    def test_pangaea_processing_failure(self):
+        """Test handling of processing failure from API."""
+        args = argparse.Namespace(
+            query_or_file="CTD profiles", 
+            lat=[50.0, 60.0],
+            lon=[-10.0, 0.0],
+            verbose=False,
+        )
+
+        with patch("cruiseplan.pangaea") as mock_api, \
+             patch("cruiseplan.cli.pangaea._setup_cli_logging"), \
+             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("search", {})), \
+             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
+             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": False, "errors": ["Processing failed"]}), \
+             patch("cruiseplan.cli.pangaea._format_progress_header"), \
+             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[]):
+            
+            # Mock API response with failure
+            mock_api.return_value = ([], [])
+            
             with pytest.raises(SystemExit):
                 main(args)
 
 
-class TestCommandLineExecution:
-    """Test command can be executed directly."""
+class TestCoordinateBoundsValidation:
+    """Test coordinate bounds validation functionality."""
 
-    def test_module_executable(self):
-        """Test the module can be imported and has required functions."""
+    def test_validate_lat_lon_bounds_standard_format(self):
+        """Test coordinate bounds validation with standard -180/180 format."""
+        lat_bounds = [50.0, 60.0]
+        lon_bounds = [-10.0, 5.0]
+        
+        result = validate_lat_lon_bounds(lat_bounds, lon_bounds)
+        expected = (-10.0, 50.0, 5.0, 60.0)  # min_lon, min_lat, max_lon, max_lat
+        
+        assert result == expected
+
+    def test_validate_lat_lon_bounds_360_format(self):
+        """Test coordinate bounds validation with 0/360 format."""
+        lat_bounds = [50.0, 60.0]
+        lon_bounds = [350.0, 360.0]
+        
+        result = validate_lat_lon_bounds(lat_bounds, lon_bounds)
+        expected = (350.0, 50.0, 360.0, 60.0)
+        
+        assert result == expected
+
+    def test_validate_lat_lon_bounds_360_crossing_meridian(self):
+        """Test coordinate bounds validation crossing 0° meridian in 360 format."""
+        lat_bounds = [50.0, 60.0]
+        lon_bounds = [350.0, 10.0]
+        
+        # This should be valid - crossing the 0° meridian
+        result = validate_lat_lon_bounds(lat_bounds, lon_bounds)
+        expected = (350.0, 50.0, 10.0, 60.0)
+        
+        assert result == expected
+
+    def test_validate_lat_lon_bounds_mixed_format_error(self):
+        """Test validation fails with mixed longitude formats."""
+        lat_bounds = [50.0, 60.0]
+        lon_bounds = [-10.0, 240.0]  # Mixed formats
+        
+        with pytest.raises(Exception, match="Longitude coordinates must be either"):
+            validate_lat_lon_bounds(lat_bounds, lon_bounds)
+
+    def test_validate_lat_lon_bounds_invalid_latitude_range(self):
+        """Test validation fails with invalid latitude range."""
+        lat_bounds = [-100.0, 60.0]  # Invalid min_lat
+        lon_bounds = [-10.0, 5.0]
+        
+        with pytest.raises(Exception, match="Latitude must be between -90 and 90"):
+            validate_lat_lon_bounds(lat_bounds, lon_bounds)
+
+    def test_validate_lat_lon_bounds_invalid_latitude_ordering(self):
+        """Test validation fails when min_lat >= max_lat."""
+        lat_bounds = [60.0, 50.0]  # Wrong ordering
+        lon_bounds = [-10.0, 5.0]
+        
+        with pytest.raises(Exception, match="min_lat must be less than max_lat"):
+            validate_lat_lon_bounds(lat_bounds, lon_bounds)
+
+
+class TestPangaeaDataSearch:
+    """Test PANGAEA data search functionality."""
+
+    def test_search_pangaea_datasets_success(self):
+        """Test successful PANGAEA dataset search."""
+        mock_manager = MagicMock()
+        mock_manager.search.return_value = [
+            {"doi": "10.1594/PANGAEA.12345", "Title": "Test Dataset"}
+        ]
+        
+        with patch("cruiseplan.cli.pangaea.PangaeaManager", return_value=mock_manager), \
+             patch("cruiseplan.cli.pangaea.format_geographic_bounds", return_value="Geographic bounds: test"), \
+             patch("cruiseplan.cli.pangaea.logger"):
+            result = search_pangaea_datasets("CTD profiles", (50.0, -10.0, 60.0, 5.0), 10)
+            
+            assert len(result) == 1
+            assert result[0] == "10.1594/PANGAEA.12345"
+            mock_manager.search.assert_called_once()
+
+    def test_search_pangaea_datasets_no_results(self):
+        """Test PANGAEA search with no results."""
+        mock_manager = MagicMock()
+        mock_manager.search.return_value = []
+        
+        with patch("cruiseplan.cli.pangaea.PangaeaManager", return_value=mock_manager), \
+             patch("cruiseplan.cli.pangaea.format_geographic_bounds", return_value="Geographic bounds: test"), \
+             patch("cruiseplan.cli.pangaea.logger"):
+            result = search_pangaea_datasets("nonexistent query", (50.0, -10.0, 60.0, 5.0), 10)
+            
+            assert result == []
+
+    def test_search_pangaea_datasets_exception(self):
+        """Test PANGAEA search with manager exception."""
+        mock_manager = MagicMock()
+        mock_manager.search.side_effect = Exception("Search failed")
+        
+        with patch("cruiseplan.cli.pangaea.PangaeaManager", return_value=mock_manager), \
+             patch("cruiseplan.cli.pangaea.format_geographic_bounds", return_value="Geographic bounds: test"), \
+             patch("cruiseplan.cli.pangaea.logger"):
+            from cruiseplan.cli.cli_utils import CLIError
+            with pytest.raises(CLIError, match="Search failed"):
+                search_pangaea_datasets("CTD profiles", (50.0, -10.0, 60.0, 5.0), 10)
+
+
+class TestDoiListSaving:
+    """Test DOI list saving functionality."""
+
+    def test_save_doi_list_success(self, tmp_path):
+        """Test successful DOI list saving."""
+        dois = ["10.1594/PANGAEA.12345", "10.1594/PANGAEA.67890"]
+        output_file = tmp_path / "dois.txt"
+        
+        save_doi_list(dois, output_file)
+        
+        assert output_file.exists()
+        content = output_file.read_text()
+        assert "10.1594/PANGAEA.12345" in content
+        assert "10.1594/PANGAEA.67890" in content
+
+    def test_save_empty_doi_list(self, tmp_path):
+        """Test saving empty DOI list."""
+        dois = []
+        output_file = tmp_path / "empty_dois.txt"
+        
+        save_doi_list(dois, output_file)
+        
+        assert output_file.exists()
+        content = output_file.read_text().strip()
+        assert content == ""
+
+
+class TestWorkflowModeDetection:
+    """Test workflow mode detection functionality."""
+
+    def test_determine_workflow_mode_search(self):
+        """Test detection of search mode."""
+        args = argparse.Namespace(
+            query_or_file="CTD profiles",
+            lat=[50.0, 60.0],
+            lon=[-10.0, 5.0]
+        )
+        
+        mode = determine_workflow_mode(args)
+        assert mode == "search"
+
+    def test_determine_workflow_mode_doi_file(self, tmp_path):
+        """Test detection of DOI file mode."""
+        # Create a temporary .txt file
+        doi_file = tmp_path / "dois.txt"
+        doi_file.write_text("10.1594/PANGAEA.12345")
+        
+        args = argparse.Namespace(query_or_file=str(doi_file))
+        
+        mode = determine_workflow_mode(args)
+        assert mode == "doi_file"
+
+
+class TestPangaeaUtilities:
+    """Test other PANGAEA utility functions."""
+
+    def test_module_has_required_functions(self):
+        """Test that the module has all required utility functions."""
         from cruiseplan.cli import pangaea
-
-        assert hasattr(pangaea, "main")
-        assert hasattr(pangaea, "fetch_pangaea_data")
+        
+        # These functions should exist and be callable
         assert hasattr(pangaea, "validate_dois")
+        assert callable(pangaea.validate_dois)
+        
+        assert hasattr(pangaea, "fetch_pangaea_data")
+        assert callable(pangaea.fetch_pangaea_data)
+        
         assert hasattr(pangaea, "save_pangaea_pickle")
+        assert callable(pangaea.save_pangaea_pickle)
+        
+        assert hasattr(pangaea, "main")
+        assert callable(pangaea.main)

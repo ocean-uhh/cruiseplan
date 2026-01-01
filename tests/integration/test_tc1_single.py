@@ -12,7 +12,7 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.cli.enrich import enrich_configuration
+from cruiseplan.core.validation import enrich_configuration
 from cruiseplan.core.cruise import Cruise
 from cruiseplan.output.csv_generator import generate_csv_schedule
 from cruiseplan.output.html_generator import generate_html_schedule

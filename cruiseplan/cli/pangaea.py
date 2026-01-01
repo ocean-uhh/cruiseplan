@@ -5,23 +5,33 @@ This module implements the 'cruiseplan pangaea' command that can either:
 1. Search PANGAEA datasets by query + geographic bounds, then download station data
 2. Process an existing DOI list file directly into station data
 
-Supports base filename output strategy for consistent file naming.
+Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling
 """
 
 import argparse
 import logging
-import re
 import sys
 from pathlib import Path
 from typing import List, Optional, Tuple
 
+import cruiseplan
+from cruiseplan.data.pangaea import PangaeaManager
 from cruiseplan.cli.cli_utils import (
     CLIError,
-    read_doi_list,
-    setup_logging,
-    validate_input_file,
+    _format_error_message,
+    _format_progress_header,
+    _format_success_message,
+    _setup_cli_logging,
+    _collect_generated_files,
 )
-from cruiseplan.data.pangaea import PangaeaManager
+from cruiseplan.init_utils import (
+    _convert_api_response_to_cli,
+    _resolve_cli_to_api_params,
+)
+from cruiseplan.utils.input_validation import _detect_pangaea_mode, _validate_coordinate_bounds
 from cruiseplan.utils.coordinates import format_geographic_bounds
 
 logger = logging.getLogger(__name__)
@@ -328,8 +338,95 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for unified PANGAEA command.
+    Main entry point for unified PANGAEA command using API-first architecture.
+    
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments
+    """
+    try:
+        # Setup logging using new utility
+        _setup_cli_logging(verbose=getattr(args, "verbose", False))
 
+        # Handle deprecated --output-file option
+        if hasattr(args, "output_file") and args.output_file:
+            logger.warning(
+                "⚠️  WARNING: '--output-file' is deprecated and will be removed in v0.3.0."
+            )
+            logger.warning("   Please use '--output' for base filename instead.\n")
+
+        # Detect mode and validate parameters using utility function
+        mode, processed_params = _detect_pangaea_mode(args)
+        
+        # Format progress header using new utility
+        _format_progress_header(
+            operation="PANGAEA Data Processing",
+            config_file=None,
+            mode=mode,
+            query=processed_params.get('query', ''),
+            lat_bounds=getattr(args, 'lat', None),
+            lon_bounds=getattr(args, 'lon', None)
+        )
+
+        # Convert CLI args to API parameters using bridge utility
+        api_params = _resolve_cli_to_api_params(args, "pangaea")
+        
+        # Call API function instead of complex processing logic
+        logger.info("Searching and processing PANGAEA data...")
+        stations_data, generated_files = cruiseplan.pangaea(**api_params)
+
+        # Convert API response to CLI format using bridge utility
+        api_response = (stations_data, generated_files)
+        cli_response = _convert_api_response_to_cli(api_response, "pangaea")
+
+        # Collect generated files using utility
+        all_generated_files = _collect_generated_files(
+            cli_response, 
+            base_patterns=["*_dois.txt", "*_stations.pkl"]
+        )
+
+        if cli_response.get("success", True) and stations_data:
+            # Format success message using new utility
+            _format_success_message("PANGAEA data processing", all_generated_files)
+            
+            # Show next steps
+            logger.info("🚀 Next steps:")
+            if generated_files:
+                stations_file = next((f for f in generated_files if str(f).endswith('_stations.pkl')), None)
+                if stations_file:
+                    logger.info(f"   1. Review stations: {stations_file}")
+                    logger.info(f"   2. Plan cruise: cruiseplan stations -p {stations_file}")
+        else:
+            errors = cli_response.get("errors", ["PANGAEA processing failed"])
+            for error in errors:
+                logger.error(f"❌ {error}")
+            sys.exit(1)
+
+    except CLIError as e:
+        _format_error_message("pangaea", e)
+        sys.exit(1)
+
+    except KeyboardInterrupt:
+        logger.info("\n\n⚠️ Operation cancelled by user.")
+        sys.exit(1)
+
+    except Exception as e:
+        _format_error_message(
+            "pangaea", 
+            e, 
+            ["Check query terms", "Verify coordinate bounds", "Check network connection"]
+        )
+        if getattr(args, "verbose", False):
+            import traceback
+            traceback.print_exc()
+        sys.exit(1)
+
+
+def _legacy_main(args: argparse.Namespace) -> None:
+    """
+    Legacy main function (kept for reference).
+    
     Parameters
     ----------
     args : argparse.Namespace
