@@ -228,105 +228,123 @@ def generate_png_format(
 def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
     """
     Map CLI arguments to API function parameters.
-    
+
     Internal utility to convert CLI namespace arguments to API function parameters.
-    
+
     Parameters
     ----------
     args : Namespace
         Parsed command line arguments
     command : str
         Command name for parameter mapping
-        
+
     Returns
     -------
     Dict[str, Any]
         Dictionary of API parameters
     """
     from argparse import Namespace
-    
+
     if not isinstance(args, Namespace):
         return {}
-    
+
     # Common parameter mappings
     param_map = {
-        'config_file': getattr(args, 'config_file', None),
-        'verbose': getattr(args, 'verbose', False),
+        "config_file": getattr(args, "config_file", None),
+        "verbose": getattr(args, "verbose", False),
     }
-    
+
     # Commands that need output parameters
-    if command in ['enrich', 'process', 'schedule', 'map', 'pangaea']:
-        param_map.update({
-            'output_dir': getattr(args, 'output_dir', 'data'),
-            'output': getattr(args, 'output', None),
-        })
-    
+    if command in ["enrich", "process", "schedule", "map", "pangaea"]:
+        param_map.update(
+            {
+                "output_dir": getattr(args, "output_dir", "data"),
+                "output": getattr(args, "output", None),
+            }
+        )
+
     # Command-specific mappings
-    if command in ['validate', 'enrich', 'process']:
-        param_map.update({
-            'bathy_source': getattr(args, 'bathy_source', 'etopo2022'),
-            'bathy_dir': getattr(args, 'bathy_dir', 'data'),
-        })
-    
-    if command in ['enrich', 'process']:
-        param_map.update({
-            'add_depths': getattr(args, 'add_depths', True),
-            'add_coords': getattr(args, 'add_coords', True),
-            'expand_sections': getattr(args, 'expand_sections', True),
-            'expand_ports': getattr(args, 'expand_ports', True),
-        })
-    
-    if command in ['validate']:
-        param_map.update({
-            'check_depths': getattr(args, 'check_depths', True),
-            'tolerance': getattr(args, 'tolerance', 10.0),
-            'strict': getattr(args, 'strict', False),
-            'warnings_only': getattr(args, 'warnings_only', False),
-        })
-    
-    if command == 'schedule':
-        param_map.update({
-            'format': getattr(args, 'format', 'all'),
-            'leg': getattr(args, 'leg', None),
-            'derive_netcdf': getattr(args, 'derive_netcdf', False),
-            'bathy_stride': getattr(args, 'bathy_stride', 10),
-            'figsize': getattr(args, 'figsize', [12, 8]),
-        })
-    
-    if command == 'process':
-        param_map.update({
-            'format': getattr(args, 'format', 'all'),
-            'bathy_stride': getattr(args, 'bathy_stride', 10),
-            'figsize': getattr(args, 'figsize', [12, 8]),
-            'run_validation': getattr(args, 'run_validation', True),
-            'run_map_generation': getattr(args, 'run_map_generation', True),
-            'depth_check': getattr(args, 'validate_depths', True),
-            'tolerance': getattr(args, 'tolerance', 10.0),
-        })
-    
-    if command == 'map':
-        param_map.update({
-            'bathy_stride': getattr(args, 'bathy_stride', 5),
-            'figsize': getattr(args, 'figsize', [12, 8]),
-            'show_plot': getattr(args, 'show_plot', False),
-        })
-    
-    if command == 'bathymetry':
-        param_map.update({
-            'bathy_source': getattr(args, 'bathy_source', 'etopo2022'),
-            'citation': getattr(args, 'citation', False),
-        })
-    
-    if command == 'pangaea':
-        param_map.update({
-            'query_terms': getattr(args, 'query_or_file', ''),
-            'lat_bounds': getattr(args, 'lat', None),
-            'lon_bounds': getattr(args, 'lon', None),
-            'max_results': getattr(args, 'limit', 100),
-            'rate_limit': getattr(args, 'rate_limit', 1.0),
-            'merge_campaigns': getattr(args, 'merge_campaigns', True),
-        })
-    
+    if command in ["validate", "enrich", "process"]:
+        param_map.update(
+            {
+                "bathy_source": getattr(args, "bathy_source", "etopo2022"),
+                "bathy_dir": getattr(args, "bathy_dir", "data"),
+            }
+        )
+
+    if command in ["enrich", "process"]:
+        param_map.update(
+            {
+                "add_depths": getattr(args, "add_depths", True),
+                "add_coords": getattr(args, "add_coords", True),
+                "expand_sections": getattr(args, "expand_sections", True),
+                "expand_ports": getattr(args, "expand_ports", True),
+            }
+        )
+
+    if command in ["validate"]:
+        param_map.update(
+            {
+                "check_depths": getattr(args, "check_depths", True),
+                "tolerance": getattr(args, "tolerance", 10.0),
+                "strict": getattr(args, "strict", False),
+                "warnings_only": getattr(args, "warnings_only", False),
+            }
+        )
+
+    if command == "schedule":
+        param_map.update(
+            {
+                "format": getattr(args, "format", "all"),
+                "leg": getattr(args, "leg", None),
+                "derive_netcdf": getattr(args, "derive_netcdf", False),
+                "bathy_stride": getattr(args, "bathy_stride", 10),
+                "figsize": getattr(args, "figsize", [12, 8]),
+            }
+        )
+
+    if command == "process":
+        param_map.update(
+            {
+                "format": getattr(args, "format", "all"),
+                "bathy_stride": getattr(args, "bathy_stride", 10),
+                "figsize": getattr(args, "figsize", [12, 8]),
+                "run_validation": getattr(args, "run_validation", True),
+                "run_map_generation": getattr(args, "run_map_generation", True),
+                "depth_check": getattr(args, "validate_depths", True),
+                "tolerance": getattr(args, "tolerance", 10.0),
+            }
+        )
+
+    if command == "map":
+        param_map.update(
+            {
+                "bathy_stride": getattr(args, "bathy_stride", 5),
+                "figsize": getattr(args, "figsize", [12, 8]),
+                "show_plot": getattr(args, "show_plot", False),
+            }
+        )
+
+    if command == "bathymetry":
+        param_map.update(
+            {
+                "bathy_source": getattr(args, "bathy_source", "etopo2022"),
+                "citation": getattr(args, "citation", False),
+            }
+        )
+
+    if command == "pangaea":
+        param_map.update(
+            {
+                "query_terms": getattr(args, "query_or_file", ""),
+                "lat_bounds": getattr(args, "lat", None),
+                "lon_bounds": getattr(args, "lon", None),
+                "max_results": getattr(args, "limit", 100),
+                "rate_limit": getattr(args, "rate_limit", 1.0),
+                "merge_campaigns": getattr(args, "merge_campaigns", True),
+            }
+        )
+
     # Remove None values
     return {k: v for k, v in param_map.items() if v is not None}
 
@@ -334,109 +352,103 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
 def _convert_api_response_to_cli(response: Any, command: str) -> dict:
     """
     Convert API response to CLI-friendly format.
-    
+
     Internal utility to standardize API responses for CLI display.
-    
+
     Parameters
     ----------
     response : Any
         API response (various formats)
     command : str
         Command name for response formatting
-        
+
     Returns
     -------
     Dict[str, Any]
         Standardized response format with 'success', 'data', 'files', etc.
     """
-    result = {
-        'success': True,
-        'data': None,
-        'files': [],
-        'errors': [],
-        'warnings': []
-    }
-    
+    result = {"success": True, "data": None, "files": [], "errors": [], "warnings": []}
+
     try:
         if isinstance(response, bool):
             # Simple boolean response (validate command)
-            result['success'] = response
-            
+            result["success"] = response
+
         elif isinstance(response, (str, Path)):
             # Single file path response (bathymetry, enrich commands)
-            result['files'] = [Path(response)]
-            
+            result["files"] = [Path(response)]
+
         elif isinstance(response, list):
             # List of file paths
-            result['files'] = [Path(f) for f in response if f is not None]
-            
+            result["files"] = [Path(f) for f in response if f is not None]
+
         elif isinstance(response, tuple) and len(response) >= 2:
             # Tuple response (timeline, files) or (data, files)
-            result['data'] = response[0]
+            result["data"] = response[0]
             if response[1] is not None:
                 if isinstance(response[1], list):
-                    result['files'] = [Path(f) for f in response[1] if f is not None]
+                    result["files"] = [Path(f) for f in response[1] if f is not None]
                 else:
-                    result['files'] = [Path(response[1])]
-            
+                    result["files"] = [Path(response[1])]
+
         else:
             # Other response types
-            result['data'] = response
-            
+            result["data"] = response
+
     except Exception as e:
-        result['success'] = False
-        result['errors'] = [str(e)]
-    
+        result["success"] = False
+        result["errors"] = [str(e)]
+
     return result
 
 
 def _aggregate_generated_files(*file_lists: List[Path]) -> List[Path]:
     """
     Combine and deduplicate file lists from multiple operations.
-    
+
     Internal utility to handle file aggregation across multiple API calls.
-    
+
     Parameters
     ----------
     *file_lists : List[Path]
         Variable number of file lists to combine
-        
+
     Returns
     -------
     List[Path]
         Combined and deduplicated file list
     """
     all_files = []
-    
+
     for file_list in file_lists:
         if isinstance(file_list, list):
             all_files.extend([Path(f) for f in file_list if f is not None])
         elif file_list is not None:
             all_files.append(Path(file_list))
-    
+
     # Deduplicate while preserving order
     seen = set()
     unique_files = []
-    
+
     for file_path in all_files:
         if file_path not in seen:
             seen.add(file_path)
             unique_files.append(file_path)
-    
+
     return unique_files
 
 
 def _extract_api_errors(response: Any) -> Tuple[bool, List[str], List[str]]:
     """
     Extract success status, errors, and warnings from API response.
-    
+
     Internal utility to parse API responses for error reporting.
-    
+
     Parameters
     ----------
     response : Any
         API response that may contain error information
-        
+
     Returns
     -------
     Tuple[bool, List[str], List[str]]
@@ -445,18 +457,18 @@ def _extract_api_errors(response: Any) -> Tuple[bool, List[str], List[str]]:
     success = True
     errors = []
     warnings = []
-    
+
     if isinstance(response, dict):
-        success = response.get('success', True)
-        errors = response.get('errors', [])
-        warnings = response.get('warnings', [])
-        
+        success = response.get("success", True)
+        errors = response.get("errors", [])
+        warnings = response.get("warnings", [])
+
     elif isinstance(response, Exception):
         success = False
         errors = [str(response)]
-        
+
     elif response is False:
         success = False
-        errors = ['Operation failed']
-    
+        errors = ["Operation failed"]
+
     return success, errors, warnings

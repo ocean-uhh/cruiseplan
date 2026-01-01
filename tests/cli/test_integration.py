@@ -6,11 +6,10 @@ the public API layer, focusing on integration behavior rather than
 implementation details.
 """
 
-import pickle
-from pathlib import Path
-from unittest.mock import patch
-import pytest
 from argparse import Namespace
+from unittest.mock import patch
+
+import pytest
 
 
 class TestPangaeaIntegration:
@@ -59,11 +58,24 @@ class TestPangaeaIntegration:
         )
 
         # Mock the API layer instead of implementation details
-        with patch("cruiseplan.pangaea", return_value=(mock_stations_data, [output_file])), \
-             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("doi_file", {"doi_file": doi_file})), \
-             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[output_file]):
+        with (
+            patch(
+                "cruiseplan.pangaea", return_value=(mock_stations_data, [output_file])
+            ),
+            patch(
+                "cruiseplan.cli.pangaea._detect_pangaea_mode",
+                return_value=("doi_file", {"doi_file": doi_file}),
+            ),
+            patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.pangaea._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch(
+                "cruiseplan.cli.pangaea._collect_generated_files",
+                return_value=[output_file],
+            ),
+        ):
 
             # Execute command (should not raise SystemExit)
             main(args)
@@ -122,11 +134,24 @@ class TestWorkflowIntegration:
         )
 
         # Mock the API layer for successful workflow
-        with patch("cruiseplan.pangaea", return_value=(mock_stations_data, [pangaea_file])), \
-             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("doi_file", {"doi_file": doi_file})), \
-             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[pangaea_file]):
+        with (
+            patch(
+                "cruiseplan.pangaea", return_value=(mock_stations_data, [pangaea_file])
+            ),
+            patch(
+                "cruiseplan.cli.pangaea._detect_pangaea_mode",
+                return_value=("doi_file", {"doi_file": doi_file}),
+            ),
+            patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.pangaea._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch(
+                "cruiseplan.cli.pangaea._collect_generated_files",
+                return_value=[pangaea_file],
+            ),
+        ):
 
             # Execute PANGAEA command
             pangaea_main(pangaea_args)
@@ -169,11 +194,19 @@ class TestErrorHandling:
         )
 
         # Mock API to return no results
-        with patch("cruiseplan.pangaea", return_value=([], [])), \
-             patch("cruiseplan.cli.pangaea._detect_pangaea_mode", return_value=("doi_file", {"doi_file": invalid_file})), \
-             patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.pangaea._convert_api_response_to_cli", return_value={"success": False, "errors": ["No valid DOIs found"]}), \
-             patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[]):
+        with (
+            patch("cruiseplan.pangaea", return_value=([], [])),
+            patch(
+                "cruiseplan.cli.pangaea._detect_pangaea_mode",
+                return_value=("doi_file", {"doi_file": invalid_file}),
+            ),
+            patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.pangaea._convert_api_response_to_cli",
+                return_value={"success": False, "errors": ["No valid DOIs found"]},
+            ),
+            patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[]),
+        ):
 
             # Should handle error gracefully
             with pytest.raises(SystemExit):

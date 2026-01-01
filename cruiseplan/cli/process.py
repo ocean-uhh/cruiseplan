@@ -1,7 +1,7 @@
 """
 Unified configuration processing command - API-First Architecture.
 
-This module implements the 'cruiseplan process' command using the API-first 
+This module implements the 'cruiseplan process' command using the API-first
 pattern with proper separation of concerns:
 - CLI layer handles argument parsing and output formatting
 - API layer (cruiseplan.__init__) contains business logic
@@ -12,16 +12,15 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List
 
 import cruiseplan
 from cruiseplan.cli.cli_utils import (
     CLIError,
+    _collect_generated_files,
     _format_error_message,
     _format_progress_header,
     _format_success_message,
     _setup_cli_logging,
-    _collect_generated_files,
 )
 from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
@@ -44,16 +43,16 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Setup logging using new utility
         _setup_cli_logging(
-            verbose=getattr(args, "verbose", False), 
-            quiet=getattr(args, "quiet", False)
+            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
         )
 
         # Handle legacy parameter deprecation warnings using utility function
         from cruiseplan.cli.cli_utils import _handle_deprecated_params
+
         param_map = {
             "bathy_source_legacy": "bathy_source",
-            "bathy_dir_legacy": "bathy_dir", 
-            "bathy_stride_legacy": "bathy_stride"
+            "bathy_dir_legacy": "bathy_dir",
+            "bathy_stride_legacy": "bathy_stride",
         }
         _handle_deprecated_params(args, param_map)
 
@@ -67,12 +66,12 @@ def main(args: argparse.Namespace) -> None:
             add_depths=getattr(args, "add_depths", True),
             add_coords=getattr(args, "add_coords", True),
             run_validation=getattr(args, "run_validation", True),
-            run_map_generation=getattr(args, "run_map_generation", True)
+            run_map_generation=getattr(args, "run_map_generation", True),
         )
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "process")
-        
+
         # Call API function instead of complex wrapper logic
         logger.info("Processing configuration through full workflow...")
         timeline, generated_files = cruiseplan.process(**api_params)
@@ -83,8 +82,13 @@ def main(args: argparse.Namespace) -> None:
 
         # Collect all generated files using utility
         all_generated_files = _collect_generated_files(
-            cli_response, 
-            base_patterns=["*_enriched.yaml", "*_schedule.*", "*_map.png", "*_catalog.kml"]
+            cli_response,
+            base_patterns=[
+                "*_enriched.yaml",
+                "*_schedule.*",
+                "*_map.png",
+                "*_catalog.kml",
+            ],
         )
 
         if cli_response.get("success", True):
@@ -106,9 +110,13 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         _format_error_message(
-            "process", 
-            e, 
-            ["Check configuration file syntax", "Verify bathymetry data availability", "Ensure sufficient disk space"]
+            "process",
+            e,
+            [
+                "Check configuration file syntax",
+                "Verify bathymetry data availability",
+                "Ensure sufficient disk space",
+            ],
         )
         sys.exit(1)
 
@@ -116,13 +124,27 @@ def main(args: argparse.Namespace) -> None:
 if __name__ == "__main__":
     # This allows the module to be run directly for testing
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Unified cruise configuration processing")
-    parser.add_argument("-c", "--config-file", type=Path, required=True, help="Input YAML configuration file")
-    parser.add_argument("-o", "--output-dir", type=Path, default=Path("data"), help="Output directory")
-    parser.add_argument("--output", help="Base filename for outputs (without extension)")
-    parser.add_argument("--verbose", "-v", action="store_true", help="Enable verbose logging")
+
+    parser = argparse.ArgumentParser(
+        description="Unified cruise configuration processing"
+    )
+    parser.add_argument(
+        "-c",
+        "--config-file",
+        type=Path,
+        required=True,
+        help="Input YAML configuration file",
+    )
+    parser.add_argument(
+        "-o", "--output-dir", type=Path, default=Path("data"), help="Output directory"
+    )
+    parser.add_argument(
+        "--output", help="Base filename for outputs (without extension)"
+    )
+    parser.add_argument(
+        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
     parser.add_argument("--quiet", "-q", action="store_true", help="Enable quiet mode")
-    
+
     args = parser.parse_args()
     main(args)

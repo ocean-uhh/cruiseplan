@@ -1,15 +1,17 @@
 """
 Test suite for cruiseplan.cli.schedule command - API-First Architecture.
 
-This module implements streamlined tests focused on CLI layer functionality 
-after API-first refactoring. Tests verify CLI argument handling and API 
+This module implements streamlined tests focused on CLI layer functionality
+after API-first refactoring. Tests verify CLI argument handling and API
 integration, not underlying business logic.
 """
 
 import argparse
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+
 import pytest
+
 from cruiseplan.cli.schedule import main
 
 
@@ -35,24 +37,40 @@ class TestScheduleCommand:
 
         mock_timeline = [
             {"activity": "Transit", "duration_minutes": 120},
-            {"activity": "Station CTD_001", "duration_minutes": 60}
+            {"activity": "Station CTD_001", "duration_minutes": 60},
         ]
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[Path("test_schedule.csv")]), \
-             patch("cruiseplan.cli.schedule._format_timeline_summary", return_value="Timeline: 3.0 hours"), \
-             patch("cruiseplan.cli.schedule._format_success_message"):
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch(
+                "cruiseplan.cli.schedule._collect_generated_files",
+                return_value=[Path("test_schedule.csv")],
+            ),
+            patch(
+                "cruiseplan.cli.schedule._format_timeline_summary",
+                return_value="Timeline: 3.0 hours",
+            ),
+            patch("cruiseplan.cli.schedule._format_success_message"),
+        ):
+
             # Mock successful API response
             mock_api.return_value = (mock_timeline, [Path("test_schedule.csv")])
-            
+
             main(args)
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -65,11 +83,16 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")):
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+        ):
             mock_api.side_effect = Exception("API error")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -82,10 +105,12 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"):
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+        ):
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -99,17 +124,30 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": False, "errors": ["Schedule generation failed"]}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[]):
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={
+                    "success": False,
+                    "errors": ["Schedule generation failed"],
+                },
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[]),
+        ):
+
             # Mock API response with failure
             mock_api.return_value = ([], [])
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -124,23 +162,39 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[Path("test_schedule.csv")]), \
-             patch("cruiseplan.cli.schedule._format_timeline_summary", return_value="Timeline: 1.0 hours"), \
-             patch("cruiseplan.cli.schedule._format_success_message"), \
-             patch("cruiseplan.cli.schedule.logger") as mock_logger:
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch(
+                "cruiseplan.cli.schedule._collect_generated_files",
+                return_value=[Path("test_schedule.csv")],
+            ),
+            patch(
+                "cruiseplan.cli.schedule._format_timeline_summary",
+                return_value="Timeline: 1.0 hours",
+            ),
+            patch("cruiseplan.cli.schedule._format_success_message"),
+            patch("cruiseplan.cli.schedule.logger") as mock_logger,
+        ):
+
             # Mock successful API response
             timeline = [{"activity": "Test", "duration_minutes": 60}]
             mock_api.return_value = (timeline, [Path("test_schedule.csv")])
-            
+
             main(args)
-            
+
             # Verify compatibility warning was logged
             mock_logger.warning.assert_called()
             warning_calls = [call[0][0] for call in mock_logger.warning.call_args_list]
@@ -158,25 +212,41 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[Path("test_schedule.html")]), \
-             patch("cruiseplan.cli.schedule._format_timeline_summary", return_value="Timeline: 2.0 hours"), \
-             patch("cruiseplan.cli.schedule._format_success_message"):
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch(
+                "cruiseplan.cli.schedule._collect_generated_files",
+                return_value=[Path("test_schedule.html")],
+            ),
+            patch(
+                "cruiseplan.cli.schedule._format_timeline_summary",
+                return_value="Timeline: 2.0 hours",
+            ),
+            patch("cruiseplan.cli.schedule._format_success_message"),
+        ):
+
             # Mock successful API response
             timeline = [
                 {"activity": "Transit", "duration_minutes": 60},
-                {"activity": "Station", "duration_minutes": 60}
+                {"activity": "Station", "duration_minutes": 60},
             ]
             mock_api.return_value = (timeline, [Path("test_schedule.html")])
-            
+
             main(args)
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -188,18 +258,23 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file") as mock_validate, \
-             patch("cruiseplan.cli.schedule._format_error_message") as mock_format_error:
-            
+        with (
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch("cruiseplan.cli.schedule._validate_config_file") as mock_validate,
+            patch("cruiseplan.cli.schedule._format_error_message") as mock_format_error,
+        ):
+
             from cruiseplan.cli.cli_utils import CLIError
+
             mock_validate.side_effect = CLIError("File not found")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
-            
+
             # Should format the error
-            mock_format_error.assert_called_once_with("schedule", mock_validate.side_effect)
+            mock_format_error.assert_called_once_with(
+                "schedule", mock_validate.side_effect
+            )
 
     def test_empty_timeline_handling(self):
         """Test handling of empty timeline from API."""
@@ -211,17 +286,27 @@ class TestScheduleCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[]):
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch("cruiseplan.cli.schedule._collect_generated_files", return_value=[]),
+        ):
+
             # Mock API response with empty timeline
             mock_api.return_value = ([], [])
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -240,29 +325,45 @@ class TestScheduleCommand:
             {"activity": "Start", "duration_minutes": 0},
             {"activity": "Transit", "duration_minutes": 180},
             {"activity": "Station_001", "duration_minutes": 90},
-            {"activity": "End", "duration_minutes": 0}
+            {"activity": "End", "duration_minutes": 0},
         ]
         generated_files = [
             Path("test_schedule.csv"),
             Path("test_schedule.html"),
-            Path("test_schedule.nc")
+            Path("test_schedule.nc"),
         ]
 
-        with patch("cruiseplan.schedule") as mock_api, \
-             patch("cruiseplan.cli.schedule._setup_cli_logging"), \
-             patch("cruiseplan.cli.schedule._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.schedule._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.schedule._format_progress_header"), \
-             patch("cruiseplan.cli.schedule._collect_generated_files", return_value=generated_files), \
-             patch("cruiseplan.cli.schedule._format_timeline_summary", return_value="Timeline: 4.5 hours total"), \
-             patch("cruiseplan.cli.schedule._format_success_message"):
-            
+        with (
+            patch("cruiseplan.schedule") as mock_api,
+            patch("cruiseplan.cli.schedule._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.schedule._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.schedule._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.schedule._format_progress_header"),
+            patch(
+                "cruiseplan.cli.schedule._collect_generated_files",
+                return_value=generated_files,
+            ),
+            patch(
+                "cruiseplan.cli.schedule._format_timeline_summary",
+                return_value="Timeline: 4.5 hours total",
+            ),
+            patch("cruiseplan.cli.schedule._format_success_message"),
+        ):
+
             # Mock successful API response
             mock_api.return_value = (timeline, generated_files)
-            
+
             main(args)
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -273,6 +374,6 @@ class TestScheduleCommandExecution:
     def test_module_executable(self):
         """Test the module can be imported and has required functions."""
         from cruiseplan.cli import schedule
-        
+
         assert hasattr(schedule, "main")
         assert callable(schedule.main)

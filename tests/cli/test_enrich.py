@@ -1,15 +1,17 @@
 """
 Test suite for cruiseplan.cli.enrich command - API-First Architecture.
 
-This module implements streamlined tests focused on CLI layer functionality 
-after API-first refactoring. Tests verify CLI argument handling and API 
+This module implements streamlined tests focused on CLI layer functionality
+after API-first refactoring. Tests verify CLI argument handling and API
 integration, not underlying business logic.
 """
 
 import argparse
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+
 import pytest
+
 from cruiseplan.cli.enrich import main
 
 
@@ -38,21 +40,35 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.enrich._format_progress_header"), \
-             patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[Path("test_enriched.yaml")]), \
-             patch("cruiseplan.cli.enrich._format_success_message"), \
-             patch("cruiseplan.cli.enrich._format_operation_summary"):
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.enrich._format_progress_header"),
+            patch(
+                "cruiseplan.cli.enrich._collect_generated_files",
+                return_value=[Path("test_enriched.yaml")],
+            ),
+            patch("cruiseplan.cli.enrich._format_success_message"),
+            patch("cruiseplan.cli.enrich._format_operation_summary"),
+        ):
+
             # Mock successful API response
-            mock_api.return_value = ({"stations_with_depths_added": 3}, [Path("test_enriched.yaml")])
-            
+            mock_api.return_value = (
+                {"stations_with_depths_added": 3},
+                [Path("test_enriched.yaml")],
+            )
+
             main(args)
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -66,11 +82,16 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")):
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+        ):
             mock_api.side_effect = Exception("API error")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -84,10 +105,12 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"):
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+        ):
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -101,20 +124,24 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params") as mock_resolve:
-            
+        with (
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params") as mock_resolve,
+        ):
+
             from cruiseplan.cli.cli_utils import CLIError
+
             mock_resolve.side_effect = CLIError("Invalid configuration")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
     def test_successful_enrichment_shows_summary(self):
         """Test successful enrichment shows operation summary."""
-        from cruiseplan.cli.enrich import _show_enrichment_summary
-        
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
             add_depths=True,
@@ -124,28 +151,41 @@ class TestEnrichCommand:
             verbose=False,
             quiet=False,
         )
-        
+
         summary_data = {
             "stations_with_depths_added": 5,
             "stations_with_coords_added": 3,
-            "sections_expanded": 2
+            "sections_expanded": 2,
         }
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._convert_api_response_to_cli", return_value={"success": True, "data": summary_data}), \
-             patch("cruiseplan.cli.enrich._format_progress_header"), \
-             patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[Path("test_enriched.yaml")]), \
-             patch("cruiseplan.cli.enrich._format_success_message"), \
-             patch("cruiseplan.cli.enrich._show_enrichment_summary") as mock_show_summary:
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._convert_api_response_to_cli",
+                return_value={"success": True, "data": summary_data},
+            ),
+            patch("cruiseplan.cli.enrich._format_progress_header"),
+            patch(
+                "cruiseplan.cli.enrich._collect_generated_files",
+                return_value=[Path("test_enriched.yaml")],
+            ),
+            patch("cruiseplan.cli.enrich._format_success_message"),
+            patch(
+                "cruiseplan.cli.enrich._show_enrichment_summary"
+            ) as mock_show_summary,
+        ):
+
             # Mock successful API response
             mock_api.return_value = (summary_data, [Path("test_enriched.yaml")])
-            
+
             main(args)
-            
+
             # Verify summary was shown
             mock_show_summary.assert_called_once_with(summary_data, args)
 
@@ -154,14 +194,27 @@ class TestEnrichCommand:
         from cruiseplan.cli.enrich import _format_validation_errors
 
         errors = [
-            {"loc": ["stations", "0", "latitude"], "type": "missing", "msg": "field required"},
-            {"loc": ["stations", "1", "longitude"], "type": "value_error", "msg": "invalid value", "input": "bad_value"},
-            {"loc": ["stations"], "type": "general_error", "msg": "general stations error"}
+            {
+                "loc": ["stations", "0", "latitude"],
+                "type": "missing",
+                "msg": "field required",
+            },
+            {
+                "loc": ["stations", "1", "longitude"],
+                "type": "value_error",
+                "msg": "invalid value",
+                "input": "bad_value",
+            },
+            {
+                "loc": ["stations"],
+                "type": "general_error",
+                "msg": "general stations error",
+            },
         ]
-        
+
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _format_validation_errors(errors)
-            
+
             # Should have called error logging for each error type
             assert mock_logger.error.call_count > 0
 
@@ -170,16 +223,30 @@ class TestEnrichCommand:
         from cruiseplan.cli.enrich import _format_validation_errors
 
         errors = [
-            {"loc": ["moorings", "0", "depth"], "type": "missing", "msg": "field required"},
-            {"loc": ["transits", "1", "route"], "type": "value_error", "msg": "invalid route", "input": []},
+            {
+                "loc": ["moorings", "0", "depth"],
+                "type": "missing",
+                "msg": "field required",
+            },
+            {
+                "loc": ["transits", "1", "route"],
+                "type": "value_error",
+                "msg": "invalid route",
+                "input": [],
+            },
             {"loc": ["legs", "0", "name"], "type": "missing", "msg": "field required"},
-            {"loc": ["areas", "1", "boundary"], "type": "value_error", "msg": "invalid boundary", "input": "bad_shape"},
-            {"loc": ["other", "field"], "type": "error", "msg": "general error"}
+            {
+                "loc": ["areas", "1", "boundary"],
+                "type": "value_error",
+                "msg": "invalid boundary",
+                "input": "bad_shape",
+            },
+            {"loc": ["other", "field"], "type": "error", "msg": "general error"},
         ]
-        
+
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _format_validation_errors(errors)
-            
+
             # Should handle all error types
             assert mock_logger.error.call_count > 0
 
@@ -190,30 +257,56 @@ class TestEnrichCommand:
         # Test all different error types and paths to improve coverage
         errors = [
             # Stations - general error (covers line 59)
-            {"loc": ["stations"], "type": "general_error", "msg": "general stations error"},
-            
-            # Moorings - missing field (covers lines 68-71)  
+            {
+                "loc": ["stations"],
+                "type": "general_error",
+                "msg": "general stations error",
+            },
+            # Moorings - missing field (covers lines 68-71)
             {"loc": ["moorings", "0"], "type": "missing", "msg": "field required"},
-            {"loc": ["moorings", "1", "depth"], "type": "missing", "msg": "field required"},
-            {"loc": ["moorings"], "type": "general_error", "msg": "general moorings error"},
-            
+            {
+                "loc": ["moorings", "1", "depth"],
+                "type": "missing",
+                "msg": "field required",
+            },
+            {
+                "loc": ["moorings"],
+                "type": "general_error",
+                "msg": "general moorings error",
+            },
             # Transits - missing field (covers lines 77-78)
             {"loc": ["transits", "0"], "type": "missing", "msg": "field required"},
-            {"loc": ["transits", "1", "route"], "type": "missing", "msg": "field required"}, 
-            {"loc": ["transits"], "type": "general_error", "msg": "general transits error"},
-            
+            {
+                "loc": ["transits", "1", "route"],
+                "type": "missing",
+                "msg": "field required",
+            },
+            {
+                "loc": ["transits"],
+                "type": "general_error",
+                "msg": "general transits error",
+            },
             # Legs - value errors (covers lines 92-95)
-            {"loc": ["legs", "0", "name"], "type": "value_error", "msg": "invalid value", "input": "bad_value"},
+            {
+                "loc": ["legs", "0", "name"],
+                "type": "value_error",
+                "msg": "invalid value",
+                "input": "bad_value",
+            },
             {"loc": ["legs"], "type": "general_error", "msg": "general legs error"},
-            
             # Areas - value errors (covers lines 101-102, 107)
-            {"loc": ["areas", "1", "boundary"], "type": "value_error", "msg": "invalid boundary", "input": "bad_shape"},
-            {"loc": ["areas"], "type": "general_error", "msg": "general areas error"}
+            {
+                "loc": ["areas", "1", "boundary"],
+                "type": "value_error",
+                "msg": "invalid boundary",
+                "input": "bad_shape",
+            },
+            {"loc": ["areas"], "type": "general_error", "msg": "general areas error"},
         ]
-        
+
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _format_validation_errors(errors)
-            
+
             # Should handle all error types and call logger multiple times
             assert mock_logger.error.call_count > 10
 
@@ -240,7 +333,7 @@ class TestEnrichCommand:
 
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _show_enrichment_summary(summary, args)
-            
+
             # Should log summary information
             assert mock_logger.info.call_count > 0
 
@@ -262,7 +355,7 @@ class TestEnrichCommand:
 
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _show_enrichment_summary(summary, args)
-            
+
             # Should still log summary
             assert mock_logger.info.call_count > 0
 
@@ -287,9 +380,11 @@ class TestEnrichCommand:
 
         with patch("cruiseplan.cli.enrich.logger") as mock_logger:
             _show_enrichment_summary(summary, args)
-            
+
             # Should log the "no enhancements needed" message
-            mock_logger.info.assert_any_call("ℹ️ No enhancements were needed - configuration is already complete")
+            mock_logger.info.assert_any_call(
+                "ℹ️ No enhancements were needed - configuration is already complete"
+            )
 
     def test_no_operations_specified_error(self):
         """Test error when no enrichment operations are specified."""
@@ -303,9 +398,14 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")):
-            
+        with (
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+        ):
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -324,22 +424,36 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.enrich._format_progress_header"), \
-             patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[Path("test_enriched.yaml")]), \
-             patch("cruiseplan.cli.enrich._format_success_message"), \
-             patch("cruiseplan.cli.enrich._format_operation_summary"), \
-             patch("cruiseplan.cli.enrich.logger") as mock_logger:
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.enrich._format_progress_header"),
+            patch(
+                "cruiseplan.cli.enrich._collect_generated_files",
+                return_value=[Path("test_enriched.yaml")],
+            ),
+            patch("cruiseplan.cli.enrich._format_success_message"),
+            patch("cruiseplan.cli.enrich._format_operation_summary"),
+            patch("cruiseplan.cli.enrich.logger") as mock_logger,
+        ):
+
             # Mock successful API response
-            mock_api.return_value = ({"stations_with_depths_added": 1}, [Path("custom_output.yaml")])
-            
+            mock_api.return_value = (
+                {"stations_with_depths_added": 1},
+                [Path("custom_output.yaml")],
+            )
+
             main(args)
-            
+
             # Verify deprecation warning was logged
             mock_logger.warning.assert_called_with(
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
@@ -363,16 +477,27 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.enrich._format_progress_header"), \
-             patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[Path("test_enriched.yaml")]), \
-             patch("cruiseplan.cli.enrich._format_success_message"), \
-             patch("cruiseplan.cli.enrich._format_operation_summary"):
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.enrich._format_progress_header"),
+            patch(
+                "cruiseplan.cli.enrich._collect_generated_files",
+                return_value=[Path("test_enriched.yaml")],
+            ),
+            patch("cruiseplan.cli.enrich._format_success_message"),
+            patch("cruiseplan.cli.enrich._format_operation_summary"),
+        ):
+
             # Mock comprehensive enhancement result
             enhancement_summary = {
                 "stations_with_depths_added": 5,
@@ -383,10 +508,13 @@ class TestEnrichCommand:
                 "defaults_added": 1,
                 "station_defaults_added": 2,
             }
-            mock_api.return_value = (enhancement_summary, [Path("output/enhanced_enriched.yaml")])
-            
+            mock_api.return_value = (
+                enhancement_summary,
+                [Path("output/enhanced_enriched.yaml")],
+            )
+
             main(args)
-            
+
             # Verify API was called with comprehensive parameters
             mock_api.assert_called_once()
 
@@ -399,17 +527,28 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._convert_api_response_to_cli", return_value={"success": False, "errors": ["Processing failed", "Data error"]}), \
-             patch("cruiseplan.cli.enrich._format_progress_header"), \
-             patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[]):
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._convert_api_response_to_cli",
+                return_value={
+                    "success": False,
+                    "errors": ["Processing failed", "Data error"],
+                },
+            ),
+            patch("cruiseplan.cli.enrich._format_progress_header"),
+            patch("cruiseplan.cli.enrich._collect_generated_files", return_value=[]),
+        ):
+
             # Mock API response with failure
             mock_api.return_value = ({}, [])
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -423,26 +562,40 @@ class TestEnrichCommand:
         )
 
         from pydantic import ValidationError
-        
+
         # Create mock validation error
         mock_validation_errors = [
-            {"loc": ("stations", "0", "latitude"), "type": "missing", "msg": "Field required", "input": None}
+            {
+                "loc": ("stations", "0", "latitude"),
+                "type": "missing",
+                "msg": "Field required",
+                "input": None,
+            }
         ]
-        
-        validation_error = ValidationError.from_exception_data("TestModel", mock_validation_errors)
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.enrich._format_validation_errors") as mock_format_errors, \
-             patch("cruiseplan.cli.enrich.logger") as mock_logger:
-            
+        validation_error = ValidationError.from_exception_data(
+            "TestModel", mock_validation_errors
+        )
+
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.enrich._format_validation_errors"
+            ) as mock_format_errors,
+            patch("cruiseplan.cli.enrich.logger") as mock_logger,
+        ):
+
             mock_api.side_effect = validation_error
-            
+
             with pytest.raises(SystemExit):
                 main(args)
-            
+
             # Should log error count and call format function
             mock_logger.error.assert_called()
             # Just verify the function was called, not the exact format
@@ -457,16 +610,21 @@ class TestEnrichCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.enrich") as mock_api, \
-             patch("cruiseplan.cli.enrich._setup_cli_logging"), \
-             patch("cruiseplan.cli.enrich._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.enrich.logger") as mock_logger:
-            
+        with (
+            patch("cruiseplan.enrich") as mock_api,
+            patch("cruiseplan.cli.enrich._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.enrich._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch("cruiseplan.cli.enrich.logger") as mock_logger,
+        ):
+
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(args)
-            
+
             # Should log cancellation message
             mock_logger.info.assert_called_with("\n\n⚠️ Operation cancelled by user.")
 
@@ -476,9 +634,9 @@ class TestEnrichCommand:
         # We can't easily test the actual argparse execution, but we can at least
         # verify the imports and basic structure work
         import cruiseplan.cli.enrich as enrich_module
-        
+
         # Verify the main function exists and is callable
-        assert hasattr(enrich_module, 'main')
+        assert hasattr(enrich_module, "main")
         assert callable(enrich_module.main)
 
 
@@ -488,7 +646,7 @@ class TestEnrichCommandExecution:
     def test_module_executable(self):
         """Test the module can be imported and has required functions."""
         from cruiseplan.cli import enrich
-        
+
         assert hasattr(enrich, "main")
         # Check that utility functions exist (not implementation details)
         assert hasattr(enrich, "_format_validation_errors")

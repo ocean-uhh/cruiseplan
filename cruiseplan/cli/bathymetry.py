@@ -21,8 +21,8 @@ from cruiseplan.cli.cli_utils import (
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
-    _resolve_cli_to_api_params,
     _convert_api_response_to_cli,
+    _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import _validate_directory_writable
 
@@ -133,14 +133,20 @@ def main(args=None):
         if source is None:
             source = getattr(args, "source", None)  # Legacy --source
             if source is not None:
-                logger.warning("⚠️  WARNING: '--source' is deprecated. Use '--bathy-source' instead.")
+                logger.warning(
+                    "⚠️  WARNING: '--source' is deprecated. Use '--bathy-source' instead."
+                )
         if source is None:
-            source = getattr(args, "bathymetry_source", None)  # Legacy --bathymetry-source
+            source = getattr(
+                args, "bathymetry_source", None
+            )  # Legacy --bathymetry-source
             if source is not None:
-                logger.warning("⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead.")
+                logger.warning(
+                    "⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead."
+                )
         if source is None:
             source = "etopo2022"
-        
+
         show_citation_only = getattr(args, "citation", False)
         output_dir = getattr(args, "output_dir", Path("data/bathymetry"))
 
@@ -150,27 +156,33 @@ def main(args=None):
             return
 
         # Validate output directory using new utility
-        validated_output_dir = _validate_directory_writable(output_dir, create_if_missing=True)
+        validated_output_dir = _validate_directory_writable(
+            output_dir, create_if_missing=True
+        )
 
         # Format progress header using new utility
         _format_progress_header(
             operation="Bathymetry Data Download",
             config_file=None,
             source=source,
-            output_dir=validated_output_dir
+            output_dir=validated_output_dir,
         )
 
         if source == "etopo2022":
-            logger.info("This utility will fetch the ETOPO 2022 bathymetry data (~500MB).\n")
+            logger.info(
+                "This utility will fetch the ETOPO 2022 bathymetry data (~500MB).\n"
+            )
         elif source == "gebco2025":
-            logger.info("This utility will fetch the GEBCO 2025 high-resolution bathymetry data (~7.5GB).\n")
+            logger.info(
+                "This utility will fetch the GEBCO 2025 high-resolution bathymetry data (~7.5GB).\n"
+            )
         else:
             logger.error(f"Unknown bathymetry source: {source}")
             sys.exit(1)
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "bathymetry")
-        
+
         # Call API function instead of core directly
         api_response = cruiseplan.bathymetry(**api_params)
 
@@ -188,7 +200,9 @@ def main(args=None):
                 logger.info(f"\nShort citation: {citation['short_citation']}")
                 logger.info(f"DOI: {citation['doi']}")
                 logger.info("\nFor full citation details, run:")
-                logger.info(f"  cruiseplan bathymetry --bathy-source {source} --citation")
+                logger.info(
+                    f"  cruiseplan bathymetry --bathy-source {source} --citation"
+                )
             logger.info("=" * 60)
         else:
             errors = cli_response.get("errors", ["Download failed"])
@@ -200,7 +214,11 @@ def main(args=None):
         logger.info("\n\n⚠️  Download cancelled by user.")
         sys.exit(1)
     except Exception as e:
-        _format_error_message("bathymetry", e, ["Check internet connection", "Verify output directory permissions"])
+        _format_error_message(
+            "bathymetry",
+            e,
+            ["Check internet connection", "Verify output directory permissions"],
+        )
         sys.exit(1)
 
 

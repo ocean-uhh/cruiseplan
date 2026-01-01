@@ -1,15 +1,17 @@
 """
 Test suite for cruiseplan.cli.validate command - API-First Architecture.
 
-This module implements streamlined tests focused on CLI layer functionality 
-after API-first refactoring. Tests verify CLI argument handling and API 
+This module implements streamlined tests focused on CLI layer functionality
+after API-first refactoring. Tests verify CLI argument handling and API
 integration, not underlying business logic.
 """
 
 import argparse
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
+
 import pytest
+
 from cruiseplan.cli.validate import main
 
 
@@ -34,24 +36,39 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.validate") as mock_api, \
-             patch("cruiseplan.cli.validate._setup_cli_logging"), \
-             patch("cruiseplan.cli.validate._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}), \
-             patch("cruiseplan.cli.validate._extract_api_errors", return_value=(True, [], [])), \
-             patch("cruiseplan.cli.validate._format_progress_header"), \
-             patch("cruiseplan.cli.validate._format_validation_results", return_value="✅ Configuration valid"):
-            
+        with (
+            patch("cruiseplan.validate") as mock_api,
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.validate._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._extract_api_errors",
+                return_value=(True, [], []),
+            ),
+            patch("cruiseplan.cli.validate._format_progress_header"),
+            patch(
+                "cruiseplan.cli.validate._format_validation_results",
+                return_value="✅ Configuration valid",
+            ),
+        ):
+
             # Mock successful API response
             mock_api.return_value = {"success": True, "errors": [], "warnings": []}
-            
+
             with pytest.raises(SystemExit) as exc_info:
                 main(args)
-            
+
             # Should exit with success code 0
             assert exc_info.value.code == 0
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -63,11 +80,16 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.validate") as mock_api, \
-             patch("cruiseplan.cli.validate._setup_cli_logging"), \
-             patch("cruiseplan.cli.validate._validate_config_file", return_value=Path("test.yaml")):
+        with (
+            patch("cruiseplan.validate") as mock_api,
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.validate._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+        ):
             mock_api.side_effect = Exception("API error")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -79,10 +101,12 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.validate") as mock_api, \
-             patch("cruiseplan.cli.validate._setup_cli_logging"):
+        with (
+            patch("cruiseplan.validate") as mock_api,
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+        ):
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -94,21 +118,40 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.validate") as mock_api, \
-             patch("cruiseplan.cli.validate._setup_cli_logging"), \
-             patch("cruiseplan.cli.validate._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}), \
-             patch("cruiseplan.cli.validate._extract_api_errors", return_value=(False, ["Missing field"], [])), \
-             patch("cruiseplan.cli.validate._format_progress_header"), \
-             patch("cruiseplan.cli.validate._format_validation_results", return_value="❌ Configuration invalid"):
-            
+        with (
+            patch("cruiseplan.validate") as mock_api,
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.validate._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._extract_api_errors",
+                return_value=(False, ["Missing field"], []),
+            ),
+            patch("cruiseplan.cli.validate._format_progress_header"),
+            patch(
+                "cruiseplan.cli.validate._format_validation_results",
+                return_value="❌ Configuration invalid",
+            ),
+        ):
+
             # Mock API response with errors
-            mock_api.return_value = {"success": False, "errors": ["Missing field"], "warnings": []}
-            
+            mock_api.return_value = {
+                "success": False,
+                "errors": ["Missing field"],
+                "warnings": [],
+            }
+
             with pytest.raises(SystemExit) as exc_info:
                 main(args)
-            
+
             # Should exit with error code 1
             assert exc_info.value.code == 1
 
@@ -121,21 +164,40 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.validate") as mock_api, \
-             patch("cruiseplan.cli.validate._setup_cli_logging"), \
-             patch("cruiseplan.cli.validate._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}), \
-             patch("cruiseplan.cli.validate._extract_api_errors", return_value=(True, [], ["Minor issue"])), \
-             patch("cruiseplan.cli.validate._format_progress_header"), \
-             patch("cruiseplan.cli.validate._format_validation_results", return_value="✅ Configuration valid with warnings"):
-            
+        with (
+            patch("cruiseplan.validate") as mock_api,
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.validate._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._convert_api_response_to_cli", return_value={}
+            ),
+            patch(
+                "cruiseplan.cli.validate._extract_api_errors",
+                return_value=(True, [], ["Minor issue"]),
+            ),
+            patch("cruiseplan.cli.validate._format_progress_header"),
+            patch(
+                "cruiseplan.cli.validate._format_validation_results",
+                return_value="✅ Configuration valid with warnings",
+            ),
+        ):
+
             # Mock API response with warnings only
-            mock_api.return_value = {"success": True, "errors": [], "warnings": ["Minor issue"]}
-            
+            mock_api.return_value = {
+                "success": True,
+                "errors": [],
+                "warnings": ["Minor issue"],
+            }
+
             with pytest.raises(SystemExit) as exc_info:
                 main(args)
-            
+
             # Should exit with success code 0
             assert exc_info.value.code == 0
 
@@ -147,11 +209,14 @@ class TestValidateCommand:
             quiet=False,
         )
 
-        with patch("cruiseplan.cli.validate._setup_cli_logging"), \
-             patch("cruiseplan.cli.validate._validate_config_file") as mock_validate:
-            
+        with (
+            patch("cruiseplan.cli.validate._setup_cli_logging"),
+            patch("cruiseplan.cli.validate._validate_config_file") as mock_validate,
+        ):
+
             from cruiseplan.cli.cli_utils import CLIError
+
             mock_validate.side_effect = CLIError("File not found")
-            
+
             with pytest.raises(SystemExit):
                 main(args)

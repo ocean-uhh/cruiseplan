@@ -50,8 +50,7 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Setup logging using new utility
         _setup_cli_logging(
-            verbose=getattr(args, "verbose", False), 
-            quiet=getattr(args, "quiet", False)
+            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
         )
 
         # Validate input file using new utility
@@ -62,19 +61,19 @@ def main(args: argparse.Namespace) -> None:
             operation="Configuration Validation",
             config_file=config_file,
             check_depths=getattr(args, "check_depths", False),
-            tolerance=getattr(args, "tolerance", 10.0)
+            tolerance=getattr(args, "tolerance", 10.0),
         )
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "validate")
-        
+
         # Call API function instead of core directly
         logger.info("Running validation checks...")
         api_response = cruiseplan.validate(**api_params)
 
         # Convert API response to CLI format using bridge utility
         cli_response = _convert_api_response_to_cli(api_response, "validate")
-        
+
         # Extract success status and messages using utility
         success, errors, warnings = _extract_api_errors(cli_response)
 
@@ -96,7 +95,7 @@ def main(args: argparse.Namespace) -> None:
 
         # Format and display summary using new utility
         summary_message = _format_validation_results(success, errors, warnings)
-        
+
         if success:
             logger.info(summary_message)
             if warnings and getattr(args, "warnings_only", False):
@@ -115,7 +114,11 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message("validate", e, ["Check configuration file syntax", "Verify file permissions"])
+        _format_error_message(
+            "validate",
+            e,
+            ["Check configuration file syntax", "Verify file permissions"],
+        )
         sys.exit(1)
 
 

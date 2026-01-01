@@ -1,15 +1,15 @@
 """
 Test suite for cruiseplan.cli.map command - API-First Architecture.
 
-This module implements streamlined tests focused on CLI layer functionality 
-after API-first refactoring. Tests verify CLI argument handling and API 
+This module implements streamlined tests focused on CLI layer functionality
+after API-first refactoring. Tests verify CLI argument handling and API
 integration, not underlying business logic.
 """
 
 import argparse
 from pathlib import Path
-from unittest.mock import MagicMock, patch
-import pytest
+from unittest.mock import patch
+
 from cruiseplan.cli.map import main
 
 
@@ -35,25 +35,39 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
-             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.map._format_progress_header"), \
-             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("output/test_map.png")]), \
-             patch("cruiseplan.cli.map._format_success_message"):
-            
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.map._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.map._format_progress_header"),
+            patch(
+                "cruiseplan.cli.map._collect_generated_files",
+                return_value=[Path("output/test_map.png")],
+            ),
+            patch("cruiseplan.cli.map._format_success_message"),
+        ):
+
             # Mock successful API response
             mock_api.return_value = [Path("output/test_map.png")]
-            
+
             result = main(args)
-            
+
             # Should return 0 for success
             assert result == 0
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -65,14 +79,22 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")):
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+        ):
             mock_api.side_effect = Exception("API error")
-            
+
             result = main(args)
-            
+
             # Should return 1 for error
             assert result == 1
 
@@ -84,12 +106,14 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.map._validate_config_file") as mock_validate:
+        with (
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch("cruiseplan.cli.map._validate_config_file") as mock_validate,
+        ):
             mock_validate.side_effect = FileNotFoundError()
-            
+
             result = main(args)
-            
+
             # Should return 1 for error
             assert result == 1
 
@@ -103,26 +127,40 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
-             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.map._format_progress_header"), \
-             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("custom_map.png")]), \
-             patch("cruiseplan.cli.map._format_success_message"), \
-             patch("cruiseplan.cli.map.logger") as mock_logger:
-            
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.map._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.map._format_progress_header"),
+            patch(
+                "cruiseplan.cli.map._collect_generated_files",
+                return_value=[Path("custom_map.png")],
+            ),
+            patch("cruiseplan.cli.map._format_success_message"),
+            patch("cruiseplan.cli.map.logger") as mock_logger,
+        ):
+
             # Mock successful API response
             mock_api.return_value = [Path("custom_map.png")]
-            
+
             result = main(args)
-            
+
             # Should succeed
             assert result == 0
-            
+
             # Verify deprecation warning was logged
             mock_logger.warning.assert_called_with(
                 "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
@@ -143,25 +181,45 @@ class TestMapCommand:
             verbose=True,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
-             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": True}), \
-             patch("cruiseplan.cli.map._format_progress_header"), \
-             patch("cruiseplan.cli.map._collect_generated_files", return_value=[Path("output/test_map.png"), Path("output/test_catalog.kml")]), \
-             patch("cruiseplan.cli.map._format_success_message"):
-            
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.map._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
+            patch("cruiseplan.cli.map._format_progress_header"),
+            patch(
+                "cruiseplan.cli.map._collect_generated_files",
+                return_value=[
+                    Path("output/test_map.png"),
+                    Path("output/test_catalog.kml"),
+                ],
+            ),
+            patch("cruiseplan.cli.map._format_success_message"),
+        ):
+
             # Mock successful API response with multiple files
-            mock_api.return_value = [Path("output/test_map.png"), Path("output/test_catalog.kml")]
-            
+            mock_api.return_value = [
+                Path("output/test_map.png"),
+                Path("output/test_catalog.kml"),
+            ]
+
             result = main(args)
-            
+
             # Should succeed
             assert result == 0
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -173,21 +231,32 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.cli_utils._handle_deprecated_params"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
-             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}), \
-             patch("cruiseplan.cli.map._convert_api_response_to_cli", return_value={"success": False, "errors": ["Map generation failed"]}), \
-             patch("cruiseplan.cli.map._format_progress_header"), \
-             patch("cruiseplan.cli.map._collect_generated_files", return_value=[]):
-            
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.map._convert_api_response_to_cli",
+                return_value={"success": False, "errors": ["Map generation failed"]},
+            ),
+            patch("cruiseplan.cli.map._format_progress_header"),
+            patch("cruiseplan.cli.map._collect_generated_files", return_value=[]),
+        ):
+
             # Mock failed API response
             mock_api.return_value = []
-            
+
             result = main(args)
-            
+
             # Should return 1 for failure
             assert result == 1
 
@@ -199,18 +268,26 @@ class TestMapCommand:
             verbose=True,
         )
 
-        with patch("cruiseplan.map") as mock_api, \
-             patch("cruiseplan.cli.map._setup_cli_logging"), \
-             patch("cruiseplan.cli.map._validate_config_file", return_value=Path("test.yaml")), \
-             patch("cruiseplan.cli.map._validate_directory_writable", return_value=Path("output")), \
-             patch("traceback.print_exc") as mock_traceback:
+        with (
+            patch("cruiseplan.map") as mock_api,
+            patch("cruiseplan.cli.map._setup_cli_logging"),
+            patch(
+                "cruiseplan.cli.map._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
+            patch(
+                "cruiseplan.cli.map._validate_directory_writable",
+                return_value=Path("output"),
+            ),
+            patch("traceback.print_exc") as mock_traceback,
+        ):
             mock_api.side_effect = RuntimeError("Unexpected error")
-            
+
             result = main(args)
-            
+
             # Should return 1 for error
             assert result == 1
-            
+
             # Should print traceback in verbose mode
             mock_traceback.assert_called_once()
 
@@ -221,6 +298,6 @@ class TestMapCommandExecution:
     def test_module_executable(self):
         """Test the module can be imported and has required functions."""
         from cruiseplan.cli import map as map_module
-        
+
         assert hasattr(map_module, "main")
         assert callable(map_module.main)

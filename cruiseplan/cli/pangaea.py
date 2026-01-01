@@ -18,21 +18,23 @@ from pathlib import Path
 from typing import List, Optional, Tuple
 
 import cruiseplan
-from cruiseplan.data.pangaea import PangaeaManager
 from cruiseplan.cli.cli_utils import (
     CLIError,
+    _collect_generated_files,
     _format_error_message,
     _format_progress_header,
     _format_success_message,
     _setup_cli_logging,
-    _collect_generated_files,
 )
+from cruiseplan.data.pangaea import PangaeaManager
 from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
     _resolve_cli_to_api_params,
 )
-from cruiseplan.utils.input_validation import _detect_pangaea_mode, _validate_coordinate_bounds
 from cruiseplan.utils.coordinates import format_geographic_bounds
+from cruiseplan.utils.input_validation import (
+    _detect_pangaea_mode,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -339,7 +341,7 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
 def main(args: argparse.Namespace) -> None:
     """
     Main entry point for unified PANGAEA command using API-first architecture.
-    
+
     Parameters
     ----------
     args : argparse.Namespace
@@ -358,20 +360,20 @@ def main(args: argparse.Namespace) -> None:
 
         # Detect mode and validate parameters using utility function
         mode, processed_params = _detect_pangaea_mode(args)
-        
+
         # Format progress header using new utility
         _format_progress_header(
             operation="PANGAEA Data Processing",
             config_file=None,
             mode=mode,
-            query=processed_params.get('query', ''),
-            lat_bounds=getattr(args, 'lat', None),
-            lon_bounds=getattr(args, 'lon', None)
+            query=processed_params.get("query", ""),
+            lat_bounds=getattr(args, "lat", None),
+            lon_bounds=getattr(args, "lon", None),
         )
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "pangaea")
-        
+
         # Call API function instead of complex processing logic
         logger.info("Searching and processing PANGAEA data...")
         stations_data, generated_files = cruiseplan.pangaea(**api_params)
@@ -382,21 +384,25 @@ def main(args: argparse.Namespace) -> None:
 
         # Collect generated files using utility
         all_generated_files = _collect_generated_files(
-            cli_response, 
-            base_patterns=["*_dois.txt", "*_stations.pkl"]
+            cli_response, base_patterns=["*_dois.txt", "*_stations.pkl"]
         )
 
         if cli_response.get("success", True) and stations_data:
             # Format success message using new utility
             _format_success_message("PANGAEA data processing", all_generated_files)
-            
+
             # Show next steps
             logger.info("🚀 Next steps:")
             if generated_files:
-                stations_file = next((f for f in generated_files if str(f).endswith('_stations.pkl')), None)
+                stations_file = next(
+                    (f for f in generated_files if str(f).endswith("_stations.pkl")),
+                    None,
+                )
                 if stations_file:
                     logger.info(f"   1. Review stations: {stations_file}")
-                    logger.info(f"   2. Plan cruise: cruiseplan stations -p {stations_file}")
+                    logger.info(
+                        f"   2. Plan cruise: cruiseplan stations -p {stations_file}"
+                    )
         else:
             errors = cli_response.get("errors", ["PANGAEA processing failed"])
             for error in errors:
@@ -413,12 +419,17 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         _format_error_message(
-            "pangaea", 
-            e, 
-            ["Check query terms", "Verify coordinate bounds", "Check network connection"]
+            "pangaea",
+            e,
+            [
+                "Check query terms",
+                "Verify coordinate bounds",
+                "Check network connection",
+            ],
         )
         if getattr(args, "verbose", False):
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 
@@ -426,7 +437,7 @@ def main(args: argparse.Namespace) -> None:
 def _legacy_main(args: argparse.Namespace) -> None:
     """
     Legacy main function (kept for reference).
-    
+
     Parameters
     ----------
     args : argparse.Namespace

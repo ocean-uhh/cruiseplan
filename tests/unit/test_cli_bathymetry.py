@@ -7,7 +7,9 @@ Tests verify CLI argument handling and API integration, not underlying business 
 
 from pathlib import Path
 from unittest.mock import MagicMock, patch
+
 import pytest
+
 from cruiseplan.cli.bathymetry import main
 
 
@@ -25,10 +27,12 @@ class TestCliBathymetry:
         mock_args.verbose = False
 
         with patch("cruiseplan.bathymetry") as mock_api:
-            mock_api.return_value = Path("data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc")
-            
+            mock_api.return_value = Path(
+                "data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc"
+            )
+
             main(mock_args)
-            
+
             # Verify API was called
             mock_api.assert_called_once()
 
@@ -43,10 +47,12 @@ class TestCliBathymetry:
         mock_args.verbose = False
 
         with patch("cruiseplan.bathymetry") as mock_api:
-            mock_api.return_value = Path("data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc")
-            
+            mock_api.return_value = Path(
+                "data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc"
+            )
+
             main(mock_args)
-            
+
             # Verify API was called despite legacy parameter usage
             mock_api.assert_called_once()
 
@@ -61,7 +67,7 @@ class TestCliBathymetry:
 
         with patch("cruiseplan.bathymetry") as mock_api:
             main(mock_args)
-            
+
             # Verify API was NOT called in citation mode
             mock_api.assert_not_called()
 
@@ -77,7 +83,7 @@ class TestCliBathymetry:
 
         with patch("cruiseplan.bathymetry") as mock_api:
             mock_api.side_effect = Exception("API error")
-            
+
             with pytest.raises(SystemExit):
                 main(mock_args)
 
@@ -94,14 +100,14 @@ class TestCliBathymetry:
         with patch("cruiseplan.bathymetry") as mock_api:
             with pytest.raises(SystemExit):
                 main(mock_args)
-            
+
             # API should not be called for unknown sources
             mock_api.assert_not_called()
 
     def test_main_keyboard_interrupt_handling(self):
         """Test graceful handling of keyboard interrupt."""
         mock_args = MagicMock()
-        mock_args.bathy_source = "etopo2022" 
+        mock_args.bathy_source = "etopo2022"
         mock_args.source = None
         mock_args.bathymetry_source = None
         mock_args.citation = False
@@ -110,6 +116,6 @@ class TestCliBathymetry:
 
         with patch("cruiseplan.bathymetry") as mock_api:
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(mock_args)

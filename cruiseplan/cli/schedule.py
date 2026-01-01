@@ -18,11 +18,11 @@ from pathlib import Path
 import cruiseplan
 from cruiseplan.cli.cli_utils import (
     CLIError,
+    _collect_generated_files,
     _format_error_message,
     _format_progress_header,
     _format_success_message,
     _setup_cli_logging,
-    _collect_generated_files,
 )
 from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
@@ -51,8 +51,7 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Setup logging using new utility
         _setup_cli_logging(
-            verbose=getattr(args, "verbose", False), 
-            quiet=getattr(args, "quiet", False)
+            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
         )
 
         # Validate input file using new utility
@@ -73,12 +72,12 @@ def main(args: argparse.Namespace) -> None:
             config_file=config_file,
             format=format_str,
             leg=getattr(args, "leg", None),
-            derive_netcdf=derive_netcdf
+            derive_netcdf=derive_netcdf,
         )
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "schedule")
-        
+
         # Call API function instead of core directly
         logger.info("Generating cruise schedule and timeline...")
         timeline, generated_files = cruiseplan.schedule(**api_params)
@@ -89,16 +88,21 @@ def main(args: argparse.Namespace) -> None:
 
         # Collect generated files using utility
         all_generated_files = _collect_generated_files(
-            cli_response, 
-            base_patterns=["*_schedule.*", "*_timeline.*", "*_map.png", "*_catalog.kml"]
+            cli_response,
+            base_patterns=[
+                "*_schedule.*",
+                "*_timeline.*",
+                "*_map.png",
+                "*_catalog.kml",
+            ],
         )
 
         if cli_response.get("success", True) and timeline:
             # Show timeline summary using utility function
-            total_duration_hours = sum(
-                activity.get('duration_minutes', 0) for activity in timeline
-            ) / 60.0
-            
+            total_duration_hours = (
+                sum(activity.get("duration_minutes", 0) for activity in timeline) / 60.0
+            )
+
             timeline_summary = _format_timeline_summary(timeline, total_duration_hours)
             logger.info(f"\n{timeline_summary}")
 
@@ -120,9 +124,13 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         _format_error_message(
-            "schedule", 
-            e, 
-            ["Check configuration file syntax", "Verify bathymetry data availability", "Ensure sufficient disk space"]
+            "schedule",
+            e,
+            [
+                "Check configuration file syntax",
+                "Verify bathymetry data availability",
+                "Ensure sufficient disk space",
+            ],
         )
         sys.exit(1)
 

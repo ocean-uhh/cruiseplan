@@ -490,15 +490,18 @@ def setup_output_paths(
         # Try to get cruise name from YAML content, fallback to filename
         try:
             import yaml
-            with open(config_file, 'r') as f:
+
+            with open(config_file) as f:
                 config_data = yaml.safe_load(f)
-                cruise_name = config_data.get('cruise_name')
+                cruise_name = config_data.get("cruise_name")
                 if cruise_name:
                     # Use cruise name with safe character replacement
                     base_name = str(cruise_name).replace(" ", "_").replace("/", "-")
                 else:
                     # Fallback to config file stem
-                    base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
+                    base_name = (
+                        Path(config_file).stem.replace(" ", "_").replace("/", "-")
+                    )
         except (FileNotFoundError, yaml.YAMLError, KeyError):
             # Fallback to config file stem if YAML reading fails
             base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
