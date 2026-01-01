@@ -660,7 +660,7 @@ def _apply_cli_defaults(args: Namespace) -> None:
     from pathlib import Path
 
     # Apply bathymetry directory default
-    if hasattr(args, "bathy_dir") and args.bathy_dir is None:
+    if getattr(args, "bathy_dir", None) is None:
         args.bathy_dir = Path("data")
 
 

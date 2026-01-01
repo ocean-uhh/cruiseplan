@@ -120,9 +120,9 @@ class TestMapCommand:
         # Test the deprecation warning directly by calling the utility function
         with patch("cruiseplan.cli.cli_utils.logger") as mock_logger:
             from cruiseplan.cli.cli_utils import _handle_common_deprecated_params
-            
+
             _handle_common_deprecated_params(args)
-            
+
             # Verify deprecation warning was logged
             mock_logger.warning.assert_called_with(
                 "⚠️  WARNING: '--output-file' is deprecated. "

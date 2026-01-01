@@ -262,6 +262,7 @@ Examples:
     schedule_parser.add_argument(
         "--bathy-dir",
         type=Path,
+        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     schedule_parser.add_argument(

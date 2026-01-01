@@ -125,7 +125,7 @@ def main(args: argparse.Namespace) -> None:
 
         # Use the requested bathymetry source (or default)
         # The BathymetryManager will handle fallback to mock mode if files aren't available
-        optimal_bathymetry_source = args.bathy_source or "etopo2022"
+        optimal_bathymetry_source = getattr(args, "bathy_source", None) or "etopo2022"
 
         # Determine coordinate bounds
         lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
@@ -206,7 +206,7 @@ def main(args: argparse.Namespace) -> None:
                 output_file=str(output_path),
                 bathymetry_stride=bathymetry_stride,
                 bathymetry_source=optimal_bathymetry_source,
-                bathymetry_dir=str(args.bathy_dir),
+                bathymetry_dir=str(getattr(args, "bathy_dir", Path("data"))),
                 overwrite=getattr(args, "overwrite", False),
             )
 
