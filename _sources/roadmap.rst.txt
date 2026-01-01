@@ -19,93 +19,135 @@ Phase 1: Critical Data Integrity
 **Target**: Version 0.3.0 (Breaking Changes Release)  
 **Focus**: Data accuracy and routing consistency
 
+Deprecated Features Removal 🔴
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Priority**: Critical - Breaking Changes  
+**Status**: Scheduled for v0.3.0 removal
+
+**CLI Commands Deprecated**:
+
+- ``cruiseplan download`` → ``cruiseplan bathymetry``
+- ``cruiseplan pandoi`` → ``cruiseplan pangaea`` (search mode)
+
+**Parameter Standardization**:
+
+- ``--output-file`` → ``--output`` + ``--output-dir`` (across commands)
+- ``--bathymetry-*`` → ``--bathy-*`` (shorter parameter names)
+- ``--coord-format`` removed (fixed to DMM format)
+
+**YAML Configuration**:
+
+- LegDefinition: ``sequence``, ``stations``, ``sections`` → ``activities`` (unified field)
+
+**Timeline**:
+
+- Current: Deprecated features show warnings but remain functional
+- v0.3.0: Complete removal of deprecated commands and parameters
+- v0.3.0+: Only new command names and parameters supported
+
+**Migration**: See ``DEPRECATION_NOTES_v0.3.0.md`` for detailed migration examples
+
 Station Coordinate Access ✅
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Medium - Developer Experience  
-**Status**: Completed in v0.2.x
+**Status**: Completed in v0.2.3 (post-v0.2.2)
 
 **Implementation**: Direct ``station.latitude`` and ``station.longitude`` attributes  
 **Previous Pattern**: ``station.position.latitude`` (removed)
 
 **Benefits**: Improved code readability throughout calculation and enrichment functions
 
-Area Operation Routing Fix 🟡
+Area Operation Routing Fix ✅
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: High - Routing Consistency  
-**Breaking Change**: Potentially - Timeline output coordinates change
 
-**Current Problem**:
-The scheduler calculates artificial center points for area operations instead of using proper entry/exit points, causing routing inconsistencies.
+**Status**: Completed in v0.2.x (entry/exit points implemented)
 
-**Impact**:
-- Incorrect distance calculations between area operations and adjacent activities
-- Timeline coordinates don't match actual operational flow
-- Inconsistent with point and line operation routing logic
+**Previous Problem**:
+The scheduler calculated artificial center points for area operations instead of using proper entry/exit points, causing routing inconsistencies.
 
-**Planned Solution**:
-Replace center point calculations with proper ``get_entry_point()`` and ``get_exit_point()`` method usage in scheduler functions.
+**Solution Implemented**:
+Replaced center point calculations with proper ``get_entry_point()`` and ``get_exit_point()`` method usage in scheduler functions.
 
 **Files Affected**: ``cruiseplan/calculators/scheduler.py``
 
-Phase 2: Core Feature Completion
+**Benefits**: 
+
+- Correct distance calculations between area operations and adjacent activities
+- Timeline coordinates match actual operational flow  
+- Consistent with point and line operation routing logic
+
+
+Phase 3: NetCDF and YAML Enhancements
 --------------------------------
 
-**Target**: Version 0.4.0 (Feature Release)  
-**Focus**: Missing functionality and operational realism
+**Target**: Version 0.4.0 (Quality Release)  
+**Focus**: Maintainability and developer experience
 
-PNG Map Generation 🔴
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+NetCDF Generator Refactoring 🟠
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Priority**: Critical - Major Missing Feature  
-**Breaking Change**: No
+**Priority**: Medium - Code Quality  
+**Breaking Change**: No (internal refactoring)
 
-**Current Gap**: 
-No static map visualization capability for reports and documentation.
+**Current Issues**:
 
-**Planned Implementation**:
-- **Module**: ``cruiseplan/output/map_generator.py``
-- **Features**: Bathymetric backgrounds, station markers, cruise tracks, publication-quality output
-- **CLI Integration**: 
-  
-  .. code-block:: bash
-  
-     # Generate map as part of schedule output
-     cruiseplan schedule --format png,html,latex
-     
-     # Standalone map generation  
-     cruiseplan map -c cruise.yaml --output-file cruise_track.png
+- Code duplication in global attributes and variable definitions
+- Inconsistent metadata handling across output types
+- Difficult to maintain CF compliance
 
-Enhanced Timing Controls 🟡
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+**Planned Improvements**:
 
-**Priority**: High - Operational Realism  
-**Breaking Change**: No (additive only)
+- Centralized metadata system in ``cruiseplan/output/netcdf_metadata.py``
+- Standardized variable definitions and coordinate templates
+- Single source of truth for CF convention compliance
 
-**Current Limitations**:
-- No activity-level timing controls for operational constraints
-- Missing weather delay allocation capabilities
-- Limited buffer time options
+NetCDF to YAML Roundtrip Validation 🟡
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-**Planned Features**:
+**Priority**: Medium - Data Integrity  
+**Breaking Change**: No (additive)
 
-.. code-block:: yaml
+**Requirement**: 
+Implement bidirectional conversion between NetCDF output and YAML configuration to validate completeness of exported data.
 
-   stations:
-     - name: "Mooring_Deploy"
-       duration: 240.0           # 4 hours deployment
-       delay_start: 120.0        # Wait for daylight
-       delay_end: 60.0          # Equipment settling time
-       
-   legs:
-     - name: "Deep_Survey"
-       buffer_time: 480.0        # 8 hours weather contingency
+**Implementation Plan**:
+
+- Create ``cruiseplan netcdf-to-yaml`` command to reverse-engineer YAML from NetCDF
+- Validate that all critical cruise planning information is preserved in NetCDF export
+- Ensure roundtrip fidelity: ``YAML → NetCDF → YAML`` produces equivalent configurations
+- Identify any data loss during NetCDF export process
 
 **Use Cases**:
-- Daylight-dependent operations (mooring deployments)
-- Equipment stabilization periods
-- Weather delay planning
+
+- **Data Integrity Validation**: Verify NetCDF exports contain complete cruise information
+- **Configuration Recovery**: Reconstruct YAML configs from archived NetCDF files
+- **Format Migration**: Enable users to recover configurations from legacy NetCDF outputs
+- **Quality Assurance**: Automated testing of export completeness
+
+**Success Criteria**: Generated YAML produces identical schedule and station information when re-processed
+
+**Why This is Critical**
+
+1. Configuration Recovery: Users need to recreate YAML configs from generated netCDF files
+2. Iterative Planning: Modify generated schedules and convert back to YAML for further processing
+3. Data Provenance: Ensure roundtrip fidelity for scientific reproducibility
+4. Integration Testing: Validate that YAML→netCDF→YAML produces equivalent results
+
+**Implementation Considerations**
+
+# Proposed CLI interface
+cruiseplan convert schedule.nc --format yaml
+
+This would need to:
+
+- Extract all cruise metadata, station definitions, timing, and routing from netCDF
+- Reconstruct the original YAML structure with proper nesting
+- Handle coordinate transformations and unit conversions
+- Preserve as much configuration detail as possible
 
 Complete YAML Reference 🟡
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -121,52 +163,6 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 - Operation type and action combination matrix
 - Validation rules and constraints documentation
 - Strategy and clustering options with examples
-
-Phase 3: Code Quality and Polish
---------------------------------
-
-**Target**: Version 0.5.0 (Quality Release)  
-**Focus**: Maintainability and developer experience
-
-NetCDF Generator Refactoring 🟠
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Priority**: Medium - Code Quality  
-**Breaking Change**: No (internal refactoring)
-
-**Current Issues**:
-- Code duplication in global attributes and variable definitions
-- Inconsistent metadata handling across output types
-- Difficult to maintain CF compliance
-
-**Planned Improvements**:
-- Centralized metadata system in ``cruiseplan/output/netcdf_metadata.py``
-- Standardized variable definitions and coordinate templates
-- Single source of truth for CF convention compliance
-
-NetCDF to YAML Roundtrip Validation 🟡
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-**Priority**: Medium - Data Integrity  
-**Breaking Change**: No (additive)
-
-**Requirement**: 
-Implement bidirectional conversion between NetCDF output and YAML configuration to validate completeness of exported data.
-
-**Implementation Plan**:
-- Create ``cruiseplan netcdf-to-yaml`` command to reverse-engineer YAML from NetCDF
-- Validate that all critical cruise planning information is preserved in NetCDF export
-- Ensure roundtrip fidelity: ``YAML → NetCDF → YAML`` produces equivalent configurations
-- Identify any data loss during NetCDF export process
-
-**Use Cases**:
-- **Data Integrity Validation**: Verify NetCDF exports contain complete cruise information
-- **Configuration Recovery**: Reconstruct YAML configs from archived NetCDF files
-- **Format Migration**: Enable users to recover configurations from legacy NetCDF outputs
-- **Quality Assurance**: Automated testing of export completeness
-
-**Success Criteria**: Generated YAML produces identical schedule and station information when re-processed
-
 
 Phase 4: Architecture and Performance
 --------------------------------------
@@ -244,6 +240,7 @@ Risk Assessment
 - **PNG generation**: New dependency requirements - ensure installation compatibility
 
 **Mitigation Strategies**:
+
 - Extensive test coverage for critical changes
 - Staged rollout with release candidates
 - Clear migration documentation and examples

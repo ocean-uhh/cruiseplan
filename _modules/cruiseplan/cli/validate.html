@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.validate &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev2</title>
+  <title>cruiseplan.cli.validate &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=99e2ba8b"></script>
+      <script src="../../../_static/documentation_options.js?v=3d9a3e92"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -109,6 +109,11 @@
 
 <span class="sd">This module implements the &#39;cruiseplan validate&#39; command for comprehensive</span>
 <span class="sd">validation of YAML configuration files without modification.</span>
+
+<span class="sd">Uses the API-first architecture pattern with proper separation of concerns:</span>
+<span class="sd">- CLI layer handles argument parsing and output formatting</span>
+<span class="sd">- API layer (cruiseplan.__init__) contains business logic</span>
+<span class="sd">- Utility functions provide consistent formatting and error handling</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
@@ -116,13 +121,20 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CLIError</span><span class="p">,</span>
-    <span class="n">count_individual_warnings</span><span class="p">,</span>
-    <span class="n">setup_logging</span><span class="p">,</span>
-    <span class="n">validate_input_file</span><span class="p">,</span>
+    <span class="n">_format_error_message</span><span class="p">,</span>
+    <span class="n">_format_progress_header</span><span class="p">,</span>
+    <span class="n">_setup_cli_logging</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_configuration_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_convert_api_response_to_cli</span><span class="p">,</span>
+    <span class="n">_extract_api_errors</span><span class="p">,</span>
+    <span class="n">_resolve_cli_to_api_params</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_config_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="n">_format_validation_results</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -131,7 +143,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.validate.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main entry point for validate command.</span>
+<span class="sd">    Main entry point for validate command using API-first architecture.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -144,32 +156,36 @@
 <span class="sd">        If input validation fails or configuration validation encounters errors.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Setup logging</span>
-        <span class="n">setup_logging</span><span class="p">(</span>
+        <span class="c1"># Setup logging using new utility</span>
+        <span class="n">_setup_cli_logging</span><span class="p">(</span>
             <span class="n">verbose</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span> <span class="n">quiet</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;quiet&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="c1"># Validate input file</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="c1"># Validate input file using new utility</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">_validate_config_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Configuration Validation&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Validating: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Call core validation function</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running validation checks...&quot;</span><span class="p">)</span>
-        <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">validate_configuration_file</span><span class="p">(</span>
-            <span class="n">config_path</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
-            <span class="n">check_depths</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">check_depths</span><span class="p">,</span>
-            <span class="n">tolerance</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">tolerance</span><span class="p">,</span>
-            <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source</span><span class="p">,</span>
-            <span class="n">bathymetry_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bathymetry_dir</span><span class="p">),</span>
-            <span class="n">strict</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">strict</span><span class="p">,</span>
+        <span class="c1"># Format progress header using new utility</span>
+        <span class="n">_format_progress_header</span><span class="p">(</span>
+            <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;Configuration Validation&quot;</span><span class="p">,</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+            <span class="n">check_depths</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;check_depths&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;tolerance&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="c1"># Report results</span>
+        <span class="c1"># Convert CLI args to API parameters using bridge utility</span>
+        <span class="n">api_params</span> <span class="o">=</span> <span class="n">_resolve_cli_to_api_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;validate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Call API function instead of core directly</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Running validation checks...&quot;</span><span class="p">)</span>
+        <span class="n">api_response</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">validate</span><span class="p">(</span><span class="o">**</span><span class="n">api_params</span><span class="p">)</span>
+
+        <span class="c1"># Convert API response to CLI format using bridge utility</span>
+        <span class="n">cli_response</span> <span class="o">=</span> <span class="n">_convert_api_response_to_cli</span><span class="p">(</span><span class="n">api_response</span><span class="p">,</span> <span class="s2">&quot;validate&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Extract success status and messages using utility</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">_extract_api_errors</span><span class="p">(</span><span class="n">cli_response</span><span class="p">)</span>
+
+        <span class="c1"># Report results using new formatting utility</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validation Results&quot;</span><span class="p">)</span>
@@ -185,25 +201,20 @@
             <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">warnings</span><span class="p">:</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Summary</span>
-        <span class="k">if</span> <span class="n">success</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">warnings</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ All validations passed - configuration is valid!&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">success</span> <span class="ow">and</span> <span class="n">warnings</span><span class="p">:</span>
-            <span class="n">warning_count</span> <span class="o">=</span> <span class="n">count_individual_warnings</span><span class="p">(</span><span class="n">warnings</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Validation passed with </span><span class="si">{</span><span class="n">warning_count</span><span class="si">}</span><span class="s2"> warnings&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">warnings_only</span><span class="p">:</span>
+        <span class="c1"># Format and display summary using new utility</span>
+        <span class="n">summary_message</span> <span class="o">=</span> <span class="n">_format_validation_results</span><span class="p">(</span><span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">success</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">summary_message</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">warnings</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;warnings_only&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
                 <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ℹ️ Treating warnings as informational only&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Validation failed with </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> errors&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">warnings</span><span class="p">:</span>
-                <span class="n">warning_count</span> <span class="o">=</span> <span class="n">count_individual_warnings</span><span class="p">(</span><span class="n">warnings</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   and </span><span class="si">{</span><span class="n">warning_count</span><span class="si">}</span><span class="s2"> additional warnings&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">summary_message</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="n">CLIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_format_error_message</span><span class="p">(</span><span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
@@ -211,7 +222,11 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_format_error_message</span><span class="p">(</span>
+            <span class="s2">&quot;validate&quot;</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+            <span class="p">[</span><span class="s2">&quot;Check configuration file syntax&quot;</span><span class="p">,</span> <span class="s2">&quot;Verify file permissions&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 

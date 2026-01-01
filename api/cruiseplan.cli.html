@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev2</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=99e2ba8b"></script>
+      <script src="../_static/documentation_options.js?v=3d9a3e92"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -113,10 +113,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.process">cruiseplan.cli.process module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.create_enrich_args"><code class="docutils literal notranslate"><span class="pre">create_enrich_args()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.create_map_args"><code class="docutils literal notranslate"><span class="pre">create_map_args()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.create_validate_args"><code class="docutils literal notranslate"><span class="pre">create_validate_args()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.determine_steps"><code class="docutils literal notranslate"><span class="pre">determine_steps()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.process.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
@@ -292,6 +288,13 @@ planning, data processing, and output generation.</p>
 </section>
 <section id="module-cruiseplan.cli.bathymetry">
 <span id="cruiseplan-cli-bathymetry-module"></span><h2>cruiseplan.cli.bathymetry module<a class="headerlink" href="#module-cruiseplan.cli.bathymetry" title="Link to this heading"></a></h2>
+<p>Bathymetry data download command.</p>
+<p>This module implements the ‘cruiseplan bathymetry’ command for downloading
+bathymetry data assets required for cruise planning.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.bathymetry.get_citation_info">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.bathymetry.</span></span><span class="sig-name descname"><span class="pre">get_citation_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/bathymetry.html#get_citation_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.bathymetry.get_citation_info" title="Link to this definition"></a></dt>
@@ -312,7 +315,7 @@ planning, data processing, and output generation.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.bathymetry.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.bathymetry.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/bathymetry.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.bathymetry.main" title="Link to this definition"></a></dt>
-<dd><p>Entry point for downloading bathymetry data assets.</p>
+<dd><p>Entry point for downloading bathymetry data assets using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em><em>, </em><em>optional</em>) – Parsed command-line arguments containing bathymetry source selection.</p>
@@ -338,7 +341,10 @@ planning, data processing, and output generation.</p>
 <p>This module implements the ‘cruiseplan pangaea’ command that can either:
 1. Search PANGAEA datasets by query + geographic bounds, then download station data
 2. Process an existing DOI list file directly into station data</p>
-<p>Supports base filename output strategy for consistent file naming.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.determine_workflow_mode">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">determine_workflow_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#determine_workflow_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.determine_workflow_mode" title="Link to this definition"></a></dt>
@@ -380,7 +386,7 @@ planning, data processing, and output generation.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.pangaea.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.pangaea.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/pangaea.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.pangaea.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for unified PANGAEA command.</p>
+<dd><p>Main entry point for unified PANGAEA command using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments</p>
@@ -577,93 +583,16 @@ campaign_data: Loaded PANGAEA campaign data</p>
 </section>
 <section id="module-cruiseplan.cli.process">
 <span id="cruiseplan-cli-process-module"></span><h2>cruiseplan.cli.process module<a class="headerlink" href="#module-cruiseplan.cli.process" title="Link to this heading"></a></h2>
-<p>Unified configuration processing command - Wrapper/Orchestrator Pattern.</p>
-<p>This module implements the ‘cruiseplan process’ command as a wrapper that
-orchestrates individual enrich, validate, and map commands with smart defaults
-and predictable file naming.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.process.create_enrich_args">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">create_enrich_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#create_enrich_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.create_enrich_args" title="Link to this definition"></a></dt>
-<dd><p>Create arguments for enrich command from process arguments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Process command arguments</p></li>
-<li><p><strong>input_config</strong> (<em>Path</em>) – Input configuration file</p></li>
-<li><p><strong>output_config</strong> (<em>Path</em>) – Output enriched configuration file</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Arguments for enrich command</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>argparse.Namespace</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.process.create_map_args">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">create_map_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">base_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#create_map_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.create_map_args" title="Link to this definition"></a></dt>
-<dd><p>Create arguments for map command from process arguments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Process command arguments</p></li>
-<li><p><strong>config_file</strong> (<em>Path</em>) – Configuration file to generate maps from</p></li>
-<li><p><strong>base_name</strong> (<em>str</em>) – Base filename for output maps</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Arguments for map command</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>argparse.Namespace</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.process.create_validate_args">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">create_validate_args</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Namespace</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#create_validate_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.create_validate_args" title="Link to this definition"></a></dt>
-<dd><p>Create arguments for validate command from process arguments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Process command arguments</p></li>
-<li><p><strong>config_file</strong> (<em>Path</em>) – Configuration file to validate</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Arguments for validate command</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>argparse.Namespace</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.process.determine_steps">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">determine_steps</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#determine_steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.determine_steps" title="Link to this definition"></a></dt>
-<dd><p>Determine which processing steps to run based on arguments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Command line arguments</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>List of steps to run: [‘enrich’, ‘validate’, ‘map’]</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[str]</p>
-</dd>
-</dl>
-</dd></dl>
-
+<p>Unified configuration processing command - API-First Architecture.</p>
+<p>This module implements the ‘cruiseplan process’ command using the API-first
+pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.process.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.process.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/process.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.process.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for unified process command (wrapper pattern).</p>
+<dd><p>Main entry point for process command using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments</p>
@@ -677,10 +606,14 @@ and predictable file naming.</p>
 <p>Cruise schedule generation command.</p>
 <p>This module implements the ‘cruiseplan schedule’ command for generating
 comprehensive cruise schedules from YAML configuration files.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.schedule.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.schedule.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/schedule.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.schedule.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for schedule command.</p>
+<dd><p>Main entry point for schedule command using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing config_file, output_dir, format, etc.</p>
@@ -700,10 +633,14 @@ comprehensive cruise schedules from YAML configuration files.</p>
 <p>Configuration enrichment command.</p>
 <p>This module implements the ‘cruiseplan enrich’ command for adding missing
 data to existing YAML configuration files.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.enrich.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.enrich.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/enrich.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.enrich.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for enrich command.</p>
+<dd><p>Main entry point for enrich command using API-first architecture.</p>
 <dl class="simple">
 <dt>Args:</dt><dd><p>args: Parsed command line arguments</p>
 </dd>
@@ -716,10 +653,14 @@ data to existing YAML configuration files.</p>
 <p id="module-cruiseplan.cli.validate">Configuration validation command.</p>
 <p>This module implements the ‘cruiseplan validate’ command for comprehensive
 validation of YAML configuration files without modification.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.validate.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.validate.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/validate.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.validate.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for validate command.</p>
+<dd><p>Main entry point for validate command using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments containing config_file, check_depths, tolerance, etc.</p>
@@ -736,10 +677,14 @@ validation of YAML configuration files without modification.</p>
 <p>Map generation CLI command for creating cruise track visualizations.</p>
 <p>This module provides command-line functionality for generating PNG maps
 directly from YAML cruise configuration files, independent of scheduling.</p>
+<p>Uses the API-first architecture pattern with proper separation of concerns:
+- CLI layer handles argument parsing and output formatting
+- API layer (cruiseplan.__init__) contains business logic
+- Utility functions provide consistent formatting and error handling</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.map.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.map.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/map.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.map.main" title="Link to this definition"></a></dt>
-<dd><p>Generate PNG maps and/or KML files from cruise configuration.</p>
+<dd><p>Generate PNG maps and/or KML files from cruise configuration using API-first architecture.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command-line arguments containing config_file, output options, etc.</p>

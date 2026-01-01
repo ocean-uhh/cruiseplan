@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.map &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev2</title>
+  <title>cruiseplan.cli.map &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=99e2ba8b"></script>
+      <script src="../../../_static/documentation_options.js?v=3d9a3e92"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -109,13 +109,32 @@
 
 <span class="sd">This module provides command-line functionality for generating PNG maps</span>
 <span class="sd">directly from YAML cruise configuration files, independent of scheduling.</span>
+
+<span class="sd">Uses the API-first architecture pattern with proper separation of concerns:</span>
+<span class="sd">- CLI layer handles argument parsing and output formatting</span>
+<span class="sd">- API layer (cruiseplan.__init__) contains business logic</span>
+<span class="sd">- Utility functions provide consistent formatting and error handling</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_cruise_with_pretty_warnings</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_map_from_yaml</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_collect_generated_files</span><span class="p">,</span>
+    <span class="n">_format_error_message</span><span class="p">,</span>
+    <span class="n">_format_progress_header</span><span class="p">,</span>
+    <span class="n">_format_success_message</span><span class="p">,</span>
+    <span class="n">_setup_cli_logging</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_convert_api_response_to_cli</span><span class="p">,</span>
+    <span class="n">_resolve_cli_to_api_params</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_validate_config_file</span><span class="p">,</span>
+    <span class="n">_validate_directory_writable</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -124,7 +143,7 @@
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.map.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate PNG maps and/or KML files from cruise configuration.</span>
+<span class="sd">    Generate PNG maps and/or KML files from cruise configuration using API-first architecture.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -132,38 +151,18 @@
 <span class="sd">        Parsed command-line arguments containing config_file, output options, etc.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Handle legacy parameter deprecation warnings and parameter mapping</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathymetry_source_legacy&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source_legacy</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️  WARNING: &#39;--bathymetry-source&#39; is deprecated. Use &#39;--bathy-source&#39; instead.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">bathy_source</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_source_legacy</span>
+        <span class="c1"># Setup logging using new utility</span>
+        <span class="n">_setup_cli_logging</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">))</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathymetry_dir_legacy&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_dir_legacy</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️  WARNING: &#39;--bathymetry-dir&#39; is deprecated. Use &#39;--bathy-dir&#39; instead.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">bathy_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_dir_legacy</span>
+        <span class="c1"># Handle legacy parameter deprecation warnings using utility function</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_handle_deprecated_params</span>
 
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathymetry_stride_legacy&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_stride_legacy</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️  WARNING: &#39;--bathymetry-stride&#39; is deprecated. Use &#39;--bathy-stride&#39; instead.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">bathy_stride</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">bathymetry_stride_legacy</span>
-
-        <span class="c1"># Load cruise configuration with pretty warning formatting</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading cruise configuration from </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">cruise</span> <span class="o">=</span> <span class="n">load_cruise_with_pretty_warnings</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
-
-        <span class="c1"># Parse format selection</span>
-        <span class="n">formats</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;all&quot;</span><span class="p">:</span>
-            <span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;kml&quot;</span><span class="p">]</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">formats</span> <span class="o">=</span> <span class="p">[</span><span class="n">args</span><span class="o">.</span><span class="n">format</span><span class="p">]</span>
-
-        <span class="c1"># Ensure output directory exists</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">param_map</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;bathymetry_source_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bathymetry_dir_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;bathymetry_stride_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_stride&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">_handle_deprecated_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">param_map</span><span class="p">)</span>
 
         <span class="c1"># Handle deprecated --output-file parameter</span>
         <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_file&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">:</span>
@@ -171,123 +170,59 @@
                 <span class="s2">&quot;⚠️  WARNING: &#39;--output-file&#39; is deprecated. Use &#39;--output&#39; for base filename and &#39;--output-dir&#39; for the path.&quot;</span>
             <span class="p">)</span>
 
-        <span class="c1"># Determine base filename (use --output if provided, otherwise cruise name)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">:</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span>
+        <span class="c1"># Validate input file using new utility</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">_validate_config_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="c1"># Output directory validation handled by API layer</span>
+
+        <span class="c1"># Format progress header using new utility</span>
+        <span class="n">_format_progress_header</span><span class="p">(</span>
+            <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;Map Generation&quot;</span><span class="p">,</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+            <span class="nb">format</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;format&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">),</span>
+            <span class="n">bathy_source</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Convert CLI args to API parameters using bridge utility</span>
+        <span class="n">api_params</span> <span class="o">=</span> <span class="n">_resolve_cli_to_api_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;map&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Call API function instead of core directly</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating maps and visualizations...&quot;</span><span class="p">)</span>
+        <span class="n">api_response</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">**</span><span class="n">api_params</span><span class="p">)</span>
+
+        <span class="c1"># Convert API response to CLI format using bridge utility</span>
+        <span class="n">cli_response</span> <span class="o">=</span> <span class="n">_convert_api_response_to_cli</span><span class="p">(</span><span class="n">api_response</span><span class="p">,</span> <span class="s2">&quot;map&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Collect generated files using utility</span>
+        <span class="n">generated_files</span> <span class="o">=</span> <span class="n">_collect_generated_files</span><span class="p">(</span>
+            <span class="n">cli_response</span><span class="p">,</span> <span class="n">base_patterns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*_map.png&quot;</span><span class="p">,</span> <span class="s2">&quot;*_catalog.kml&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generated_files</span><span class="p">:</span>
+            <span class="c1"># Format success message using new utility</span>
+            <span class="n">_format_success_message</span><span class="p">(</span><span class="s2">&quot;map generation&quot;</span><span class="p">,</span> <span class="n">generated_files</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Track generated files</span>
-        <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="c1"># Generate PNG map if requested</span>
-        <span class="k">if</span> <span class="s2">&quot;png&quot;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_file&quot;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span>
-                <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span>
-            <span class="p">):</span>
-                <span class="c1"># Use legacy specific output file for PNG only</span>
-                <span class="n">png_output_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Use base filename pattern</span>
-                <span class="n">png_output_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_map.png&quot;</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Generating PNG map with bathymetry source: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">bathy_source</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">png_result</span> <span class="o">=</span> <span class="n">generate_map_from_yaml</span><span class="p">(</span>
-                <span class="n">cruise</span><span class="p">,</span>
-                <span class="n">output_file</span><span class="o">=</span><span class="n">png_output_file</span><span class="p">,</span>
-                <span class="n">bathy_source</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathy_source</span><span class="p">,</span>
-                <span class="n">bathy_stride</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">bathy_stride</span><span class="p">,</span>
-                <span class="n">bathy_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bathy_dir</span><span class="p">),</span>
-                <span class="n">show_plot</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">show_plot</span><span class="p">,</span>
-                <span class="n">figsize</span><span class="o">=</span><span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">figsize</span><span class="p">),</span>
-                <span class="n">include_ports</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Focus on scientific operations only</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">png_result</span><span class="p">:</span>
-                <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;PNG map&quot;</span><span class="p">,</span> <span class="n">png_result</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ PNG map generated: </span><span class="si">{</span><span class="n">png_result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;❌ PNG map generation failed&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="mi">1</span>
-
-        <span class="c1"># Generate KML file if requested</span>
-        <span class="k">if</span> <span class="s2">&quot;kml&quot;</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
-            <span class="k">if</span> <span class="p">(</span>
-                <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_file&quot;</span><span class="p">)</span>
-                <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span>
-                <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">format</span> <span class="o">==</span> <span class="s2">&quot;kml&quot;</span>
-            <span class="p">):</span>
-                <span class="c1"># Use legacy specific output file for KML only</span>
-                <span class="n">kml_output_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># Use base filename pattern</span>
-                <span class="n">kml_output_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_catalog.kml&quot;</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Generating KML catalog from YAML configuration&quot;</span><span class="p">)</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.kml_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_kml_catalog</span>
-
-            <span class="n">kml_result</span> <span class="o">=</span> <span class="n">generate_kml_catalog</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">kml_output_file</span><span class="p">)</span>
-
-            <span class="k">if</span> <span class="n">kml_result</span><span class="p">:</span>
-                <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;KML catalog&quot;</span><span class="p">,</span> <span class="n">kml_result</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ KML catalog generated: </span><span class="si">{</span><span class="n">kml_result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;❌ KML catalog generation failed&quot;</span><span class="p">)</span>
-                <span class="k">return</span> <span class="mi">1</span>
-
-        <span class="c1"># Print summary of generated files</span>
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Map generation complete!&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">file_type</span><span class="p">,</span> <span class="n">file_path</span> <span class="ow">in</span> <span class="n">generated_files</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 </span><span class="si">{</span><span class="n">file_type</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">file_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Print statistics based on operation types</span>
-        <span class="n">station_count</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="n">mooring_count</span> <span class="o">=</span> <span class="mi">0</span>
-
-        <span class="c1"># Count stations by operation type</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;station_registry&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">station_registry</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
-                <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
-                    <span class="n">mooring_count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">station_count</span> <span class="o">+=</span> <span class="mi">1</span>
-
-        <span class="c1"># Add dedicated moorings from mooring_registry</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;mooring_registry&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">mooring_registry</span><span class="p">:</span>
-            <span class="n">mooring_count</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">mooring_registry</span><span class="p">)</span>
-        <span class="n">transit_count</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;transit_registry&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">transit_registry</span>
-            <span class="k">else</span> <span class="mi">0</span>
-        <span class="p">)</span>
-        <span class="n">area_count</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">len</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">area_registry</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="s2">&quot;area_registry&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">area_registry</span>
-            <span class="k">else</span> <span class="mi">0</span>
-        <span class="p">)</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">📊 Catalog summary:&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📍 Stations: </span><span class="si">{</span><span class="n">station_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   ⚓ Moorings: </span><span class="si">{</span><span class="n">mooring_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   🚢 Transits: </span><span class="si">{</span><span class="n">transit_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📐 Areas: </span><span class="si">{</span><span class="n">area_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   🚢 Departure: </span><span class="si">{</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   🏁 Arrival: </span><span class="si">{</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">errors</span> <span class="o">=</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Map generation failed&quot;</span><span class="p">])</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">1</span>
 
     <span class="k">except</span> <span class="ne">FileNotFoundError</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Configuration file not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">_format_error_message</span><span class="p">(</span>
+            <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+            <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration file not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">),</span>
+        <span class="p">)</span>
         <span class="k">return</span> <span class="mi">1</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Map generation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
+        <span class="n">_format_error_message</span><span class="p">(</span>
+            <span class="s2">&quot;map&quot;</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;Check configuration file syntax&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Verify bathymetry data availability&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Check output directory permissions&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
             <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
 
             <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
