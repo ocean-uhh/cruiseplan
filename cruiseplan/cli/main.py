@@ -262,7 +262,6 @@ Examples:
     schedule_parser.add_argument(
         "--bathy-dir",
         type=Path,
-        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     schedule_parser.add_argument(
@@ -314,16 +313,28 @@ Examples:
         "--output-file", type=Path, help="Specific output file path"
     )
     stations_parser.add_argument(
-        "--bathymetry-source",
+        "--bathy-source",
         choices=["etopo2022", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset (default: etopo2022)",
     )
     stations_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        help="Directory containing bathymetry data (default: data)",
+    )
+    # Legacy parameter support for consistency
+    stations_parser.add_argument(
+        "--bathymetry-source",
+        dest="bathy_source_legacy",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    stations_parser.add_argument(
         "--bathymetry-dir",
         type=Path,
-        default=Path("data"),
-        help="Directory containing bathymetry data (default: data)",
+        dest="bathy_dir_legacy",
+        help="[DEPRECATED] Use --bathy-dir instead",
     )
     stations_parser.add_argument(
         "--high-resolution",
@@ -545,7 +556,6 @@ Examples:
     map_parser.add_argument(
         "--bathy-dir",
         type=Path,
-        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     map_parser.add_argument(
@@ -719,7 +729,6 @@ Examples:
     process_parser.add_argument(
         "--bathy-dir",
         type=Path,
-        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     process_parser.add_argument(

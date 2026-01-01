@@ -37,12 +37,7 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
+            patch("cruiseplan.cli.map._initialize_cli_command", return_value=Path("test.yaml")),
             patch(
                 "cruiseplan.cli.map._validate_directory_writable",
                 return_value=Path("output"),
@@ -129,12 +124,7 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
+            patch("cruiseplan.cli.cli_utils._validate_config_file", return_value=Path("test.yaml")),
             patch(
                 "cruiseplan.cli.map._validate_directory_writable",
                 return_value=Path("output"),
@@ -150,7 +140,7 @@ class TestMapCommand:
                 return_value=[Path("custom_map.png")],
             ),
             patch("cruiseplan.cli.map._format_success_message"),
-            patch("cruiseplan.cli.map.logger") as mock_logger,
+            patch("cruiseplan.cli.cli_utils.logger") as mock_logger,
         ):
 
             # Mock successful API response
@@ -183,12 +173,7 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
+            patch("cruiseplan.cli.map._initialize_cli_command", return_value=Path("test.yaml")),
             patch(
                 "cruiseplan.cli.map._validate_directory_writable",
                 return_value=Path("output"),
@@ -233,12 +218,7 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
+            patch("cruiseplan.cli.map._initialize_cli_command", return_value=Path("test.yaml")),
             patch(
                 "cruiseplan.cli.map._validate_directory_writable",
                 return_value=Path("output"),

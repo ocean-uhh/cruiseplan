@@ -24,6 +24,7 @@ from cruiseplan.cli.cli_utils import (
     _format_error_message,
     _format_progress_header,
     _format_success_message,
+    _initialize_cli_command,
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
@@ -31,6 +32,13 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import _validate_config_file
+
+# Re-export functions for test mocking (cleaner than complex patch paths)
+__all__ = [
+    "main", "_setup_cli_logging", "_validate_config_file", "_resolve_cli_to_api_params",
+    "_convert_api_response_to_cli", "_format_progress_header", "_format_success_message", 
+    "_collect_generated_files", "_format_error_message"
+]
 
 logger = logging.getLogger(__name__)
 
@@ -191,19 +199,8 @@ def main(args: argparse.Namespace) -> None:
         args: Parsed command line arguments
     """
     try:
-        # Setup logging using new utility
-        _setup_cli_logging(
-            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
-        )
-
-        # Handle legacy --output-file parameter
-        if hasattr(args, "output_file") and args.output_file:
-            logger.warning(
-                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
-            )
-
-        # Validate input file using new utility
-        config_file = _validate_config_file(args.config_file)
+        # Standardized CLI initialization
+        config_file = _initialize_cli_command(args)
 
         # Format progress header using new utility
         _format_progress_header(

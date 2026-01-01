@@ -249,8 +249,8 @@ map_parser.add_argument(
 - [ ] All deprecated functionality still works during transition
 
 ### v0.3.0 Release Checklist
-- [ ] Remove deprecated command tests: `test_cli_download.py`, `test_cli_pandoi.py`
-- [ ] Remove deprecated command modules: `download.py`, `pandoi.py`  
+- [x] Remove deprecated command tests: `test_cli_download.py`, `test_cli_pandoi.py`  
+- [x] Remove deprecated command modules: `download.py`, `pandoi.py`  
 - [ ] Remove deprecated subcommand parsers from `main.py`
 - [ ] Remove deprecated parameter support from commands
 - [ ] Update documentation to remove deprecated examples

@@ -27,14 +27,13 @@ class TestProcessCommand:
 
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.cli.process._validate_config_file") as mock_validate,
+            patch("cruiseplan.cli.process._initialize_cli_command", return_value=Path("test_config.yaml")),
             patch("cruiseplan.cli.process._format_progress_header"),
             patch("cruiseplan.cli.process._collect_generated_files") as mock_collect,
             patch("cruiseplan.cli.process._format_success_message"),
         ):
 
             mock_api.return_value = ([], [Path("data/test_enriched.yaml")])
-            mock_validate.return_value = Path("test_config.yaml")
             mock_collect.return_value = [Path("data/test_enriched.yaml")]
 
             main(mock_args)
@@ -112,21 +111,20 @@ class TestProcessCommand:
         mock_args.quiet = False
 
         with (
-            patch("cruiseplan.cli.process._setup_cli_logging"),
-            patch("cruiseplan.cli.process._validate_config_file") as mock_validate,
+            patch("cruiseplan.cli.process._initialize_cli_command") as mock_init,
             patch("cruiseplan.cli.process._format_error_message") as mock_format_error,
         ):
 
             from cruiseplan.cli.cli_utils import CLIError
 
-            mock_validate.side_effect = CLIError("Invalid config file")
+            mock_init.side_effect = CLIError("Invalid config file")
 
             with pytest.raises(SystemExit):
                 main(mock_args)
 
             # Should format the error
             mock_format_error.assert_called_once_with(
-                "process", mock_validate.side_effect
+                "process", mock_init.side_effect
             )
 
     def test_main_handles_general_exception(self):

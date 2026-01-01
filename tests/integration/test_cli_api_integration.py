@@ -25,7 +25,7 @@ class TestCLIAPIParameterMapping:
         # Create realistic CLI args that would come from argparse
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            output_dir="data",
+            output_dir="tests_output",
             output="test_output",
             add_depths=True,
             add_coords=True,
@@ -71,7 +71,7 @@ class TestCLIAPIParameterMapping:
         """Test that schedule CLI correctly maps parameters to API function signature."""
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            output_dir="data",
+            output_dir="tests_output",
             output="test_output",
             format="all",
             leg=None,
@@ -95,7 +95,7 @@ class TestCLIAPIParameterMapping:
         """Test that enrich CLI correctly maps parameters to API function signature."""
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            output_dir="data",
+            output_dir="tests_output",
             output="test_output",
             add_depths=True,
             add_coords=True,
@@ -145,7 +145,7 @@ class TestCLIAPIIntegrationFlow:
         """Test process command integration with minimal mocking."""
         args = argparse.Namespace(
             config_file=Path("tests/fixtures/tc1_single.yaml"),
-            output_dir="data",
+            output_dir="tests_output",
             output="integration_test",
             add_depths=True,
             add_coords=True,
@@ -190,7 +190,7 @@ class TestCLIAPIIntegrationFlow:
         """Test schedule command integration with minimal mocking."""
         args = argparse.Namespace(
             config_file=Path("tests/fixtures/tc1_single.yaml"),
-            output_dir="data",
+            output_dir="tests_output",
             output="integration_test",
             format="html",
             leg=None,

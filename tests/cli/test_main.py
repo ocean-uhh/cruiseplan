@@ -151,7 +151,7 @@ class TestSubcommandArguments:
             "-10.0",
             "-o",
             "output_dir",
-            "--bathymetry-source",
+            "--bathy-source",
             "gebco2025",
         ]
 
@@ -164,7 +164,7 @@ class TestSubcommandArguments:
                 assert args.lat == [50.0, 60.0]
                 assert args.lon == [-20.0, -10.0]
                 assert str(args.output_dir) == "output_dir"
-                assert args.bathymetry_source == "gebco2025"
+                assert args.bathy_source == "gebco2025"
 
     def test_schedule_arguments_not_implemented(self):
         """Test schedule subcommand shows not implemented for now."""
