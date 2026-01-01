@@ -24,6 +24,8 @@ def run_command(cmd: list[str]) -> bool:
             print(f"❌ Command failed with return code {result.returncode}")
             if result.stderr:
                 print(f"Error output:\n{result.stderr}")
+            if result.stdout:
+                print(f"Standard output:\n{result.stdout}")
             return False
         else:
             print("✅ Command succeeded")

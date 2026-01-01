@@ -473,7 +473,7 @@ def setup_output_paths(
     output_dir : str
         Output directory (default: "data")
     output : str, optional
-        Base filename for outputs (default: use config filename)
+        Base filename for outputs (default: use cruise name from YAML)
 
     Returns
     -------
@@ -487,7 +487,20 @@ def setup_output_paths(
     if output:
         base_name = output
     else:
-        # Use config file stem as base name, with safe character replacement
-        base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
+        # Try to get cruise name from YAML content, fallback to filename
+        try:
+            import yaml
+            with open(config_file, 'r') as f:
+                config_data = yaml.safe_load(f)
+                cruise_name = config_data.get('cruise_name')
+                if cruise_name:
+                    # Use cruise name with safe character replacement
+                    base_name = str(cruise_name).replace(" ", "_").replace("/", "-")
+                else:
+                    # Fallback to config file stem
+                    base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
+        except (FileNotFoundError, yaml.YAMLError, KeyError):
+            # Fallback to config file stem if YAML reading fails
+            base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
 
     return output_dir_path, base_name

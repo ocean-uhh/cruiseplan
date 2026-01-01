@@ -251,10 +251,15 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
     # Common parameter mappings
     param_map = {
         'config_file': getattr(args, 'config_file', None),
-        'output_dir': getattr(args, 'output_dir', 'data'),
-        'output': getattr(args, 'output', None),
         'verbose': getattr(args, 'verbose', False),
     }
+    
+    # Commands that need output parameters
+    if command in ['enrich', 'process', 'schedule', 'map', 'pangaea']:
+        param_map.update({
+            'output_dir': getattr(args, 'output_dir', 'data'),
+            'output': getattr(args, 'output', None),
+        })
     
     # Command-specific mappings
     if command in ['validate', 'enrich', 'process']:
@@ -279,7 +284,7 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
             'warnings_only': getattr(args, 'warnings_only', False),
         })
     
-    if command in ['schedule', 'process']:
+    if command == 'schedule':
         param_map.update({
             'format': getattr(args, 'format', 'all'),
             'leg': getattr(args, 'leg', None),
@@ -288,7 +293,18 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
             'figsize': getattr(args, 'figsize', [12, 8]),
         })
     
-    if command in ['map', 'process']:
+    if command == 'process':
+        param_map.update({
+            'format': getattr(args, 'format', 'all'),
+            'bathy_stride': getattr(args, 'bathy_stride', 10),
+            'figsize': getattr(args, 'figsize', [12, 8]),
+            'run_validation': getattr(args, 'run_validation', True),
+            'run_map_generation': getattr(args, 'run_map_generation', True),
+            'depth_check': getattr(args, 'validate_depths', True),
+            'tolerance': getattr(args, 'tolerance', 10.0),
+        })
+    
+    if command == 'map':
         param_map.update({
             'bathy_stride': getattr(args, 'bathy_stride', 5),
             'figsize': getattr(args, 'figsize', [12, 8]),

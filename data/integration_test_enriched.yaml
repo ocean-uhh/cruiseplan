@@ -1,0 +1,35 @@
+cruise_name: "TC1_Single_Test"
+default_vessel_speed: 10.0
+calculate_transfer_between_sections: true
+calculate_depth_via_bathymetry: true
+default_distance_between_stations: 15.0
+start_date: '1970-01-01T00:00:00+00:00'
+
+
+stations:
+  - name: STN_001
+    latitude: 45.0
+    longitude: -45.0
+    operation_type: CTD
+    action: profile
+    water_depth: 4411.0
+
+legs:
+  - name: "Leg_Single"
+    departure_port: port_halifax
+    arrival_port: port_cadiz
+    first_waypoint: STN_001
+    last_waypoint: STN_001
+    activities:
+      - STN_001
+start_time: 08:00
+turnaround_time: 30.0
+ports:
+  - name: port_halifax
+    latitude: 44.6488
+    longitude: -63.5752
+    display_name: Halifax, Nova Scotia
+  - name: port_cadiz
+    latitude: 36.5298
+    longitude: -6.2923
+    display_name: Cadiz, Spain
