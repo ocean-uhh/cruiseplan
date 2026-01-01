@@ -322,6 +322,7 @@ Examples:
     stations_parser.add_argument(
         "--bathy-dir",
         type=Path,
+        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     # Legacy parameter support for consistency
@@ -557,6 +558,7 @@ Examples:
     map_parser.add_argument(
         "--bathy-dir",
         type=Path,
+        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     map_parser.add_argument(
@@ -730,6 +732,7 @@ Examples:
     process_parser.add_argument(
         "--bathy-dir",
         type=Path,
+        default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
     process_parser.add_argument(

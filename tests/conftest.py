@@ -56,14 +56,5 @@ def patch_default_data_dir():
     by redirecting to tests_output/ when "data" is used as output_dir.
     """
 
-    def safe_path_resolver(path_str):
-        """Convert 'data' to 'tests_output' for test safety."""
-        if isinstance(path_str, str) and path_str == "data":
-            return Path("tests_output")
-        elif isinstance(path_str, Path) and str(path_str) == "data":
-            return Path("tests_output")
-        else:
-            return Path(path_str) if isinstance(path_str, str) else path_str
-
     # This could be extended to patch specific functions if needed
     yield
