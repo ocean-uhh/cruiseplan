@@ -205,7 +205,13 @@ def test_close_method(real_mode_manager, mock_netcdf_data):
 @patch("cruiseplan.data.bathymetry.tqdm")
 @patch("builtins.open", new_callable=MagicMock)
 def test_download_bathymetry_success_path(
-    mock_open, mock_tqdm, mock_requests_get, mock_unlink, mock_mkdir, mock_exists
+    mock_open,
+    mock_tqdm,
+    mock_requests_get,
+    mock_unlink,
+    mock_mkdir,
+    mock_exists,
+    temp_output_dir,
 ):
     """Tests successful download with progress bar update."""
     mock_exists.return_value = False
@@ -223,7 +229,7 @@ def test_download_bathymetry_success_path(
     mock_path_instance = MagicMock()
     mock_open.return_value.__enter__.return_value = mock_path_instance
 
-    download_bathymetry(target_dir="test_data")
+    download_bathymetry(target_dir=str(temp_output_dir))
 
     # Assert successful calls
     mock_requests_get.assert_called_once()
@@ -236,7 +242,7 @@ def test_download_bathymetry_success_path(
 @patch("cruiseplan.data.bathymetry.Path.unlink")
 @patch("cruiseplan.data.bathymetry.requests.get")
 def test_download_bathymetry_failure_cleanup_and_fallback(
-    mock_requests_get, mock_unlink, mock_exists
+    mock_requests_get, mock_unlink, mock_exists, temp_output_dir
 ):
     """Tests failure of all URLs, cleanup, and printing manual instructions."""
     mock_exists.return_value = False
@@ -252,7 +258,7 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
 
     # We must patch Path.exists inside the function call logic.
     with patch("builtins.print") as mock_print:
-        download_bathymetry(target_dir="test_data")
+        download_bathymetry(target_dir=str(temp_output_dir))
 
     # Assert requests were made to both URLs
     assert mock_requests_get.call_count == 2
@@ -523,10 +529,12 @@ class TestGEBCO2025Functionality:
         return test_data_dir
 
     @pytest.fixture
-    def bathymetry_manager(self, test_bathymetry_dir):
+    def bathymetry_manager(self, test_bathymetry_dir, temp_output_dir):
         """Create a BathymetryManager instance with test directory."""
         # Create manager with custom data directory to avoid using real data/bathymetry/
-        manager = BathymetryManager(source="gebco2025", data_dir="test_data")
+        manager = BathymetryManager(
+            source="gebco2025", data_dir=str(temp_output_dir / "bathy")
+        )
         # Override the data_dir to use our test directory
         manager.data_dir = test_bathymetry_dir
         return manager
@@ -785,12 +793,14 @@ class TestGEBCO2025Functionality:
             mock_logger.info.assert_not_called()
 
     def test_bathymetry_manager_with_gebco_source_initialization(
-        self, test_bathymetry_dir
+        self, test_bathymetry_dir, temp_output_dir
     ):
         """Test BathymetryManager initialization with GEBCO source."""
         with patch.object(Path, "exists", return_value=False):
             # Create manager with GEBCO source
-            manager = BathymetryManager(source="gebco2025", data_dir="test_data")
+            manager = BathymetryManager(
+                source="gebco2025", data_dir=str(temp_output_dir / "bathy")
+            )
             manager.data_dir = test_bathymetry_dir
 
             # Assertions

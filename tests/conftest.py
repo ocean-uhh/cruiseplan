@@ -55,6 +55,5 @@ def patch_default_data_dir():
     This prevents tests from accidentally writing to the main data/ directory
     by redirecting to tests_output/ when "data" is used as output_dir.
     """
-
     # This could be extended to patch specific functions if needed
     yield
