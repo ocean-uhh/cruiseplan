@@ -190,11 +190,10 @@ def pangaea(
     """
     import re
 
-    from cruiseplan.cli.pangaea import (
-        fetch_pangaea_data,
-        save_pangaea_pickle,
-        search_pangaea_datasets,
-        validate_dois,
+    from cruiseplan.data.pangaea import (
+        PangaeaManager,
+        load_campaign_data,
+        save_campaign_data,
     )
     from cruiseplan.init_utils import (
         _handle_error_with_logging,
@@ -227,20 +226,22 @@ def pangaea(
         stations_file = output_dir_path / f"{base_name}_stations.pkl"
         generated_files = []
 
-        # Search PANGAEA database
+        # Search PANGAEA database using PangaeaManager
         logger.info(f"🔍 Searching PANGAEA for: '{query_terms}'")
         if bbox:
             logger.info(f"📍 Geographic bounds: lat {lat_bounds}, lon {lon_bounds}")
 
-        dois = search_pangaea_datasets(query=query_terms, bbox=bbox, limit=max_results)
+        manager = PangaeaManager()
+        datasets = manager.search(query=query_terms, bbox=bbox, limit=max_results)
 
-        if not dois:
-            logger.warning("❌ No DOIs found. Try broadening your search criteria.")
+        if not datasets:
+            logger.warning("❌ No datasets found. Try broadening your search criteria.")
             return None, None
 
-        logger.info(f"✅ Found {len(dois)} datasets")
+        logger.info(f"✅ Found {len(datasets)} datasets")
 
-        # Save DOI list (intermediate file)
+        # Extract DOIs and save DOI list (intermediate file)
+        dois = [dataset.get("DOI", "") for dataset in datasets if dataset.get("DOI")]
         with open(dois_file, "w") as f:
             for doi in dois:
                 f.write(f"{doi}\n")
@@ -249,31 +250,26 @@ def pangaea(
         logger.info(f"📂 DOI file: {dois_file}")
         logger.info(f"📂 Stations file: {stations_file}")
 
-        # Validate and process DOIs
+        # Fetch detailed PANGAEA data with proper rate limiting
         logger.info(f"⚙️ Processing {len(dois)} DOIs...")
         logger.info(f"🕐 Rate limit: {rate_limit} requests/second")
 
-        valid_dois = validate_dois(dois)
+        detailed_datasets = manager.fetch_datasets(dois, rate_limit=rate_limit)
 
-        # Fetch PANGAEA data with proper rate limiting
-        datasets = fetch_pangaea_data(
-            valid_dois, rate_limit=rate_limit, merge_campaigns=merge_campaigns
-        )
-
-        if not datasets:
+        if not detailed_datasets:
             logger.warning(
                 "⚠️ No datasets retrieved. Check DOI list and network connection."
             )
             return None, generated_files
 
-        # Save results using CLI function
-        save_pangaea_pickle(datasets, stations_file, len(valid_dois))
+        # Save results using data function
+        save_campaign_data(detailed_datasets, stations_file)
         generated_files.append(stations_file)
 
         logger.info("✅ PANGAEA processing completed successfully!")
         logger.info(f"🚀 Next step: cruiseplan stations -p {stations_file}")
 
-        return datasets, generated_files
+        return detailed_datasets, generated_files
 
     except Exception as e:
         _handle_error_with_logging(e, "PANGAEA search failed", verbose)

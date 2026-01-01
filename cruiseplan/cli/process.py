@@ -20,6 +20,7 @@ from cruiseplan.cli.cli_utils import (
     _format_error_message,
     _format_progress_header,
     _format_success_message,
+    _initialize_cli_command,
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
@@ -27,6 +28,19 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import _validate_config_file
+
+# Re-export functions for test mocking (cleaner than complex patch paths)
+__all__ = [
+    "main",
+    "_setup_cli_logging",
+    "_validate_config_file",
+    "_resolve_cli_to_api_params",
+    "_convert_api_response_to_cli",
+    "_format_progress_header",
+    "_format_success_message",
+    "_collect_generated_files",
+    "_format_error_message",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -41,23 +55,13 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
-        # Setup logging using new utility
-        _setup_cli_logging(
-            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
-        )
-
-        # Handle legacy parameter deprecation warnings using utility function
-        from cruiseplan.cli.cli_utils import _handle_deprecated_params
-
+        # Standardized CLI initialization
         param_map = {
             "bathy_source_legacy": "bathy_source",
             "bathy_dir_legacy": "bathy_dir",
             "bathy_stride_legacy": "bathy_stride",
         }
-        _handle_deprecated_params(args, param_map)
-
-        # Validate input file using new utility
-        config_file = _validate_config_file(args.config_file)
+        config_file = _initialize_cli_command(args, param_map)
 
         # Format progress header using new utility
         _format_progress_header(

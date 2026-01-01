@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: bash
 
-    usage: cruiseplan map [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--output-file OUTPUT_FILE] [--format {png,kml,all}] [--bathymetry-source {etopo2022,gebco2025}] [--bathymetry-stride BATHYMETRY_STRIDE] [--figsize WIDTH HEIGHT] [--show-plot] [--verbose]
+    usage: cruiseplan map [-h] -c CONFIG_FILE [-o OUTPUT_DIR] [--output OUTPUT] [--format {png,kml,all}] [--bathy-source {etopo2022,gebco2025}] [--bathy-stride BATHY_STRIDE] [--figsize WIDTH HEIGHT] [--show-plot] [--verbose]
 
 Options
 -------
@@ -23,13 +23,13 @@ Options
      - **Required.** YAML cruise configuration file.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
      - Output directory (default: ``current`` directory).
-   * - ``--output-file OUTPUT_FILE``
-     - Specific output file path (overrides auto-generated name).
+   * - ``--output OUTPUT``
+     - Base filename for outputs (without extension). Generates map files with this base name.
    * - ``--format {png,kml,all}``
      - Output format to generate (default: ``all``). Can generate PNG maps, KML files, or both.
-   * - ``--bathymetry-source {etopo2022,gebco2025}``
+   * - ``--bathy-source {etopo2022,gebco2025}``
      - Bathymetry dataset (default: ``gebco2025``).
-   * - ``--bathymetry-stride BATHYMETRY_STRIDE``
+   * - ``--bathy-stride BATHY_STRIDE``
      - Bathymetry downsampling factor (default: ``5``, higher=faster/less detailed).
    * - ``--figsize WIDTH HEIGHT``
      - Figure size in inches (default: ``12 10``).
@@ -98,10 +98,10 @@ Examples
     $ cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10
     
     # High-resolution bathymetry with custom output file
-    $ cruiseplan map -c cruise.yaml --bathymetry-source gebco2025 --output-file track_map.png
+    $ cruiseplan map -c cruise.yaml --bathy-source gebco2025 --output track_map
     
     # Fast preview with coarse bathymetry
-    $ cruiseplan map -c cruise.yaml --bathymetry-source etopo2022 --bathymetry-stride 10
+    $ cruiseplan map -c cruise.yaml --bathy-source etopo2022 --bathy-stride 10
     
     # Interactive display instead of file output
     $ cruiseplan map -c cruise.yaml --show-plot

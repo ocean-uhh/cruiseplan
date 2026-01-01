@@ -14,6 +14,7 @@ from contextlib import contextmanager
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from cruiseplan.utils.input_validation import _validate_config_file
 from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml
 
 logger = logging.getLogger(__name__)
@@ -230,6 +231,112 @@ def read_doi_list(file_path: Path) -> List[str]:
 
     except Exception as e:
         raise CLIError(f"Error reading DOI list from {file_path}: {e}")
+
+
+def check_bathymetry_availability(source: str) -> bool:
+    """
+    Check if bathymetry files are available for the specified source.
+
+    Parameters
+    ----------
+    source : str
+        Bathymetry source ("etopo2022" or "gebco2025")
+
+    Returns
+    -------
+    bool
+        True if bathymetry files are available and valid, False otherwise
+    """
+    try:
+        from cruiseplan.data.bathymetry import BathymetryManager
+
+        # Create a temporary manager to check availability
+        manager = BathymetryManager(source=source)
+        return not manager._is_mock
+    except Exception:
+        return False
+
+
+def determine_bathymetry_source(requested_source: str) -> str:
+    """
+    Determine the optimal bathymetry source with automatic fallback.
+
+    If the requested source is not available but an alternative is,
+    automatically switch to the available source.
+
+    Parameters
+    ----------
+    requested_source : str
+        The user's requested bathymetry source
+
+    Returns
+    -------
+    str
+        The optimal available bathymetry source
+    """
+    # Check if requested source is available
+    if check_bathymetry_availability(requested_source):
+        return requested_source
+
+    # Try alternative source
+    alternative = "gebco2025" if requested_source == "etopo2022" else "etopo2022"
+
+    if check_bathymetry_availability(alternative):
+        logger.info(
+            f"📁 Requested {requested_source} not available, "
+            f"automatically switching to {alternative}"
+        )
+        return alternative
+
+    # Neither available - return requested (will trigger mock mode with appropriate warning)
+    return requested_source
+
+
+def load_pangaea_campaign_data(pangaea_file: Path) -> list:
+    """
+    Load PANGAEA campaign data from pickle file with validation and summary.
+
+    Parameters
+    ----------
+    pangaea_file : Path
+        Path to PANGAEA pickle file.
+
+    Returns
+    -------
+    list
+        List of campaign datasets.
+
+    Raises
+    ------
+    CLIError
+        If file cannot be loaded or contains no data.
+    """
+    try:
+        from cruiseplan.data.pangaea import load_campaign_data
+
+        campaign_data = load_campaign_data(pangaea_file)
+
+        if not campaign_data:
+            raise CLIError(f"No campaign data found in {pangaea_file}")
+
+        # Summary statistics
+        total_points = sum(
+            len(campaign.get("latitude", [])) for campaign in campaign_data
+        )
+        campaigns = [campaign.get("label", "Unknown") for campaign in campaign_data]
+
+        logger.info(
+            f"Loaded {len(campaign_data)} campaigns with {total_points} total stations:"
+        )
+        for campaign in campaigns:
+            logger.info(f"  - {campaign}")
+
+        return campaign_data
+
+    except ImportError as e:
+        raise CLIError(f"PANGAEA functionality not available: {e}")
+    except Exception as e:
+        raise CLIError(f"Error loading PANGAEA data: {e}")
 
 
 def format_coordinate_bounds(lat_bounds: tuple, lon_bounds: tuple) -> str:
@@ -530,6 +637,119 @@ def _handle_deprecated_params(args: Namespace, param_map: Dict[str, str]) -> Non
             # Migrate the value if new param isn't already set
             if not hasattr(args, new_param) or getattr(args, new_param) is None:
                 setattr(args, new_param, getattr(args, old_param))
+
+
+def _apply_cli_defaults(args: Namespace) -> None:
+    """
+    Apply common CLI parameter defaults after legacy parameter migration.
+
+    Internal utility to handle default values consistently across CLI commands.
+    Should be called after _handle_deprecated_params to ensure migrated
+    parameters get proper defaults applied.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments to apply defaults to
+
+    Examples
+    --------
+    >>> _handle_deprecated_params(args, param_map)
+    >>> _apply_cli_defaults(args)  # Apply defaults after migration
+    """
+    from pathlib import Path
+
+    # Apply bathymetry directory default
+    if getattr(args, "bathy_dir", None) is None:
+        args.bathy_dir = Path("data")
+
+
+def _handle_common_deprecated_params(args: Namespace) -> None:
+    """
+    Handle deprecated parameters that are common across multiple CLI commands.
+
+    Internal utility to handle deprecated parameters that appear in multiple
+    commands consistently. Should be called before command-specific deprecated
+    parameter handling.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments
+
+    Examples
+    --------
+    >>> _handle_common_deprecated_params(args)  # Handle common deprecated params
+    >>> _handle_deprecated_params(args, command_specific_map)  # Handle command-specific
+    """
+    # Handle deprecated --output-file parameter
+    if hasattr(args, "output_file") and args.output_file:
+        logger.warning(
+            "⚠️  WARNING: '--output-file' is deprecated. "
+            "Use '--output' for base filename and '--output-dir' for the path."
+        )
+
+
+def _initialize_cli_command(
+    args: Namespace,
+    deprecated_param_map: Dict[str, str] = None,
+    requires_config_file: bool = True,
+) -> Optional[Path]:
+    """
+    Standardized CLI command initialization with common setup patterns.
+
+    Performs the standard initialization sequence that most CLI commands need:
+    1. Setup logging based on verbose/quiet flags
+    2. Handle common deprecated parameters
+    3. Handle command-specific deprecated parameters
+    4. Apply common defaults
+    5. Validate config file (if required)
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments
+    deprecated_param_map : Dict[str, str], optional
+        Command-specific deprecated parameter mappings
+    requires_config_file : bool, default True
+        Whether this command requires a config file
+
+    Returns
+    -------
+    Optional[Path]
+        Validated config file path if requires_config_file=True, None otherwise
+
+    Examples
+    --------
+    >>> # Simple initialization without config file
+    >>> _initialize_cli_command(args, requires_config_file=False)
+
+    >>> # Full initialization with deprecated params
+    >>> param_map = {"bathy_dir_legacy": "bathy_dir"}
+    >>> config_file = _initialize_cli_command(args, param_map)
+    """
+    # Setup logging
+    _setup_cli_logging(
+        verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
+    )
+
+    # Handle common deprecated parameters
+    _handle_common_deprecated_params(args)
+
+    # Handle command-specific deprecated parameters
+    if deprecated_param_map:
+        _handle_deprecated_params(args, deprecated_param_map)
+
+    # Apply common defaults
+    _apply_cli_defaults(args)
+
+    # Validate config file if required
+    if requires_config_file:
+        if not hasattr(args, "config_file") or not args.config_file:
+            raise CLIError("Configuration file is required for this command")
+        return _validate_config_file(args.config_file)
+
+    return None
 
 
 def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:

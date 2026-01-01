@@ -37,15 +37,9 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
             patch(
-                "cruiseplan.cli.map._validate_config_file",
+                "cruiseplan.cli.map._initialize_cli_command",
                 return_value=Path("test.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
             ),
             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
             patch(
@@ -86,10 +80,6 @@ class TestMapCommand:
                 "cruiseplan.cli.map._validate_config_file",
                 return_value=Path("test.yaml"),
             ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
-            ),
         ):
             mock_api.side_effect = Exception("API error")
 
@@ -127,43 +117,16 @@ class TestMapCommand:
             verbose=False,
         )
 
-        with (
-            patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
-            ),
-            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.map._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.map._format_progress_header"),
-            patch(
-                "cruiseplan.cli.map._collect_generated_files",
-                return_value=[Path("custom_map.png")],
-            ),
-            patch("cruiseplan.cli.map._format_success_message"),
-            patch("cruiseplan.cli.map.logger") as mock_logger,
-        ):
+        # Test the deprecation warning directly by calling the utility function
+        with patch("cruiseplan.cli.cli_utils.logger") as mock_logger:
+            from cruiseplan.cli.cli_utils import _handle_common_deprecated_params
 
-            # Mock successful API response
-            mock_api.return_value = [Path("custom_map.png")]
-
-            result = main(args)
-
-            # Should succeed
-            assert result == 0
+            _handle_common_deprecated_params(args)
 
             # Verify deprecation warning was logged
             mock_logger.warning.assert_called_with(
-                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
+                "⚠️  WARNING: '--output-file' is deprecated. "
+                "Use '--output' for base filename and '--output-dir' for the path."
             )
 
     def test_map_generation_with_all_formats(self):
@@ -183,15 +146,9 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
             patch(
-                "cruiseplan.cli.map._validate_config_file",
+                "cruiseplan.cli.map._initialize_cli_command",
                 return_value=Path("test.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
             ),
             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
             patch(
@@ -233,15 +190,9 @@ class TestMapCommand:
 
         with (
             patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
             patch(
-                "cruiseplan.cli.map._validate_config_file",
+                "cruiseplan.cli.map._initialize_cli_command",
                 return_value=Path("test.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
             ),
             patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
             patch(
@@ -274,10 +225,6 @@ class TestMapCommand:
             patch(
                 "cruiseplan.cli.map._validate_config_file",
                 return_value=Path("test.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.map._validate_directory_writable",
-                return_value=Path("output"),
             ),
             patch("traceback.print_exc") as mock_traceback,
         ):

@@ -18,7 +18,7 @@ import cruiseplan
 from cruiseplan.cli.cli_utils import (
     _format_error_message,
     _format_progress_header,
-    _setup_cli_logging,
+    _initialize_cli_command,
 )
 from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
@@ -124,28 +124,15 @@ def main(args=None):
         Parsed command-line arguments containing bathymetry source selection.
     """
     try:
-        # Setup logging using new utility
-        _setup_cli_logging(verbose=getattr(args, "verbose", False))
+        # Standardized CLI initialization with legacy parameter handling
+        param_map = {
+            "source": "bathy_source",  # Legacy --source
+            "bathymetry_source": "bathy_source",  # Legacy --bathymetry-source
+        }
+        _initialize_cli_command(args, param_map, requires_config_file=False)
 
-        # Extract arguments (handle both new "bathy_source" and legacy args)
-        # Try new parameter first, then legacy parameters, then default
-        source = getattr(args, "bathy_source", None)
-        if source is None:
-            source = getattr(args, "source", None)  # Legacy --source
-            if source is not None:
-                logger.warning(
-                    "⚠️  WARNING: '--source' is deprecated. Use '--bathy-source' instead."
-                )
-        if source is None:
-            source = getattr(
-                args, "bathymetry_source", None
-            )  # Legacy --bathymetry-source
-            if source is not None:
-                logger.warning(
-                    "⚠️  WARNING: '--bathymetry-source' is deprecated. Use '--bathy-source' instead."
-                )
-        if source is None:
-            source = "etopo2022"
+        # Extract bathymetry source (with default)
+        source = getattr(args, "bathy_source", "etopo2022")
 
         show_citation_only = getattr(args, "citation", False)
         output_dir = getattr(args, "output_dir", Path("data/bathymetry"))

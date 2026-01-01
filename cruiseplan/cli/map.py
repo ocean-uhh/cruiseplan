@@ -19,6 +19,7 @@ from cruiseplan.cli.cli_utils import (
     _format_error_message,
     _format_progress_header,
     _format_success_message,
+    _initialize_cli_command,
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
@@ -27,8 +28,20 @@ from cruiseplan.init_utils import (
 )
 from cruiseplan.utils.input_validation import (
     _validate_config_file,
-    _validate_directory_writable,
 )
+
+# Re-export functions for test mocking (cleaner than complex patch paths)
+__all__ = [
+    "main",
+    "_setup_cli_logging",
+    "_validate_config_file",
+    "_resolve_cli_to_api_params",
+    "_convert_api_response_to_cli",
+    "_format_progress_header",
+    "_format_success_message",
+    "_collect_generated_files",
+    "_format_error_message",
+]
 
 logger = logging.getLogger(__name__)
 
@@ -43,27 +56,13 @@ def main(args: argparse.Namespace) -> int:
         Parsed command-line arguments containing config_file, output options, etc.
     """
     try:
-        # Setup logging using new utility
-        _setup_cli_logging(verbose=getattr(args, "verbose", False))
-
-        # Handle legacy parameter deprecation warnings using utility function
-        from cruiseplan.cli.cli_utils import _handle_deprecated_params
-
+        # Standardized CLI initialization
         param_map = {
             "bathymetry_source_legacy": "bathy_source",
             "bathymetry_dir_legacy": "bathy_dir",
             "bathymetry_stride_legacy": "bathy_stride",
         }
-        _handle_deprecated_params(args, param_map)
-
-        # Handle deprecated --output-file parameter
-        if hasattr(args, "output_file") and args.output_file:
-            logger.warning(
-                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
-            )
-
-        # Validate input file using new utility
-        config_file = _validate_config_file(args.config_file)
+        config_file = _initialize_cli_command(args, param_map)
         # Output directory validation handled by API layer
 
         # Format progress header using new utility

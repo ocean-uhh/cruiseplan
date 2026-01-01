@@ -88,7 +88,7 @@ Download bathymetry
    cruiseplan bathymetry
    
    # OR download high-resolution bathymetry (larger download)
-   cruiseplan bathymetry --source gebco2025
+   cruiseplan bathymetry --bathy-source gebco2025
 
 
 **What this does:**
@@ -201,7 +201,7 @@ GEBCO is generally considered to be more accurate.
 .. code-block:: bash
 
    # Re-enrich with different bathymetry
-   cruiseplan enrich -c cruise.yaml --add-depths --bathymetry-source gebco2025
+   cruiseplan enrich -c cruise.yaml --add-depths --bathy-source gebco2025
 
 ----
 
@@ -334,7 +334,7 @@ Common Issues and Solutions
    * - "MOCK mode" warnings
      - Run ``cruiseplan bathymetry`` first
    * - "File too small" error
-     - Redownload: ``cruiseplan bathymetry --source etopo2022``
+     - Redownload: ``cruiseplan bathymetry --bathy-source etopo2022``
    * - Depths seem incorrect
      - Check coordinate format (decimal degrees)
 

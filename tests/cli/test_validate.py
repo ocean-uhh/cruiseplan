@@ -38,9 +38,8 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._setup_cli_logging"),
             patch(
-                "cruiseplan.cli.validate._validate_config_file",
+                "cruiseplan.cli.validate._initialize_cli_command",
                 return_value=Path("test.yaml"),
             ),
             patch(
@@ -82,9 +81,8 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._setup_cli_logging"),
             patch(
-                "cruiseplan.cli.validate._validate_config_file",
+                "cruiseplan.cli.validate._initialize_cli_command",
                 return_value=Path("test.yaml"),
             ),
         ):
@@ -120,9 +118,8 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._setup_cli_logging"),
             patch(
-                "cruiseplan.cli.validate._validate_config_file",
+                "cruiseplan.cli.validate._initialize_cli_command",
                 return_value=Path("test.yaml"),
             ),
             patch(
@@ -166,9 +163,8 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._setup_cli_logging"),
             patch(
-                "cruiseplan.cli.validate._validate_config_file",
+                "cruiseplan.cli.validate._initialize_cli_command",
                 return_value=Path("test.yaml"),
             ),
             patch(

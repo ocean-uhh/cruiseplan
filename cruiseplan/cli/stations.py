@@ -9,12 +9,15 @@ import argparse
 import logging
 import sys
 from pathlib import Path
+from typing import Optional, Tuple
 
 from cruiseplan.cli.cli_utils import (
     CLIError,
+    _format_error_message,
+    _initialize_cli_command,
     format_coordinate_bounds,
     generate_output_filename,
-    setup_logging,
+    load_pangaea_campaign_data,
     validate_input_file,
     validate_output_path,
 )
@@ -22,124 +25,22 @@ from cruiseplan.cli.cli_utils import (
 logger = logging.getLogger(__name__)
 
 
-def check_bathymetry_availability(source: str) -> bool:
-    """
-    Check if bathymetry files are available for the specified source.
-
-    Parameters
-    ----------
-    source : str
-        Bathymetry source ("etopo2022" or "gebco2025")
-
-    Returns
-    -------
-    bool
-        True if bathymetry files are available and valid, False otherwise
-    """
-    try:
-        from cruiseplan.data.bathymetry import BathymetryManager
-
-        # Create a temporary manager to check availability
-        manager = BathymetryManager(source=source)
-        return not manager._is_mock
-    except Exception:
-        return False
-
-
-def determine_bathymetry_source(requested_source: str) -> str:
-    """
-    Determine the optimal bathymetry source with automatic fallback.
-
-    If the requested source is not available but an alternative is,
-    automatically switch to the available source.
-
-    Parameters
-    ----------
-    requested_source : str
-        The user's requested bathymetry source
-
-    Returns
-    -------
-    str
-        The optimal available bathymetry source
-    """
-    # Check if requested source is available
-    if check_bathymetry_availability(requested_source):
-        return requested_source
-
-    # Try alternative source
-    alternative = "gebco2025" if requested_source == "etopo2022" else "etopo2022"
-
-    if check_bathymetry_availability(alternative):
-        logger.info(
-            f"📁 Requested {requested_source} not available, "
-            f"automatically switching to {alternative}"
-        )
-        return alternative
-
-    # Neither available - return requested (will trigger mock mode with appropriate warning)
-    return requested_source
-
-
-def load_pangaea_data(pangaea_file: Path) -> list:
-    """
-    Load PANGAEA campaign data from pickle file.
-
-    Parameters
-    ----------
-    pangaea_file : Path
-        Path to PANGAEA pickle file.
-
-    Returns
-    -------
-    list
-        List of campaign datasets.
-
-    Raises
-    ------
-    CLIError
-        If file cannot be loaded or contains no data.
-    """
-    try:
-        from cruiseplan.data.pangaea import load_campaign_data
-
-        campaign_data = load_campaign_data(pangaea_file)
-
-        if not campaign_data:
-            raise CLIError(f"No campaign data found in {pangaea_file}")
-
-        # Summary statistics
-        total_points = sum(
-            len(campaign.get("latitude", [])) for campaign in campaign_data
-        )
-        campaigns = [campaign.get("label", "Unknown") for campaign in campaign_data]
-
-        logger.info(
-            f"Loaded {len(campaign_data)} campaigns with {total_points} total stations:"
-        )
-        for campaign in campaigns:
-            logger.info(f"  - {campaign}")
-
-        return campaign_data
-
-    except ImportError as e:
-        raise CLIError(f"PANGAEA functionality not available: {e}")
-    except Exception as e:
-        raise CLIError(f"Error loading PANGAEA data: {e}")
-
-
 def determine_coordinate_bounds(
-    args: argparse.Namespace, campaign_data: list = None
-) -> tuple:
+    args: argparse.Namespace, campaign_data: Optional[list] = None
+) -> Tuple[Tuple[float, float], Tuple[float, float]]:
     """
     Determine coordinate bounds from arguments or PANGAEA data.
 
-    Args:
-        args: Command line arguments
-        campaign_data: Loaded PANGAEA campaign data
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Command line arguments
+    campaign_data : list, optional
+        Loaded PANGAEA campaign data
 
     Returns
     -------
+    Tuple[Tuple[float, float], Tuple[float, float]]
         Tuple of (lat_bounds, lon_bounds) as (min, max) tuples
     """
     # Use explicit bounds if provided
@@ -185,20 +86,24 @@ def determine_coordinate_bounds(
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for interactive station placement.
+    Main entry point for interactive station placement using API-first architecture.
 
-    Args:
-        args: Parsed command line arguments
+    Parameters
+    ----------
+    args : argparse.Namespace
+        Parsed command line arguments
     """
     try:
-        # Setup logging
-        setup_logging(
-            verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
-        )
+        # Standardized CLI initialization
+        param_map = {
+            "bathy_source_legacy": "bathy_source",
+            "bathy_dir_legacy": "bathy_dir",
+        }
+        _initialize_cli_command(args, param_map, requires_config_file=False)
 
         # Check for optional dependencies
         try:
-            import matplotlib.pyplot as plt
+            import matplotlib.pyplot  # noqa: F401
         except ImportError:
             raise CLIError(
                 "Interactive station picker requires matplotlib. "
@@ -214,21 +119,28 @@ def main(args: argparse.Namespace) -> None:
         if args.pangaea_file:
             pangaea_file = validate_input_file(args.pangaea_file)
             logger.info(f"Loading PANGAEA data from: {pangaea_file}")
-            campaign_data = load_pangaea_data(pangaea_file)
+            campaign_data = load_pangaea_campaign_data(pangaea_file)
         else:
             logger.info("No PANGAEA data provided - using bathymetry only")
 
-        # Determine optimal bathymetry source (with automatic fallback)
-        optimal_bathymetry_source = determine_bathymetry_source(args.bathymetry_source)
+        # Use the requested bathymetry source (or default)
+        # The BathymetryManager will handle fallback to mock mode if files aren't available
+        optimal_bathymetry_source = getattr(args, "bathy_source", None) or "etopo2022"
 
         # Determine coordinate bounds
         lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
 
-        # Validate bounds
+        # Validate coordinate bounds
         if not (-90 <= lat_bounds[0] < lat_bounds[1] <= 90):
-            raise CLIError(f"Invalid latitude bounds: {lat_bounds}")
+            raise CLIError(
+                f"Invalid latitude bounds: {lat_bounds}. "
+                "Latitude must be between -90 and 90, with min < max."
+            )
         if not (-180 <= lon_bounds[0] < lon_bounds[1] <= 180):
-            raise CLIError(f"Invalid longitude bounds: {lon_bounds}")
+            raise CLIError(
+                f"Invalid longitude bounds: {lon_bounds}. "
+                "Longitude must be between -180 and 180, with min < max."
+            )
 
         # Determine output file
         if args.output_file:
@@ -288,12 +200,13 @@ def main(args: argparse.Namespace) -> None:
 
             # Initialize the picker
             bathymetry_stride = 1 if getattr(args, "high_resolution", False) else 10
+
             picker = StationPicker(
                 campaign_data=campaign_data,
                 output_file=str(output_path),
                 bathymetry_stride=bathymetry_stride,
                 bathymetry_source=optimal_bathymetry_source,
-                bathymetry_dir=str(args.bathymetry_dir),
+                bathymetry_dir=str(getattr(args, "bathy_dir", Path("data"))),
                 overwrite=getattr(args, "overwrite", False),
             )
 
@@ -312,7 +225,7 @@ def main(args: argparse.Namespace) -> None:
             raise CLIError(f"Station picker not available: {e}")
 
     except CLIError as e:
-        logger.error(f"❌ {e}")
+        _format_error_message("stations", e)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -320,7 +233,19 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        logger.error(f"❌ Unexpected error: {e}")
+        _format_error_message(
+            "stations",
+            e,
+            [
+                "Check matplotlib installation",
+                "Verify bathymetry data availability",
+                "Check PANGAEA file format",
+            ],
+        )
+        if getattr(args, "verbose", False):
+            import traceback
+
+            traceback.print_exc()
         sys.exit(1)
 
 
@@ -343,7 +268,10 @@ if __name__ == "__main__":
     )
     parser.add_argument("--output-file", type=Path, help="Specific output file path")
     parser.add_argument(
-        "--bathymetry-source", choices=["etopo2022", "gebco2025"], default="etopo2022"
+        "--bathy-source", choices=["etopo2022", "gebco2025"], default="etopo2022"
+    )
+    parser.add_argument(
+        "--bathy-dir", type=Path, default=Path("data"), help="Bathymetry directory"
     )
 
     args = parser.parse_args()

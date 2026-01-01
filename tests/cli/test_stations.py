@@ -8,10 +8,9 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.cli.cli_utils import CLIError
+from cruiseplan.cli.cli_utils import CLIError, load_pangaea_campaign_data
 from cruiseplan.cli.stations import (
     determine_coordinate_bounds,
-    load_pangaea_data,
     main,
 )
 
@@ -32,7 +31,7 @@ class TestPangaeaDataLoading:
         ]
         mock_load.return_value = mock_data
 
-        result = load_pangaea_data(Path("test.pkl"))
+        result = load_pangaea_campaign_data(Path("test.pkl"))
 
         assert result == mock_data
         mock_load.assert_called_once()
@@ -43,7 +42,7 @@ class TestPangaeaDataLoading:
         mock_load.return_value = []
 
         with pytest.raises(CLIError, match="No campaign data found"):
-            load_pangaea_data(Path("empty.pkl"))
+            load_pangaea_campaign_data(Path("empty.pkl"))
 
     @patch("cruiseplan.data.pangaea.load_campaign_data")
     def test_load_pangaea_data_import_error(self, mock_load):
@@ -51,7 +50,7 @@ class TestPangaeaDataLoading:
         mock_load.side_effect = ImportError("Module not found")
 
         with pytest.raises(CLIError, match="PANGAEA functionality not available"):
-            load_pangaea_data(Path("test.pkl"))
+            load_pangaea_campaign_data(Path("test.pkl"))
 
 
 class TestCoordinateBounds:
@@ -108,7 +107,7 @@ class TestMainCommand:
 
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.cli.stations.load_pangaea_data")
+    @patch("cruiseplan.cli.stations.load_pangaea_campaign_data")
     @patch("cruiseplan.cli.stations.validate_input_file")
     @patch("cruiseplan.cli.stations.validate_output_path")
     def test_main_with_pangaea(
@@ -139,8 +138,8 @@ class TestMainCommand:
             lon=[-20.0, -10.0],
             output_dir=Path("tests_output"),
             output_file=None,
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
+            bathy_source="etopo2022",
+            bathy_dir=Path("data"),
             high_resolution=False,
             verbose=False,
             quiet=False,
@@ -173,8 +172,8 @@ class TestMainCommand:
             lon=[-20.0, -10.0],
             output_dir=Path("tests_output"),
             output_file=None,
-            bathymetry_source="etopo2022",
-            bathymetry_dir=Path("data"),
+            bathy_source="etopo2022",
+            bathy_dir=Path("data"),
             high_resolution=False,
             verbose=False,
             quiet=False,
@@ -205,7 +204,7 @@ class TestMainCommand:
                 lon=None,
                 output_dir=Path("tests_output"),
                 output_file=None,
-                bathymetry_source="etopo2022",
+                bathy_source="etopo2022",
                 verbose=False,
                 quiet=False,
             )
@@ -221,7 +220,7 @@ class TestMainCommand:
             lon=[-20.0, -10.0],
             output_dir=Path("tests_output"),
             output_file=None,
-            bathymetry_source="etopo2022",
+            bathy_source="etopo2022",
         )
 
         with pytest.raises(SystemExit):
@@ -238,7 +237,7 @@ class TestMainCommand:
             lon=None,
             output_dir=Path("tests_output"),
             output_file=None,
-            bathymetry_source="etopo2022",
+            bathy_source="etopo2022",
         )
 
         with pytest.raises(SystemExit):
@@ -252,7 +251,7 @@ class TestMainCommand:
             lon=None,
             output_dir=Path("tests_output"),
             output_file=None,
-            bathymetry_source="etopo2022",
+            bathy_source="etopo2022",
         )
 
         with patch("cruiseplan.cli.stations.validate_output_path") as mock_validate:
@@ -294,6 +293,55 @@ class TestEdgeCases:
         assert lon_bounds == (-65.0, -5.0)
 
 
+class TestLegacyParameterSupport:
+    """Test legacy parameter support and deprecation warnings."""
+
+    @patch("cruiseplan.interactive.station_picker.StationPicker")
+    @patch("matplotlib.pyplot.show")
+    @patch("cruiseplan.cli.stations.validate_output_path")
+    @patch("cruiseplan.cli.cli_utils.logger")
+    def test_legacy_bathymetry_parameters_migration(
+        self, mock_logger, mock_validate_output, mock_show, mock_picker_class
+    ):
+        """Test that legacy --bathymetry-* parameters are migrated with warnings."""
+        mock_validate_output.return_value = Path("/test/stations.yaml")
+        mock_picker = MagicMock()
+        mock_picker_class.return_value = mock_picker
+
+        # Test with legacy parameters
+        args = Namespace(
+            pangaea_file=None,
+            lat=[50.0, 60.0],
+            lon=[-20.0, -10.0],
+            output_dir=Path("tests_output"),
+            output_file=None,
+            bathy_source=None,  # Not set (new param)
+            bathy_dir=None,  # Not set (new param)
+            bathy_source_legacy="gebco2025",  # Legacy param set
+            bathy_dir_legacy=Path("legacy_data"),  # Legacy param set
+            high_resolution=False,
+            overwrite=False,
+            verbose=False,
+            quiet=False,
+        )
+
+        main(args)
+
+        # Verify deprecation warnings were logged
+        mock_logger.warning.assert_any_call(
+            "⚠️  WARNING: '--bathy-source-legacy' is deprecated. Use '--bathy-source' instead."
+        )
+        mock_logger.warning.assert_any_call(
+            "⚠️  WARNING: '--bathy-dir-legacy' is deprecated. Use '--bathy-dir' instead."
+        )
+
+        # Verify the picker was created with migrated values
+        mock_picker_class.assert_called_once()
+        call_kwargs = mock_picker_class.call_args[1]
+        assert call_kwargs["bathymetry_source"] == "gebco2025"
+        assert str(call_kwargs["bathymetry_dir"]) == "legacy_data"
+
+
 class TestModuleStructure:
     """Test module can be executed and has required functions."""
 
@@ -302,5 +350,4 @@ class TestModuleStructure:
         from cruiseplan.cli import stations
 
         assert hasattr(stations, "main")
-        assert hasattr(stations, "load_pangaea_data")
         assert hasattr(stations, "determine_coordinate_bounds")

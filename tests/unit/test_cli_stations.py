@@ -45,9 +45,11 @@ def mock_args(tmp_path):
         lon=[-30.0, -20.0],
         output_dir=tmp_path / "results",
         output_file=None,
-        bathymetry_source="etopo2022",
-        bathymetry_dir=tmp_path / "bathymetry",
+        bathy_source_legacy="etopo2022",  # Legacy param that gets migrated
+        bathy_dir_legacy=tmp_path / "bathymetry",  # Legacy param that gets migrated
         high_resolution=False,
+        verbose=False,
+        quiet=False,
     )
     return args
 
@@ -74,7 +76,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
         output_file=output_file,
         bathymetry_stride=10,  # Default stride since high_resolution=False
         bathymetry_source="etopo2022",  # Default bathymetry source
-        bathymetry_dir=str(mock_args.bathymetry_dir),
+        bathymetry_dir=str(mock_args.bathy_dir_legacy),
         overwrite=False,  # Default overwrite behavior
     )
 
