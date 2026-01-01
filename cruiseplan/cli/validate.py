@@ -33,8 +33,13 @@ from cruiseplan.utils.output_formatting import _format_validation_results
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
-    "main", "_setup_cli_logging", "_validate_config_file", "_resolve_cli_to_api_params",
-    "_convert_api_response_to_cli", "_format_progress_header", "_format_error_message"
+    "main",
+    "_setup_cli_logging",
+    "_validate_config_file",
+    "_resolve_cli_to_api_params",
+    "_convert_api_response_to_cli",
+    "_format_progress_header",
+    "_format_error_message",
 ]
 
 logger = logging.getLogger(__name__)

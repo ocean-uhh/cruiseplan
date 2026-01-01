@@ -8,6 +8,7 @@ to achieve better test coverage and validate end-to-end functionality.
 import argparse
 from pathlib import Path
 from unittest.mock import patch
+
 import pytest
 
 from cruiseplan.cli.process import main
@@ -15,7 +16,7 @@ from cruiseplan.cli.process import main
 
 class TestProcessIntegration:
     """Integration tests for process command with real execution paths."""
-    
+
     def test_process_command_with_real_config_validation(self):
         """Test process command with real configuration file validation."""
         args = argparse.Namespace(
@@ -30,7 +31,7 @@ class TestProcessIntegration:
             verbose=False,
             quiet=False,
         )
-        
+
         # Mock only the heavy API calls, let validation and CLI logic run
         with (
             patch("cruiseplan.process") as mock_api,
@@ -38,12 +39,12 @@ class TestProcessIntegration:
         ):
             mock_api.return_value = (
                 {"stations_with_depths_added": 3},
-                [Path("tests_output/tc1_single_enriched.yaml")]
+                [Path("tests_output/tc1_single_enriched.yaml")],
             )
-            
+
             # This should run real validation logic
             main(args)
-            
+
             # Verify API was called with processed parameters
             mock_api.assert_called_once()
             call_args = mock_api.call_args[1]  # Get kwargs
@@ -59,7 +60,7 @@ class TestProcessIntegration:
             verbose=False,
             quiet=False,
         )
-        
+
         # No mocking - let real validation run and fail
         with pytest.raises(SystemExit):
             main(args)
@@ -78,16 +79,16 @@ class TestProcessIntegration:
             verbose=False,
             quiet=False,
         )
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
         ):
             mock_api.return_value = ({}, [Path("test_output.yaml")])
-            
+
             # This should run real parameter migration logic
             main(args)
-            
+
             # Verify legacy parameters were processed
             mock_api.assert_called_once()
 
@@ -102,16 +103,16 @@ class TestProcessIntegration:
             verbose=False,
             quiet=False,
         )
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
             patch("cruiseplan.cli.cli_utils.logger") as mock_logger,
         ):
             mock_api.return_value = ({}, [Path("custom_output.yaml")])
-            
+
             main(args)
-            
+
             # Should have logged deprecation warning
             mock_logger.warning.assert_called()
             warning_calls = [call[0][0] for call in mock_logger.warning.call_args_list]
@@ -127,13 +128,13 @@ class TestProcessIntegration:
             verbose=False,
             quiet=False,
         )
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
         ):
             mock_api.side_effect = KeyboardInterrupt()
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
@@ -141,26 +142,26 @@ class TestProcessIntegration:
         """Test process command handles API errors with proper error formatting."""
         args = argparse.Namespace(
             config_file=Path("tests/fixtures/tc1_single.yaml"),
-            output_dir=Path("tests_output"), 
+            output_dir=Path("tests_output"),
             add_depths=True,
             add_coords=True,
             verbose=False,
             quiet=False,
         )
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
         ):
             mock_api.side_effect = Exception("API processing failed")
-            
+
             with pytest.raises(SystemExit):
                 main(args)
 
 
 class TestProcessEdgeCases:
     """Test edge cases and error conditions for process command."""
-    
+
     def test_missing_required_attributes(self):
         """Test handling of args object missing required attributes."""
         # Create minimal args object missing some expected attributes
@@ -168,16 +169,16 @@ class TestProcessEdgeCases:
             config_file=Path("tests/fixtures/tc1_single.yaml"),
         )
         # Missing output_dir, verbose, etc.
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
         ):
             mock_api.return_value = ({}, [])
-            
+
             # Should handle missing attributes gracefully via getattr defaults
             main(args)
-            
+
             mock_api.assert_called_once()
 
     def test_empty_api_response_handling(self):
@@ -189,15 +190,15 @@ class TestProcessEdgeCases:
             verbose=False,
             quiet=False,
         )
-        
+
         with (
             patch("cruiseplan.process") as mock_api,
             patch("pathlib.Path.exists", return_value=True),
         ):
             # Test that empty API response is handled gracefully
             mock_api.return_value = (None, [])
-            
+
             # Should complete without error (process command is robust)
             main(args)
-            
+
             mock_api.assert_called_once()

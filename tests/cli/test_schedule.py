@@ -42,7 +42,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),
@@ -81,7 +84,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
         ):
             mock_api.side_effect = Exception("API error")
 
@@ -118,7 +124,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),
@@ -152,7 +161,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),
@@ -198,7 +210,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),
@@ -251,9 +266,7 @@ class TestScheduleCommand:
                 main(args)
 
             # Should format the error
-            mock_format_error.assert_called_once_with(
-                "schedule", mock_init.side_effect
-            )
+            mock_format_error.assert_called_once_with("schedule", mock_init.side_effect)
 
     def test_empty_timeline_handling(self):
         """Test handling of empty timeline from API."""
@@ -267,7 +280,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),
@@ -310,7 +326,10 @@ class TestScheduleCommand:
 
         with (
             patch("cruiseplan.schedule") as mock_api,
-            patch("cruiseplan.cli.schedule._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.schedule._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.schedule._resolve_cli_to_api_params", return_value={}
             ),

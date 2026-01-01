@@ -94,7 +94,7 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
-        # Standardized CLI initialization  
+        # Standardized CLI initialization
         param_map = {
             "bathy_source_legacy": "bathy_source",
             "bathy_dir_legacy": "bathy_dir",
@@ -200,7 +200,7 @@ def main(args: argparse.Namespace) -> None:
 
             # Initialize the picker
             bathymetry_stride = 1 if getattr(args, "high_resolution", False) else 10
-            
+
             picker = StationPicker(
                 campaign_data=campaign_data,
                 output_file=str(output_path),
@@ -244,6 +244,7 @@ def main(args: argparse.Namespace) -> None:
         )
         if getattr(args, "verbose", False):
             import traceback
+
             traceback.print_exc()
         sys.exit(1)
 

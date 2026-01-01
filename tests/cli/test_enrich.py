@@ -42,7 +42,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._convert_api_response_to_cli",
@@ -79,7 +82,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
         ):
             mock_api.side_effect = Exception("API error")
 
@@ -116,7 +122,10 @@ class TestEnrichCommand:
         )
 
         with (
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params") as mock_resolve,
         ):
 
@@ -147,7 +156,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._convert_api_response_to_cli",
@@ -382,7 +394,10 @@ class TestEnrichCommand:
         )
 
         with (
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
         ):
 
             with pytest.raises(SystemExit):
@@ -405,7 +420,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.cli_utils._validate_config_file", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.cli_utils._validate_config_file",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._convert_api_response_to_cli",
@@ -453,7 +471,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._convert_api_response_to_cli",
@@ -498,7 +519,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._convert_api_response_to_cli",
@@ -544,7 +568,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
             patch(
                 "cruiseplan.cli.enrich._format_validation_errors"
@@ -573,7 +600,10 @@ class TestEnrichCommand:
 
         with (
             patch("cruiseplan.enrich") as mock_api,
-            patch("cruiseplan.cli.enrich._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.enrich._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch("cruiseplan.cli.enrich.logger") as mock_logger,
         ):
 

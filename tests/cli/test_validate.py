@@ -38,7 +38,10 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.validate._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
             ),
@@ -78,7 +81,10 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.validate._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
         ):
             mock_api.side_effect = Exception("API error")
 
@@ -112,7 +118,10 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.validate._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
             ),
@@ -154,7 +163,10 @@ class TestValidateCommand:
 
         with (
             patch("cruiseplan.validate") as mock_api,
-            patch("cruiseplan.cli.validate._initialize_cli_command", return_value=Path("test.yaml")),
+            patch(
+                "cruiseplan.cli.validate._initialize_cli_command",
+                return_value=Path("test.yaml"),
+            ),
             patch(
                 "cruiseplan.cli.validate._resolve_cli_to_api_params", return_value={}
             ),

@@ -658,9 +658,9 @@ def _apply_cli_defaults(args: Namespace) -> None:
     >>> _apply_cli_defaults(args)  # Apply defaults after migration
     """
     from pathlib import Path
-    
+
     # Apply bathymetry directory default
-    if hasattr(args, 'bathy_dir') and args.bathy_dir is None:
+    if hasattr(args, "bathy_dir") and args.bathy_dir is None:
         args.bathy_dir = Path("data")
 
 
@@ -691,9 +691,9 @@ def _handle_common_deprecated_params(args: Namespace) -> None:
 
 
 def _initialize_cli_command(
-    args: Namespace, 
+    args: Namespace,
     deprecated_param_map: Dict[str, str] = None,
-    requires_config_file: bool = True
+    requires_config_file: bool = True,
 ) -> Optional[Path]:
     """
     Standardized CLI command initialization with common setup patterns.
@@ -723,33 +723,32 @@ def _initialize_cli_command(
     --------
     >>> # Simple initialization without config file
     >>> _initialize_cli_command(args, requires_config_file=False)
-    
+
     >>> # Full initialization with deprecated params
     >>> param_map = {"bathy_dir_legacy": "bathy_dir"}
     >>> config_file = _initialize_cli_command(args, param_map)
     """
     # Setup logging
     _setup_cli_logging(
-        verbose=getattr(args, "verbose", False),
-        quiet=getattr(args, "quiet", False)
+        verbose=getattr(args, "verbose", False), quiet=getattr(args, "quiet", False)
     )
-    
+
     # Handle common deprecated parameters
     _handle_common_deprecated_params(args)
-    
+
     # Handle command-specific deprecated parameters
     if deprecated_param_map:
         _handle_deprecated_params(args, deprecated_param_map)
-    
+
     # Apply common defaults
     _apply_cli_defaults(args)
-    
+
     # Validate config file if required
     if requires_config_file:
-        if not hasattr(args, 'config_file') or not args.config_file:
+        if not hasattr(args, "config_file") or not args.config_file:
             raise CLIError("Configuration file is required for this command")
         return _validate_config_file(args.config_file)
-    
+
     return None
 
 

@@ -27,7 +27,10 @@ class TestProcessCommand:
 
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.cli.process._initialize_cli_command", return_value=Path("test_config.yaml")),
+            patch(
+                "cruiseplan.cli.process._initialize_cli_command",
+                return_value=Path("test_config.yaml"),
+            ),
             patch("cruiseplan.cli.process._format_progress_header"),
             patch("cruiseplan.cli.process._collect_generated_files") as mock_collect,
             patch("cruiseplan.cli.process._format_success_message"),
@@ -123,9 +126,7 @@ class TestProcessCommand:
                 main(mock_args)
 
             # Should format the error
-            mock_format_error.assert_called_once_with(
-                "process", mock_init.side_effect
-            )
+            mock_format_error.assert_called_once_with("process", mock_init.side_effect)
 
     def test_main_handles_general_exception(self):
         """Test handling of unexpected exceptions."""

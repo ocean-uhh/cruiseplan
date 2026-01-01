@@ -158,7 +158,10 @@ class TestPangaeaCommand:
         ):
 
             # Mock successful API response
-            mock_api.return_value = (mock_stations, [Path("atlantic_study_stations.pkl")])
+            mock_api.return_value = (
+                mock_stations,
+                [Path("atlantic_study_stations.pkl")],
+            )
 
             main(args)
 
