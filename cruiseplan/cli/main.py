@@ -137,7 +137,7 @@ Examples:
         action="store_true",
         help="Show citation information for the bathymetry source without downloading",
     )
-    
+
     # Output control
     bathymetry_parser.add_argument(
         "-o",
@@ -146,7 +146,7 @@ Examples:
         default=Path("data/bathymetry"),
         help="Output directory for bathymetry files (default: data/bathymetry)",
     )
-    
+
     # Bathymetry options
     bathymetry_parser.add_argument(
         "--bathy-source",
@@ -154,7 +154,7 @@ Examples:
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
     )
-    
+
     # Legacy parameter support
     bathymetry_parser.add_argument(
         "--source",
@@ -181,7 +181,7 @@ Examples:
         type=Path,
         help="YAML cruise configuration file",
     )
-    
+
     # Primary operation flags
     schedule_parser.add_argument("--leg", help="Process specific leg only")
     schedule_parser.add_argument(
@@ -189,7 +189,7 @@ Examples:
         action="store_true",
         help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
     )
-    
+
     # Output control
     schedule_parser.add_argument(
         "-o",
@@ -229,7 +229,7 @@ Examples:
         default=10,
         help="Bathymetry contour stride for PNG maps (default: 10)",
     )
-    
+
     # Display options
     schedule_parser.add_argument(
         "--figsize",
@@ -244,7 +244,7 @@ Examples:
     stations_parser = subparsers.add_parser(
         "stations", help="Interactive station placement with PANGAEA background"
     )
-    # Primary operation flags  
+    # Primary operation flags
     stations_parser.add_argument(
         "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
     )
@@ -269,7 +269,7 @@ Examples:
         action="store_true",
         help="Overwrite existing output file without prompting",
     )
-    
+
     # Output control
     stations_parser.add_argument(
         "-o",
@@ -278,7 +278,7 @@ Examples:
         default=Path("data"),
         help="Output directory (default: data)",
     )
-    
+
     # Bathymetry options
     stations_parser.add_argument(
         "--bathy-source",
@@ -292,14 +292,14 @@ Examples:
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
-    
+
     # Display options
     stations_parser.add_argument(
         "--high-resolution",
         action="store_true",
         help="Use full resolution bathymetry (slower but more detailed)",
     )
-    
+
     # Legacy parameter support
     stations_parser.add_argument(
         "--bathymetry-source",
@@ -326,7 +326,7 @@ Examples:
         type=Path,
         help="Input YAML configuration file",
     )
-    
+
     # Primary operation flags
     enrich_parser.add_argument(
         "--add-depths",
@@ -346,7 +346,7 @@ Examples:
     enrich_parser.add_argument(
         "--expand-ports", action="store_true", help="Expand global port references"
     )
-    
+
     # Output control
     enrich_parser.add_argument(
         "-o",
@@ -355,7 +355,7 @@ Examples:
         default=Path("data"),
         help="Output directory (default: data)",
     )
-    
+
     # Bathymetry options
     enrich_parser.add_argument(
         "--bathy-source",
@@ -369,12 +369,12 @@ Examples:
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
-    
+
     # General options
     enrich_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
-    
+
     # Legacy parameter support
     enrich_parser.add_argument(
         "--bathymetry-source",
@@ -401,7 +401,7 @@ Examples:
         type=Path,
         help="Input YAML configuration file",
     )
-    
+
     # Primary operation flags
     validate_parser.add_argument(
         "--check-depths",
@@ -414,8 +414,8 @@ Examples:
         default=10.0,
         help="Depth difference tolerance in percent (default: 10.0)",
     )
-    
-    # Bathymetry options  
+
+    # Bathymetry options
     validate_parser.add_argument(
         "--bathy-source",
         choices=["etopo2022", "gebco2025"],
@@ -428,7 +428,7 @@ Examples:
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
-    
+
     # General options
     validate_parser.add_argument(
         "--strict",
@@ -440,7 +440,7 @@ Examples:
         action="store_true",
         help="Show warnings without failing",
     )
-    
+
     # Legacy parameter support
     validate_parser.add_argument(
         "--bathymetry-source",
@@ -480,14 +480,14 @@ Examples:
         type=Path,
         help="YAML cruise configuration file",
     )
-    
+
     # Primary operation flags
     map_parser.add_argument(
         "--no-ports",
         action="store_true",
         help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
     )
-    
+
     # Output control
     map_parser.add_argument(
         "-o",
@@ -507,7 +507,7 @@ Examples:
         default="all",
         help="Output format: png (map), kml (geographic data), or all (default: all)",
     )
-    
+
     # Bathymetry options
     map_parser.add_argument(
         "--bathy-source",
@@ -527,7 +527,7 @@ Examples:
         default=5,
         help="Bathymetry downsampling factor (default: 5, higher=faster/less detailed)",
     )
-    
+
     # Display options
     map_parser.add_argument(
         "--figsize",
@@ -542,7 +542,7 @@ Examples:
         action="store_true",
         help="Display plot interactively instead of saving to file",
     )
-    
+
     # General options
     map_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"

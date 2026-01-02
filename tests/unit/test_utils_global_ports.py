@@ -220,19 +220,22 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_add_custom_port_success(self):
         """Test successfully adding a custom port."""
-        from cruiseplan.utils.global_ports import add_custom_port, resolve_port_reference
-        
+        from cruiseplan.utils.global_ports import (
+            add_custom_port,
+            resolve_port_reference,
+        )
+
         # Add a custom port
         custom_port_data = {
             "name": "Test Custom Port",
             "latitude": 45.0,
             "longitude": -125.0,
-            "description": "Test port"
+            "description": "Test port",
         }
-        
+
         # Should not raise an exception
         add_custom_port("port_test_custom", custom_port_data)
-        
+
         # Should be able to retrieve it via resolution
         retrieved_def = resolve_port_reference("port_test_custom")
         assert retrieved_def.name == "Test Custom Port"
@@ -241,9 +244,9 @@ class TestGlobalPortsAdditionalFunctions:
     def test_add_custom_port_invalid_id(self):
         """Test adding port with invalid ID format."""
         from cruiseplan.utils.global_ports import add_custom_port
-        
+
         port_data = {"name": "Test", "latitude": 45.0, "longitude": -125.0}
-        
+
         # Should raise ValueError for invalid ID format
         with pytest.raises(ValueError, match="must start with 'port_' prefix"):
             add_custom_port("invalid_id", port_data)
@@ -251,24 +254,23 @@ class TestGlobalPortsAdditionalFunctions:
     def test_add_custom_port_missing_fields(self):
         """Test adding port with missing required fields."""
         from cruiseplan.utils.global_ports import add_custom_port
-        
+
         # Missing latitude
         port_data = {"name": "Test", "longitude": -125.0}
-        
+
         with pytest.raises(ValueError, match="missing required fields"):
             add_custom_port("port_test_missing", port_data)
 
     def test_list_ports_in_region(self):
         """Test listing ports within a geographic region."""
         from cruiseplan.utils.global_ports import list_ports_in_region
-        
+
         # Test with a region that should contain some ports
         # Using a large area that likely contains ports
         regional_ports = list_ports_in_region(
-            min_lat=50.0, max_lat=70.0, 
-            min_lon=-180.0, max_lon=-100.0
+            min_lat=50.0, max_lat=70.0, min_lon=-180.0, max_lon=-100.0
         )
-        
+
         assert isinstance(regional_ports, dict)
         # Should return some ports in this large region (or none, which is also valid)
         for port_id, port_name in regional_ports.items():
@@ -278,12 +280,11 @@ class TestGlobalPortsAdditionalFunctions:
     def test_list_ports_in_empty_region(self):
         """Test listing ports in a region with no ports."""
         from cruiseplan.utils.global_ports import list_ports_in_region
-        
+
         # Test with a very small region in the middle of the ocean
         regional_ports = list_ports_in_region(
-            min_lat=25.0, max_lat=25.1,
-            min_lon=-50.0, max_lon=-49.9
+            min_lat=25.0, max_lat=25.1, min_lon=-50.0, max_lon=-49.9
         )
-        
+
         assert isinstance(regional_ports, dict)
         # Should be empty or very few ports

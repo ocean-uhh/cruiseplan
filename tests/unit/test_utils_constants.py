@@ -3,11 +3,11 @@
 import pytest
 
 from cruiseplan.utils.constants import (
-    NM_PER_KM,
-    KM_PER_NM, 
+    KM_PER_NM,
     MINUTES_PER_HOUR,
-    minutes_to_hours,
+    NM_PER_KM,
     hours_to_minutes,
+    minutes_to_hours,
     seconds_to_minutes,
 )
 
@@ -47,7 +47,7 @@ class TestConstants:
         # hours -> minutes -> hours should be identity
         hours = 2.5
         assert minutes_to_hours(hours_to_minutes(hours)) == pytest.approx(hours)
-        
+
         # Test relationship between NM_PER_KM and KM_PER_NM
         assert NM_PER_KM * KM_PER_NM == pytest.approx(1.0, abs=0.001)
 
@@ -57,8 +57,8 @@ class TestConstants:
         large_val = 1e6
         assert hours_to_minutes(large_val) == large_val * MINUTES_PER_HOUR
         assert minutes_to_hours(large_val) == large_val / MINUTES_PER_HOUR
-        
-        # Very small numbers  
+
+        # Very small numbers
         small_val = 1e-6
         assert hours_to_minutes(small_val) == small_val * MINUTES_PER_HOUR
         assert seconds_to_minutes(small_val) == small_val / 60.0

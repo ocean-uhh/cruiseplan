@@ -327,9 +327,14 @@ class TestLegacyParameterSupport:
 
         # Verify no deprecation warnings were logged since no deprecated parameters are configured
         # Check that warning method was not called with any deprecation messages
-        warning_calls = [call for call in mock_logger.warning.call_args_list 
-                        if call and len(call[0]) > 0 and "deprecated" in str(call[0][0]).lower()]
-        assert len(warning_calls) == 0, f"Unexpected deprecation warnings: {warning_calls}"
+        warning_calls = [
+            call
+            for call in mock_logger.warning.call_args_list
+            if call and len(call[0]) > 0 and "deprecated" in str(call[0][0]).lower()
+        ]
+        assert (
+            len(warning_calls) == 0
+        ), f"Unexpected deprecation warnings: {warning_calls}"
 
         # Verify the picker was created with standard values
         mock_picker_class.assert_called_once()

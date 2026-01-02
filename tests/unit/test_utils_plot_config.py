@@ -1,16 +1,16 @@
 """Tests for cruiseplan.utils.plot_config module."""
 
-import pytest
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 
 from cruiseplan.utils.plot_config import (
     create_bathymetry_colormap,
     create_bathymetry_colormap_v2,
     get_colormap,
-    get_plot_style,
     get_legend_entries,
+    get_plot_style,
     load_cpt_colormap,
 )
 
@@ -21,7 +21,7 @@ class TestBathymetryColormaps:
     def test_create_bathymetry_colormap_basic(self):
         """Test that create_bathymetry_colormap returns a valid colormap."""
         cmap = create_bathymetry_colormap()
-        
+
         assert isinstance(cmap, mcolors.LinearSegmentedColormap)
         assert cmap.name == "bathymetry_flemish_cap"
         assert cmap.N == 256  # Default number of colors
@@ -29,19 +29,19 @@ class TestBathymetryColormaps:
     def test_create_bathymetry_colormap_v2_basic(self):
         """Test that create_bathymetry_colormap_v2 returns a valid colormap."""
         cmap = create_bathymetry_colormap_v2()
-        
+
         assert isinstance(cmap, mcolors.LinearSegmentedColormap)
         # Don't assert exact name as it might be different
 
     def test_colormap_depth_mapping(self):
         """Test that colormaps produce expected colors at depth boundaries."""
         cmap = create_bathymetry_colormap()
-        
+
         # Test at various normalized positions
         # At 0.0 (deepest), should be dark blue
         deep_color = cmap(0.0)
         assert deep_color[2] > 0.2  # Blue channel should be significant
-        
+
         # At 1.0 (land), should be yellow/tan
         land_color = cmap(1.0)
         assert land_color[0] > 0.8  # Red channel high for yellow
@@ -51,11 +51,11 @@ class TestBathymetryColormaps:
         """Test that colormaps work across the full range."""
         for cmap_func in [create_bathymetry_colormap, create_bathymetry_colormap_v2]:
             cmap = cmap_func()
-            
+
             # Test at several points across range
             test_values = np.linspace(0, 1, 10)
             colors = cmap(test_values)
-            
+
             assert colors.shape == (10, 4)  # RGBA values
             # All colors should be valid (0-1 range)
             assert np.all(colors >= 0) and np.all(colors <= 1)
@@ -67,19 +67,27 @@ class TestLegendConfig:
     def test_get_legend_entries_basic(self):
         """Test that legend entries return expected structure."""
         entries = get_legend_entries()
-        
+
         assert isinstance(entries, dict)
         assert len(entries) > 0
 
     def test_legend_entries_contain_required_fields(self):
         """Test that legend entries have required plotting fields."""
         entries = get_legend_entries()
-        
+
         # Each entry should have basic visual specification
         for entry_name, entry_conf in entries.items():
             assert isinstance(entry_conf, dict), f"Entry {entry_name} should be a dict"
             # Should have some kind of visual specification
-            visual_fields = ['color', 'marker', 'size', 'style', 'symbol', 'label', 'description']
+            visual_fields = [
+                "color",
+                "marker",
+                "size",
+                "style",
+                "symbol",
+                "label",
+                "description",
+            ]
             has_visual = any(field in entry_conf for field in visual_fields)
             # Some entries might only have descriptive fields, that's okay
             if not has_visual:
@@ -105,14 +113,14 @@ class TestStyleConfig:
         """Test plot style with different configuration options."""
         # Test different style configurations
         test_styles = ["default", "publication", "interactive", None]
-        
+
         for style_name in test_styles:
             try:
                 if style_name is None:
                     style = get_plot_style()
                 else:
                     style = get_plot_style(style_name)
-                
+
                 # Basic validation that we got something back
                 assert style is not None
                 break  # If one works, that's sufficient
@@ -128,7 +136,7 @@ class TestColormapGetter:
         """Test that get_colormap returns expected colormaps."""
         # Test with known colormap names
         test_names = ["bathymetry", "default", "viridis", "plasma"]
-        
+
         for name in test_names:
             try:
                 cmap = get_colormap(name)
@@ -150,34 +158,36 @@ class TestPlotConfigIntegration:
     def test_colormap_with_matplotlib_figure(self):
         """Test that colormaps work with actual matplotlib figures."""
         fig, ax = plt.subplots(figsize=(6, 4))
-        
+
         # Test both colormap functions
         for cmap_func in [create_bathymetry_colormap, create_bathymetry_colormap_v2]:
             cmap = cmap_func()
-            
+
             # Create a simple depth grid
             x = np.linspace(0, 10, 50)
             y = np.linspace(0, 10, 50)
             X, Y = np.meshgrid(x, y)
             depths = -(X**2 + Y**2) * 100  # Simple depth function
-            
+
             # Should be able to plot without errors
             try:
                 contour = ax.contourf(X, Y, depths, cmap=cmap, alpha=0.8)
                 # Basic validation that the plot was created
                 assert contour is not None
                 # QuadContourSet might have different attributes
-                assert hasattr(contour, 'levels') or hasattr(contour, 'collections')
+                assert hasattr(contour, "levels") or hasattr(contour, "collections")
             except Exception as e:
-                pytest.fail(f"Failed to create contour plot with {cmap_func.__name__}: {e}")
-        
+                pytest.fail(
+                    f"Failed to create contour plot with {cmap_func.__name__}: {e}"
+                )
+
         plt.close(fig)
 
     def test_style_config_application(self):
         """Test that plot style can be applied to matplotlib."""
         # Try to get a style configuration
         fig, ax = plt.subplots(figsize=(4, 4))
-        
+
         try:
             style = get_plot_style()
             # Basic validation that the style can be accessed

@@ -32,10 +32,9 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import (
-    _validate_config_file,
-    _validate_output_params,
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _handle_deprecated_cli_params,
+    _validate_config_file,
 )
 from cruiseplan.utils.output_formatting import (
     _format_cli_error,
@@ -218,16 +217,17 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
         _handle_deprecated_cli_params(args)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Standardized CLI initialization
         config_file = _initialize_cli_command(args)
 
         # Extract cruise name from config file for proper naming
         try:
             import yaml
+
             with open(config_file) as f:
                 config_data = yaml.safe_load(f)
                 cruise_name = config_data.get("cruise_name")
@@ -248,11 +248,11 @@ def main(args: argparse.Namespace) -> None:
         output_dir, base_name, format_paths = _standardize_output_setup(
             args, cruise_name=cruise_name, suffix="_enriched", single_format=".yaml"
         )
-        
+
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "enrich")
-        
-        # Override output with standardized base name  
+
+        # Override output with standardized base name
         api_params["output"] = base_name
 
         # Call API function instead of core directly
@@ -287,12 +287,12 @@ def main(args: argparse.Namespace) -> None:
 
     except CLIError as e:
         error_msg = _format_cli_error(
-            "Configuration enrichment", 
+            "Configuration enrichment",
             e,
             suggestions=[
                 "Check configuration file path and syntax",
                 "Verify output directory permissions",
-            ]
+            ],
         )
         logger.error(error_msg)
         sys.exit(1)
@@ -303,12 +303,12 @@ def main(args: argparse.Namespace) -> None:
         for error in e.errors():
             field_path = ".".join(str(loc) for loc in error["loc"])
             error_details.append(f"{field_path}: {error['msg']}")
-        
+
         config_error = _format_configuration_error(
             config_file, "configuration", error_details
         )
         logger.error(config_error)
-        
+
         # Still use existing detailed validation error formatting for backward compatibility
         _format_validation_errors(e.errors())
         sys.exit(1)
@@ -357,8 +357,12 @@ if __name__ == "__main__":
     parser.add_argument("--bathy-source", default="etopo2022")
     parser.add_argument("--bathy-dir", type=Path, default=Path("data"))
     # Keep deprecated parameters for backward compatibility
-    parser.add_argument("--bathymetry-source", dest="bathymetry_source", help=argparse.SUPPRESS)
-    parser.add_argument("--bathymetry-dir", type=Path, dest="bathymetry_dir", help=argparse.SUPPRESS)
+    parser.add_argument(
+        "--bathymetry-source", dest="bathymetry_source", help=argparse.SUPPRESS
+    )
+    parser.add_argument(
+        "--bathymetry-dir", type=Path, dest="bathymetry_dir", help=argparse.SUPPRESS
+    )
 
     args = parser.parse_args()
     main(args)

@@ -21,9 +21,7 @@ import cruiseplan
 from cruiseplan.cli.cli_utils import (
     CLIError,
     _collect_generated_files,
-    _format_error_message,
     _format_progress_header,
-    _format_success_message,
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
@@ -31,14 +29,14 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import (
+    _apply_cli_defaults,
     _detect_pangaea_mode,
     _handle_deprecated_cli_params,
-    _apply_cli_defaults,
     _validate_coordinate_bounds,
 )
 from cruiseplan.utils.output_formatting import (
-    _format_cli_error,
     _format_api_error,
+    _format_cli_error,
     _format_output_summary,
     _standardize_output_setup,
 )
@@ -126,10 +124,10 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
         _handle_deprecated_cli_params(args)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Setup logging using new utility
         _setup_cli_logging(verbose=getattr(args, "verbose", False))
 
@@ -150,10 +148,10 @@ def main(args: argparse.Namespace) -> None:
         output_dir, base_name, format_paths = _standardize_output_setup(
             args, suffix="_stations", multi_formats=["pkl", "txt"]
         )
-        
+
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "pangaea")
-        
+
         # Override output paths with standardized paths
         api_params["output_dir"] = output_dir
         api_params["output"] = base_name
@@ -204,7 +202,7 @@ def main(args: argparse.Namespace) -> None:
                 "Check query terms are valid",
                 "Verify coordinate bounds format",
                 "Ensure DOI file exists and is readable",
-            ]
+            ],
         )
         logger.error(error_msg)
         sys.exit(1)

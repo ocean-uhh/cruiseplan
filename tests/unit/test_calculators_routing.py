@@ -1,11 +1,10 @@
 """Tests for cruiseplan.calculators.routing module."""
 
-import pytest
 from unittest.mock import Mock
 
 from cruiseplan.calculators.routing import (
-    optimize_composite_route,
     calculate_route_distance,
+    optimize_composite_route,
 )
 
 
@@ -24,7 +23,7 @@ class TestOptimizeCompositeRoute:
         rules = {}
 
         result = optimize_composite_route([mock_child], rules)
-        
+
         assert result == 30.0
         mock_child.calculate_duration.assert_called_once_with(rules)
 
@@ -33,16 +32,16 @@ class TestOptimizeCompositeRoute:
         mock_child1 = Mock()
         mock_child2 = Mock()
         mock_child3 = Mock()
-        
+
         mock_child1.calculate_duration.return_value = 15.0
         mock_child2.calculate_duration.return_value = 25.0
         mock_child3.calculate_duration.return_value = 10.0
-        
+
         rules = {"some": "rule"}
         children = [mock_child1, mock_child2, mock_child3]
 
         result = optimize_composite_route(children, rules)
-        
+
         assert result == 50.0
         mock_child1.calculate_duration.assert_called_once_with(rules)
         mock_child2.calculate_duration.assert_called_once_with(rules)
@@ -52,15 +51,15 @@ class TestOptimizeCompositeRoute:
         """Test that rules object is passed correctly to children."""
         mock_child = Mock()
         mock_child.calculate_duration.return_value = 42.0
-        
+
         complex_rules = {
             "ship_speed": 12.0,
             "operation_type": "CTD",
-            "depth_limit": 1000
+            "depth_limit": 1000,
         }
 
         result = optimize_composite_route([mock_child], complex_rules)
-        
+
         assert result == 42.0
         mock_child.calculate_duration.assert_called_once_with(complex_rules)
 
@@ -68,12 +67,12 @@ class TestOptimizeCompositeRoute:
         """Test with operations that have zero duration."""
         mock_child1 = Mock()
         mock_child2 = Mock()
-        
+
         mock_child1.calculate_duration.return_value = 0.0
         mock_child2.calculate_duration.return_value = 0.0
-        
+
         result = optimize_composite_route([mock_child1, mock_child2], {})
-        
+
         assert result == 0.0
 
 

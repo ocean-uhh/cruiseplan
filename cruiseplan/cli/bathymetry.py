@@ -16,7 +16,6 @@ from pathlib import Path
 
 import cruiseplan
 from cruiseplan.cli.cli_utils import (
-    _format_error_message,
     _format_progress_header,
     _initialize_cli_command,
 )
@@ -25,14 +24,14 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import (
-    _validate_directory_writable,
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _handle_deprecated_cli_params,
     _validate_choice_param,
+    _validate_directory_writable,
 )
 from cruiseplan.utils.output_formatting import (
-    _format_cli_error,
     _format_api_error,
+    _format_cli_error,
     _format_output_summary,
 )
 
@@ -140,10 +139,10 @@ def main(args=None):
             "bathymetry_source": "bathy_source",
         }
         _handle_deprecated_cli_params(args, deprecated_params)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Standardized CLI initialization
         _initialize_cli_command(args, requires_config_file=False)
 
@@ -201,7 +200,7 @@ def main(args=None):
                 logger.info(success_summary)
             else:
                 logger.info("✅ Bathymetry download completed successfully")
-                
+
             # Show citation info after successful download
             logger.info("\n" + "=" * 60)
             logger.info("📚 CITATION INFORMATION")
@@ -227,7 +226,10 @@ def main(args=None):
         sys.exit(1)
     except Exception as e:
         # Check if it's likely a network/download error
-        if any(keyword in str(e).lower() for keyword in ["connection", "timeout", "network", "http"]):
+        if any(
+            keyword in str(e).lower()
+            for keyword in ["connection", "timeout", "network", "http"]
+        ):
             error_msg = _format_api_error(
                 "Bathymetry download", "Data provider", e, retry_suggestion=True
             )

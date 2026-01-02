@@ -7,9 +7,9 @@ CLI layer to validate inputs before passing them to the API layer.
 """
 
 import logging
+from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, List, Tuple
-from argparse import Namespace
 
 logger = logging.getLogger(__name__)
 
@@ -181,12 +181,12 @@ def _validate_coordinate_bounds(
         raise ValueError(
             f"Invalid minimum longitude: {min_lon}. Must be between -180 and 360."
         )
-    
+
     if not (-180 <= max_lon <= 360):
         raise ValueError(
             f"Invalid maximum longitude: {max_lon}. Must be between -180 and 360."
         )
-    
+
     # Validate longitude format and ranges
     # Support both -180/180 and 0/360 formats, but not mixed
     if -180 <= min_lon <= 180 and -180 <= max_lon <= 180:
@@ -575,7 +575,7 @@ def _validate_cli_config_file(args: Namespace) -> Path:
     """
     if not hasattr(args, "config_file") or not args.config_file:
         raise ValueError("Configuration file is required for this command")
-    
+
     return _validate_config_file(args.config_file)
 
 
@@ -608,10 +608,10 @@ def _validate_coordinate_args(args: Namespace) -> Tuple[float, float, float, flo
     """
     if not hasattr(args, "lat") or not args.lat:
         raise ValueError("Latitude bounds (--lat) are required")
-    
+
     if not hasattr(args, "lon") or not args.lon:
         raise ValueError("Longitude bounds (--lon) are required")
-    
+
     return _validate_coordinate_bounds(args.lat, args.lon)
 
 
@@ -640,7 +640,7 @@ def _handle_deprecated_cli_params(
     """
     if param_map is None:
         return
-    
+
     for old_param, new_param in param_map.items():
         if hasattr(args, old_param) and getattr(args, old_param) is not None:
             logger.warning(
@@ -745,7 +745,5 @@ def _validate_positive_int(value: int, param_name: str) -> int:
     5
     """
     if not isinstance(value, int) or value < 1:
-        raise ValueError(
-            f"{param_name} must be a positive integer, got: {value}"
-        )
+        raise ValueError(f"{param_name} must be a positive integer, got: {value}")
     return value

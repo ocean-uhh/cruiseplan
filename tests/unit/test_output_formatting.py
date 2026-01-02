@@ -5,29 +5,28 @@ This module tests all formatting functions in cruiseplan.utils.output_formatting
 to ensure consistent output presentation and path management across CLI commands.
 """
 
-import pytest
 from argparse import Namespace
 from pathlib import Path
 from unittest.mock import patch
 
 from cruiseplan.utils.output_formatting import (
-    _format_timeline_summary,
-    _format_file_list,
-    _format_duration,
-    _format_coordinate_summary,
-    _format_validation_results,
-    _format_progress_bar,
-    _format_size_summary,
-    _format_operation_summary,
-    _format_table_row,
-    _format_section_header,
+    _construct_output_path,
     _determine_output_basename,
     _determine_output_directory,
-    _construct_output_path,
-    _generate_multi_format_paths,
-    _validate_output_directory,
-    _standardize_output_setup,
+    _format_coordinate_summary,
+    _format_duration,
+    _format_file_list,
+    _format_operation_summary,
     _format_output_summary,
+    _format_progress_bar,
+    _format_section_header,
+    _format_size_summary,
+    _format_table_row,
+    _format_timeline_summary,
+    _format_validation_results,
+    _generate_multi_format_paths,
+    _standardize_output_setup,
+    _validate_output_directory,
 )
 
 
@@ -38,9 +37,9 @@ class TestTimelineFormatting:
         """Test basic timeline summary formatting."""
         timeline = [
             {"label": "STN_001", "duration_minutes": 120, "op_type": "station"},
-            {"label": "Transit_01", "duration_minutes": 60, "op_type": "transit"}
+            {"label": "Transit_01", "duration_minutes": 60, "op_type": "transit"},
         ]
-        
+
         result = _format_timeline_summary(timeline, 3.0)
         expected = "Timeline: 2 activities | 3.0 hours total duration | Types: 1 station, 1 transit"
         assert result == expected
@@ -55,11 +54,13 @@ class TestTimelineFormatting:
         """Test timeline summary with no op_type fields."""
         timeline = [
             {"label": "STN_001", "duration_minutes": 120},
-            {"label": "STN_002", "duration_minutes": 90}
+            {"label": "STN_002", "duration_minutes": 90},
         ]
-        
+
         result = _format_timeline_summary(timeline, 3.5)
-        expected = "Timeline: 2 activities | 3.5 hours total duration | Types: 2 unknown"
+        expected = (
+            "Timeline: 2 activities | 3.5 hours total duration | Types: 2 unknown"
+        )
         assert result == expected
 
 
@@ -71,7 +72,7 @@ class TestFileListFormatting:
         file1 = tmp_path / "file1.txt"
         file2 = tmp_path / "file2.csv"
         files = [file1, file2]
-        
+
         result = _format_file_list(files, tmp_path)
         expected = "• file1.txt\\n• file2.csv"
         assert result == expected
@@ -82,7 +83,7 @@ class TestFileListFormatting:
         file1 = tmp_path / "file1.txt"
         file2 = other_dir / "file2.csv"
         files = [file1, file2]
-        
+
         result = _format_file_list(files, tmp_path)
         lines = result.split("\\n")
         assert "• file1.txt" in lines[0]
@@ -97,7 +98,7 @@ class TestFileListFormatting:
         """Test file list formatting without base directory."""
         file1 = tmp_path / "file1.txt"
         files = [file1]
-        
+
         with patch("pathlib.Path.cwd", return_value=tmp_path):
             result = _format_file_list(files)
             assert result == "• file1.txt"
@@ -213,7 +214,7 @@ class TestSizeFormatting:
         """Test size formatting for small files (bytes)."""
         file1 = tmp_path / "small.txt"
         file1.write_text("test")  # 4 bytes
-        
+
         result = _format_size_summary([file1])
         assert "1 files, 4 bytes total" == result
 
@@ -221,7 +222,7 @@ class TestSizeFormatting:
         """Test size formatting for KB files."""
         file1 = tmp_path / "medium.txt"
         file1.write_text("x" * 2048)  # 2048 bytes = 2.0 KB
-        
+
         result = _format_size_summary([file1])
         assert "1 files, 2.0 KB total" == result
 
@@ -229,7 +230,7 @@ class TestSizeFormatting:
         """Test size formatting for MB files."""
         file1 = tmp_path / "large.txt"
         file1.write_bytes(b"x" * (2 * 1024 * 1024))  # 2 MB
-        
+
         result = _format_size_summary([file1])
         assert "1 files, 2.0 MB total" == result
 
@@ -282,7 +283,7 @@ class TestTableFormatting:
         """Test table row formatting with normal content."""
         columns = ["Name", "Type", "Duration"]
         widths = [10, 8, 12]
-        
+
         result = _format_table_row(columns, widths)
         expected = "Name       | Type     | Duration    "
         assert result == expected
@@ -291,7 +292,7 @@ class TestTableFormatting:
         """Test table row formatting with truncated content."""
         columns = ["Very long station name", "Type", "Duration"]
         widths = [10, 8, 12]
-        
+
         result = _format_table_row(columns, widths)
         expected = "Very lo... | Type     | Duration    "
         assert result == expected
@@ -310,7 +311,7 @@ class TestSectionHeaderFormatting:
         """Test section header with long title."""
         long_title = "This is a very long section title that needs truncation"
         result = _format_section_header(long_title, 40)
-        
+
         assert "This is a very long section title..." in result
         assert len(result) <= 40
 
@@ -398,11 +399,11 @@ class TestMultiFormatPaths:
         result = _generate_multi_format_paths(
             "cruise", Path("data"), formats, "_schedule"
         )
-        
+
         expected = {
             "html": Path("data/cruise_schedule.html"),
             "csv": Path("data/cruise_schedule.csv"),
-            "netcdf": Path("data/cruise_schedule.nc")
+            "netcdf": Path("data/cruise_schedule.nc"),
         }
         assert result == expected
 
@@ -410,21 +411,19 @@ class TestMultiFormatPaths:
         """Test multi-format path generation with custom extensions."""
         formats = ["custom"]
         extensions = {"custom": ".xyz"}
-        
+
         result = _generate_multi_format_paths(
             "test", Path("output"), formats, "", extensions
         )
-        
+
         expected = {"custom": Path("output/test.xyz")}
         assert result == expected
 
     def test_generate_multi_format_paths_fallback_extension(self):
         """Test multi-format path generation with fallback extension."""
         formats = ["unknown"]
-        result = _generate_multi_format_paths(
-            "test", Path("data"), formats
-        )
-        
+        result = _generate_multi_format_paths("test", Path("data"), formats)
+
         expected = {"unknown": Path("data/test.unknown")}
         assert result == expected
 
@@ -434,7 +433,9 @@ class TestOutputDirectoryValidation:
 
     def test_validate_output_directory_existing(self, tmp_path):
         """Test validation of existing directory."""
-        with patch("cruiseplan.utils.input_validation._validate_directory_writable") as mock_validate:
+        with patch(
+            "cruiseplan.utils.input_validation._validate_directory_writable"
+        ) as mock_validate:
             mock_validate.return_value = tmp_path
             result = _validate_output_directory(tmp_path)
             assert result == tmp_path
@@ -447,14 +448,16 @@ class TestStandardizedOutputSetup:
     def test_standardize_output_setup_single_format(self):
         """Test standardized setup for single format output."""
         args = Namespace(output="cruise", output_dir="data")
-        
-        with patch("cruiseplan.utils.output_formatting._validate_output_directory") as mock_validate:
+
+        with patch(
+            "cruiseplan.utils.output_formatting._validate_output_directory"
+        ) as mock_validate:
             mock_validate.return_value = Path("data")
-            
+
             output_dir, base_name, format_paths = _standardize_output_setup(
                 args, suffix="_enriched", single_format=".yaml"
             )
-            
+
             assert output_dir == Path("data")
             assert base_name == "cruise"
             assert "single" in format_paths
@@ -463,14 +466,16 @@ class TestStandardizedOutputSetup:
     def test_standardize_output_setup_multi_formats(self):
         """Test standardized setup for multiple format output."""
         args = Namespace(output="cruise", output_dir="results")
-        
-        with patch("cruiseplan.utils.output_formatting._validate_output_directory") as mock_validate:
+
+        with patch(
+            "cruiseplan.utils.output_formatting._validate_output_directory"
+        ) as mock_validate:
             mock_validate.return_value = Path("results")
-            
+
             output_dir, base_name, format_paths = _standardize_output_setup(
                 args, suffix="_schedule", multi_formats=["html", "csv"]
             )
-            
+
             assert output_dir == Path("results")
             assert base_name == "cruise"
             assert "html" in format_paths
@@ -480,14 +485,16 @@ class TestStandardizedOutputSetup:
     def test_standardize_output_setup_with_cruise_name(self):
         """Test standardized setup using cruise name for basename."""
         args = Namespace(output_dir="data")  # No output specified
-        
-        with patch("cruiseplan.utils.output_formatting._validate_output_directory") as mock_validate:
+
+        with patch(
+            "cruiseplan.utils.output_formatting._validate_output_directory"
+        ) as mock_validate:
             mock_validate.return_value = Path("data")
-            
+
             output_dir, base_name, format_paths = _standardize_output_setup(
                 args, cruise_name="Atlantic Survey", single_format=".yaml"
             )
-            
+
             assert base_name == "Atlantic_Survey"
             assert format_paths["single"] == Path("data/Atlantic_Survey.yaml")
 
@@ -501,9 +508,9 @@ class TestOutputSummaryFormatting:
         file2 = tmp_path / "test2.csv"
         file1.write_text("content")
         file2.write_text("data")
-        
+
         result = _format_output_summary([file1, file2], "Processing")
-        
+
         assert "✅ Processing completed:" in result
         assert "test1.yaml" in result
         assert "test2.csv" in result
@@ -524,9 +531,9 @@ class TestOutputSummaryFormatting:
         """Test output summary formatting without size information."""
         file1 = tmp_path / "test.yaml"
         file1.write_text("content")
-        
+
         result = _format_output_summary([file1], "Processing", include_size=False)
-        
+
         assert "✅ Processing completed:" in result
         assert "test.yaml" in result
         assert "bytes" not in result  # No size info

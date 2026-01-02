@@ -13,7 +13,6 @@ from typing import Optional, Tuple
 
 from cruiseplan.cli.cli_utils import (
     CLIError,
-    _format_error_message,
     _initialize_cli_command,
     format_coordinate_bounds,
     generate_output_filename,
@@ -22,8 +21,8 @@ from cruiseplan.cli.cli_utils import (
     validate_output_path,
 )
 from cruiseplan.utils.input_validation import (
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _handle_deprecated_cli_params,
     _validate_coordinate_bounds,
 )
 from cruiseplan.utils.output_formatting import (
@@ -109,10 +108,10 @@ def main(args: argparse.Namespace) -> None:
             "bathy_dir_legacy": "bathy_dir",
         }
         _handle_deprecated_cli_params(args, deprecated_params)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Standardized CLI initialization
         _initialize_cli_command(args, requires_config_file=False)
 
@@ -230,7 +229,7 @@ def main(args: argparse.Namespace) -> None:
             # Show the interactive interface (blocking call)
             picker.show()
 
-        except ImportError as e:
+        except ImportError:
             error_msg = _format_dependency_error(
                 "matplotlib", "Interactive station picker", "pip install matplotlib"
             )
@@ -245,7 +244,7 @@ def main(args: argparse.Namespace) -> None:
                 "Check coordinate bounds are valid",
                 "Verify PANGAEA file format if provided",
                 "Ensure matplotlib is installed",
-            ]
+            ],
         )
         logger.error(error_msg)
         sys.exit(1)

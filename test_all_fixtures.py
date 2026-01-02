@@ -78,13 +78,14 @@ def main():
 
         # Extract cruise name from YAML for consistent naming
         import yaml
+
         try:
             with open(fixture_file) as f:
                 config_data = yaml.safe_load(f)
                 cruise_name = config_data.get("cruise_name", fixture_file.stem)
         except (FileNotFoundError, yaml.YAMLError, KeyError):
             cruise_name = fixture_file.stem
-        
+
         # Use cruise name for enriched file (matches process command output)
         enriched_file = output_dir / f"{cruise_name}_enriched.yaml"
 

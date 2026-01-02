@@ -303,7 +303,7 @@ class TestCLICommandParameterOverrides:
         args = argparse.Namespace(
             config_file=Path("tests/fixtures/tc1_single.yaml"),
             output_dir=Path("tests_output"),
-            output="test_output", 
+            output="test_output",
             add_depths=False,  # Disable to avoid dependencies
             add_coords=False,
             expand_sections=False,
@@ -330,7 +330,7 @@ class TestCLICommandParameterOverrides:
             except Exception:
                 # Other exceptions are fine for this test
                 pass
-            
+
             # Verify the API was called (confirms parameter mapping worked)
             mock_api.assert_called_once()
 
@@ -364,7 +364,7 @@ class TestCLICommandParameterOverrides:
             except Exception:
                 # Other exceptions are fine for this test
                 pass
-            
+
             # Verify the API was called (confirms parameter mapping worked)
             mock_api.assert_called_once()
 
@@ -402,31 +402,43 @@ class TestCLICommandParameterOverrides:
             except Exception:
                 # Other exceptions are fine for this test
                 pass
-            
+
             # Verify the API was called (confirms parameter mapping worked)
             mock_api.assert_called_once()
 
     def test_regression_base_filename_vs_output_parameter(self):
         """
         Regression test for base_filename parameter issue.
-        
+
         This specifically tests that CLI commands pass 'output' parameter
-        to API functions, not 'base_filename'. 
-        
+        to API functions, not 'base_filename'.
+
         Background: CLI commands were incorrectly setting api_params["base_filename"]
         when API functions expect the parameter to be named "output".
         """
         # Check that process API expects 'output' not 'base_filename'
         process_sig = inspect.signature(cruiseplan.process)
-        assert "output" in process_sig.parameters, "process API should accept 'output' parameter"
-        assert "base_filename" not in process_sig.parameters, "process API should NOT accept 'base_filename'"
+        assert (
+            "output" in process_sig.parameters
+        ), "process API should accept 'output' parameter"
+        assert (
+            "base_filename" not in process_sig.parameters
+        ), "process API should NOT accept 'base_filename'"
 
-        # Check that map API expects 'output' not 'base_filename'  
+        # Check that map API expects 'output' not 'base_filename'
         map_sig = inspect.signature(cruiseplan.map)
-        assert "output" in map_sig.parameters, "map API should accept 'output' parameter"
-        assert "base_filename" not in map_sig.parameters, "map API should NOT accept 'base_filename'"
+        assert (
+            "output" in map_sig.parameters
+        ), "map API should accept 'output' parameter"
+        assert (
+            "base_filename" not in map_sig.parameters
+        ), "map API should NOT accept 'base_filename'"
 
         # Check that pangaea API expects 'output' not 'base_filename'
-        pangaea_sig = inspect.signature(cruiseplan.pangaea) 
-        assert "output" in pangaea_sig.parameters, "pangaea API should accept 'output' parameter"
-        assert "base_filename" not in pangaea_sig.parameters, "pangaea API should NOT accept 'base_filename'"
+        pangaea_sig = inspect.signature(cruiseplan.pangaea)
+        assert (
+            "output" in pangaea_sig.parameters
+        ), "pangaea API should accept 'output' parameter"
+        assert (
+            "base_filename" not in pangaea_sig.parameters
+        ), "pangaea API should NOT accept 'base_filename'"

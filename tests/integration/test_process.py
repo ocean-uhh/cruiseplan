@@ -35,13 +35,17 @@ class TestProcessIntegration:
         # Mock the API call and disable file size checking to avoid filesystem dependencies
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.utils.output_formatting._format_output_summary") as mock_summary,
+            patch(
+                "cruiseplan.utils.output_formatting._format_output_summary"
+            ) as mock_summary,
         ):
             mock_api.return_value = (
                 {"stations_with_depths_added": 3},
                 [Path("tests_output/tc1_single_enriched.yaml")],
             )
-            mock_summary.return_value = "✅ Configuration processing completed successfully"
+            mock_summary.return_value = (
+                "✅ Configuration processing completed successfully"
+            )
 
             # This should run real validation logic
             main(args)
@@ -83,10 +87,14 @@ class TestProcessIntegration:
 
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.utils.output_formatting._format_output_summary") as mock_summary,
+            patch(
+                "cruiseplan.utils.output_formatting._format_output_summary"
+            ) as mock_summary,
         ):
             mock_api.return_value = ({}, [Path("test_output.yaml")])
-            mock_summary.return_value = "✅ Configuration processing completed successfully"
+            mock_summary.return_value = (
+                "✅ Configuration processing completed successfully"
+            )
 
             # This should run real parameter migration logic
             main(args)

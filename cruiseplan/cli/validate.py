@@ -29,14 +29,14 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import (
-    _validate_config_file,
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _handle_deprecated_cli_params,
+    _validate_config_file,
 )
 from cruiseplan.utils.output_formatting import (
-    _format_validation_results,
     _format_cli_error,
     _format_configuration_error,
+    _format_validation_results,
 )
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
@@ -71,10 +71,10 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
         _handle_deprecated_cli_params(args)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Standardized CLI initialization
         config_file = _initialize_cli_command(args)
 
@@ -135,7 +135,7 @@ def main(args: argparse.Namespace) -> None:
                 "Check configuration file path and syntax",
                 "Verify YAML format is valid",
                 "Ensure all required fields are present",
-            ]
+            ],
         )
         logger.error(error_msg)
         sys.exit(1)

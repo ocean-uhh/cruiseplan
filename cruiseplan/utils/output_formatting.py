@@ -7,9 +7,9 @@ across all CLI commands.
 """
 
 import logging
+from argparse import Namespace
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-from argparse import Namespace
 
 logger = logging.getLogger(__name__)
 
@@ -467,7 +467,7 @@ def _construct_output_path(
     output_dir: Path,
     suffix: str = "",
     extension: str = "",
-    format_specific: str = None
+    format_specific: str = None,
 ) -> Path:
     """
     Construct complete output file path with consistent naming.
@@ -501,15 +501,15 @@ def _construct_output_path(
     """
     # Build filename components
     components = [base_name]
-    
+
     if suffix:
         components.append(suffix)
-    
+
     if format_specific:
         components.append(format_specific)
-    
+
     filename = "".join(components) + extension
-    
+
     return output_dir / filename
 
 
@@ -518,7 +518,7 @@ def _generate_multi_format_paths(
     output_dir: Path,
     formats: List[str],
     suffix: str = "",
-    format_extensions: Dict[str, str] = None
+    format_extensions: Dict[str, str] = None,
 ) -> Dict[str, Path]:
     """
     Generate output paths for multiple formats.
@@ -555,26 +555,28 @@ def _generate_multi_format_paths(
     if format_extensions is None:
         format_extensions = {
             "html": ".html",
-            "csv": ".csv", 
+            "csv": ".csv",
             "netcdf": ".nc",
             "yaml": ".yaml",
             "json": ".json",
             "png": ".png",
-            "pdf": ".pdf"
+            "pdf": ".pdf",
         }
-    
+
     output_paths = {}
-    
+
     for fmt in formats:
         extension = format_extensions.get(fmt, f".{fmt}")
         output_paths[fmt] = _construct_output_path(
             base_name, output_dir, suffix, extension
         )
-    
+
     return output_paths
 
 
-def _validate_output_directory(output_dir: Path, create_if_missing: bool = True) -> Path:
+def _validate_output_directory(
+    output_dir: Path, create_if_missing: bool = True
+) -> Path:
     """
     Validate and prepare output directory.
 
@@ -598,6 +600,7 @@ def _validate_output_directory(output_dir: Path, create_if_missing: bool = True)
         If directory validation fails
     """
     from cruiseplan.utils.input_validation import _validate_directory_writable
+
     return _validate_directory_writable(output_dir, create_if_missing)
 
 
@@ -606,7 +609,7 @@ def _standardize_output_setup(
     cruise_name: str = None,
     suffix: str = "",
     single_format: str = None,
-    multi_formats: List[str] = None
+    multi_formats: List[str] = None,
 ) -> Tuple[Path, str, Dict[str, Path]]:
     """
     Complete standardized output setup for CLI commands.
@@ -643,31 +646,29 @@ def _standardize_output_setup(
     # Determine base components
     base_name = _determine_output_basename(args, cruise_name)
     output_dir = _determine_output_directory(args)
-    
+
     # Validate output directory
     validated_dir = _validate_output_directory(output_dir)
-    
+
     # Generate format paths
     format_paths = {}
-    
+
     if single_format:
         format_paths["single"] = _construct_output_path(
             base_name, validated_dir, suffix, single_format
         )
-    
+
     if multi_formats:
         multi_paths = _generate_multi_format_paths(
             base_name, validated_dir, multi_formats, suffix
         )
         format_paths.update(multi_paths)
-    
+
     return validated_dir, base_name, format_paths
 
 
 def _format_output_summary(
-    generated_files: List[Path], 
-    operation: str,
-    include_size: bool = True
+    generated_files: List[Path], operation: str, include_size: bool = True
 ) -> str:
     """
     Format standardized output summary for CLI commands.
@@ -696,25 +697,25 @@ def _format_output_summary(
     """
     if not generated_files:
         return f"❌ {operation} failed - no files generated"
-    
+
     # Filter to existing files
     existing_files = [f for f in generated_files if f.exists()]
-    
+
     if not existing_files:
         return f"❌ {operation} failed - output files not found"
-    
+
     # Format success message
     parts = [f"✅ {operation} completed:"]
-    
+
     # Add file list
     file_list = _format_file_list(existing_files)
     parts.append(file_list)
-    
+
     # Add size summary if requested
     if include_size:
         size_summary = _format_size_summary(existing_files)
         parts.append(size_summary)
-    
+
     return "\n".join(parts)
 
 
@@ -727,7 +728,7 @@ def _format_cli_error(
     operation: str,
     error: Exception,
     context: Dict[str, Any] = None,
-    suggestions: List[str] = None
+    suggestions: List[str] = None,
 ) -> str:
     """
     Format CLI error messages with consistent structure.
@@ -756,28 +757,26 @@ def _format_cli_error(
     '❌ Configuration loading failed: file.yaml'
     """
     parts = [f"❌ {operation} failed: {error}"]
-    
+
     if context:
         context_parts = []
         for key, value in context.items():
             if value is not None:
                 context_parts.append(f"{key}: {value}")
-        
+
         if context_parts:
             parts.append(f"Context: {', '.join(context_parts)}")
-    
+
     if suggestions:
         parts.append("Suggestions:")
         for suggestion in suggestions:
             parts.append(f"  • {suggestion}")
-    
+
     return "\n".join(parts)
 
 
 def _format_cli_warning(
-    operation: str,
-    message: str,
-    details: Dict[str, Any] = None
+    operation: str, message: str, details: Dict[str, Any] = None
 ) -> str:
     """
     Format CLI warning messages with consistent structure.
@@ -804,16 +803,16 @@ def _format_cli_warning(
     '⚠️ Parameter validation: Using deprecated parameter'
     """
     parts = [f"⚠️ {operation}: {message}"]
-    
+
     if details:
         detail_parts = []
         for key, value in details.items():
             if value is not None:
                 detail_parts.append(f"{key}={value}")
-        
+
         if detail_parts:
             parts.append(f"({', '.join(detail_parts)})")
-    
+
     return " ".join(parts)
 
 
@@ -822,7 +821,7 @@ def _format_validation_error(
     field_name: str,
     error_message: str,
     current_value: Any = None,
-    expected_format: str = None
+    expected_format: str = None,
 ) -> str:
     """
     Format validation error messages with consistent structure.
@@ -853,13 +852,13 @@ def _format_validation_error(
     '❌ Parameter validation failed: bathy_stride must be positive\nCurrent value: 0\nExpected: integer > 0'
     """
     parts = [f"❌ {validation_type} validation failed: {field_name} {error_message}"]
-    
+
     if current_value is not None:
         parts.append(f"Current value: {current_value}")
-    
+
     if expected_format:
         parts.append(f"Expected: {expected_format}")
-    
+
     return "\n".join(parts)
 
 
@@ -867,7 +866,7 @@ def _format_file_operation_error(
     operation: str,
     file_path: Path,
     error: Exception,
-    recovery_suggestions: List[str] = None
+    recovery_suggestions: List[str] = None,
 ) -> str:
     """
     Format file operation error messages with consistent structure.
@@ -895,24 +894,18 @@ def _format_file_operation_error(
     >>> _format_file_operation_error("Reading", Path("config.yaml"), FileNotFoundError())
     '❌ File operation failed: Reading config.yaml\nError: [Errno 2] No such file or directory'
     """
-    parts = [
-        f"❌ File operation failed: {operation} {file_path}",
-        f"Error: {error}"
-    ]
-    
+    parts = [f"❌ File operation failed: {operation} {file_path}", f"Error: {error}"]
+
     if recovery_suggestions:
         parts.append("Suggestions:")
         for suggestion in recovery_suggestions:
             parts.append(f"  • {suggestion}")
-    
+
     return "\n".join(parts)
 
 
 def _format_configuration_error(
-    config_file: Path,
-    section: str,
-    error_details: List[str],
-    line_number: int = None
+    config_file: Path, section: str, error_details: List[str], line_number: int = None
 ) -> str:
     """
     Format configuration error messages with consistent structure.
@@ -944,14 +937,14 @@ def _format_configuration_error(
     location_parts = [f"{config_file}", f"{section} section"]
     if line_number:
         location_parts.append(f"line {line_number}")
-    
+
     location = " (".join(location_parts) + ")" * (len(location_parts) - 1)
-    
+
     parts = [f"❌ Configuration error in {location}:"]
-    
+
     for error in error_details:
         parts.append(f"  • {error}")
-    
+
     return "\n".join(parts)
 
 
@@ -960,7 +953,7 @@ def _format_api_error(
     service: str,
     error: Exception,
     status_code: int = None,
-    retry_suggestion: bool = True
+    retry_suggestion: bool = True,
 ) -> str:
     """
     Format API error messages with consistent structure.
@@ -992,18 +985,18 @@ def _format_api_error(
     """
     parts = [
         f"❌ API operation failed: {api_operation} from {service}",
-        f"Error: {error}"
+        f"Error: {error}",
     ]
-    
+
     if status_code:
         parts.append(f"Status: {status_code}")
-    
+
     if retry_suggestion:
         if status_code and status_code >= 500:
             parts.append("Suggestion: Server error - try again later")
         else:
             parts.append("Suggestion: Check network connection and retry")
-    
+
     return "\n".join(parts)
 
 
@@ -1011,7 +1004,7 @@ def _format_processing_error(
     processing_stage: str,
     input_data: str,
     error: Exception,
-    partial_results: bool = False
+    partial_results: bool = False,
 ) -> str:
     """
     Format data processing error messages with consistent structure.
@@ -1041,19 +1034,17 @@ def _format_processing_error(
     """
     parts = [
         f"❌ Processing failed: {processing_stage} of {input_data}",
-        f"Error: {error}"
+        f"Error: {error}",
     ]
-    
+
     if partial_results:
         parts.append("⚠️ Note: Partial results may be available in output directory")
-    
+
     return "\n".join(parts)
 
 
 def _format_dependency_error(
-    missing_dependency: str,
-    operation: str,
-    install_command: str = None
+    missing_dependency: str, operation: str, install_command: str = None
 ) -> str:
     """
     Format dependency error messages with consistent structure.
@@ -1080,8 +1071,8 @@ def _format_dependency_error(
     '❌ Dependency error: netCDF4 required for NetCDF export\nInstall with: pip install netCDF4'
     """
     parts = [f"❌ Dependency error: {missing_dependency} required for {operation}"]
-    
+
     if install_command:
         parts.append(f"Install with: {install_command}")
-    
+
     return "\n".join(parts)

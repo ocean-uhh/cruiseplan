@@ -161,8 +161,10 @@ class TestProcessCommand:
                 "cruiseplan.cli.process._initialize_cli_command",
                 return_value=Path("test_config.yaml"),
             ),
-            patch("cruiseplan.cli.process._standardize_output_setup",
-                return_value=(Path("data"), "test", {})),
+            patch(
+                "cruiseplan.cli.process._standardize_output_setup",
+                return_value=(Path("data"), "test", {}),
+            ),
             patch("cruiseplan.cli.process.logger") as mock_logger,
         ):
 

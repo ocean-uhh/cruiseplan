@@ -50,7 +50,9 @@ class TestCoordinateBoundsValidation:
         from cruiseplan.cli.cli_utils import CLIError
 
         # This should fail - meridian crossing not allowed in 0/360 format
-        with pytest.raises(CLIError, match="For meridian crossing, use -180/180 format"):
+        with pytest.raises(
+            CLIError, match="For meridian crossing, use -180/180 format"
+        ):
             validate_lat_lon_bounds(lat_bounds, lon_bounds)
 
     def test_validate_lat_lon_bounds_mixed_format_error(self):

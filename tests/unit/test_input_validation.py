@@ -5,27 +5,28 @@ This module tests all validation functions in cruiseplan.utils.input_validation
 to ensure proper parameter validation and error handling across CLI commands.
 """
 
-import pytest
 from argparse import Namespace
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import patch
+
+import pytest
 
 from cruiseplan.utils.input_validation import (
-    _validate_config_file,
-    _validate_directory_writable,
-    _validate_coordinate_bounds,
-    _validate_file_extension,
-    _validate_numeric_range,
-    _validate_format_list,
-    _detect_pangaea_mode,
-    _validate_format_options,
-    _validate_bathymetry_params,
-    _validate_output_params,
-    _validate_cli_config_file,
-    _validate_coordinate_args,
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _detect_pangaea_mode,
+    _handle_deprecated_cli_params,
+    _validate_bathymetry_params,
     _validate_choice_param,
+    _validate_cli_config_file,
+    _validate_config_file,
+    _validate_coordinate_args,
+    _validate_coordinate_bounds,
+    _validate_directory_writable,
+    _validate_file_extension,
+    _validate_format_list,
+    _validate_format_options,
+    _validate_numeric_range,
+    _validate_output_params,
     _validate_positive_int,
 )
 
@@ -37,7 +38,7 @@ class TestConfigFileValidation:
         """Test validation of existing valid config file."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text("cruise_name: Test\n")
-        
+
         with patch("cruiseplan.utils.yaml_io.load_yaml") as mock_load:
             mock_load.return_value = {"cruise_name": "Test"}
             result = _validate_config_file(config_file)
@@ -46,7 +47,7 @@ class TestConfigFileValidation:
     def test_validate_config_file_not_found(self, tmp_path):
         """Test validation of non-existent config file."""
         config_file = tmp_path / "missing.yaml"
-        
+
         with pytest.raises(ValueError, match="Configuration file not found"):
             _validate_config_file(config_file)
 
@@ -54,7 +55,7 @@ class TestConfigFileValidation:
         """Test validation when path is a directory."""
         config_dir = tmp_path / "config"
         config_dir.mkdir()
-        
+
         with pytest.raises(ValueError, match="Path is not a file"):
             _validate_config_file(config_dir)
 
@@ -62,7 +63,7 @@ class TestConfigFileValidation:
         """Test validation of empty config file."""
         config_file = tmp_path / "empty.yaml"
         config_file.touch()
-        
+
         with pytest.raises(ValueError, match="Configuration file is empty"):
             _validate_config_file(config_file)
 
@@ -70,7 +71,7 @@ class TestConfigFileValidation:
         """Test validation of invalid YAML file."""
         config_file = tmp_path / "invalid.yaml"
         config_file.write_text("invalid: yaml: content: [")
-        
+
         with patch("cruiseplan.utils.yaml_io.load_yaml") as mock_load:
             mock_load.side_effect = Exception("Invalid YAML")
             with pytest.raises(ValueError, match="Invalid YAML configuration"):
@@ -79,7 +80,7 @@ class TestConfigFileValidation:
     def test_validate_config_file_must_exist_false(self, tmp_path):
         """Test validation with must_exist=False."""
         config_file = tmp_path / "new.yaml"
-        
+
         result = _validate_config_file(config_file, must_exist=False)
         assert result == config_file.resolve()
 
@@ -95,7 +96,7 @@ class TestDirectoryValidation:
     def test_validate_directory_writable_create_missing(self, tmp_path):
         """Test validation with directory creation."""
         new_dir = tmp_path / "new_dir"
-        
+
         result = _validate_directory_writable(new_dir, create_if_missing=True)
         assert result == new_dir.resolve()
         assert new_dir.exists()
@@ -103,7 +104,7 @@ class TestDirectoryValidation:
     def test_validate_directory_writable_no_create(self, tmp_path):
         """Test validation without directory creation."""
         missing_dir = tmp_path / "missing"
-        
+
         with pytest.raises(ValueError, match="Output directory does not exist"):
             _validate_directory_writable(missing_dir, create_if_missing=False)
 
@@ -111,7 +112,7 @@ class TestDirectoryValidation:
         """Test validation when path is a file."""
         file_path = tmp_path / "file.txt"
         file_path.touch()
-        
+
         with pytest.raises(ValueError, match="Path is not a directory"):
             _validate_directory_writable(file_path, create_if_missing=False)
 
@@ -119,7 +120,7 @@ class TestDirectoryValidation:
     def test_validate_directory_writable_permission_error(self, mock_touch, tmp_path):
         """Test validation with write permission error."""
         mock_touch.side_effect = PermissionError("Permission denied")
-        
+
         with pytest.raises(ValueError, match="Directory is not writable"):
             _validate_directory_writable(tmp_path)
 
@@ -131,7 +132,7 @@ class TestCoordinateValidation:
         """Test validation of valid coordinate bounds."""
         lat_bounds = [50.0, 60.0]
         lon_bounds = [-10.0, 10.0]
-        
+
         result = _validate_coordinate_bounds(lat_bounds, lon_bounds)
         assert result == (-10.0, 50.0, 10.0, 60.0)
 
@@ -139,23 +140,27 @@ class TestCoordinateValidation:
         """Test validation with invalid latitude format."""
         lat_bounds = [50.0]  # Missing max lat
         lon_bounds = [-10.0, 10.0]
-        
-        with pytest.raises(ValueError, match="lat_bounds must be a list of exactly 2 values"):
+
+        with pytest.raises(
+            ValueError, match="lat_bounds must be a list of exactly 2 values"
+        ):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
     def test_validate_coordinate_bounds_invalid_lon_format(self):
         """Test validation with invalid longitude format."""
         lat_bounds = [50.0, 60.0]
         lon_bounds = [-10.0, 10.0, 20.0]  # Too many values
-        
-        with pytest.raises(ValueError, match="lon_bounds must be a list of exactly 2 values"):
+
+        with pytest.raises(
+            ValueError, match="lon_bounds must be a list of exactly 2 values"
+        ):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
     def test_validate_coordinate_bounds_lat_out_of_range(self):
         """Test validation with latitude out of range."""
         lat_bounds = [-100.0, 60.0]  # Invalid min lat
         lon_bounds = [-10.0, 10.0]
-        
+
         with pytest.raises(ValueError, match="Invalid minimum latitude"):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
@@ -163,7 +168,7 @@ class TestCoordinateValidation:
         """Test validation with longitude out of range."""
         lat_bounds = [50.0, 60.0]
         lon_bounds = [-200.0, 10.0]  # Invalid min lon
-        
+
         with pytest.raises(ValueError, match="Invalid minimum longitude"):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
@@ -171,8 +176,10 @@ class TestCoordinateValidation:
         """Test validation with invalid coordinate range."""
         lat_bounds = [60.0, 50.0]  # Min > Max
         lon_bounds = [-10.0, 10.0]
-        
-        with pytest.raises(ValueError, match="Minimum latitude .* must be less than maximum"):
+
+        with pytest.raises(
+            ValueError, match="Minimum latitude .* must be less than maximum"
+        ):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
 
@@ -183,7 +190,7 @@ class TestFileExtensionValidation:
         """Test validation of valid file extension."""
         file_path = Path("config.yaml")
         allowed_exts = [".yaml", ".yml"]
-        
+
         result = _validate_file_extension(file_path, allowed_exts)
         assert result is True
 
@@ -191,7 +198,7 @@ class TestFileExtensionValidation:
         """Test case-insensitive extension validation."""
         file_path = Path("config.YAML")
         allowed_exts = [".yaml", ".yml"]
-        
+
         result = _validate_file_extension(file_path, allowed_exts)
         assert result is True
 
@@ -199,7 +206,7 @@ class TestFileExtensionValidation:
         """Test validation of invalid file extension."""
         file_path = Path("config.txt")
         allowed_exts = [".yaml", ".yml"]
-        
+
         result = _validate_file_extension(file_path, allowed_exts)
         assert result is False
 
@@ -235,7 +242,7 @@ class TestFormatValidation:
         """Test validation of single valid format."""
         formats = ["html"]
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         result = _validate_format_list(formats, valid_formats)
         assert result == ["html"]
 
@@ -243,7 +250,7 @@ class TestFormatValidation:
         """Test validation of multiple valid formats."""
         formats = ["html", "csv"]
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         result = _validate_format_list(formats, valid_formats)
         assert result == ["html", "csv"]
 
@@ -251,7 +258,7 @@ class TestFormatValidation:
         """Test removal of duplicate formats."""
         formats = ["html", "csv", "html"]
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         result = _validate_format_list(formats, valid_formats)
         assert result == ["html", "csv"]
 
@@ -259,7 +266,7 @@ class TestFormatValidation:
         """Test validation with empty format list."""
         formats = []
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         with pytest.raises(ValueError, match="At least one format must be specified"):
             _validate_format_list(formats, valid_formats)
 
@@ -267,14 +274,14 @@ class TestFormatValidation:
         """Test validation with invalid format."""
         formats = ["html", "invalid"]
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         with pytest.raises(ValueError, match="Invalid formats"):
             _validate_format_list(formats, valid_formats)
 
     def test_validate_format_options_all(self):
         """Test validation of 'all' format option."""
         valid_formats = ["html", "csv", "netcdf"]
-        
+
         result = _validate_format_options("all", valid_formats)
         assert result == valid_formats
 
@@ -306,9 +313,9 @@ class TestPangaeaModeDetection:
         """Test detection of file mode with existing file."""
         doi_file = tmp_path / "dois.txt"
         doi_file.write_text("doi1\\ndoi2\\n")
-        
+
         args = Namespace(query_or_file=str(doi_file))
-        
+
         mode, params = _detect_pangaea_mode(args)
         assert mode == "file"
         assert params["query"] == str(doi_file)
@@ -316,23 +323,20 @@ class TestPangaeaModeDetection:
     def test_detect_pangaea_mode_search_valid(self):
         """Test detection of search mode with valid coordinates."""
         args = Namespace(
-            query_or_file="CTD temperature",
-            lat=[50.0, 60.0],
-            lon=[-10.0, 10.0]
+            query_or_file="CTD temperature", lat=[50.0, 60.0], lon=[-10.0, 10.0]
         )
-        
+
         mode, params = _detect_pangaea_mode(args)
         assert mode == "search"
         assert params["query"] == "CTD temperature"
 
     def test_detect_pangaea_mode_search_missing_lat(self):
         """Test search mode with missing latitude."""
-        args = Namespace(
-            query_or_file="CTD temperature",
-            lon=[-10.0, 10.0]
-        )
-        
-        with pytest.raises(ValueError, match="Search mode requires both --lat and --lon bounds"):
+        args = Namespace(query_or_file="CTD temperature", lon=[-10.0, 10.0])
+
+        with pytest.raises(
+            ValueError, match="Search mode requires both --lat and --lon bounds"
+        ):
             _detect_pangaea_mode(args)
 
     def test_detect_pangaea_mode_search_invalid_coords(self):
@@ -340,9 +344,9 @@ class TestPangaeaModeDetection:
         args = Namespace(
             query_or_file="CTD temperature",
             lat=[100.0, 60.0],  # Invalid lat
-            lon=[-10.0, 10.0]
+            lon=[-10.0, 10.0],
         )
-        
+
         with pytest.raises(ValueError, match="Invalid coordinate bounds"):
             _detect_pangaea_mode(args)
 
@@ -353,61 +357,61 @@ class TestCLIParameterValidation:
     def test_validate_bathymetry_params_defaults(self):
         """Test bathymetry parameter validation with defaults."""
         args = Namespace()
-        
+
         result = _validate_bathymetry_params(args)
         assert result == {
             "bathy_source": "etopo2022",
-            "bathy_dir": "data", 
-            "bathy_stride": 10
+            "bathy_dir": "data",
+            "bathy_stride": 10,
         }
 
     def test_validate_bathymetry_params_custom(self):
         """Test bathymetry parameter validation with custom values."""
         args = Namespace(
-            bathy_source="gebco2025",
-            bathy_dir=Path("/custom/path"),
-            bathy_stride=5
+            bathy_source="gebco2025", bathy_dir=Path("/custom/path"), bathy_stride=5
         )
-        
+
         result = _validate_bathymetry_params(args)
         assert result == {
             "bathy_source": "gebco2025",
             "bathy_dir": "/custom/path",
-            "bathy_stride": 5
+            "bathy_stride": 5,
         }
 
     def test_validate_bathymetry_params_invalid_source(self):
         """Test bathymetry parameter validation with invalid source."""
         args = Namespace(bathy_source="invalid")
-        
+
         with pytest.raises(ValueError, match="Invalid bathymetry source"):
             _validate_bathymetry_params(args)
 
     def test_validate_bathymetry_params_invalid_stride(self):
         """Test bathymetry parameter validation with invalid stride."""
         args = Namespace(bathy_stride=0)
-        
-        with pytest.raises(ValueError, match="Bathymetry stride must be a positive integer"):
+
+        with pytest.raises(
+            ValueError, match="Bathymetry stride must be a positive integer"
+        ):
             _validate_bathymetry_params(args)
 
     def test_validate_output_params_custom(self, tmp_path):
         """Test output parameter validation with custom values."""
         args = Namespace(output="myfile", output_dir=tmp_path)
-        
+
         result = _validate_output_params(args, "default", "_test", ".yaml")
         assert result == tmp_path / "myfile_test.yaml"
 
     def test_validate_output_params_defaults(self, tmp_path):
         """Test output parameter validation with defaults."""
         args = Namespace(output_dir=tmp_path)
-        
+
         result = _validate_output_params(args, "My Cruise", "_enriched", ".yaml")
         assert result == tmp_path / "My_Cruise_enriched.yaml"
 
     def test_validate_output_params_empty_basename(self, tmp_path):
         """Test output parameter validation with empty basename."""
         args = Namespace(output="", output_dir=tmp_path)
-        
+
         with pytest.raises(ValueError, match="Output filename cannot be empty"):
             _validate_output_params(args, "", "_test", ".yaml")
 
@@ -415,9 +419,9 @@ class TestCLIParameterValidation:
         """Test CLI config file validation with valid file."""
         config_file = tmp_path / "test.yaml"
         config_file.write_text("cruise_name: Test\\n")
-        
+
         args = Namespace(config_file=config_file)
-        
+
         with patch("cruiseplan.utils.yaml_io.load_yaml"):
             result = _validate_cli_config_file(args)
             assert result == config_file.resolve()
@@ -425,28 +429,28 @@ class TestCLIParameterValidation:
     def test_validate_cli_config_file_missing(self):
         """Test CLI config file validation with missing file."""
         args = Namespace()
-        
+
         with pytest.raises(ValueError, match="Configuration file is required"):
             _validate_cli_config_file(args)
 
     def test_validate_coordinate_args_valid(self):
         """Test coordinate argument validation with valid values."""
         args = Namespace(lat=[50.0, 60.0], lon=[-10.0, 10.0])
-        
+
         result = _validate_coordinate_args(args)
         assert result == (-10.0, 50.0, 10.0, 60.0)
 
     def test_validate_coordinate_args_missing_lat(self):
         """Test coordinate argument validation with missing latitude."""
         args = Namespace(lon=[-10.0, 10.0])
-        
+
         with pytest.raises(ValueError, match="Latitude bounds .* are required"):
             _validate_coordinate_args(args)
 
     def test_validate_coordinate_args_missing_lon(self):
         """Test coordinate argument validation with missing longitude."""
         args = Namespace(lat=[50.0, 60.0])
-        
+
         with pytest.raises(ValueError, match="Longitude bounds .* are required"):
             _validate_coordinate_args(args)
 
@@ -458,10 +462,10 @@ class TestDeprecatedParameterHandling:
         """Test deprecated parameter migration."""
         args = Namespace(output_file="test.yaml")
         param_map = {"output_file": "output"}
-        
+
         with patch("cruiseplan.utils.input_validation.logger") as mock_logger:
             _handle_deprecated_cli_params(args, param_map)
-            
+
             mock_logger.warning.assert_called_once()
             assert hasattr(args, "output")
             assert args.output == "test.yaml"
@@ -470,10 +474,10 @@ class TestDeprecatedParameterHandling:
         """Test deprecated parameter handling without override."""
         args = Namespace(output_file="old.yaml", output="new.yaml")
         param_map = {"output_file": "output"}
-        
+
         with patch("cruiseplan.utils.input_validation.logger"):
             _handle_deprecated_cli_params(args, param_map)
-            
+
             # Should not override existing value
             assert args.output == "new.yaml"
 
@@ -481,27 +485,27 @@ class TestDeprecatedParameterHandling:
         """Test deprecated parameter handling with no deprecated params."""
         args = Namespace(output="test.yaml")
         param_map = {"output_file": "output"}
-        
+
         with patch("cruiseplan.utils.input_validation.logger") as mock_logger:
             _handle_deprecated_cli_params(args, param_map)
-            
+
             mock_logger.warning.assert_not_called()
 
     def test_apply_cli_defaults(self):
         """Test application of CLI defaults."""
         args = Namespace()
-        
+
         _apply_cli_defaults(args)
-        
+
         assert args.bathy_dir == Path("data")
         assert args.output_dir == Path("data")
 
     def test_apply_cli_defaults_no_override(self):
         """Test CLI defaults don't override existing values."""
         args = Namespace(bathy_dir=Path("/custom"), output_dir=Path("/output"))
-        
+
         _apply_cli_defaults(args)
-        
+
         assert args.bathy_dir == Path("/custom")
         assert args.output_dir == Path("/output")
 
@@ -511,13 +515,17 @@ class TestChoiceParameterValidation:
 
     def test_validate_choice_param_valid(self):
         """Test validation of valid choice parameter."""
-        result = _validate_choice_param("gebco2025", "bathy_source", ["etopo2022", "gebco2025"])
+        result = _validate_choice_param(
+            "gebco2025", "bathy_source", ["etopo2022", "gebco2025"]
+        )
         assert result == "gebco2025"
 
     def test_validate_choice_param_invalid(self):
         """Test validation of invalid choice parameter."""
         with pytest.raises(ValueError, match="Invalid bathy_source"):
-            _validate_choice_param("invalid", "bathy_source", ["etopo2022", "gebco2025"])
+            _validate_choice_param(
+                "invalid", "bathy_source", ["etopo2022", "gebco2025"]
+            )
 
     def test_validate_positive_int_valid(self):
         """Test validation of valid positive integer."""

@@ -27,9 +27,9 @@ from cruiseplan.init_utils import (
     _resolve_cli_to_api_params,
 )
 from cruiseplan.utils.input_validation import (
-    _validate_config_file,
-    _handle_deprecated_cli_params,
     _apply_cli_defaults,
+    _handle_deprecated_cli_params,
+    _validate_config_file,
     _validate_format_options,
 )
 from cruiseplan.utils.output_formatting import (
@@ -66,27 +66,27 @@ def main(args: argparse.Namespace) -> int:
     try:
         # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
         _handle_deprecated_cli_params(args)
-        
+
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
-        
+
         # Standardized CLI initialization
         config_file = _initialize_cli_command(args)
 
         # Validate format options using new utility
         format_str = getattr(args, "format", "all")
         valid_formats = ["png", "kml"]
-        
+
         if format_str != "all":
             format_list = _validate_format_options(format_str, valid_formats)
         else:
             format_list = valid_formats
-        
+
         # Standardize output setup using new utilities
         output_dir, base_name, format_paths = _standardize_output_setup(
             args, suffix="_map", multi_formats=format_list
         )
-        
+
         # Format progress header using new utility
         _format_progress_header(
             operation="Map Generation",
@@ -97,7 +97,7 @@ def main(args: argparse.Namespace) -> int:
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "map")
-        
+
         # Override output paths with standardized paths
         api_params["output_dir"] = output_dir
         api_params["output"] = base_name
@@ -117,9 +117,7 @@ def main(args: argparse.Namespace) -> int:
 
         if cli_response.get("success", True) and generated_files:
             # Use new standardized output summary
-            success_summary = _format_output_summary(
-                generated_files, "Map generation"
-            )
+            success_summary = _format_output_summary(generated_files, "Map generation")
             logger.info(success_summary)
         else:
             errors = cli_response.get("errors", ["Map generation failed"])
@@ -134,7 +132,7 @@ def main(args: argparse.Namespace) -> int:
             suggestions=[
                 "Check configuration file path",
                 "Verify file exists and is readable",
-            ]
+            ],
         )
         logger.error(error_msg)
         return 1
