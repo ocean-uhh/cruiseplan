@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Development Roadmap &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev4</title>
+  <title>Development Roadmap &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=f613ae5f"></script>
+      <script src="_static/documentation_options.js?v=526b2a46"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -80,7 +80,7 @@
 <li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">Development Roadmap</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#phase-1-critical-data-integrity">Phase 1: Critical Data Integrity</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#deprecated-features-removal">Deprecated Features Removal 🔴</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-features-removal">Deprecated Features Removal ✅</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#station-coordinate-access">Station Coordinate Access ✅</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#area-operation-routing-fix">Area Operation Routing Fix ✅</a></li>
 </ul>
@@ -93,6 +93,7 @@
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#phase-4-architecture-and-performance">Phase 4: Architecture and Performance</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#scheduler-architecture-refactoring">Scheduler Architecture Refactoring 🟠</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-infrastructure-improvements">Testing Infrastructure Improvements 🟡</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#risk-assessment">Risk Assessment</a></li>
@@ -132,7 +133,7 @@
 <ul class="simple">
 <li><p><a class="reference internal" href="#phase-1-critical-data-integrity" id="id1">Phase 1: Critical Data Integrity</a></p>
 <ul>
-<li><p><a class="reference internal" href="#deprecated-features-removal" id="id2">Deprecated Features Removal 🔴</a></p></li>
+<li><p><a class="reference internal" href="#deprecated-features-removal" id="id2">Deprecated Features Removal ✅</a></p></li>
 <li><p><a class="reference internal" href="#station-coordinate-access" id="id3">Station Coordinate Access ✅</a></p></li>
 <li><p><a class="reference internal" href="#area-operation-routing-fix" id="id4">Area Operation Routing Fix ✅</a></p></li>
 </ul>
@@ -147,10 +148,11 @@
 <li><p><a class="reference internal" href="#phase-4-architecture-and-performance" id="id9">Phase 4: Architecture and Performance</a></p>
 <ul>
 <li><p><a class="reference internal" href="#scheduler-architecture-refactoring" id="id10">Scheduler Architecture Refactoring 🟠</a></p></li>
+<li><p><a class="reference internal" href="#testing-infrastructure-improvements" id="id11">Testing Infrastructure Improvements 🟡</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#risk-assessment" id="id11">Risk Assessment</a></p></li>
-<li><p><a class="reference internal" href="#contributing" id="id12">Contributing</a></p></li>
+<li><p><a class="reference internal" href="#risk-assessment" id="id12">Risk Assessment</a></p></li>
+<li><p><a class="reference internal" href="#contributing" id="id13">Contributing</a></p></li>
 </ul>
 </nav>
 <p><strong>Overview</strong></p>
@@ -161,9 +163,9 @@
 <p><strong>Target</strong>: Version 0.3.0 (Breaking Changes Release)
 <strong>Focus</strong>: Data accuracy and routing consistency</p>
 <section id="deprecated-features-removal">
-<h3><a class="toc-backref" href="#id2" role="doc-backlink">Deprecated Features Removal 🔴</a><a class="headerlink" href="#deprecated-features-removal" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id2" role="doc-backlink">Deprecated Features Removal ✅</a><a class="headerlink" href="#deprecated-features-removal" title="Link to this heading"></a></h3>
 <p><strong>Priority</strong>: Critical - Breaking Changes
-<strong>Status</strong>: Scheduled for v0.3.0 removal</p>
+<strong>Status</strong>: Completed in v0.3.0</p>
 <p><strong>CLI Commands Deprecated</strong>:</p>
 <ul class="simple">
 <li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code></p></li>
@@ -181,11 +183,18 @@
 </ul>
 <p><strong>Timeline</strong>:</p>
 <ul class="simple">
-<li><p>Current: Deprecated features show warnings but remain functional</p></li>
-<li><p>v0.3.0: Complete removal of deprecated commands and parameters</p></li>
+<li><p>Pre-v0.3.0: Deprecated features showed warnings but remained functional</p></li>
+<li><p>✅ v0.3.0: Complete removal of deprecated commands and parameters</p></li>
 <li><p>v0.3.0+: Only new command names and parameters supported</p></li>
 </ul>
 <p><strong>Migration</strong>: See <code class="docutils literal notranslate"><span class="pre">DEPRECATION_NOTES_v0.3.0.md</span></code> for detailed migration examples</p>
+<p><strong>Implementation Notes</strong>:</p>
+<ul class="simple">
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> and <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span></code> commands entirely</p></li>
+<li><p>Removed <code class="docutils literal notranslate"><span class="pre">--output-file</span></code>, <code class="docutils literal notranslate"><span class="pre">--bathymetry-*</span></code>, and <code class="docutils literal notranslate"><span class="pre">--coord-format</span></code> parameters</p></li>
+<li><p>Maintained backward compatibility for YAML configuration format</p></li>
+<li><p>Global fields (<code class="docutils literal notranslate"><span class="pre">departure_port</span></code>, <code class="docutils literal notranslate"><span class="pre">arrival_port</span></code>) permitted for single-leg cruises, required at leg-level for multi-leg cruises</p></li>
+</ul>
 </section>
 <section id="station-coordinate-access">
 <h3><a class="toc-backref" href="#id3" role="doc-backlink">Station Coordinate Access ✅</a><a class="headerlink" href="#station-coordinate-access" title="Link to this heading"></a></h3>
@@ -341,9 +350,30 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 </ol>
 <p>This architectural improvement will significantly reduce code complexity and improve maintainability while maintaining full backward compatibility with existing cruise configurations and output formats.</p>
 </section>
+<section id="testing-infrastructure-improvements">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Testing Infrastructure Improvements 🟡</a><a class="headerlink" href="#testing-infrastructure-improvements" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Low - Infrastructure Enhancement
+<strong>Target</strong>: Future version (post-v0.3.0)</p>
+<p><strong>Testing Output Directory Management</strong>:</p>
+<p>Use <code class="docutils literal notranslate"><span class="pre">conftest.py</span></code> to standardize test output paths across all test suites:</p>
+<ul class="simple">
+<li><p>Centralize test output directory configuration in <code class="docutils literal notranslate"><span class="pre">tests/conftest.py</span></code></p></li>
+<li><p>Create subdirectories of <code class="docutils literal notranslate"><span class="pre">tests_output/</span></code> for different test categories</p></li>
+<li><p>Enable addition of test output patterns to <code class="docutils literal notranslate"><span class="pre">.gitignore</span></code> for cleaner repository</p></li>
+<li><p>Eliminate hardcoded output paths scattered across individual test files</p></li>
+</ul>
+<p><strong>Benefits</strong>:</p>
+<ul class="simple">
+<li><p>Consistent test isolation and cleanup</p></li>
+<li><p>Easier CI/CD integration with predictable output locations</p></li>
+<li><p>Simplified local development workflow</p></li>
+<li><p>Reduced test maintenance overhead</p></li>
+</ul>
+<p><strong>Implementation Note</strong>: This enhancement improves development workflow but is not required for v0.3.0 release.</p>
+</section>
 </section>
 <section id="risk-assessment">
-<h2><a class="toc-backref" href="#id11" role="doc-backlink">Risk Assessment</a><a class="headerlink" href="#risk-assessment" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">Risk Assessment</a><a class="headerlink" href="#risk-assessment" title="Link to this heading"></a></h2>
 <p><strong>High Risk Items</strong>:
 - <strong>Depth semantics</strong>: Affects all duration calculations - requires comprehensive testing
 - <strong>Breaking changes</strong>: User migration support critical for adoption</p>
@@ -359,7 +389,7 @@ Users lack comprehensive documentation of all YAML configuration options, leadin
 </ul>
 </section>
 <section id="contributing">
-<h2><a class="toc-backref" href="#id12" role="doc-backlink">Contributing</a><a class="headerlink" href="#contributing" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">Contributing</a><a class="headerlink" href="#contributing" title="Link to this heading"></a></h2>
 <p>This roadmap reflects current development priorities.</p>
 <p><strong>Community Input</strong>: We welcome feedback on priorities and feature requests through:</p>
 <ul class="simple">

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.process &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev4</title>
+  <title>cruiseplan.cli.process &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f613ae5f"></script>
+      <script src="../../../_static/documentation_options.js?v=526b2a46"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -133,7 +133,16 @@
     <span class="n">_convert_api_response_to_cli</span><span class="p">,</span>
     <span class="n">_resolve_cli_to_api_params</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_config_file</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
+    <span class="n">_handle_deprecated_cli_params</span><span class="p">,</span>
+    <span class="n">_validate_config_file</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_format_cli_error</span><span class="p">,</span>
+    <span class="n">_format_output_summary</span><span class="p">,</span>
+    <span class="n">_standardize_output_setup</span><span class="p">,</span>
+<span class="p">)</span>
 
 <span class="c1"># Re-export functions for test mocking (cleaner than complex patch paths)</span>
 <span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
@@ -163,13 +172,24 @@
 <span class="sd">        Parsed command line arguments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Handle deprecated parameters (currently no deprecated params for v0.3.0+)</span>
+        <span class="n">_handle_deprecated_cli_params</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># Apply standard CLI defaults</span>
+        <span class="n">_apply_cli_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
         <span class="c1"># Standardized CLI initialization</span>
-        <span class="n">param_map</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bathy_stride_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_stride&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">_initialize_cli_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">param_map</span><span class="p">)</span>
+        <span class="n">config_file</span> <span class="o">=</span> <span class="n">_initialize_cli_command</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+
+        <span class="c1"># Extract cruise name from config file for proper naming</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+                <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+                <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
+            <span class="n">cruise_name</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="c1"># Format progress header using new utility</span>
         <span class="n">_format_progress_header</span><span class="p">(</span>
@@ -181,8 +201,20 @@
             <span class="n">run_map_generation</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;run_map_generation&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
         <span class="p">)</span>
 
+        <span class="c1"># Standardize output setup using new utilities</span>
+        <span class="n">output_dir</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">format_paths</span> <span class="o">=</span> <span class="n">_standardize_output_setup</span><span class="p">(</span>
+            <span class="n">args</span><span class="p">,</span>
+            <span class="n">cruise_name</span><span class="o">=</span><span class="n">cruise_name</span><span class="p">,</span>
+            <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="n">multi_formats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">,</span> <span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;kml&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
         <span class="c1"># Convert CLI args to API parameters using bridge utility</span>
         <span class="n">api_params</span> <span class="o">=</span> <span class="n">_resolve_cli_to_api_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;process&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Override output paths with standardized paths</span>
+        <span class="n">api_params</span><span class="p">[</span><span class="s2">&quot;output_dir&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">output_dir</span>
+        <span class="n">api_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_name</span>
 
         <span class="c1"># Call API function instead of complex wrapper logic</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing configuration through full workflow...&quot;</span><span class="p">)</span>
@@ -204,8 +236,11 @@
         <span class="p">)</span>
 
         <span class="k">if</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="c1"># Format success message using new utility</span>
-            <span class="n">_format_success_message</span><span class="p">(</span><span class="s2">&quot;configuration processing&quot;</span><span class="p">,</span> <span class="n">all_generated_files</span><span class="p">)</span>
+            <span class="c1"># Use new standardized output summary</span>
+            <span class="n">success_summary</span> <span class="o">=</span> <span class="n">_format_output_summary</span><span class="p">(</span>
+                <span class="n">all_generated_files</span><span class="p">,</span> <span class="s2">&quot;Configuration processing&quot;</span>
+            <span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">success_summary</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">errors</span> <span class="o">=</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Processing failed&quot;</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
@@ -213,7 +248,16 @@
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="n">CLIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">_format_error_message</span><span class="p">(</span><span class="s2">&quot;process&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">)</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
+            <span class="s2">&quot;Configuration processing&quot;</span><span class="p">,</span>
+            <span class="n">e</span><span class="p">,</span>
+            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;Check configuration file path and syntax&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Verify output directory permissions&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Ensure bathymetry data is available&quot;</span><span class="p">,</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
@@ -221,15 +265,17 @@
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">_format_error_message</span><span class="p">(</span>
-            <span class="s2">&quot;process&quot;</span><span class="p">,</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
+            <span class="s2">&quot;Configuration processing&quot;</span><span class="p">,</span>
             <span class="n">e</span><span class="p">,</span>
-            <span class="p">[</span>
+            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
                 <span class="s2">&quot;Check configuration file syntax&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;Verify bathymetry data availability&quot;</span><span class="p">,</span>
                 <span class="s2">&quot;Ensure sufficient disk space&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;Run with --verbose for more details&quot;</span><span class="p">,</span>
             <span class="p">],</span>
         <span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 

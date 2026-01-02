@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>stations &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev4</title>
+  <title>stations &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f613ae5f"></script>
+      <script src="../_static/documentation_options.js?v=526b2a46"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -66,7 +66,6 @@
 <li class="toctree-l1"><a class="reference internal" href="../cruise_architecture.html">Cruise Specifications</a></li>
 <li class="toctree-l1 current"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#general-usage">General Usage</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../cli_reference.html#deprecated-commands-and-parameters">Deprecated Commands and Parameters</a></li>
 <li class="toctree-l2 current"><a class="reference internal" href="../cli_reference.html#subcommands">Subcommands</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="bathymetry.html">bathymetry</a></li>
 <li class="toctree-l3"><a class="reference internal" href="pangaea.html">pangaea</a></li>
@@ -80,8 +79,6 @@
 <li class="toctree-l3"><a class="reference internal" href="enrich.html">enrich</a></li>
 <li class="toctree-l3"><a class="reference internal" href="validate.html">validate</a></li>
 <li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
-<li class="toctree-l3"><a class="reference internal" href="download.html">download</a></li>
-<li class="toctree-l3"><a class="reference internal" href="pandoi.html">pandoi</a></li>
 </ul>
 </li>
 </ul>
@@ -132,7 +129,7 @@
 <p>Launch the interactive graphical interface for planning stations and transects with optional PANGAEA data background.</p>
 <section id="usage">
 <h2>Usage<a class="headerlink" href="#usage" title="Link to this heading"></a></h2>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output-file<span class="w"> </span>OUTPUT_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathymetry-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--high-resolution<span class="o">]</span><span class="w"> </span><span class="o">[</span>--overwrite<span class="o">]</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>usage:<span class="w"> </span>cruiseplan<span class="w"> </span>stations<span class="w"> </span><span class="o">[</span>-h<span class="o">]</span><span class="w"> </span><span class="o">[</span>-p<span class="w"> </span>PANGAEA_FILE<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lat<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>--lon<span class="w"> </span>MIN<span class="w"> </span>MAX<span class="o">]</span><span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>OUTPUT_DIR<span class="o">]</span><span class="w"> </span><span class="o">[</span>--output<span class="w"> </span>OUTPUT<span class="o">]</span><span class="w"> </span><span class="o">[</span>--bathy-source<span class="w"> </span><span class="o">{</span>etopo2022,gebco2025<span class="o">}]</span><span class="w"> </span><span class="o">[</span>--high-resolution<span class="o">]</span><span class="w"> </span><span class="o">[</span>--overwrite<span class="o">]</span>
 </pre></div>
 </div>
 </section>
@@ -156,10 +153,10 @@
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">-o</span> <span class="pre">OUTPUT_DIR,</span> <span class="pre">--output-dir</span> <span class="pre">OUTPUT_DIR</span></code></p></td>
 <td><p>Output directory for the generated station YAML (default: <code class="docutils literal notranslate"><span class="pre">data</span></code>).</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output-file</span> <span class="pre">OUTPUT_FILE</span></code></p></td>
-<td><p>Specific output file path for the generated YAML.</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--output</span> <span class="pre">OUTPUT</span></code></p></td>
+<td><p>Base filename for the generated YAML (default: derived from area bounds).</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">--bathy-source</span> <span class="pre">{etopo2022,gebco2025}</span></code></p></td>
 <td><p>Bathymetry dataset to use for depth lookups (default: <code class="docutils literal notranslate"><span class="pre">etopo2022</span></code>).</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code></p></td>
@@ -172,9 +169,9 @@
 </table>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-<p><strong>Performance Notice:</strong> The combination of <code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">gebco2025</span></code> with <code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code> can be very slow for interactive use. GEBCO 2025 is a high-resolution dataset (~7.5GB) and processing it without downsampling creates significant lag during station placement and map interaction.</p>
+<p><strong>Performance Notice:</strong> The combination of <code class="docutils literal notranslate"><span class="pre">--bathy-source</span> <span class="pre">gebco2025</span></code> with <code class="docutils literal notranslate"><span class="pre">--high-resolution</span></code> can be very slow for interactive use. GEBCO 2025 is a high-resolution dataset (~7.5GB) and processing it without downsampling creates significant lag during station placement and map interaction.</p>
 <p><strong>Recommended workflow:</strong>
-- Use <code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">etopo2022</span></code> (default) for initial interactive planning
+- Use <code class="docutils literal notranslate"><span class="pre">--bathy-source</span> <span class="pre">etopo2022</span></code> (default) for initial interactive planning
 - Reserve GEBCO 2025 high-resolution for final detailed work only
 - Consider standard resolution (default) for GEBCO 2025 during interactive sessions</p>
 </div>

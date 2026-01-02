@@ -19,11 +19,11 @@ Phase 1: Critical Data Integrity
 **Target**: Version 0.3.0 (Breaking Changes Release)  
 **Focus**: Data accuracy and routing consistency
 
-Deprecated Features Removal 🔴
+Deprecated Features Removal ✅
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 **Priority**: Critical - Breaking Changes  
-**Status**: Scheduled for v0.3.0 removal
+**Status**: Completed in v0.3.0
 
 **CLI Commands Deprecated**:
 
@@ -42,11 +42,18 @@ Deprecated Features Removal 🔴
 
 **Timeline**:
 
-- Current: Deprecated features show warnings but remain functional
-- v0.3.0: Complete removal of deprecated commands and parameters
+- Pre-v0.3.0: Deprecated features showed warnings but remained functional
+- ✅ v0.3.0: Complete removal of deprecated commands and parameters
 - v0.3.0+: Only new command names and parameters supported
 
 **Migration**: See ``DEPRECATION_NOTES_v0.3.0.md`` for detailed migration examples
+
+**Implementation Notes**: 
+
+- Removed ``cruiseplan download`` and ``cruiseplan pandoi`` commands entirely
+- Removed ``--output-file``, ``--bathymetry-*``, and ``--coord-format`` parameters
+- Maintained backward compatibility for YAML configuration format
+- Global fields (``departure_port``, ``arrival_port``) permitted for single-leg cruises, required at leg-level for multi-leg cruises
 
 Station Coordinate Access ✅
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -226,6 +233,30 @@ For backward compatibility, the refactoring can be done incrementally:
 4. Final step: remove dictionary conversion until the output stage
 
 This architectural improvement will significantly reduce code complexity and improve maintainability while maintaining full backward compatibility with existing cruise configurations and output formats.
+
+Testing Infrastructure Improvements 🟡
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+**Priority**: Low - Infrastructure Enhancement  
+**Target**: Future version (post-v0.3.0)
+
+**Testing Output Directory Management**:
+
+Use ``conftest.py`` to standardize test output paths across all test suites:
+
+- Centralize test output directory configuration in ``tests/conftest.py``
+- Create subdirectories of ``tests_output/`` for different test categories
+- Enable addition of test output patterns to ``.gitignore`` for cleaner repository
+- Eliminate hardcoded output paths scattered across individual test files
+
+**Benefits**:
+
+- Consistent test isolation and cleanup
+- Easier CI/CD integration with predictable output locations  
+- Simplified local development workflow
+- Reduced test maintenance overhead
+
+**Implementation Note**: This enhancement improves development workflow but is not required for v0.3.0 release.
 
 
 Risk Assessment

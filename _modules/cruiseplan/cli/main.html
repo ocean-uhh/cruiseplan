@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev4</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=f613ae5f"></script>
+      <script src="../../../_static/documentation_options.js?v=526b2a46"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -115,7 +115,6 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>  <span class="c1"># Added Any for generic type hinting</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan._version</span><span class="w"> </span><span class="kn">import</span> <span class="n">__version__</span>
@@ -125,21 +124,6 @@
 
 <span class="c1"># Define placeholder main functions for dynamic imports</span>
 <span class="c1"># (These will be overwritten when the modules are implemented)</span>
-<div class="viewcode-block" id="download_main">
-<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.main.download_main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">download_main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Placeholder for download subcommand logic.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : Any</span>
-<span class="sd">        Parsed command-line arguments.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Download logic will be implemented in cruiseplan.cli.download&quot;</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="schedule_main">
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.main.schedule_main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">schedule_main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">):</span>
@@ -270,12 +254,30 @@
 <span class="s2">  cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># Primary operation flags</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--citation&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show citation information for the bathymetry source without downloading&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
+    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for bathymetry files (default: data/bathymetry)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
     <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
     <span class="c1"># Legacy parameter support</span>
     <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--source&quot;</span><span class="p">,</span>
@@ -289,63 +291,12 @@
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--citation&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show citation information for the bathymetry source without downloading&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">bathymetry_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for bathymetry files (default: data/bathymetry)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># --- 1b. Download Subcommand (DEPRECATED - will be removed in v0.3.0) ---</span>
-    <span class="n">download_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;download&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use &#39;bathymetry&#39; instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Download bathymetry datasets - use &#39;cruiseplan bathymetry&#39; instead&quot;</span><span class="p">,</span>
-        <span class="n">epilog</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">⚠️  WARNING: This command is deprecated and will be removed in v0.3.0.</span>
-<span class="s2">Please use &#39;cruiseplan bathymetry&#39; instead.</span>
-
-<span class="s2">This command downloads bathymetry datasets for depth calculations and bathymetric analysis.</span>
-
-<span class="s2">Available sources:</span>
-<span class="s2">  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)</span>
-<span class="s2">  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)</span>
-
-<span class="s2">Examples:</span>
-<span class="s2">  cruiseplan bathymetry                                    # Use this instead</span>
-<span class="s2">  cruiseplan bathymetry --source etopo2022                # Use this instead  </span>
-<span class="s2">  cruiseplan bathymetry --source gebco2025                # Use this instead</span>
-<span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">download_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset to download (default: etopo2022)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">download_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--citation&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show citation information for the bathymetry source without downloading&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">download_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for bathymetry files (default: data/bathymetry)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
 
     <span class="c1"># --- 2. Schedule Subcommand ---</span>
     <span class="n">schedule_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;schedule&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate cruise schedule from YAML configuration&quot;</span>
     <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
@@ -353,6 +304,16 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;YAML cruise configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Primary operation flags</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--leg&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process specific leg only&quot;</span><span class="p">)</span>
+    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--derive-netcdf&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
@@ -371,14 +332,8 @@
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output formats (default: all)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--leg&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Process specific leg only&quot;</span><span class="p">)</span>
-    <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--derive-netcdf&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
 
-    <span class="c1"># Bathymetry options for PNG map generation</span>
+    <span class="c1"># Bathymetry options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
@@ -397,6 +352,8 @@
         <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride for PNG maps (default: 10)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Display options</span>
     <span class="n">schedule_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -410,6 +367,7 @@
     <span class="n">stations_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;stations&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Interactive station placement with PANGAEA background&quot;</span>
     <span class="p">)</span>
+    <span class="c1"># Primary operation flags</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-p&quot;</span><span class="p">,</span> <span class="s2">&quot;--pangaea-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;PANGAEA campaigns pickle file&quot;</span>
     <span class="p">)</span>
@@ -430,15 +388,21 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds (default: -65 -5)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing output file without prompting&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
+    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path&quot;</span>
-    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
@@ -451,7 +415,15 @@
         <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># Legacy parameter support for consistency</span>
+
+    <span class="c1"># Display options</span>
+    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--high-resolution&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use full resolution bathymetry (slower but more detailed)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Legacy parameter support</span>
     <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
         <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">,</span>
@@ -464,21 +436,12 @@
         <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--high-resolution&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Use full resolution bathymetry (slower but more detailed)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">stations_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--overwrite&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Overwrite existing output file without prompting&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
 
     <span class="c1"># --- 4. Enrich Subcommand ---</span>
     <span class="n">enrich_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;enrich&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add missing data to configuration files&quot;</span>
     <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
@@ -486,6 +449,8 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input YAML configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Primary operation flags</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--add-depths&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
@@ -497,36 +462,6 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Add formatted coordinate fields (DMM; DMS not yet implemented)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--coord-format&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Coordinate format (default: ddm)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--expand-sections&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expand CTD sections into individual station definitions&quot;</span><span class="p">,</span>
@@ -534,14 +469,54 @@
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--expand-ports&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Expand global port references&quot;</span>
     <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># General options</span>
     <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Legacy parameter support</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">enrich_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_dir&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># --- 5. Validate Subcommand ---</span>
     <span class="n">validate_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
         <span class="s2">&quot;validate&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Validate configuration files (read-only)&quot;</span>
     <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
@@ -549,11 +524,35 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input YAML configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Primary operation flags</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--check-depths&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Compare existing depths with bathymetry data&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--tolerance&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth difference tolerance in percent (default: 10.0)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
+    <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--bathy-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># General options</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--strict&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
@@ -564,68 +563,19 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show warnings without failing&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--tolerance&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth difference tolerance in percent (default: 10.0)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+
+    <span class="c1"># Legacy parameter support</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry dataset (default: etopo2022)&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">validate_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory containing bathymetry data (default: data)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># --- 6. PANDOI Subcommand (DEPRECATED - will be removed in v0.3.0) ---</span>
-    <span class="n">pandoi_parser</span> <span class="o">=</span> <span class="n">subparsers</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span>
-        <span class="s2">&quot;pandoi&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use &#39;pangaea&#39; instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] PANGAEA dataset search - use &#39;cruiseplan pangaea&#39; instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;query&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Search query string (e.g., &#39;CTD&#39;, &#39;temperature&#39;, &#39;Arctic Ocean&#39;)&quot;</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--lat&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latitude bounds (e.g., --lat 50 70)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--lon&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;MIN&quot;</span><span class="p">,</span> <span class="s2">&quot;MAX&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Longitude bounds (e.g., --lon -60 -30)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--limit&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Maximum number of results to return (default: 10)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">),</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory (default: data)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Specific output file path (overrides -o/--output-dir)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pandoi_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_dir&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># --- 7. Map Subcommand ---</span>
@@ -645,6 +595,7 @@
 <span class="s2">  cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
@@ -652,6 +603,15 @@
         <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;YAML cruise configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Primary operation flags</span>
+    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--no-ports&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Suppress plotting of departure and arrival ports in both PNG and KML outputs&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Output control</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
@@ -665,16 +625,13 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for output maps (default: use config filename)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Specific output file path - use --output instead (overrides auto-generated name)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--format&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;png&quot;</span><span class="p">,</span> <span class="s2">&quot;kml&quot;</span><span class="p">,</span> <span class="s2">&quot;all&quot;</span><span class="p">],</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output format: png (map), kml (geographic data), or all (default: all)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
@@ -693,25 +650,8 @@
         <span class="n">default</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry downsampling factor (default: 5, higher=faster/less detailed)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
-    <span class="c1"># Legacy parameter support with deprecation warnings</span>
-    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_source_legacy&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_dir_legacy&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-stride&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathymetry_stride_legacy&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-stride instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
+
+    <span class="c1"># Display options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
         <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
@@ -725,6 +665,8 @@
         <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display plot interactively instead of saving to file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+
+    <span class="c1"># General options</span>
     <span class="n">map_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
     <span class="p">)</span>
@@ -754,6 +696,7 @@
 <span class="s2">  cruiseplan process -c cruise.yaml --no-map --strict                 # Skip maps, strict validation</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
     <span class="p">)</span>
+    <span class="c1"># Required arguments</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--config-file&quot;</span><span class="p">,</span>
@@ -762,6 +705,7 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Input YAML configuration file&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
+    <span class="c1"># Primary operation flags</span>
     <span class="c1"># Processing mode flags (mutually exclusive --only-* modes)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--only-enrich&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Only run enrichment step&quot;</span>
@@ -817,28 +761,13 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip depth accuracy checking (default: depths checked)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--strict&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable strict validation mode&quot;</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--tolerance&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Depth difference tolerance in percent (default: 10.0)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Map generation options</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Map output formats: png,kml,all (default: all)&quot;</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
-        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
-        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps (width height, default: 12 8)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Output and bathymetry options</span>
+    <span class="c1"># Output control</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
@@ -849,6 +778,11 @@
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for outputs (without extension)&quot;</span>
     <span class="p">)</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--format&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Map output formats: png,kml,all (default: all)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Bathymetry options</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--bathy-source&quot;</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
@@ -868,33 +802,19 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry contour stride (default: 10)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="c1"># Legacy argument support with deprecation warnings</span>
+    <span class="c1"># Display options</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-source&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-source instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-dir&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-dir instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--bathymetry-stride&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_stride_legacy&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Use --bathy-stride instead&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--coord-format&quot;</span><span class="p">,</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;coord_format_legacy&quot;</span><span class="p">,</span>
-        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;ddm&quot;</span><span class="p">,</span> <span class="s2">&quot;dms&quot;</span><span class="p">],</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Coordinate format fixed to DDM&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--figsize&quot;</span><span class="p">,</span>
+        <span class="n">nargs</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Figure size for PNG maps (width height, default: 12 8)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="c1"># General options</span>
+    <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--strict&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable strict validation mode&quot;</span>
+    <span class="p">)</span>
     <span class="n">process_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="s2">&quot;-v&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Enable verbose logging&quot;</span>
     <span class="p">)</span>
@@ -964,11 +884,6 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Base filename for outputs (without extension or directory)&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;[DEPRECATED] Specific output file path - use --output instead (will be removed in v0.3.0)&quot;</span><span class="p">,</span>
-    <span class="p">)</span>
-    <span class="n">pangaea_parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--rate-limit&quot;</span><span class="p">,</span>
         <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span>
@@ -1000,16 +915,6 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">bathymetry_main</span>
 
             <span class="n">bathymetry_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;download&quot;</span><span class="p">:</span>
-            <span class="c1"># Deprecated command - show warning and redirect to bathymetry</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️  WARNING: &#39;cruiseplan download&#39; is deprecated and will be removed in v0.3.0.&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   Please use &#39;cruiseplan bathymetry&#39; instead.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">bathymetry_main</span>
-
-            <span class="n">bathymetry_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;schedule&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.schedule</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">schedule_main</span>
 
@@ -1030,20 +935,6 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.process</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">process_main</span>
 
             <span class="n">process_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;pandoi&quot;</span><span class="p">:</span>
-            <span class="c1"># Deprecated command - show warning and redirect to unified pangaea</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️  WARNING: &#39;cruiseplan pandoi&#39; is deprecated and will be removed in v0.3.0.&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   Please use &#39;cruiseplan pangaea&#39; instead.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Convert pandoi args to pangaea format for compatibility</span>
-            <span class="c1"># Map pandoi arguments to the new unified pangaea command structure</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">query_or_file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">query</span>
-
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">pangaea_main</span>
-
-            <span class="n">pangaea_main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">subcommand</span> <span class="o">==</span> <span class="s2">&quot;map&quot;</span><span class="p">:</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.map</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span> <span class="k">as</span> <span class="n">map_main</span>
 

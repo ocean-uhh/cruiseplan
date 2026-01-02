@@ -289,7 +289,7 @@ Memory Issues
    python -c "import psutil; print(f'Available RAM: {psutil.virtual_memory().available/1e9:.1f}GB')"
 
    # Reduce dataset size
-   cruiseplan enrich -c cruise.yaml --bathymetry-source etopo2022  # Use smaller dataset
+   cruiseplan enrich -c cruise.yaml --bathy-source etopo2022  # Use smaller dataset
 
    # Process in chunks
    # Split large configurations into smaller files

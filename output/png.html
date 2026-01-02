@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNG Output &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev4</title>
+  <title>PNG Output &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=f613ae5f"></script>
+      <script src="../_static/documentation_options.js?v=526b2a46"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -215,7 +215,7 @@
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
 
 <span class="c1"># High-resolution output with custom bathymetry</span>
-cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--bathymetry-source<span class="w"> </span>gebco2025
+cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png<span class="w"> </span>--bathy-source<span class="w"> </span>gebco2025
 
 <span class="c1"># Combined outputs for complete documentation</span>
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png,html,latex
@@ -247,10 +247,10 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--format<span class="w"> </span>png
 
 <span class="c1"># Custom figure size and bathymetry</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>--bathymetry-source<span class="w"> </span>etopo2022
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--figsize<span class="w"> </span><span class="m">14</span><span class="w"> </span><span class="m">10</span><span class="w"> </span>--bathy-source<span class="w"> </span>etopo2022
 
 <span class="c1"># Specific output file and directory</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>maps/<span class="w"> </span>--output-file<span class="w"> </span>planning_map.png
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>maps/<span class="w"> </span>--output<span class="w"> </span>planning_map
 
 <span class="c1"># Interactive preview before saving</span>
 cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--show-plot
@@ -284,10 +284,10 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </dl>
 <p><strong>Configuration Options</strong> for <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">map</span></code> only:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># High-detail bathymetry (slower generation)</span>
---bathymetry-source<span class="w"> </span>gebco2025<span class="w"> </span>--bathymetry-stride<span class="w"> </span><span class="m">1</span>
+--bathy-source<span class="w"> </span>gebco2025<span class="w"> </span>--bathy-stride<span class="w"> </span><span class="m">1</span>
 
 <span class="c1"># Fast bathymetry for quick previews</span>
---bathymetry-source<span class="w"> </span>etopo2022<span class="w"> </span>--bathymetry-stride<span class="w"> </span><span class="m">10</span>
+--bathy-source<span class="w"> </span>etopo2022<span class="w"> </span>--bathy-stride<span class="w"> </span><span class="m">10</span>
 </pre></div>
 </div>
 <dl class="simple">
@@ -346,14 +346,14 @@ cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> 
 </ul>
 </dd>
 <dt><strong>Map PNG Files</strong>:</dt><dd><ul class="simple">
-<li><p>Format: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_map.png</span></code> (or custom via <code class="docutils literal notranslate"><span class="pre">--output-file</span></code>)</p></li>
+<li><p>Format: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_map.png</span></code> (or custom via <code class="docutils literal notranslate"><span class="pre">--output</span></code>)</p></li>
 <li><p>Example: <code class="docutils literal notranslate"><span class="pre">Arctic_Survey_2024_map.png</span></code></p></li>
 </ul>
 </dd>
 </dl>
 <p><strong>Command Examples for Organization</strong>:</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="c1"># Planning phase outputs</span>
-cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>planning/<span class="w"> </span>--output-file<span class="w"> </span>initial_config.png
+cruiseplan<span class="w"> </span>map<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>--output-dir<span class="w"> </span>planning/<span class="w"> </span>--output<span class="w"> </span>initial_config
 
 <span class="c1"># Final schedule outputs</span>
 cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class="w"> </span>cruise.yaml<span class="w"> </span>-o<span class="w"> </span>schedules/<span class="w"> </span>--format<span class="w"> </span>all
@@ -388,10 +388,10 @@ cruiseplan<span class="w"> </span>schedule<span class="w"> </span>-c<span class=
 <td><p>Use custom figure size: <code class="docutils literal notranslate"><span class="pre">--figsize</span> <span class="pre">16</span> <span class="pre">10</span></code></p></td>
 </tr>
 <tr class="row-odd"><td><p>Unclear bathymetry</p></td>
-<td><p>Reduce stride: <code class="docutils literal notranslate"><span class="pre">--bathymetry-stride</span> <span class="pre">3</span></code></p></td>
+<td><p>Reduce stride: <code class="docutils literal notranslate"><span class="pre">--bathy-stride</span> <span class="pre">3</span></code></p></td>
 </tr>
 <tr class="row-even"><td><p>Slow generation</p></td>
-<td><p>Use ETOPO: <code class="docutils literal notranslate"><span class="pre">--bathymetry-source</span> <span class="pre">etopo2022</span></code> (cruiseplan map only)</p></td>
+<td><p>Use ETOPO: <code class="docutils literal notranslate"><span class="pre">--bathy-source</span> <span class="pre">etopo2022</span></code> (cruiseplan map only)</p></td>
 </tr>
 <tr class="row-odd"><td><p>Missing geographic context</p></td>
 <td><p>Check coordinate validity and map projection</p></td>

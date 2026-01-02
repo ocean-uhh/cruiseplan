@@ -79,7 +79,7 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
    cruiseplan schedule -c cruise.yaml --format png
    
    # High-resolution output with custom bathymetry
-   cruiseplan schedule -c cruise.yaml --format png --bathymetry-source gebco2025
+   cruiseplan schedule -c cruise.yaml --format png --bathy-source gebco2025
    
    # Combined outputs for complete documentation
    cruiseplan schedule -c cruise.yaml --format png,html,latex
@@ -113,10 +113,10 @@ Generated via: ``cruiseplan map -c cruise.yaml --format png``
    cruiseplan map -c cruise.yaml --format png
    
    # Custom figure size and bathymetry
-   cruiseplan map -c cruise.yaml --figsize 14 10 --bathymetry-source etopo2022
+   cruiseplan map -c cruise.yaml --figsize 14 10 --bathy-source etopo2022
    
    # Specific output file and directory
-   cruiseplan map -c cruise.yaml -o maps/ --output-file planning_map.png
+   cruiseplan map -c cruise.yaml --output-dir maps/ --output planning_map
    
    # Interactive preview before saving
    cruiseplan map -c cruise.yaml --show-plot
@@ -153,10 +153,10 @@ Both PNG outputs include bathymetric background visualization.  For ``cruiseplan
 .. code-block:: bash
 
    # High-detail bathymetry (slower generation)
-   --bathymetry-source gebco2025 --bathymetry-stride 1
+   --bathy-source gebco2025 --bathy-stride 1
    
    # Fast bathymetry for quick previews
-   --bathymetry-source etopo2022 --bathymetry-stride 10
+   --bathy-source etopo2022 --bathy-stride 10
 
 Default Operation Markers
 -----------------------------
@@ -219,7 +219,7 @@ File-Naming Conventions
   - Example: ``Arctic_Survey_2024_schedule_map.png``
 
 **Map PNG Files**:
-  - Format: ``{cruise_name}_map.png`` (or custom via ``--output-file``)
+  - Format: ``{cruise_name}_map.png`` (or custom via ``--output``)
   - Example: ``Arctic_Survey_2024_map.png``
 
 
@@ -228,7 +228,7 @@ File-Naming Conventions
 .. code-block:: bash
 
    # Planning phase outputs
-   cruiseplan map -c cruise.yaml -o planning/ --output-file initial_config.png
+   cruiseplan map -c cruise.yaml --output-dir planning/ --output initial_config
    
    # Final schedule outputs
    cruiseplan schedule -c cruise.yaml -o schedules/ --format all
@@ -256,9 +256,9 @@ Visual Quality Checks
    * - Overlapping station labels
      - Use custom figure size: ``--figsize 16 10``
    * - Unclear bathymetry
-     - Reduce stride: ``--bathymetry-stride 3``
+     - Reduce stride: ``--bathy-stride 3``
    * - Slow generation
-     - Use ETOPO: ``--bathymetry-source etopo2022`` (cruiseplan map only)
+     - Use ETOPO: ``--bathy-source etopo2022`` (cruiseplan map only)
    * - Missing geographic context
      - Check coordinate validity and map projection
 

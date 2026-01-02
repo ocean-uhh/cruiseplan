@@ -47,16 +47,6 @@ Options
 
    Show help message and exit
 
-Legacy Parameters (Deprecated)
--------------------------------
-
-.. option:: --source
-
-   **[DEPRECATED]** Use ``--bathy-source`` instead
-
-.. option:: --bathymetry-source
-
-   **[DEPRECATED]** Use ``--bathy-source`` instead
 
 Examples
 --------
