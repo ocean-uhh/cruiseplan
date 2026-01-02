@@ -117,8 +117,8 @@ class TestSubcommandArguments:
             "dois.txt",
             "-o",
             "output_dir",
-            "--output-file",
-            "specific.pkl",
+            "--output",
+            "specific",
             "--rate-limit",
             "2.0",
             "--merge-campaigns",
@@ -132,7 +132,7 @@ class TestSubcommandArguments:
                 args = mock_main.call_args[0][0]
                 assert str(args.query_or_file) == "dois.txt"
                 assert str(args.output_dir) == "output_dir"
-                assert str(args.output_file) == "specific.pkl"
+                assert str(args.output) == "specific"
                 assert args.rate_limit == 2.0
                 assert args.merge_campaigns == True
 

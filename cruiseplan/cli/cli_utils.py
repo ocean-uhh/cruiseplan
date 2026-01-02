@@ -682,12 +682,6 @@ def _handle_common_deprecated_params(args: Namespace) -> None:
     >>> _handle_common_deprecated_params(args)  # Handle common deprecated params
     >>> _handle_deprecated_params(args, command_specific_map)  # Handle command-specific
     """
-    # Handle deprecated --output-file parameter
-    if hasattr(args, "output_file") and args.output_file:
-        logger.warning(
-            "⚠️  WARNING: '--output-file' is deprecated. "
-            "Use '--output' for base filename and '--output-dir' for the path."
-        )
 
 
 def _initialize_cli_command(
@@ -773,16 +767,6 @@ def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:
     CLIError
         If bathymetry parameters are invalid
     """
-    # Handle legacy parameter names
-    _handle_deprecated_params(
-        args,
-        {
-            "bathymetry_source_legacy": "bathy_source",
-            "bathymetry_dir_legacy": "bathy_dir",
-            "bathymetry_stride_legacy": "bathy_stride",
-        },
-    )
-
     bathy_source = getattr(args, "bathy_source", "etopo2022")
     bathy_dir = getattr(args, "bathy_dir", "data")
     bathy_stride = getattr(args, "bathy_stride", 10)
@@ -993,6 +977,11 @@ def _collect_generated_files(
         for item in result:
             if isinstance(item, Path):
                 files.append(item)
+    elif isinstance(result, dict):
+        # Handle CLI response dictionaries from _convert_api_response_to_cli
+        potential_files = result.get("files", [])
+        if isinstance(potential_files, list):
+            files.extend([Path(f) for f in potential_files if f is not None])
     elif isinstance(result, tuple) and len(result) >= 2:
         # Handle (data, files) tuple returns
         potential_files = result[1]

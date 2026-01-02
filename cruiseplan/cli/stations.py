@@ -21,6 +21,15 @@ from cruiseplan.cli.cli_utils import (
     validate_input_file,
     validate_output_path,
 )
+from cruiseplan.utils.input_validation import (
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+    _validate_coordinate_bounds,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_dependency_error,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -94,12 +103,18 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
-        # Standardized CLI initialization
-        param_map = {
+        # Handle deprecated parameters
+        deprecated_params = {
             "bathy_source_legacy": "bathy_source",
             "bathy_dir_legacy": "bathy_dir",
         }
-        _initialize_cli_command(args, param_map, requires_config_file=False)
+        _handle_deprecated_cli_params(args, deprecated_params)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
+        # Standardized CLI initialization
+        _initialize_cli_command(args, requires_config_file=False)
 
         # Check for optional dependencies
         try:
@@ -130,17 +145,11 @@ def main(args: argparse.Namespace) -> None:
         # Determine coordinate bounds
         lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
 
-        # Validate coordinate bounds
-        if not (-90 <= lat_bounds[0] < lat_bounds[1] <= 90):
-            raise CLIError(
-                f"Invalid latitude bounds: {lat_bounds}. "
-                "Latitude must be between -90 and 90, with min < max."
-            )
-        if not (-180 <= lon_bounds[0] < lon_bounds[1] <= 180):
-            raise CLIError(
-                f"Invalid longitude bounds: {lon_bounds}. "
-                "Longitude must be between -180 and 180, with min < max."
-            )
+        # Validate coordinate bounds using new utility
+        try:
+            _validate_coordinate_bounds(list(lat_bounds), list(lon_bounds))
+        except ValueError as e:
+            raise CLIError(f"Invalid coordinate bounds: {e}")
 
         # Determine output file
         if args.output_file:
@@ -222,10 +231,23 @@ def main(args: argparse.Namespace) -> None:
             picker.show()
 
         except ImportError as e:
-            raise CLIError(f"Station picker not available: {e}")
+            error_msg = _format_dependency_error(
+                "matplotlib", "Interactive station picker", "pip install matplotlib"
+            )
+            logger.error(error_msg)
+            sys.exit(1)
 
     except CLIError as e:
-        _format_error_message("stations", e)
+        error_msg = _format_cli_error(
+            "Interactive station placement",
+            e,
+            suggestions=[
+                "Check coordinate bounds are valid",
+                "Verify PANGAEA file format if provided",
+                "Ensure matplotlib is installed",
+            ]
+        )
+        logger.error(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -233,15 +255,17 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message(
-            "stations",
+        error_msg = _format_cli_error(
+            "Interactive station placement",
             e,
-            [
+            suggestions=[
                 "Check matplotlib installation",
                 "Verify bathymetry data availability",
                 "Check PANGAEA file format",
+                "Run with --verbose for more details",
             ],
         )
+        logger.error(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 
@@ -266,7 +290,6 @@ if __name__ == "__main__":
     parser.add_argument(
         "-o", "--output-dir", type=Path, default=Path("."), help="Output directory"
     )
-    parser.add_argument("--output-file", type=Path, help="Specific output file path")
     parser.add_argument(
         "--bathy-source", choices=["etopo2022", "gebco2025"], default="etopo2022"
     )

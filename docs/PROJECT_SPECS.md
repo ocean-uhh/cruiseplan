@@ -1267,7 +1267,6 @@ Arguments:
 Options:
   -c, --config-file     Filename including path to cruise configuration (required)
   -o, --output-dir      Output directory (default: current)
-  --output-file         Specific output file path (overrides filename and output_dir)
   --algorithm           'nearest_neighbor' (fast) or 'genetic' (thorough). Default: nearest_neighbor
   --flatten-legs        Dissolve boundaries ignoring both Leg AND Cluster grouping.
                         Solves a global TSP for all operations.
@@ -1305,7 +1304,7 @@ Behavior:
 ```bash
 # Interactive station placement with PANGAEA background data
 cruiseplan stations [-p PANGAEA_FILE] [--lat MIN MAX] [--lon MIN MAX]
-                   [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
+                   [-o OUTPUT_DIR]
 
 Arguments:
   PANGAEA_FILE          PANGAEA campaigns pickle file with locations and labels
@@ -1317,21 +1316,19 @@ Options:
   --lat MIN MAX        Latitude bounds (default: Use bounds from PANGAEA pickle provided, else 45 70)
   --lon MIN MAX        Longitude bounds (default: Use bounds from PANGAEA pickle if provided, else -65 -5)
   -o, --output-dir     Output directory (default: current)
-  --output-file        Specific output file path
-  --bathymetry-source  etopo2022|gebco2025 (default: etopo2022)
+  --bathy-source       etopo2022|gebco2025 (default: etopo2022)
   --contour-levels     Custom depth contours (comma-separated, Default: 0, -50, -100, -200, -500, -1000, -2000, -3000, -4000, -5000)
 
 Examples:
   cruiseplan stations --lat 50 65 --lon -60 -30
   cruiseplan stations -p campaigns.pkl -o station_data/
-  cruiseplan stations --bathymetry-source gebco2025
+  cruiseplan stations --bathy-source gebco2025
 ```
 
 **cruiseplan depths**
 ```bash
 # Validate and add bathymetry depths to station configurations
-cruiseplan depths -c INPUT_CONFIG [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
-                  [--tolerance PERCENT] [--source DATASET]
+cruiseplan depths -c INPUT_CONFIG [-o OUTPUT_DIR]                  [--tolerance PERCENT] [--source DATASET]
 
 Arguments:
   INPUT_CONFIG          Input YAML file with station positions
@@ -1341,7 +1338,6 @@ Arguments:
 Options:
   -c, --config-file     Path to cruise configuration (required)
   -o, --output-dir      Output directory (default: data/)
-  --output-file         Specific output file path
   --tolerance           Depth difference warning threshold (default: 10%)
   --source              Bathymetry dataset: etopo2022|gebco2025
   --add-missing         Add depth for stations without depth values
@@ -1353,15 +1349,14 @@ Examples:
   cruiseplan depths stations.yaml --warnings-only
 
 Creates:
-  If --output-file not set, generates a filename by appending "_with_depths"
+  Generates a filename by appending "_with_depths"
   Example: for YAML_FILE of stations.yaml results in stations_with_depths.yaml
 ```
 
 **cruiseplan coords**
 ```bash
 # Add navigational coordinate formatting to YAML configurations
-cruiseplan coords -c INPUT_CONFIG [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
-                  [--format FORMAT]
+cruiseplan coords -c INPUT_CONFIG [-o OUTPUT_DIR]                  [--format FORMAT]
 
 Arguments:
   INPUT_CONFIG          Input YAML with coordinate data
@@ -1371,7 +1366,6 @@ Arguments:
 Options:
   -c, --config-file     Path to cruise configuration (required)
   -o, --output-dir      Output directory (default: data/)
-  --output-file         Specific output file path
   --format              Coordinate format: dm|dd (degrees/decimal-minutes,
                         decimal-degrees) (default: degrees/decimal-minutes)
   --field-name          Output field name (default: "position_string")
@@ -1382,15 +1376,14 @@ Examples:
   cruiseplan coords cruise.yaml --format dm --field-name nav_coords
 
 Creates:
-  If --output-file not set, generates a filename by appending "_with_coords" to the YAML_FILE
+  Generates a filename by appending "_with_coords" to the YAML_FILE
   Example: for YAML_FILE of stations.yaml, creates stations_with_coords.yaml
 ```
 
 **cruiseplan pangaea**
 ```bash
 # Process PANGAEA DOI lists into campaign datasets
-cruiseplan pangaea DOI_LIST_FILE [-o OUTPUT_DIR] [--output-file OUTPUT_FILE]
-                   [--rate-limit REQUESTS_PER_SECOND]
+cruiseplan pangaea DOI_LIST_FILE [-o OUTPUT_DIR]                   [--rate-limit REQUESTS_PER_SECOND]
 
 Arguments:
   OUTPUT_DIR           Path to save the PANGAEA pickle
@@ -1399,7 +1392,6 @@ Arguments:
 
 Options:
   -o, --output-dir     Output directory (default: data/)
-  --output-file        Specific pickle output file path
   --rate-limit         API request rate limit (default: 1.0)
   --validate-dois      Validate DOI format before processing (Default: true)
   --merge-campaigns    Merge campaigns with same name (Default: true)
@@ -1415,7 +1407,6 @@ Examples:
 
 **Parameter Conventions:**
 - `-o, --output-dir`: Consistent output directory specification
-- `--output-file`: Specific file path override (takes precedence over -o)
 - `--help`: Comprehensive help documentation for all commands
 - `--verbose`: Detailed progress and diagnostic output
 - `--quiet`: Suppress non-essential output

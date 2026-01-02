@@ -107,28 +107,6 @@ class TestMapCommand:
             # Should return 1 for error
             assert result == 1
 
-    def test_deprecated_output_file_parameter(self):
-        """Test handling of deprecated --output-file parameter."""
-        args = argparse.Namespace(
-            config_file=Path("test.yaml"),
-            output_dir=Path("output"),
-            output_file=Path("custom_map.png"),  # Deprecated parameter
-            format="png",
-            verbose=False,
-        )
-
-        # Test the deprecation warning directly by calling the utility function
-        with patch("cruiseplan.cli.cli_utils.logger") as mock_logger:
-            from cruiseplan.cli.cli_utils import _handle_common_deprecated_params
-
-            _handle_common_deprecated_params(args)
-
-            # Verify deprecation warning was logged
-            mock_logger.warning.assert_called_with(
-                "⚠️  WARNING: '--output-file' is deprecated. "
-                "Use '--output' for base filename and '--output-dir' for the path."
-            )
-
     def test_map_generation_with_all_formats(self):
         """Test map generation with all output formats."""
         args = argparse.Namespace(

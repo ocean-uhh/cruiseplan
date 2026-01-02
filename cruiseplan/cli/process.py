@@ -27,7 +27,16 @@ from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
     _resolve_cli_to_api_params,
 )
-from cruiseplan.utils.input_validation import _validate_config_file
+from cruiseplan.utils.input_validation import (
+    _validate_config_file,
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_output_summary,
+    _standardize_output_setup,
+)
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
@@ -55,13 +64,23 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
+        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
+        _handle_deprecated_cli_params(args)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
         # Standardized CLI initialization
-        param_map = {
-            "bathy_source_legacy": "bathy_source",
-            "bathy_dir_legacy": "bathy_dir",
-            "bathy_stride_legacy": "bathy_stride",
-        }
-        config_file = _initialize_cli_command(args, param_map)
+        config_file = _initialize_cli_command(args)
+
+        # Extract cruise name from config file for proper naming
+        try:
+            import yaml
+            with open(config_file) as f:
+                config_data = yaml.safe_load(f)
+                cruise_name = config_data.get("cruise_name")
+        except (FileNotFoundError, yaml.YAMLError, KeyError):
+            cruise_name = None
 
         # Format progress header using new utility
         _format_progress_header(
@@ -73,8 +92,17 @@ def main(args: argparse.Namespace) -> None:
             run_map_generation=getattr(args, "run_map_generation", True),
         )
 
+        # Standardize output setup using new utilities  
+        output_dir, base_name, format_paths = _standardize_output_setup(
+            args, cruise_name=cruise_name, suffix="", multi_formats=["yaml", "html", "csv", "png", "kml"]
+        )
+        
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "process")
+        
+        # Override output paths with standardized paths
+        api_params["output_dir"] = output_dir
+        api_params["output"] = base_name
 
         # Call API function instead of complex wrapper logic
         logger.info("Processing configuration through full workflow...")
@@ -96,8 +124,11 @@ def main(args: argparse.Namespace) -> None:
         )
 
         if cli_response.get("success", True):
-            # Format success message using new utility
-            _format_success_message("configuration processing", all_generated_files)
+            # Use new standardized output summary
+            success_summary = _format_output_summary(
+                all_generated_files, "Configuration processing"
+            )
+            logger.info(success_summary)
         else:
             errors = cli_response.get("errors", ["Processing failed"])
             for error in errors:
@@ -105,7 +136,16 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
     except CLIError as e:
-        _format_error_message("process", e)
+        error_msg = _format_cli_error(
+            "Configuration processing",
+            e,
+            suggestions=[
+                "Check configuration file path and syntax",
+                "Verify output directory permissions", 
+                "Ensure bathymetry data is available",
+            ]
+        )
+        logger.error(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -113,15 +153,17 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message(
-            "process",
+        error_msg = _format_cli_error(
+            "Configuration processing",
             e,
-            [
+            suggestions=[
                 "Check configuration file syntax",
                 "Verify bathymetry data availability",
                 "Ensure sufficient disk space",
+                "Run with --verbose for more details",
             ],
         )
+        logger.error(error_msg)
         sys.exit(1)
 
 

@@ -24,16 +24,29 @@ class TestProcessCommand:
         mock_args.add_depths = True
         mock_args.add_coords = True
         mock_args.verbose = False
+        mock_args.quiet = False
 
         with (
             patch("cruiseplan.process") as mock_api,
+            patch("cruiseplan.cli.process._setup_cli_logging"),
+            patch("cruiseplan.cli.process._handle_deprecated_cli_params"),
+            patch("cruiseplan.cli.process._apply_cli_defaults"),
             patch(
                 "cruiseplan.cli.process._initialize_cli_command",
                 return_value=Path("test_config.yaml"),
             ),
             patch("cruiseplan.cli.process._format_progress_header"),
+            patch(
+                "cruiseplan.cli.process._standardize_output_setup",
+                return_value=(Path("data"), "test", {}),
+            ),
+            patch("cruiseplan.cli.process._resolve_cli_to_api_params", return_value={}),
+            patch(
+                "cruiseplan.cli.process._convert_api_response_to_cli",
+                return_value={"success": True},
+            ),
             patch("cruiseplan.cli.process._collect_generated_files") as mock_collect,
-            patch("cruiseplan.cli.process._format_success_message"),
+            patch("cruiseplan.cli.process._format_output_summary"),
         ):
 
             mock_api.return_value = ([], [Path("data/test_enriched.yaml")])
@@ -115,7 +128,7 @@ class TestProcessCommand:
 
         with (
             patch("cruiseplan.cli.process._initialize_cli_command") as mock_init,
-            patch("cruiseplan.cli.process._format_error_message") as mock_format_error,
+            patch("cruiseplan.cli.process.logger") as mock_logger,
         ):
 
             from cruiseplan.cli.cli_utils import CLIError
@@ -125,8 +138,12 @@ class TestProcessCommand:
             with pytest.raises(SystemExit):
                 main(mock_args)
 
-            # Should format the error
-            mock_format_error.assert_called_once_with("process", mock_init.side_effect)
+            # Should log the error
+            mock_logger.error.assert_called_once()
+            # Error message should contain the CLIError content
+            error_call = mock_logger.error.call_args[0][0]
+            assert "Configuration processing failed" in error_call
+            assert "Invalid config file" in error_call
 
     def test_main_handles_general_exception(self):
         """Test handling of unexpected exceptions."""
@@ -138,12 +155,15 @@ class TestProcessCommand:
         with (
             patch("cruiseplan.process") as mock_api,
             patch("cruiseplan.cli.process._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
+            patch("cruiseplan.cli.process._handle_deprecated_cli_params"),
+            patch("cruiseplan.cli.process._apply_cli_defaults"),
             patch(
-                "cruiseplan.cli.process._validate_config_file",
+                "cruiseplan.cli.process._initialize_cli_command",
                 return_value=Path("test_config.yaml"),
             ),
-            patch("cruiseplan.cli.process._format_error_message") as mock_format_error,
+            patch("cruiseplan.cli.process._standardize_output_setup",
+                return_value=(Path("data"), "test", {})),
+            patch("cruiseplan.cli.process.logger") as mock_logger,
         ):
 
             mock_api.side_effect = RuntimeError("Unexpected error")
@@ -151,7 +171,9 @@ class TestProcessCommand:
             with pytest.raises(SystemExit):
                 main(mock_args)
 
-            # Should format the error with suggestions
-            mock_format_error.assert_called_once()
-            args, kwargs = mock_format_error.call_args
-            assert args[0] == "process"
+            # Should log the error
+            mock_logger.error.assert_called_once()
+            # Error message should contain the exception content
+            error_call = mock_logger.error.call_args[0][0]
+            assert "Configuration processing failed" in error_call
+            assert "Unexpected error" in error_call

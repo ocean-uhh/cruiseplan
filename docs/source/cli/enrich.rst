@@ -35,8 +35,6 @@ Options
      - Base filename for outputs (without extension). Generates ``{OUTPUT}_enriched.yaml``.
    * - ``--bathy-source {etopo2022,gebco2025}``
      - Bathymetry dataset (default: ``etopo2022``).
-   * - ``--coord-format {dmm,dms}``
-     - Format for adding coordinates (default: ``dmm``).
    * - ``--backup``
      - Create backup of original file before enriching.
    * - ``-v, --verbose``

@@ -1457,11 +1457,11 @@ class CruiseConfig(BaseModel):
 
     departure_port: Optional[Union[str, PortDefinition]] = Field(
         None,
-        description="Port where the cruise begins (can be global port reference). Optional for multi-leg cruises.",
+        description="Port where the cruise begins (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
     arrival_port: Optional[Union[str, PortDefinition]] = Field(
         None,
-        description="Port where the cruise ends (can be global port reference). Optional for multi-leg cruises.",
+        description="Port where the cruise ends (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
 
     stations: Optional[List[StationDefinition]] = []

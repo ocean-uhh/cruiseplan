@@ -151,7 +151,7 @@ If you already have PANGAEA DOI identifiers:
 - ``-o OUTPUT_DIR``: Directory for output files (default: ``data/``)
 - ``--rate-limit 0.5``: Slower API requests for large datasets
 - ``--merge-campaigns``: Combine stations from cruises with same name
-- ``--output-file specific_name.pickle``: Custom output filename
+- ``--output specific_name``: Custom base filename
 
 **What this does:**
 

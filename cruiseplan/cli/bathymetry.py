@@ -24,7 +24,17 @@ from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
     _resolve_cli_to_api_params,
 )
-from cruiseplan.utils.input_validation import _validate_directory_writable
+from cruiseplan.utils.input_validation import (
+    _validate_directory_writable,
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+    _validate_choice_param,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_api_error,
+    _format_output_summary,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -124,15 +134,23 @@ def main(args=None):
         Parsed command-line arguments containing bathymetry source selection.
     """
     try:
-        # Standardized CLI initialization with legacy parameter handling
-        param_map = {
-            "source": "bathy_source",  # Legacy --source
-            "bathymetry_source": "bathy_source",  # Legacy --bathymetry-source
+        # Handle deprecated parameters
+        deprecated_params = {
+            "source": "bathy_source",
+            "bathymetry_source": "bathy_source",
         }
-        _initialize_cli_command(args, param_map, requires_config_file=False)
+        _handle_deprecated_cli_params(args, deprecated_params)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
+        # Standardized CLI initialization
+        _initialize_cli_command(args, requires_config_file=False)
 
-        # Extract bathymetry source (with default)
+        # Extract and validate bathymetry source
         source = getattr(args, "bathy_source", "etopo2022")
+        valid_sources = ["etopo2022", "gebco2025"]
+        source = _validate_choice_param(source, "bathy_source", valid_sources)
 
         show_citation_only = getattr(args, "citation", False)
         output_dir = getattr(args, "output_dir", Path("data/bathymetry"))
@@ -163,9 +181,6 @@ def main(args=None):
             logger.info(
                 "This utility will fetch the GEBCO 2025 high-resolution bathymetry data (~7.5GB).\n"
             )
-        else:
-            logger.error(f"Unknown bathymetry source: {source}")
-            sys.exit(1)
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "bathymetry")
@@ -177,6 +192,16 @@ def main(args=None):
         cli_response = _convert_api_response_to_cli(api_response, "bathymetry")
 
         if cli_response.get("success", True):
+            # Use standardized output summary
+            files_list = cli_response.get("files", [])
+            if files_list:
+                success_summary = _format_output_summary(
+                    files_list, "Bathymetry download"
+                )
+                logger.info(success_summary)
+            else:
+                logger.info("✅ Bathymetry download completed successfully")
+                
             # Show citation info after successful download
             logger.info("\n" + "=" * 60)
             logger.info("📚 CITATION INFORMATION")
@@ -201,11 +226,23 @@ def main(args=None):
         logger.info("\n\n⚠️  Download cancelled by user.")
         sys.exit(1)
     except Exception as e:
-        _format_error_message(
-            "bathymetry",
-            e,
-            ["Check internet connection", "Verify output directory permissions"],
-        )
+        # Check if it's likely a network/download error
+        if any(keyword in str(e).lower() for keyword in ["connection", "timeout", "network", "http"]):
+            error_msg = _format_api_error(
+                "Bathymetry download", "Data provider", e, retry_suggestion=True
+            )
+        else:
+            error_msg = _format_cli_error(
+                "Bathymetry download",
+                e,
+                suggestions=[
+                    "Check internet connection",
+                    "Verify output directory permissions",
+                    "Ensure sufficient disk space",
+                    "Try again later if server is busy",
+                ],
+            )
+        logger.error(error_msg)
         sys.exit(1)
 
 

@@ -32,6 +32,15 @@ from cruiseplan.init_utils import (
 )
 from cruiseplan.utils.input_validation import (
     _detect_pangaea_mode,
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+    _validate_coordinate_bounds,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_api_error,
+    _format_output_summary,
+    _standardize_output_setup,
 )
 
 logger = logging.getLogger(__name__)
@@ -44,6 +53,7 @@ def validate_lat_lon_bounds(
     Validate and convert latitude/longitude bounds into bounding box tuple.
 
     CLI-specific coordinate validation that handles user input formats.
+    Uses the new utility function for core validation.
 
     Parameters
     ----------
@@ -63,44 +73,11 @@ def validate_lat_lon_bounds(
         If bounds are invalid
     """
     try:
-        min_lat, max_lat = lat_bounds
-        min_lon, max_lon = lon_bounds
-
-        # Latitude validation (always -90 to 90)
-        if not (-90 <= min_lat <= 90 and -90 <= max_lat <= 90):
-            raise ValueError("Latitude must be between -90 and 90")
-        if min_lat >= max_lat:
-            raise ValueError("min_lat must be less than max_lat")
-
-        # Longitude validation: support both -180/180 and 0/360 but prevent mixing
-        # Check if using -180/180 format
-        if -180 <= min_lon <= 180 and -180 <= max_lon <= 180:
-            lon_format = "180"
-        # Check if using 0/360 format
-        elif 0 <= min_lon <= 360 and 0 <= max_lon <= 360:
-            lon_format = "360"
-        else:
-            # Mixed or invalid format
-            raise ValueError(
-                "Longitude coordinates must be either:\n"
-                "  - Both in -180 to 180 format (e.g., --lon -90 -30)\n"
-                "  - Both in 0 to 360 format (e.g., --lon 270 330)\n"
-                "  - Cannot mix formats (e.g., --lon -90 240 is invalid)"
-            )
-
-        # Check ordering within the chosen format
-        if min_lon >= max_lon:
-            if lon_format == "360" and min_lon > 180 and max_lon < 180:
-                # Special case: crossing 0° meridian in 360 format (e.g., 350° to 10°)
-                # This is valid, so don't raise error
-                pass
-            else:
-                raise ValueError("min_lon must be less than max_lon")
-
-        return (min_lon, min_lat, max_lon, max_lat)
-
-    except (ValueError, IndexError) as e:
-        raise CLIError(f"Invalid lat/lon bounds. Error: {e}")
+        # Use new utility for comprehensive validation
+        bbox = _validate_coordinate_bounds(lat_bounds, lon_bounds)
+        return bbox
+    except ValueError as e:
+        raise CLIError(f"Invalid lat/lon bounds. Error: {e}") from e
 
 
 def determine_workflow_mode(args: argparse.Namespace) -> str:
@@ -147,15 +124,14 @@ def main(args: argparse.Namespace) -> None:
         Parsed command line arguments
     """
     try:
+        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
+        _handle_deprecated_cli_params(args)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
         # Setup logging using new utility
         _setup_cli_logging(verbose=getattr(args, "verbose", False))
-
-        # Handle deprecated --output-file option
-        if hasattr(args, "output_file") and args.output_file:
-            logger.warning(
-                "⚠️  WARNING: '--output-file' is deprecated and will be removed in v0.3.0."
-            )
-            logger.warning("   Please use '--output' for base filename instead.\n")
 
         # Detect mode and validate parameters using utility function
         mode, processed_params = _detect_pangaea_mode(args)
@@ -170,8 +146,17 @@ def main(args: argparse.Namespace) -> None:
             lon_bounds=getattr(args, "lon", None),
         )
 
+        # Standardize output setup using new utilities
+        output_dir, base_name, format_paths = _standardize_output_setup(
+            args, suffix="_stations", multi_formats=["pkl", "txt"]
+        )
+        
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "pangaea")
+        
+        # Override output paths with standardized paths
+        api_params["output_dir"] = output_dir
+        api_params["output"] = base_name
 
         # Call API function instead of complex processing logic
         logger.info("Searching and processing PANGAEA data...")
@@ -187,8 +172,11 @@ def main(args: argparse.Namespace) -> None:
         )
 
         if cli_response.get("success", True) and stations_data:
-            # Format success message using new utility
-            _format_success_message("PANGAEA data processing", all_generated_files)
+            # Use new standardized output summary
+            success_summary = _format_output_summary(
+                all_generated_files, "PANGAEA data processing"
+            )
+            logger.info(success_summary)
 
             # Show next steps
             logger.info("🚀 Next steps:")
@@ -209,7 +197,16 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
     except CLIError as e:
-        _format_error_message("pangaea", e)
+        error_msg = _format_cli_error(
+            "PANGAEA data processing",
+            e,
+            suggestions=[
+                "Check query terms are valid",
+                "Verify coordinate bounds format",
+                "Ensure DOI file exists and is readable",
+            ]
+        )
+        logger.error(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -217,15 +214,23 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message(
-            "pangaea",
-            e,
-            [
-                "Check query terms",
-                "Verify coordinate bounds",
-                "Check network connection",
-            ],
-        )
+        # Check if it's likely a network/API error
+        if "ConnectionError" in str(type(e)) or "requests" in str(type(e)):
+            error_msg = _format_api_error(
+                "PANGAEA search", "PANGAEA", e, retry_suggestion=True
+            )
+        else:
+            error_msg = _format_cli_error(
+                "PANGAEA data processing",
+                e,
+                suggestions=[
+                    "Check query terms",
+                    "Verify coordinate bounds",
+                    "Check network connection",
+                    "Run with --verbose for more details",
+                ],
+            )
+        logger.error(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

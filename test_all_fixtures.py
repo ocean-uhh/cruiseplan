@@ -50,7 +50,6 @@ def main():
     # Setup paths
     fixtures_dir = Path("tests/fixtures")
     bathy_dir = Path("data/bathymetry")
-    enriched_dir = Path("data")
     output_dir = Path("tests_output/fixtures")
 
     # Create output directory if it doesn't exist
@@ -77,9 +76,17 @@ def main():
         print(f"# Processing: {fixture_file.name}")
         print(f"{'#'*70}")
 
-        # Derive the enriched filename
-        base_name = fixture_file.stem  # e.g., "tc1_mooring"
-        enriched_file = enriched_dir / f"{base_name}_enriched.yaml"
+        # Extract cruise name from YAML for consistent naming
+        import yaml
+        try:
+            with open(fixture_file) as f:
+                config_data = yaml.safe_load(f)
+                cruise_name = config_data.get("cruise_name", fixture_file.stem)
+        except (FileNotFoundError, yaml.YAMLError, KeyError):
+            cruise_name = fixture_file.stem
+        
+        # Use cruise name for enriched file (matches process command output)
+        enriched_file = output_dir / f"{cruise_name}_enriched.yaml"
 
         # Step 1: Process the fixture
         process_cmd = [
@@ -89,6 +96,9 @@ def main():
             str(fixture_file),
             "--bathy-dir",
             str(bathy_dir),
+            "--output-dir",
+            str(output_dir),
+            # Remove --output override to use cruise name from YAML consistently
         ]
 
         if not run_command(process_cmd):

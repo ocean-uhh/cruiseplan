@@ -1,0 +1,300 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>TC5_Sections_Test - Catalog</name>
+        <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
+        
+        <!-- Styles for different entity types -->
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="portStyle">
+            <IconStyle>
+                <color>ff0080ff</color>
+                <scale>1.5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/marina.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+        
+        <Style id="transitStyle">
+            <LineStyle>
+                <color>800066FF</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+        
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
+
+        <!-- Ports -->
+        <Placemark>
+            <name>Departure: port_halifax</name>
+            <description>
+                Port: port_halifax
+                Type: Departure Port
+                Location: 44.648800°N, -63.575200°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-63.5752,44.6488,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>Arrival: port_cadiz</name>
+            <description>
+                Port: port_cadiz
+                Type: Arrival Port
+                Location: 36.529800°N, -6.292300°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-6.2923,36.5298,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>port_halifax</name>
+            <description>
+                Port: port_halifax
+                Type: Catalog Port
+                Location: 44.648800°N, -63.575200°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-63.5752,44.6488,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>port_cadiz</name>
+            <description>
+                Port: port_cadiz
+                Type: Catalog Port
+                Location: 36.529800°N, -6.292300°W
+                Timezone: None
+            </description>
+            <styleUrl>#portStyle</styleUrl>
+            <Point>
+                <coordinates>-6.2923,36.5298,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Stations -->
+        <Placemark>
+            <name>SEC_001_Stn001</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.000000°N, -50.000000°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-50.0,45.0,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn002</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.155060°N, -49.851200°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.8512,45.15506,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn003</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.309930°N, -49.701590°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.70159,45.30993,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn004</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.464590°N, -49.551150°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.55115,45.46459,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn005</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.619070°N, -49.399900°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.3999,45.61907,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn006</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.773340°N, -49.247800°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.2478,45.77334,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn007</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 45.927400°N, -49.094860°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-49.09486,45.9274,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn008</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.081260°N, -48.941080°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.94108,46.08126,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn009</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.234920°N, -48.786430°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.78643,46.23492,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn010</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.388360°N, -48.630910°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.63091,46.38836,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn011</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.541600°N, -48.474520°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.47452,46.5416,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn012</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.694620°N, -48.317240°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.31724,46.69462,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn013</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 46.847420°N, -48.159070°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.15907,46.84742,0</coordinates>
+            </Point>
+        </Placemark>
+        <Placemark>
+            <name>SEC_001_Stn014</name>
+            <description>
+                Type: Station (OperationTypeEnum.CTD)
+                Action: ActionEnum.PROFILE
+                Location: 47.000000°N, -48.000000°W
+                Depth: N/A m
+            </description>
+            <styleUrl>#stationStyle</styleUrl>
+            <Point>
+                <coordinates>-48.0,47.0,0</coordinates>
+            </Point>
+        </Placemark>
+
+        <!-- Moorings -->
+
+        <!-- Transits -->
+
+        <!-- Areas -->
+    </Document>
+</kml>

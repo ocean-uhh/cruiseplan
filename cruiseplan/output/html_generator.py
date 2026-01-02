@@ -464,7 +464,7 @@ class HTMLGenerator:
         html_content += self._generate_leg_schedules(config, timeline, stats)
 
         # Try to link to the cruise track map if it exists
-        map_filename = f"{config.cruise_name}_schedule_map.png"
+        map_filename = f"{config.cruise_name}_schedule.png"
         map_path = output_file.parent / map_filename
         if map_path.exists():
             html_content += f"""

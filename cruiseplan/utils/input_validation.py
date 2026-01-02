@@ -8,7 +8,8 @@ CLI layer to validate inputs before passing them to the API layer.
 
 import logging
 from pathlib import Path
-from typing import List, Tuple
+from typing import Any, Dict, List, Tuple
+from argparse import Namespace
 
 logger = logging.getLogger(__name__)
 
@@ -117,7 +118,8 @@ def _validate_coordinate_bounds(
     """
     Validate and normalize coordinate bounds to bbox format.
 
-    Internal utility function for coordinate validation.
+    Internal utility function for coordinate validation that supports both
+    -180/180 and 0/360 longitude formats.
 
     Parameters
     ----------
@@ -140,6 +142,8 @@ def _validate_coordinate_bounds(
     --------
     >>> _validate_coordinate_bounds([50.0, 60.0], [-10.0, 10.0])
     (-10.0, 50.0, 10.0, 60.0)
+    >>> _validate_coordinate_bounds([50.0, 60.0], [350.0, 360.0])
+    (350.0, 50.0, 360.0, 60.0)
     """
     # Validate input format
     if not isinstance(lat_bounds, list) or len(lat_bounds) != 2:
@@ -156,6 +160,7 @@ def _validate_coordinate_bounds(
     min_lat, max_lat = lat_bounds
     min_lon, max_lon = lon_bounds
 
+    # Validate latitude (always -90 to 90)
     if not (-90 <= min_lat <= 90):
         raise ValueError(
             f"Invalid minimum latitude: {min_lat}. Must be between -90 and 90."
@@ -166,25 +171,45 @@ def _validate_coordinate_bounds(
             f"Invalid maximum latitude: {max_lat}. Must be between -90 and 90."
         )
 
-    if not (-180 <= min_lon <= 180):
-        raise ValueError(
-            f"Invalid minimum longitude: {min_lon}. Must be between -180 and 180."
-        )
-
-    if not (-180 <= max_lon <= 180):
-        raise ValueError(
-            f"Invalid maximum longitude: {max_lon}. Must be between -180 and 180."
-        )
-
-    # Validate logical ranges
     if min_lat >= max_lat:
         raise ValueError(
             f"Minimum latitude ({min_lat}) must be less than maximum latitude ({max_lat})"
         )
 
-    if min_lon >= max_lon:
+    # Validate longitude ranges first - check for completely out-of-range values
+    if not (-180 <= min_lon <= 360):
         raise ValueError(
-            f"Minimum longitude ({min_lon}) must be less than maximum longitude ({max_lon})"
+            f"Invalid minimum longitude: {min_lon}. Must be between -180 and 360."
+        )
+    
+    if not (-180 <= max_lon <= 360):
+        raise ValueError(
+            f"Invalid maximum longitude: {max_lon}. Must be between -180 and 360."
+        )
+    
+    # Validate longitude format and ranges
+    # Support both -180/180 and 0/360 formats, but not mixed
+    if -180 <= min_lon <= 180 and -180 <= max_lon <= 180:
+        # -180/180 format - allows meridian crossing
+        if min_lon >= max_lon:
+            raise ValueError(
+                f"Minimum longitude ({min_lon}) must be less than maximum longitude ({max_lon})"
+            )
+    elif 0 <= min_lon <= 360 and 0 <= max_lon <= 360:
+        # 0/360 format - NO meridian crossing allowed
+        if min_lon >= max_lon:
+            raise ValueError(
+                f"Minimum longitude ({min_lon}) must be less than maximum longitude ({max_lon}). "
+                f"For meridian crossing, use -180/180 format instead."
+            )
+    else:
+        # Mixed format (e.g., -90 and 240)
+        raise ValueError(
+            "Longitude coordinates must use the same format:\n"
+            "  - Both in -180 to 180 format (e.g., --lon -90 -30)\n"
+            "  - Both in 0 to 360 format (e.g., --lon 270 330)\n"
+            "  - Cannot mix formats (e.g., --lon -90 240 is invalid)\n"
+            "  - Use -180/180 format for meridian crossing ranges"
         )
 
     # Return in bbox format (min_lon, min_lat, max_lon, max_lat)
@@ -364,3 +389,363 @@ def _detect_pangaea_mode(args) -> Tuple[str, dict]:
         raise ValueError(f"Invalid coordinate bounds: {e}")
 
     return "search", {"query": query_or_file}
+
+
+def _validate_format_options(format_str: str, valid_formats: List[str]) -> List[str]:
+    """
+    Validate and parse format string for output generation.
+
+    Internal utility function for format option validation.
+
+    Parameters
+    ----------
+    format_str : str
+        Format string from user input ("all", "html,csv", "netcdf", etc.)
+    valid_formats : List[str]
+        List of valid format options
+
+    Returns
+    -------
+    List[str]
+        Validated and normalized format list
+
+    Raises
+    ------
+    ValueError
+        If any format is invalid
+
+    Examples
+    --------
+    >>> _validate_format_options("all", ["html", "csv", "netcdf"])
+    ["html", "csv", "netcdf"]
+    >>> _validate_format_options("html,csv", ["html", "csv", "netcdf"])
+    ["html", "csv"]
+    """
+    if format_str == "all":
+        return valid_formats.copy()
+    elif "," in format_str:
+        formats = [fmt.strip().lower() for fmt in format_str.split(",")]
+        invalid_formats = [fmt for fmt in formats if fmt not in valid_formats]
+        if invalid_formats:
+            raise ValueError(
+                f"Invalid formats: {invalid_formats}. Valid options: {valid_formats}"
+            )
+        return formats
+    else:
+        format_clean = format_str.strip().lower()
+        if format_clean not in valid_formats:
+            raise ValueError(
+                f"Invalid format: {format_clean}. Valid options: {valid_formats}"
+            )
+        return [format_clean]
+
+
+def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:
+    """
+    Validate and normalize bathymetry-related CLI parameters.
+
+    Internal utility function for bathymetry parameter validation.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments containing bathymetry parameters
+
+    Returns
+    -------
+    Dict[str, Any]
+        Normalized bathymetry parameters
+
+    Raises
+    ------
+    ValueError
+        If bathymetry parameters are invalid
+
+    Examples
+    --------
+    >>> args = argparse.Namespace(bathy_source="gebco2025", bathy_stride=5)
+    >>> _validate_bathymetry_params(args)
+    {'bathy_source': 'gebco2025', 'bathy_dir': 'data', 'bathy_stride': 5}
+    """
+    bathy_source = getattr(args, "bathy_source", "etopo2022")
+    bathy_dir = getattr(args, "bathy_dir", "data")
+    bathy_stride = getattr(args, "bathy_stride", 10)
+
+    # Validate source
+    valid_sources = ["etopo2022", "gebco2025"]
+    if bathy_source not in valid_sources:
+        raise ValueError(
+            f"Invalid bathymetry source: {bathy_source}. Valid options: {valid_sources}"
+        )
+
+    # Validate stride
+    if not isinstance(bathy_stride, int) or bathy_stride < 1:
+        raise ValueError(
+            f"Bathymetry stride must be a positive integer, got: {bathy_stride}"
+        )
+
+    return {
+        "bathy_source": bathy_source,
+        "bathy_dir": str(bathy_dir),
+        "bathy_stride": bathy_stride,
+    }
+
+
+def _validate_output_params(
+    args: Namespace, default_basename: str, suffix: str = "", extension: str = ""
+) -> Path:
+    """
+    Validate and determine output file path from CLI arguments.
+
+    Internal utility function for output path validation.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments containing output and output_dir
+    default_basename : str
+        Default base filename to use if --output is not provided
+    suffix : str, optional
+        Suffix to append to basename (e.g., "_enriched", "_schedule")
+    extension : str, optional
+        File extension including the dot (e.g., ".yaml", ".csv")
+
+    Returns
+    -------
+    Path
+        Validated output file path
+
+    Raises
+    ------
+    ValueError
+        If output parameters are invalid
+
+    Examples
+    --------
+    >>> args = argparse.Namespace(output="myfile", output_dir="results/")
+    >>> _validate_output_params(args, "cruise", "_enriched", ".yaml")
+    PosixPath('results/myfile_enriched.yaml')
+    """
+    # Determine base filename
+    if hasattr(args, "output") and args.output:
+        base_name = args.output.replace(" ", "_")
+    else:
+        base_name = default_basename.replace(" ", "_")
+
+    # Validate base_name
+    if not base_name or not base_name.strip():
+        raise ValueError("Output filename cannot be empty")
+
+    # Construct full filename
+    filename = f"{base_name}{suffix}{extension}"
+
+    # Determine and validate output directory
+    output_dir = getattr(args, "output_dir", Path("data"))
+    validated_dir = _validate_directory_writable(Path(output_dir))
+
+    return validated_dir / filename
+
+
+def _validate_cli_config_file(args: Namespace) -> Path:
+    """
+    Validate config file from CLI arguments.
+
+    Internal utility function for CLI config file validation.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments
+
+    Returns
+    -------
+    Path
+        Validated config file path
+
+    Raises
+    ------
+    ValueError
+        If config file is missing or invalid
+
+    Examples
+    --------
+    >>> args = argparse.Namespace(config_file=Path("cruise.yaml"))
+    >>> _validate_cli_config_file(args)
+    PosixPath('/path/to/cruise.yaml')
+    """
+    if not hasattr(args, "config_file") or not args.config_file:
+        raise ValueError("Configuration file is required for this command")
+    
+    return _validate_config_file(args.config_file)
+
+
+def _validate_coordinate_args(args: Namespace) -> Tuple[float, float, float, float]:
+    """
+    Validate coordinate bounds from CLI arguments.
+
+    Internal utility function for CLI coordinate validation.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments containing lat and lon bounds
+
+    Returns
+    -------
+    Tuple[float, float, float, float]
+        Normalized bounds (min_lon, min_lat, max_lon, max_lat)
+
+    Raises
+    ------
+    ValueError
+        If coordinate arguments are invalid or missing
+
+    Examples
+    --------
+    >>> args = argparse.Namespace(lat=[50.0, 60.0], lon=[-10.0, 10.0])
+    >>> _validate_coordinate_args(args)
+    (-10.0, 50.0, 10.0, 60.0)
+    """
+    if not hasattr(args, "lat") or not args.lat:
+        raise ValueError("Latitude bounds (--lat) are required")
+    
+    if not hasattr(args, "lon") or not args.lon:
+        raise ValueError("Longitude bounds (--lon) are required")
+    
+    return _validate_coordinate_bounds(args.lat, args.lon)
+
+
+def _handle_deprecated_cli_params(
+    args: Namespace, param_map: Dict[str, str] = None
+) -> None:
+    """
+    Handle deprecated CLI parameters with warnings and migration.
+
+    Internal utility function for deprecated parameter handling.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments
+    param_map : Dict[str, str], optional
+        Mapping of deprecated_param_name -> new_param_name.
+        If None, no action is taken (useful for future-proofing).
+
+    Examples
+    --------
+    >>> param_map = {'output_file': 'output', 'bathymetry_source': 'bathy_source'}
+    >>> _handle_deprecated_cli_params(args, param_map)
+    # Shows warnings and migrates deprecated parameters
+    >>> _handle_deprecated_cli_params(args)  # No action taken
+    """
+    if param_map is None:
+        return
+    
+    for old_param, new_param in param_map.items():
+        if hasattr(args, old_param) and getattr(args, old_param) is not None:
+            logger.warning(
+                f"⚠️  WARNING: '--{old_param.replace('_', '-')}' is deprecated. "
+                f"Use '--{new_param.replace('_', '-')}' instead."
+            )
+            # Migrate the value if new param isn't already set
+            if not hasattr(args, new_param) or getattr(args, new_param) is None:
+                setattr(args, new_param, getattr(args, old_param))
+
+
+def _apply_cli_defaults(args: Namespace) -> None:
+    """
+    Apply standard CLI parameter defaults.
+
+    Internal utility function for CLI default values.
+
+    Parameters
+    ----------
+    args : Namespace
+        Parsed command line arguments to apply defaults to
+
+    Examples
+    --------
+    >>> _apply_cli_defaults(args)
+    # Sets default values for common CLI parameters
+    """
+    # Apply bathymetry directory default
+    if getattr(args, "bathy_dir", None) is None:
+        args.bathy_dir = Path("data")
+
+    # Apply output directory default
+    if getattr(args, "output_dir", None) is None:
+        args.output_dir = Path("data")
+
+
+def _validate_choice_param(
+    value: str, param_name: str, valid_choices: List[str]
+) -> str:
+    """
+    Validate parameter value against allowed choices.
+
+    Internal utility function for choice parameter validation.
+
+    Parameters
+    ----------
+    value : str
+        Parameter value to validate
+    param_name : str
+        Parameter name for error messages
+    valid_choices : List[str]
+        List of valid parameter values
+
+    Returns
+    -------
+    str
+        Validated parameter value
+
+    Raises
+    ------
+    ValueError
+        If value is not in valid choices
+
+    Examples
+    --------
+    >>> _validate_choice_param("gebco2025", "bathy_source", ["etopo2022", "gebco2025"])
+    'gebco2025'
+    """
+    if value not in valid_choices:
+        raise ValueError(
+            f"Invalid {param_name}: {value}. Valid options: {valid_choices}"
+        )
+    return value
+
+
+def _validate_positive_int(value: int, param_name: str) -> int:
+    """
+    Validate parameter is a positive integer.
+
+    Internal utility function for positive integer validation.
+
+    Parameters
+    ----------
+    value : int
+        Value to validate
+    param_name : str
+        Parameter name for error messages
+
+    Returns
+    -------
+    int
+        Validated integer value
+
+    Raises
+    ------
+    ValueError
+        If value is not a positive integer
+
+    Examples
+    --------
+    >>> _validate_positive_int(5, "stride")
+    5
+    """
+    if not isinstance(value, int) or value < 1:
+        raise ValueError(
+            f"{param_name} must be a positive integer, got: {value}"
+        )
+    return value

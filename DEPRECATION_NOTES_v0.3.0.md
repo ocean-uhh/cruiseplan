@@ -251,11 +251,15 @@ map_parser.add_argument(
 ### v0.3.0 Release Checklist
 - [x] Remove deprecated command tests: `test_cli_download.py`, `test_cli_pandoi.py`  
 - [x] Remove deprecated command modules: `download.py`, `pandoi.py`  
-- [ ] Remove deprecated subcommand parsers from `main.py`
-- [ ] Remove deprecated parameter support from commands
-- [ ] Update documentation to remove deprecated examples
-- [ ] Update CLI help text to remove deprecated options
-- [ ] Test that deprecated commands return "command not found" errors
+- [x] Remove deprecated subcommand parsers from `main.py`
+- [x] Remove deprecated parameter support from commands
+- [x] Fixed output naming conventions and filename conflicts  
+- [x] Fixed CLI-API parameter mismatches
+- [x] Fixed HTML schedule map embedding
+- [x] Updated documentation to remove deprecated examples and command references
+- [x] Removed deprecated command documentation files
+- [x] Verified deprecated commands return proper "command not found" errors
+- [ ] Update CLI help text to remove deprecated options (main help updated automatically)
 
 ## Migration Documentation
 
@@ -266,6 +270,105 @@ When removing deprecated commands, ensure migration documentation includes:
 3. **Script migration guides** for automated conversion of existing workflows  
 4. **Breaking changes changelog** with migration timeline
 5. **Version compatibility matrix** showing supported features per version
+
+## v0.3.0 Implementation Checklist
+
+### Code Removal Tasks
+- [x] Remove `cruiseplan/cli/download.py` module
+- [x] Remove `cruiseplan/cli/pandoi.py` module
+- [x] Remove `cruiseplan/cli/pangaea_legacy.py` module (if exists)
+- [x] Remove deprecated parsers from `cruiseplan/cli/main.py`:
+  - [x] Remove `download_parser` section
+  - [x] Remove `pandoi_parser` section
+  - [x] Remove dispatch cases for deprecated commands
+- [x] Remove deprecated parameter support from all commands:
+  - [x] Remove `--bathymetry-*` parameters (use `--bathy-*`)
+  - [x] Remove `--output-file` parameters (use `--output`)
+  - [x] Remove `--coord-format` parameter (fixed to DMM)
+- [x] Remove test files:
+  - [x] Remove `tests/unit/test_cli_download.py`
+  - [x] Remove `tests/unit/test_cli_pandoi.py`
+
+### Documentation Updates
+- [x] Update `docs/PROJECT_SPECS.md` to remove deprecated commands/parameters
+- [x] Update `CLAUDE-old.md` to remove deprecated commands
+- [x] Update `CLAUDE-testing.md` to remove deprecated commands  
+- [x] Update `docs/screenshots_needed.md` to remove download command
+- [x] Fixed HTML schedule map embedding (HTML generator now correctly links to PNG files)
+- [x] Updated CHANGELOG.md with all recent fixes and improvements
+- [x] Updated output naming conventions documentation
+- [x] Removed deprecated command documentation files (`cli/download.rst`, `cli/pandoi.rst`)
+- [x] Updated CLI reference to remove deprecated commands and examples
+- [x] Updated workflow examples to use v0.3.0 syntax with current parameter names
+- [ ] Update CLI reference for KML command move (schedule → map)
+- [ ] Update user workflows for breaking changes
+- [ ] Complete CRITICAL documentation updates from CLAUDE-docs-update.md
+- [ ] **Comprehensive documentation scan for v0.3.0 updates**:
+  - [ ] Check all files in `docs/source/api/` for deprecated parameter references
+  - [x] Check all files in `docs/source/cli/` for deprecated command references
+  - [x] Update any remaining references to removed commands (`cruiseplan download`, `cruiseplan pandoi`)
+  - [x] Update examples and code snippets to use current v0.3.0 syntax
+  - [ ] Update any remaining parameter references (`--output-file`, `--bathymetry-*`, `--coord-format`)
+  - [ ] Verify workflow diagrams or command flow documentation
+
+### YAML Configuration Changes
+- [ ] Clarify global field usage rules:
+  - [ ] Global fields are permitted and some are required (cruise_name, vessel, etc.)
+  - [ ] Global fields like `departure_port`, `arrival_port`, `first_waypoint`, `last_waypoint` are allowed for single-leg cruises
+  - [ ] Multi-leg cruises require these fields to be specified at the leg level for each leg
+  - [ ] Update validation to enforce this single-leg vs multi-leg distinction
+- [ ] Update examples to show both single-leg (global fields OK) and multi-leg (leg-level required) patterns
+
+### Testing & Validation
+- [x] Run full test suite after each removal
+- [x] Update integration tests to use new commands
+- [x] Verify error messages for removed commands
+- [x] Test migration examples work correctly (`test_all_fixtures.py` updated)
+- [x] Fixed output file naming consistency across all CLI commands
+- [x] Fixed parameter mismatch issues between CLI and API layers
+- [ ] **Achieve 80% test coverage across the board before v0.3.0 release**
+  - [ ] Combination of unit tests and integration tests to reach coverage target
+  - [ ] Focus on critical CLI functionality and API endpoints
+  - [ ] Document any uncovered code that is intentionally excluded
+
+### Demo and Documentation Enhancements
+- [ ] **Consider implementing demo.py CLI demonstration script**
+  - [ ] Pattern after demo.ipynb but adapted for command-line usage
+  - [ ] Showcase complete workflow: bathymetry → stations → enrich → validate → schedule
+  - [ ] Include realistic data examples and output generation
+  - [ ] Demonstrate both single-leg and multi-leg cruise scenarios
+  - [ ] **Location**: Root directory alongside demo.ipynb
+  - [ ] **Purpose**: Easy CLI workflow demonstration without Jupyter dependency
+
+### Refactoring Opportunities Identified
+- [x] Consolidate CLI parameter handling utilities (completed via `_resolve_cli_to_api_params`)
+- [x] Standardize output path logic across commands (completed via `_standardize_output_setup`) 
+- [x] Remove duplicate bathymetry parameter validation (consolidated in `input_validation.py`)
+- [x] Unify error message formatting (completed via `_format_cli_error`)
+- [x] Fixed cruise name extraction for consistent naming across commands
+- [ ] Standardize CLI flag ordering in help output across all commands
+
+### CLI Flag Ordering Standardization
+- [ ] Implement consistent flag ordering in `cruiseplan <subcommand> --help` output
+- [ ] Follow argparse conventions or establish consistent relative order
+- [ ] **Files to update for flag ordering**:
+  - [ ] `cruiseplan/cli/main.py` - All subcommand parsers (lines ~120-750)
+  - [ ] `cruiseplan/cli/enrich.py` - Standalone parser (lines ~290-312)
+  - [ ] `cruiseplan/cli/stations.py` - Standalone parser (lines ~250-280)
+  - [ ] `cruiseplan/cli/pangaea.py` - Argument processing (if any custom ordering)
+- [ ] **Suggested ordering convention**:
+  1. Required positional arguments
+  2. Required named arguments (-c, --config-file)
+  3. Primary options (-o, --output-dir, --output)
+  4. Feature flags (--expand-ports, --add-depths, etc.)
+  5. Behavioral options (--format, --algorithm, etc.)
+  6. Source/input options (--bathy-source, --bathy-dir, etc.)
+  7. Advanced/debugging options (--verbose, --quiet, --rate-limit)
+  8. Help option (--help) - handled automatically by argparse
+
+### Roadmap Updates
+- [ ] Update `roadmap.rst` to mark v0.3.0 items as completed
+- [ ] Add note about conftest.py output paths for future testing improvements
 
 ## Timeline
 

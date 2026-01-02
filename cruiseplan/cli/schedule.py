@@ -29,8 +29,18 @@ from cruiseplan.init_utils import (
     _convert_api_response_to_cli,
     _resolve_cli_to_api_params,
 )
-from cruiseplan.utils.input_validation import _validate_config_file
-from cruiseplan.utils.output_formatting import _format_timeline_summary
+from cruiseplan.utils.input_validation import (
+    _validate_config_file,
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+    _validate_format_options,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_timeline_summary,
+    _format_cli_error,
+    _format_output_summary,
+    _standardize_output_setup,
+)
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
@@ -63,6 +73,12 @@ def main(args: argparse.Namespace) -> None:
         If input validation fails or schedule generation encounters errors.
     """
     try:
+        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
+        _handle_deprecated_cli_params(args)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
         # Standardized CLI initialization
         config_file = _initialize_cli_command(args)
 
@@ -132,15 +148,17 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message(
-            "schedule",
+        error_msg = _format_cli_error(
+            "Schedule generation",
             e,
-            [
+            suggestions=[
                 "Check configuration file syntax",
                 "Verify bathymetry data availability",
                 "Ensure sufficient disk space",
+                "Run with --verbose for more details",
             ],
         )
+        logger.error(error_msg)
         sys.exit(1)
 
 

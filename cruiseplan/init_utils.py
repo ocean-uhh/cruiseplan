@@ -195,11 +195,12 @@ def generate_png_format(
     bathy_dir: str,
     bathy_stride: int,
     figsize: tuple,
+    suffix: str = "map",
 ) -> Optional[Path]:
     """Generate PNG map output."""
     from cruiseplan.output.map_generator import generate_map_from_timeline
 
-    output_path = output_dir_path / f"{base_name}_map.png"
+    output_path = output_dir_path / f"{base_name}_{suffix}.png"
     logger.info(f"🗺️ PNG Map Generator: Starting generation of {output_path}")
 
     map_file = generate_map_from_timeline(
@@ -322,6 +323,7 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
                 "bathy_stride": getattr(args, "bathy_stride", 5),
                 "figsize": getattr(args, "figsize", [12, 8]),
                 "show_plot": getattr(args, "show_plot", False),
+                "no_ports": getattr(args, "no_ports", False),
             }
         )
 

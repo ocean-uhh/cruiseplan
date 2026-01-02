@@ -28,6 +28,14 @@ from cruiseplan.init_utils import (
 )
 from cruiseplan.utils.input_validation import (
     _validate_config_file,
+    _handle_deprecated_cli_params,
+    _apply_cli_defaults,
+    _validate_format_options,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_output_summary,
+    _standardize_output_setup,
 )
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
@@ -56,25 +64,44 @@ def main(args: argparse.Namespace) -> int:
         Parsed command-line arguments containing config_file, output options, etc.
     """
     try:
+        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
+        _handle_deprecated_cli_params(args)
+        
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+        
         # Standardized CLI initialization
-        param_map = {
-            "bathymetry_source_legacy": "bathy_source",
-            "bathymetry_dir_legacy": "bathy_dir",
-            "bathymetry_stride_legacy": "bathy_stride",
-        }
-        config_file = _initialize_cli_command(args, param_map)
-        # Output directory validation handled by API layer
+        config_file = _initialize_cli_command(args)
 
+        # Validate format options using new utility
+        format_str = getattr(args, "format", "all")
+        valid_formats = ["png", "kml"]
+        
+        if format_str != "all":
+            format_list = _validate_format_options(format_str, valid_formats)
+        else:
+            format_list = valid_formats
+        
+        # Standardize output setup using new utilities
+        output_dir, base_name, format_paths = _standardize_output_setup(
+            args, suffix="_map", multi_formats=format_list
+        )
+        
         # Format progress header using new utility
         _format_progress_header(
             operation="Map Generation",
             config_file=config_file,
-            format=getattr(args, "format", "all"),
+            format=format_str,
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
         )
 
         # Convert CLI args to API parameters using bridge utility
         api_params = _resolve_cli_to_api_params(args, "map")
+        
+        # Override output paths with standardized paths
+        api_params["output_dir"] = output_dir
+        api_params["output"] = base_name
+        api_params["formats"] = format_list
 
         # Call API function instead of core directly
         logger.info("Generating maps and visualizations...")
@@ -89,8 +116,11 @@ def main(args: argparse.Namespace) -> int:
         )
 
         if cli_response.get("success", True) and generated_files:
-            # Format success message using new utility
-            _format_success_message("map generation", generated_files)
+            # Use new standardized output summary
+            success_summary = _format_output_summary(
+                generated_files, "Map generation"
+            )
+            logger.info(success_summary)
         else:
             errors = cli_response.get("errors", ["Map generation failed"])
             for error in errors:
@@ -98,21 +128,28 @@ def main(args: argparse.Namespace) -> int:
             return 1
 
     except FileNotFoundError:
-        _format_error_message(
-            "map",
+        error_msg = _format_cli_error(
+            "Map generation",
             FileNotFoundError(f"Configuration file not found: {args.config_file}"),
+            suggestions=[
+                "Check configuration file path",
+                "Verify file exists and is readable",
+            ]
         )
+        logger.error(error_msg)
         return 1
     except Exception as e:
-        _format_error_message(
-            "map",
+        error_msg = _format_cli_error(
+            "Map generation",
             e,
-            [
+            suggestions=[
                 "Check configuration file syntax",
                 "Verify bathymetry data availability",
                 "Check output directory permissions",
+                "Run with --verbose for more details",
             ],
         )
+        logger.error(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

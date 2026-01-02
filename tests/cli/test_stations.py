@@ -300,25 +300,23 @@ class TestLegacyParameterSupport:
     @patch("matplotlib.pyplot.show")
     @patch("cruiseplan.cli.stations.validate_output_path")
     @patch("cruiseplan.cli.cli_utils.logger")
-    def test_legacy_bathymetry_parameters_migration(
+    def test_no_warnings_when_no_deprecated_params_configured(
         self, mock_logger, mock_validate_output, mock_show, mock_picker_class
     ):
-        """Test that legacy --bathymetry-* parameters are migrated with warnings."""
+        """Test that no deprecation warnings are issued when no deprecated params are configured."""
         mock_validate_output.return_value = Path("/test/stations.yaml")
         mock_picker = MagicMock()
         mock_picker_class.return_value = mock_picker
 
-        # Test with legacy parameters
+        # Test with standard parameters - no legacy params
         args = Namespace(
             pangaea_file=None,
             lat=[50.0, 60.0],
             lon=[-20.0, -10.0],
             output_dir=Path("tests_output"),
             output_file=None,
-            bathy_source=None,  # Not set (new param)
-            bathy_dir=None,  # Not set (new param)
-            bathy_source_legacy="gebco2025",  # Legacy param set
-            bathy_dir_legacy=Path("legacy_data"),  # Legacy param set
+            bathy_source="etopo2022",  # New param set
+            bathy_dir=Path("data"),  # New param set
             high_resolution=False,
             overwrite=False,
             verbose=False,
@@ -327,19 +325,17 @@ class TestLegacyParameterSupport:
 
         main(args)
 
-        # Verify deprecation warnings were logged
-        mock_logger.warning.assert_any_call(
-            "⚠️  WARNING: '--bathy-source-legacy' is deprecated. Use '--bathy-source' instead."
-        )
-        mock_logger.warning.assert_any_call(
-            "⚠️  WARNING: '--bathy-dir-legacy' is deprecated. Use '--bathy-dir' instead."
-        )
+        # Verify no deprecation warnings were logged since no deprecated parameters are configured
+        # Check that warning method was not called with any deprecation messages
+        warning_calls = [call for call in mock_logger.warning.call_args_list 
+                        if call and len(call[0]) > 0 and "deprecated" in str(call[0][0]).lower()]
+        assert len(warning_calls) == 0, f"Unexpected deprecation warnings: {warning_calls}"
 
-        # Verify the picker was created with migrated values
+        # Verify the picker was created with standard values
         mock_picker_class.assert_called_once()
         call_kwargs = mock_picker_class.call_args[1]
-        assert call_kwargs["bathymetry_source"] == "gebco2025"
-        assert str(call_kwargs["bathymetry_dir"]) == "legacy_data"
+        assert call_kwargs["bathymetry_source"] == "etopo2022"
+        assert str(call_kwargs["bathymetry_dir"]) == "data"
 
 
 class TestModuleStructure:
