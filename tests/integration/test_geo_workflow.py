@@ -1,4 +1,5 @@
 import logging
+import os
 from pathlib import Path
 
 import pytest
@@ -12,6 +13,10 @@ logger = logging.getLogger(__name__)
 
 
 @pytest.mark.slow
+@pytest.mark.skipif(
+    "CI" in os.environ, 
+    reason="Skip external API tests in CI due to network unreliability"
+)
 def test_geo_search_and_map_generation(caplog):
     """
     End-to-End Test:
