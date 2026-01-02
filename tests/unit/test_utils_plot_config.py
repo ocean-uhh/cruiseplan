@@ -104,7 +104,7 @@ class TestStyleConfig:
         style = get_plot_style("station")
         assert style is not None
         assert isinstance(style, dict)
-        
+
         # Should have basic style properties
         expected_fields = ["color", "marker", "size", "alpha", "label"]
         for field in expected_fields:
@@ -193,12 +193,19 @@ class TestPlotConfigIntegration:
             style = get_plot_style("station")
             assert style is not None
             assert isinstance(style, dict)
-            
+
             # Test that style can be applied (has required matplotlib properties)
             if "marker" in style:
                 # Should be able to create a scatter plot
-                ax.scatter([0], [0], **{k: v for k, v in style.items() 
-                                       if k in ["marker", "color", "s", "alpha"]})
+                ax.scatter(
+                    [0],
+                    [0],
+                    **{
+                        k: v
+                        for k, v in style.items()
+                        if k in ["marker", "color", "s", "alpha"]
+                    },
+                )
         finally:
             plt.close(fig)
 
