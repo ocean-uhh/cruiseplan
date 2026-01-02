@@ -40,12 +40,22 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Debug Python version
+        run: |
+          python --version
+          python -c "import sys; print(f'Python {sys.version}')"
+          which python
 
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          # Try to avoid building ruamel.yaml.clibz from source
+          python -m pip install "ruamel.yaml>=0.17.0,<0.18.0" --prefer-binary --only-binary=ruamel.yaml.clibz || python -m pip install "ruamel.yaml>=0.17.0,<0.18.0" --no-binary=ruamel.yaml.clibz
+          if [ -f requirements.txt ]; then pip install -r requirements.txt --prefer-binary; fi
 
       - name: Install package
         run: |
