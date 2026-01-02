@@ -9,15 +9,15 @@ This document outlines all screenshots needed for comprehensive user workflow do
 - **Content**: Terminal showing successful installation with `pip install cruiseplan`
 - **Context**: Installation documentation section
 
-### 2. Download Command Output
+### 2. Bathymetry Command Output
 - **File**: `download_bathymetry.png`
-- **Content**: Terminal showing `cruiseplan download` command with progress bars
+- **Content**: Terminal showing `cruiseplan bathymetry` command with progress bars
 - **Context**: Prerequisites section, shows bathymetry download process
 
-### 3. Download File Structure
+### 3. Bathymetry File Structure
 - **File**: `data_directory_structure.png`
 - **Content**: File explorer showing `data/bathymetry/` with downloaded NetCDF files
-- **Context**: Verification that download worked correctly
+- **Context**: Verification that bathymetry download worked correctly
 
 ## Interactive Station Planning Screenshots
 

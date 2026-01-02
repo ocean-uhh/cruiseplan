@@ -291,3 +291,154 @@ class TestParameterMappingEdgeCases:
         # Should map deprecated parameter to correct API parameter
         assert "depth_check" in process_params
         assert process_params["depth_check"] is True
+
+
+class TestCLICommandParameterOverrides:
+    """Test that CLI commands correctly override parameters before calling API."""
+
+    def test_process_command_parameter_overrides(self):
+        """Test that process CLI correctly sets parameters without invalid overrides."""
+        from cruiseplan.cli.process import main as process_main
+
+        args = argparse.Namespace(
+            config_file=Path("tests/fixtures/tc1_single.yaml"),
+            output_dir=Path("tests_output"),
+            output="test_output",
+            add_depths=False,  # Disable to avoid dependencies
+            add_coords=False,
+            expand_sections=False,
+            expand_ports=False,
+            run_validation=False,
+            run_map_generation=False,
+            bathy_source="etopo2022",
+            bathy_dir=Path("data"),
+            verbose=False,
+            quiet=False,
+        )
+
+        # Mock the API call itself to catch parameter issues
+        with patch("cruiseplan.process") as mock_api:
+            mock_api.return_value = ([], [])
+
+            # This should not raise TypeError about unexpected keyword arguments
+            try:
+                process_main(args)
+            except TypeError as e:
+                if "unexpected keyword argument" in str(e):
+                    pytest.fail(f"CLI command passing invalid parameters to API: {e}")
+                raise
+            except Exception:
+                # Other exceptions are fine for this test
+                pass
+
+            # Verify the API was called (confirms parameter mapping worked)
+            mock_api.assert_called_once()
+
+    def test_map_command_parameter_overrides(self):
+        """Test that map CLI correctly sets parameters without invalid overrides."""
+        from cruiseplan.cli.map import main as map_main
+
+        args = argparse.Namespace(
+            config_file=Path("tests/fixtures/tc1_single.yaml"),
+            output_dir=Path("tests_output"),
+            output="test_map",
+            format="png",
+            bathy_source="etopo2022",
+            bathy_dir=Path("data"),
+            figure_size=[12.0, 8.0],
+            verbose=False,
+            quiet=False,
+        )
+
+        # Mock the API call itself to catch parameter issues
+        with patch("cruiseplan.map") as mock_api:
+            mock_api.return_value = []
+
+            # This should not raise TypeError about unexpected keyword arguments
+            try:
+                map_main(args)
+            except TypeError as e:
+                if "unexpected keyword argument" in str(e):
+                    pytest.fail(f"CLI command passing invalid parameters to API: {e}")
+                raise
+            except Exception:
+                # Other exceptions are fine for this test
+                pass
+
+            # Verify the API was called (confirms parameter mapping worked)
+            mock_api.assert_called_once()
+
+    def test_pangaea_command_parameter_overrides(self):
+        """Test that pangaea CLI correctly sets parameters without invalid overrides."""
+        from cruiseplan.cli.pangaea import main as pangaea_main
+
+        args = argparse.Namespace(
+            query_or_file="CTD temperature",
+            lat=[50.0, 60.0],
+            lon=[-10.0, 10.0],
+            output_dir=Path("tests_output"),
+            output="test_pangaea",
+            limit=10,
+            rate_limit=1.0,
+            merge_campaigns=True,
+            verbose=False,
+        )
+
+        # Mock the API call itself to catch parameter issues
+        with patch("cruiseplan.pangaea") as mock_api:
+            # Return valid data to avoid CLI exit with error
+            mock_api.return_value = ({"test_station": "data"}, [])
+
+            # This should not raise TypeError about unexpected keyword arguments
+            try:
+                pangaea_main(args)
+            except TypeError as e:
+                if "unexpected keyword argument" in str(e):
+                    pytest.fail(f"CLI command passing invalid parameters to API: {e}")
+                raise
+            except SystemExit:
+                # Normal exit is fine
+                pass
+            except Exception:
+                # Other exceptions are fine for this test
+                pass
+
+            # Verify the API was called (confirms parameter mapping worked)
+            mock_api.assert_called_once()
+
+    def test_regression_base_filename_vs_output_parameter(self):
+        """
+        Regression test for base_filename parameter issue.
+
+        This specifically tests that CLI commands pass 'output' parameter
+        to API functions, not 'base_filename'.
+
+        Background: CLI commands were incorrectly setting api_params["base_filename"]
+        when API functions expect the parameter to be named "output".
+        """
+        # Check that process API expects 'output' not 'base_filename'
+        process_sig = inspect.signature(cruiseplan.process)
+        assert (
+            "output" in process_sig.parameters
+        ), "process API should accept 'output' parameter"
+        assert (
+            "base_filename" not in process_sig.parameters
+        ), "process API should NOT accept 'base_filename'"
+
+        # Check that map API expects 'output' not 'base_filename'
+        map_sig = inspect.signature(cruiseplan.map)
+        assert (
+            "output" in map_sig.parameters
+        ), "map API should accept 'output' parameter"
+        assert (
+            "base_filename" not in map_sig.parameters
+        ), "map API should NOT accept 'base_filename'"
+
+        # Check that pangaea API expects 'output' not 'base_filename'
+        pangaea_sig = inspect.signature(cruiseplan.pangaea)
+        assert (
+            "output" in pangaea_sig.parameters
+        ), "pangaea API should accept 'output' parameter"
+        assert (
+            "base_filename" not in pangaea_sig.parameters
+        ), "pangaea API should NOT accept 'base_filename'"

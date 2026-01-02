@@ -403,54 +403,6 @@ class TestEnrichCommand:
             with pytest.raises(SystemExit):
                 main(args)
 
-    def test_deprecated_output_file_parameter(self):
-        """Test handling of deprecated --output-file parameter."""
-        args = argparse.Namespace(
-            config_file=Path("test.yaml"),
-            add_depths=True,
-            add_coords=False,
-            expand_sections=False,
-            expand_ports=False,
-            output_file=Path("custom_output.yaml"),  # Deprecated parameter
-            output_dir=None,
-            output=None,
-            verbose=False,
-            quiet=False,
-        )
-
-        with (
-            patch("cruiseplan.enrich") as mock_api,
-            patch(
-                "cruiseplan.cli.cli_utils._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
-            patch("cruiseplan.cli.enrich._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.enrich._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.enrich._format_progress_header"),
-            patch(
-                "cruiseplan.cli.enrich._collect_generated_files",
-                return_value=[Path("test_enriched.yaml")],
-            ),
-            patch("cruiseplan.cli.enrich._format_success_message"),
-            patch("cruiseplan.cli.cli_utils.logger") as mock_logger,
-        ):
-
-            # Mock successful API response
-            mock_api.return_value = (
-                {"stations_with_depths_added": 1},
-                [Path("custom_output.yaml")],
-            )
-
-            main(args)
-
-            # Verify deprecation warning was logged
-            mock_logger.warning.assert_called_with(
-                "⚠️  WARNING: '--output-file' is deprecated. Use '--output' for base filename and '--output-dir' for the path."
-            )
-
     def test_successful_enrichment_with_all_operations(self):
         """Test successful enrichment with all enhancement types."""
         args = argparse.Namespace(

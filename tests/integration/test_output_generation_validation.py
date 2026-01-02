@@ -38,9 +38,9 @@ class TestOutputGenerationValidation:
 
         project_root = Path(__file__).parent.parent.parent
         return [
-            str(project_root / "data" / "tc1_single_enriched.yaml"),
-            str(project_root / "data" / "tc2_two_legs_enriched.yaml"),
-            str(project_root / "data" / "tc3_clusters_enriched.yaml"),
+            str(project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"),
+            str(project_root / "data" / "fixtures" / "tc2_two_legs_enriched.yaml"),
+            str(project_root / "data" / "fixtures" / "tc3_clusters_enriched.yaml"),
         ]
 
     def test_latex_output_generation(self, sample_configs):
@@ -124,7 +124,9 @@ class TestOutputGenerationValidation:
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(project_root / "data" / "tc1_single_enriched.yaml")
+        config_path = str(
+            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
+        )
         if not Path(config_path).exists():
             pytest.skip(f"Test fixture {config_path} not found")
 
@@ -210,7 +212,9 @@ class TestSpecificOutputFormats:
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(project_root / "data" / "tc1_single_enriched.yaml")
+        config_path = str(
+            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
+        )
         if not Path(config_path).exists():
             pytest.skip(f"Test fixture {config_path} not found")
 
@@ -246,7 +250,9 @@ class TestSpecificOutputFormats:
         from pathlib import Path
 
         project_root = Path(__file__).parent.parent.parent
-        config_path = str(project_root / "data" / "tc1_single_enriched.yaml")
+        config_path = str(
+            project_root / "data" / "fixtures" / "tc1_single_enriched.yaml"
+        )
         if not Path(config_path).exists():
             pytest.skip(f"Test fixture {config_path} not found")
 

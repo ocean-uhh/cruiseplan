@@ -141,24 +141,6 @@ These options only apply when map generation is enabled:
 
    Bathymetry contour stride for maps (default: ``10``).
 
-**Legacy Parameters (Deprecated):**
-
-.. option:: --bathymetry-source
-
-   **[DEPRECATED]** Use ``--bathy-source`` instead.
-
-.. option:: --bathymetry-dir
-
-   **[DEPRECATED]** Use ``--bathy-dir`` instead.
-
-.. option:: --bathymetry-stride
-
-   **[DEPRECATED]** Use ``--bathy-stride`` instead.
-
-.. option:: --coord-format
-
-   **[DEPRECATED]** Coordinate format is now fixed to DMM.
-
 **General Options:**
 
 .. option:: --verbose, -v

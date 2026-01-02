@@ -631,6 +631,7 @@ def schedule(
                     bathy_dir,
                     bathy_stride,
                     tuple(figsize) if isinstance(figsize, list) else figsize,
+                    suffix="schedule",
                 )
                 if output_file:
                     generated_files.append(output_file)
@@ -826,6 +827,7 @@ def map(
     bathy_stride: int = 5,
     figsize: list = [12, 8],
     show_plot: bool = False,
+    no_ports: bool = False,
     verbose: bool = False,
 ) -> Optional[Path]:
     """
@@ -851,6 +853,8 @@ def map(
         Figure size for PNG maps [width, height] (default: [12, 8])
     show_plot : bool
         Display plot interactively (default: False)
+    no_ports : bool
+        Suppress plotting of departure and arrival ports (default: False)
     verbose : bool
         Enable verbose logging (default: False)
 

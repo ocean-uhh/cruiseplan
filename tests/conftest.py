@@ -46,14 +46,15 @@ def temp_output_dir(tmp_path):
     return output_dir
 
 
-# Patch default output directories to prevent accidental writes to data/
+# NOTE: Default output directory patching for tests
 @pytest.fixture(autouse=True)
-def patch_default_data_dir():
+def prevent_data_dir_writes():
     """
-    Automatically patch default data directory references in tests.
+    Reminder fixture that tests should use explicit output directories.
 
-    This prevents tests from accidentally writing to the main data/ directory
-    by redirecting to tests_output/ when "data" is used as output_dir.
+    This prevents tests from accidentally writing to the main data/ directory.
+    Tests should explicitly specify output directories or use temp_output_dir fixture.
     """
-    # This could be extended to patch specific functions if needed
+    # Most tests mock the API layer, so this is mainly a reminder
+    # For integration tests that need real file output, use temp_output_dir or explicit paths
     yield

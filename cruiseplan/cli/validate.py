@@ -28,8 +28,16 @@ from cruiseplan.init_utils import (
     _extract_api_errors,
     _resolve_cli_to_api_params,
 )
-from cruiseplan.utils.input_validation import _validate_config_file
-from cruiseplan.utils.output_formatting import _format_validation_results
+from cruiseplan.utils.input_validation import (
+    _apply_cli_defaults,
+    _handle_deprecated_cli_params,
+    _validate_config_file,
+)
+from cruiseplan.utils.output_formatting import (
+    _format_cli_error,
+    _format_configuration_error,
+    _format_validation_results,
+)
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
@@ -59,7 +67,14 @@ def main(args: argparse.Namespace) -> None:
     CLIError
         If input validation fails or configuration validation encounters errors.
     """
+    config_file = None  # Initialize to avoid UnboundLocalError in exception handlers
     try:
+        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
+        _handle_deprecated_cli_params(args)
+
+        # Apply standard CLI defaults
+        _apply_cli_defaults(args)
+
         # Standardized CLI initialization
         config_file = _initialize_cli_command(args)
 
@@ -113,7 +128,16 @@ def main(args: argparse.Namespace) -> None:
             sys.exit(1)
 
     except CLIError as e:
-        _format_error_message("validate", e)
+        error_msg = _format_cli_error(
+            "Configuration validation",
+            e,
+            suggestions=[
+                "Check configuration file path and syntax",
+                "Verify YAML format is valid",
+                "Ensure all required fields are present",
+            ],
+        )
+        logger.error(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -121,11 +145,22 @@ def main(args: argparse.Namespace) -> None:
         sys.exit(1)
 
     except Exception as e:
-        _format_error_message(
-            "validate",
-            e,
-            ["Check configuration file syntax", "Verify file permissions"],
-        )
+        # Check if it's a configuration parsing error
+        if "yaml" in str(e).lower() or "parse" in str(e).lower() and config_file:
+            error_msg = _format_configuration_error(
+                config_file, "configuration", [str(e)]
+            )
+        else:
+            error_msg = _format_cli_error(
+                "Configuration validation",
+                e,
+                suggestions=[
+                    "Check configuration file syntax",
+                    "Verify file permissions",
+                    "Run with --verbose for more details",
+                ],
+            )
+        logger.error(error_msg)
         sys.exit(1)
 
 

@@ -10,7 +10,7 @@ The `cruiseplan` CLI uses a "git-style" subcommand architecture.
 
 .. code-block:: bash
 
-    usage: cruiseplan [-h] [--version] {bathymetry,process,schedule,stations,enrich,validate,map,pangaea} ...
+    usage: cruiseplan [-h] [--version] {bathymetry,pangaea,stations,process,enrich,validate,map,schedule} ...
 
 **Options:**
 
@@ -40,24 +40,24 @@ The general workflow follows these steps in order:
 
 The command-line interface provides subcommands for different aspects of cruise planning.
 
-**Streamlined Processing:**
+**Streamlined Processing (Recommended):**
 
 .. code-block:: bash
 
-    # Phase 1: Data preparation
+    # Phase 1: Data preparation  
     $ cruiseplan bathymetry --bathy-source gebco2025
     $ cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -40 --limit 20 --output cruise1
 
-    # Phase 2: Cruise configuration
+    # Phase 2: Cruise configuration & processing
     $ cruiseplan stations --lat 50 65 --lon -60 -30 --output cruise1
-    $ cruiseplan process -c data/cruise1_enriched.yaml --output expedition_2024
+    $ cruiseplan process -c data/cruise1.yaml --output expedition_2024
 
     # Phase 3: Schedule generation
-    $ cruiseplan schedule -c data/expedition_2024_enriched.yaml --output results/expedition_schedule
+    $ cruiseplan schedule -c data/expedition_2024_enriched.yaml --output expedition_schedule --output-dir results/
 
-**Individual Step Processing:**
+**Individual Step Processing (Advanced):**
 
-The different steps of modifying the cruise configuration can also be accessed separately using the commands ``cruiseplan enrich``, ``cruiseplan validate``, and ``cruiseplan map``.  Of these, only ``cruiseplan enrich`` edits the configuration file; the other two commands generate reports and figures without modifying the input file.
+The different steps of modifying the cruise configuration can also be accessed separately using ``cruiseplan enrich``, ``cruiseplan validate``, and ``cruiseplan map``. Of these, only ``cruiseplan enrich`` modifies the configuration file; the others generate reports and figures.
 
 .. code-block:: bash
 
@@ -65,14 +65,14 @@ The different steps of modifying the cruise configuration can also be accessed s
     $ cruiseplan bathymetry --bathy-source gebco2025
     $ cruiseplan pangaea "CTD temperature" --lat 50 60 --lon -50 -40 --limit 20 --output cruise1
 
-    # Phase 2: Cruise configuration
+    # Phase 2: Step-by-step cruise configuration
     $ cruiseplan stations --lat 50 65 --lon -60 -30 --output cruise1
     $ cruiseplan enrich -c data/cruise1.yaml --output expedition_2024
     $ cruiseplan validate -c data/expedition_2024_enriched.yaml --check-depths
     $ cruiseplan map -c data/expedition_2024_enriched.yaml --output expedition_map --figsize 14 10
 
     # Phase 3: Schedule generation
-    $ cruiseplan schedule -c data/expedition_2024_enriched.yaml --output results/expedition_schedule
+    $ cruiseplan schedule -c data/expedition_2024_enriched.yaml --output expedition_schedule --output-dir results/
 
 .. figure:: _static/screenshots/cli_help_overview.png
    :alt: CruisePlan CLI help overview showing all available commands
@@ -80,73 +80,6 @@ The different steps of modifying the cruise configuration can also be accessed s
    :align: center
    
    Complete overview of CruisePlan CLI commands and their purposes
-
-----
-
-Deprecated Commands and Parameters
------------------------------------
-
-.. warning::
-   The following commands and parameters are deprecated and will be removed in v0.3.0. 
-   Please migrate to the new alternatives shown below.
-
-**Deprecated Commands:**
-
-.. list-table::
-   :header-rows: 1
-   :widths: 25 25 50
-
-   * - Deprecated
-     - Replacement
-     - Notes
-   * - ``cruiseplan download``
-     - ``cruiseplan bathymetry``
-     - Renamed for clarity. All functionality preserved.
-   * - ``cruiseplan pandoi``
-     - ``cruiseplan pangaea``
-     - Merged into unified PANGAEA command with dual-mode functionality.
-
-**Deprecated Parameters:**
-
-.. list-table::
-   :header-rows: 1
-   :widths: 30 30 40
-
-   * - Deprecated Parameter
-     - New Parameter  
-     - Affected Commands
-   * - ``--bathymetry-source``
-     - ``--bathy-source``
-     - ``bathymetry``, ``process`` (``enrich``, ``validate``, ``map``), ``schedule``
-   * - ``--bathymetry-dir``
-     - ``--bathy-dir``
-     - ``bathymetry``, ``process`` (``enrich``, ``validate``, ``map``)
-   * - ``--bathymetry-stride``
-     - ``--bathy-stride``
-     - ``process`` (``map``), ``schedule``
-   * - ``--coord-format``
-     - *Removed*
-     - Fixed to DDM format (degrees decimal minutes)
-   * - ``--output-file``
-     - ``--output`` + ``--output-dir``
-     - ``pangaea``, ``stations``, ``process`` (``enrich``, ``validate``, ``map``), ``schedule``
-
-**Migration Examples:**
-
-.. code-block:: bash
-
-   # OLD (deprecated)
-   cruiseplan download --source gebco2025
-   cruiseplan enrich --bathymetry-source etopo2022 --output-file results/enriched.yaml
-   cruiseplan map --bathymetry-stride 5 --output-file maps/cruise_map.png
-   
-   # NEW (recommended)
-   cruiseplan bathymetry --bathy-source gebco2025  
-   cruiseplan enrich --bathy-source etopo2022 --output enriched --output-dir results/
-   cruiseplan map --bathy-stride 5 --output cruise_map --output-dir maps/
-
-.. note::
-   Deprecated parameters still work but will show warnings. Update your scripts to use the new parameters to avoid future compatibility issues.
 
 ----
 
@@ -172,10 +105,3 @@ Subcommands
    cli/enrich
    cli/validate
    cli/map
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Deprecated Commands (Remove in v0.3.0)
-
-   cli/download
-   cli/pandoi

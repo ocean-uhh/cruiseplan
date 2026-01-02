@@ -42,16 +42,18 @@ class TestCoordinateBoundsValidation:
 
         assert result == expected
 
-    def test_validate_lat_lon_bounds_360_crossing_meridian(self):
-        """Test coordinate bounds validation crossing 0° meridian in 360 format."""
+    def test_validate_lat_lon_bounds_360_crossing_meridian_fails(self):
+        """Test coordinate bounds validation fails when crossing 0° meridian in 360 format."""
         lat_bounds = [50.0, 60.0]
         lon_bounds = [350.0, 10.0]
 
-        # This should be valid - crossing the 0° meridian
-        result = validate_lat_lon_bounds(lat_bounds, lon_bounds)
-        expected = (350.0, 50.0, 10.0, 60.0)
+        from cruiseplan.cli.cli_utils import CLIError
 
-        assert result == expected
+        # This should fail - meridian crossing not allowed in 0/360 format
+        with pytest.raises(
+            CLIError, match="For meridian crossing, use -180/180 format"
+        ):
+            validate_lat_lon_bounds(lat_bounds, lon_bounds)
 
     def test_validate_lat_lon_bounds_mixed_format_error(self):
         """Test validation fails with mixed longitude formats."""
@@ -60,7 +62,7 @@ class TestCoordinateBoundsValidation:
 
         from cruiseplan.cli.cli_utils import CLIError
 
-        with pytest.raises(CLIError, match="Longitude coordinates must be either"):
+        with pytest.raises(CLIError, match="Invalid lat/lon bounds"):
             validate_lat_lon_bounds(lat_bounds, lon_bounds)
 
     def test_validate_lat_lon_bounds_invalid_latitude_range(self):
@@ -70,7 +72,7 @@ class TestCoordinateBoundsValidation:
 
         from cruiseplan.cli.cli_utils import CLIError
 
-        with pytest.raises(CLIError, match="Latitude must be between -90 and 90"):
+        with pytest.raises(CLIError, match="Invalid lat/lon bounds"):
             validate_lat_lon_bounds(lat_bounds, lon_bounds)
 
     def test_validate_lat_lon_bounds_invalid_latitude_ordering(self):
@@ -80,7 +82,7 @@ class TestCoordinateBoundsValidation:
 
         from cruiseplan.cli.cli_utils import CLIError
 
-        with pytest.raises(CLIError, match="min_lat must be less than max_lat"):
+        with pytest.raises(CLIError, match="Invalid lat/lon bounds"):
             validate_lat_lon_bounds(lat_bounds, lon_bounds)
 
 
@@ -282,42 +284,6 @@ class TestPangaeaCommand:
 
             with pytest.raises(SystemExit):
                 main(args)
-
-    def test_deprecated_output_file_parameter(self):
-        """Test handling of deprecated --output-file parameter."""
-        args = argparse.Namespace(
-            query_or_file="CTD profiles",
-            lat=[50.0, 60.0],
-            lon=[-10.0, 0.0],
-            output_file=Path("custom_output.pkl"),  # Deprecated parameter
-            verbose=False,
-        )
-
-        with (
-            patch("cruiseplan.pangaea") as mock_api,
-            patch("cruiseplan.cli.pangaea._setup_cli_logging"),
-            patch(
-                "cruiseplan.cli.pangaea._detect_pangaea_mode",
-                return_value=("search", {}),
-            ),
-            patch("cruiseplan.cli.pangaea._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.pangaea._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.pangaea._format_progress_header"),
-            patch("cruiseplan.cli.pangaea._collect_generated_files", return_value=[]),
-            patch("cruiseplan.cli.pangaea._format_success_message"),
-            patch("cruiseplan.cli.pangaea.logger") as mock_logger,
-        ):
-
-            # Mock successful API response
-            mock_api.return_value = ([{"test": "data"}], [Path("custom_output.pkl")])
-
-            main(args)
-
-            # Verify deprecation warning was logged
-            mock_logger.warning.assert_called()
 
 
 class TestPangaeaCommandExecution:

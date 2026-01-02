@@ -32,14 +32,19 @@ class TestProcessIntegration:
             quiet=False,
         )
 
-        # Mock only the heavy API calls, let validation and CLI logic run
+        # Mock the API call and disable file size checking to avoid filesystem dependencies
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("pathlib.Path.exists", return_value=True),
+            patch(
+                "cruiseplan.utils.output_formatting._format_output_summary"
+            ) as mock_summary,
         ):
             mock_api.return_value = (
                 {"stations_with_depths_added": 3},
                 [Path("tests_output/tc1_single_enriched.yaml")],
+            )
+            mock_summary.return_value = (
+                "✅ Configuration processing completed successfully"
             )
 
             # This should run real validation logic
@@ -82,41 +87,20 @@ class TestProcessIntegration:
 
         with (
             patch("cruiseplan.process") as mock_api,
-            patch("pathlib.Path.exists", return_value=True),
+            patch(
+                "cruiseplan.utils.output_formatting._format_output_summary"
+            ) as mock_summary,
         ):
             mock_api.return_value = ({}, [Path("test_output.yaml")])
+            mock_summary.return_value = (
+                "✅ Configuration processing completed successfully"
+            )
 
             # This should run real parameter migration logic
             main(args)
 
             # Verify legacy parameters were processed
             mock_api.assert_called_once()
-
-    def test_process_command_deprecation_warnings(self):
-        """Test that deprecated parameters trigger appropriate warnings."""
-        args = argparse.Namespace(
-            config_file=Path("tests/fixtures/tc1_single.yaml"),
-            output_dir=Path("tests_output"),
-            output_file=Path("custom_output.yaml"),  # Deprecated parameter
-            add_depths=True,
-            add_coords=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        with (
-            patch("cruiseplan.process") as mock_api,
-            patch("pathlib.Path.exists", return_value=True),
-            patch("cruiseplan.cli.cli_utils.logger") as mock_logger,
-        ):
-            mock_api.return_value = ({}, [Path("custom_output.yaml")])
-
-            main(args)
-
-            # Should have logged deprecation warning
-            mock_logger.warning.assert_called()
-            warning_calls = [call[0][0] for call in mock_logger.warning.call_args_list]
-            assert any("deprecated" in warning.lower() for warning in warning_calls)
 
     def test_process_command_keyboard_interrupt(self):
         """Test process command handles keyboard interrupt gracefully."""

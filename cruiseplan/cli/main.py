@@ -9,7 +9,6 @@ planning, data processing, and output generation.
 import argparse
 import sys
 from pathlib import Path
-from typing import Any  # Added Any for generic type hinting
 
 try:
     from cruiseplan._version import __version__
@@ -19,18 +18,6 @@ except ImportError:
 
 # Define placeholder main functions for dynamic imports
 # (These will be overwritten when the modules are implemented)
-def download_main(args: Any):
-    """
-    Placeholder for download subcommand logic.
-
-    Parameters
-    ----------
-    args : Any
-        Parsed command-line arguments.
-    """
-    print("Download logic will be implemented in cruiseplan.cli.download")
-
-
 def schedule_main(args: argparse.Namespace):
     """
     Placeholder for schedule subcommand logic.
@@ -144,12 +131,30 @@ Examples:
   cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only
         """,
     )
+    # Primary operation flags
+    bathymetry_parser.add_argument(
+        "--citation",
+        action="store_true",
+        help="Show citation information for the bathymetry source without downloading",
+    )
+
+    # Output control
+    bathymetry_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data/bathymetry"),
+        help="Output directory for bathymetry files (default: data/bathymetry)",
+    )
+
+    # Bathymetry options
     bathymetry_parser.add_argument(
         "--bathy-source",
         choices=["etopo2022", "gebco2025"],
         default="etopo2022",
         help="Bathymetry dataset to download (default: etopo2022)",
     )
+
     # Legacy parameter support
     bathymetry_parser.add_argument(
         "--source",
@@ -163,63 +168,12 @@ Examples:
         choices=["etopo2022", "gebco2025"],
         help="[DEPRECATED] Use --bathy-source instead",
     )
-    bathymetry_parser.add_argument(
-        "--citation",
-        action="store_true",
-        help="Show citation information for the bathymetry source without downloading",
-    )
-    bathymetry_parser.add_argument(
-        "-o",
-        "--output-dir",
-        type=Path,
-        default=Path("data/bathymetry"),
-        help="Output directory for bathymetry files (default: data/bathymetry)",
-    )
-
-    # --- 1b. Download Subcommand (DEPRECATED - will be removed in v0.3.0) ---
-    download_parser = subparsers.add_parser(
-        "download",
-        help="[DEPRECATED] Use 'bathymetry' instead (will be removed in v0.3.0)",
-        description="[DEPRECATED] Download bathymetry datasets - use 'cruiseplan bathymetry' instead",
-        epilog="""
-⚠️  WARNING: This command is deprecated and will be removed in v0.3.0.
-Please use 'cruiseplan bathymetry' instead.
-
-This command downloads bathymetry datasets for depth calculations and bathymetric analysis.
-
-Available sources:
-  etopo2022: ETOPO 2022 bathymetry (60s resolution, ~500MB)
-  gebco2025: GEBCO 2025 bathymetry (15s resolution, ~7.5GB)
-
-Examples:
-  cruiseplan bathymetry                                    # Use this instead
-  cruiseplan bathymetry --source etopo2022                # Use this instead  
-  cruiseplan bathymetry --source gebco2025                # Use this instead
-        """,
-    )
-    download_parser.add_argument(
-        "--bathymetry-source",
-        choices=["etopo2022", "gebco2025"],
-        default="etopo2022",
-        help="Bathymetry dataset to download (default: etopo2022)",
-    )
-    download_parser.add_argument(
-        "--citation",
-        action="store_true",
-        help="Show citation information for the bathymetry source without downloading",
-    )
-    download_parser.add_argument(
-        "-o",
-        "--output-dir",
-        type=Path,
-        default=Path("data/bathymetry"),
-        help="Output directory for bathymetry files (default: data/bathymetry)",
-    )
 
     # --- 2. Schedule Subcommand ---
     schedule_parser = subparsers.add_parser(
         "schedule", help="Generate cruise schedule from YAML configuration"
     )
+    # Required arguments
     schedule_parser.add_argument(
         "-c",
         "--config-file",
@@ -227,6 +181,16 @@ Examples:
         type=Path,
         help="YAML cruise configuration file",
     )
+
+    # Primary operation flags
+    schedule_parser.add_argument("--leg", help="Process specific leg only")
+    schedule_parser.add_argument(
+        "--derive-netcdf",
+        action="store_true",
+        help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
+    )
+
+    # Output control
     schedule_parser.add_argument(
         "-o",
         "--output-dir",
@@ -245,14 +209,8 @@ Examples:
         default="all",
         help="Output formats (default: all)",
     )
-    schedule_parser.add_argument("--leg", help="Process specific leg only")
-    schedule_parser.add_argument(
-        "--derive-netcdf",
-        action="store_true",
-        help="Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) in addition to master schedule",
-    )
 
-    # Bathymetry options for PNG map generation
+    # Bathymetry options
     schedule_parser.add_argument(
         "--bathy-source",
         choices=["etopo2022", "gebco2025"],
@@ -271,6 +229,8 @@ Examples:
         default=10,
         help="Bathymetry contour stride for PNG maps (default: 10)",
     )
+
+    # Display options
     schedule_parser.add_argument(
         "--figsize",
         nargs=2,
@@ -284,6 +244,7 @@ Examples:
     stations_parser = subparsers.add_parser(
         "stations", help="Interactive station placement with PANGAEA background"
     )
+    # Primary operation flags
     stations_parser.add_argument(
         "-p", "--pangaea-file", type=Path, help="PANGAEA campaigns pickle file"
     )
@@ -304,15 +265,21 @@ Examples:
         help="Longitude bounds (default: -65 -5)",
     )
     stations_parser.add_argument(
+        "--overwrite",
+        action="store_true",
+        help="Overwrite existing output file without prompting",
+    )
+
+    # Output control
+    stations_parser.add_argument(
         "-o",
         "--output-dir",
         type=Path,
         default=Path("data"),
         help="Output directory (default: data)",
     )
-    stations_parser.add_argument(
-        "--output-file", type=Path, help="Specific output file path"
-    )
+
+    # Bathymetry options
     stations_parser.add_argument(
         "--bathy-source",
         choices=["etopo2022", "gebco2025"],
@@ -325,7 +292,15 @@ Examples:
         default=Path("data"),
         help="Directory containing bathymetry data (default: data)",
     )
-    # Legacy parameter support for consistency
+
+    # Display options
+    stations_parser.add_argument(
+        "--high-resolution",
+        action="store_true",
+        help="Use full resolution bathymetry (slower but more detailed)",
+    )
+
+    # Legacy parameter support
     stations_parser.add_argument(
         "--bathymetry-source",
         dest="bathy_source_legacy",
@@ -338,21 +313,12 @@ Examples:
         dest="bathy_dir_legacy",
         help="[DEPRECATED] Use --bathy-dir instead",
     )
-    stations_parser.add_argument(
-        "--high-resolution",
-        action="store_true",
-        help="Use full resolution bathymetry (slower but more detailed)",
-    )
-    stations_parser.add_argument(
-        "--overwrite",
-        action="store_true",
-        help="Overwrite existing output file without prompting",
-    )
 
     # --- 4. Enrich Subcommand ---
     enrich_parser = subparsers.add_parser(
         "enrich", help="Add missing data to configuration files"
     )
+    # Required arguments
     enrich_parser.add_argument(
         "-c",
         "--config-file",
@@ -360,6 +326,8 @@ Examples:
         type=Path,
         help="Input YAML configuration file",
     )
+
+    # Primary operation flags
     enrich_parser.add_argument(
         "--add-depths",
         action="store_true",
@@ -371,36 +339,6 @@ Examples:
         help="Add formatted coordinate fields (DMM; DMS not yet implemented)",
     )
     enrich_parser.add_argument(
-        "-o",
-        "--output-dir",
-        type=Path,
-        default=Path("data"),
-        help="Output directory (default: data)",
-    )
-    enrich_parser.add_argument(
-        "--output-file",
-        type=Path,
-        help="Specific output file path",
-    )
-    enrich_parser.add_argument(
-        "--bathymetry-source",
-        choices=["etopo2022", "gebco2025"],
-        default="etopo2022",
-        help="Bathymetry dataset (default: etopo2022)",
-    )
-    enrich_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        default=Path("data"),
-        help="Directory containing bathymetry data (default: data)",
-    )
-    enrich_parser.add_argument(
-        "--coord-format",
-        choices=["ddm", "dms"],
-        default="ddm",
-        help="Coordinate format (default: ddm)",
-    )
-    enrich_parser.add_argument(
         "--expand-sections",
         action="store_true",
         help="Expand CTD sections into individual station definitions",
@@ -408,14 +346,54 @@ Examples:
     enrich_parser.add_argument(
         "--expand-ports", action="store_true", help="Expand global port references"
     )
+
+    # Output control
+    enrich_parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory (default: data)",
+    )
+
+    # Bathymetry options
+    enrich_parser.add_argument(
+        "--bathy-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset (default: etopo2022)",
+    )
+    enrich_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+
+    # General options
     enrich_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
+    )
+
+    # Legacy parameter support
+    enrich_parser.add_argument(
+        "--bathymetry-source",
+        dest="bathymetry_source",
+        choices=["etopo2022", "gebco2025"],
+        help="[DEPRECATED] Use --bathy-source instead",
+    )
+    enrich_parser.add_argument(
+        "--bathymetry-dir",
+        type=Path,
+        dest="bathymetry_dir",
+        help="[DEPRECATED] Use --bathy-dir instead",
     )
 
     # --- 5. Validate Subcommand ---
     validate_parser = subparsers.add_parser(
         "validate", help="Validate configuration files (read-only)"
     )
+    # Required arguments
     validate_parser.add_argument(
         "-c",
         "--config-file",
@@ -423,11 +401,35 @@ Examples:
         type=Path,
         help="Input YAML configuration file",
     )
+
+    # Primary operation flags
     validate_parser.add_argument(
         "--check-depths",
         action="store_true",
         help="Compare existing depths with bathymetry data",
     )
+    validate_parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth difference tolerance in percent (default: 10.0)",
+    )
+
+    # Bathymetry options
+    validate_parser.add_argument(
+        "--bathy-source",
+        choices=["etopo2022", "gebco2025"],
+        default="etopo2022",
+        help="Bathymetry dataset (default: etopo2022)",
+    )
+    validate_parser.add_argument(
+        "--bathy-dir",
+        type=Path,
+        default=Path("data"),
+        help="Directory containing bathymetry data (default: data)",
+    )
+
+    # General options
     validate_parser.add_argument(
         "--strict",
         action="store_true",
@@ -438,68 +440,19 @@ Examples:
         action="store_true",
         help="Show warnings without failing",
     )
-    validate_parser.add_argument(
-        "--tolerance",
-        type=float,
-        default=10.0,
-        help="Depth difference tolerance in percent (default: 10.0)",
-    )
+
+    # Legacy parameter support
     validate_parser.add_argument(
         "--bathymetry-source",
+        dest="bathymetry_source",
         choices=["etopo2022", "gebco2025"],
-        default="etopo2022",
-        help="Bathymetry dataset (default: etopo2022)",
+        help="[DEPRECATED] Use --bathy-source instead",
     )
     validate_parser.add_argument(
         "--bathymetry-dir",
         type=Path,
-        default=Path("data"),
-        help="Directory containing bathymetry data (default: data)",
-    )
-
-    # --- 6. PANDOI Subcommand (DEPRECATED - will be removed in v0.3.0) ---
-    pandoi_parser = subparsers.add_parser(
-        "pandoi",
-        help="[DEPRECATED] Use 'pangaea' instead (will be removed in v0.3.0)",
-        description="[DEPRECATED] PANGAEA dataset search - use 'cruiseplan pangaea' instead",
-    )
-    pandoi_parser.add_argument(
-        "query", help="Search query string (e.g., 'CTD', 'temperature', 'Arctic Ocean')"
-    )
-    pandoi_parser.add_argument(
-        "--lat",
-        nargs=2,
-        type=float,
-        metavar=("MIN", "MAX"),
-        help="Latitude bounds (e.g., --lat 50 70)",
-    )
-    pandoi_parser.add_argument(
-        "--lon",
-        nargs=2,
-        type=float,
-        metavar=("MIN", "MAX"),
-        help="Longitude bounds (e.g., --lon -60 -30)",
-    )
-    pandoi_parser.add_argument(
-        "--limit",
-        type=int,
-        default=10,
-        help="Maximum number of results to return (default: 10)",
-    )
-    pandoi_parser.add_argument(
-        "-o",
-        "--output-dir",
-        type=Path,
-        default=Path("data"),
-        help="Output directory (default: data)",
-    )
-    pandoi_parser.add_argument(
-        "--output-file",
-        type=Path,
-        help="Specific output file path (overrides -o/--output-dir)",
-    )
-    pandoi_parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+        dest="bathymetry_dir",
+        help="[DEPRECATED] Use --bathy-dir instead",
     )
 
     # --- 7. Map Subcommand ---
@@ -519,6 +472,7 @@ Examples:
   cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename
         """,
     )
+    # Required arguments
     map_parser.add_argument(
         "-c",
         "--config-file",
@@ -526,6 +480,15 @@ Examples:
         type=Path,
         help="YAML cruise configuration file",
     )
+
+    # Primary operation flags
+    map_parser.add_argument(
+        "--no-ports",
+        action="store_true",
+        help="Suppress plotting of departure and arrival ports in both PNG and KML outputs",
+    )
+
+    # Output control
     map_parser.add_argument(
         "-o",
         "--output-dir",
@@ -539,16 +502,13 @@ Examples:
         help="Base filename for output maps (default: use config filename)",
     )
     map_parser.add_argument(
-        "--output-file",
-        type=Path,
-        help="[DEPRECATED] Specific output file path - use --output instead (overrides auto-generated name)",
-    )
-    map_parser.add_argument(
         "--format",
         choices=["png", "kml", "all"],
         default="all",
         help="Output format: png (map), kml (geographic data), or all (default: all)",
     )
+
+    # Bathymetry options
     map_parser.add_argument(
         "--bathy-source",
         choices=["etopo2022", "gebco2025"],
@@ -567,25 +527,8 @@ Examples:
         default=5,
         help="Bathymetry downsampling factor (default: 5, higher=faster/less detailed)",
     )
-    # Legacy parameter support with deprecation warnings
-    map_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathymetry_source_legacy",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    map_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        dest="bathymetry_dir_legacy",
-        help="[DEPRECATED] Use --bathy-dir instead",
-    )
-    map_parser.add_argument(
-        "--bathymetry-stride",
-        type=int,
-        dest="bathymetry_stride_legacy",
-        help="[DEPRECATED] Use --bathy-stride instead",
-    )
+
+    # Display options
     map_parser.add_argument(
         "--figsize",
         nargs=2,
@@ -599,6 +542,8 @@ Examples:
         action="store_true",
         help="Display plot interactively instead of saving to file",
     )
+
+    # General options
     map_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
@@ -628,6 +573,7 @@ Examples:
   cruiseplan process -c cruise.yaml --no-map --strict                 # Skip maps, strict validation
         """,
     )
+    # Required arguments
     process_parser.add_argument(
         "-c",
         "--config-file",
@@ -636,6 +582,7 @@ Examples:
         help="Input YAML configuration file",
     )
 
+    # Primary operation flags
     # Processing mode flags (mutually exclusive --only-* modes)
     process_parser.add_argument(
         "--only-enrich", action="store_true", help="Only run enrichment step"
@@ -691,28 +638,13 @@ Examples:
         help="Skip depth accuracy checking (default: depths checked)",
     )
     process_parser.add_argument(
-        "--strict", action="store_true", help="Enable strict validation mode"
-    )
-    process_parser.add_argument(
         "--tolerance",
         type=float,
         default=10.0,
         help="Depth difference tolerance in percent (default: 10.0)",
     )
 
-    # Map generation options
-    process_parser.add_argument(
-        "--format", default="all", help="Map output formats: png,kml,all (default: all)"
-    )
-    process_parser.add_argument(
-        "--figsize",
-        nargs=2,
-        type=float,
-        default=[12, 8],
-        help="Figure size for PNG maps (width height, default: 12 8)",
-    )
-
-    # Output and bathymetry options
+    # Output control
     process_parser.add_argument(
         "-o",
         "--output-dir",
@@ -723,6 +655,11 @@ Examples:
     process_parser.add_argument(
         "--output", type=str, help="Base filename for outputs (without extension)"
     )
+    process_parser.add_argument(
+        "--format", default="all", help="Map output formats: png,kml,all (default: all)"
+    )
+
+    # Bathymetry options
     process_parser.add_argument(
         "--bathy-source",
         default="etopo2022",
@@ -742,33 +679,19 @@ Examples:
         help="Bathymetry contour stride (default: 10)",
     )
 
-    # Legacy argument support with deprecation warnings
+    # Display options
     process_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathy_source_legacy",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    process_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        dest="bathy_dir_legacy",
-        help="[DEPRECATED] Use --bathy-dir instead",
-    )
-    process_parser.add_argument(
-        "--bathymetry-stride",
-        type=int,
-        dest="bathy_stride_legacy",
-        help="[DEPRECATED] Use --bathy-stride instead",
-    )
-    process_parser.add_argument(
-        "--coord-format",
-        dest="coord_format_legacy",
-        choices=["ddm", "dms"],
-        help="[DEPRECATED] Coordinate format fixed to DDM",
+        "--figsize",
+        nargs=2,
+        type=float,
+        default=[12, 8],
+        help="Figure size for PNG maps (width height, default: 12 8)",
     )
 
     # General options
+    process_parser.add_argument(
+        "--strict", action="store_true", help="Enable strict validation mode"
+    )
     process_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
@@ -838,11 +761,6 @@ Examples:
         help="Base filename for outputs (without extension or directory)",
     )
     pangaea_parser.add_argument(
-        "--output-file",
-        type=Path,
-        help="[DEPRECATED] Specific output file path - use --output instead (will be removed in v0.3.0)",
-    )
-    pangaea_parser.add_argument(
         "--rate-limit",
         type=float,
         default=1.0,
@@ -874,16 +792,6 @@ Examples:
             from cruiseplan.cli.bathymetry import main as bathymetry_main
 
             bathymetry_main(args)
-        elif args.subcommand == "download":
-            # Deprecated command - show warning and redirect to bathymetry
-            print(
-                "⚠️  WARNING: 'cruiseplan download' is deprecated and will be removed in v0.3.0."
-            )
-            print("   Please use 'cruiseplan bathymetry' instead.\n")
-
-            from cruiseplan.cli.bathymetry import main as bathymetry_main
-
-            bathymetry_main(args)
         elif args.subcommand == "schedule":
             from cruiseplan.cli.schedule import main as schedule_main
 
@@ -904,20 +812,6 @@ Examples:
             from cruiseplan.cli.process import main as process_main
 
             process_main(args)
-        elif args.subcommand == "pandoi":
-            # Deprecated command - show warning and redirect to unified pangaea
-            print(
-                "⚠️  WARNING: 'cruiseplan pandoi' is deprecated and will be removed in v0.3.0."
-            )
-            print("   Please use 'cruiseplan pangaea' instead.\n")
-
-            # Convert pandoi args to pangaea format for compatibility
-            # Map pandoi arguments to the new unified pangaea command structure
-            args.query_or_file = args.query
-
-            from cruiseplan.cli.pangaea import main as pangaea_main
-
-            pangaea_main(args)
         elif args.subcommand == "map":
             from cruiseplan.cli.map import main as map_main
 
