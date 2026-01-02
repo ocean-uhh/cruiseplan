@@ -22,6 +22,7 @@ from cruiseplan.cli.cli_utils import (
     CLIError,
     _collect_generated_files,
     _format_progress_header,
+    _format_success_message,
     _setup_cli_logging,
 )
 from cruiseplan.init_utils import (
@@ -40,6 +41,17 @@ from cruiseplan.utils.output_formatting import (
     _format_output_summary,
     _standardize_output_setup,
 )
+
+# Re-export functions for test mocking (cleaner than complex patch paths)
+__all__ = [
+    "main",
+    "_setup_cli_logging",
+    "_collect_generated_files",
+    "_format_progress_header",
+    "_format_success_message",
+    "validate_lat_lon_bounds",
+    "determine_workflow_mode",
+]
 
 logger = logging.getLogger(__name__)
 

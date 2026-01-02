@@ -100,33 +100,33 @@ class TestStyleConfig:
 
     def test_get_plot_style_basic(self):
         """Test that plot style returns expected structure."""
-        # Try with different style names
-        try:
-            style = get_plot_style()
-            assert style is not None
-        except TypeError:
-            # Function might require parameters
-            style = get_plot_style("default")
-            assert style is not None
+        # Test with a basic entity type
+        style = get_plot_style("station")
+        assert style is not None
+        assert isinstance(style, dict)
+        
+        # Should have basic style properties
+        expected_fields = ["color", "marker", "size", "alpha", "label"]
+        for field in expected_fields:
+            assert field in style, f"Style should contain {field}"
 
     def test_get_plot_style_with_different_options(self):
         """Test plot style with different configuration options."""
-        # Test different style configurations
-        test_styles = ["default", "publication", "interactive", None]
+        # Test different entity types and operation combinations
+        test_cases = [
+            ("station", None, None),
+            ("mooring", None, None),
+            ("transit", None, None),
+            ("station", "CTD", None),
+            ("transit", "underway", "ADCP"),
+        ]
 
-        for style_name in test_styles:
-            try:
-                if style_name is None:
-                    style = get_plot_style()
-                else:
-                    style = get_plot_style(style_name)
-
-                # Basic validation that we got something back
-                assert style is not None
-                break  # If one works, that's sufficient
-            except (TypeError, ValueError, KeyError):
-                # Try next style
-                continue
+        for entity_type, operation_type, action in test_cases:
+            style = get_plot_style(entity_type, operation_type, action)
+            assert style is not None
+            assert isinstance(style, dict)
+            # Each style should have at least some properties
+            assert len(style) > 0
 
 
 class TestColormapGetter:
@@ -188,20 +188,17 @@ class TestPlotConfigIntegration:
         # Try to get a style configuration
         fig, ax = plt.subplots(figsize=(4, 4))
 
+        # Test with a known entity type
         try:
-            style = get_plot_style()
-            # Basic validation that the style can be accessed
+            style = get_plot_style("station")
             assert style is not None
-        except TypeError:
-            try:
-                style = get_plot_style("default")
-                assert style is not None
-            except (TypeError, ValueError, KeyError):
-                # Style function might have different signature, skip test
-                pytest.skip("get_plot_style function signature not testable")
-        except (ValueError, KeyError):
-            # Style might not exist, that's okay for testing
-            pass
+            assert isinstance(style, dict)
+            
+            # Test that style can be applied (has required matplotlib properties)
+            if "marker" in style:
+                # Should be able to create a scatter plot
+                ax.scatter([0], [0], **{k: v for k, v in style.items() 
+                                       if k in ["marker", "color", "s", "alpha"]})
         finally:
             plt.close(fig)
 
