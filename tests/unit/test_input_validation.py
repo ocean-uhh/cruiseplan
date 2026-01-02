@@ -367,16 +367,20 @@ class TestCLIParameterValidation:
 
     def test_validate_bathymetry_params_custom(self):
         """Test bathymetry parameter validation with custom values."""
+        custom_path = Path("/custom/path")
         args = Namespace(
-            bathy_source="gebco2025", bathy_dir=Path("/custom/path"), bathy_stride=5
+            bathy_source="gebco2025", bathy_dir=custom_path, bathy_stride=5
         )
 
         result = _validate_bathymetry_params(args)
-        assert result == {
+        expected = {
             "bathy_source": "gebco2025",
-            "bathy_dir": "/custom/path",
+            "bathy_dir": str(
+                custom_path
+            ),  # Convert to string for cross-platform compatibility
             "bathy_stride": 5,
         }
+        assert result == expected
 
     def test_validate_bathymetry_params_invalid_source(self):
         """Test bathymetry parameter validation with invalid source."""
