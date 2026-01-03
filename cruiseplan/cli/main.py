@@ -155,20 +155,6 @@ Examples:
         help="Bathymetry dataset to download (default: etopo2022)",
     )
 
-    # Legacy parameter support
-    bathymetry_parser.add_argument(
-        "--source",
-        dest="source",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    bathymetry_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathymetry_source",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-
     # --- 2. Schedule Subcommand ---
     schedule_parser = subparsers.add_parser(
         "schedule", help="Generate cruise schedule from YAML configuration"
@@ -300,20 +286,6 @@ Examples:
         help="Use full resolution bathymetry (slower but more detailed)",
     )
 
-    # Legacy parameter support
-    stations_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathy_source_legacy",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    stations_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        dest="bathy_dir_legacy",
-        help="[DEPRECATED] Use --bathy-dir instead",
-    )
-
     # --- 4. Enrich Subcommand ---
     enrich_parser = subparsers.add_parser(
         "enrich", help="Add missing data to configuration files"
@@ -375,20 +347,6 @@ Examples:
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )
 
-    # Legacy parameter support
-    enrich_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathymetry_source",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    enrich_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        dest="bathymetry_dir",
-        help="[DEPRECATED] Use --bathy-dir instead",
-    )
-
     # --- 5. Validate Subcommand ---
     validate_parser = subparsers.add_parser(
         "validate", help="Validate configuration files (read-only)"
@@ -439,20 +397,6 @@ Examples:
         "--warnings-only",
         action="store_true",
         help="Show warnings without failing",
-    )
-
-    # Legacy parameter support
-    validate_parser.add_argument(
-        "--bathymetry-source",
-        dest="bathymetry_source",
-        choices=["etopo2022", "gebco2025"],
-        help="[DEPRECATED] Use --bathy-source instead",
-    )
-    validate_parser.add_argument(
-        "--bathymetry-dir",
-        type=Path,
-        dest="bathymetry_dir",
-        help="[DEPRECATED] Use --bathy-dir instead",
     )
 
     # --- 7. Map Subcommand ---

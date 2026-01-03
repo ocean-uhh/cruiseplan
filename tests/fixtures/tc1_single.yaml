@@ -1,5 +1,8 @@
 cruise_name: "TC1_Single_Test"
 default_vessel_speed: 10.0
+turnaround_time: 30.0
+ctd_descent_rate: 1.0
+ctd_ascent_rate: 1.0
 calculate_transfer_between_sections: true
 calculate_depth_via_bathymetry: true
 default_distance_between_stations: 15.0

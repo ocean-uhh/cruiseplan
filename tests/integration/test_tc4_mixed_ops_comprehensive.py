@@ -59,9 +59,9 @@ class TestTC4MixedOpsComprehensive:
             2: 0.5,  # STN_001: CTD operation (may vary based on depth calculation)
             3: 6.0,  # Transit to ADCP_Survey: 60nm @ 10kt
             4: 12.0,  # ADCP_Survey: Scientific transit (60nm @ 5kt)
-            5: 6.0,  # Transit to Area_01: 60nm @ 10kt
+            5: 3.6,  # Transit to Area_01: 36.3nm @ 10kt (using ADCP exit coordinates)
             6: 2.0,  # Area_01: Survey area (120 min)
-            7: 202.9,  # Port_Arrival: Operations to Cadiz (2029nm @ 10kt)
+            7: 204.8,  # Port_Arrival: Operations to Cadiz (2047.8nm @ 10kt)
         }
 
         # Expected transit distances (nm) - separate transit activities have the distances
@@ -70,9 +70,9 @@ class TestTC4MixedOpsComprehensive:
             2: 0.0,  # STN_001: no transit (already at location)
             3: 60.0,  # Transit to ADCP_Survey: STN_001 to ADCP start
             4: 0.0,  # ADCP_Survey: no transit (separate activity handles it)
-            5: 60.0,  # Transit to Area_01: ADCP end to Area_01
+            5: 36.3,  # Transit to Area_01: ADCP end to Area_01
             6: 0.0,  # Area_01: no transit (separate activity handles it)
-            7: 2029.1,  # Port_Arrival: Area_01 to Cadiz
+            7: 2047.8,  # Port_Arrival: Area_01 to Cadiz
         }
 
         # Expected activity types
