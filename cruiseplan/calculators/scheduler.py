@@ -1281,8 +1281,6 @@ def _process_leg_activities_with_clusters(
         if not details:
             details = _resolve_area_details(config, activity_name)
         # Note: _resolve_station_details already handles transits, so _resolve_transit_details is redundant
-        # if not details:
-        #     details = _resolve_transit_details(config, activity_name)
         if not details:
             details = _resolve_port_details(config, activity_name)
 
