@@ -1,0 +1,512 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Station Picker v0.4.1: YAML Loading and Round-Trip Editing &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev6</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6593a02c"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Station Picker v0.4.2: Text Input Capabilities" href="v0.4.2-text-input.html" />
+    <link rel="prev" title="Station Picker v0.4.0: Multi-Modal Input Architecture" href="v0.4.0-station-picker-architecture.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.2.2
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cruise_architecture.html">Cruise Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual_testing.html">Manual Testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Development Roadmap</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#current-development-status">Current Development Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-3-0-current-status">v0.3.0: Current Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-3-1-unified-operations-model">v0.3.1: Unified Operations Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#v0-4-x-station-picker-enhancements">v0.4.x: Station Picker Enhancements</a><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="v0.4.0-station-picker-architecture.html">Station Picker v0.4.0: Multi-Modal Input Architecture</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Station Picker v0.4.1: YAML Loading and Round-Trip Editing</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#phase-3-yaml-integration-challenges-and-solutions">Phase 3: YAML Integration Challenges and Solutions</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#division-of-responsibilities">Division of Responsibilities</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yamlcontext-the-bridge-layer">YAMLContext: The Bridge Layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#yaml-integration-workflow">YAML Integration Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#round-trip-editing-workflow">Round-Trip Editing Workflow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-with-v0-4-0-architecture">Integration with v0.4.0 Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benefits-of-this-approach">Benefits of This Approach</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#file-structure">File Structure</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.2-text-input.html">Station Picker v0.4.2: Text Input Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.3-batch-input.html">Station Picker v0.4.3: Batch Input and PlanCampanha Format Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-5-0-netcdf-and-yaml-enhancements">v0.5.0: NetCDF and YAML Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-6-0-route-optimization">v0.6.0: Route optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v1-0-0-stable-release">v1.0.0: Stable Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#implementation-notes">Implementation Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#risk-assessment">Risk Assessment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#contributing">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.2.2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Development Roadmap</a></li>
+      <li class="breadcrumb-item active">Station Picker v0.4.1: YAML Loading and Round-Trip Editing</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="station-picker-v0-4-1-yaml-loading-and-round-trip-editing">
+<h1>Station Picker v0.4.1: YAML Loading and Round-Trip Editing<a class="headerlink" href="#station-picker-v0-4-1-yaml-loading-and-round-trip-editing" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This roadmap document describes the YAML integration features planned for v0.4.1, building on the v0.4.0 architecture foundation.</p>
+</div>
+<section id="phase-3-yaml-integration-challenges-and-solutions">
+<h2>Phase 3: YAML Integration Challenges and Solutions<a class="headerlink" href="#phase-3-yaml-integration-challenges-and-solutions" title="Link to this heading"></a></h2>
+<section id="the-core-challenge">
+<h3>The Core Challenge<a class="headerlink" href="#the-core-challenge" title="Link to this heading"></a></h3>
+<p>YAML loading presents unique complexities that go beyond simple data import:</p>
+<ol class="arabic simple">
+<li><p><strong>Semantic Mismatch</strong>: A single YAML transit with <code class="docutils literal notranslate"><span class="pre">operation_type=&quot;CTD&quot;</span></code> and <code class="docutils literal notranslate"><span class="pre">action=&quot;section&quot;</span></code> can expand into many PointOperations</p></li>
+<li><p><strong>Order Preservation</strong>: YAML has specific ordering that must be maintained (name is before lat/lon, etc., and the order of stations/transits MIGHT matter if specified by user)</p></li>
+<li><p><strong>Name Preservation</strong>: YAML uses meaningful names vs auto-generated STN_XXX</p></li>
+<li><p><strong>Round-Trip Fidelity</strong>: Loading and saving should preserve structure</p></li>
+<li><p><strong>Mixed State</strong>: Some elements may be expanded (by <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code>) while others aren’t</p></li>
+</ol>
+</section>
+<section id="conceptual-approach">
+<h3>Conceptual Approach<a class="headerlink" href="#conceptual-approach" title="Link to this heading"></a></h3>
+<p>We need a <strong>dual-representation system</strong> that maintains both:</p>
+<ul class="simple">
+<li><p><strong>Logical representation</strong>: What the YAML defines (e.g., a CTD section)</p></li>
+<li><p><strong>Visual representation</strong>: What gets displayed (e.g., expanded stations or a line)</p></li>
+</ul>
+</section>
+</section>
+<section id="division-of-responsibilities">
+<h2>Division of Responsibilities<a class="headerlink" href="#division-of-responsibilities" title="Link to this heading"></a></h2>
+<section id="what-yaml-io-py-provides-already-exists">
+<h3>What <code class="docutils literal notranslate"><span class="pre">yaml_io.py</span></code> Provides (Already Exists)<a class="headerlink" href="#what-yaml-io-py-provides-already-exists" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>YAML Loading</strong>: <code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code> - Loads YAML with comment preservation using ruamel.yaml</p></li>
+<li><p><strong>YAML Saving</strong>: <code class="docutils literal notranslate"><span class="pre">save_yaml()</span></code> - Saves YAML with comments preserved and optional backup</p></li>
+<li><p><strong>Safe Loading</strong>: <code class="docutils literal notranslate"><span class="pre">load_yaml_safe()</span></code> - Returns plain dict without comments</p></li>
+<li><p><strong>Processor Configuration</strong>: Proper indentation, quote preservation, no unwanted wrapping</p></li>
+<li><p><strong>Backup Management</strong>: Incremental backup file creation - MAYBE this can be deleted</p></li>
+<li><p><strong>Error Handling</strong>: Proper exceptions for I/O errors</p></li>
+</ul>
+</section>
+<section id="what-we-need-to-add">
+<h3>What We Need to Add<a class="headerlink" href="#what-we-need-to-add" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Dual-Representation Tracking</strong>: Track both YAML elements and their visual representations</p></li>
+<li><p><strong>Expansion Status Tracking</strong>: Know which elements have been processed/expanded</p></li>
+<li><p><strong>Order Preservation</strong>: Maintain YAML ordering during editing</p></li>
+<li><p><strong>Round-Trip Logic</strong>: Convert between representations while preserving structure</p></li>
+</ul>
+</section>
+</section>
+<section id="yamlcontext-the-bridge-layer">
+<h2>YAMLContext: The Bridge Layer<a class="headerlink" href="#yamlcontext-the-bridge-layer" title="Link to this heading"></a></h2>
+<section id="core-concept">
+<h3>Core Concept<a class="headerlink" href="#core-concept" title="Link to this heading"></a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">YAMLContext</span></code> class manages the relationship between YAML structure and interactive operations:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YAMLContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Manages the bridge between YAML structure and interactive operations.</span>
+
+<span class="sd">    Handles the dual-representation system where YAML elements can be:</span>
+<span class="sd">    1. Unexpanded (show as lines/areas in UI)</span>
+<span class="sd">    2. Expanded (show as individual stations)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">file_path</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_data</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_sources</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Track origin of each visual element</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">expansion_status</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># Track what&#39;s been expanded</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load YAML using existing yaml_io functionality.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">backup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save YAML using existing yaml_io functionality.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_visual_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert YAML elements to visual operations for display.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_yaml_from_visuals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Update YAML structure based on visual element changes.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="element-source-tracking">
+<h3>Element Source Tracking<a class="headerlink" href="#element-source-tracking" title="Link to this heading"></a></h3>
+<p>Track the relationship between visual elements and their YAML origins:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ElementSource</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Track the origin of visual elements.&quot;&quot;&quot;</span>
+    <span class="n">YAML_ORIGINAL</span> <span class="o">=</span> <span class="s2">&quot;yaml_original&quot;</span>      <span class="c1"># Direct from YAML</span>
+    <span class="n">YAML_EXPANDED</span> <span class="o">=</span> <span class="s2">&quot;yaml_expanded&quot;</span>      <span class="c1"># Expanded from YAML element</span>
+    <span class="n">USER_ADDED</span> <span class="o">=</span> <span class="s2">&quot;user_added&quot;</span>            <span class="c1"># Added by user interaction</span>
+
+<span class="c1"># Example tracking:</span>
+<span class="n">element_sources</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;STN_001&quot;</span><span class="p">:</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_ORIGINAL</span><span class="p">,</span>
+    <span class="s2">&quot;CTD_LINE_001_point_1&quot;</span><span class="p">:</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_EXPANDED</span><span class="p">,</span>
+    <span class="s2">&quot;CTD_LINE_001_point_2&quot;</span><span class="p">:</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_EXPANDED</span><span class="p">,</span>
+    <span class="s2">&quot;NEW_STN_001&quot;</span><span class="p">:</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">USER_ADDED</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="yaml-integration-workflow">
+<h2>YAML Integration Workflow<a class="headerlink" href="#yaml-integration-workflow" title="Link to this heading"></a></h2>
+<section id="loading-existing-yaml">
+<h3>Loading Existing YAML<a class="headerlink" href="#loading-existing-yaml" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>Load YAML Structure</strong>: Use existing <code class="docutils literal notranslate"><span class="pre">yaml_io.load_yaml()</span></code></p></li>
+<li><p><strong>Identify Elements</strong>: Catalog all stations, transits, areas</p></li>
+<li><p><strong>Check Expansion Status</strong>: Determine if elements have been processed</p></li>
+<li><p><strong>Create Visual Representations</strong>:</p>
+<ul class="simple">
+<li><p>Unexpanded sections → LineOperation or AreaOperation</p></li>
+<li><p>Individual stations → PointOperation</p></li>
+<li><p>Mixed state → Combination of both</p></li>
+</ul>
+</li>
+<li><p><strong>Track Sources</strong>: Record which visual elements came from which YAML elements</p></li>
+</ol>
+<p>Example YAML States:</p>
+<p><strong>Unexpanded YAML (original)</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Leg_01&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT_START</span>
+<span class="w">        </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">44.6488</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-63.5752</span>
+<span class="w">        </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">port</span>
+<span class="w">        </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">departure</span>
+
+<span class="w">    </span><span class="nt">transits</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_LINE_001&quot;</span>
+<span class="w">        </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
+<span class="w">        </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;section&quot;</span>
+<span class="w">        </span><span class="nt">start_position</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">45.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-60.0</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">end_position</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">46.0</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">-58.0</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">spacing_km</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25</span>
+</pre></div>
+</div>
+<p><strong>Partially Expanded YAML (after processing)</strong>:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Leg_01&quot;</span>
+<span class="w">    </span><span class="nt">stations</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PORT_START</span>
+<span class="w">        </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">44.6488</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-63.5752</span>
+<span class="w">        </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">port</span>
+<span class="w">        </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">departure</span>
+
+<span class="w">      </span><span class="c1"># Expanded from CTD_LINE_001</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD_LINE_001_001</span>
+<span class="w">        </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-60.0</span>
+<span class="w">        </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">        </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD_LINE_001_002</span>
+<span class="w">        </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-59.0</span>
+<span class="w">        </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">        </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span>
+</pre></div>
+</div>
+</section>
+<section id="visual-representation-logic">
+<h3>Visual Representation Logic<a class="headerlink" href="#visual-representation-logic" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">create_visual_elements</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">yaml_data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Operation</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert YAML to visual operations.&quot;&quot;&quot;</span>
+    <span class="n">visual_elements</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">yaml_data</span><span class="p">[</span><span class="s1">&#39;cruise&#39;</span><span class="p">][</span><span class="s1">&#39;legs&#39;</span><span class="p">]:</span>
+        <span class="c1"># Process individual stations</span>
+        <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stations&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_expanded_station</span><span class="p">(</span><span class="n">station</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
+                <span class="c1"># This is an expanded station - show as point</span>
+                <span class="n">point_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_point_from_station</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">element_sources</span><span class="p">[</span><span class="n">point_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_EXPANDED</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Original station - show as point</span>
+                <span class="n">point_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_point_from_station</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">element_sources</span><span class="p">[</span><span class="n">point_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_ORIGINAL</span>
+            <span class="n">visual_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">point_op</span><span class="p">)</span>
+
+        <span class="c1"># Process transits/areas</span>
+        <span class="k">for</span> <span class="n">transit</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;transits&#39;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_been_expanded</span><span class="p">(</span><span class="n">transit</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]):</span>
+                <span class="c1"># Skip - stations already created above</span>
+                <span class="k">continue</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Show as line operation</span>
+                <span class="n">line_op</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_line_from_transit</span><span class="p">(</span><span class="n">transit</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">element_sources</span><span class="p">[</span><span class="n">line_op</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_ORIGINAL</span>
+                <span class="n">visual_elements</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line_op</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">visual_elements</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="round-trip-editing-workflow">
+<h2>Round-Trip Editing Workflow<a class="headerlink" href="#round-trip-editing-workflow" title="Link to this heading"></a></h2>
+<section id="user-makes-changes">
+<h3>User Makes Changes<a class="headerlink" href="#user-makes-changes" title="Link to this heading"></a></h3>
+<p>When a user modifies visual elements:</p>
+<ol class="arabic simple">
+<li><p><strong>Detect Change Type</strong>:</p>
+<ul class="simple">
+<li><p>Modified existing element → Update corresponding YAML</p></li>
+<li><p>Added new element → Insert into appropriate YAML section</p></li>
+<li><p>Removed element → Remove from YAML (with warnings if expanded)</p></li>
+</ul>
+</li>
+<li><p><strong>Preserve Structure</strong>:</p>
+<ul class="simple">
+<li><p>Keep comments and formatting</p></li>
+<li><p>Maintain element ordering</p></li>
+<li><p>Preserve unexpanded sections</p></li>
+</ul>
+</li>
+<li><p><strong>Update YAML</strong>:</p>
+<ul class="simple">
+<li><p>Use <code class="docutils literal notranslate"><span class="pre">yaml_io.save_yaml()</span></code> for atomic writes</p></li>
+<li><p>Create backup before changes</p></li>
+<li><p>Validate structure after updates</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="expansion-handling">
+<h3>Expansion Handling<a class="headerlink" href="#expansion-handling" title="Link to this heading"></a></h3>
+<p>Special handling for sections that can be expanded:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">handle_section_expansion</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">PointOperation</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle user request to expand a section into individual stations.&quot;&quot;&quot;</span>
+
+    <span class="c1"># Find the YAML transit/area</span>
+    <span class="n">yaml_element</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_yaml_element</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+
+    <span class="c1"># Use existing expansion logic (from cruiseplan process)</span>
+    <span class="n">expanded_stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_expand_to_stations</span><span class="p">(</span><span class="n">yaml_element</span><span class="p">)</span>
+
+    <span class="c1"># Remove original section from YAML</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_remove_yaml_element</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+
+    <span class="c1"># Add expanded stations to YAML</span>
+    <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">expanded_stations</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_add_station_to_yaml</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">element_sources</span><span class="p">[</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ElementSource</span><span class="o">.</span><span class="n">YAML_EXPANDED</span>
+
+    <span class="c1"># Update visual representation</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_remove_visual_element</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+    <span class="n">visual_stations</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_create_point_from_station</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">expanded_stations</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">visual_stations</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-v0-4-0-architecture">
+<h2>Integration with v0.4.0 Architecture<a class="headerlink" href="#integration-with-v0-4-0-architecture" title="Link to this heading"></a></h2>
+<section id="yamlinputhandler">
+<h3>YAMLInputHandler<a class="headerlink" href="#yamlinputhandler" title="Link to this heading"></a></h3>
+<p>The YAML functionality integrates with the v0.4.0 architecture through a specialized input handler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">YAMLInputHandler</span><span class="p">(</span><span class="n">InputHandler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle YAML loading and round-trip editing.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_manager</span><span class="p">:</span> <span class="n">InteractiveDataManager</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data_manager</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Load YAML file and populate data manager.&quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span> <span class="o">=</span> <span class="n">YAMLContext</span><span class="p">(</span><span class="n">file_path</span><span class="p">)</span>
+
+        <span class="c1"># Load and convert to visual elements</span>
+        <span class="n">visual_elements</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span><span class="o">.</span><span class="n">get_visual_elements</span><span class="p">()</span>
+
+        <span class="c1"># Clear current data and load new</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_manager</span><span class="o">.</span><span class="n">clear_all</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">element</span> <span class="ow">in</span> <span class="n">visual_elements</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">data_manager</span><span class="o">.</span><span class="n">add_operation</span><span class="p">(</span><span class="n">element</span><span class="p">)</span>
+
+        <span class="c1"># Set up auto-sync</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_manager</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="s2">&quot;operation_changed&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_change</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_on_change</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_data</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle changes to sync back to YAML.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span><span class="o">.</span><span class="n">update_yaml_from_visuals</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">yaml_context</span><span class="o">.</span><span class="n">save_yaml</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="benefits-of-this-approach">
+<h2>Benefits of This Approach<a class="headerlink" href="#benefits-of-this-approach" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Structure Preservation</strong></p>
+<ul class="simple">
+<li><p>Comments, ordering, and formatting maintained</p></li>
+<li><p>Unexpanded sections remain intact</p></li>
+<li><p>Mixed expanded/unexpanded state supported</p></li>
+</ul>
+</li>
+<li><p><strong>User Flexibility</strong></p>
+<ul class="simple">
+<li><p>Edit individual stations or whole sections</p></li>
+<li><p>Expand sections when detailed editing needed</p></li>
+<li><p>Add new elements alongside existing YAML structure</p></li>
+</ul>
+</li>
+<li><p><strong>Robustness</strong></p>
+<ul class="simple">
+<li><p>Automatic backups before changes</p></li>
+<li><p>Validation after updates</p></li>
+<li><p>Error recovery for malformed edits</p></li>
+</ul>
+</li>
+<li><p><strong>Integration</strong></p>
+<ul class="simple">
+<li><p>Uses existing <code class="docutils literal notranslate"><span class="pre">yaml_io.py</span></code> functionality</p></li>
+<li><p>Fits cleanly into v0.4.0 architecture</p></li>
+<li><p>No duplication of YAML handling logic</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="file-structure">
+<h2>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading"></a></h2>
+<p>New files needed:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cruiseplan/interactive/
+├── yaml_context.py          # YAMLContext class
+└── yaml_input_handler.py    # YAMLInputHandler class
+</pre></div>
+</div>
+<p>This approach provides powerful YAML round-trip editing capabilities while preserving the structure and integrity of existing cruise configuration files.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="v0.4.0-station-picker-architecture.html" class="btn btn-neutral float-left" title="Station Picker v0.4.0: Multi-Modal Input Architecture" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.4.2-text-input.html" class="btn btn-neutral float-right" title="Station Picker v0.4.2: Text Input Capabilities" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

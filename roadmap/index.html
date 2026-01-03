@@ -1,0 +1,467 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Development Roadmap &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev6</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6593a02c"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CruisePlan v0.3.1: Unified Operations Model" href="v0.3.1-unified-operations.html" />
+    <link rel="prev" title="Manual Testing and Verification" href="../manual_testing.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.2.2
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cruise_architecture.html">Cruise Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual_testing.html">Manual Testing</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#current-development-status">Current Development Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-3-0-current-status">v0.3.0: Current Status</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#deprecated-features-removal">Deprecated Features Removal ✅</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#station-coordinate-access">Station Coordinate Access ✅</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#area-operation-routing-fix">Area Operation Routing Fix ✅</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-3-1-unified-operations-model">v0.3.1: Unified Operations Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="v0.3.1-unified-operations.html">CruisePlan v0.3.1: Unified Operations Model</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-4-x-station-picker-enhancements">v0.4.x: Station Picker Enhancements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.0-station-picker-architecture.html">Station Picker v0.4.0: Multi-Modal Input Architecture</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.1-yaml-round-trip.html">Station Picker v0.4.1: YAML Loading and Round-Trip Editing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.2-text-input.html">Station Picker v0.4.2: Text Input Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.3-batch-input.html">Station Picker v0.4.3: Batch Input and PlanCampanha Format Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-5-0-netcdf-and-yaml-enhancements">v0.5.0: NetCDF and YAML Enhancements</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#netcdf-generator-refactoring">NetCDF Generator Refactoring 🟠</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#netcdf-to-yaml-roundtrip-validation">NetCDF to YAML Roundtrip Validation 🟡</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#complete-netcdf-reference">Complete netCDF Reference 🟡</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#v0-6-0-route-optimization">v0.6.0: Route optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#v1-0-0-stable-release">v1.0.0: Stable Release</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#scheduler-architecture-refactoring">Scheduler Architecture Refactoring 🟠</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#testing-infrastructure-improvements">Testing Infrastructure Improvements 🟡</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#implementation-notes">Implementation Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#cli-design-pattern">CLI Design Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-structure-evolution">File Structure Evolution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="#risk-assessment">Risk Assessment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="#contributing">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.2.2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Development Roadmap</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="development-roadmap">
+<h1>Development Roadmap<a class="headerlink" href="#development-roadmap" title="Link to this heading"></a></h1>
+<p>This document outlines the planned improvements and fixes for CruisePlan, organized by priority and implementation phases.</p>
+<nav class="contents local" id="table-of-contents">
+<p class="topic-title">Table of Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#current-development-status" id="id1">Current Development Status</a></p></li>
+<li><p><a class="reference internal" href="#v0-3-0-current-status" id="id2">v0.3.0: Current Status</a></p>
+<ul>
+<li><p><a class="reference internal" href="#deprecated-features-removal" id="id3">Deprecated Features Removal ✅</a></p></li>
+<li><p><a class="reference internal" href="#station-coordinate-access" id="id4">Station Coordinate Access ✅</a></p></li>
+<li><p><a class="reference internal" href="#area-operation-routing-fix" id="id5">Area Operation Routing Fix ✅</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#v0-3-1-unified-operations-model" id="id6">v0.3.1: Unified Operations Model</a></p></li>
+<li><p><a class="reference internal" href="#v0-4-x-station-picker-enhancements" id="id7">v0.4.x: Station Picker Enhancements</a></p></li>
+<li><p><a class="reference internal" href="#v0-5-0-netcdf-and-yaml-enhancements" id="id8">v0.5.0: NetCDF and YAML Enhancements</a></p>
+<ul>
+<li><p><a class="reference internal" href="#netcdf-generator-refactoring" id="id9">NetCDF Generator Refactoring 🟠</a></p></li>
+<li><p><a class="reference internal" href="#netcdf-to-yaml-roundtrip-validation" id="id10">NetCDF to YAML Roundtrip Validation 🟡</a></p></li>
+<li><p><a class="reference internal" href="#complete-netcdf-reference" id="id11">Complete netCDF Reference 🟡</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#v0-6-0-route-optimization" id="id12">v0.6.0: Route optimization</a></p></li>
+<li><p><a class="reference internal" href="#v1-0-0-stable-release" id="id13">v1.0.0: Stable Release</a></p>
+<ul>
+<li><p><a class="reference internal" href="#scheduler-architecture-refactoring" id="id14">Scheduler Architecture Refactoring 🟠</a></p></li>
+<li><p><a class="reference internal" href="#testing-infrastructure-improvements" id="id15">Testing Infrastructure Improvements 🟡</a></p></li>
+</ul>
+</li>
+</ul>
+</nav>
+<p><strong>Overview</strong></p>
+<p>CruisePlan is actively developed with a focus on data integrity, operational realism, and user experience. Our roadmap prioritizes critical fixes that affect scientific accuracy, followed by feature enhancements that improve workflow efficiency.</p>
+<p><strong>Release Strategy</strong>: CruisePlan is in active development with significant breaking changes planned. We use semantic versioning with 0.x releases to signal ongoing API evolution while maintaining clear migration paths.</p>
+<section id="current-development-status">
+<h2><a class="toc-backref" href="#id1" role="doc-backlink">Current Development Status</a><a class="headerlink" href="#current-development-status" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>v0.3.0</strong>: ✅ <strong>Released</strong> - Breaking changes, deprecated features removed</p></li>
+<li><p><strong>v0.3.1+</strong>: 🚧 <strong>Planning Phase</strong> - Unified operations model and enhanced station picker</p></li>
+</ul>
+</section>
+<section id="v0-3-0-current-status">
+<h2><a class="toc-backref" href="#id2" role="doc-backlink">v0.3.0: Current Status</a><a class="headerlink" href="#v0-3-0-current-status" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Target</strong>: Version 0.3.0 (Breaking Changes Release)</p></li>
+<li><p><strong>Status</strong>: ✅ <strong>Completed</strong></p></li>
+<li><p><strong>Focus</strong>: Data accuracy and routing consistency</p></li>
+</ul>
+<section id="deprecated-features-removal">
+<h3><a class="toc-backref" href="#id3" role="doc-backlink">Deprecated Features Removal ✅</a><a class="headerlink" href="#deprecated-features-removal" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Priority</strong>: Critical - Breaking Changes</p></li>
+<li><p><strong>Status</strong>: Completed in v0.3.0</p></li>
+</ul>
+<p><strong>CLI Commands Deprecated</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">download</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pandoi</span></code> → <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> (search mode)</p></li>
+</ul>
+<p><strong>Parameter Standardization</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">--output-file</span></code> → <code class="docutils literal notranslate"><span class="pre">--output</span></code> + <code class="docutils literal notranslate"><span class="pre">--output-dir</span></code> (across commands)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--bathymetry-*</span></code> → <code class="docutils literal notranslate"><span class="pre">--bathy-*</span></code> (shorter parameter names)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">--coord-format</span></code> removed (fixed to DMM format)</p></li>
+</ul>
+<p><strong>YAML Configuration</strong>:</p>
+<ul class="simple">
+<li><p>LegDefinition: <code class="docutils literal notranslate"><span class="pre">sequence</span></code>, <code class="docutils literal notranslate"><span class="pre">stations</span></code>, <code class="docutils literal notranslate"><span class="pre">sections</span></code> → <code class="docutils literal notranslate"><span class="pre">activities</span></code> (unified field)</p></li>
+</ul>
+</section>
+<section id="station-coordinate-access">
+<h3><a class="toc-backref" href="#id4" role="doc-backlink">Station Coordinate Access ✅</a><a class="headerlink" href="#station-coordinate-access" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Status</strong>: Completed in v0.2.3</p></li>
+<li><p><strong>Implementation</strong>: Direct <code class="docutils literal notranslate"><span class="pre">station.latitude</span></code> and <code class="docutils literal notranslate"><span class="pre">station.longitude</span></code> attributes</p></li>
+<li><p><strong>Previous Pattern</strong>: <code class="docutils literal notranslate"><span class="pre">station.position.latitude</span></code> (removed)</p></li>
+</ul>
+</section>
+<section id="area-operation-routing-fix">
+<h3><a class="toc-backref" href="#id5" role="doc-backlink">Area Operation Routing Fix ✅</a><a class="headerlink" href="#area-operation-routing-fix" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Status</strong>: Completed in v0.2.x</p></li>
+<li><p><strong>Solution</strong>: Proper <code class="docutils literal notranslate"><span class="pre">get_entry_point()</span></code> and <code class="docutils literal notranslate"><span class="pre">get_exit_point()</span></code> usage in scheduler</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="v0-3-1-unified-operations-model">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">v0.3.1: Unified Operations Model</a><a class="headerlink" href="#v0-3-1-unified-operations-model" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Target</strong>: Version 0.3.1</p></li>
+<li><p><strong>Status</strong>: 🚧 <strong>Planning Phase</strong></p></li>
+<li><p><strong>Focus</strong>: Unified operations architecture and enhanced capabilities</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Unified Operations &amp; Core Architecture</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="v0.3.1-unified-operations.html">CruisePlan v0.3.1: Unified Operations Model</a></li>
+</ul>
+</div>
+<p>This phase establishes a unified operations model where all point-based activities (stations, moorings, ports, waypoints) use consistent PointOperation infrastructure, eliminating special-case handling and enabling extensible operation types.</p>
+<p><strong>Key Features (All in v0.3.1)</strong>:</p>
+<ul class="simple">
+<li><p>Unified port and waypoint operations</p></li>
+<li><p>Extended operation types (WP2_NET, BONGO_NET, etc.)</p></li>
+<li><p>Extensible operation parameters system</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="v0-4-x-station-picker-enhancements">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">v0.4.x: Station Picker Enhancements</a><a class="headerlink" href="#v0-4-x-station-picker-enhancements" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Target</strong>: Future versions (post-v0.3.1)</p></li>
+<li><p><strong>Status</strong>: 🔮 <strong>Concept Phase</strong></p></li>
+<li><p><strong>Focus</strong>: Abstraction of station picking - separate graphical UI from data management</p></li>
+</ul>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Future Feature Concepts</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="v0.4.0-station-picker-architecture.html">Station Picker v0.4.0: Multi-Modal Input Architecture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v0.4.1-yaml-round-trip.html">Station Picker v0.4.1: YAML Loading and Round-Trip Editing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v0.4.2-text-input.html">Station Picker v0.4.2: Text Input Capabilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="v0.4.3-batch-input.html">Station Picker v0.4.3: Batch Input and PlanCampanha Format Support</a></li>
+</ul>
+</div>
+<p>These documents contain detailed design concepts that may inform future development directions. The actual implementation approach and versioning will be determined  after v0.3.1 is released.</p>
+</section>
+<section id="v0-5-0-netcdf-and-yaml-enhancements">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">v0.5.0: NetCDF and YAML Enhancements</a><a class="headerlink" href="#v0-5-0-netcdf-and-yaml-enhancements" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Target</strong>: Version 0.5.0 (Quality Release)</p></li>
+<li><p><strong>Focus</strong>: Return conversion from netCDF to YAML</p></li>
+</ul>
+<section id="netcdf-generator-refactoring">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">NetCDF Generator Refactoring 🟠</a><a class="headerlink" href="#netcdf-generator-refactoring" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Priority</strong>: Medium - Code Quality</p></li>
+<li><p><strong>Breaking Change</strong>: No (internal refactoring)</p></li>
+<li><dl class="simple">
+<dt><strong>Planned Improvements</strong>:</dt><dd><ul>
+<li><p>Centralized metadata system</p></li>
+<li><p>Standardized variable definitions</p></li>
+<li><p>Single source of truth for CF convention compliance</p></li>
+</ul>
+</dd>
+</dl>
+</li>
+</ul>
+</section>
+<section id="netcdf-to-yaml-roundtrip-validation">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">NetCDF to YAML Roundtrip Validation 🟡</a><a class="headerlink" href="#netcdf-to-yaml-roundtrip-validation" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Medium - Data Integrity</p>
+<p><strong>Implementation Plan</strong>:
+- Create <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">convert</span></code> command
+- Validate roundtrip fidelity: <code class="docutils literal notranslate"><span class="pre">YAML</span> <span class="pre">→</span> <span class="pre">NetCDF</span> <span class="pre">→</span> <span class="pre">YAML</span></code>
+- Ensure complete cruise information preservation</p>
+</section>
+<section id="complete-netcdf-reference">
+<h3><a class="toc-backref" href="#id11" role="doc-backlink">Complete netCDF Reference 🟡</a><a class="headerlink" href="#complete-netcdf-reference" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: High - User Experience</p>
+<p><strong>Planned Content</strong>:
+- Complete field reference tables for all definition types
+- Operation type and action combination matrix
+- Validation rules and constraints documentation</p>
+</section>
+</section>
+<section id="v0-6-0-route-optimization">
+<h2><a class="toc-backref" href="#id12" role="doc-backlink">v0.6.0: Route optimization</a><a class="headerlink" href="#v0-6-0-route-optimization" title="Link to this heading"></a></h2>
+<ul>
+<li><p><strong>Target</strong>: Version 0.6.0 (Feature Release)</p></li>
+<li><p><strong>Focus</strong>: Advanced routing algorithms and performance improvements</p></li>
+<li><p><strong>Priority</strong>: High - Feature Enhancement</p></li>
+<li><p><strong>Planned Features</strong>:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p>Implement TSP-based route optimization</p></li>
+<li><p>User-configurable optimization parameters</p></li>
+<li><p>Performance benchmarking and tuning</p></li>
+</ul>
+</div></blockquote>
+</li>
+</ul>
+</section>
+<section id="v1-0-0-stable-release">
+<h2><a class="toc-backref" href="#id13" role="doc-backlink">v1.0.0: Stable Release</a><a class="headerlink" href="#v1-0-0-stable-release" title="Link to this heading"></a></h2>
+<p><strong>Target</strong>: Version 1.0.0 (Stable Release)
+<strong>Focus</strong>: Architectural improvements and performance optimization</p>
+<section id="scheduler-architecture-refactoring">
+<h3><a class="toc-backref" href="#id14" role="doc-backlink">Scheduler Architecture Refactoring 🟠</a><a class="headerlink" href="#scheduler-architecture-refactoring" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Medium - Architecture &amp; Maintainability</p>
+<p><strong>Current Issues</strong>:
+- Early conversion to dictionaries loses abstraction
+- Manual coordinate extraction throughout scheduler
+- Duplicated logic between operations and scheduler</p>
+<p><strong>Proposed Solution</strong>:
+- Maintain operation objects throughout scheduling process
+- Use object methods consistently for calculations
+- Convert to dictionaries only at output stage</p>
+</section>
+<section id="testing-infrastructure-improvements">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Testing Infrastructure Improvements 🟡</a><a class="headerlink" href="#testing-infrastructure-improvements" title="Link to this heading"></a></h3>
+<p><strong>Priority</strong>: Low - Infrastructure Enhancement</p>
+<p><strong>Planned Improvements</strong>:
+- Centralized test output directory configuration
+- Standardized test isolation and cleanup
+- Easier CI/CD integration</p>
+</section>
+</section>
+</section>
+<section id="implementation-notes">
+<h1>Implementation Notes<a class="headerlink" href="#implementation-notes" title="Link to this heading"></a></h1>
+<section id="cli-design-pattern">
+<h2>CLI Design Pattern<a class="headerlink" href="#cli-design-pattern" title="Link to this heading"></a></h2>
+<p>All CLI commands follow a consistent pattern where CLI functions are thin wrappers around underlying API classes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># CLI wrapper pattern</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cli_command</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI wrapper for functionality.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.command_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommandAPI</span>
+    <span class="n">api</span> <span class="o">=</span> <span class="n">CommandAPI</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">api</span><span class="o">.</span><span class="n">run_command</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>This ensures:
+- Clean separation between CLI and business logic
+- Testable API classes independent of CLI
+- Consistent error handling and parameter validation
+- Easy integration with other interfaces (GUI, web, etc.)</p>
+</section>
+<section id="file-structure-evolution">
+<h2>File Structure Evolution<a class="headerlink" href="#file-structure-evolution" title="Link to this heading"></a></h2>
+<p>The roadmap introduces new modules following established patterns:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cruiseplan/
+├── core/                        # Core data models (existing)
+│   ├── operations.py             # PointOperation, LineOperation, etc.
+│   ├── validation.py             # Enhanced with unified operations
+│   └── operation_config.py       # NEW: Extensible operation registry
+├── interactive/                  # NEW: Interactive tools
+│   ├── station_picker_api.py     # Main API class
+│   ├── data_manager.py           # Data orchestration
+│   ├── input_handlers.py         # Input method abstraction
+│   ├── yaml_context.py           # YAML round-trip management
+│   ├── text_input_widgets.py     # Text coordinate entry
+│   ├── batch_parser.py           # Multi-format batch import
+│   └── plancampanha_converter.py # PlanCampanha format support
+├── outputs/                      # Enhanced output formats
+│   └── marine_facilities_planning.py  # NEW: MFP CSV export
+└── cli/                          # CLI wrappers (existing)
+    └── stations.py               # Enhanced as thin wrapper
+</pre></div>
+</div>
+</section>
+</section>
+<section id="risk-assessment">
+<h1>Risk Assessment<a class="headerlink" href="#risk-assessment" title="Link to this heading"></a></h1>
+<p><strong>High Risk Items</strong>:
+- <strong>Station picker architecture</strong>: Major refactoring - needs phased implementation</p>
+<p><strong>Medium Risk Items</strong>:
+- <strong>YAML round-trip editing</strong>: Complex state management - extensive testing required
+- <strong>Batch format conversion</strong>: Data integrity during conversion - validation critical</p>
+<p><strong>Low Risk Items</strong>:
+- <strong>Text input widgets</strong>: Self-contained UI components - minimal system impact
+- <strong>Output format additions</strong>: Additive features - no existing functionality affected</p>
+<p><strong>Mitigation Strategies</strong>:
+- Maintain backward compatibility throughout v0.3.x series
+- Implement comprehensive test coverage for all new features
+- Phased rollout with clear migration documentation
+- Community feedback integration during planning phases</p>
+</section>
+<section id="contributing">
+<h1>Contributing<a class="headerlink" href="#contributing" title="Link to this heading"></a></h1>
+<p>This roadmap reflects current development priorities and is updated based on user feedback and development progress.</p>
+<p><strong>Community Input</strong>: We welcome feedback on priorities and feature requests through:</p>
+<ul class="simple">
+<li><p><strong>GitHub Issues</strong>: <a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/issues">https://github.com/ocean-uhh/cruiseplan/issues</a></p></li>
+<li><p><strong>Discussions</strong>: Feature requests and technical discussions</p></li>
+</ul>
+<p><strong>Development Process</strong>: All major changes follow our contribution guidelines with code review, testing requirements, and documentation updates.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="../developer_guide.html"><span class="doc">CruisePlan Developer Guide</span></a> for technical implementation details</p></li>
+<li><p><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a> for development workflow</p></li>
+<li><p><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a> for latest development status</p></li>
+</ul>
+</div>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../manual_testing.html" class="btn btn-neutral float-left" title="Manual Testing and Verification" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.3.1-unified-operations.html" class="btn btn-neutral float-right" title="CruisePlan v0.3.1: Unified Operations Model" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

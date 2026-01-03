@@ -1,0 +1,374 @@
+==================================================================
+Station Picker v0.4.3: Batch Input and PlanCampanha Format Support
+==================================================================
+
+.. note::
+   This roadmap document describes the batch input and format conversion features planned for v0.4.3, building on the v0.3.1+ unified operations model.
+
+Overview
+========
+
+This version implements batch input capabilities based on converting from the PlanCampanha format (https://github.com/PedroVelez/PlanCampanha) to CruisePlan's unified operation model. Uses the v0.3.1 unified operations where ports and waypoints are regular stations with special operation_type and action values.
+
+v0.3.1 Unified Operations Model
+===============================
+
+As of v0.3.1, CruisePlan uses a unified operations model where all point-based activities (stations, moorings, ports, waypoints) are handled consistently through PointOperation infrastructure. See :doc:`v0.3.1-unified-operations` for full details.
+
+**Operation Types:**
+
+- **Stations**: ``operation_type='CTD'``, ``action='profile'``
+- **Moorings**: ``operation_type='mooring'``, ``action='deployment'/'recovery'`` 
+- **Ports**: ``operation_type='port'``, ``action='departure'/'arrival'``
+- **Waypoints**: ``operation_type='waypoint'``, ``action=None``
+
+This eliminates special-case handling and allows all point operations to use the same PointOperation infrastructure for duration calculation, validation, and timeline integration.
+
+PlanCampanha Format Specification
+==================================
+
+The PlanCampanha format uses semicolon-delimited CSV with operation type codes:
+
+.. code-block:: text
+
+   Name;Longitude;Latitude;OperationType
+   Santa Cruz;-16.23;28.48;10
+   24-Pies433;-18.4863;29.1667;1
+   24-Zoo;-18.4963;29.1667;11
+
+PlanCampanha Operation Type Codes
+---------------------------------
+
+From https://github.com/PedroVelez/PlanCampanha:
+
+.. code-block:: text
+
+   10  = Departure port
+   1   = CTD station (CTD cast)
+   11  = WP2 Zoo (WP2 net deployment)
+   12  = Bongo Ictio (Bongo net deployment)
+   13  = Avani (microplastics net)
+   14  = Box Core
+   15  = Gravity Core
+   16  = ROV station
+   2   = Waypoint
+   3   = Deploy lander
+   4   = Recovery lander
+   7   = Deploy mooring
+   8   = Recovery mooring
+   9   = Arrival port
+   <0  = Waiting time in days (negative values)
+
+Format Converter Implementation
+===============================
+
+PlanCampanha to CruisePlan Converter
+------------------------------------
+
+Maps PlanCampanha's detailed operation codes to CruisePlan's simpler operation model:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/plancampanha_converter.py
+
+   class PlanCampanhaConverter:
+       """
+       Converter for PlanCampanha format to CruisePlan operations.
+       
+       Maps PlanCampanha's detailed operation codes to CruisePlan's
+       simpler operation model.
+       """
+       
+       # Mapping from PlanCampanha codes to CruisePlan operations
+       OPERATION_MAP = {
+           # Ports
+           10: {'operation_type': 'port', 'action': 'departure', 'label': 'Departure'},
+           9: {'operation_type': 'port', 'action': 'arrival', 'label': 'Arrival'},
+           
+           # CTD and sampling operations - all map to CTD in CruisePlan
+           1: {'operation_type': 'CTD', 'action': 'profile', 'label': 'CTD'},
+           11: {'operation_type': 'CTD', 'action': 'profile', 'label': 'WP2_Zoo'},
+           12: {'operation_type': 'CTD', 'action': 'profile', 'label': 'Bongo'},
+           13: {'operation_type': 'CTD', 'action': 'profile', 'label': 'Avani'},
+           14: {'operation_type': 'CTD', 'action': 'profile', 'label': 'BoxCore'},
+           15: {'operation_type': 'CTD', 'action': 'profile', 'label': 'GravityCore'},
+           16: {'operation_type': 'CTD', 'action': 'profile', 'label': 'ROV'},
+           
+           # Waypoints
+           2: {'operation_type': 'waypoint', 'action': None, 'label': 'Waypoint'},
+           
+           # Lander operations - map to mooring in CruisePlan
+           3: {'operation_type': 'mooring', 'action': 'deployment', 'label': 'Deploy_Lander'},
+           4: {'operation_type': 'mooring', 'action': 'recovery', 'label': 'Recover_Lander'},
+           
+           # Mooring operations
+           7: {'operation_type': 'mooring', 'action': 'deployment', 'label': 'Deploy_Mooring'},
+           8: {'operation_type': 'mooring', 'action': 'recovery', 'label': 'Recover_Mooring'},
+       }
+       
+       def convert_file(self, text: str) -> List[Dict]:
+           """
+           Convert PlanCampanha format file to CruisePlan operations.
+           
+           Parameters
+           ----------
+           text : str
+               PlanCampanha format text (semicolon-delimited)
+               
+           Returns
+           -------
+           List[Dict]
+               List of converted operations for CruisePlan
+           """
+
+The converter handles special cases:
+
+**Negative Values (Waiting Time)**:
+
+.. code-block:: python
+
+   # Handle special case: negative values are waiting time in days
+   if op_code < 0:
+       waiting_days = abs(op_code)
+       return {
+           'name': clean_name,
+           'longitude': lon,
+           'latitude': lat,
+           'operation_type': 'waypoint',
+           'delay_start': waiting_days * 24.0,  # Convert days to hours
+           'original_code': op_code,
+           'comment': f"Waiting time: {waiting_days} days"
+       }
+
+**Waypoint Grouping**:
+
+Sequential waypoints are automatically grouped into transit operations for cleaner representation.
+
+Enhanced Batch Input Parser
+============================
+
+Multi-Format Support
+--------------------
+
+The batch parser supports multiple input formats with auto-detection:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/batch_parser.py
+
+   class BatchFormat(Enum):
+       """Supported batch input formats."""
+       PLANCAMPANHA = "plancampanha"     # PlanCampanha semicolon format
+       CSV_STANDARD = "csv_standard"      # Standard CSV with headers
+       TAB_DELIMITED = "tab_delimited"    # Tab-separated values
+       SPACE_DELIMITED = "space_delimited" # Space-separated values
+       AUTO_DETECT = "auto_detect"        # Try to detect format
+
+   class BatchInputParser:
+       """Parser for batch station input in various formats."""
+       
+       def parse(self, text: str, format_type: BatchFormat = BatchFormat.AUTO_DETECT) -> List[Dict]:
+           """Parse batch input text into station/operation data."""
+           
+       def _detect_format(self, text: str) -> BatchFormat:
+           """Auto-detect the format of the input text."""
+
+Format Detection Logic
+======================
+
+Auto-detection analyzes the input to determine the most likely format:
+
+.. code-block:: python
+
+   def _detect_format(self, text: str) -> BatchFormat:
+       """Auto-detect format based on content analysis."""
+       
+       # Check for PlanCampanha format (4 semicolon-delimited fields with numeric codes)
+       if ';' in first_line:
+           parts = first_line.split(';')
+           if len(parts) == 4:
+               try:
+                   # Check if last field is numeric operation code
+                   float(parts[3].strip())
+                   # Check if second and third fields are coordinates
+                   float(parts[1].strip())
+                   float(parts[2].strip())
+                   return BatchFormat.PLANCAMPANHA
+               except:
+                   pass
+       
+       # Check for tabs, commas, or default to space-delimited
+
+Batch Input Widget
+==================
+
+User Interface
+--------------
+
+The batch input widget provides a comprehensive interface for importing multiple stations:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/batch_input_widget.py
+
+   class BatchInputWidget:
+       """
+       Widget for batch input of stations/operations.
+       
+       Provides a text area for pasting multiple coordinates in various formats,
+       with special support for PlanCampanha format conversion.
+       """
+       
+       def __init__(self, ax: plt.Axes, data_manager):
+           self.ax = ax
+           self.data_manager = data_manager
+           self.parser = BatchInputParser()
+           self.pending_operations = []  # Operations awaiting confirmation
+           
+       def _create_ui(self):
+           """Create the UI elements for batch input."""
+           # Format selector (radio buttons)
+           # Large text area for input
+           # Example/Parse/Clear buttons
+           # Preview area with parsed operations
+           # Add All/Cancel buttons
+
+Key Features:
+
+**Format Selection**:
+- Auto-detect or manual format selection
+- Built-in examples for each format
+- Real-time format validation
+
+**Preview System**:
+- Parse and preview operations before adding
+- Show warnings for parsing issues
+- Display operation type mappings
+
+**Error Handling**:
+- Clear feedback on parsing errors
+- Line-by-line error reporting
+- Graceful handling of malformed input
+
+Integration with Data Manager
+=============================
+
+Unified Operation Handling
+--------------------------
+
+The batch input system creates operations using the unified model:
+
+.. code-block:: python
+
+   def _add_operations(self, event):
+       """Add parsed operations to data manager."""
+       
+       for op in self.pending_operations:
+           lat = op.get('latitude', 0)
+           lon = op.get('longitude', 0) 
+           name = op.get('name')
+           op_type = op.get('operation_type', 'CTD')
+           
+           # Handle special operation types using unified model
+           if op_type == 'port':
+               # Add as unified port operation
+               action = op.get('action')  # 'departure' or 'arrival'
+               self.data_manager.add_point_from_click(
+                   lat, lon, name,
+                   operation_type='port',
+                   action=action
+               )
+           elif op_type == 'waypoint':
+               # Add as unified waypoint operation
+               delay = op.get('delay_start', 0.0)
+               self.data_manager.add_point_from_click(
+                   lat, lon, name,
+                   operation_type='waypoint',
+                   delay_start=delay
+               )
+           else:
+               # Standard station/mooring
+               action = op.get('action')
+               self.data_manager.add_point_from_click(lat, lon, name, op_type, action=action)
+
+Format Conversion Strategy
+==========================
+
+Conversion Principles
+=====================
+
+- **Unification**: Map all operations to unified PointOperation model with operation_type and action
+- **Simplification**: Map detailed operations (WP2, Bongo, Avani, etc.) to CTD with labels
+- **Preservation**: Keep original type information in names for reference
+- **Transit Creation**: Automatically group waypoints into transit routes
+- **Port Unification**: Ports use operation_type='port' with action='departure'/'arrival'
+- **Waypoint Unification**: Waypoints use operation_type='waypoint' 
+- **Waiting Time**: Convert negative values to waypoint waiting periods
+
+Batch Input Features
+====================
+
+1. **Multiple Formats**: PlanCampanha, CSV, Tab/Space delimited
+2. **Auto-Detection**: Automatically detect format from content
+3. **Preview & Validation**: See parsed operations before adding
+4. **Warning System**: Clear feedback on parsing issues
+5. **Example Data**: Built-in PlanCampanha example
+
+Benefits
+========
+
+1. **Compatibility**: Direct import from PlanCampanha cruise plans
+2. **Unified Model**: All point operations (stations, moorings, ports, waypoints) use consistent PointOperation infrastructure
+3. **Simplicity**: Don't replicate complexity, just convert cleanly to unified model
+4. **Flexibility**: Support multiple input formats
+5. **Transparency**: Show original operation types in names
+6. **Efficiency**: Batch import entire cruise plans at once
+7. **Extensibility**: Unified approach enables all PointOperation features for ports and waypoints (duration calculation, positioning, validation)
+
+Integration with v0.4.0 Architecture
+====================================
+
+Batch Input Handler
+===================
+
+The batch input functionality integrates with the v0.4.0 architecture through a specialized input handler:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/batch_input_handler.py
+
+   class BatchInputHandler(InputHandler):
+       """Handle batch import of multiple stations/operations."""
+       
+       def __init__(self, data_manager: InteractiveDataManager, batch_ax: plt.Axes):
+           super().__init__(data_manager)
+           self.batch_ax = batch_ax
+           self.batch_widget = None
+           
+       def activate(self):
+           """Activate batch input mode."""
+           self.is_active = True
+           self.batch_widget = BatchInputWidget(self.batch_ax, self.data_manager)
+           self.batch_widget.create_ui()
+           
+       def deactivate(self):
+           """Deactivate batch input mode."""
+           self.is_active = False
+           if self.batch_widget:
+               self.batch_widget.clear()
+           self.batch_ax.clear()
+
+File Structure
+==============
+
+New files needed:
+
+::
+
+   cruiseplan/interactive/
+   ├── batch_input_handler.py       # BatchInputHandler class
+   ├── batch_input_widget.py        # BatchInputWidget class  
+   ├── batch_parser.py              # BatchInputParser class
+   └── plancampanha_converter.py    # PlanCampanhaConverter class
+
+This implementation provides a clean bridge between PlanCampanha's detailed operation model and CruisePlan's unified approach, leveraging the v0.3.1 operation_type/action system for consistent handling of all point-based activities.

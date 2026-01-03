@@ -1,0 +1,300 @@
+=======================================================
+Station Picker v0.4.0: Multi-Modal Input Architecture
+=======================================================
+
+.. note::
+   This roadmap document describes the planned station picker architecture for v0.4.0, building on the v0.3.1+ unified operations model.
+
+Overview
+========
+
+This document outlines the architectural enhancements for the station picker to support multiple input methods (click, text entry, YAML loading) while leveraging existing CruisePlan infrastructure. The key principle is to add an orchestration layer rather than duplicate existing functionality.
+
+Architecture Principles
+========================
+
+1. **Leverage Existing Infrastructure**: Use ``operations.py`` and ``validation.py`` unchanged
+2. **Separation of Concerns**: UI logic separate from business logic
+3. **Event-Driven Updates**: Changes propagate through listeners
+4. **Extensible Design**: New input methods as plugins
+5. **Backward Compatibility**: Existing functionality preserved
+
+Foundation - Orchestration Layer
+==================================
+
+Understanding the Layers
+-------------------------
+
+::
+
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    Interactive UI Layer                      │
+   │  (StationPicker: matplotlib interface, visual elements)      │
+   └─────────────────┬───────────────────────────┬────────────────┘
+                     │                           │
+                     ▼                           ▼
+   ┌─────────────────────────────┐  ┌────────────────────────────┐
+   │   Input Handlers             │  │   InteractiveDataManager   │
+   │  - ClickInputHandler         │──│  - Manages collections     │
+   │  - TextInputHandler          │  │  - Emits change events     │
+   │  - YAMLInputHandler          │  │  - Coordinates validation  │
+   │  - BatchInputHandler         │  │  - Delegates to operations │
+   └─────────────────────────────┘  └────────────┬───────────────┘
+                     │                           │
+                     │                           ▼
+                     │              ┌────────────────────────────┐
+                     │              │     Existing CruisePlan    │
+                     └──────────────│   - operations.py          │
+                                    │   - validation.py          │
+                                    │   - yaml_io.py             │
+                                    │   - coordinates.py         │
+                                    └────────────────────────────┘
+
+**Key Components:**
+
+1. **InteractiveDataManager**: Central coordinator for all data operations
+2. **Input Handlers**: Specialized classes for different input methods
+3. **Event System**: Loose coupling through event-driven architecture
+4. **Existing Infrastructure**: Unchanged core functionality
+
+InteractiveDataManager
+----------------------
+
+Central orchestrator that manages all interactive data operations.
+
+Key Responsibilities:
+
+- **Collection Management**: Maintain collections of PointOperation, LineOperation, AreaOperation
+- **Event Emission**: Notify UI and other components of data changes
+- **Validation Coordination**: Ensure all operations are valid
+- **YAML Synchronization**: Keep in-memory state synchronized with YAML files
+- **Operation Delegation**: Route operations to appropriate existing classes
+
+Core Interface:
+
+.. code-block:: python
+
+   class InteractiveDataManager:
+       """Central data manager for interactive station operations."""
+       
+       def __init__(self, config_file_path: Optional[str] = None):
+           self.point_operations: List[PointOperation] = []
+           self.line_operations: List[LineOperation] = []
+           self.area_operations: List[AreaOperation] = []
+           self.listeners: Dict[str, List[Callable]] = {}
+           self.config_file_path = config_file_path
+           
+       # Core operation methods
+       def add_point_from_click(self, lat: float, lon: float, name: str, **kwargs) -> PointOperation
+       def add_point_from_coords(self, coords: dict, name: str, **kwargs) -> PointOperation  
+       def add_line_from_points(self, points: List[Tuple], name: str, **kwargs) -> LineOperation
+       def add_area_from_bounds(self, bounds: dict, name: str, **kwargs) -> AreaOperation
+       
+       # Management methods
+       def remove_operation(self, operation_id: str) -> bool
+       def update_operation(self, operation_id: str, **kwargs) -> bool
+       def get_all_operations(self) -> Dict[str, List]
+       
+       # Event system
+       def add_listener(self, event_type: str, callback: Callable)
+       def emit_event(self, event_type: str, data: Any)
+       
+       # YAML synchronization
+       def load_from_yaml(self, file_path: str) -> bool
+       def save_to_yaml(self, file_path: str) -> bool
+       def sync_yaml(self) -> bool  # Update existing file
+
+Input Handler Architecture
+==========================
+
+Abstract Base Class
+-------------------
+
+All input methods implement a common interface:
+
+.. code-block:: python
+
+   class InputHandler(ABC):
+       """Abstract base class for all input handlers."""
+       
+       def __init__(self, data_manager: InteractiveDataManager):
+           self.data_manager = data_manager
+           self.is_active = False
+           
+       @abstractmethod
+       def activate(self) -> None:
+           """Activate this input method."""
+           
+       @abstractmethod  
+       def deactivate(self) -> None:
+           """Deactivate this input method."""
+           
+       @abstractmethod
+       def handle_input(self, event_data: Any) -> Optional[Operation]:
+           """Process input and return created operation if any."""
+
+Click Input Handler
+-------------------
+
+Handles traditional click-based station placement:
+
+.. code-block:: python
+
+   class ClickInputHandler(InputHandler):
+       """Handle click-based station placement."""
+       
+       def __init__(self, data_manager: InteractiveDataManager, map_widget):
+           super().__init__(data_manager)
+           self.map_widget = map_widget
+           self.click_mode = "station"  # station, line, area
+           
+       def activate(self):
+           self.is_active = True
+           self.map_widget.mpl_connect('button_press_event', self._on_click)
+           
+       def handle_input(self, event_data: dict) -> Optional[PointOperation]:
+           if self.click_mode == "station":
+               lat, lon = self._event_to_coordinates(event_data['event'])
+               name = self._generate_station_name()
+               return self.data_manager.add_point_from_click(lat, lon, name)
+
+Integration with Existing Operations
+====================================
+
+The key insight is that we don't modify ``operations.py`` - we use it as-is:
+
+Data Flow Example
+-----------------
+
+1. **User clicks on map** → ClickInputHandler receives event
+2. **Handler extracts coordinates** → ``(lat, lon)`` from matplotlib event  
+3. **Handler calls data manager** → ``data_manager.add_point_from_click(lat, lon, name)``
+4. **Data manager creates PointOperation** → Using existing ``operations.py`` classes
+5. **Data manager emits event** → ``"operation_added"`` with operation details
+6. **UI updates** → StationPicker receives event and updates visualization
+
+Benefits of This Architecture
+=============================
+
+1. **Extensibility**
+   
+   - New input methods just implement ``InputHandler``
+   - No changes needed to existing code
+   - Plugin-like architecture
+
+2. **Maintainability**
+   
+   - Clear separation of concerns
+   - Event-driven communication
+   - Existing operations logic untouched
+
+3. **Testability**
+   
+   - Each component can be tested independently
+   - Mock data manager for testing input handlers
+   - Mock handlers for testing data manager
+
+4. **Backward Compatibility**
+   
+   - Existing station picker functionality preserved
+   - Gradual migration possible
+   - No breaking changes
+
+Example Usage Flow
+==================
+
+Initialization:
+
+.. code-block:: python
+
+   # Create data manager
+   data_manager = InteractiveDataManager("config.yaml")
+   
+   # Create input handlers
+   click_handler = ClickInputHandler(data_manager, map_widget)
+   yaml_handler = YAMLInputHandler(data_manager)               # v0.4.1
+   text_handler = TextInputHandler(data_manager, text_widget)  # v0.4.2
+   
+   # Set up event listeners
+   data_manager.add_listener("operation_added", ui.refresh_station_list)
+   data_manager.add_listener("operation_removed", ui.refresh_station_list)
+   
+   # Start with click input
+   click_handler.activate()
+
+Switching Input Methods:
+
+.. code-block:: python
+
+   # Switch to text input mode
+   click_handler.deactivate()
+   text_handler.activate()
+
+File Structure
+==============
+
+Proposed new files:
+
+::
+
+   cruiseplan/interactive/
+   ├── __init__.py
+   ├── data_manager.py          # InteractiveDataManager
+   ├── input_handlers.py        # Base classes and ClickInputHandler
+   ├── station_picker_api.py    # Main API class (CLI wrapper target)
+   └── station_picker.py        # Existing file - UI components only
+
+Key Implementation Notes
+========================
+
+1. **No Duplication**: Use existing ``PointOperation``, ``LineOperation``, etc.
+2. **Event System**: Lightweight event system for component communication  
+3. **YAML Integration**: Use existing ``yaml_io.py`` functions
+4. **Coordinate Handling**: Use existing ``coordinates.py`` utilities
+5. **Validation**: Delegate to existing ``validation.py`` functions
+
+This architecture provides a solid foundation for the enhanced station picker capabilities while maintaining the integrity of CruisePlan's existing codebase.
+
+Station Picker Architecture (v0.4.0+ Planning)
+===============================================
+
+Based on the unified operations model, the station picker will need:
+
+Key Files to Create/Modify
+---------------------------
+
+::
+
+   cruiseplan/interactive/
+   ├── station_picker_api.py          (new) - Main API class
+   ├── data_manager.py                 (new) - Data management & YAML sync
+   ├── input_handlers.py               (new) - Abstract input handler base
+   ├── text_input.py                   (new) - Text coordinate input
+   ├── yaml_sync.py                    (new) - YAML round-trip editing
+   ├── batch_input.py                  (new) - Batch import (PlanCampanha, etc.)
+   └── station_picker.py               (refactor) - Interactive UI components
+
+   cruiseplan/utils/
+   ├── plancampanha_converter.py       (new) - PlanCampanha format converter
+   └── # ... existing utils
+
+   cruiseplan/cli/
+   └── stations.py                     (update) - CLI wrapper only
+
+Station Picker Features (v0.4.x)
+---------------------------------
+
+- **Unified Operations**: Add/edit stations, moorings, ports, waypoints consistently
+- **Extended Operations**: Support WP2_NET, BONGO_NET, etc. through operation registry
+- **Custom Operations**: Allow users to define custom operation types with parameters
+- **Batch Import**: PlanCampanha and other format conversion
+- **YAML Round-trip**: Edit existing files without losing structure/comments
+
+Implementation Tasks (v0.4.0)
+==============================
+
+- [ ] Create StationPickerAPI and supporting classes
+- [ ] Update CLI to be thin wrapper around API
+- [ ] Enable adding ports/waypoints/custom operations through UI
+- [ ] Implement PlanCampanha converter with unified model
+- [ ] Add batch input capabilities

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan: Oceanographic Planning Hub &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev5</title>
+  <title>CruisePlan: Oceanographic Planning Hub &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev6</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=526b2a46"></script>
+      <script src="_static/documentation_options.js?v=6593a02c"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -78,7 +78,11 @@
 <li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
 <li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_testing.html">Manual Testing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html">Development Roadmap</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#implementation-notes">Implementation Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#risk-assessment">Risk Assessment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#contributing">Contributing</a></li>
 </ul>
 
         </div>
@@ -276,14 +280,34 @@
 <li class="toctree-l2"><a class="reference internal" href="developer_guide.html#code-organization">Code Organization</a></li>
 </ul>
 </li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap.html">Development Roadmap</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="roadmap.html#phase-1-critical-data-integrity">Phase 1: Critical Data Integrity</a></li>
-<li class="toctree-l2"><a class="reference internal" href="roadmap.html#phase-3-netcdf-and-yaml-enhancements">Phase 3: NetCDF and YAML Enhancements</a></li>
-<li class="toctree-l2"><a class="reference internal" href="roadmap.html#phase-4-architecture-and-performance">Phase 4: Architecture and Performance</a></li>
-<li class="toctree-l2"><a class="reference internal" href="roadmap.html#risk-assessment">Risk Assessment</a></li>
-<li class="toctree-l2"><a class="reference internal" href="roadmap.html#contributing">Contributing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_testing.html">Manual Testing</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#overview">Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#test-architecture">Test Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#test-case-definitions">Test Case Definitions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#running-manual-tests">Running Manual Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="manual_testing.html#extending-the-test-suite">Extending the Test Suite</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html">Development Roadmap</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#current-development-status">Current Development Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v0-3-0-current-status">v0.3.0: Current Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v0-3-1-unified-operations-model">v0.3.1: Unified Operations Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v0-4-x-station-picker-enhancements">v0.4.x: Station Picker Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v0-5-0-netcdf-and-yaml-enhancements">v0.5.0: NetCDF and YAML Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v0-6-0-route-optimization">v0.6.0: Route optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#v1-0-0-stable-release">v1.0.0: Stable Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#implementation-notes">Implementation Notes</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#cli-design-pattern">CLI Design Pattern</a></li>
+<li class="toctree-l2"><a class="reference internal" href="roadmap/index.html#file-structure-evolution">File Structure Evolution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#risk-assessment">Risk Assessment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#contributing">Contributing</a></li>
 </ul>
 </div>
 <section id="indices-and-tables">

@@ -1,0 +1,466 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Station Picker v0.4.0: Multi-Modal Input Architecture &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev6</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=6593a02c"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Station Picker v0.4.1: YAML Loading and Round-Trip Editing" href="v0.4.1-yaml-round-trip.html" />
+    <link rel="prev" title="CruisePlan v0.3.1: Unified Operations Model" href="v0.3.1-unified-operations.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.2.2
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../installation.html">Installation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../usage.html">Usage Overview</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html">Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#workflow-paths">Workflow Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#advanced-topics">Advanced Topics</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user_workflows.html#troubleshooting">Troubleshooting</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../cruise_architecture.html">Cruise Specifications</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../cli_reference.html">CLI Command Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../yaml_reference.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../operation_types.html">Operation Types Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../calculations.html">Calculation Methods</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../units_and_defaults.html">Units and defaults</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../global_ports.html">Port list</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output_formats.html">Output formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../project_structure.html">Project Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../developer_guide.html">Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../manual_testing.html">Manual Testing</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Development Roadmap</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="index.html#current-development-status">Current Development Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-3-0-current-status">v0.3.0: Current Status</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-3-1-unified-operations-model">v0.3.1: Unified Operations Model</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html#v0-4-x-station-picker-enhancements">v0.4.x: Station Picker Enhancements</a><ul class="current">
+<li class="toctree-l3 current"><a class="current reference internal" href="#">Station Picker v0.4.0: Multi-Modal Input Architecture</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#overview">Overview</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#architecture-principles">Architecture Principles</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#foundation-orchestration-layer">Foundation - Orchestration Layer</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#input-handler-architecture">Input Handler Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#integration-with-existing-operations">Integration with Existing Operations</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#benefits-of-this-architecture">Benefits of This Architecture</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#example-usage-flow">Example Usage Flow</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#file-structure">File Structure</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#key-implementation-notes">Key Implementation Notes</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#station-picker-architecture-v0-4-0-planning">Station Picker Architecture (v0.4.0+ Planning)</a></li>
+<li class="toctree-l4"><a class="reference internal" href="#implementation-tasks-v0-4-0">Implementation Tasks (v0.4.0)</a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.1-yaml-round-trip.html">Station Picker v0.4.1: YAML Loading and Round-Trip Editing</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.2-text-input.html">Station Picker v0.4.2: Text Input Capabilities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="v0.4.3-batch-input.html">Station Picker v0.4.3: Batch Input and PlanCampanha Format Support</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-5-0-netcdf-and-yaml-enhancements">v0.5.0: NetCDF and YAML Enhancements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v0-6-0-route-optimization">v0.6.0: Route optimization</a></li>
+<li class="toctree-l2"><a class="reference internal" href="index.html#v1-0-0-stable-release">v1.0.0: Stable Release</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#implementation-notes">Implementation Notes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#risk-assessment">Risk Assessment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="index.html#contributing">Contributing</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.2.2</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="index.html">Development Roadmap</a></li>
+      <li class="breadcrumb-item active">Station Picker v0.4.0: Multi-Modal Input Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="station-picker-v0-4-0-multi-modal-input-architecture">
+<h1>Station Picker v0.4.0: Multi-Modal Input Architecture<a class="headerlink" href="#station-picker-v0-4-0-multi-modal-input-architecture" title="Link to this heading"></a></h1>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This roadmap document describes the planned station picker architecture for v0.4.0, building on the v0.3.1+ unified operations model.</p>
+</div>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<p>This document outlines the architectural enhancements for the station picker to support multiple input methods (click, text entry, YAML loading) while leveraging existing CruisePlan infrastructure. The key principle is to add an orchestration layer rather than duplicate existing functionality.</p>
+</section>
+<section id="architecture-principles">
+<h2>Architecture Principles<a class="headerlink" href="#architecture-principles" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Leverage Existing Infrastructure</strong>: Use <code class="docutils literal notranslate"><span class="pre">operations.py</span></code> and <code class="docutils literal notranslate"><span class="pre">validation.py</span></code> unchanged</p></li>
+<li><p><strong>Separation of Concerns</strong>: UI logic separate from business logic</p></li>
+<li><p><strong>Event-Driven Updates</strong>: Changes propagate through listeners</p></li>
+<li><p><strong>Extensible Design</strong>: New input methods as plugins</p></li>
+<li><p><strong>Backward Compatibility</strong>: Existing functionality preserved</p></li>
+</ol>
+</section>
+<section id="foundation-orchestration-layer">
+<h2>Foundation - Orchestration Layer<a class="headerlink" href="#foundation-orchestration-layer" title="Link to this heading"></a></h2>
+<section id="understanding-the-layers">
+<h3>Understanding the Layers<a class="headerlink" href="#understanding-the-layers" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>┌─────────────────────────────────────────────────────────────┐
+│                    Interactive UI Layer                      │
+│  (StationPicker: matplotlib interface, visual elements)      │
+└─────────────────┬───────────────────────────┬────────────────┘
+                  │                           │
+                  ▼                           ▼
+┌─────────────────────────────┐  ┌────────────────────────────┐
+│   Input Handlers             │  │   InteractiveDataManager   │
+│  - ClickInputHandler         │──│  - Manages collections     │
+│  - TextInputHandler          │  │  - Emits change events     │
+│  - YAMLInputHandler          │  │  - Coordinates validation  │
+│  - BatchInputHandler         │  │  - Delegates to operations │
+└─────────────────────────────┘  └────────────┬───────────────┘
+                  │                           │
+                  │                           ▼
+                  │              ┌────────────────────────────┐
+                  │              │     Existing CruisePlan    │
+                  └──────────────│   - operations.py          │
+                                 │   - validation.py          │
+                                 │   - yaml_io.py             │
+                                 │   - coordinates.py         │
+                                 └────────────────────────────┘
+</pre></div>
+</div>
+<p><strong>Key Components:</strong></p>
+<ol class="arabic simple">
+<li><p><strong>InteractiveDataManager</strong>: Central coordinator for all data operations</p></li>
+<li><p><strong>Input Handlers</strong>: Specialized classes for different input methods</p></li>
+<li><p><strong>Event System</strong>: Loose coupling through event-driven architecture</p></li>
+<li><p><strong>Existing Infrastructure</strong>: Unchanged core functionality</p></li>
+</ol>
+</section>
+<section id="interactivedatamanager">
+<h3>InteractiveDataManager<a class="headerlink" href="#interactivedatamanager" title="Link to this heading"></a></h3>
+<p>Central orchestrator that manages all interactive data operations.</p>
+<p>Key Responsibilities:</p>
+<ul class="simple">
+<li><p><strong>Collection Management</strong>: Maintain collections of PointOperation, LineOperation, AreaOperation</p></li>
+<li><p><strong>Event Emission</strong>: Notify UI and other components of data changes</p></li>
+<li><p><strong>Validation Coordination</strong>: Ensure all operations are valid</p></li>
+<li><p><strong>YAML Synchronization</strong>: Keep in-memory state synchronized with YAML files</p></li>
+<li><p><strong>Operation Delegation</strong>: Route operations to appropriate existing classes</p></li>
+</ul>
+<p>Core Interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InteractiveDataManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Central data manager for interactive station operations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config_file_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">point_operations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">PointOperation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">line_operations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">LineOperation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_operations</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">AreaOperation</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">listeners</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="n">Callable</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">config_file_path</span> <span class="o">=</span> <span class="n">config_file_path</span>
+
+    <span class="c1"># Core operation methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_point_from_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointOperation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_point_from_coords</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">coords</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointOperation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_line_from_points</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">points</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">],</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineOperation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_area_from_bounds</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">bounds</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AreaOperation</span>
+
+    <span class="c1"># Management methods</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">remove_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">update_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">operation_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_all_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">]</span>
+
+    <span class="c1"># Event system</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_listener</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">callback</span><span class="p">:</span> <span class="n">Callable</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">emit_event</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span>
+
+    <span class="c1"># YAML synchronization</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">load_from_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sync_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span>  <span class="c1"># Update existing file</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="input-handler-architecture">
+<h2>Input Handler Architecture<a class="headerlink" href="#input-handler-architecture" title="Link to this heading"></a></h2>
+<section id="abstract-base-class">
+<h3>Abstract Base Class<a class="headerlink" href="#abstract-base-class" title="Link to this heading"></a></h3>
+<p>All input methods implement a common interface:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">InputHandler</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for all input handlers.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_manager</span><span class="p">:</span> <span class="n">InteractiveDataManager</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">data_manager</span> <span class="o">=</span> <span class="n">data_manager</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">False</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Activate this input method.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">deactivate</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Deactivate this input method.&quot;&quot;&quot;</span>
+
+    <span class="nd">@abstractmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Operation</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Process input and return created operation if any.&quot;&quot;&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="click-input-handler">
+<h3>Click Input Handler<a class="headerlink" href="#click-input-handler" title="Link to this heading"></a></h3>
+<p>Handles traditional click-based station placement:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">ClickInputHandler</span><span class="p">(</span><span class="n">InputHandler</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Handle click-based station placement.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data_manager</span><span class="p">:</span> <span class="n">InteractiveDataManager</span><span class="p">,</span> <span class="n">map_widget</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">data_manager</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_widget</span> <span class="o">=</span> <span class="n">map_widget</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">click_mode</span> <span class="o">=</span> <span class="s2">&quot;station&quot;</span>  <span class="c1"># station, line, area</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">activate</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">is_active</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">map_widget</span><span class="o">.</span><span class="n">mpl_connect</span><span class="p">(</span><span class="s1">&#39;button_press_event&#39;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_on_click</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">handle_input</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">PointOperation</span><span class="p">]:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">click_mode</span> <span class="o">==</span> <span class="s2">&quot;station&quot;</span><span class="p">:</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_event_to_coordinates</span><span class="p">(</span><span class="n">event_data</span><span class="p">[</span><span class="s1">&#39;event&#39;</span><span class="p">])</span>
+            <span class="n">name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_station_name</span><span class="p">()</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">data_manager</span><span class="o">.</span><span class="n">add_point_from_click</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="integration-with-existing-operations">
+<h2>Integration with Existing Operations<a class="headerlink" href="#integration-with-existing-operations" title="Link to this heading"></a></h2>
+<p>The key insight is that we don’t modify <code class="docutils literal notranslate"><span class="pre">operations.py</span></code> - we use it as-is:</p>
+<section id="data-flow-example">
+<h3>Data Flow Example<a class="headerlink" href="#data-flow-example" title="Link to this heading"></a></h3>
+<ol class="arabic simple">
+<li><p><strong>User clicks on map</strong> → ClickInputHandler receives event</p></li>
+<li><p><strong>Handler extracts coordinates</strong> → <code class="docutils literal notranslate"><span class="pre">(lat,</span> <span class="pre">lon)</span></code> from matplotlib event</p></li>
+<li><p><strong>Handler calls data manager</strong> → <code class="docutils literal notranslate"><span class="pre">data_manager.add_point_from_click(lat,</span> <span class="pre">lon,</span> <span class="pre">name)</span></code></p></li>
+<li><p><strong>Data manager creates PointOperation</strong> → Using existing <code class="docutils literal notranslate"><span class="pre">operations.py</span></code> classes</p></li>
+<li><p><strong>Data manager emits event</strong> → <code class="docutils literal notranslate"><span class="pre">&quot;operation_added&quot;</span></code> with operation details</p></li>
+<li><p><strong>UI updates</strong> → StationPicker receives event and updates visualization</p></li>
+</ol>
+</section>
+</section>
+<section id="benefits-of-this-architecture">
+<h2>Benefits of This Architecture<a class="headerlink" href="#benefits-of-this-architecture" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Extensibility</strong></p>
+<ul class="simple">
+<li><p>New input methods just implement <code class="docutils literal notranslate"><span class="pre">InputHandler</span></code></p></li>
+<li><p>No changes needed to existing code</p></li>
+<li><p>Plugin-like architecture</p></li>
+</ul>
+</li>
+<li><p><strong>Maintainability</strong></p>
+<ul class="simple">
+<li><p>Clear separation of concerns</p></li>
+<li><p>Event-driven communication</p></li>
+<li><p>Existing operations logic untouched</p></li>
+</ul>
+</li>
+<li><p><strong>Testability</strong></p>
+<ul class="simple">
+<li><p>Each component can be tested independently</p></li>
+<li><p>Mock data manager for testing input handlers</p></li>
+<li><p>Mock handlers for testing data manager</p></li>
+</ul>
+</li>
+<li><p><strong>Backward Compatibility</strong></p>
+<ul class="simple">
+<li><p>Existing station picker functionality preserved</p></li>
+<li><p>Gradual migration possible</p></li>
+<li><p>No breaking changes</p></li>
+</ul>
+</li>
+</ol>
+</section>
+<section id="example-usage-flow">
+<h2>Example Usage Flow<a class="headerlink" href="#example-usage-flow" title="Link to this heading"></a></h2>
+<p>Initialization:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Create data manager</span>
+<span class="n">data_manager</span> <span class="o">=</span> <span class="n">InteractiveDataManager</span><span class="p">(</span><span class="s2">&quot;config.yaml&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create input handlers</span>
+<span class="n">click_handler</span> <span class="o">=</span> <span class="n">ClickInputHandler</span><span class="p">(</span><span class="n">data_manager</span><span class="p">,</span> <span class="n">map_widget</span><span class="p">)</span>
+<span class="n">yaml_handler</span> <span class="o">=</span> <span class="n">YAMLInputHandler</span><span class="p">(</span><span class="n">data_manager</span><span class="p">)</span>               <span class="c1"># v0.4.1</span>
+<span class="n">text_handler</span> <span class="o">=</span> <span class="n">TextInputHandler</span><span class="p">(</span><span class="n">data_manager</span><span class="p">,</span> <span class="n">text_widget</span><span class="p">)</span>  <span class="c1"># v0.4.2</span>
+
+<span class="c1"># Set up event listeners</span>
+<span class="n">data_manager</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="s2">&quot;operation_added&quot;</span><span class="p">,</span> <span class="n">ui</span><span class="o">.</span><span class="n">refresh_station_list</span><span class="p">)</span>
+<span class="n">data_manager</span><span class="o">.</span><span class="n">add_listener</span><span class="p">(</span><span class="s2">&quot;operation_removed&quot;</span><span class="p">,</span> <span class="n">ui</span><span class="o">.</span><span class="n">refresh_station_list</span><span class="p">)</span>
+
+<span class="c1"># Start with click input</span>
+<span class="n">click_handler</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Switching Input Methods:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Switch to text input mode</span>
+<span class="n">click_handler</span><span class="o">.</span><span class="n">deactivate</span><span class="p">()</span>
+<span class="n">text_handler</span><span class="o">.</span><span class="n">activate</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="file-structure">
+<h2>File Structure<a class="headerlink" href="#file-structure" title="Link to this heading"></a></h2>
+<p>Proposed new files:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cruiseplan/interactive/
+├── __init__.py
+├── data_manager.py          # InteractiveDataManager
+├── input_handlers.py        # Base classes and ClickInputHandler
+├── station_picker_api.py    # Main API class (CLI wrapper target)
+└── station_picker.py        # Existing file - UI components only
+</pre></div>
+</div>
+</section>
+<section id="key-implementation-notes">
+<h2>Key Implementation Notes<a class="headerlink" href="#key-implementation-notes" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>No Duplication</strong>: Use existing <code class="docutils literal notranslate"><span class="pre">PointOperation</span></code>, <code class="docutils literal notranslate"><span class="pre">LineOperation</span></code>, etc.</p></li>
+<li><p><strong>Event System</strong>: Lightweight event system for component communication</p></li>
+<li><p><strong>YAML Integration</strong>: Use existing <code class="docutils literal notranslate"><span class="pre">yaml_io.py</span></code> functions</p></li>
+<li><p><strong>Coordinate Handling</strong>: Use existing <code class="docutils literal notranslate"><span class="pre">coordinates.py</span></code> utilities</p></li>
+<li><p><strong>Validation</strong>: Delegate to existing <code class="docutils literal notranslate"><span class="pre">validation.py</span></code> functions</p></li>
+</ol>
+<p>This architecture provides a solid foundation for the enhanced station picker capabilities while maintaining the integrity of CruisePlan’s existing codebase.</p>
+</section>
+<section id="station-picker-architecture-v0-4-0-planning">
+<h2>Station Picker Architecture (v0.4.0+ Planning)<a class="headerlink" href="#station-picker-architecture-v0-4-0-planning" title="Link to this heading"></a></h2>
+<p>Based on the unified operations model, the station picker will need:</p>
+<section id="key-files-to-create-modify">
+<h3>Key Files to Create/Modify<a class="headerlink" href="#key-files-to-create-modify" title="Link to this heading"></a></h3>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>cruiseplan/interactive/
+├── station_picker_api.py          (new) - Main API class
+├── data_manager.py                 (new) - Data management &amp; YAML sync
+├── input_handlers.py               (new) - Abstract input handler base
+├── text_input.py                   (new) - Text coordinate input
+├── yaml_sync.py                    (new) - YAML round-trip editing
+├── batch_input.py                  (new) - Batch import (PlanCampanha, etc.)
+└── station_picker.py               (refactor) - Interactive UI components
+
+cruiseplan/utils/
+├── plancampanha_converter.py       (new) - PlanCampanha format converter
+└── # ... existing utils
+
+cruiseplan/cli/
+└── stations.py                     (update) - CLI wrapper only
+</pre></div>
+</div>
+</section>
+<section id="station-picker-features-v0-4-x">
+<h3>Station Picker Features (v0.4.x)<a class="headerlink" href="#station-picker-features-v0-4-x" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p><strong>Unified Operations</strong>: Add/edit stations, moorings, ports, waypoints consistently</p></li>
+<li><p><strong>Extended Operations</strong>: Support WP2_NET, BONGO_NET, etc. through operation registry</p></li>
+<li><p><strong>Custom Operations</strong>: Allow users to define custom operation types with parameters</p></li>
+<li><p><strong>Batch Import</strong>: PlanCampanha and other format conversion</p></li>
+<li><p><strong>YAML Round-trip</strong>: Edit existing files without losing structure/comments</p></li>
+</ul>
+</section>
+</section>
+<section id="implementation-tasks-v0-4-0">
+<h2>Implementation Tasks (v0.4.0)<a class="headerlink" href="#implementation-tasks-v0-4-0" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>[ ] Create StationPickerAPI and supporting classes</p></li>
+<li><p>[ ] Update CLI to be thin wrapper around API</p></li>
+<li><p>[ ] Enable adding ports/waypoints/custom operations through UI</p></li>
+<li><p>[ ] Implement PlanCampanha converter with unified model</p></li>
+<li><p>[ ] Add batch input capabilities</p></li>
+</ul>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="v0.3.1-unified-operations.html" class="btn btn-neutral float-left" title="CruisePlan v0.3.1: Unified Operations Model" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="v0.4.1-yaml-round-trip.html" class="btn btn-neutral float-right" title="Station Picker v0.4.1: YAML Loading and Round-Trip Editing" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
