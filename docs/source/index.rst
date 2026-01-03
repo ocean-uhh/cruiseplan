@@ -49,7 +49,8 @@ CruisePlan assists researchers in designing optimal station layouts, calculating
    Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
    Project Structure <project_structure.md>
    Developer Guide <developer_guide.md>
-   Development Roadmap <roadmap.rst>
+   Manual Testing <manual_testing.rst>
+   Development Roadmap <roadmap/index.rst>
 
 Indices and tables
 ==================

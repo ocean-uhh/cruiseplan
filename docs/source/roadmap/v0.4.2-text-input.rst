@@ -1,0 +1,578 @@
+==============================================
+Station Picker v0.4.2: Text Input Capabilities
+==============================================
+
+.. note::
+   This roadmap document describes the text-based coordinate entry features planned for v0.4.2, building on the v0.4.0 architecture and v0.4.1 YAML integration.
+
+Phase 2: Text-Based Coordinate Entry
+====================================
+
+Design Requirements
+-------------------
+
+Based on user specifications:
+
+1. **Coordinate formats**: Support ONLY decimal degrees OR degrees + decimal minutes (no DMS)
+2. **Input fields**: Separate boxes for lat[deg], lat[min], lon[deg], lon[min] 
+3. **Station names**: Required for all operations
+4. **Multi-point support**: Lines and areas need multiple coordinate entries
+5. **Interactive flow**: Add points iteratively with "Add Point" and "Done" controls
+
+Core Architecture
+=================
+
+Text Input Widget System
+------------------------
+
+Coordinate Input Panel
+^^^^^^^^^^^^^^^^^^^^^^
+
+Panel for entering coordinates in either decimal degrees or degrees/minutes format:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/text_input_widget.py
+
+   class CoordinateInputPanel:
+       """
+       Panel for entering coordinates in either decimal degrees or degrees/minutes format.
+       
+       Provides four text boxes for flexible coordinate entry:
+       - lat_deg, lat_min, lon_deg, lon_min
+       - Supports both decimal degrees (lat_min/lon_min = 0) and degrees/minutes
+       """
+       
+       def __init__(self, ax: plt.Axes, on_coordinate_change: Callable = None):
+           self.ax = ax
+           self.on_coordinate_change = on_coordinate_change
+           
+           # Text boxes for coordinate entry
+           self.lat_deg_box = None
+           self.lat_min_box = None  
+           self.lon_deg_box = None
+           self.lon_min_box = None
+           
+           self.current_lat = None
+           self.current_lon = None
+           
+       def create_widgets(self):
+           """Create the coordinate input text boxes."""
+           
+       def get_coordinates(self) -> Optional[Tuple[float, float]]:
+           """Get current coordinates as (lat, lon) in decimal degrees."""
+           
+       def clear_inputs(self):
+           """Clear all text boxes."""
+           
+       def set_coordinates(self, lat: float, lon: float):
+           """Set coordinates from decimal degrees."""
+
+Station Input Widgets
+^^^^^^^^^^^^^^^^^^^^^
+
+Specialized widgets for different operation types:
+
+.. code-block:: python
+
+   class StationInputWidget:
+       """Widget for entering single stations (CTD, moorings, ports, waypoints)."""
+       
+       def __init__(self, ax: plt.Axes, data_manager: InteractiveDataManager):
+           self.ax = ax
+           self.data_manager = data_manager
+           self.coord_panel = CoordinateInputPanel(ax)
+           
+           # Additional controls
+           self.name_box = None
+           self.operation_type_selector = None
+           self.action_selector = None
+           self.depth_box = None
+           self.add_button = None
+           
+       def create_ui(self):
+           """Create the complete station input interface."""
+           
+       def add_station(self):
+           """Add station using current input values."""
+
+   class LineInputWidget:
+       """Widget for entering line operations (transits, sections)."""
+       
+       def __init__(self, ax: plt.Axes, data_manager: InteractiveDataManager):
+           self.ax = ax
+           self.data_manager = data_manager
+           self.coord_panel = CoordinateInputPanel(ax)
+           
+           self.points = []  # List of (lat, lon) tuples
+           self.name_box = None
+           self.add_point_button = None
+           self.finish_line_button = None
+           self.points_display = None
+           
+       def add_point(self):
+           """Add current coordinates to the line."""
+           
+       def finish_line(self):
+           """Complete the line and create LineOperation."""
+
+   class AreaInputWidget:
+       """Widget for entering area operations (survey areas)."""
+       
+       def __init__(self, ax: plt.Axes, data_manager: InteractiveDataManager):
+           self.ax = ax
+           self.data_manager = data_manager
+           self.coord_panel = CoordinateInputPanel(ax)
+           
+           self.boundary_points = []
+           self.name_box = None
+           self.add_point_button = None
+           self.close_area_button = None
+           self.points_display = None
+           
+       def add_boundary_point(self):
+           """Add current coordinates to the area boundary."""
+           
+       def close_area(self):
+           """Complete the area and create AreaOperation."""
+
+Coordinate Format Support
+=========================
+
+Integration with coordinates.py
+-------------------------------
+
+Directly uses existing coordinate conversion utilities:
+
+.. code-block:: python
+
+   # Uses existing cruiseplan/utils/coordinates.py functions directly
+   
+   from cruiseplan.utils.coordinates import (
+       degrees_minutes_to_decimal,
+       decimal_to_degrees_minutes,
+       validate_latitude,
+       validate_longitude
+   )
+   
+   # In CoordinateInputPanel.get_coordinates():
+   def get_coordinates(self) -> Optional[Tuple[float, float]]:
+       """Get current coordinates as (lat, lon) in decimal degrees."""
+       try:
+           # Parse input values
+           lat_deg = float(self.lat_deg_box.text) if self.lat_deg_box.text.strip() else 0.0
+           lat_min = float(self.lat_min_box.text) if self.lat_min_box.text.strip() else 0.0
+           lon_deg = float(self.lon_deg_box.text) if self.lon_deg_box.text.strip() else 0.0
+           lon_min = float(self.lon_min_box.text) if self.lon_min_box.text.strip() else 0.0
+           
+           # Convert to decimal degrees using existing functions
+           if lat_min != 0.0:
+               lat_decimal = degrees_minutes_to_decimal(int(lat_deg), lat_min)
+           else:
+               lat_decimal = lat_deg
+               
+           if lon_min != 0.0:
+               lon_decimal = degrees_minutes_to_decimal(int(lon_deg), lon_min)
+           else:
+               lon_decimal = lon_deg
+           
+           # Validate using existing functions
+           validate_latitude(lat_decimal)
+           validate_longitude(lon_decimal)
+           
+           return lat_decimal, lon_decimal
+           
+       except (ValueError, TypeError):
+           return None
+   
+   # In CoordinateInputPanel.set_coordinates():
+   def set_coordinates(self, lat: float, lon: float):
+       """Set coordinates from decimal degrees using existing conversion."""
+       lat_deg, lat_min = decimal_to_degrees_minutes(lat)
+       lon_deg, lon_min = decimal_to_degrees_minutes(lon)
+       
+       self.lat_deg_box.set_val(str(lat_deg))
+       self.lat_min_box.set_val(f"{lat_min:.4f}")
+       self.lon_deg_box.set_val(str(lon_deg))
+       self.lon_min_box.set_val(f"{lon_min:.4f}")
+
+Input Validation
+================
+
+Station Name Validation
+-----------------------
+
+Enforces naming rules for consistent operation:
+
+.. code-block:: python
+
+   import re
+   
+   class StationNameValidator:
+       """Validates station names according to CruisePlan rules."""
+       
+       @staticmethod
+       def validate_name(name: str) -> Tuple[bool, str]:
+           """
+           Validate station name.
+           
+           Rules:
+           - No spaces or hyphens (replaced with underscores)
+           - Not empty
+           - No special characters except underscores
+           
+           Returns (is_valid, cleaned_name)
+           """
+           if not name or not name.strip():
+               return False, "Name cannot be empty"
+           
+           # Clean name - replace spaces and hyphens with underscores
+           cleaned = re.sub(r'[\s\-]+', '_', name.strip())
+           
+           # Check for invalid characters
+           if not re.match(r'^[a-zA-Z0-9_]+$', cleaned):
+               return False, f"Invalid characters in name: {name}"
+           
+           return True, cleaned
+
+Coordinate Input Validation
+===========================
+
+Comprehensive validation for the dual-format coordinate input:
+
+.. code-block:: python
+
+   class CoordinateInputValidator:
+       """Validates coordinate input in degrees/minutes format."""
+       
+       @staticmethod
+       def validate_coordinate_input(deg_str: str, min_str: str, coord_type: str) -> Tuple[bool, str, Optional[float]]:
+           """
+           Validate coordinate input supporting both formats.
+           
+           Parameters
+           ----------
+           deg_str : str
+               Degrees field input
+           min_str : str  
+               Minutes field input
+           coord_type : str
+               'latitude' or 'longitude' for appropriate range checking
+               
+           Returns
+           -------
+           Tuple[bool, str, Optional[float]]
+               (is_valid, error_message, decimal_coordinate)
+           """
+           try:
+               # Clean inputs
+               deg_str = deg_str.strip()
+               min_str = min_str.strip()
+               
+               # Handle empty inputs
+               if not deg_str:
+                   return False, f"{coord_type.title()} degrees cannot be empty", None
+               
+               # Parse based on whether minutes are provided
+               if min_str:  # Degrees + decimal minutes format
+                   # Degrees must be integer when minutes provided
+                   try:
+                       deg_val = int(deg_str)
+                   except ValueError:
+                       return False, f"{coord_type.title()} degrees must be integer when minutes are provided", None
+                   
+                   # Minutes can be integer or decimal
+                   try:
+                       min_val = float(min_str)
+                   except ValueError:
+                       return False, f"{coord_type.title()} minutes must be numeric", None
+                   
+                   # Validate minutes range
+                   if not 0 <= abs(min_val) < 60:
+                       return False, f"{coord_type.title()} minutes must be between 0 and 60", None
+                   
+                   # Sign consistency check
+                   if deg_val < 0 and min_val > 0:
+                       return False, f"Warning: Negative {coord_type} degrees but positive minutes - did you mean negative minutes?", None
+                   elif deg_val > 0 and min_val < 0:
+                       return False, f"Warning: Positive {coord_type} degrees but negative minutes - check sign consistency", None
+                   
+                   # Convert to decimal
+                   decimal_coord = degrees_minutes_to_decimal(deg_val, min_val)
+                   
+               else:  # Decimal degrees format
+                   try:
+                       decimal_coord = float(deg_str)
+                   except ValueError:
+                       return False, f"{coord_type.title()} must be numeric", None
+               
+               # Validate final coordinate range
+               if coord_type == 'latitude':
+                   validate_latitude(decimal_coord)
+               else:
+                   validate_longitude(decimal_coord)
+               
+               return True, "", decimal_coord
+               
+           except ValueError as e:
+               return False, str(e), None
+       
+       @staticmethod
+       def format_for_input(decimal_coord: float) -> Tuple[str, str]:
+           """Format decimal coordinate for input fields with proper precision."""
+           if abs(decimal_coord) >= 1000:  # Longitude > 3 digits
+               # Use degrees/minutes format for large values
+               deg, min_val = decimal_to_degrees_minutes(decimal_coord)
+               return str(deg), f"{min_val:.4f}"
+           else:
+               # Use decimal degrees with 5 decimal places
+               return f"{decimal_coord:.5f}", ""
+
+Text Box Sizing
+---------------
+
+Ensure adequate field widths for different coordinate formats:
+
+.. code-block:: python
+
+   # Text box configuration for coordinate input
+   TEXTBOX_CONFIG = {
+       'lat_deg': {'width': 0.08, 'initial': '', 'label': 'Lat°'},     # -90 to 90 or -90.12345
+       'lat_min': {'width': 0.08, 'initial': '', 'label': "Lat'"},     # 0.0000 to 59.9999  
+       'lon_deg': {'width': 0.08, 'initial': '', 'label': 'Lon°'},     # -180 to 180 or -180.12345
+       'lon_min': {'width': 0.08, 'initial': '', 'label': "Lon'"},     # 0.0000 to 59.9999
+   }
+
+Real-time Validation
+--------------------
+
+Provide immediate feedback during input:
+
+.. code-block:: python
+
+   def on_coordinate_change(self):
+       """Validate coordinates in real-time as user types."""
+       # Validate latitude
+       lat_valid, lat_error, lat_decimal = CoordinateInputValidator.validate_coordinate_input(
+           self.lat_deg_box.text, self.lat_min_box.text, 'latitude'
+       )
+       
+       # Validate longitude  
+       lon_valid, lon_error, lon_decimal = CoordinateInputValidator.validate_coordinate_input(
+           self.lon_deg_box.text, self.lon_min_box.text, 'longitude'
+       )
+       
+       # Update UI feedback
+       if lat_valid and lon_valid:
+           self.status_text.set_text("✓ Coordinates valid")
+           self.current_lat = lat_decimal
+           self.current_lon = lon_decimal
+           self.add_button.set_active(True)
+       else:
+           error_msg = lat_error or lon_error
+           self.status_text.set_text(f"⚠ {error_msg}")
+           self.add_button.set_active(False)
+
+TextInputHandler Integration
+============================
+
+Integration with v0.4.0 Architecture
+------------------------------------
+
+The text input functionality integrates with the v0.4.0 architecture through a specialized input handler:
+
+.. code-block:: python
+
+   # cruiseplan/interactive/text_input_handler.py
+
+   class TextInputHandler(InputHandler):
+       """Handle text-based coordinate entry."""
+       
+       def __init__(self, data_manager: InteractiveDataManager, text_ax: plt.Axes):
+           super().__init__(data_manager)
+           self.text_ax = text_ax
+           self.current_widget = None
+           self.input_mode = "station"  # station, line, area
+           
+       def activate(self):
+           """Activate text input mode."""
+           self.is_active = True
+           self._create_mode_selector()
+           self._switch_to_station_mode()
+           
+       def deactivate(self):
+           """Deactivate text input mode."""
+           self.is_active = False
+           if self.current_widget:
+               self.current_widget.clear()
+           self.text_ax.clear()
+           
+       def _switch_to_station_mode(self):
+           """Switch to station input mode."""
+           self.input_mode = "station"
+           if self.current_widget:
+               self.current_widget.clear()
+           self.current_widget = StationInputWidget(self.text_ax, self.data_manager)
+           self.current_widget.create_ui()
+           
+       def _switch_to_line_mode(self):
+           """Switch to line input mode."""
+           self.input_mode = "line"
+           if self.current_widget:
+               self.current_widget.clear()
+           self.current_widget = LineInputWidget(self.text_ax, self.data_manager)
+           self.current_widget.create_ui()
+           
+       def _switch_to_area_mode(self):
+           """Switch to area input mode."""
+           self.input_mode = "area"
+           if self.current_widget:
+               self.current_widget.clear()
+           self.current_widget = AreaInputWidget(self.text_ax, self.data_manager)
+           self.current_widget.create_ui()
+
+User Interface Design
+=====================
+
+Layout Structure
+----------------
+
+The text input interface occupies a dedicated panel with organized sections:
+
+::
+
+   ┌─────────────────────────────────────────────────────────────┐
+   │                    Text Input Panel                         │
+   ├─────────────────────────────────────────────────────────────┤
+   │ Mode: [Station] [Line] [Area]                               │
+   ├─────────────────────────────────────────────────────────────┤
+   │ Name: [________________]                                    │
+   ├─────────────────────────────────────────────────────────────┤
+   │ Coordinates:                                                │
+   │   Lat: [___]° [_____]'    Lon: [___]° [_____]'             │
+   ├─────────────────────────────────────────────────────────────┤
+   │ Operation Type: [<default> ▼]   Action: [<default>  ▼]     │
+   │ Operation depth (m): [____] (defaults to water depth)      │
+   ├─────────────────────────────────────────────────────────────┤
+   │                    [Add Station]                            │
+   └─────────────────────────────────────────────────────────────┘
+
+For line and area modes, additional controls appear:
+
+::
+
+   ┌─────────────────────────────────────────────────────────────┐
+   │ Current Points:                                             │
+   │   1. (45.000°, -60.000°)                                   │ 
+   │   2. (45.500°, -59.000°)                                   │
+   ├─────────────────────────────────────────────────────────────┤
+   │ [Add Point]  [Finish Line]  [Clear All]                    │
+   └─────────────────────────────────────────────────────────────┘
+
+Default Values and Consistency
+==============================
+
+Click Input Consistency
+-----------------------
+
+Text input defaults should match click input behavior:
+
+**Default Operation Type and Action**:
+- **Station mode**: ``operation_type=None``, ``action=None`` (system will apply defaults during processing)
+- **Line mode**: ``operation_type=None``, ``action=None`` (user can specify, or defaults to transit)  
+- **Area mode**: ``operation_type=None``, ``action=None`` (user can specify, or defaults to survey)
+
+**Default Depth**:
+- **Operation depth**: Defaults to water depth from bathymetry data if not specified
+- **User-specified depth**: Takes precedence over bathymetry depth
+- **UI indication**: Field shows "(defaults to water depth)" when empty
+
+**Implementation Notes**:
+- Empty/None values indicate system should apply appropriate defaults
+- This maintains consistency with click input where users don't specify operation details
+- Processing pipeline handles default assignment based on context
+
+Operation Type Integration
+==========================
+
+Unified Operations Support
+--------------------------
+
+The text input system supports all unified operation types from v0.3.1+:
+
+**Station Operations:**
+
+- CTD stations with profile action
+- Moorings with deployment/recovery actions  
+- Ports with departure/arrival actions
+- Waypoints (with optional delay_start for waiting)
+- Custom operation types through registry
+
+**Multi-Point Operations:**
+
+- Transit lines between waypoints
+- CTD sections with automatic station expansion
+- Survey areas with boundary definitions
+
+Example Usage Flows
+===================
+
+Adding a CTD Station:
+
+1. Select "Station" mode
+2. Enter name: "STN_045"  
+3. Enter coordinates: Lat: 45° 30.5', Lon: 60° 15.2'
+4. (Optional) Select operation type: "CTD", action: "profile" (or leave as default)
+5. (Optional) Enter operation depth: 2000 (or leave blank to use water depth from bathymetry)
+6. Click "Add Station"
+
+Adding a Transit Line:
+
+1. Select "Line" mode
+2. Enter name: "TRANSIT_002"
+3. Enter first point coordinates
+4. Click "Add Point" 
+5. Enter second point coordinates
+6. Click "Add Point"
+7. Continue for additional waypoints
+8. Click "Finish Line"
+
+Benefits and Integration
+========================
+
+1. **Precision Entry**
+   
+   - Exact coordinate specification
+   - Support for both decimal degrees and degrees/minutes
+   - Validation prevents input errors
+
+2. **Comprehensive Operation Support**
+   
+   - All unified operation types supported
+   - Consistent with v0.3.1+ operation model
+   - Custom operations through registry
+
+3. **Seamless Integration**
+   
+   - Uses existing coordinate utilities
+   - Fits v0.4.0 input handler architecture
+   - Coordinates with YAML round-trip editing
+
+4. **User Flexibility**
+   
+   - Switch between click and text input modes
+   - Combine with YAML loading and editing
+   - Export to multiple formats
+
+File Structure
+==============
+
+New files needed:
+
+::
+
+   cruiseplan/interactive/
+   ├── text_input_handler.py       # TextInputHandler class
+   └── text_input_widgets.py       # Widget classes
+
+This text input system provides precise coordinate entry capabilities while maintaining consistency with CruisePlan's unified operations model and existing coordinate handling utilities.
