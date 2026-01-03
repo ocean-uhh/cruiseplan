@@ -11,7 +11,7 @@ pangaeapy>=1.0.7
 
 # Configuration and validation
 pydantic>=2.0.0
-ruamel.yaml>=0.17.0,<0.18.0
+ruamel.yaml>=0.17.0,<0.20.0
 
 # Visualization
 matplotlib>=3.7
