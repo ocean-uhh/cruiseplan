@@ -185,7 +185,7 @@ Check the `*.html` output for each routing strategy:
 
 2. |uncheck| Verify that the average speed for the transit is **10.3 kts** 
 
-3. |uncheck| Verify that `Leg_Survey_Faster`` is faster than `Leg_Survey`` by **20.8 hours** due to a default leg speed of 12 kts instead of 10 kts.
+3. |uncheck| Verify that `Leg_Survey_Faster` is faster than `Leg_Survey` by **20.8 hours** due to a default leg speed of 12 kts instead of 10 kts.
 
 4. |uncheck| Verify that `3e. Leg_Survey_Duplicate4` repeats `STN_001`, adding a total of 0.5 hours to the duration (making it **128.4** hours).
 
