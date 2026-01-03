@@ -1,7 +1,7 @@
 Manual Testing and Verification
 ===============================
 
-This document provides systematic manual testing for validating CruisePlan functionality during development and before releases.  It relies on standarised test fixtures to ensure that: 
+This document provides systematic manual testing for validating CruisePlan functionality during development and before releases.  It relies on standardised test fixtures to ensure that: 
 
 - Core CLI commands work correctly together
 - Complex cruise configurations are processed accurately  
