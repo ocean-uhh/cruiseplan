@@ -703,6 +703,7 @@ def process(
     format: str = "all",
     bathy_stride: int = 10,
     figsize: list = [12, 8],
+    no_port_map: bool = False,
     verbose: bool = False,
 ) -> tuple[Optional[Any], Optional[list[Path]]]:
     """
@@ -744,6 +745,8 @@ def process(
         Bathymetry contour stride for map generation (default: 10)
     figsize : list
         Figure size for PNG maps [width, height] (default: [12, 8])
+    no_port_map : bool
+        Skip plotting ports on generated maps (default: False)
     verbose : bool
         Enable verbose logging (default: False)
 
@@ -819,6 +822,7 @@ def process(
                 bathy_dir=bathy_dir,
                 bathy_stride=bathy_stride,
                 figsize=figsize,
+                no_ports=no_port_map,  # Pass through the no_port_map flag as no_ports
                 verbose=verbose,
             )
             if map_file:
@@ -926,6 +930,7 @@ def map(
                 bathy_stride=bathy_stride,
                 figsize=tuple(figsize),
                 show_plot=show_plot,
+                include_ports=not no_ports,  # Convert no_ports to include_ports
             )
             if result:
                 generated_files.append(result)

@@ -1,22 +1,22 @@
 Manual Testing and Verification
 ===============================
 
-This document provides systematic manual testing procedures for validating CruisePlan functionality during development and before releases.
-
-Overview
---------
-
-Manual testing focuses on end-to-end workflow validation using standardized test fixtures. This ensures that:
+This document provides systematic manual testing for validating CruisePlan functionality during development and before releases.  It relies on standarised test fixtures to ensure that: 
 
 - Core CLI commands work correctly together
 - Complex cruise configurations are processed accurately  
 - Output generation functions as expected
-- Regression issues are caught before release
 
 The testing approach uses the ``test_all_fixtures.py`` script combined with structured test cases to verify cruise planning workflows systematically.
 
-Quick Start
------------
+Run Tests
+---------
+
+**Test Fixtures Location:**
+
+- **Test Files**: ``tests/fixtures/tc*.yaml``
+- **Output Directory**: ``tests_output/fixtures/``  
+- **Test Script**: ``test_all_fixtures.py`` (repository root)
 
 To run all manual tests:
 
@@ -25,111 +25,220 @@ To run all manual tests:
    # Run automated fixture testing
    python test_all_fixtures.py
    
-   # Manual verification (optional)
+   # Verify outputs
    ls tests_output/fixtures/
 
-Test Architecture
------------------
-
-Testing Strategy
-~~~~~~~~~~~~~~~~
+This generates **54** output files (9 per test case in `tests/fixtures/tc*.yaml`).
 
 - **Automated Processing**: The ``test_all_fixtures.py`` script processes all ``tc*.yaml`` files automatically
 - **Systematic Coverage**: Test cases progress from simple to complex scenarios
 - **Workflow Validation**: Each test verifies the complete ``process`` → ``schedule`` workflow
-- **Output Verification**: Generated files are checked for existence and basic validity
+- **Output Verification**: Generated files then need to be *manually* checked for existence and validity.  Specific verification steps are provided per test case below.
 
-Test Fixtures Location
-~~~~~~~~~~~~~~~~~~~~~~
-
-- **Test Files**: ``tests/fixtures/tc*.yaml``
-- **Output Directory**: ``tests_output/fixtures/``  
-- **Test Script**: ``test_all_fixtures.py`` (repository root)
-
-Test Case Definitions
----------------------
 
 Test Case 1: Single Station (tc1_single.yaml)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+---------------------------------------------
 
-**Purpose**: Verify basic maritime architecture with minimal complexity
+**Purpose**: Verify basic architecture with minimal complexity (enables manual checks)
 
 **Configuration**:
-- Single leg with one station
-- Basic CTD operation
-- Halifax → Cadiz routing
 
-**Key Features Tested**:
-- Port-to-port routing
-- Single operation scheduling
-- Basic timeline generation
+- Single leg with one CTD station
+- Check YAML enrichment and output generation
+- Check CTD duration calculation
 
-**Expected Results**:
-- ✅ Process command creates enriched YAML
-- ✅ Schedule command generates timeline
-- ✅ Port expansion creates ports catalog
-- ✅ Schedule shows: port departure → station operations → port arrival
+
+**TC1_Single_Test_enriched.yaml**
+.................................
+
+.. |uncheck| raw:: html
+
+    <input type="checkbox">
+
+1. |uncheck| Verify that in `STN_001` the coordinates and water depth were enriched as:
+
+.. code-block:: yaml
+
+   coordinates_ddm: 45 00.00'N, 045 00.00'W
+   water_depth: 4411.0
+
+2. |uncheck| Verify that the port got expanded, including
+
+.. code-block:: yaml
+
+   ports:
+      - name: port_cadiz
+        latitude: 36.5298
+        longitude: -6.2923
+        display_name: Cadiz, Spain
+
+3. |uncheck| Verify that the defaults got added, including
+
+.. code-block:: yaml
+
+   turnaround_time: 30.0
+   ctd_descent_rate: 1.0
+   ctd_ascent_rate: 1.0
+
+
+**TC1_Single_Test_schedule.html**
+..................................
+
+4. |uncheck| Verify that the CTD takes **3 hours**, based on a 30 minute "turnaround_time" (the default from constants.py) and a 4411m CTD from `DEFAULT_CTD_RATE_M_S` in `constants.py`, which is 73.5 minutes down and 73.5 minutes up, plus 30 minutes turnaround = 177 minutes or 2.95 hours.
+
+5. |uncheck| Verify that the total cruise duration is **263.2 hours / 11.0 days**.
+
+6. |uncheck| Compare with the `HTML schedule output <_static/screenshots/fig_TC1_Single_Test_html.png>`_ to verify CTD timing calculations.
+
+**TC1_Single_Test_schedule.csv**
+.................................
+
+7. |uncheck| Verify that the first row, second to last entry is **-34.51** (Longitude minutes for -63.5752 degrees)
+
+.. code-block:: csv
+   
+   activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
+   Port_Departure,Departure: Halifax to Operations,,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
+   Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:54:00,0.0,0,3.0,4411,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
+   Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-01-11T23:13:00,1813.1,10.0,181.3,0,36.5298,-6.2923,36,31.79,-6,-17.54,Leg_Single
+
+**TC1_Single_Test_stations.tex**
+.................................
+
+8. |uncheck| Verify that the LaTeX station table includes water depth **4411** 
+9. |uncheck| Verify the Latex-formated coordinate includes **45$^\circ$00.00'N**:
+
+.. code-block:: latex
+
+   Station & STN-001 & 45$^\circ$00.00'N, 045$^\circ$00.00'W & 4411 \\
+
+**TC1_Single_Test_work_days.tex**
+.................................
+
+10. |uncheck| Verify that the LaTeX work days table includes total cruise duration of **3.0** operation hours and **260.3** transit hours:
+
+.. code-block:: latex
+
+   \textbf{Total duration} & & \textbf{3.0} & \textbf{260.3} \\
+
+
+**Figures _map.png and _schedule.png**
+....................................
+
+11. |uncheck| Verify that the map PNG shows no ports `TC1_Single_Test_map.png <_static/fixtures/TC1_Single_Test_map.png>`_
+12. |uncheck| Verify that the schedule PNG shows ports `TC1_Single_Test_schedule.png <_static/fixtures/TC1_Single_Test_schedule.png>`_
+
+**KML: TC1_Single_Test_catalog.kml**
+.................................
+
+13. |uncheck| Verify that the KML file includes the station details
+
+.. figure:: _static/fixtures/TC1_Single_Test_catalog_kml.png
+   :alt: KML Output Screenshot
+   :width: 600px
+
+   KML output viewed in Google Earth showing station location and details.
+
+----
 
 Test Case 2: Two Legs (tc2_two_legs.yaml)  
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 **Purpose**: Verify multi-leg routing with distinct operations
 
 **Configuration**:
+
 - Two legs with different departure/arrival ports
 - CTD operation in first leg
 - Mooring deployment in second leg
 
-**Key Features Tested**:
-- Multi-leg cruise structure
-- Different operation types (CTD vs mooring)
-- Inter-leg routing and timing
+**Manual verification**:
 
-**Expected Results**:
-- ✅ Each leg processed independently
-- ✅ Correct port-to-port routing between legs
-- ✅ Different operation types scheduled correctly
+1. |uncheck| Verify that the `*.html` shows total duration of **1440.4 hours** (because the default mooring time is **999.0 hours**)
+
+2. |uncheck| Verify that two legs are generated with **277.2 hours** in Leg 1 and **1163.2 hours** in Leg 2.
+
+3. |uncheck| Verify that the `_schedule.png` matches `TC2_Two_Legs_Test_schedule.png <_static/fixtures/TC2_Two_Legs_Test_schedule.png>`_
+
+4. |uncheck| Verify that the `_work_days.tex` has a total duration with operations of **1000.0** hours and transit duration of **440.5** hours.
+
+----
 
 Test Case 3: Clusters (tc3_clusters.yaml)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------
 
 **Purpose**: Verify cluster-based organization and operation sequencing
 
 **Configuration**:
+
 - Multiple legs with cluster-based activity organization
 - Sequential strategy testing
 - Duplicate station handling
 - Different routing strategies
 
-**Key Features Tested**:
-- Cluster sequence processing
-- Station duplication handling  
-- Strategy-based optimization
-- Complex leg routing
 
-**Expected Results**:
-- ✅ Clusters processed in defined order
-- ✅ Sequential strategy maintains station order
-- ✅ Duplicate stations handled correctly
-- ✅ Multiple legs with different timings
+**Manual verification**:
+
+Check the `*.html` output for each routing strategy:
+
+1. |uncheck| Verify that the `*.html` shows total duration of **754.2 hours**.
+
+2. |uncheck| Verify that the average speed for the transit is **10.3 kts** 
+
+3. |uncheck| Verify that `Leg_Survey_Faster`` is faster than `Leg_Survey`` by **20.8 hours** due to a default leg speed of 12 kts instead of 10 kts.
+
+4. |uncheck| Verify that `3e. Leg_Survey_Duplicate4` repeats `STN_001`, adding a total of 0.5 hours to the duration (making it **128.4** hours).
+
+5. |uncheck| Verify that the `3f. Leg_Survey_Reorder` does the stations in order of `STN_004` then `STN_003` then `STN_002` then `STN_001`.
+
+See the HTML output `TC3_Clusters_Test_schedule.html <_static/fixtures/TC3_Clusters_Test_schedule.html>`_ for reference.
+
+----
 
 Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------------------
 
 **Purpose**: Verify handling of diverse operation types
 
 **Configuration**:
+
 - CTD, mooring, and other operation types
 - Mixed durations and activities
 - Complex scheduling scenarios
 
-**Key Features Tested**:
-- Multiple operation types
-- Duration calculations  
-- Operation-specific parameters
+**Manual verification**:
+
+1. |uncheck| Verify that the `*_map.png` shows a shaded area, a line and a station.  Compare to `TC4_Mixed_Test_map.png <_static/fixtures/TC4_Mixed_Test_map.png>`_
+
+2. |uncheck| Verify that the `*_stations.tex` shows 4 lines with:
+
+.. code-block:: latex
+
+   Station & STN-001 & 45$^\circ$00.00'N, 050$^\circ$00.00'W & 58 \\
+   Survey (start) & ADCP-Survey & 46$^\circ$00.00'N, 050$^\circ$00.00'W & N/A \\
+   Survey (end) & ADCP-Survey & 46$^\circ$00.00'N, 050$^\circ$00.00'W & N/A \\
+   Area (bathymetry) & Area-01 & Center: 48$^\circ$00.00'N, 050$^\circ$00.00'W & Variable \\
+
+Compare with the `TC4_Mixed_Test_schedule.html <_static/fixtures/TC4_Mixed_Test_schedule.html>`_ for coordinates and depths.
+
+3. |uncheck| Verify that the `*_schedule.html` shows total duration of **287.2 hours**.
+
+4. |uncheck| Verify that the total cruise shows **3 operations** and the `3a. Mixed_Survey` leg shows **3 operations**.
+
+5. |uncheck| Verify that the Transit to ADCP survey in `3a. Mixed_Survey` shows a distance of **60.0 nm** taking **6.0 hours**.
+
+6. |uncheck| Verify that the ADCP survey shows an entry position of **46.0000, -50.0000** and an exit position of **47.0000, -50.0000**.
+
+7. |uncheck| Verify that the `*_work_days.tex` shows total operation duration of **26.5** hours and transit duration of **260.7** hours.
+
+.. code-block:: latex
+
+   \textbf{Total duration} & & \textbf{26.5} & \textbf{260.7} \\
+
+----
 
 Test Case 5: Sections (tc5_sections.yaml)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+----------------------------------------- 
 
 **Purpose**: Verify section-based definitions and expansions
 

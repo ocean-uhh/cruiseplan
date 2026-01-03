@@ -579,11 +579,20 @@ class HTMLGenerator:
 
             # Transit to arrival port is now handled by scheduler Port_Arrival activities
 
+            # Count scientific operations for leg total
+            scientific_operations_count = 0
+            for activity in leg_data["activities"]:
+                activity_type = activity.get("activity", "")
+                if activity_type in ["Station", "Mooring", "Area"]:
+                    scientific_operations_count += 1
+                elif activity_type == "Transit" and is_scientific_operation(activity):
+                    scientific_operations_count += 1
+
             # Add leg total row
             html_content += f"""
         <tr style="font-weight: bold; background-color: #f2f2f2;">
             <td>Leg Total</td>
-            <td>{len(leg_data['activities'])} operations</td>
+            <td>{scientific_operations_count} operations</td>
             <td></td>
             <td></td>
             <td></td>
@@ -745,29 +754,19 @@ class HTMLGenerator:
             # For ports, use transit distance to show distance to next destination
             distance_nm = activity.get("transit_dist_nm", 0.0)
 
-        # For transit activities: entry = previous activity exit, exit = next activity entry
+        # For transit activities: use start_lat/start_lon and end_lat/end_lon if available
         elif activity_type == "Transit":
-            # Entry position: previous activity position (or current if first)
-            if index > 0:
-                prev_activity = activities[index - 1]
-                if "lat" in prev_activity and "lon" in prev_activity:
-                    entry_position = (
-                        f"{prev_activity['lat']:.4f}, {prev_activity['lon']:.4f}"
-                    )
-                else:
-                    entry_position = "N/A"
+            # Entry position: use start_lat/start_lon if available, otherwise current position
+            if "start_lat" in activity and "start_lon" in activity:
+                entry_position = (
+                    f"{activity['start_lat']:.4f}, {activity['start_lon']:.4f}"
+                )
             else:
                 entry_position = current_pos
 
-            # Exit position: next activity position (or current if last)
-            if index < len(activities) - 1:
-                next_activity = activities[index + 1]
-                if "lat" in next_activity and "lon" in next_activity:
-                    exit_position = (
-                        f"{next_activity['lat']:.4f}, {next_activity['lon']:.4f}"
-                    )
-                else:
-                    exit_position = "N/A"
+            # Exit position: use end_lat/end_lon if available, otherwise current position
+            if "end_lat" in activity and "end_lon" in activity:
+                exit_position = f"{activity['end_lat']:.4f}, {activity['end_lon']:.4f}"
             else:
                 exit_position = current_pos
 

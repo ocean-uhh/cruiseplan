@@ -687,6 +687,11 @@ Examples:
         default=[12, 8],
         help="Figure size for PNG maps (width height, default: 12 8)",
     )
+    process_parser.add_argument(
+        "--no-port-map",
+        action="store_true",
+        help="Skip plotting ports on generated maps (default: ports plotted)",
+    )
 
     # General options
     process_parser.add_argument(

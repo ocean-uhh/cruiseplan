@@ -2216,8 +2216,7 @@ def add_missing_required_fields(
         Updated configuration dictionary and list of fields that were added
     """
     from cruiseplan.core.validation_utils import (
-        _add_configuration_fields,
-        _add_cruise_level_defaults,
+        _add_missing_defaults,
         _add_port_defaults,
         _insert_missing_fields,
         _validate_required_structure,
@@ -2225,19 +2224,15 @@ def add_missing_required_fields(
 
     all_defaults_added = []
 
-    # Add cruise-level defaults
-    cruise_defaults = _add_cruise_level_defaults(config_dict)
-    all_defaults_added.extend(cruise_defaults)
+    # Add all missing defaults (user parameters first, then technical parameters)
+    fields_to_add, defaults_added = _add_missing_defaults(config_dict)
+    all_defaults_added.extend(defaults_added)
 
     # Add port defaults
     port_defaults = _add_port_defaults(config_dict)
     all_defaults_added.extend(port_defaults)
 
-    # Add missing configuration fields
-    fields_to_add, config_defaults = _add_configuration_fields(config_dict)
-    all_defaults_added.extend(config_defaults)
-
-    # Insert missing fields with proper formatting
+    # Insert all missing fields with proper formatting (user params after cruise_name, technical params later)
     _insert_missing_fields(config_dict, fields_to_add)
 
     # Validate and add required structure

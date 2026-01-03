@@ -253,49 +253,106 @@ def _validation_warning_capture():
 # --- Configuration Field Processing ---
 
 
-def _add_cruise_level_defaults(config_dict: Dict[str, Any]) -> List[str]:
+def _add_missing_defaults(
+    config_dict: Dict[str, Any],
+) -> Tuple[List[Tuple[str, Any, str]], List[str]]:
     """
-    Add missing cruise-level configuration defaults.
+    Prepare missing configuration defaults for insertion.
+
+    Handles both user-facing parameters (inserted at top) and technical parameters
+    (inserted later). All fields are collected and inserted together to maintain
+    proper positioning.
 
     Parameters
     ----------
     config_dict : Dict[str, Any]
-        Configuration dictionary to modify.
+        Configuration dictionary to check.
 
     Returns
     -------
-    List[str]
-        List of default fields that were added.
+    Tuple[List[Tuple[str, Any, str]], List[str]]
+        Tuple of (fields_to_add, defaults_added_list) where fields_to_add contains
+        (field_name, value, display_value) tuples for proper insertion.
     """
     from cruiseplan.utils.constants import (
+        DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
+        DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+        DEFAULT_CTD_RATE_M_S,
         DEFAULT_START_DATE,
+        DEFAULT_STATION_SPACING_KM,
         DEFAULT_TURNAROUND_TIME_MIN,
         DEFAULT_VESSEL_SPEED_KT,
     )
 
     defaults_added = []
+    fields_to_add = []
 
-    # Add missing cruise-level defaults
-    if "start_date" not in config_dict or not config_dict["start_date"]:
-        config_dict["start_date"] = DEFAULT_START_DATE
-        defaults_added.append("start_date")
+    # User-facing parameters (appear at top after cruise_name, in order)
+    user_params = [
+        ("start_date", DEFAULT_START_DATE, DEFAULT_START_DATE, "start_date"),
+        ("start_time", "08:00", "08:00", "start_time"),
+        (
+            "default_vessel_speed",
+            DEFAULT_VESSEL_SPEED_KT,
+            f"{DEFAULT_VESSEL_SPEED_KT} knots",
+            "default_vessel_speed",
+        ),
+        (
+            "turnaround_time",
+            DEFAULT_TURNAROUND_TIME_MIN,
+            f"{DEFAULT_TURNAROUND_TIME_MIN} minutes",
+            "turnaround_time",
+        ),
+        (
+            "ctd_descent_rate",
+            DEFAULT_CTD_RATE_M_S,
+            f"{DEFAULT_CTD_RATE_M_S} m/s",
+            "ctd_descent_rate",
+        ),
+        (
+            "ctd_ascent_rate",
+            DEFAULT_CTD_RATE_M_S,
+            f"{DEFAULT_CTD_RATE_M_S} m/s",
+            "ctd_ascent_rate",
+        ),
+    ]
 
-    if "start_time" not in config_dict or not config_dict["start_time"]:
-        config_dict["start_time"] = "08:00"
-        defaults_added.append("start_time")
+    # Technical/internal parameters (appear later in file)
+    technical_params = [
+        (
+            "calculate_transfer_between_sections",
+            DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+            str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS),
+            "transfer calculation",
+        ),
+        (
+            "calculate_depth_via_bathymetry",
+            DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
+            str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY),
+            "bathymetry depth calculation",
+        ),
+        (
+            "default_distance_between_stations",
+            DEFAULT_STATION_SPACING_KM,
+            f"{DEFAULT_STATION_SPACING_KM} km",
+            "station spacing",
+        ),
+    ]
 
-    if (
-        "default_vessel_speed" not in config_dict
-        or not config_dict["default_vessel_speed"]
-    ):
-        config_dict["default_vessel_speed"] = DEFAULT_VESSEL_SPEED_KT
-        defaults_added.append("default_vessel_speed")
+    # Process user parameters first (so they appear at top)
+    for field_name, default_value, display_value, description in user_params:
+        if field_name not in config_dict or not config_dict[field_name]:
+            fields_to_add.append((field_name, default_value, display_value))
+            defaults_added.append(description)
 
-    if "turnaround_time" not in config_dict or not config_dict["turnaround_time"]:
-        config_dict["turnaround_time"] = DEFAULT_TURNAROUND_TIME_MIN
-        defaults_added.append("turnaround_time")
+    # Process technical parameters second (so they appear later)
+    for field_name, default_value, display_value, description in technical_params:
+        if field_name not in config_dict or not config_dict[field_name]:
+            fields_to_add.append((field_name, default_value, display_value))
+            defaults_added.append(f"{field_name} = {default_value}")
+            logger.warning(f"⚠️ Added missing field: {field_name} = {display_value}")
 
-    return defaults_added
+    return fields_to_add, defaults_added
 
 
 def _add_port_defaults(config_dict: Dict[str, Any]) -> List[str]:
@@ -370,72 +427,7 @@ def _validate_required_structure(config_dict: Dict[str, Any]) -> List[str]:
     return structure_added
 
 
-def _add_configuration_fields(config_dict: Dict[str, Any]) -> List[str]:
-    """
-    Add missing configuration fields with sensible defaults.
-
-    Parameters
-    ----------
-    config_dict : Dict[str, Any]
-        Configuration dictionary to modify.
-
-    Returns
-    -------
-    List[str]
-        List of default fields that were added.
-    """
-    from cruiseplan.utils.constants import (
-        DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-        DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
-        DEFAULT_STATION_SPACING_KM,
-        DEFAULT_TURNAROUND_TIME_MIN,
-        DEFAULT_VESSEL_SPEED_KT,
-    )
-
-    defaults_added = []
-    fields_to_add = []
-
-    # Define field configurations: (field_name, default_value, display_value, description)
-    field_configs = [
-        (
-            "default_vessel_speed",
-            DEFAULT_VESSEL_SPEED_KT,
-            f"{DEFAULT_VESSEL_SPEED_KT} knots",
-            "vessel speed",
-        ),
-        (
-            "calculate_transfer_between_sections",
-            DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
-            str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS),
-            "transfer calculation",
-        ),
-        (
-            "calculate_depth_via_bathymetry",
-            DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-            str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY),
-            "bathymetry depth calculation",
-        ),
-        (
-            "default_distance_between_stations",
-            DEFAULT_STATION_SPACING_KM,
-            f"{DEFAULT_STATION_SPACING_KM} km",
-            "station spacing",
-        ),
-        (
-            "turnaround_time",
-            DEFAULT_TURNAROUND_TIME_MIN,
-            f"{DEFAULT_TURNAROUND_TIME_MIN} minutes",
-            "turnaround time",
-        ),
-    ]
-
-    for field_name, default_value, display_value, description in field_configs:
-        if field_name not in config_dict:
-            fields_to_add.append((field_name, default_value, display_value))
-            defaults_added.append(f"{field_name} = {default_value}")
-            logger.warning(f"⚠️ Added missing field: {field_name} = {display_value}")
-
-    return fields_to_add, defaults_added
+# _add_configuration_fields function has been merged into _add_missing_defaults
 
 
 def _insert_missing_fields(

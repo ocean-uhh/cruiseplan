@@ -429,18 +429,29 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
     # Add stations from configuration
     if hasattr(config, "stations") and config.stations:
         for station in config.stations:
+            # Convert enum values to strings
             operation_type = getattr(station, "operation_type", "station")
+            if hasattr(operation_type, "value"):
+                operation_type = operation_type.value
+
             action = getattr(station, "action", "profile")
-            depth = getattr(station, "depth", "N/A")
+            if hasattr(action, "value"):
+                action = action.value
+
+            # Use water_depth field (added by enrichment) with fallback
+            depth = getattr(station, "water_depth", None) or getattr(
+                station, "depth", None
+            )
+            depth_str = f"{depth:.0f}" if depth is not None else "N/A"
 
             kml_content += f"""
         <Placemark>
             <name>{station.name}</name>
             <description>
-                Type: Station ({operation_type})
-                Action: {action}
+                Type: {operation_type.upper()}
+                Action: {action.upper()}
                 Location: {station.latitude:.6f}°N, {station.longitude:.6f}°W
-                Depth: {depth} m
+                Depth: {depth_str} m
             </description>
             <styleUrl>#stationStyle</styleUrl>
             <Point>
@@ -455,18 +466,29 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
     # Add moorings from configuration
     if hasattr(config, "moorings") and config.moorings:
         for mooring in config.moorings:
+            # Convert enum values to strings
             operation_type = getattr(mooring, "operation_type", "mooring")
+            if hasattr(operation_type, "value"):
+                operation_type = operation_type.value
+
             action = getattr(mooring, "action", "deployment")
-            depth = getattr(mooring, "depth", "N/A")
+            if hasattr(action, "value"):
+                action = action.value
+
+            # Use water_depth field (added by enrichment) with fallback
+            depth = getattr(mooring, "water_depth", None) or getattr(
+                mooring, "depth", None
+            )
+            depth_str = f"{depth:.0f}" if depth is not None else "N/A"
 
             kml_content += f"""
         <Placemark>
             <name>{mooring.name}</name>
             <description>
-                Type: Mooring ({operation_type})
-                Action: {action}
+                Type: {operation_type.upper()}
+                Action: {action.upper()}
                 Location: {mooring.latitude:.6f}°N, {mooring.longitude:.6f}°W
-                Depth: {depth} m
+                Depth: {depth_str} m
             </description>
             <styleUrl>#mooringStyle</styleUrl>
             <Point>
