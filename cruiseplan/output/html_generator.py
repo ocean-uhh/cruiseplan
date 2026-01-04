@@ -542,7 +542,6 @@ class HTMLGenerator:
 
         # Get operation class for extensible categorization
         operation_class = activity.get("operation_class", "Unknown")
-        op_type = activity.get("op_type", "")
 
         # For PointOperations: entry = exit = activity position
         if operation_class == "PointOperation":

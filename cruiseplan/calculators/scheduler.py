@@ -252,9 +252,6 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
     within_area_transits = []  # Transits between scientific operations
 
     # Categorize every activity in the timeline using operation_class and op_type
-    import logging
-
-    logger = logging.getLogger(__name__)
 
     for i, activity in enumerate(timeline):
         # Use new operation_class and op_type fields for categorization
@@ -473,9 +470,6 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
             leg_stats[leg_name]["transits"] += 1
 
     # Debug output for operation counts
-    import logging
-
-    logger = logging.getLogger(__name__)
     total_scientific_operations = (
         len(station_activities)
         + len(mooring_activities)
