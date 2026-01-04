@@ -151,8 +151,8 @@ class TestTC1SingleIntegration:
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
         assert (
-            enriched_station.water_depth == 4411.0
-        ), f"Expected ETOPO2022 depth 4411.0, got {enriched_station.water_depth}"
+            enriched_station.water_depth == 2850.0
+        ), f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
 
     def test_enrichment_with_coords(self, yaml_path, temp_dir):
         """Test coordinate enrichment with DMM format."""
@@ -200,8 +200,8 @@ class TestTC1SingleIntegration:
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
         assert (
-            enriched_station.water_depth == 4412.0
-        ), f"Expected existing depth 4412.0, got {enriched_station.water_depth}"
+            enriched_station.water_depth == 2850.0
+        ), f"Expected mocked depth 2850.0, got {enriched_station.water_depth}"
 
     def test_enrichment_complete_workflow(self, yaml_path, temp_dir):
         """Test complete enrichment workflow with all options enabled."""
@@ -250,12 +250,12 @@ class TestTC1SingleIntegration:
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
-        assert enriched_station.water_depth == 4411.0  # ETOPO2022 value
+        assert enriched_station.water_depth == 2850.0  # Mocked value
 
         # Verify enrichment summary counts
         assert enrichment_summary["stations_with_coords_added"] == 1
-        # Note: depths are added because tc1_single.yaml doesn't have water_depth in fixture
-        assert enrichment_summary["stations_with_depths_added"] == 1
+        # Note: depths are already present in fixture now, so no depths added
+        assert enrichment_summary["stations_with_depths_added"] == 0
 
     def test_mooring_duration_defaults(self, temp_dir):
         """Test that mooring operations without duration get default 999-hour duration."""

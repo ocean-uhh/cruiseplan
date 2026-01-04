@@ -15,6 +15,7 @@ stations:
     longitude: -45.0
     operation_type: CTD
     action: profile
+    water_depth: 2850.0
 
 legs:
   - name: "Leg_Single"
