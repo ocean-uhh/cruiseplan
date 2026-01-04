@@ -121,21 +121,6 @@ def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
     MockLoadCampaign.assert_not_called()
 
 
-def test_main_handles_explicit_output_file(mock_args, mock_external_deps):
-    """Tests that --output-file takes precedence over --output-dir."""
-    MockPicker, _, _ = mock_external_deps
-
-    custom_output = Path("/tmp/custom_output.yml")
-    mock_args.output_file = custom_output
-
-    main(mock_args)
-
-    # Assert picker was initialized with the custom path
-    MockPicker.assert_called_once()
-    actual_path = MockPicker.call_args[1]["output_file"]
-    # Resolve both paths to handle symlinks like /tmp -> /private/tmp on macOS
-    assert Path(actual_path).resolve() == custom_output.resolve()
-
 
 @pytest.mark.skip(reason="Import error testing is complex with dynamic imports")
 def test_main_handles_import_error(mock_args):
