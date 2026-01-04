@@ -219,10 +219,9 @@ class TestVersionAndHelp:
         """Test subcommand help works."""
         test_args = ["cruiseplan", "pangaea", "--help"]
 
-        with patch.object(sys, "argv", test_args):
-            with patch("sys.exit"):
-                # Should not raise exception, just exit cleanly
-                main()
+        with patch.object(sys, "argv", test_args), patch("sys.exit"):
+            # Should not raise exception, just exit cleanly
+            main()
 
 
 class TestDynamicImports:

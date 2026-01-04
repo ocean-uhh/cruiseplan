@@ -2695,7 +2695,7 @@ def enrich_configuration(
     # Process coordinate additions for departure and arrival ports
     if add_coords:
         for port_key in ["departure_port", "arrival_port"]:
-            if port_key in config_dict and config_dict[port_key]:
+            if config_dict.get(port_key):
                 port_data = config_dict[port_key]
                 if hasattr(cruise.config, port_key):
                     port_obj = getattr(cruise.config, port_key)
@@ -2845,7 +2845,7 @@ def enrich_configuration(
     # Process coordinate additions for transit routes
     if add_coords and "transits" in config_dict:
         for transit_data in config_dict["transits"]:
-            if "route" in transit_data and transit_data["route"]:
+            if transit_data.get("route"):
                 # Add route_ddm field with list of position_ddm entries
                 if "route_ddm" not in transit_data:
                     route_ddm_list = []
@@ -2866,7 +2866,7 @@ def enrich_configuration(
     # Process coordinate additions for area corners
     if add_coords and "areas" in config_dict:
         for area_data in config_dict["areas"]:
-            if "corners" in area_data and area_data["corners"]:
+            if area_data.get("corners"):
                 # Add corners_ddm field with list of position_ddm entries
                 if "corners_ddm" not in area_data:
                     corners_ddm_list = []
@@ -3116,7 +3116,7 @@ def _check_unexpanded_ctd_sections_raw(config_dict: Dict[str, Any]) -> List[str]
     warnings = []
 
     # Check if there are any transits with CTD sections
-    if "transits" in config_dict and config_dict["transits"]:
+    if config_dict.get("transits"):
         for transit in config_dict["transits"]:
             if (
                 transit.get("operation_type") == "CTD"

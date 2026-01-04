@@ -294,11 +294,13 @@ class TestLoadCampaignData:
     @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
     def test_invalid_data_root_structure(self, mock_exists):
         """Tests failure if the loaded data is not a list."""
-        with patch(
-            "builtins.open", mock_open(read_data=pickle.dumps({"campaign": "dict"}))
+        with (
+            patch(
+                "builtins.open", mock_open(read_data=pickle.dumps({"campaign": "dict"}))
+            ),
+            pytest.raises(ValueError, match="Expected list of campaigns, got"),
         ):
-            with pytest.raises(ValueError, match="Expected list of campaigns, got"):
-                load_campaign_data("dict_not_list.pkl")
+            load_campaign_data("dict_not_list.pkl")
 
     @patch("cruiseplan.data.pangaea.Path.exists", return_value=True)
     def test_missing_required_keys(self, mock_exists):

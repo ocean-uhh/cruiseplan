@@ -17,8 +17,8 @@ class TestConstants:
 
     def test_constants_values(self):
         """Test that constants have expected values."""
-        assert NM_PER_KM == pytest.approx(0.539957, abs=0.001)
-        assert KM_PER_NM == pytest.approx(1.852, abs=0.001)
+        assert pytest.approx(0.539957, abs=0.001) == NM_PER_KM
+        assert pytest.approx(1.852, abs=0.001) == KM_PER_NM
         assert MINUTES_PER_HOUR == 60.0
 
     def test_minutes_to_hours(self):
@@ -49,7 +49,7 @@ class TestConstants:
         assert minutes_to_hours(hours_to_minutes(hours)) == pytest.approx(hours)
 
         # Test relationship between NM_PER_KM and KM_PER_NM
-        assert NM_PER_KM * KM_PER_NM == pytest.approx(1.0, abs=0.001)
+        assert pytest.approx(1.0, abs=0.001) == NM_PER_KM * KM_PER_NM
 
     def test_edge_cases(self):
         """Test edge cases for conversion functions."""

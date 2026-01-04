@@ -41,13 +41,13 @@ from cruiseplan.utils.output_formatting import (
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
-    "main",
+    "_convert_api_response_to_cli",
+    "_format_error_message",
+    "_format_progress_header",
+    "_resolve_cli_to_api_params",
     "_setup_cli_logging",
     "_validate_config_file",
-    "_resolve_cli_to_api_params",
-    "_convert_api_response_to_cli",
-    "_format_progress_header",
-    "_format_error_message",
+    "main",
 ]
 
 logger = logging.getLogger(__name__)
@@ -146,7 +146,7 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         # Check if it's a configuration parsing error
-        if "yaml" in str(e).lower() or "parse" in str(e).lower() and config_file:
+        if "yaml" in str(e).lower() or ("parse" in str(e).lower() and config_file):
             error_msg = _format_configuration_error(
                 config_file, "configuration", [str(e)]
             )

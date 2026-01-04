@@ -199,7 +199,7 @@ class TestProgressBarFormatting:
     def test_format_progress_bar_no_description(self):
         """Test progress bar without description."""
         result = _format_progress_bar(5, 10)
-        assert "[##########..........] 50% (5/10)" == result
+        assert result == "[##########..........] 50% (5/10)"
 
     def test_format_progress_bar_zero_total(self):
         """Test progress bar with zero total."""
@@ -216,7 +216,7 @@ class TestSizeFormatting:
         file1.write_text("test")  # 4 bytes
 
         result = _format_size_summary([file1])
-        assert "1 files, 4 bytes total" == result
+        assert result == "1 files, 4 bytes total"
 
     def test_format_size_summary_kilobytes(self, tmp_path):
         """Test size formatting for KB files."""
@@ -224,7 +224,7 @@ class TestSizeFormatting:
         file1.write_text("x" * 2048)  # 2048 bytes = 2.0 KB
 
         result = _format_size_summary([file1])
-        assert "1 files, 2.0 KB total" == result
+        assert result == "1 files, 2.0 KB total"
 
     def test_format_size_summary_megabytes(self, tmp_path):
         """Test size formatting for MB files."""
@@ -232,7 +232,7 @@ class TestSizeFormatting:
         file1.write_bytes(b"x" * (2 * 1024 * 1024))  # 2 MB
 
         result = _format_size_summary([file1])
-        assert "1 files, 2.0 MB total" == result
+        assert result == "1 files, 2.0 MB total"
 
     def test_format_size_summary_empty_list(self):
         """Test size formatting with empty file list."""
@@ -258,7 +258,7 @@ class TestOperationFormatting:
         """Test operation summary with details."""
         details = {"files": 3, "size": "1.2MB"}
         result = _format_operation_summary("Download", "success", details)
-        assert "✅ Download: Success (files=3, size=1.2MB)" == result
+        assert result == "✅ Download: Success (files=3, size=1.2MB)"
 
     def test_format_operation_summary_warning(self):
         """Test operation summary with warning status."""
@@ -519,13 +519,13 @@ class TestOutputSummaryFormatting:
     def test_format_output_summary_no_files(self):
         """Test output summary formatting with no files."""
         result = _format_output_summary([], "Processing")
-        assert "❌ Processing failed - no files generated" == result
+        assert result == "❌ Processing failed - no files generated"
 
     def test_format_output_summary_missing_files(self, tmp_path):
         """Test output summary formatting with missing files."""
         missing_file = tmp_path / "missing.txt"
         result = _format_output_summary([missing_file], "Processing")
-        assert "❌ Processing failed - output files not found" == result
+        assert result == "❌ Processing failed - output files not found"
 
     def test_format_output_summary_without_size(self, tmp_path):
         """Test output summary formatting without size information."""

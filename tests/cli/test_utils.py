@@ -373,11 +373,11 @@ class TestWarningUtilities:
         config_file = tmp_path / "test.yaml"
         config_file.write_text("invalid: yaml: [")
 
-        with patch(
-            "cruiseplan.core.cruise.Cruise", side_effect=Exception("Load error")
+        with (
+            patch("cruiseplan.core.cruise.Cruise", side_effect=Exception("Load error")),
+            pytest.raises(CLIError, match="Failed to load cruise configuration"),
         ):
-            with pytest.raises(CLIError, match="Failed to load cruise configuration"):
-                load_cruise_with_pretty_warnings(config_file)
+            load_cruise_with_pretty_warnings(config_file)
 
 
 class TestOutputUtilities:

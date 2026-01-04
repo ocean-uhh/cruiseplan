@@ -398,10 +398,9 @@ class TestEnrichCommand:
                 "cruiseplan.cli.enrich._initialize_cli_command",
                 return_value=Path("test.yaml"),
             ),
+            pytest.raises(SystemExit),
         ):
-
-            with pytest.raises(SystemExit):
-                main(args)
+            main(args)
 
     def test_successful_enrichment_with_all_operations(self):
         """Test successful enrichment with all enhancement types."""

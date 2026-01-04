@@ -44,13 +44,13 @@ from cruiseplan.utils.output_formatting import (
 
 # Re-export functions for test mocking (cleaner than complex patch paths)
 __all__ = [
-    "main",
-    "_setup_cli_logging",
     "_collect_generated_files",
     "_format_progress_header",
     "_format_success_message",
-    "validate_lat_lon_bounds",
+    "_setup_cli_logging",
     "determine_workflow_mode",
+    "main",
+    "validate_lat_lon_bounds",
 ]
 
 logger = logging.getLogger(__name__)
