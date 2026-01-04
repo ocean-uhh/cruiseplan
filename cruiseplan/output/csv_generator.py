@@ -10,6 +10,7 @@ from typing import List
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.output.output_utils import get_activity_depth
 from cruiseplan.utils.activity_utils import (
     format_operation_action,
     round_time_to_minute,
@@ -28,6 +29,34 @@ class CSVGenerator:
         """Initialize the CSV generator."""
         pass
 
+    def _get_display_label(self, activity: dict) -> str:
+        """
+        Get appropriate display label for an activity.
+
+        For ports, use display_name if available, otherwise use label.
+        For other activities, use label directly.
+
+        Parameters
+        ----------
+        activity : dict
+            Activity record
+
+        Returns
+        -------
+        str
+            Display label for the activity
+        """
+        label = activity.get("label", "")
+
+        # For port activities, prefer display_name over label
+        if activity.get("activity", "").lower() == "port":
+            display_name = activity.get("display_name", "")
+            if display_name:
+                # Extract just the city name (before comma) for cleaner display
+                return display_name.split(",")[0].strip()
+
+        return label
+
     def _get_depth_value(self, activity: dict) -> str:
         """
         Get depth value prioritizing operation_depth over water_depth.
@@ -40,18 +69,10 @@ class CSVGenerator:
         Returns
         -------
         str
-            Depth value as string (rounded to whole number) or empty string if no depth
+            Depth value as string (rounded to whole number) or "0" if no depth available
         """
-        # Prioritize operation_depth over water_depth
-        operation_depth = activity.get("operation_depth")
-        water_depth = activity.get("water_depth")
-
-        if operation_depth is not None:
-            return str(round(abs(operation_depth)))
-        elif water_depth is not None:
-            return str(round(abs(water_depth)))
-        else:
-            return ""
+        depth = get_activity_depth(activity)
+        return str(round(depth))
 
     def generate_schedule_csv(
         self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
@@ -124,14 +145,16 @@ class CSVGenerator:
                 else:
                     vessel_speed = 0  # Station operations have 0 vessel speed
 
-                # Format operation and action using correct field names
+                # Format operation and action using correct field names (with backward compatibility)
+                op_type = activity.get("op_type") or activity.get("operation_type", "")
                 operation_action = format_operation_action(
-                    activity.get("op_type", ""), activity.get("action", "")
+                    op_type, activity.get("action", "")
                 )
 
                 # Coordinate conversions using existing utilities
-                lat_decimal = activity["lat"]
-                lon_decimal = activity["lon"]
+                # Use entry coordinates (with backward compatibility for legacy tests)
+                lat_decimal = activity.get("entry_lat")
+                lon_decimal = activity.get("entry_lon")
                 lat_deg_float, lat_min = UnitConverter.decimal_degrees_to_ddm(
                     lat_decimal
                 )

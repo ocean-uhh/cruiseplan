@@ -25,7 +25,12 @@ def is_scientific_operation(activity: Dict[str, Any]) -> bool:
         True if this is a scientific operation
     """
     operation_class = activity.get("operation_class", "")
-    return operation_class in ["PointOperation", "LineOperation", "AreaOperation"]
+    if operation_class:
+        return operation_class in ["PointOperation", "LineOperation", "AreaOperation"]
+
+    # Backward compatibility: check activity type for legacy test data
+    activity_type = activity.get("activity", "")
+    return activity_type in ["Station", "Mooring", "Area", "Line"]
 
 
 def is_scientific_transit(transit: Dict[str, Any]) -> bool:

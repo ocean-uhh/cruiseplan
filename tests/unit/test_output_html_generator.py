@@ -160,19 +160,19 @@ class TestSummaryStatistics:
             {
                 "activity": "Transit",
                 "duration_minutes": 120.0,
-                "transit_dist_nm": 15.0,
+                "dist_nm": 15.0,
                 # No action field - navigation transit
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 180.0,
-                "transit_dist_nm": 25.0,
+                "dist_nm": 25.0,
                 # No action field - navigation transit
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 240.0,
-                "transit_dist_nm": 35.0,
+                "dist_nm": 35.0,
                 # No action field - navigation transit
             },
         ]
@@ -208,7 +208,7 @@ class TestSummaryStatistics:
             {
                 "activity": "Transit",
                 "duration_minutes": 90.0,
-                "transit_dist_nm": 10.0,
+                "dist_nm": 10.0,
                 # Navigation transit
             },
         ]
@@ -339,21 +339,29 @@ class TestHTMLGenerator:
                 "activity": "Mooring",
                 "label": "MOOR_001",
                 "duration_minutes": 180.0,
-                "lat": 45.123456,
-                "lon": -123.654321,
-                "depth": 3000.0,
+                "entry_lat": 45.123456,
+                "entry_lon": -123.654321,
+                "exit_lat": 45.123456,
+                "exit_lon": -123.654321,
+                "operation_depth": 3000.0,
                 "action": "deployment",
                 "comment": "Deep water mooring",
+                "op_type": "mooring",
+                "operation_class": "PointOperation",
             },
             {
                 "activity": "Mooring",
                 "label": "MOOR_002",
                 "duration_minutes": 240.0,
-                "lat": 46.987654,
-                "lon": -124.123456,
-                "depth": 2500.0,
+                "entry_lat": 46.987654,
+                "entry_lon": -124.123456,
+                "exit_lat": 46.987654,
+                "exit_lon": -124.123456,
+                "operation_depth": 2500.0,
                 "action": "recovery",
                 "comment": "Shallow mooring recovery",
+                "op_type": "mooring",
+                "operation_class": "PointOperation",
             },
         ]
 
@@ -393,14 +401,18 @@ class TestHTMLGenerator:
             {
                 "activity": "Transit",
                 "duration_minutes": 240.0,
-                "operation_dist_nm": 30.0,
+                "dist_nm": 30.0,
                 "action": "ADCP",
+                "op_type": "survey",
+                "operation_class": "LineOperation",
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 180.0,
-                "operation_dist_nm": 20.0,
+                "dist_nm": 20.0,
                 "action": "bathymetry",
+                "op_type": "survey",
+                "operation_class": "LineOperation",
             },
         ]
 
@@ -427,8 +439,20 @@ class TestHTMLGenerator:
     def test_area_operations_html(self):
         """Test HTML generation with area operations."""
         timeline = [
-            {"activity": "Area", "duration_minutes": 120.0, "action": "bathymetry"},
-            {"activity": "Area", "duration_minutes": 180.0, "action": "survey"},
+            {
+                "activity": "Area",
+                "duration_minutes": 120.0,
+                "action": "bathymetry",
+                "op_type": "area",
+                "operation_class": "AreaOperation",
+            },
+            {
+                "activity": "Area",
+                "duration_minutes": 180.0,
+                "action": "survey",
+                "op_type": "area",
+                "operation_class": "AreaOperation",
+            },
         ]
 
         with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp_file:
@@ -456,19 +480,19 @@ class TestHTMLGenerator:
             {
                 "activity": "Transit",
                 "duration_minutes": 120.0,
-                "transit_dist_nm": 15.0,
+                "dist_nm": 15.0,
                 # Navigation transit (no action)
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 180.0,
-                "transit_dist_nm": 25.0,
+                "dist_nm": 25.0,
                 # Navigation transit (no action)
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 240.0,
-                "transit_dist_nm": 35.0,
+                "dist_nm": 35.0,
                 # Navigation transit (no action)
             },
         ]
@@ -501,26 +525,40 @@ class TestHTMLGenerator:
             {
                 "activity": "Station",
                 "duration_minutes": 120.0,
-                "depth": 1000.0,
+                "operation_depth": 1000.0,
                 "action": "profile",
+                "op_type": "station",
+                "operation_class": "PointOperation",
             },
             {
                 "activity": "Mooring",
                 "label": "MOOR_001",
                 "duration_minutes": 180.0,
-                "lat": 45.0,
-                "lon": -45.0,
-                "depth": 2000.0,
+                "entry_lat": 45.0,
+                "entry_lon": -45.0,
+                "exit_lat": 45.0,
+                "exit_lon": -45.0,
+                "operation_depth": 2000.0,
                 "action": "deployment",
                 "comment": "Test mooring",
+                "op_type": "mooring",
+                "operation_class": "PointOperation",
             },
             {
                 "activity": "Transit",
                 "duration_minutes": 240.0,
-                "operation_dist_nm": 30.0,
+                "dist_nm": 30.0,
                 "action": "ADCP",
+                "op_type": "survey",
+                "operation_class": "LineOperation",
             },
-            {"activity": "Area", "duration_minutes": 150.0, "action": "bathymetry"},
+            {
+                "activity": "Area",
+                "duration_minutes": 150.0,
+                "action": "bathymetry",
+                "op_type": "area",
+                "operation_class": "AreaOperation",
+            },
         ]
 
         with tempfile.NamedTemporaryFile(suffix=".html", delete=False) as tmp_file:

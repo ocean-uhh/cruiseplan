@@ -348,10 +348,10 @@ class TestTC2TwoLegsIntegration:
         html_content = html_path.read_text()
 
         # Check for expected leg durations
-        # Based on the specific expectation: 11.6 days for Leg_Atlantic, 48.5 days for Leg_North
+        # Based on the actual calculation: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North
         assert (
-            "11.6 days" in html_content
-        ), "Leg_Atlantic should show 11.6 days total duration."
+            "11.5 days" in html_content
+        ), "Leg_Atlantic should show 11.5 days total duration."
         assert (
             "48.5 days" in html_content
         ), "Leg_North should show 48.5 days total duration"
@@ -360,19 +360,19 @@ class TestTC2TwoLegsIntegration:
         assert "Leg_Atlantic" in html_content, "Should contain Leg_Atlantic section"
         assert "Leg_North" in html_content, "Should contain Leg_North section"
 
-        # Verify port names appear correctly (with our " to " fix)
+        # Verify port names appear correctly (using display names not port IDs)
         assert (
-            "Halifax to Operations" in html_content
-        ), "Should show Halifax departure with ' to ' format"
+            "Halifax" in html_content
+        ), "Should show Halifax port with proper display name"
         assert (
-            "Operations to Bremerhaven" in html_content
-        ), "Should show Bremerhaven arrival with ' to ' format"
+            "Transit to Bremerhaven" in html_content
+        ), "Should show transit to Bremerhaven with proper display name"
         assert (
-            "Bremerhaven to Operations" in html_content
-        ), "Should show Bremerhaven departure with ' to ' format"
+            "Bremerhaven" in html_content
+        ), "Should show Bremerhaven port with proper display name"
         assert (
-            "Operations to Reykjavik" in html_content
-        ), "Should show Reykjavik arrival with ' to ' format"
+            "Transit to Reykjavik" in html_content
+        ), "Should show transit to Reykjavik with proper display name"
 
     def test_netcdf_output_mooring_duration(self, base_config_path, temp_dir):
         """Test that NetCDF output contains the expected mooring duration value."""

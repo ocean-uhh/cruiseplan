@@ -13,8 +13,20 @@ calculate_depth_via_bathymetry: true #  # default added by cruiseplan enrich
 default_distance_between_stations: 15.0 #  # default added by cruiseplan enrich
 legs:
   - name: "Section_Survey"
-    departure_port: port_halifax
-    arrival_port: port_cadiz
+    departure_port:
+      name: port_halifax
+      latitude: 44.6488
+      longitude: -63.5752
+      operation_type: port
+      action: mob
+      display_name: Halifax, Nova Scotia
+    arrival_port:
+      name: port_cadiz
+      latitude: 36.5298
+      longitude: -6.2923
+      operation_type: port
+      action: demob
+      display_name: Cadiz, Spain
     first_waypoint: SEC_001_Stn001
     last_waypoint: SEC_001_Stn014
     activities:

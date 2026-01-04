@@ -116,13 +116,15 @@ class NavigationalTransit(BaseOperation):
         leg_name: str,
         vessel_speed: Optional[float] = None,
     ):
-        name = f"Transit to {to_op.name}"
+        name = f"Transit to {to_op.get_label()}"
         super().__init__(name)
         self.from_op = from_op
         self.to_op = to_op
         self.config = config
         self.leg_name = leg_name
-        self.vessel_speed = vessel_speed or getattr(config, "default_vessel_speed", 10.0)
+        self.vessel_speed = vessel_speed or getattr(
+            config, "default_vessel_speed", 10.0
+        )
 
     def calculate_duration(self, rules: Any) -> float:
         """Calculate based on transit distance and vessel speed."""
@@ -250,32 +252,56 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
     within_area_transits = []  # Transits between scientific operations
 
     # Categorize every activity in the timeline using operation_class and op_type
+    import logging
+
+    logger = logging.getLogger(__name__)
+
     for i, activity in enumerate(timeline):
         # Use new operation_class and op_type fields for categorization
         operation_class = activity.get("operation_class", "Unknown")
         op_type = activity.get("op_type", "")
+        activity_type = activity.get("activity", "")
+        label = activity.get("label", "")
 
         if operation_class == "PointOperation":
             if op_type == "station":
                 station_activities.append(activity)
+                logger.info(
+                    f"   Adding to stations: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+                )
             elif op_type == "mooring":
                 mooring_activities.append(activity)
+                logger.info(
+                    f"   Adding to moorings: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+                )
             elif op_type == "port":
                 port_activities.append(activity)
+                logger.info(
+                    f"   Adding to ports: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+                )
             else:
                 # Other point operations (waypoints, etc.) - treat as stations
                 station_activities.append(activity)
+                logger.info(
+                    f"   Adding to stations (other): {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+                )
         elif operation_class == "LineOperation":
             # Line operations are scientific transits (ADCP surveys, etc.)
             scientific_transits.append(activity)
+            logger.info(
+                f"   Adding to scientific_transits: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+            )
         elif operation_class == "AreaOperation":
             area_activities.append(activity)
+            logger.info(
+                f"   Adding to areas: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
+            )
         elif operation_class == "NavigationalTransit":
             # Check if this transit connects to/from a port and categorize direction
             is_from_port = False
             is_to_port = False
 
-            # Check previous activity (if exists) 
+            # Check previous activity (if exists)
             if i > 0:
                 prev_activity = timeline[i - 1]
                 if (
@@ -381,7 +407,6 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
             "avg_speed_kt": 0,
         }
 
-
     # Calculate separate port transit statistics (to area and from area)
     def calc_port_transit_stats(transits):
         if not transits:
@@ -408,6 +433,74 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
     port_transit_to_area_stats = calc_port_transit_stats(port_transits_to_area)
     port_transit_from_area_stats = calc_port_transit_stats(port_transits_from_area)
 
+    # Calculate leg-specific operation counts
+    leg_stats = {}
+    for activity in timeline:
+        leg_name = activity.get("leg_name", "Unknown")
+        if leg_name not in leg_stats:
+            leg_stats[leg_name] = {
+                "stations": 0,
+                "moorings": 0,
+                "surveys": 0,
+                "areas": 0,
+                "total_scientific": 0,
+                "ports": 0,
+                "transits": 0,
+                "total_activities": 0,
+            }
+
+        leg_stats[leg_name]["total_activities"] += 1
+
+        operation_class = activity.get("operation_class", "")
+        op_type = activity.get("op_type", "")
+
+        if operation_class == "PointOperation":
+            if op_type == "station":
+                leg_stats[leg_name]["stations"] += 1
+                leg_stats[leg_name]["total_scientific"] += 1
+            elif op_type == "mooring":
+                leg_stats[leg_name]["moorings"] += 1
+                leg_stats[leg_name]["total_scientific"] += 1
+            elif op_type == "port":
+                leg_stats[leg_name]["ports"] += 1
+        elif operation_class == "LineOperation":
+            leg_stats[leg_name]["surveys"] += 1
+            leg_stats[leg_name]["total_scientific"] += 1
+        elif operation_class == "AreaOperation":
+            leg_stats[leg_name]["areas"] += 1
+            leg_stats[leg_name]["total_scientific"] += 1
+        elif operation_class == "NavigationalTransit":
+            leg_stats[leg_name]["transits"] += 1
+
+    # Debug output for operation counts
+    import logging
+
+    logger = logging.getLogger(__name__)
+    total_scientific_operations = (
+        len(station_activities)
+        + len(mooring_activities)
+        + len(scientific_transits)
+        + len(area_activities)
+    )
+    logger.info("🔍 Cruise-level operation counts:")
+    logger.info(f"   Stations: {len(station_activities)}")
+    logger.info(f"   Moorings: {len(mooring_activities)}")
+    logger.info(f"   Scientific transits (surveys): {len(scientific_transits)}")
+    logger.info(f"   Area operations: {len(area_activities)}")
+    logger.info(f"   Total scientific operations: {total_scientific_operations}")
+    logger.info(f"   Port activities: {len(port_activities)}")
+    logger.info(f"   Within-area transits: {len(within_area_transits)}")
+
+    # Debug output for leg-specific counts
+    for leg_name, stats in leg_stats.items():
+        logger.info(f"🔍 Leg '{leg_name}' operation counts:")
+        logger.info(f"   Stations: {stats['stations']}")
+        logger.info(f"   Moorings: {stats['moorings']}")
+        logger.info(f"   Surveys: {stats['surveys']}")
+        logger.info(f"   Areas: {stats['areas']}")
+        logger.info(f"   Total scientific operations: {stats['total_scientific']}")
+        logger.info(f"   Total activities in leg: {stats['total_activities']}")
+
     return {
         "stations": calc_stats(station_activities, include_depth=True),
         "moorings": calc_stats(mooring_activities),
@@ -417,6 +510,8 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
         "port_transits_to_area": port_transit_to_area_stats,
         "port_transits_from_area": port_transit_from_area_stats,
         "port_activities": calc_stats(port_activities),
+        # Leg-specific operation counts
+        "leg_stats": leg_stats,
         # Raw data for detailed processing
         "station_activities": station_activities,
         "mooring_activities": mooring_activities,
@@ -497,13 +592,8 @@ class TimelineGenerator:
 
         # Build complete activities sequence: departure_port + leg_activities + arrival_port
         # Validation ensures departure_port and arrival_port are required fields
-        # Extract port names (runtime leg may have PortDefinition objects, we need names)
-        departure_port_name = (
-            leg.departure_port.name
-            if hasattr(leg.departure_port, "name")
-            else leg.departure_port
-        )
-        complete_activities = [departure_port_name]
+        # Use full port objects (which may contain enriched action info) instead of just names
+        complete_activities = [leg.departure_port]
 
         # Get leg activities - check both runtime leg and config leg
         leg_activities = self._extract_activities_from_leg(leg)
@@ -517,19 +607,22 @@ class TimelineGenerator:
         complete_activities.extend(leg_activities or [])
 
         # Add arrival port to sequence (validation ensures it exists)
-        arrival_port_name = (
-            leg.arrival_port.name
-            if hasattr(leg.arrival_port, "name")
-            else leg.arrival_port
-        )
-        complete_activities.append(arrival_port_name)
+        complete_activities.append(leg.arrival_port)
 
         previous_operation = None
 
         # Process complete activities sequence (ports are treated as regular operations)
-        for activity_name in complete_activities:
+        for activity in complete_activities:
             try:
-                operation = self.factory.create_operation(activity_name, leg.name)
+                # Handle both activity names (strings) and port objects
+                if isinstance(activity, str):
+                    # Regular activity name - use factory
+                    operation = self.factory.create_operation(activity, leg.name)
+                else:
+                    # Port object with enriched information (action, etc.) - create directly
+                    from cruiseplan.core.operations import PointOperation
+
+                    operation = PointOperation.from_port(activity)
 
                 # Add navigational transit between all operations
                 # Zero-duration transits will be filtered out in presentation layer
@@ -549,20 +642,25 @@ class TimelineGenerator:
                 previous_operation = operation
 
             except Exception as e:
+                activity_name = getattr(activity, "name", str(activity))
                 logger.error(f"Failed to process activity '{activity_name}': {e}")
                 continue
 
         return activities
 
     def _create_navigational_transit(
-        self, from_op: BaseOperation, to_op: BaseOperation, leg_name: str = "unknown", leg: Any = None
+        self,
+        from_op: BaseOperation,
+        to_op: BaseOperation,
+        leg_name: str = "unknown",
+        leg: Any = None,
     ) -> Optional[ActivityRecord]:
         """Create navigational transit between operations."""
         # Get leg-specific vessel speed if available
         leg_vessel_speed = None
         if leg and hasattr(leg, "vessel_speed"):
             leg_vessel_speed = leg.vessel_speed
-        
+
         transit = NavigationalTransit(
             from_op, to_op, self.config, leg_name, vessel_speed=leg_vessel_speed
         )
@@ -693,7 +791,11 @@ class TimelineGenerator:
                     elif hasattr(config_leg, "stations") and config_leg.stations:
                         activities.extend(
                             [
-                                station.name if hasattr(station, "name") else str(station)
+                                (
+                                    station.name
+                                    if hasattr(station, "name")
+                                    else str(station)
+                                )
                                 for station in config_leg.stations
                             ]
                         )

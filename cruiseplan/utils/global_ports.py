@@ -539,8 +539,10 @@ def resolve_port_reference(
                 display_name = port_data.get("display_name", "")
                 port_name = port_data.get("name", "")
                 # Match if port_ref matches the display name up to comma, or the name field
-                if (display_name.split(",")[0].strip() == port_ref or 
-                    port_name == port_ref):
+                if (
+                    display_name.split(",")[0].strip() == port_ref
+                    or port_name == port_ref
+                ):
                     return PortDefinition(
                         name=port_id,  # Use the port_id (e.g. port_halifax) as the canonical name
                         latitude=port_data["latitude"],
@@ -548,7 +550,7 @@ def resolve_port_reference(
                         display_name=display_name,
                         description=port_data.get("description", ""),
                     )
-            
+
             # Simple string port name (backward compatibility)
             warnings.warn(
                 f"Port reference '{port_ref}' should use 'port_' prefix for global ports "

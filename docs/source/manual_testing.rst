@@ -159,7 +159,7 @@ Test Case 2: Two Legs (tc2_two_legs.yaml)
 
 2. |uncheck| Verify that two legs are generated with **277.2 hours** in Leg 1 and **1163.2 hours** in Leg 2.
 
-3. |uncheck| Verify that the `_schedule.png` matches `TC2_Two_Legs_Test_schedule.png <_static/fixtures/TC2_Two_Legs_Test_schedule.png>`_
+3. |uncheck| Verify that the `_schedule.png` matches `TC2_TwoLegs_Test_schedule.png <_static/fixtures/TC2_TwoLegs_Test_schedule.png>`_
 
 4. |uncheck| Verify that the `_work_days.tex` has a total duration with operations of **1000.0** hours and transit duration of **440.4** hours.
 
@@ -211,14 +211,13 @@ Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)
 
 1. |uncheck| Verify that the `*_map.png` shows a shaded area, a line and a station.  Compare to `TC4_Mixed_Test_map.png <_static/fixtures/TC4_Mixed_Test_map.png>`_
 
-2. |uncheck| Verify that the `*_stations.tex` shows 4 lines with:
+2. |uncheck| Verify that the `*_stations.tex` shows 3 lines with:
 
 .. code-block:: latex
 
    Station & STN-001 & 45$^\circ$00.00'N, 050$^\circ$00.00'W & 58 \\
-   Survey (start) & ADCP-Survey & 46$^\circ$00.00'N, 050$^\circ$00.00'W & N/A \\
-   Survey (end) & ADCP-Survey & 46$^\circ$00.00'N, 050$^\circ$00.00'W & N/A \\
-   Area (bathymetry) & Area-01 & Center: 48$^\circ$00.00'N, 050$^\circ$00.00'W & Variable \\
+   Line (line) & ADCP-Survey & (46$^\circ$00.00'N, 050$^\circ$00.00'W) to (46$^\circ$00.00'N, 050$^\circ$00.00'W) & N/A \\
+   Area (None) & Area-01 & Center: 47$^\circ$30.00'N, 050$^\circ$30.00'W & Variable \\
 
 Compare with the `TC4_Mixed_Test_schedule.html <_static/fixtures/TC4_Mixed_Test_schedule.html>`_ for coordinates and depths.
 

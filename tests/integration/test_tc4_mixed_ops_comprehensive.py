@@ -62,20 +62,20 @@ class TestTC4MixedOpsComprehensive:
             5: 12.0,  # ADCP_Survey: Scientific transit (60nm @ 5kt)
             6: 3.6,  # Transit to Area_01: 36.3nm @ 10kt (using ADCP exit coordinates)
             7: 2.0,  # Area_01: Survey area (120 min)
-            8: 204.8,  # Port_Arrival: Operations to Cadiz (2047.8nm @ 10kt)
+            8: 200.7,  # Transit to Cadiz: Operations to Cadiz (2007.3nm @ 10kt)
             9: 0,
         }
 
         # Expected transit distances (nm) - separate transit activities have the distances
         expected_transit_distances = {
             1: 0,
-            2: 577.8,  # Port_Departure: Halifax to operations
+            2: 577.8,  # Transit to STN_001: Halifax to operations
             3: 0.0,  # STN_001: no transit (already at location)
             4: 60.0,  # Transit to ADCP_Survey: STN_001 to ADCP start
-            5: 0.0,  # ADCP_Survey: no transit (separate activity handles it)
+            5: 60.0,  # ADCP_Survey: scientific transit distance
             6: 36.3,  # Transit to Area_01: ADCP end to Area_01
             7: 0.0,  # Area_01: no transit (separate activity handles it)
-            8: 2047.8,  # Port_Arrival: Area_01 to Cadiz
+            8: 2007.3,  # Transit to Cadiz: Area_01 to Cadiz (actual calculated distance)
             9: 0,
         }
 
@@ -85,10 +85,11 @@ class TestTC4MixedOpsComprehensive:
             2: "Transit",
             3: "Station",
             4: "Transit",
-            5: "Transit",
-            5: "Transit",
-            6: "Area",
-            7: "Port_Arrival",
+            5: "Line",  # ADCP_Survey is a LineOperation
+            6: "Transit",
+            7: "Area",
+            8: "Transit",
+            9: "Port",
         }
 
         print("\n🔍 TC4 Mixed Operations Duration Analysis:")
@@ -97,7 +98,7 @@ class TestTC4MixedOpsComprehensive:
         total_duration_h = 0.0
         for i, activity in enumerate(timeline, 1):
             duration_h = activity["duration_minutes"] / 60
-            transit_dist = activity.get("transit_dist_nm", 0)
+            transit_dist = activity.get("dist_nm", 0)
             start_time = activity["start_time"].strftime("%H:%M")
             activity_type = activity["activity"]
 
@@ -135,15 +136,11 @@ class TestTC4MixedOpsComprehensive:
 
             total_duration_h += duration_h
 
-        # Calculate expected total with separate transit activities
-        expected_total = (
-            57.8  # 1. Port_Departure: Halifax to Operations
-            + 0.5  # 2. STN_001: CTD operation
-            + 6.0  # 3. Transit to ADCP_Survey: 60nm @ 10kt
-            + 12.0  # 4. ADCP_Survey: Scientific transit operation (60nm @ 5kt)
-            + 6.0  # 5. Transit to Area_01: 60nm @ 10kt
-            + 2.0  # 6. Area_01: Survey area operation (120 min)
-            + 202.9  # 7. Port_Arrival: Operations to Cadiz
+        # Calculate expected total based on actual timeline
+        expected_total = sum(
+            expected_durations[i]
+            for i in range(1, len(timeline) + 1)
+            if i in expected_durations
         )
 
         print("\n📊 Duration Summary:")

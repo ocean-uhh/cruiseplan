@@ -22,7 +22,11 @@ from cruiseplan.calculators.scheduler import (
     calculate_timeline_statistics,
 )
 from cruiseplan.core.validation import CruiseConfig
-from cruiseplan.utils.activity_utils import is_scientific_operation
+from cruiseplan.output.output_utils import (
+    format_activity_type,
+    get_activity_depth,
+    get_activity_position,
+)
 from cruiseplan.utils.constants import NM_PER_KM, hours_to_days
 
 logger = logging.getLogger(__name__)
@@ -184,11 +188,24 @@ class HTMLGenerator:
 """
 
         # Transit to/from working area row (combine both directions)
-        total_port_distance_nm = stats["port_transits_to_area"]["total_distance_nm"] + stats["port_transits_from_area"]["total_distance_nm"]
-        total_port_duration_h = stats["port_transits_to_area"]["total_duration_h"] + stats["port_transits_from_area"]["total_duration_h"]
-        total_port_duration_days = stats["port_transits_to_area"]["total_duration_days"] + stats["port_transits_from_area"]["total_duration_days"]
-        avg_port_speed_kt = total_port_distance_nm / total_port_duration_h if total_port_duration_h > 0 else 0
-        
+        total_port_distance_nm = (
+            stats["port_transits_to_area"]["total_distance_nm"]
+            + stats["port_transits_from_area"]["total_distance_nm"]
+        )
+        total_port_duration_h = (
+            stats["port_transits_to_area"]["total_duration_h"]
+            + stats["port_transits_from_area"]["total_duration_h"]
+        )
+        total_port_duration_days = (
+            stats["port_transits_to_area"]["total_duration_days"]
+            + stats["port_transits_from_area"]["total_duration_days"]
+        )
+        avg_port_speed_kt = (
+            total_port_distance_nm / total_port_duration_h
+            if total_port_duration_h > 0
+            else 0
+        )
+
         if total_port_distance_nm > 0:
             html_content += f"""
         <tr>
@@ -229,25 +246,18 @@ class HTMLGenerator:
 
         if stats["mooring_activities"]:
             for mooring in stats["mooring_activities"]:
-                lat_ddm = _convert_decimal_to_deg_min_html(mooring["lat"])
-                lon_ddm = _convert_decimal_to_deg_min_html(mooring["lon"])
+                lat, lon = get_activity_position(mooring)
+                lat_ddm = _convert_decimal_to_deg_min_html(lat)
+                lon_ddm = _convert_decimal_to_deg_min_html(lon)
                 comment = mooring.get("comment", "")
-                # Use operation_depth if available, otherwise water_depth (implementing get_depth logic)
-                operation_depth = mooring.get("operation_depth")
-                water_depth = mooring.get("water_depth") 
-                if operation_depth is not None:
-                    depth = operation_depth
-                elif water_depth is not None:
-                    depth = water_depth
-                else:
-                    depth = 0
+                depth = get_activity_depth(mooring)
                 action = mooring.get("action", "N/A")
 
                 html_content += f"""
         <tr>
             <td>{mooring['label']}</td>
             <td>{comment}</td>
-            <td>{mooring['lat']:.6f}, {mooring['lon']:.6f}</td>
+            <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
             <td class="number">{depth:.0f}</td>
             <td class="number">{mooring['duration_minutes']/60:.1f}</td>
@@ -358,17 +368,8 @@ class HTMLGenerator:
                     self._get_activity_entry_exit_distance(activity, activities, i)
                 )
 
-                # Determine activity type using correct field names
-                activity_type = activity.get("activity", "Unknown")
-                if activity_type == "Station":
-                    operation = activity.get("operation_type", "N/A")
-                    activity_type = f"Station ({operation})"
-                elif activity_type == "Mooring":
-                    action = activity.get("action", "N/A")
-                    activity_type = f"Mooring ({action})"
-                elif activity_type == "Transit":
-                    operation = activity.get("operation_type", "N/A")
-                    activity_type = f"Transit ({operation})"
+                # Determine activity type using shared utility
+                activity_type = format_activity_type(activity)
 
                 html_content += f"""
         <tr>
@@ -384,11 +385,10 @@ class HTMLGenerator:
 
             # Transit to arrival port is now handled by scheduler Port_Arrival activities
 
-            # Count scientific operations for leg total
-            scientific_operations_count = 0
-            for activity in leg_data["activities"]:
-                if is_scientific_operation(activity):
-                    scientific_operations_count += 1
+            # Get scientific operations count from scheduler stats instead of recalculating
+            leg_stats = stats.get("leg_stats", {})
+            leg_stat = leg_stats.get(leg_name, {})
+            scientific_operations_count = leg_stat.get("total_scientific", 0)
 
             # Add leg total row
             html_content += f"""

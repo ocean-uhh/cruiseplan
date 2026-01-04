@@ -1279,7 +1279,7 @@ class NetCDFGenerator:
                     # Fallback: use event position with small offset (previous behavior)
                     start_lat = event["lat"]
                     start_lon = event["lon"]
-                    operation_dist = event.get("operation_dist_nm", 10.0)
+                    operation_dist = event.get("dist_nm", 10.0)
                     lat_offset = operation_dist / 60.0
 
                     line_operations.append(

@@ -26,7 +26,12 @@ class BaseOperation(ABC):
         Optional human-readable comment or description.
     """
 
-    def __init__(self, name: str, comment: Optional[str] = None, display_name: Optional[str] = None):
+    def __init__(
+        self,
+        name: str,
+        comment: Optional[str] = None,
+        display_name: Optional[str] = None,
+    ):
         """
         Initialize a base operation.
 
@@ -129,6 +134,11 @@ class BaseOperation(ABC):
         str
             Human-readable label, defaults to operation name.
         """
+        # For ports, use display name if available
+        if hasattr(self, "display_name") and self.display_name:
+            # Extract just the city name (before comma) for cleaner display
+            return self.display_name.split(",")[0].strip()
+
         return self.name
 
 
@@ -196,10 +206,10 @@ class PointOperation(BaseOperation):
     def get_depth(self) -> float:
         """
         Get the appropriate depth for this operation.
-        
-        Returns operation_depth if available, otherwise water_depth, 
+
+        Returns operation_depth if available, otherwise water_depth,
         otherwise 0.0.
-        
+
         Returns
         -------
         float
@@ -241,7 +251,12 @@ class PointOperation(BaseOperation):
 
         calc = DurationCalculator(rules.config)
 
-        if self.op_type == "station":
+        # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
+        if self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"] or (
+            hasattr(self, "operation_depth")
+            and self.operation_depth is not None
+            and self.operation_depth > 0
+        ):
             return calc.calculate_ctd_time(self.get_depth())
         elif self.op_type == "mooring":
             # Moorings should have manual duration, but fallback to default
@@ -289,13 +304,21 @@ class PointOperation(BaseOperation):
         """
         Get operation type for timeline display.
 
-        Returns appropriate display type based on the op_type attribute.
+        Returns appropriate display type based on the op_type and action attributes.
+        For ports, returns "Port_Departure" or "Port_Arrival" based on action.
 
         Returns
         -------
         str
-            Operation type identifier ("Station", "Mooring", "Port", "Waypoint").
+            Operation type identifier ("Station", "Mooring", "Port_Departure", "Port_Arrival", etc.).
         """
+        # Special handling for ports with actions
+        if self.op_type == "port" and self.action:
+            if self.action == "mob":
+                return "Port_Departure"
+            elif self.action == "demob":
+                return "Port_Arrival"
+
         # Map internal op_types to display names
         type_mapping = {
             "station": "Station",
@@ -326,22 +349,16 @@ class PointOperation(BaseOperation):
         pos = (obj.latitude, obj.longitude)
 
         # 2. Map operation types to legacy internal types
-        op_type_mapping = {
-            "CTD": "station",
-            "water_sampling": "station",
-            "calibration": "station",
-            "mooring": "mooring",
-            # v0.3.1 Unified operations
-            "port": "port",
-            "waypoint": "waypoint",
-        }
-
-        internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
+        # Use the original operation_type from YAML for display
+        # The operation_class already tells us the implementation type
+        display_op_type = obj.operation_type.value if obj.operation_type else "station"
         action = obj.action.value if obj.action else None
 
         # Use water_depth as fallback for operation_depth
-        operation_depth = obj.operation_depth if obj.operation_depth is not None else obj.water_depth
-        
+        operation_depth = (
+            obj.operation_depth if obj.operation_depth is not None else obj.water_depth
+        )
+
         return cls(
             name=obj.name,
             position=pos,
@@ -349,7 +366,7 @@ class PointOperation(BaseOperation):
             water_depth=obj.water_depth,
             duration=obj.duration if obj.duration else 0.0,
             comment=obj.comment,
-            op_type=internal_op_type,
+            op_type=display_op_type,
             action=action,
         )
 
@@ -378,7 +395,7 @@ class PointOperation(BaseOperation):
             duration=0.0,  # Ports have no operation duration
             comment=getattr(obj, "description", None),
             op_type="port",
-            action="mob",  # Default to mobilization action
+            action=getattr(obj, "action", "mob"),  # Use port's action or default to mob
             display_name=getattr(obj, "display_name", None),
         )
 
@@ -399,7 +416,14 @@ class LineOperation(BaseOperation):
     """
 
     def __init__(
-        self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None, display_name: str = None
+        self,
+        name: str,
+        route: List[tuple],
+        speed: float = 10.0,
+        comment: str = None,
+        display_name: str = None,
+        op_type: str = "line",
+        action: str = None,
     ):
         """
         Initialize a line operation.
@@ -418,6 +442,8 @@ class LineOperation(BaseOperation):
         super().__init__(name, comment, display_name)
         self.route = route  # List of (lat, lon)
         self.speed = speed
+        self.op_type = op_type
+        self.action = action
 
     def calculate_duration(self, rules: Any) -> float:
         """
@@ -447,7 +473,11 @@ class LineOperation(BaseOperation):
         if hasattr(rules, "config"):
             calc = DurationCalculator(rules.config)
             # Use default vessel speed if self.speed is 0 or None
-            effective_speed = self.speed if self.speed and self.speed > 0 else rules.config.default_vessel_speed
+            effective_speed = (
+                self.speed
+                if self.speed and self.speed > 0
+                else rules.config.default_vessel_speed
+            )
             return calc.calculate_transit_time(route_distance_km, effective_speed)
         else:
             # Fallback for cases without config
@@ -530,11 +560,18 @@ class LineOperation(BaseOperation):
         # Convert List[GeoPoint] -> List[tuple]
         route_tuples = [(p.latitude, p.longitude) for p in obj.route]
 
+        # Use the original operation_type from YAML for display
+        display_op_type = obj.operation_type.value if obj.operation_type else "line"
+        action = obj.action.value if obj.action else None
+
         return cls(
             name=obj.name,
             route=route_tuples,
             speed=obj.vessel_speed if obj.vessel_speed else default_speed,
             comment=obj.comment,
+            display_name=getattr(obj, "display_name", None),
+            op_type=display_op_type,
+            action=action,
         )
 
 
@@ -572,6 +609,8 @@ class AreaOperation(BaseOperation):
         sampling_density: float = 1.0,
         comment: str = None,
         display_name: str = None,
+        op_type: str = "area",
+        action: str = None,
     ):
         """
         Initialize an area operation.
@@ -600,6 +639,8 @@ class AreaOperation(BaseOperation):
         self.area_km2 = area_km2
         self.duration = duration
         self.sampling_density = sampling_density
+        self.op_type = op_type
+        self.action = action
 
         # Set start/end points, defaulting to first/last corners if not specified
         self.start_point = start_point or (
@@ -701,6 +742,10 @@ class AreaOperation(BaseOperation):
         start_point = boundary_tuples[0] if boundary_tuples else (0.0, 0.0)
         end_point = boundary_tuples[-1] if boundary_tuples else (0.0, 0.0)
 
+        # Use the original operation_type from YAML for display
+        display_op_type = obj.operation_type.value if obj.operation_type else "area"
+        action = obj.action.value if obj.action else None
+
         return cls(
             name=obj.name,
             boundary_polygon=boundary_tuples,
@@ -709,6 +754,9 @@ class AreaOperation(BaseOperation):
             start_point=start_point,
             end_point=end_point,
             comment=obj.comment,
+            display_name=getattr(obj, "display_name", None),
+            op_type=display_op_type,
+            action=action,
         )
 
     @staticmethod

@@ -98,10 +98,16 @@ legs:
         # Extract LaTeX duration calculations (we need to replicate the logic)
         # Since the LaTeX calculations are internal, we'll replicate them here
 
-        # Categorize activities exactly like LaTeX generator does
-        stations = [a for a in timeline if a.get("op_type") == "station"]
+        # Categorize activities using operation_class to handle new op_type system
+        # Stations are PointOperations that aren't ports or moorings
+        stations = [
+            a
+            for a in timeline
+            if a.get("operation_class") == "PointOperation"
+            and a.get("op_type") not in ["port", "mooring"]
+        ]
         moorings = [a for a in timeline if a.get("op_type") == "mooring"]
-        areas = [a for a in timeline if a.get("op_type") == "area"]
+        areas = [a for a in timeline if a.get("operation_class") == "AreaOperation"]
 
         # Get all transits first
         all_transits = [a for a in timeline if a.get("op_type") == "transit"]
@@ -220,36 +226,34 @@ legs:
         """
         all_activities = len(timeline)
 
-        # Count activities by op_type (the actual field used in timeline)
-        stations = len([a for a in timeline if a.get("op_type") == "station"])
-        moorings = len([a for a in timeline if a.get("op_type") == "mooring"])
-        areas = len([a for a in timeline if a.get("op_type") == "area"])
+        # Count activities dynamically by op_type (the actual field used in timeline)
+        op_type_counts = {}
+        for activity in timeline:
+            op_type = activity.get("op_type", "unknown")
+            op_type_counts[op_type] = op_type_counts.get(op_type, 0) + 1
 
-        # All transits use op_type="transit"
+        # Special categorization for detailed reporting
         all_transits = [a for a in timeline if a.get("op_type") == "transit"]
         navigation_transits = len([a for a in all_transits if not a.get("action")])
         scientific_transits = len([a for a in all_transits if a.get("action")])
 
-        # Port transits are identified by activity field
         port_departure = len(
             [a for a in timeline if a.get("activity") == "Port_Departure"]
         )
         port_arrival = len([a for a in timeline if a.get("activity") == "Port_Arrival"])
 
-        # Note: port activities are also transits, so we need to avoid double counting
-        # Total categorized activities = stations + moorings + areas + all_transits
-        categorized_total = stations + moorings + areas + len(all_transits)
+        # Total categorized activities = sum of all op_types
+        categorized_total = sum(op_type_counts.values())
 
         assert categorized_total == all_activities, (
             f"Activity categorization incomplete!\n"
             f"Total activities: {all_activities}\n"
             f"Categorized: {categorized_total}\n"
-            f"  - stations: {stations}\n"
-            f"  - moorings: {moorings}\n"
-            f"  - areas: {areas}\n"
-            f"  - all_transits: {len(all_transits)}\n"
-            f"    - navigation_transits (no action): {navigation_transits}\n"
-            f"    - scientific_transits (with action): {scientific_transits}\n"
+            f"Op_type breakdown: {op_type_counts}\n"
+            f"Transit details:\n"
+            f"  - navigation_transits (no action): {navigation_transits}\n"
+            f"  - scientific_transits (with action): {scientific_transits}\n"
+            f"Port details:\n"
             f"  - port_departure: {port_departure}\n"
             f"  - port_arrival: {port_arrival}\n"
             f"Missing: {all_activities - categorized_total}"

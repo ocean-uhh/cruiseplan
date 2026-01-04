@@ -313,9 +313,9 @@ class TestTC1SingleIntegration:
         # Check data rows (5 activities + 1 header = 6 lines)
         assert len(lines) == 6, "Expected header + 5 activity rows"
 
-        # Validate Halifax port row
+        # Validate Halifax port row (departure port)
         halifax_row = lines[1].split(",")
-        assert halifax_row[0] == "Port"
+        assert halifax_row[0] == "Port_Departure"
         assert halifax_row[1] == "Halifax"
         assert float(halifax_row[5]) == 0.0, "Port should have 0 transit distance"
 
@@ -339,9 +339,9 @@ class TestTC1SingleIntegration:
         assert float(transit2_row[5]) > 0, "Transit should have transit distance"
         assert float(transit2_row[6]) > 0, "Transit should have vessel speed"
 
-        # Validate Cadiz port row
+        # Validate Cadiz port row (arrival port)
         cadiz_row = lines[5].split(",")
-        assert cadiz_row[0] == "Port"
+        assert cadiz_row[0] == "Port_Arrival"
         assert cadiz_row[1] == "Cadiz"
         assert float(cadiz_row[5]) == 0.0, "Port should have 0 transit distance"
 

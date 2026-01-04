@@ -836,6 +836,13 @@ class PortDefinition(BaseModel):
     description: Optional[str] = Field(
         None, description="Human-readable port description"
     )
+    action: Optional[str] = Field(
+        None,
+        description="Port action (e.g., 'mob' for mobilization, 'demob' for demobilization)",
+    )
+    operation_type: Optional[str] = Field(
+        None, description="Operation type (typically 'port')"
+    )
 
     @field_validator("name")
     @classmethod
@@ -2762,6 +2769,78 @@ def enrich_configuration(
                     )
 
         enrichment_summary["ports_expanded"] = ports_expanded_count
+
+        # Expand leg-level port references into full port definitions with actions
+        leg_ports_expanded = 0
+        if "legs" in config_dict:
+            for leg_data in config_dict["legs"]:
+                # Expand departure_port
+                if "departure_port" in leg_data and isinstance(
+                    leg_data["departure_port"], str
+                ):
+                    port_ref = leg_data["departure_port"]
+                    if port_ref.startswith("port_"):
+                        try:
+                            port_definition = resolve_port_reference(port_ref)
+                            # Replace string reference with full port definition
+                            leg_data["departure_port"] = {
+                                "name": port_ref,
+                                "latitude": port_definition.latitude,
+                                "longitude": port_definition.longitude,
+                                "operation_type": "port",
+                                "action": "mob",  # Departure ports are mobilization
+                            }
+                            if hasattr(port_definition, "display_name"):
+                                leg_data["departure_port"][
+                                    "display_name"
+                                ] = port_definition.display_name
+                            elif hasattr(port_definition, "name"):
+                                leg_data["departure_port"][
+                                    "display_name"
+                                ] = port_definition.name
+                            leg_ports_expanded += 1
+                            logger.debug(
+                                f"Expanded departure_port '{port_ref}' with action 'mob'"
+                            )
+                        except ValueError as e:
+                            logger.warning(
+                                f"Could not expand departure_port '{port_ref}': {e}"
+                            )
+
+                # Expand arrival_port
+                if "arrival_port" in leg_data and isinstance(
+                    leg_data["arrival_port"], str
+                ):
+                    port_ref = leg_data["arrival_port"]
+                    if port_ref.startswith("port_"):
+                        try:
+                            port_definition = resolve_port_reference(port_ref)
+                            # Replace string reference with full port definition
+                            leg_data["arrival_port"] = {
+                                "name": port_ref,
+                                "latitude": port_definition.latitude,
+                                "longitude": port_definition.longitude,
+                                "operation_type": "port",
+                                "action": "demob",  # Arrival ports are demobilization
+                            }
+                            if hasattr(port_definition, "display_name"):
+                                leg_data["arrival_port"][
+                                    "display_name"
+                                ] = port_definition.display_name
+                            elif hasattr(port_definition, "name"):
+                                leg_data["arrival_port"][
+                                    "display_name"
+                                ] = port_definition.name
+                            leg_ports_expanded += 1
+                            logger.debug(
+                                f"Expanded arrival_port '{port_ref}' with action 'demob'"
+                            )
+                        except ValueError as e:
+                            logger.warning(
+                                f"Could not expand arrival_port '{port_ref}': {e}"
+                            )
+
+        enrichment_summary["leg_ports_expanded"] = leg_ports_expanded
 
     # Process coordinate additions for transit routes
     if add_coords and "transits" in config_dict:

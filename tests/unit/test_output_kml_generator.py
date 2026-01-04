@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.core.validation import CruiseConfig
-from cruiseplan.output.kml_generator import KMLGenerator, generate_kml_schedule
+from cruiseplan.output.kml_generator import KMLGenerator
 
 
 class TestKMLGenerator:
@@ -74,10 +74,6 @@ class TestKMLGenerator:
             if output_file.exists():
                 output_file.unlink()
 
-
- 
-
-
     def test_missing_config_description(self):
         """Test KML generation when config has no description."""
         self.mock_config.description = None
@@ -116,7 +112,6 @@ class TestKMLGenerator:
         finally:
             if output_file.exists():
                 output_file.unlink()
-
 
 
 class TestKMLGeneratorCatalogMode:

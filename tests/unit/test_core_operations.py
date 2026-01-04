@@ -81,7 +81,10 @@ class TestPointOperation:
     def test_calculate_duration_station_ctd(self):
         """Test duration calculation for CTD stations."""
         op = PointOperation(
-            name="STN_001", position=(60.0, -20.0), operation_depth=1000.0, op_type="station"
+            name="STN_001",
+            position=(60.0, -20.0),
+            operation_depth=1000.0,
+            op_type="station",
         )
 
         # Mock rules and config
@@ -180,7 +183,7 @@ class TestPointOperation:
         assert op.position == (65.0, -25.0)
         assert op.operation_depth == 800.0  # Uses operation_depth
         assert op.comment == "Deep CTD cast"
-        assert op.op_type == "station"
+        assert op.op_type == "CTD"
         assert op.action is None
 
     def test_from_pydantic_mooring(self):

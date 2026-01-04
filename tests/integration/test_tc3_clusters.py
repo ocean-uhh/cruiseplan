@@ -185,8 +185,6 @@ class TestTC3ClustersIntegration:
         assert reorder_leg.first_waypoint == "STN_004"
         assert reorder_leg.last_waypoint == "STN_001"
 
-
-
     def test_tc3_complete_workflow(self, tc3_config):
         """Test complete workflow from YAML to all output formats."""
         import tempfile

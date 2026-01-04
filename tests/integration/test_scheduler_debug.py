@@ -118,7 +118,7 @@ class TestSchedulerDebug:
             print(f"📊 Timeline result: {len(timeline)} activities")
             if timeline:
                 for i, activity in enumerate(timeline):
-                    transit_dist = activity.get("transit_dist_nm", 0)
+                    transit_dist = activity.get("dist_nm", 0)
                     lat, lon = activity["lat"], activity["lon"]
                     print(
                         f"   {i+1}. {activity['activity']}: {activity['label']} at ({lat:.3f}, {lon:.3f})"
@@ -139,7 +139,7 @@ class TestSchedulerDebug:
 
                 # Summary statistics
                 total_duration_h = sum(a["duration_minutes"] for a in timeline) / 60
-                total_transit_nm = sum(a.get("transit_dist_nm", 0) for a in timeline)
+                total_transit_nm = sum(a.get("dist_nm", 0) for a in timeline)
                 total_days = total_duration_h / 24
 
                 print("\n📈 Summary:")

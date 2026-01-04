@@ -100,10 +100,13 @@ class Cruise:
         # 3. Config Port Resolution Pass (Resolve top-level departure/arrival ports)
         self._resolve_config_ports()
 
-        # 4. Resolution Pass (Link Schedule to Catalog)
+        # 4. Port Enrichment Pass (Auto-expand leg port references with actions)
+        self._enrich_leg_ports()
+
+        # 5. Resolution Pass (Link Schedule to Catalog)
         self._resolve_references()
 
-        # 5. Leg Conversion Pass (Convert LegDefinition to runtime Leg objects)
+        # 6. Leg Conversion Pass (Convert LegDefinition to runtime Leg objects)
         self.runtime_legs = self._convert_leg_definitions_to_legs()
 
     def _load_yaml(self) -> Dict[str, Any]:
@@ -393,6 +396,83 @@ class Cruise:
                 self.config.arrival_port = self._resolve_port_reference(
                     self.config.arrival_port
                 )
+
+    def _enrich_leg_ports(self):
+        """
+        Automatically enrich leg-level port references with actions.
+
+        Handles both string port references and inline port objects:
+        - String references are expanded using global port registry
+        - Inline port objects get action and operation_type fields added
+        - departure_port gets action='mob' (mobilization)
+        - arrival_port gets action='demob' (demobilization)
+        """
+        for leg_def in self.config.legs or []:
+            # Enrich departure_port with mob action
+            if hasattr(leg_def, "departure_port") and leg_def.departure_port:
+                if isinstance(leg_def.departure_port, str):
+                    # String reference - expand from global registry
+                    port_ref = leg_def.departure_port
+                    try:
+                        port_definition = resolve_port_reference(port_ref)
+                        # Create enriched port with action
+                        enriched_port = PortDefinition(
+                            name=port_definition.name,
+                            latitude=port_definition.latitude,
+                            longitude=port_definition.longitude,
+                            operation_type="port",
+                            action="mob",  # Departure ports are mobilization
+                            display_name=getattr(
+                                port_definition, "display_name", port_definition.name
+                            ),
+                        )
+                        leg_def.departure_port = enriched_port
+                    except ValueError:
+                        # If global port resolution fails, keep as string
+                        pass
+                else:
+                    # Inline port object - add missing fields
+                    port_obj = leg_def.departure_port
+                    if not hasattr(port_obj, "action") or port_obj.action is None:
+                        port_obj.action = "mob"
+                    if (
+                        not hasattr(port_obj, "operation_type")
+                        or port_obj.operation_type is None
+                    ):
+                        port_obj.operation_type = "port"
+
+            # Enrich arrival_port with demob action
+            if hasattr(leg_def, "arrival_port") and leg_def.arrival_port:
+                if isinstance(leg_def.arrival_port, str):
+                    # String reference - expand from global registry
+                    port_ref = leg_def.arrival_port
+                    try:
+                        port_definition = resolve_port_reference(port_ref)
+                        # Create enriched port with action
+                        enriched_port = PortDefinition(
+                            name=port_definition.name,
+                            latitude=port_definition.latitude,
+                            longitude=port_definition.longitude,
+                            operation_type="port",
+                            action="demob",  # Arrival ports are demobilization
+                            display_name=getattr(
+                                port_definition, "display_name", port_definition.name
+                            ),
+                        )
+                        leg_def.arrival_port = enriched_port
+                    except ValueError:
+                        # If global port resolution fails, keep as string
+                        pass
+                else:
+                    # Inline port object - add missing fields
+                    port_obj = leg_def.arrival_port
+                    if not hasattr(port_obj, "action") or port_obj.action is None:
+                        port_obj.action = "demob"
+                    if (
+                        not hasattr(port_obj, "operation_type")
+                        or port_obj.operation_type is None
+                    ):
+                        port_obj.operation_type = "port"
 
     def _convert_leg_definitions_to_legs(self) -> List[Leg]:
         """
