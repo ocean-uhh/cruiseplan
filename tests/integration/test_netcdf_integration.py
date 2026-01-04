@@ -8,9 +8,9 @@ from pathlib import Path
 
 import netCDF4 as nc
 import pytest
+from cruiseplan.core.validation import enrich_configuration
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.validation import enrich_configuration
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
 from cruiseplan.utils.config import ConfigLoader
 

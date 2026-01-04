@@ -6,6 +6,7 @@ cruise configuration file. This is the top-level YAML structure
 that contains all cruise metadata, global catalog definitions,
 and schedule organization.
 """
+
 from typing import List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -13,7 +14,6 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 from cruiseplan.utils.constants import (
     DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
     DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
-    DEFAULT_MOORING_DURATION_MIN,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
@@ -102,7 +102,9 @@ class CruiseConfig(BaseModel):
     day_start_hour: int = 8  # Default 08:00
     day_end_hour: int = 20  # Default 20:00
 
-    calculate_transfer_between_sections: bool = DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS
+    calculate_transfer_between_sections: bool = (
+        DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS
+    )
     calculate_depth_via_bathymetry: bool = DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY
     start_date: str = DEFAULT_START_DATE
     start_time: Optional[str] = "08:00"
@@ -135,7 +137,8 @@ class CruiseConfig(BaseModel):
 
     # Schedule organization
     legs: Optional[List[LegDefinition]] = Field(
-        default_factory=list, description="List of cruise legs for schedule organization"
+        default_factory=list,
+        description="List of cruise legs for schedule organization",
     )
 
     # Legacy fields (backward compatibility)
@@ -149,12 +152,12 @@ class CruiseConfig(BaseModel):
     def validate_cruise_structure(self):
         """
         Validate overall cruise configuration structure.
-        
+
         Returns
         -------
         CruiseConfig
             Validated cruise configuration.
-            
+
         Raises
         ------
         ValueError
@@ -164,13 +167,13 @@ class CruiseConfig(BaseModel):
         if not self.cruise_name.strip():
             msg = "Cruise name cannot be empty"
             raise ValueError(msg)
-        
+
         if self.default_vessel_speed <= 0:
             msg = "Default vessel speed must be positive"
             raise ValueError(msg)
-        
+
         if self.default_distance_between_stations <= 0:
             msg = "Default distance between stations must be positive"
             raise ValueError(msg)
-        
+
         return self

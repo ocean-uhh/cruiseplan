@@ -10,6 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.core.validation import CruiseConfig
+
 from cruiseplan.output.kml_generator import KMLGenerator
 
 

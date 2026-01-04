@@ -6,7 +6,8 @@ operations are grouped and organized into legs and clusters for execution.
 These are YAML-layer definitions that get converted to runtime objects
 during scheduling.
 """
-from typing import Any, List, Optional, Union
+
+from typing import List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -78,12 +79,12 @@ class ClusterDefinition(BaseModel):
     def validate_cluster_activities(self):
         """
         Validate cluster has activities and handle deprecated fields.
-        
+
         Returns
         -------
         ClusterDefinition
             Validated cluster definition.
-            
+
         Raises
         ------
         ValueError
@@ -91,15 +92,17 @@ class ClusterDefinition(BaseModel):
         """
         # Check for deprecated field usage and migrate to activities
         has_activities = bool(self.activities)
-        has_deprecated = bool(self.sequence) or bool(self.stations) or bool(self.generate_transect)
-        
+        has_deprecated = (
+            bool(self.sequence) or bool(self.stations) or bool(self.generate_transect)
+        )
+
         if not has_activities and not has_deprecated:
             msg = f"Cluster '{self.name}' must have at least one activity, sequence, station, or generate_transect"
             raise ValueError(msg)
-        
+
         # Warning for deprecated usage would go here in production
         # (omitting to avoid import dependencies)
-        
+
         return self
 
     @field_validator("strategy")
@@ -260,35 +263,39 @@ class LegDefinition(BaseModel):
     def validate_leg_structure(self):
         """
         Validate leg has valid structure and content.
-        
+
         Returns
         -------
         LegDefinition
             Validated leg definition.
-            
+
         Raises
         ------
         ValueError
             If leg structure is invalid.
         """
         # Ensure departure and arrival ports are different
-        if (isinstance(self.departure_port, str) and 
-            isinstance(self.arrival_port, str) and
-            self.departure_port == self.arrival_port):
-            msg = f"Departure and arrival ports cannot be the same: {self.departure_port}"
+        if (
+            isinstance(self.departure_port, str)
+            and isinstance(self.arrival_port, str)
+            and self.departure_port == self.arrival_port
+        ):
+            msg = (
+                f"Departure and arrival ports cannot be the same: {self.departure_port}"
+            )
             raise ValueError(msg)
-        
+
         # Check that leg has some content (activities, clusters, or deprecated fields)
         has_content = (
-            bool(self.activities) or 
-            bool(self.clusters) or 
-            bool(self.stations) or 
-            bool(self.sections) or 
-            bool(self.sequence)
+            bool(self.activities)
+            or bool(self.clusters)
+            or bool(self.stations)
+            or bool(self.sections)
+            or bool(self.sequence)
         )
-        
+
         if not has_content:
             msg = f"Leg '{self.name}' must contain activities, clusters, stations, sections, or sequence"
             raise ValueError(msg)
-        
+
         return self

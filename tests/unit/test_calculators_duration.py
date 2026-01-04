@@ -1,10 +1,10 @@
 from datetime import datetime
 
 import pytest
+from cruiseplan.core.validation import CruiseConfig, PortDefinition
 
 from cruiseplan.calculators.distance import haversine_distance
 from cruiseplan.calculators.duration import DurationCalculator
-from cruiseplan.core.validation import CruiseConfig, PortDefinition
 
 
 # Mock Config

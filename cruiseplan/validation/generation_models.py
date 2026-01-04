@@ -5,6 +5,7 @@ Provides models for auto-generating operations from high-level specifications.
 These utilities create individual operations (waypoints, transects) from
 simplified input parameters.
 """
+
 from typing import Optional
 
 from pydantic import BaseModel, field_validator, model_validator
@@ -47,12 +48,12 @@ class GenerateTransect(BaseModel):
     def handle_string_positions(cls, data):
         """
         Convert string positions to GeoPoint objects.
-        
+
         Parameters
         ----------
         data : dict
             Input data potentially containing string positions.
-            
+
         Returns
         -------
         dict
@@ -177,12 +178,12 @@ class SectionDefinition(BaseModel):
     def handle_string_positions(cls, data):
         """
         Convert string positions to GeoPoint objects.
-        
+
         Parameters
         ----------
         data : dict
             Input data potentially containing string positions.
-            
+
         Returns
         -------
         dict

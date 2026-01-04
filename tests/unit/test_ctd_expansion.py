@@ -9,7 +9,6 @@ with proper interpolation, duplicate name checking, and reference updates.
 import copy
 
 import pytest
-
 from cruiseplan.core.validation import expand_ctd_sections
 
 

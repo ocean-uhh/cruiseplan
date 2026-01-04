@@ -2,8 +2,8 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import pytest
-
 from cruiseplan.core.validation import CruiseConfigurationError
+
 from cruiseplan.utils.config import (
     format_station_for_yaml,
     format_transect_for_yaml,

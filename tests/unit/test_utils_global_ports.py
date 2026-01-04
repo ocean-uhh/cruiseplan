@@ -3,8 +3,8 @@
 import warnings
 
 import pytest
-
 from cruiseplan.core.validation import PortDefinition
+
 from cruiseplan.utils.global_ports import (
     GLOBAL_PORTS,
     get_available_ports,

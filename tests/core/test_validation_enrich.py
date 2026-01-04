@@ -6,7 +6,6 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-
 from cruiseplan.core.validation import (
     enrich_configuration,
     validate_configuration_file,

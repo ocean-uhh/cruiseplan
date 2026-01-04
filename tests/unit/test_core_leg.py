@@ -3,10 +3,10 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
+from cruiseplan.core.validation import StrategyEnum
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
-from cruiseplan.core.validation import StrategyEnum
 
 
 class TestLeg:
