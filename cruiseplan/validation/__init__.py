@@ -15,12 +15,29 @@ from .base_models import FlexibleLocationModel, GeoPoint
 # Catalog definitions (with new terminology)
 from .catalog_definitions import (
     AreaDefinition,
+    TransectDefinition,
+    WaypointDefinition,
     # Legacy aliases for backward compatibility
     PortDefinition,
     StationDefinition,
-    TransectDefinition,
     TransitDefinition,
-    WaypointDefinition,
+)
+
+# Schedule definitions (YAML layer)
+from .schedule_definitions import ClusterDefinition, LegDefinition
+
+# Generation utilities
+from .generation_models import GenerateSection, GenerateTransect, SectionDefinition
+
+# Main cruise configuration
+from .cruise_config import CruiseConfig
+
+# Validation utilities
+from .validators import (
+    show_deprecation_warning,
+    validate_non_negative_number,
+    validate_positive_number,
+    validate_unique_names,
 )
 from .enums import (
     ActionEnum,
@@ -47,6 +64,20 @@ __all__ = [
     "AreaDefinition",
     "TransectDefinition",
     "WaypointDefinition",
+    # Schedule Definitions (YAML layer)
+    "ClusterDefinition",
+    "LegDefinition",
+    # Generation Utilities
+    "GenerateSection",
+    "GenerateTransect",
+    "SectionDefinition",
+    # Main Configuration
+    "CruiseConfig",
+    # Validation Utilities
+    "show_deprecation_warning",
+    "validate_non_negative_number",
+    "validate_positive_number",
+    "validate_unique_names",
     # Legacy aliases (backward compatibility)
     "PortDefinition",
     "StationDefinition",
