@@ -44,7 +44,6 @@ def mock_args(tmp_path):
         lat=[50.0, 60.0],
         lon=[-30.0, -20.0],
         output_dir=tmp_path / "results",
-        output_file=None,
         bathy_source_legacy="etopo2022",  # Legacy param that gets migrated
         bathy_dir_legacy=tmp_path / "bathymetry",  # Legacy param that gets migrated
         high_resolution=False,
@@ -120,21 +119,6 @@ def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
     # Assert load_campaign_data was NOT called
     MockLoadCampaign.assert_not_called()
 
-
-def test_main_handles_explicit_output_file(mock_args, mock_external_deps):
-    """Tests that --output-file takes precedence over --output-dir."""
-    MockPicker, _, _ = mock_external_deps
-
-    custom_output = Path("/tmp/custom_output.yml")
-    mock_args.output_file = custom_output
-
-    main(mock_args)
-
-    # Assert picker was initialized with the custom path
-    MockPicker.assert_called_once()
-    actual_path = MockPicker.call_args[1]["output_file"]
-    # Resolve both paths to handle symlinks like /tmp -> /private/tmp on macOS
-    assert Path(actual_path).resolve() == custom_output.resolve()
 
 
 @pytest.mark.skip(reason="Import error testing is complex with dynamic imports")

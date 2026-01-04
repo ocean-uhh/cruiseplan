@@ -150,18 +150,15 @@ def main(args: argparse.Namespace) -> None:
         except ValueError as e:
             raise CLIError(f"Invalid coordinate bounds: {e}")
 
-        # Determine output file
-        if args.output_file:
-            output_path = validate_output_path(output_file=args.output_file)
-        else:
-            output_dir = validate_output_path(output_dir=args.output_dir)
-            output_filename = "stations.yaml"
-            if args.pangaea_file:
-                # Generate filename based on PANGAEA file
-                output_filename = generate_output_filename(
-                    args.pangaea_file, "_stations", ".yaml"
-                )
-            output_path = output_dir / output_filename
+        # Determine output file (output_file parameter was deprecated)
+        output_dir = validate_output_path(output_dir=args.output_dir)
+        output_filename = "stations.yaml"
+        if args.pangaea_file:
+            # Generate filename based on PANGAEA file
+            output_filename = generate_output_filename(
+                args.pangaea_file, "_stations", ".yaml"
+            )
+        output_path = output_dir / output_filename
 
         logger.info(f"Output file: {output_path}")
         logger.info(f"Bathymetry source: {optimal_bathymetry_source}")

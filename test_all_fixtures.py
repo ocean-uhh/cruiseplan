@@ -89,7 +89,7 @@ def main():
         # Use cruise name for enriched file (matches process command output)
         enriched_file = output_dir / f"{cruise_name}_enriched.yaml"
 
-        # Step 1: Process the fixture
+        # Step 1: Process the fixture (enrichment + validation, no map)
         process_cmd = [
             "cruiseplan",
             "process",
@@ -99,13 +99,14 @@ def main():
             str(bathy_dir),
             "--output-dir",
             str(output_dir),
+            "--no-port-map",  # Generate maps but skip plotting ports
             # Remove --output override to use cruise name from YAML consistently
         ]
 
         if not run_command(process_cmd):
             failures.append(f"{fixture_file.name} (process)")
             print(
-                f"⚠️  Skipping schedule for {fixture_file.name} due to process failure"
+                f"⚠️  Skipping remaining steps for {fixture_file.name} due to process failure"
             )
             continue
 

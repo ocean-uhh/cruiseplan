@@ -314,6 +314,7 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
                 "run_map_generation": getattr(args, "run_map_generation", True),
                 "depth_check": getattr(args, "validate_depths", True),
                 "tolerance": getattr(args, "tolerance", 10.0),
+                "no_port_map": getattr(args, "no_port_map", False),
             }
         )
 
@@ -328,12 +329,12 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
         )
 
     if command == "bathymetry":
-        param_map.update(
-            {
-                "bathy_source": getattr(args, "bathy_source", "etopo2022"),
-                "citation": getattr(args, "citation", False),
-            }
-        )
+        # Bathymetry command doesn't accept common parameters like verbose
+        param_map = {
+            "bathy_source": getattr(args, "bathy_source", "etopo2022"),
+            "output_dir": getattr(args, "output_dir", None),
+            "citation": getattr(args, "citation", False),
+        }
 
     if command == "pangaea":
         param_map.update(

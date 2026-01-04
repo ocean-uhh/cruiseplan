@@ -11,8 +11,8 @@ import pytest
 from cruiseplan.calculators.scheduler import (
     _calculate_inter_operation_transit,
     _extract_activities_from_leg,
+    _get_operation_entry_exit_points_DEPRECATED,
     _resolve_station_details,
-    get_operation_entry_exit_points,
 )
 from cruiseplan.core.validation import (
     CruiseConfig,
@@ -145,7 +145,7 @@ class TestGetOperationEntryExitPoints:
             mock_operation.get_exit_point.return_value = (60.0, -20.0)
             mock_point_op.from_pydantic.return_value = mock_operation
 
-            result = get_operation_entry_exit_points(mock_config, "STN_001")
+            result = _get_operation_entry_exit_points_DEPRECATED(mock_config, "STN_001")
 
             assert result == ((60.0, -20.0), (60.0, -20.0))
             mock_point_op.from_pydantic.assert_called_once_with(mock_station)
@@ -168,7 +168,9 @@ class TestGetOperationEntryExitPoints:
             mock_operation.get_exit_point.return_value = (61.0, -20.0)
             mock_line_op.from_pydantic.return_value = mock_operation
 
-            result = get_operation_entry_exit_points(mock_config, "TRANSIT_001")
+            result = _get_operation_entry_exit_points_DEPRECATED(
+                mock_config, "TRANSIT_001"
+            )
 
             assert result == ((60.0, -20.0), (61.0, -20.0))
             mock_line_op.from_pydantic.assert_called_once_with(mock_transit, 10.0)
@@ -190,7 +192,9 @@ class TestGetOperationEntryExitPoints:
             mock_operation.get_exit_point.return_value = (62.0, -22.0)
             mock_area_op.from_pydantic.return_value = mock_operation
 
-            result = get_operation_entry_exit_points(mock_config, "AREA_001")
+            result = _get_operation_entry_exit_points_DEPRECATED(
+                mock_config, "AREA_001"
+            )
 
             assert result == ((60.0, -20.0), (62.0, -22.0))
             mock_area_op.from_pydantic.assert_called_once_with(mock_area)
@@ -203,7 +207,7 @@ class TestGetOperationEntryExitPoints:
         mock_config.transits = []
         mock_config.areas = []
 
-        result = get_operation_entry_exit_points(mock_config, "NONEXISTENT")
+        result = _get_operation_entry_exit_points_DEPRECATED(mock_config, "NONEXISTENT")
 
         assert result is None
 
@@ -222,7 +226,9 @@ class TestGetOperationEntryExitPoints:
             mock_point_op.from_pydantic.side_effect = ValueError("Mock error")
 
             with patch("cruiseplan.calculators.scheduler.logger") as mock_logger:
-                result = get_operation_entry_exit_points(mock_config, "STN_001")
+                result = _get_operation_entry_exit_points_DEPRECATED(
+                    mock_config, "STN_001"
+                )
 
                 assert result is None
                 mock_logger.warning.assert_called_once()
@@ -235,7 +241,7 @@ class TestGetOperationEntryExitPoints:
         mock_config.transits = None
         mock_config.areas = None
 
-        result = get_operation_entry_exit_points(mock_config, "STN_001")
+        result = _get_operation_entry_exit_points_DEPRECATED(mock_config, "STN_001")
 
         assert result is None
 

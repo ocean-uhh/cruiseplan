@@ -634,6 +634,7 @@ class TestKMLGeneratorCatalogMode:
         mock_station.longitude = -25.0
         mock_station.operation_type.value = "CTD"
         mock_station.operation_depth = 800.0
+        mock_station.water_depth = 3200.0
         self.mock_config.stations = [mock_station]
 
         # Mock areas

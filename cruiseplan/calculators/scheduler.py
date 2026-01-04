@@ -8,6 +8,7 @@ and scheduling algorithms that transform cruise configurations into executable p
 
 import logging
 import warnings
+from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Dict, List, Optional
 
@@ -25,6 +26,132 @@ from cruiseplan.core.validation import CruiseConfig, GeoPoint
 from cruiseplan.utils.constants import hours_to_minutes
 
 logger = logging.getLogger(__name__)
+
+# --- Universal Entry/Exit Coordinate System ---
+
+
+@dataclass
+class OperationCoordinates:
+    """
+    Represents the entry and exit coordinates for any operation type.
+
+    Attributes
+    ----------
+    entry_lat : float
+        Latitude of entry position
+    entry_lon : float
+        Longitude of entry position
+    exit_lat : float
+        Latitude of exit position
+    exit_lon : float
+        Longitude of exit position
+    """
+
+    entry_lat: float
+    entry_lon: float
+    exit_lat: float
+    exit_lon: float
+
+
+def find_operation(config: CruiseConfig, name: str) -> Optional[Any]:
+    """
+    Find an operation object by name from the cruise configuration.
+
+    Parameters
+    ----------
+    config : CruiseConfig
+        Cruise configuration
+    name : str
+        Name of the operation to find
+
+    Returns
+    -------
+    Optional[Any]
+        The operation object if found, None otherwise
+    """
+    # Check stations first
+    if config.stations:
+        match = next((s for s in config.stations if s.name == name), None)
+        if match:
+            return match
+
+    # Check areas
+    if config.areas:
+        match = next((a for a in config.areas if a.name == name), None)
+        if match:
+            return match
+
+    # Check transits
+    if config.transits:
+        match = next((t for t in config.transits if t.name == name), None)
+        if match:
+            return match
+
+    # Check ports
+    if config.ports:
+        match = next((p for p in config.ports if p.name == name), None)
+        if match:
+            return match
+
+    return None
+
+
+def get_operation_coordinates(
+    operation: Any, config: CruiseConfig
+) -> OperationCoordinates:
+    """
+    Get standardized entry/exit coordinates for any operation type.
+
+    Parameters
+    ----------
+    operation : Any
+        Station, transit, area, or port operation
+    config : CruiseConfig
+        Cruise configuration for context
+
+    Returns
+    -------
+    OperationCoordinates
+        Entry and exit coordinates for the operation
+    """
+    # Handle areas first (before checking lat/lon since areas may have calculated center points)
+    if hasattr(operation, "corners") and operation.corners:
+        first_corner = operation.corners[0]
+        last_corner = operation.corners[-1]
+        logger.debug(
+            f"Area {operation.name}: first={first_corner.latitude},{first_corner.longitude}, last={last_corner.latitude},{last_corner.longitude}"
+        )
+        return OperationCoordinates(
+            entry_lat=first_corner.latitude,
+            entry_lon=first_corner.longitude,
+            exit_lat=last_corner.latitude,
+            exit_lon=last_corner.longitude,
+        )
+
+    # Handle transits - use route start/end
+    if hasattr(operation, "route") and operation.route:
+        start_point = operation.route[0]
+        end_point = operation.route[-1]
+        return OperationCoordinates(
+            entry_lat=start_point.latitude,
+            entry_lon=start_point.longitude,
+            exit_lat=end_point.latitude,
+            exit_lon=end_point.longitude,
+        )
+
+    # Handle stations and ports - entry and exit are the same point
+    if hasattr(operation, "latitude") and hasattr(operation, "longitude"):
+        return OperationCoordinates(
+            entry_lat=operation.latitude,
+            entry_lon=operation.longitude,
+            exit_lat=operation.latitude,
+            exit_lon=operation.longitude,
+        )
+
+    # Fallback - should not happen in normal operation
+    logger.warning(f"Unable to determine coordinates for operation: {operation}")
+    return OperationCoordinates(0.0, 0.0, 0.0, 0.0)
+
 
 # --- Helper Functions ---
 
@@ -151,7 +278,8 @@ class ActivityRecord(Dict):
 # --- Entry/Exit Point Abstraction Helpers ---
 
 
-def get_operation_entry_exit_points(
+# DEPRECATED: Removing unused function
+def _get_operation_entry_exit_points_DEPRECATED(
     config: CruiseConfig, name: str
 ) -> Optional[tuple[tuple[float, float], tuple[float, float]]]:
     """
@@ -249,7 +377,8 @@ def get_cluster_entry_exit_points(
     return None
 
 
-def calculate_transit_distance_using_abstraction(
+# DEPRECATED: Removing unused function
+def _calculate_transit_distance_using_abstraction_DEPRECATED(
     last_operation_name: str, current_operation_name: str, config: CruiseConfig
 ) -> float:
     """
@@ -267,8 +396,12 @@ def calculate_transit_distance_using_abstraction(
         return 0.0
 
     # Get exit point of last operation and entry point of current operation
-    last_points = get_operation_entry_exit_points(config, last_operation_name)
-    current_points = get_operation_entry_exit_points(config, current_operation_name)
+    last_points = _get_operation_entry_exit_points_DEPRECATED(
+        config, last_operation_name
+    )
+    current_points = _get_operation_entry_exit_points_DEPRECATED(
+        config, current_operation_name
+    )
 
     if not last_points or not current_points:
         return 0.0
@@ -535,6 +668,8 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     "action": None,
                     "start_lat": start_pos.latitude,
                     "start_lon": start_pos.longitude,
+                    "end_lat": end_pos.latitude,
+                    "end_lon": end_pos.longitude,
                 }
             )
         )
@@ -629,8 +764,19 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     "operation_dist_nm": 0.0,  # No operation distance for pure navigation
                     "vessel_speed_kt": config.default_vessel_speed,
                     "leg_name": activity.get("leg_name", "Inter-operation Transit"),
-                    "start_lat": last_position.latitude if last_position else None,
-                    "start_lon": last_position.longitude if last_position else None,
+                    # Add start/end coordinates for proper entry/exit position display
+                    "start_lat": (
+                        last_position.latitude
+                        if last_position
+                        else target_position.latitude
+                    ),
+                    "start_lon": (
+                        last_position.longitude
+                        if last_position
+                        else target_position.longitude
+                    ),
+                    "end_lat": target_position.latitude,
+                    "end_lon": target_position.longitude,
                 }
             )
             # Advance current_time after the inter-operation transit
@@ -801,6 +947,8 @@ def _generate_timeline_legacy_impl(config: CruiseConfig) -> List[ActivityRecord]
                     "action": None,
                     "start_lat": last_position.latitude,
                     "start_lon": last_position.longitude,
+                    "end_lat": end_pos.latitude,
+                    "end_lon": end_pos.longitude,
                 }
             )
         )
@@ -941,6 +1089,10 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                                 "duration_minutes": transit_time,
                                 "leg_name": runtime_leg.name,
                                 "op_type": "transit",
+                                "start_lat": prev_arrival_pos.latitude,
+                                "start_lon": prev_arrival_pos.longitude,
+                                "end_lat": curr_departure_pos.latitude,
+                                "end_lon": curr_departure_pos.longitude,
                             }
                         )
                     )
@@ -1014,6 +1166,10 @@ def generate_timeline(config: CruiseConfig, cruise_obj=None) -> List[ActivityRec
                             "vessel_speed_kt": effective_speed,
                             "leg_name": runtime_leg.name,
                             "op_type": "transit",
+                            "start_lat": operation_pos.latitude,
+                            "start_lon": operation_pos.longitude,
+                            "end_lat": arrival_pos.latitude,
+                            "end_lon": arrival_pos.longitude,
                         }
                     )
                 )
@@ -1124,8 +1280,7 @@ def _process_leg_activities_with_clusters(
             details = _resolve_mooring_details(config, activity_name)
         if not details:
             details = _resolve_area_details(config, activity_name)
-        if not details:
-            details = _resolve_transit_details(config, activity_name)
+        # Note: _resolve_station_details already handles transits, so _resolve_transit_details is redundant
         if not details:
             details = _resolve_port_details(config, activity_name)
 
@@ -1135,8 +1290,28 @@ def _process_leg_activities_with_clusters(
             )
             continue
 
+        # Get operation object and coordinates using universal system
+        operation = find_operation(config, activity_name)
+        if operation:
+            coords = get_operation_coordinates(operation, config)
+            logger.debug(
+                f"Found operation {activity_name}: entry=({coords.entry_lat},{coords.entry_lon}), exit=({coords.exit_lat},{coords.exit_lon})"
+            )
+        else:
+            # Fallback to details coordinates if operation not found
+            logger.warning(
+                f"Operation {activity_name} not found, using details coordinates"
+            )
+            coords = OperationCoordinates(
+                entry_lat=details.get("start_lat", details.get("lat", 0.0)),
+                entry_lon=details.get("start_lon", details.get("lon", 0.0)),
+                exit_lat=details.get("end_lat", details.get("lat", 0.0)),
+                exit_lon=details.get("end_lon", details.get("lon", 0.0)),
+            )
+
         # Calculate and add separate transit activity if needed
-        current_pos = GeoPoint(latitude=details["lat"], longitude=details["lon"])
+        # Use the entry coordinates as the position for this operation
+        current_pos = GeoPoint(latitude=coords.entry_lat, longitude=coords.entry_lon)
 
         if last_position and (
             last_position.latitude != current_pos.latitude
@@ -1166,6 +1341,11 @@ def _process_leg_activities_with_clusters(
                         "vessel_speed_kt": vessel_speed,
                         "leg_name": leg.name,
                         "op_type": "transit",
+                        # Add start/end coordinates for proper entry/exit position display
+                        "start_lat": last_position.latitude,
+                        "start_lon": last_position.longitude,
+                        "end_lat": current_pos.latitude,
+                        "end_lon": current_pos.longitude,
                     }
                 )
             )
@@ -1196,6 +1376,11 @@ def _process_leg_activities_with_clusters(
                 "op_type", "station"
             ),  # For LaTeX compatibility
             "action": details.get("action"),
+            # Use universal coordinate system for all operations
+            "start_lat": coords.entry_lat,
+            "start_lon": coords.entry_lon,
+            "end_lat": coords.exit_lat,
+            "end_lon": coords.exit_lon,
         }
 
         # Add route distance for scientific transits
@@ -1206,17 +1391,10 @@ def _process_leg_activities_with_clusters(
 
         current_time += timedelta(minutes=operation_duration + turnaround_time)
 
-        # For transits, update position to end point, otherwise use current position
-        if (
-            details.get("op_type") == "transit"
-            and "end_lat" in details
-            and "end_lon" in details
-        ):
-            last_position = GeoPoint(
-                latitude=details["end_lat"], longitude=details["end_lon"]
-            )
-        else:
-            last_position = current_pos
+        # Update position based on the operation's exit coordinates
+        # For transits and areas, this moves us to the exit point
+        # For stations/ports, this is the same as entry point
+        last_position = GeoPoint(latitude=coords.exit_lat, longitude=coords.exit_lon)
 
     return activities
 
@@ -1728,9 +1906,13 @@ def _resolve_transit_details(
                 if hasattr(end, "latitude"):
                     details["lat"] = end.latitude
                     details["lon"] = end.longitude
+                    details["end_lat"] = end.latitude
+                    details["end_lon"] = end.longitude
                 else:
                     details["lat"] = end.get("latitude", end.get("lat"))
                     details["lon"] = end.get("longitude", end.get("lon"))
+                    details["end_lat"] = end.get("latitude", end.get("lat"))
+                    details["end_lon"] = end.get("longitude", end.get("lon"))
 
                 # Calculate route distance if needed
                 if details.get("start_lat") and details.get("lat"):

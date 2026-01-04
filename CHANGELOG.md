@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### New Features
 - **NEW**: Smart parameter defaults in process command
+- **NEW**: `--no-port-map` flag for `cruiseplan process` - Generate maps without plotting ports
+- **NEW**: CTD descent/ascent rates automatically added to enriched YAML configurations
 - **NEW**: Comprehensive deprecation warning system
 - **NEW**: Improved CLI error handling and user feedback
 - **NEW**: Standardized output file naming conventions

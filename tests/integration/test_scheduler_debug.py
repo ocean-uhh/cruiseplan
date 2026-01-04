@@ -235,9 +235,9 @@ class TestSchedulerDebug:
             2: (0.00, "STN_001 (no additional transit)"),  # Already at location
             3: (60.04, "STN_001 to ADCP_Survey start"),  # CTD to ADCP survey start
             4: (0.00, "ADCP_Survey operation (no transit)"),  # Scientific operation
-            5: (60.04, "ADCP_Survey end to Area_01"),  # ADCP end to survey area
+            5: (36.28, "ADCP_Survey end to Area_01"),  # ADCP end to survey area
             6: (0.00, "Area_01 operation (no transit)"),  # Area operation
-            7: (2029.12, "Area_01 to arrival port"),  # Operations to Cadiz
+            7: (2047.78, "Area_01 to arrival port"),  # Operations to Cadiz
         }
 
         # Expected operation distances (operation_dist_nm) - only for scientific transits
