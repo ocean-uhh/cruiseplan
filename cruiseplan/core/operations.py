@@ -3,10 +3,11 @@ from typing import Any, List, Optional, Tuple
 
 from cruiseplan.core.validation import (
     AreaDefinition,
+    GeoPoint,
+    PortDefinition,
     StationDefinition,
     TransitDefinition,
 )
-from cruiseplan.utils.constants import NM_PER_KM
 
 
 class BaseOperation(ABC):
@@ -85,6 +86,46 @@ class BaseOperation(ABC):
             (latitude, longitude) of the operation's exit point.
         """
         pass
+
+    def get_coordinates(self) -> Tuple[GeoPoint, GeoPoint]:
+        """
+        Get entry and exit coordinates as GeoPoint objects.
+
+        Returns
+        -------
+        Tuple[GeoPoint, GeoPoint]
+            (entry_point, exit_point) as GeoPoint objects.
+        """
+        entry = self.get_entry_point()
+        exit = self.get_exit_point()
+        return (
+            GeoPoint(latitude=entry[0], longitude=entry[1]),
+            GeoPoint(latitude=exit[0], longitude=exit[1]),
+        )
+
+    def get_operation_type(self) -> str:
+        """
+        Get operation type for timeline display.
+
+        Returns
+        -------
+        str
+            Operation type identifier (e.g., "Station", "Transit", "Area").
+        """
+        # Default implementation based on class name
+        class_name = self.__class__.__name__
+        return class_name.replace("Operation", "")
+
+    def get_label(self) -> str:
+        """
+        Get human-readable label for this operation.
+
+        Returns
+        -------
+        str
+            Human-readable label, defaults to operation name.
+        """
+        return self.name
 
 
 class PointOperation(BaseOperation):
@@ -183,6 +224,12 @@ class PointOperation(BaseOperation):
                 if hasattr(rules.config, "default_mooring_duration")
                 else 60.0
             )
+        elif self.op_type == "port":
+            # Ports typically have no operation duration (mobilization/demobilization time is separate)
+            return 0.0
+        elif self.op_type == "waypoint":
+            # Waypoints have no operation duration by default (waiting time is handled separately)
+            return 0.0
 
         return 0.0
 
@@ -212,6 +259,26 @@ class PointOperation(BaseOperation):
         """
         return self.position
 
+    def get_operation_type(self) -> str:
+        """
+        Get operation type for timeline display.
+
+        Returns appropriate display type based on the op_type attribute.
+        
+        Returns
+        -------
+        str
+            Operation type identifier ("Station", "Mooring", "Port", "Waypoint").
+        """
+        # Map internal op_types to display names
+        type_mapping = {
+            "station": "Station",
+            "mooring": "Mooring", 
+            "port": "Port",
+            "waypoint": "Waypoint",
+        }
+        return type_mapping.get(self.op_type, "Station")
+
     @classmethod
     def from_pydantic(cls, obj: StationDefinition) -> "PointOperation":
         """
@@ -238,6 +305,9 @@ class PointOperation(BaseOperation):
             "water_sampling": "station",
             "calibration": "station",
             "mooring": "mooring",
+            # v0.3.1 Unified operations
+            "port": "port",
+            "waypoint": "waypoint",
         }
 
         internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
@@ -254,6 +324,33 @@ class PointOperation(BaseOperation):
             comment=obj.comment,
             op_type=internal_op_type,
             action=action,
+        )
+
+    @classmethod
+    def from_port(cls, obj: PortDefinition) -> "PointOperation":
+        """
+        Factory to create a PointOperation from a PortDefinition.
+
+        Parameters
+        ----------
+        obj : PortDefinition
+            Port definition model.
+
+        Returns
+        -------
+        PointOperation
+            New PointOperation instance representing a port.
+        """
+        pos = (obj.latitude, obj.longitude)
+
+        return cls(
+            name=obj.name,
+            position=pos,
+            depth=0.0,  # Ports are at sea level
+            duration=0.0,  # Ports have no operation duration
+            comment=getattr(obj, "description", None),
+            op_type="port",
+            action="mob",  # Default to mobilization action
         )
 
 
@@ -310,30 +407,26 @@ class LineOperation(BaseOperation):
         if not self.route or len(self.route) < 2:
             return 0.0
 
-        # Import here to avoid circular imports
-        from cruiseplan.calculators.distance import haversine_distance
+        # Use centralized calculators
+        from cruiseplan.calculators.distance import route_distance
+        from cruiseplan.calculators.duration import DurationCalculator
 
-        # Calculate total route distance by summing distances between consecutive waypoints
-        total_route_distance_km = 0.0
-        for i in range(len(self.route) - 1):
-            start_point = self.route[i]
-            end_point = self.route[i + 1]
-            segment_distance = haversine_distance(start_point, end_point)
-            total_route_distance_km += segment_distance
+        # Calculate route distance using centralized function
+        route_distance_km = route_distance(self.route)
 
-        # Convert to nautical miles
-        route_distance_nm = total_route_distance_km * NM_PER_KM  # km to nautical miles
+        # Use DurationCalculator if rules/config available
+        if hasattr(rules, "config"):
+            calc = DurationCalculator(rules.config)
+            return calc.calculate_transit_time(route_distance_km, self.speed)
+        else:
+            # Fallback for cases without config
+            from cruiseplan.calculators.distance import km_to_nm
+            from cruiseplan.utils.constants import hours_to_minutes
 
-        # Use transit-specific vessel speed if provided, otherwise use default
-        vessel_speed = self.speed
-        if not vessel_speed and hasattr(rules, "config"):
-            vessel_speed = getattr(rules.config, "default_vessel_speed", 10.0)
-        elif not vessel_speed:
-            vessel_speed = 10.0  # Fallback if no rules provided
-
-        # Calculate duration in hours, then convert to minutes
-        duration_hours = route_distance_nm / vessel_speed
-        return duration_hours * 60.0
+            vessel_speed = self.speed or 10.0
+            route_distance_nm = km_to_nm(route_distance_km)
+            duration_hours = route_distance_nm / vessel_speed
+            return hours_to_minutes(duration_hours)
 
     def get_entry_point(self) -> tuple[float, float]:
         """
@@ -364,6 +457,25 @@ class LineOperation(BaseOperation):
         if not self.route:
             return (0.0, 0.0)  # Fallback for empty routes
         return self.route[-1]
+
+    def get_operation_distance_nm(self) -> float:
+        """
+        Calculate the total route distance for this line operation.
+
+        Returns
+        -------
+        float
+            Total route distance in nautical miles.
+        """
+        if not self.route or len(self.route) < 2:
+            return 0.0
+
+        # Use centralized calculators
+        from cruiseplan.calculators.distance import km_to_nm, route_distance
+
+        # Calculate route distance and convert to nautical miles
+        route_distance_km = route_distance(self.route)
+        return km_to_nm(route_distance_km)
 
     @classmethod
     def from_pydantic(

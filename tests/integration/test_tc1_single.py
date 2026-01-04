@@ -310,26 +310,40 @@ class TestTC1SingleIntegration:
         assert "activity,label,operation_action,start_time,end_time" in header
         assert "Transit dist [nm],Vessel speed [kt],Duration [hrs]" in header
 
-        # Check data rows (3 activities + 1 header = 4 lines)
-        assert len(lines) == 4, "Expected header + 3 activity rows"
+        # Check data rows (5 activities + 1 header = 6 lines)
+        assert len(lines) == 6, "Expected header + 5 activity rows"
 
-        # Validate port departure row
-        dep_row = lines[1].split(",")
-        assert dep_row[0] == "Port_Departure"
-        assert float(dep_row[5]) > 0, "Port departure should have transit distance"
-        assert float(dep_row[6]) > 0, "Port departure should have vessel speed"
+        # Validate Halifax port row
+        halifax_row = lines[1].split(",")
+        assert halifax_row[0] == "Point"
+        assert halifax_row[1] == "Halifax"
+        assert float(halifax_row[5]) == 0.0, "Port should have 0 transit distance"
+
+        # Validate first transit row
+        transit1_row = lines[2].split(",")
+        assert transit1_row[0] == "Transit"
+        assert "STN_001" in transit1_row[1]
+        assert float(transit1_row[5]) > 0, "Transit should have transit distance"
+        assert float(transit1_row[6]) > 0, "Transit should have vessel speed"
 
         # Validate station row
-        stn_row = lines[2].split(",")
-        assert stn_row[0] == "Station"
-        assert float(stn_row[5]) == 0, "Station should have 0 transit distance"
-        assert float(stn_row[6]) == 0, "Station should have 0 vessel speed"
+        stn_row = lines[3].split(",")
+        assert stn_row[0] == "Point"
+        assert stn_row[1] == "STN_001"
+        assert float(stn_row[5]) == 0.0, "Station should have 0 transit distance"
 
-        # Validate port arrival row
-        arr_row = lines[3].split(",")
-        assert arr_row[0] == "Port_Arrival"
-        assert float(arr_row[5]) > 0, "Port arrival should have transit distance"
-        assert float(arr_row[6]) > 0, "Port arrival should have vessel speed"
+        # Validate second transit row
+        transit2_row = lines[4].split(",")
+        assert transit2_row[0] == "Transit"
+        assert "Cadiz" in transit2_row[1]
+        assert float(transit2_row[5]) > 0, "Transit should have transit distance"
+        assert float(transit2_row[6]) > 0, "Transit should have vessel speed"
+
+        # Validate Cadiz port row
+        cadiz_row = lines[5].split(",")
+        assert cadiz_row[0] == "Point"
+        assert cadiz_row[1] == "Cadiz"
+        assert float(cadiz_row[5]) == 0.0, "Port should have 0 transit distance"
 
     def test_html_output_generation(self, yaml_path, temp_dir):
         """Test HTML schedule generation without duplicate transits."""
@@ -349,8 +363,8 @@ class TestTC1SingleIntegration:
         assert (
             f"<title>Schedule for {cruise.config.cruise_name}</title>" in html_content
         )
-        assert "Port_Departure" in html_content
-        assert "Port_Arrival" in html_content
+        assert "Halifax" in html_content
+        assert "Cadiz" in html_content
         assert "STN_001" in html_content
 
         # Ensure no duplicate transit entries (after our recent fixes)
@@ -397,7 +411,10 @@ class TestTC1SingleIntegration:
 
         # 3. Generate timeline
         timeline = generate_timeline(cruise.config, cruise.runtime_legs)
-        assert len(timeline) == 3, "Timeline should have 3 activities"
+        # Timeline includes: mob/demob in ports (2) + user operations (1) + transits (2) = 5 activities
+        assert (
+            len(timeline) == 5
+        ), "Timeline should have 5 activities (mob/demob + user ops)"
 
         # 4. Generate all output formats
         outputs = {}
@@ -426,7 +443,7 @@ class TestTC1SingleIntegration:
 
         # Final validation: timeline covers expected time and distance
         total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
-        total_distance = sum(act.get("transit_dist_nm", 0) for act in timeline)
+        total_distance = sum(act.get("dist_nm", 0) for act in timeline)
 
         assert total_duration > 0, "Total cruise duration should be positive"
         assert total_distance > 0, "Total cruise distance should be positive"

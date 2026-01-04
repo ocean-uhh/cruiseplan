@@ -25,6 +25,30 @@ from cruiseplan.utils.constants import hours_to_days
 from cruiseplan.utils.coordinates import format_position_latex
 
 
+def _get_depth_value(activity: dict) -> str:
+    """Get depth value with proper prioritization for LaTeX output.
+    
+    Parameters
+    ----------
+    activity : dict
+        Activity dictionary from timeline.
+        
+    Returns
+    -------
+    str
+        Formatted depth string, or "N/A" if no depth available.
+    """
+    operation_depth = activity.get("operation_depth")
+    water_depth = activity.get("water_depth")
+    
+    if operation_depth is not None:
+        return f"{abs(operation_depth):.0f}"
+    elif water_depth is not None:
+        return f"{abs(water_depth):.0f}"
+    else:
+        return "N/A"
+
+
 class LaTeXGenerator:
     """
     Manages the Jinja2 environment and template rendering for LaTeX outputs.
@@ -186,7 +210,7 @@ class LaTeXGenerator:
                         "operation": op["activity"],
                         "station": str(op["label"]).replace("_", "-"),
                         "position": position_str,
-                        "depth_m": f"{op['depth']:.0f}",
+                        "depth_m": _get_depth_value(op),
                         "start_time": op["start_time"].strftime("%Y-%m-%d %H:%M"),
                         "duration_hours": f"{op['duration_minutes']/60:.1f}",
                     }

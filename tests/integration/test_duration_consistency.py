@@ -78,7 +78,7 @@ legs:
     @pytest.fixture
     def timeline(self, cruise):
         """Generate timeline for the cruise."""
-        return generate_timeline(cruise.config, cruise.runtime_legs[0])
+        return generate_timeline(cruise.config, [cruise.runtime_legs[0]])
 
     def test_latex_html_duration_consistency(self, cruise, timeline):
         """

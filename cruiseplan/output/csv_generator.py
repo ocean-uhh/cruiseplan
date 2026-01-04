@@ -28,6 +28,31 @@ class CSVGenerator:
         """Initialize the CSV generator."""
         pass
 
+    def _get_depth_value(self, activity: dict) -> str:
+        """
+        Get depth value prioritizing operation_depth over water_depth.
+
+        Parameters
+        ----------
+        activity : dict
+            Activity record with depth information
+
+        Returns
+        -------
+        str
+            Depth value as string (rounded to whole number) or empty string if no depth
+        """
+        # Prioritize operation_depth over water_depth
+        operation_depth = activity.get("operation_depth")
+        water_depth = activity.get("water_depth")
+
+        if operation_depth is not None:
+            return str(round(abs(operation_depth)))
+        elif water_depth is not None:
+            return str(round(abs(water_depth)))
+        else:
+            return ""
+
     def generate_schedule_csv(
         self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
     ) -> Path:
@@ -82,15 +107,8 @@ class CSVGenerator:
                 # Convert duration to hours and round to nearest 0.1 hour
                 duration_hours = round(activity["duration_minutes"] / 60.0, 1)
 
-                # Round transit distance to nearest 0.1 nm
-                # For scientific transits, use operation distance instead of transit distance
-                if (
-                    activity.get("activity", "").lower() == "transit"
-                    and activity.get("operation_dist_nm", 0.0) > 0
-                ):
-                    transit_dist_nm = round(activity.get("operation_dist_nm", 0.0), 1)
-                else:
-                    transit_dist_nm = round(activity.get("transit_dist_nm", 0.0), 1)
+                # Round distance to nearest 0.1 nm using unified dist_nm field
+                transit_dist_nm = round(activity.get("dist_nm", 0.0), 1)
 
                 # Vessel speed - 0 for station operations, actual speed for transits
                 activity_type = activity.get("activity", "").lower()
@@ -106,9 +124,9 @@ class CSVGenerator:
                 else:
                     vessel_speed = 0  # Station operations have 0 vessel speed
 
-                # Format operation and action
+                # Format operation and action using correct field names
                 operation_action = format_operation_action(
-                    activity.get("operation_type", ""), activity.get("action", "")
+                    activity.get("op_type", ""), activity.get("action", "")
                 )
 
                 # Coordinate conversions using existing utilities
@@ -140,9 +158,7 @@ class CSVGenerator:
                     "Transit dist [nm]": transit_dist_nm,
                     "Vessel speed [kt]": vessel_speed,
                     "Duration [hrs]": duration_hours,
-                    "Depth [m]": round(
-                        abs(activity.get("depth", 0))
-                    ),  # Whole number, positive downward
+                    "Depth [m]": self._get_depth_value(activity),
                     "Lat [deg]": round(
                         lat_decimal, 6
                     ),  # High precision decimal degrees

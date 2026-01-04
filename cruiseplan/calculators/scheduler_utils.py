@@ -189,19 +189,33 @@ class PositionTracker:
         activity : Dict[str, Any]
             Activity record with position information.
         """
-        # For transits, use end position if available
-        if (
-            activity.get("op_type") == "transit"
-            and "end_lat" in activity
-            and "end_lon" in activity
-        ):
-            self.current_position = GeoPoint(
-                latitude=activity["end_lat"], longitude=activity["end_lon"]
-            )
-        else:
-            # Use main position
+        # For transits, use end position if available (support both old and new field names)
+        if activity.get("op_type") == "transit":
+            if "end_lat" in activity and "end_lon" in activity:
+                # Legacy field names take precedence
+                self.current_position = GeoPoint(
+                    latitude=activity["end_lat"], longitude=activity["end_lon"]
+                )
+            elif "exit_lat" in activity and "exit_lon" in activity:
+                # New field names
+                self.current_position = GeoPoint(
+                    latitude=activity["exit_lat"], longitude=activity["exit_lon"]
+                )
+            else:
+                # Fallback to entry position
+                self.current_position = GeoPoint(
+                    latitude=activity["entry_lat"], longitude=activity["entry_lon"]
+                )
+        # For non-transits, use entry position (or legacy lat/lon if available)
+        elif "lat" in activity and "lon" in activity:
+            # Legacy field names
             self.current_position = GeoPoint(
                 latitude=activity["lat"], longitude=activity["lon"]
+            )
+        else:
+            # New field names
+            self.current_position = GeoPoint(
+                latitude=activity["entry_lat"], longitude=activity["entry_lon"]
             )
 
     def get_position(self) -> Optional[GeoPoint]:
@@ -343,15 +357,19 @@ def _create_operation_activity_record(
     """
     from cruiseplan.calculators.scheduler import ActivityRecord
 
-    # Get position
-    current_pos = GeoPoint(latitude=details["lat"], longitude=details["lon"])
+    # Get position (use entry coordinates, assuming point operation)
+    current_pos = GeoPoint(
+        latitude=details["entry_lat"], longitude=details["entry_lon"]
+    )
 
     # Base activity data
     activity_data = {
         "activity": details.get("op_type", "station").title(),
         "label": details["name"],
-        "lat": current_pos.latitude,
-        "lon": current_pos.longitude,
+        "entry_lat": current_pos.latitude,
+        "entry_lon": current_pos.longitude,
+        "exit_lat": details.get("exit_lat", current_pos.latitude),
+        "exit_lon": details.get("exit_lon", current_pos.longitude),
         "depth": details.get("depth", 0.0),
         "start_time": current_time,
         "end_time": current_time + timedelta(minutes=duration_min),

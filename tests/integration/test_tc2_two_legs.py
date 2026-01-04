@@ -213,10 +213,10 @@ class TestTC2TwoLegsIntegration:
         cruise = self._get_enriched_cruise(base_config_path)
         timeline = generate_timeline(cruise.config, cruise.runtime_legs)
 
-        # Validate timeline structure for two-leg cruise: should have 6 activities
-        # Leg1: Port_Departure, Station (STN_001), Port_Arrival (to Bremerhaven)
-        # Leg2: Port_Departure (from Bremerhaven), Mooring (STN_002), Port_Arrival (to Reykjavik)
-        assert len(timeline) == 6, "Expected 6 activities for two-leg cruise"
+        # Validate timeline structure for two-leg cruise: should have 10 activities
+        # Leg1: Port_Departure (Halifax), Transit, Station (STN_001), Transit, Port_Arrival (Bremerhaven)
+        # Leg2: Port_Departure (Bremerhaven), Transit, Mooring (STN_002), Transit, Port_Arrival (Reykjavik)
+        assert len(timeline) == 10, "Expected 10 activities for two-leg cruise (ports + operations + transits)"
 
         # Check activity types and sequence
         activities = [
@@ -224,31 +224,47 @@ class TestTC2TwoLegsIntegration:
             for act in timeline
         ]
 
-        # Leg_Atlantic activities (first 3)
-        assert activities[0][0] == "Port_Departure"
+        # Leg_Atlantic activities (first 5)
+        assert activities[0][0] == "Port"  # Halifax departure
         assert "Halifax" in activities[0][1]
         assert activities[0][2] == "Leg_Atlantic"
 
-        assert activities[1][0] == "Station"
+        assert activities[1][0] == "Transit"  # Transit to STN_001
         assert "STN_001" in activities[1][1]
         assert activities[1][2] == "Leg_Atlantic"
 
-        assert activities[2][0] == "Port_Arrival"
-        assert "Bremerhaven" in activities[2][1]
+        assert activities[2][0] == "Station"  # STN_001
+        assert "STN_001" in activities[2][1]
         assert activities[2][2] == "Leg_Atlantic"
 
-        # Leg_North activities (last 3)
-        assert activities[3][0] == "Port_Departure"
+        assert activities[3][0] == "Transit"  # Transit to Bremerhaven
         assert "Bremerhaven" in activities[3][1]
-        assert activities[3][2] == "Leg_North"
+        assert activities[3][2] == "Leg_Atlantic"
 
-        assert activities[4][0] == "Mooring"
-        assert "STN_002" in activities[4][1]
-        assert activities[4][2] == "Leg_North"
+        assert activities[4][0] == "Port"  # Bremerhaven arrival
+        assert "Bremerhaven" in activities[4][1]
+        assert activities[4][2] == "Leg_Atlantic"
 
-        assert activities[5][0] == "Port_Arrival"
-        assert "Reykjavik" in activities[5][1]
+        # Leg_North activities (last 5)
+        assert activities[5][0] == "Port"  # Bremerhaven departure  
+        assert "Bremerhaven" in activities[5][1]
         assert activities[5][2] == "Leg_North"
+
+        assert activities[6][0] == "Transit"  # Transit to STN_002
+        assert "STN_002" in activities[6][1]
+        assert activities[6][2] == "Leg_North"
+
+        assert activities[7][0] == "Mooring"  # STN_002
+        assert "STN_002" in activities[7][1]
+        assert activities[7][2] == "Leg_North"
+
+        assert activities[8][0] == "Transit"  # Transit to Reykjavik
+        assert "Reykjavik" in activities[8][1]
+        assert activities[8][2] == "Leg_North"
+
+        assert activities[9][0] == "Port"  # Reykjavik arrival
+        assert "Reykjavik" in activities[9][1]
+        assert activities[9][2] == "Leg_North"
 
     def test_specific_transit_distances(self, base_config_path):
         """Test that specific expected transit distances are generated."""
@@ -257,7 +273,7 @@ class TestTC2TwoLegsIntegration:
 
         # Extract transit distances
         transit_activities = [
-            act for act in timeline if act.get("transit_dist_nm", 0) > 0
+            act for act in timeline if act.get("dist_nm", 0) > 0
         ]
 
         # Should have 4 transit activities (Port_Departure and Port_Arrival for each leg)
@@ -266,16 +282,17 @@ class TestTC2TwoLegsIntegration:
         ), "Expected at least 4 activities with transit distances"
 
         # Test specific expected distances (within 1% tolerance)
+        # Look for transit activities by their labels
         halifax_to_stn001_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Port_Departure"
-            and "Halifax" in act.get("label", "")
+            if act.get("activity") == "Transit"
+            and "STN_001" in act.get("label", "")
         )
 
         # Halifax to STN_001: 637.7 nm
         expected_distance_1 = 637.7
-        actual_distance_1 = halifax_to_stn001_activity.get("transit_dist_nm", 0)
+        actual_distance_1 = halifax_to_stn001_activity.get("dist_nm", 0)
         assert (
             abs(actual_distance_1 - expected_distance_1) / expected_distance_1 < 0.01
         ), f"Halifax to STN_001 distance should be ~{expected_distance_1} nm, got {actual_distance_1} nm"
@@ -284,12 +301,12 @@ class TestTC2TwoLegsIntegration:
         stn001_to_bremerhaven_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Port_Arrival"
+            if act.get("activity") == "Transit"
             and "Bremerhaven" in act.get("label", "")
         )
 
         expected_distance_2 = 2124.8
-        actual_distance_2 = stn001_to_bremerhaven_activity.get("transit_dist_nm", 0)
+        actual_distance_2 = stn001_to_bremerhaven_activity.get("dist_nm", 0)
         assert (
             abs(actual_distance_2 - expected_distance_2) / expected_distance_2 < 0.01
         ), f"STN_001 to Bremerhaven distance should be ~{expected_distance_2} nm, got {actual_distance_2} nm"
@@ -298,24 +315,24 @@ class TestTC2TwoLegsIntegration:
         bremerhaven_to_stn002_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Port_Departure"
-            and "Bremerhaven" in act.get("label", "")
+            if act.get("activity") == "Transit"
+            and "STN_002" in act.get("label", "")
             and act.get("leg_name") == "Leg_North"
         )
 
         stn002_to_reykjavik_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Port_Arrival"
+            if act.get("activity") == "Transit"
             and "Reykjavik" in act.get("label", "")
         )
 
         # These should be > 0 and reasonable (rough bounds check)
         assert (
-            bremerhaven_to_stn002_activity.get("transit_dist_nm", 0) > 1000
+            bremerhaven_to_stn002_activity.get("dist_nm", 0) > 1000
         ), "Bremerhaven to STN_002 should be substantial distance"
         assert (
-            stn002_to_reykjavik_activity.get("transit_dist_nm", 0) > 200
+            stn002_to_reykjavik_activity.get("dist_nm", 0) > 200
         ), "STN_002 to Reykjavik should be reasonable distance"
 
     def test_html_output_leg_durations(self, base_config_path, temp_dir):
@@ -443,7 +460,7 @@ class TestTC2TwoLegsIntegration:
         timeline = generate_timeline(cruise.config, cruise.runtime_legs)
 
         # Validate timeline has correct structure
-        assert len(timeline) == 6, "Two-leg cruise should have 6 activities"
+        assert len(timeline) == 10, "Two-leg cruise should have 10 activities (ports + operations + transits)"
 
         # 3. Test all output formats can be generated
         from cruiseplan.output.csv_generator import generate_csv_schedule
@@ -500,7 +517,7 @@ class TestTC2TwoLegsIntegration:
 
         # 4. Validate key metrics
         total_duration = sum(act.get("duration_minutes", 0) for act in timeline)
-        total_distance = sum(act.get("transit_dist_nm", 0) for act in timeline)
+        total_distance = sum(act.get("dist_nm", 0) for act in timeline)
 
         assert total_duration > 0, "Total cruise duration should be positive"
         assert total_distance > 0, "Total cruise distance should be positive"
