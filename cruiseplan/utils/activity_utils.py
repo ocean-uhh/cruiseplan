@@ -11,8 +11,8 @@ def is_scientific_operation(activity: Dict[str, Any]) -> bool:
     """
     Determine if an activity should be included as a scientific operation.
 
-    Include: Stations, Moorings, and Scientific Transits (with action field).
-    Exclude: Pure Navigation Transits (without action field).
+    Include: PointOperation, LineOperation, AreaOperation.
+    Exclude: PortOperation and NavigationalTransit.
 
     Parameters
     ----------
@@ -24,12 +24,8 @@ def is_scientific_operation(activity: Dict[str, Any]) -> bool:
     bool
         True if this is a scientific operation
     """
-    if activity["activity"] in ["Station", "Mooring", "Area"]:
-        return True
-    elif activity["activity"] == "Transit":
-        # Scientific transit if it has an action field
-        return activity.get("action") is not None
-    return False
+    operation_class = activity.get("operation_class", "")
+    return operation_class in ["PointOperation", "LineOperation", "AreaOperation"]
 
 
 def is_scientific_transit(transit: Dict[str, Any]) -> bool:

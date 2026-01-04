@@ -55,32 +55,37 @@ class TestTC4MixedOpsComprehensive:
 
         # Expected duration breakdown (hours) - now with separate transit activities
         expected_durations = {
-            1: 57.8,  # Port_Departure: Halifax to Operations (577.8nm @ 10kt)
-            2: 0.5,  # STN_001: CTD operation (may vary based on depth calculation)
-            3: 6.0,  # Transit to ADCP_Survey: 60nm @ 10kt
-            4: 12.0,  # ADCP_Survey: Scientific transit (60nm @ 5kt)
-            5: 3.6,  # Transit to Area_01: 36.3nm @ 10kt (using ADCP exit coordinates)
-            6: 2.0,  # Area_01: Survey area (120 min)
-            7: 204.8,  # Port_Arrival: Operations to Cadiz (2047.8nm @ 10kt)
+            1: 0,
+            2: 57.8,  # Port_Departure: Halifax to Operations (577.8nm @ 10kt)
+            3: 0.5,  # STN_001: CTD operation (may vary based on depth calculation)
+            4: 6.0,  # Transit to ADCP_Survey: 60nm @ 10kt
+            5: 12.0,  # ADCP_Survey: Scientific transit (60nm @ 5kt)
+            6: 3.6,  # Transit to Area_01: 36.3nm @ 10kt (using ADCP exit coordinates)
+            7: 2.0,  # Area_01: Survey area (120 min)
+            8: 204.8,  # Port_Arrival: Operations to Cadiz (2047.8nm @ 10kt)
+            9: 0,
         }
 
         # Expected transit distances (nm) - separate transit activities have the distances
         expected_transit_distances = {
-            1: 577.8,  # Port_Departure: Halifax to operations
-            2: 0.0,  # STN_001: no transit (already at location)
-            3: 60.0,  # Transit to ADCP_Survey: STN_001 to ADCP start
-            4: 0.0,  # ADCP_Survey: no transit (separate activity handles it)
-            5: 36.3,  # Transit to Area_01: ADCP end to Area_01
-            6: 0.0,  # Area_01: no transit (separate activity handles it)
-            7: 2047.8,  # Port_Arrival: Area_01 to Cadiz
+            1: 0,
+            2: 577.8,  # Port_Departure: Halifax to operations
+            3: 0.0,  # STN_001: no transit (already at location)
+            4: 60.0,  # Transit to ADCP_Survey: STN_001 to ADCP start
+            5: 0.0,  # ADCP_Survey: no transit (separate activity handles it)
+            6: 36.3,  # Transit to Area_01: ADCP end to Area_01
+            7: 0.0,  # Area_01: no transit (separate activity handles it)
+            8: 2047.8,  # Port_Arrival: Area_01 to Cadiz
+            9: 0,
         }
 
         # Expected activity types
         expected_activity_types = {
-            1: "Port_Departure",
-            2: "Station",
-            3: "Transit",
+            1: "Port",
+            2: "Transit",
+            3: "Station",
             4: "Transit",
+            5: "Transit",
             5: "Transit",
             6: "Area",
             7: "Port_Arrival",
@@ -180,13 +185,15 @@ class TestTC4MixedOpsComprehensive:
         # Verify operation sequencing with separate transit activities
         operation_names = [activity["label"] for activity in timeline]
         expected_sequence = [
-            "Departure: Halifax to Operations",
+            "Halifax",
+            "Transit to STN_001",
             "STN_001",
             "Transit to ADCP_Survey",
             "ADCP_Survey",
             "Transit to Area_01",
             "Area_01",
-            "Arrival: Operations to Cadiz",
+            "Transit to Cadiz",
+            "Cadiz",
         ]
 
         assert (

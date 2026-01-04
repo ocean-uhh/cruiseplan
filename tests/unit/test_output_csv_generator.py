@@ -64,9 +64,9 @@ class TestCSVGenerator:
                 "lat": 45.123456,
                 "lon": -123.654321,
                 "depth": 1500.0,
-                "transit_dist_nm": 25.5,
+                "dist_nm": 25.5,
                 "vessel_speed_kt": 0,  # Station operations have 0 vessel speed
-                "operation_type": "station",
+                "op_type": "station",
                 "action": "profile",
                 "leg_name": "Test_Leg",
             }
@@ -116,9 +116,9 @@ class TestCSVGenerator:
                 "lat": 50.0,
                 "lon": -50.0,
                 "depth": 0.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 5.5,  # Scientific transit with specific speed
-                "operation_type": "underway",
+                "op_type": "underway",
                 "action": "ADCP",
                 "leg_name": "Survey_Leg",
             }
@@ -158,9 +158,9 @@ class TestCSVGenerator:
                 "lat": 55.0,  # Center point
                 "lon": -45.0,
                 "depth": 0.0,
-                "transit_dist_nm": 15.0,
+                "dist_nm": 15.0,
                 "vessel_speed_kt": 0,  # Area operations have 0 vessel speed
-                "operation_type": "survey",
+                "op_type": "survey",
                 "action": "bathymetry",
                 "leg_name": "Survey_Leg",
                 "corners": [
@@ -207,9 +207,9 @@ class TestCSVGenerator:
                 "lat": 0.0,  # Equator
                 "lon": 180.0,  # International date line
                 "depth": 5000.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 0,
-                "operation_type": "station",
+                "op_type": "station",
                 "action": "profile",
                 "leg_name": "Edge_Case_Leg",
             }
@@ -251,9 +251,9 @@ class TestCSVGenerator:
                 "lat": -45.123456,  # Southern hemisphere
                 "lon": -123.987654,  # Western hemisphere
                 "depth": 2000.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 0,
-                "operation_type": "station",
+                "op_type": "station",
                 "action": "profile",
                 "leg_name": "South_Leg",
             }
@@ -293,7 +293,7 @@ class TestCSVGenerator:
                 "duration_minutes": 60.0,
                 "lat": 45.0,
                 "lon": -45.0,
-                # Missing: depth, transit_dist_nm, vessel_speed_kt, operation_type, action, leg_name
+                # Missing: depth, dist_nm, vessel_speed_kt, op_type, action, leg_name
             }
         ]
 
@@ -313,7 +313,7 @@ class TestCSVGenerator:
             assert row["Depth [m]"] == "0"  # Default depth
             assert row["Transit dist [nm]"] == "0.0"  # Default transit distance
             assert row["Vessel speed [kt]"] == "0"  # Station has 0 speed
-            assert row["operation_action"] == ""  # Empty when no operation_type/action
+            assert row["operation_action"] == ""  # Empty when no op_type/action
             assert row["leg_name"] == ""  # Empty when missing
 
         finally:
@@ -332,9 +332,9 @@ class TestCSVGenerator:
                 "lat": 45.0,
                 "lon": -45.0,
                 "depth": 1000.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 0,
-                "operation_type": "station",
+                "op_type": "station",
                 "action": "profile",
                 "leg_name": "Test_Leg",
             }
@@ -372,9 +372,9 @@ class TestCSVGenerator:
                 "lat": 45.0,
                 "lon": -45.0,
                 "depth": 1000.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 0,
-                "operation_type": "station",
+                "op_type": "station",
                 "action": "profile",
                 "leg_name": "Leg1",
             },
@@ -387,9 +387,9 @@ class TestCSVGenerator:
                 "lat": 46.0,
                 "lon": -46.0,
                 "depth": 0.0,
-                "transit_dist_nm": 0.0,
+                "dist_nm": 0.0,
                 "vessel_speed_kt": 8.0,
-                "operation_type": "underway",
+                "op_type": "underway",
                 "action": "ADCP",
                 "leg_name": "Leg1",
             },
@@ -402,9 +402,9 @@ class TestCSVGenerator:
                 "lat": 47.0,
                 "lon": -47.0,
                 "depth": 3000.0,
-                "transit_dist_nm": 25.0,
+                "dist_nm": 25.0,
                 "vessel_speed_kt": 0,
-                "operation_type": "mooring",
+                "op_type": "mooring",
                 "action": "deployment",
                 "leg_name": "Leg1",
             },
@@ -455,9 +455,9 @@ def test_generate_csv_schedule_convenience_function():
             "lat": 45.0,
             "lon": -45.0,
             "depth": 1000.0,
-            "transit_dist_nm": 0.0,
+            "dist_nm": 0.0,
             "vessel_speed_kt": 0,
-            "operation_type": "station",
+            "op_type": "station",
             "action": "profile",
             "leg_name": "Test_Leg",
         }

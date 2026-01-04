@@ -216,7 +216,9 @@ class TestTC2TwoLegsIntegration:
         # Validate timeline structure for two-leg cruise: should have 10 activities
         # Leg1: Port_Departure (Halifax), Transit, Station (STN_001), Transit, Port_Arrival (Bremerhaven)
         # Leg2: Port_Departure (Bremerhaven), Transit, Mooring (STN_002), Transit, Port_Arrival (Reykjavik)
-        assert len(timeline) == 10, "Expected 10 activities for two-leg cruise (ports + operations + transits)"
+        assert (
+            len(timeline) == 10
+        ), "Expected 10 activities for two-leg cruise (ports + operations + transits)"
 
         # Check activity types and sequence
         activities = [
@@ -246,7 +248,7 @@ class TestTC2TwoLegsIntegration:
         assert activities[4][2] == "Leg_Atlantic"
 
         # Leg_North activities (last 5)
-        assert activities[5][0] == "Port"  # Bremerhaven departure  
+        assert activities[5][0] == "Port"  # Bremerhaven departure
         assert "Bremerhaven" in activities[5][1]
         assert activities[5][2] == "Leg_North"
 
@@ -272,9 +274,7 @@ class TestTC2TwoLegsIntegration:
         timeline = generate_timeline(cruise.config, cruise.runtime_legs)
 
         # Extract transit distances
-        transit_activities = [
-            act for act in timeline if act.get("dist_nm", 0) > 0
-        ]
+        transit_activities = [act for act in timeline if act.get("dist_nm", 0) > 0]
 
         # Should have 4 transit activities (Port_Departure and Port_Arrival for each leg)
         assert (
@@ -286,8 +286,7 @@ class TestTC2TwoLegsIntegration:
         halifax_to_stn001_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit"
-            and "STN_001" in act.get("label", "")
+            if act.get("activity") == "Transit" and "STN_001" in act.get("label", "")
         )
 
         # Halifax to STN_001: 637.7 nm
@@ -323,8 +322,7 @@ class TestTC2TwoLegsIntegration:
         stn002_to_reykjavik_activity = next(
             act
             for act in timeline
-            if act.get("activity") == "Transit"
-            and "Reykjavik" in act.get("label", "")
+            if act.get("activity") == "Transit" and "Reykjavik" in act.get("label", "")
         )
 
         # These should be > 0 and reasonable (rough bounds check)
@@ -350,10 +348,10 @@ class TestTC2TwoLegsIntegration:
         html_content = html_path.read_text()
 
         # Check for expected leg durations
-        # Based on the specific expectation: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North
+        # Based on the specific expectation: 11.6 days for Leg_Atlantic, 48.5 days for Leg_North
         assert (
-            "11.5 days" in html_content
-        ), "Leg_Atlantic should show 11.5 days total duration"
+            "11.6 days" in html_content
+        ), "Leg_Atlantic should show 11.6 days total duration."
         assert (
             "48.5 days" in html_content
         ), "Leg_North should show 48.5 days total duration"
@@ -460,7 +458,9 @@ class TestTC2TwoLegsIntegration:
         timeline = generate_timeline(cruise.config, cruise.runtime_legs)
 
         # Validate timeline has correct structure
-        assert len(timeline) == 10, "Two-leg cruise should have 10 activities (ports + operations + transits)"
+        assert (
+            len(timeline) == 10
+        ), "Two-leg cruise should have 10 activities (ports + operations + transits)"
 
         # 3. Test all output formats can be generated
         from cruiseplan.output.csv_generator import generate_csv_schedule
@@ -549,8 +549,8 @@ class TestTC2TwoLegsIntegration:
         ]
 
         assert (
-            len(leg_atlantic_activities) == 3
-        ), "Leg_Atlantic should have exactly 3 activities"
+            len(leg_atlantic_activities) == 5
+        ), f"Leg_Atlantic should have exactly 5 activities. Got: {len(leg_atlantic_activities)}"
         assert (
-            len(leg_north_activities) == 3
-        ), "Leg_North should have exactly 3 activities"
+            len(leg_north_activities) == 5
+        ), f"Leg_North should have exactly 5 activities. Got: {len(leg_north_activities)}"

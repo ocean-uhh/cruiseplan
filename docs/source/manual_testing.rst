@@ -55,12 +55,11 @@ Test Case 1: Single Station (tc1_single.yaml)
 
     <input type="checkbox">
 
-1. |uncheck| Verify that in `STN_001` the coordinates and water depth were enriched as:
+1. |uncheck| Verify that in `STN_001` the coordinates were enriched as:
 
 .. code-block:: yaml
 
    coordinates_ddm: 45 00.00'N, 045 00.00'W
-   water_depth: 4411.0
 
 2. |uncheck| Verify that the port got expanded, including
 
@@ -84,11 +83,11 @@ Test Case 1: Single Station (tc1_single.yaml)
 **TC1_Single_Test_schedule.html**
 ..................................
 
-4. |uncheck| Verify that the CTD takes **3 hours**, based on a 30 minute "turnaround_time" (the default from constants.py) and a 4411m CTD from `DEFAULT_CTD_RATE_M_S` in `constants.py`, which is 73.5 minutes down and 73.5 minutes up, plus 30 minutes turnaround = 177 minutes or 2.95 hours.
+4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute "turnaround_time" (the default from constants.py) and a 2850m CTD (using mocked bathymetry) from `DEFAULT_CTD_RATE_M_S` in `constants.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
 
-5. |uncheck| Verify that the total cruise duration is **263.2 hours / 11.0 days**.
+5. |uncheck| Verify that the total cruise duration is **262.4 hours / 10.9 days**.
 
-6. |uncheck| Compare with the `HTML schedule output <_static/screenshots/fig_TC1_Single_Test_html.png>`_ to verify CTD timing calculations.
+6. |uncheck| Compare with the `HTML schedule output <_static/fixtures/TC1_Single_Test_schedule.html>`_ to verify CTD timing calculations.
 
 **TC1_Single_Test_schedule.csv**
 .................................
@@ -98,29 +97,31 @@ Test Case 1: Single Station (tc1_single.yaml)
 .. code-block:: csv
    
    activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
-   Port_Departure,Departure: Halifax to Operations,,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
-   Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:54:00,0.0,0,3.0,4411,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
-   Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-01-11T23:13:00,1813.1,10.0,181.3,0,36.5298,-6.2923,36,31.79,-6,-17.54,Leg_Single
+   Port,port_halifax,Port mob,1970-01-01T00:00:00,1970-01-01T00:00:00,0.0,0,0.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
+   Transit,Transit to STN_001,Transit,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
+   Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:02:00,0.0,0,2.1,2850,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
+   Transit,Transit to port_cadiz,Transit,1970-01-04T09:02:00,1970-01-11T22:21:00,1813.1,10.0,181.3,,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
+   Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.5298,-6.2923,36,31.79,-6,-17.54,Leg_Single
+
 
 **TC1_Single_Test_stations.tex**
 .................................
 
-8. |uncheck| Verify that the LaTeX station table includes water depth **4411** 
+8. |uncheck| Verify that the LaTeX station table includes water depth **2850** 
 9. |uncheck| Verify the Latex-formated coordinate includes **45$^\circ$00.00'N**:
 
 .. code-block:: latex
 
-   Station & STN-001 & 45$^\circ$00.00'N, 045$^\circ$00.00'W & 4411 \\
+   Station & STN-001 & 45$^\circ$00.00'N, 045$^\circ$00.00'W & 2850 \\
 
 **TC1_Single_Test_work_days.tex**
 .................................
 
-10. |uncheck| Verify that the LaTeX work days table includes total cruise duration of **3.0** operation hours and **260.3** transit hours:
+10. |uncheck| Verify that the LaTeX work days table includes total cruise duration of **2.1** operation hours and **260.3** transit hours:
 
 .. code-block:: latex
 
-   \textbf{Total duration} & & \textbf{3.0} & \textbf{260.3} \\
-
+   \textbf{Total duration} & & \textbf{2.1} & \textbf{260.3} \\
 
 **Figures _map.png and _schedule.png**
 ....................................
@@ -135,7 +136,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 .. figure:: _static/fixtures/TC1_Single_Test_catalog_kml.png
    :alt: KML Output Screenshot
-   :width: 600px
+   :width: 400px
 
    KML output viewed in Google Earth showing station location and details.
 
@@ -160,7 +161,7 @@ Test Case 2: Two Legs (tc2_two_legs.yaml)
 
 3. |uncheck| Verify that the `_schedule.png` matches `TC2_Two_Legs_Test_schedule.png <_static/fixtures/TC2_Two_Legs_Test_schedule.png>`_
 
-4. |uncheck| Verify that the `_work_days.tex` has a total duration with operations of **1000.0** hours and transit duration of **440.5** hours.
+4. |uncheck| Verify that the `_work_days.tex` has a total duration with operations of **1000.0** hours and transit duration of **440.4** hours.
 
 ----
 
@@ -229,11 +230,11 @@ Compare with the `TC4_Mixed_Test_schedule.html <_static/fixtures/TC4_Mixed_Test_
 
 6. |uncheck| Verify that the ADCP survey shows an entry position of **46.0000, -50.0000** and an exit position of **47.0000, -50.0000**.
 
-7. |uncheck| Verify that the `*_work_days.tex` shows total operation duration of **26.5** hours and transit duration of **260.7** hours.
+7. |uncheck| Verify that the `*_work_days.tex` shows total operation duration of **24.2** hours and transit duration of **258.5** hours.
 
 .. code-block:: latex
 
-   \textbf{Total duration} & & \textbf{26.5} & \textbf{260.7} \\
+   \textbf{Total duration} & & \textbf{24.2} & \textbf{258.5} \\
 
 ----
 
@@ -243,13 +244,28 @@ Test Case 5: Sections (tc5_sections.yaml)
 **Purpose**: Verify section-based definitions and expansions
 
 **Configuration**:
-- Section definitions with waypoints
+
 - Section expansion to individual stations
 
-**Key Features Tested**:
-- Section processing
-- Waypoint expansion
-- Linear station generation
+1. |uncheck| Verify that the `_enriched.yaml` contains individual stations instead of a section:
+
+.. code-block:: yaml
+
+   stations:
+   -  #  expanded by cruiseplan enrich --expand-sections
+      name: SEC_001_Stn001
+      coordinates_ddm: 45 00.00'N, 050 00.00'W
+      water_depth: 58.0
+      operation_type: CTD
+      action: profile
+      latitude: 45.0
+      longitude: -50.0
+      comment: Station 1/14 on SEC_001 section
+      duration: 120.0
+
+2. |uncheck| Verify that the `_map.png` shows all 14 stations from the section `TC5_Sections_Test_map.png <_static/fixtures/TC5_Sections_Test_map.png>`_
+
+3. |uncheck| Verify that the `_schedule.html` shows a station spacing of **11.2 nm**.
 
 Additional Test Files
 ~~~~~~~~~~~~~~~~~~~~~

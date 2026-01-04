@@ -120,7 +120,6 @@ def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
     MockLoadCampaign.assert_not_called()
 
 
-
 @pytest.mark.skip(reason="Import error testing is complex with dynamic imports")
 def test_main_handles_import_error(mock_args):
     """Tests the graceful exit path if core dependencies (matplotlib) are missing."""

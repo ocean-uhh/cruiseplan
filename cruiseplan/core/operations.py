@@ -26,7 +26,7 @@ class BaseOperation(ABC):
         Optional human-readable comment or description.
     """
 
-    def __init__(self, name: str, comment: Optional[str] = None):
+    def __init__(self, name: str, comment: Optional[str] = None, display_name: Optional[str] = None):
         """
         Initialize a base operation.
 
@@ -36,9 +36,13 @@ class BaseOperation(ABC):
             Unique identifier for this operation.
         comment : Optional[str], optional
             Human-readable comment or description.
+        display_name : Optional[str], optional
+            Human-readable display name for maps, CSV, and HTML output.
+            Defaults to name if not provided.
         """
         self.name = name
         self.comment = comment
+        self.display_name = display_name or name
 
     @abstractmethod
     def calculate_duration(self, rules: Any) -> float:
@@ -153,11 +157,13 @@ class PointOperation(BaseOperation):
         self,
         name: str,
         position: tuple,
-        depth: float = 0.0,
+        operation_depth: float = None,
+        water_depth: float = 0.0,
         duration: float = 0.0,
         comment: str = None,
         op_type: str = "station",
         action: str = None,
+        display_name: str = None,
     ):
         """
         Initialize a point operation.
@@ -179,12 +185,32 @@ class PointOperation(BaseOperation):
         action : str, optional
             Specific action for moorings (deploy/recover).
         """
-        super().__init__(name, comment)
+        super().__init__(name, comment, display_name)
         self.position = position  # (lat, lon)
-        self.depth = depth
+        self.operation_depth = operation_depth
+        self.water_depth = water_depth
         self.manual_duration = duration
         self.op_type = op_type
         self.action = action  # Specific to Moorings
+
+    def get_depth(self) -> float:
+        """
+        Get the appropriate depth for this operation.
+        
+        Returns operation_depth if available, otherwise water_depth, 
+        otherwise 0.0.
+        
+        Returns
+        -------
+        float
+            Depth in meters.
+        """
+        if self.operation_depth is not None:
+            return self.operation_depth
+        elif self.water_depth is not None:
+            return self.water_depth
+        else:
+            return 0.0
 
     def calculate_duration(self, rules: Any) -> float:
         """
@@ -216,7 +242,7 @@ class PointOperation(BaseOperation):
         calc = DurationCalculator(rules.config)
 
         if self.op_type == "station":
-            return calc.calculate_ctd_time(self.depth)
+            return calc.calculate_ctd_time(self.get_depth())
         elif self.op_type == "mooring":
             # Moorings should have manual duration, but fallback to default
             return (
@@ -264,7 +290,7 @@ class PointOperation(BaseOperation):
         Get operation type for timeline display.
 
         Returns appropriate display type based on the op_type attribute.
-        
+
         Returns
         -------
         str
@@ -273,7 +299,7 @@ class PointOperation(BaseOperation):
         # Map internal op_types to display names
         type_mapping = {
             "station": "Station",
-            "mooring": "Mooring", 
+            "mooring": "Mooring",
             "port": "Port",
             "waypoint": "Waypoint",
         }
@@ -313,13 +339,14 @@ class PointOperation(BaseOperation):
         internal_op_type = op_type_mapping.get(obj.operation_type.value, "station")
         action = obj.action.value if obj.action else None
 
-        # Use operation_depth for duration calculations, fallback to water_depth if needed
-        operation_depth = obj.operation_depth or obj.water_depth or 0.0
-
+        # Use water_depth as fallback for operation_depth
+        operation_depth = obj.operation_depth if obj.operation_depth is not None else obj.water_depth
+        
         return cls(
             name=obj.name,
             position=pos,
-            depth=operation_depth,  # This is now operation_depth for duration calculations
+            operation_depth=operation_depth,
+            water_depth=obj.water_depth,
             duration=obj.duration if obj.duration else 0.0,
             comment=obj.comment,
             op_type=internal_op_type,
@@ -346,11 +373,13 @@ class PointOperation(BaseOperation):
         return cls(
             name=obj.name,
             position=pos,
-            depth=0.0,  # Ports are at sea level
+            operation_depth=None,  # Ports don't have operation depth
+            water_depth=None,  # Ports don't need water depth
             duration=0.0,  # Ports have no operation duration
             comment=getattr(obj, "description", None),
             op_type="port",
             action="mob",  # Default to mobilization action
+            display_name=getattr(obj, "display_name", None),
         )
 
 
@@ -370,7 +399,7 @@ class LineOperation(BaseOperation):
     """
 
     def __init__(
-        self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None
+        self, name: str, route: List[tuple], speed: float = 10.0, comment: str = None, display_name: str = None
     ):
         """
         Initialize a line operation.
@@ -386,7 +415,7 @@ class LineOperation(BaseOperation):
         comment : str, optional
             Human-readable comment or description.
         """
-        super().__init__(name, comment)
+        super().__init__(name, comment, display_name)
         self.route = route  # List of (lat, lon)
         self.speed = speed
 
@@ -417,7 +446,9 @@ class LineOperation(BaseOperation):
         # Use DurationCalculator if rules/config available
         if hasattr(rules, "config"):
             calc = DurationCalculator(rules.config)
-            return calc.calculate_transit_time(route_distance_km, self.speed)
+            # Use default vessel speed if self.speed is 0 or None
+            effective_speed = self.speed if self.speed and self.speed > 0 else rules.config.default_vessel_speed
+            return calc.calculate_transit_time(route_distance_km, effective_speed)
         else:
             # Fallback for cases without config
             from cruiseplan.calculators.distance import km_to_nm
@@ -540,6 +571,7 @@ class AreaOperation(BaseOperation):
         end_point: Optional[Tuple[float, float]] = None,
         sampling_density: float = 1.0,
         comment: str = None,
+        display_name: str = None,
     ):
         """
         Initialize an area operation.
@@ -563,7 +595,7 @@ class AreaOperation(BaseOperation):
         comment : str, optional
             Human-readable comment or description.
         """
-        super().__init__(name, comment)
+        super().__init__(name, comment, display_name)
         self.boundary_polygon = boundary_polygon
         self.area_km2 = area_km2
         self.duration = duration

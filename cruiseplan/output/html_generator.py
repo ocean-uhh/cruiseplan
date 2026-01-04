@@ -183,14 +183,19 @@ class HTMLGenerator:
         </tr>
 """
 
-        # Transit to/from working area row
-        if stats["port_transits"]["total_distance_nm"] > 0:
+        # Transit to/from working area row (combine both directions)
+        total_port_distance_nm = stats["port_transits_to_area"]["total_distance_nm"] + stats["port_transits_from_area"]["total_distance_nm"]
+        total_port_duration_h = stats["port_transits_to_area"]["total_duration_h"] + stats["port_transits_from_area"]["total_duration_h"]
+        total_port_duration_days = stats["port_transits_to_area"]["total_duration_days"] + stats["port_transits_from_area"]["total_duration_days"]
+        avg_port_speed_kt = total_port_distance_nm / total_port_duration_h if total_port_duration_h > 0 else 0
+        
+        if total_port_distance_nm > 0:
             html_content += f"""
         <tr>
             <td>Transit to/from working area</td>
-            <td>{stats["port_transits"]["total_distance_nm"]:.1f} nm, avg {stats["port_transits"]["avg_speed_kt"]:.1f} kts</td>
-            <td class="number">{stats["port_transits"]["total_duration_h"]:.1f}</td>
-            <td class="number">{stats["port_transits"]["total_duration_days"]:.1f}</td>
+            <td>{total_port_distance_nm:.1f} nm, avg {avg_port_speed_kt:.1f} kts</td>
+            <td class="number">{total_port_duration_h:.1f}</td>
+            <td class="number">{total_port_duration_days:.1f}</td>
         </tr>
 """
 
@@ -227,7 +232,15 @@ class HTMLGenerator:
                 lat_ddm = _convert_decimal_to_deg_min_html(mooring["lat"])
                 lon_ddm = _convert_decimal_to_deg_min_html(mooring["lon"])
                 comment = mooring.get("comment", "")
-                depth = mooring.get("depth", 0)
+                # Use operation_depth if available, otherwise water_depth (implementing get_depth logic)
+                operation_depth = mooring.get("operation_depth")
+                water_depth = mooring.get("water_depth") 
+                if operation_depth is not None:
+                    depth = operation_depth
+                elif water_depth is not None:
+                    depth = water_depth
+                else:
+                    depth = 0
                 action = mooring.get("action", "N/A")
 
                 html_content += f"""
@@ -374,10 +387,7 @@ class HTMLGenerator:
             # Count scientific operations for leg total
             scientific_operations_count = 0
             for activity in leg_data["activities"]:
-                activity_type = activity.get("activity", "")
-                if activity_type in ["Station", "Mooring", "Area"]:
-                    scientific_operations_count += 1
-                elif activity_type == "Transit" and is_scientific_operation(activity):
+                if is_scientific_operation(activity):
                     scientific_operations_count += 1
 
             # Add leg total row

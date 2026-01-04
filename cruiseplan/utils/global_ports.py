@@ -533,6 +533,22 @@ def resolve_port_reference(
                     f"Available ports: {', '.join(available_ports)}"
                 )
         else:
+            # Try reverse lookup: display name -> port reference
+            # Look for port where display name starts with port_ref (before comma)
+            for port_id, port_data in GLOBAL_PORTS.items():
+                display_name = port_data.get("display_name", "")
+                port_name = port_data.get("name", "")
+                # Match if port_ref matches the display name up to comma, or the name field
+                if (display_name.split(",")[0].strip() == port_ref or 
+                    port_name == port_ref):
+                    return PortDefinition(
+                        name=port_id,  # Use the port_id (e.g. port_halifax) as the canonical name
+                        latitude=port_data["latitude"],
+                        longitude=port_data["longitude"],
+                        display_name=display_name,
+                        description=port_data.get("description", ""),
+                    )
+            
             # Simple string port name (backward compatibility)
             warnings.warn(
                 f"Port reference '{port_ref}' should use 'port_' prefix for global ports "
