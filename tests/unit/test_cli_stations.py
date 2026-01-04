@@ -44,7 +44,6 @@ def mock_args(tmp_path):
         lat=[50.0, 60.0],
         lon=[-30.0, -20.0],
         output_dir=tmp_path / "results",
-        output_file=None,
         bathy_source_legacy="etopo2022",  # Legacy param that gets migrated
         bathy_dir_legacy=tmp_path / "bathymetry",  # Legacy param that gets migrated
         high_resolution=False,
