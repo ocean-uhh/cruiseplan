@@ -575,8 +575,8 @@ def schedule(
             logger.error("No legs found in cruise configuration")
             return None, None
 
-        # Generate timeline (use first leg for now - extend for multi-leg support later)
-        timeline = generate_timeline(cruise.config, target_legs[0])
+        # Generate timeline for specified legs
+        timeline = generate_timeline(cruise.config, target_legs)
 
         if not timeline:
             logger.error("Failed to generate timeline")

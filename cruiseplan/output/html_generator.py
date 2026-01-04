@@ -17,9 +17,16 @@ import logging
 from pathlib import Path
 from typing import List
 
-from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.calculators.scheduler import (
+    ActivityRecord,
+    calculate_timeline_statistics,
+)
 from cruiseplan.core.validation import CruiseConfig
-from cruiseplan.utils.activity_utils import is_scientific_operation
+from cruiseplan.output.output_utils import (
+    format_activity_type,
+    get_activity_depth,
+    get_activity_position,
+)
 from cruiseplan.utils.constants import NM_PER_KM, hours_to_days
 
 logger = logging.getLogger(__name__)
@@ -55,217 +62,6 @@ def _convert_decimal_to_deg_min_html(decimal_degrees):
         return f"-{degrees:02d} {minutes:06.3f}"
 
 
-def _calculate_summary_statistics(timeline):
-    """
-    Calculate summary statistics for HTML output from activity timeline.
-
-    Uses timeline-based categorization to ensure every activity is accounted for.
-    Categorizes activities into: moorings, stations, surveys, areas, port transits,
-    and within-area transits (everything else).
-
-    Parameters
-    ----------
-    timeline : list of dict
-        List of activity records from the scheduler.
-
-    Returns
-    -------
-    dict
-        Dictionary containing statistics for each activity type with keys:
-        'moorings', 'stations', 'surveys', 'areas', 'within_area', 'port_area',
-        and 'mooring_activities' (raw mooring data).
-    """
-    # Initialize categorized activity lists
-    station_activities = []
-    mooring_activities = []
-    area_activities = []
-    scientific_transits = []
-    port_transits = []
-    within_area_transits = []
-
-    # Categorize every activity in the timeline
-    logger.info(f"🔍 HTML Generator: Processing {len(timeline)} timeline activities")
-    for i, activity in enumerate(timeline):
-        logger.debug(f"   Activity {i}: type={type(activity)}, content={activity}")
-        activity_type = activity["activity"]
-
-        if activity_type == "Station":
-            station_activities.append(activity)
-        elif activity_type == "Mooring":
-            mooring_activities.append(activity)
-        elif activity_type == "Area":
-            area_activities.append(activity)
-        elif activity_type in ["Port_Departure", "Port_Arrival"]:
-            port_transits.append(activity)
-        elif activity_type == "Transit":
-            # Check if it's a scientific transit
-            if is_scientific_operation(activity):
-                scientific_transits.append(activity)
-            else:
-                # All other transits are within-area transits
-                within_area_transits.append(activity)
-        else:
-            # Any unrecognized activities also go to within-area as a fallback
-            within_area_transits.append(activity)
-
-    # Calculate mooring statistics
-    mooring_stats = {}
-    if mooring_activities:
-        total_mooring_duration_h = (
-            sum(a["duration_minutes"] for a in mooring_activities) / 60
-        )
-        avg_mooring_duration_h = total_mooring_duration_h / len(mooring_activities)
-        mooring_stats = {
-            "count": len(mooring_activities),
-            "avg_duration_h": avg_mooring_duration_h,
-            "total_duration_h": total_mooring_duration_h,
-            "total_duration_days": hours_to_days(total_mooring_duration_h),
-        }
-    else:
-        mooring_stats = {
-            "count": 0,
-            "avg_duration_h": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    # Calculate station statistics
-    station_stats = {}
-    if station_activities:
-        total_station_duration_h = (
-            sum(a["duration_minutes"] for a in station_activities) / 60
-        )
-        avg_station_duration_h = total_station_duration_h / len(station_activities)
-        avg_depth = sum(a.get("depth", 0) for a in station_activities) / len(
-            station_activities
-        )
-        station_stats = {
-            "count": len(station_activities),
-            "avg_duration_h": avg_station_duration_h,
-            "avg_depth_m": avg_depth,
-            "total_duration_h": total_station_duration_h,
-            "total_duration_days": hours_to_days(total_station_duration_h),
-        }
-    else:
-        station_stats = {
-            "count": 0,
-            "avg_duration_h": 0,
-            "avg_depth_m": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    # Calculate survey operations (scientific transits)
-    survey_stats = {}
-    if scientific_transits:
-        total_survey_duration_h = (
-            sum(a["duration_minutes"] for a in scientific_transits) / 60
-        )
-        avg_survey_duration_h = total_survey_duration_h / len(scientific_transits)
-        total_survey_distance_nm = sum(
-            a.get("operation_dist_nm", 0) for a in scientific_transits
-        )
-        avg_survey_distance_nm = total_survey_distance_nm / len(scientific_transits)
-        survey_stats = {
-            "count": len(scientific_transits),
-            "avg_duration_h": avg_survey_duration_h,
-            "avg_distance_nm": avg_survey_distance_nm,
-            "total_distance_nm": total_survey_distance_nm,
-            "total_duration_h": total_survey_duration_h,
-            "total_duration_days": hours_to_days(total_survey_duration_h),
-        }
-    else:
-        survey_stats = {
-            "count": 0,
-            "avg_duration_h": 0,
-            "avg_distance_nm": 0,
-            "total_distance_nm": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    # Calculate area operations
-    area_stats = {}
-    if area_activities:
-        total_area_duration_h = sum(a["duration_minutes"] for a in area_activities) / 60
-        avg_area_duration_h = total_area_duration_h / len(area_activities)
-        area_stats = {
-            "count": len(area_activities),
-            "avg_duration_h": avg_area_duration_h,
-            "total_duration_h": total_area_duration_h,
-            "total_duration_days": hours_to_days(total_area_duration_h),
-        }
-    else:
-        area_stats = {
-            "count": 0,
-            "avg_duration_h": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    # Calculate within-area transits (already categorized above)
-    within_area_stats = {}
-    if within_area_transits:
-        total_within_duration_h = (
-            sum(a["duration_minutes"] for a in within_area_transits) / 60
-        )
-        total_within_distance_nm = sum(
-            a.get("transit_dist_nm", 0) for a in within_area_transits
-        )
-        avg_speed_kts = (
-            total_within_distance_nm / total_within_duration_h
-            if total_within_duration_h > 0
-            else 0
-        )
-        within_area_stats = {
-            "total_distance_nm": total_within_distance_nm,
-            "avg_speed_kts": avg_speed_kts,
-            "total_duration_h": total_within_duration_h,
-            "total_duration_days": hours_to_days(total_within_duration_h),
-        }
-    else:
-        within_area_stats = {
-            "total_distance_nm": 0,
-            "avg_speed_kts": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    # Calculate port area transits (already categorized above)
-    port_area_stats = {}
-    if port_transits:
-        total_port_duration_h = sum(a["duration_minutes"] for a in port_transits) / 60
-        total_port_distance_nm = sum(a.get("transit_dist_nm", 0) for a in port_transits)
-        avg_speed_kts = (
-            total_port_distance_nm / total_port_duration_h
-            if total_port_duration_h > 0
-            else 0
-        )
-        port_area_stats = {
-            "total_distance_nm": total_port_distance_nm,
-            "avg_speed_kts": avg_speed_kts,
-            "total_duration_h": total_port_duration_h,
-            "total_duration_days": hours_to_days(total_port_duration_h),
-        }
-    else:
-        port_area_stats = {
-            "total_distance_nm": 0,
-            "avg_speed_kts": 0,
-            "total_duration_h": 0,
-            "total_duration_days": 0,
-        }
-
-    return {
-        "moorings": mooring_stats,
-        "stations": station_stats,
-        "surveys": survey_stats,
-        "areas": area_stats,
-        "within_area": within_area_stats,
-        "port_area": port_area_stats,
-        "mooring_activities": mooring_activities,
-    }
-
-
 class HTMLGenerator:
     """
     Manages HTML generation for cruise schedules with summary tables and detailed listings.
@@ -298,8 +94,8 @@ class HTMLGenerator:
         Path
             Path to generated HTML file
         """
-        # Calculate summary statistics
-        stats = _calculate_summary_statistics(timeline)
+        # Calculate summary statistics using scheduler function
+        stats = calculate_timeline_statistics(timeline)
 
         # Calculate total statistics - use simple sum like CLI to avoid categorization errors
         total_duration_h = (
@@ -381,24 +177,42 @@ class HTMLGenerator:
 """
 
         # Transit within area row
-        if stats["within_area"]["total_distance_nm"] > 0:
+        if stats["within_area_transits"]["total_distance_nm"] > 0:
             html_content += f"""
         <tr>
             <td>Transit within area</td>
-            <td>{stats["within_area"]["total_distance_nm"]:.1f} nm, avg {stats["within_area"]["avg_speed_kts"]:.1f} kts</td>
-            <td class="number">{stats["within_area"]["total_duration_h"]:.1f}</td>
-            <td class="number">{stats["within_area"]["total_duration_days"]:.1f}</td>
+            <td>{stats["within_area_transits"]["total_distance_nm"]:.1f} nm, avg {stats["within_area_transits"]["avg_speed_kt"]:.1f} kts</td>
+            <td class="number">{stats["within_area_transits"]["total_duration_h"]:.1f}</td>
+            <td class="number">{stats["within_area_transits"]["total_duration_days"]:.1f}</td>
         </tr>
 """
 
-        # Transit to/from working area row
-        if stats["port_area"]["total_distance_nm"] > 0:
+        # Transit to/from working area row (combine both directions)
+        total_port_distance_nm = (
+            stats["port_transits_to_area"]["total_distance_nm"]
+            + stats["port_transits_from_area"]["total_distance_nm"]
+        )
+        total_port_duration_h = (
+            stats["port_transits_to_area"]["total_duration_h"]
+            + stats["port_transits_from_area"]["total_duration_h"]
+        )
+        total_port_duration_days = (
+            stats["port_transits_to_area"]["total_duration_days"]
+            + stats["port_transits_from_area"]["total_duration_days"]
+        )
+        avg_port_speed_kt = (
+            total_port_distance_nm / total_port_duration_h
+            if total_port_duration_h > 0
+            else 0
+        )
+
+        if total_port_distance_nm > 0:
             html_content += f"""
         <tr>
             <td>Transit to/from working area</td>
-            <td>{stats["port_area"]["total_distance_nm"]:.1f} nm, avg {stats["port_area"]["avg_speed_kts"]:.1f} kts</td>
-            <td class="number">{stats["port_area"]["total_duration_h"]:.1f}</td>
-            <td class="number">{stats["port_area"]["total_duration_days"]:.1f}</td>
+            <td>{total_port_distance_nm:.1f} nm, avg {avg_port_speed_kt:.1f} kts</td>
+            <td class="number">{total_port_duration_h:.1f}</td>
+            <td class="number">{total_port_duration_days:.1f}</td>
         </tr>
 """
 
@@ -432,17 +246,18 @@ class HTMLGenerator:
 
         if stats["mooring_activities"]:
             for mooring in stats["mooring_activities"]:
-                lat_ddm = _convert_decimal_to_deg_min_html(mooring["lat"])
-                lon_ddm = _convert_decimal_to_deg_min_html(mooring["lon"])
+                lat, lon = get_activity_position(mooring)
+                lat_ddm = _convert_decimal_to_deg_min_html(lat)
+                lon_ddm = _convert_decimal_to_deg_min_html(lon)
                 comment = mooring.get("comment", "")
-                depth = mooring.get("depth", 0)
+                depth = get_activity_depth(mooring)
                 action = mooring.get("action", "N/A")
 
                 html_content += f"""
         <tr>
             <td>{mooring['label']}</td>
             <td>{comment}</td>
-            <td>{mooring['lat']:.6f}, {mooring['lon']:.6f}</td>
+            <td>{lat:.6f}, {lon:.6f}</td>
             <td>{lat_ddm}, {lon_ddm}</td>
             <td class="number">{depth:.0f}</td>
             <td class="number">{mooring['duration_minutes']/60:.1f}</td>
@@ -553,17 +368,8 @@ class HTMLGenerator:
                     self._get_activity_entry_exit_distance(activity, activities, i)
                 )
 
-                # Determine activity type using correct field names
-                activity_type = activity.get("activity", "Unknown")
-                if activity_type == "Station":
-                    operation = activity.get("operation_type", "N/A")
-                    activity_type = f"Station ({operation})"
-                elif activity_type == "Mooring":
-                    action = activity.get("action", "N/A")
-                    activity_type = f"Mooring ({action})"
-                elif activity_type == "Transit":
-                    operation = activity.get("operation_type", "N/A")
-                    activity_type = f"Transit ({operation})"
+                # Determine activity type using shared utility
+                activity_type = format_activity_type(activity)
 
                 html_content += f"""
         <tr>
@@ -579,14 +385,10 @@ class HTMLGenerator:
 
             # Transit to arrival port is now handled by scheduler Port_Arrival activities
 
-            # Count scientific operations for leg total
-            scientific_operations_count = 0
-            for activity in leg_data["activities"]:
-                activity_type = activity.get("activity", "")
-                if activity_type in ["Station", "Mooring", "Area"]:
-                    scientific_operations_count += 1
-                elif activity_type == "Transit" and is_scientific_operation(activity):
-                    scientific_operations_count += 1
+            # Get scientific operations count from scheduler stats instead of recalculating
+            leg_stats = stats.get("leg_stats", {})
+            leg_stat = leg_stats.get(leg_name, {})
+            scientific_operations_count = leg_stat.get("total_scientific", 0)
 
             # Add leg total row
             html_content += f"""
@@ -738,48 +540,61 @@ class HTMLGenerator:
         else:
             current_pos = "N/A"
 
-        activity_type = activity.get("activity", "Unknown")
+        # Get operation class for extensible categorization
+        operation_class = activity.get("operation_class", "Unknown")
 
-        # For station/mooring activities: entry = exit = activity position
-        if activity_type in ["Station", "Mooring"]:
-            entry_position = current_pos
-            exit_position = current_pos
-            # For point operations, use operation distance (0 for most point ops)
-            distance_nm = activity.get("operation_dist_nm", 0.0)
-
-        # For port activities: entry = exit = port position, but use transit distance
-        elif activity_type in ["Port_Departure", "Port_Arrival"]:
-            entry_position = current_pos
-            exit_position = current_pos
-            # For ports, use transit distance to show distance to next destination
-            distance_nm = activity.get("transit_dist_nm", 0.0)
-
-        # For transit activities: use start_lat/start_lon and end_lat/end_lon if available
-        elif activity_type == "Transit":
-            # Entry position: use start_lat/start_lon if available, otherwise current position
-            if "start_lat" in activity and "start_lon" in activity:
+        # For PointOperations: entry = exit = activity position
+        if operation_class == "PointOperation":
+            # Use entry/exit coordinates if available, otherwise fall back to lat/lon
+            if "entry_lat" in activity and "entry_lon" in activity:
                 entry_position = (
-                    f"{activity['start_lat']:.4f}, {activity['start_lon']:.4f}"
+                    f"{activity['entry_lat']:.4f}, {activity['entry_lon']:.4f}"
+                )
+                exit_position = (
+                    f"{activity['exit_lat']:.4f}, {activity['exit_lon']:.4f}"
                 )
             else:
                 entry_position = current_pos
-
-            # Exit position: use end_lat/end_lon if available, otherwise current position
-            if "end_lat" in activity and "end_lon" in activity:
-                exit_position = f"{activity['end_lat']:.4f}, {activity['end_lon']:.4f}"
-            else:
                 exit_position = current_pos
 
-            # For transit, use transit distance
-            distance_nm = activity.get("transit_dist_nm", 0.0)
+            # All operations use the unified distance field
+            distance_nm = activity.get("dist_nm", 0.0)
+
+        # For LineOperations and AreaOperations: use entry/exit coordinates
+        elif operation_class in ["LineOperation", "AreaOperation"]:
+            if "entry_lat" in activity and "entry_lon" in activity:
+                entry_position = (
+                    f"{activity['entry_lat']:.4f}, {activity['entry_lon']:.4f}"
+                )
+                exit_position = (
+                    f"{activity['exit_lat']:.4f}, {activity['exit_lon']:.4f}"
+                )
+            else:
+                entry_position = current_pos
+                exit_position = current_pos
+            # All operations use the unified distance field
+            distance_nm = activity.get("dist_nm", 0.0)
+
+        # For NavigationalTransit: use entry/exit coordinates with transit distance
+        elif operation_class == "NavigationalTransit":
+            if "entry_lat" in activity and "entry_lon" in activity:
+                entry_position = (
+                    f"{activity['entry_lat']:.4f}, {activity['entry_lon']:.4f}"
+                )
+                exit_position = (
+                    f"{activity['exit_lat']:.4f}, {activity['exit_lon']:.4f}"
+                )
+            else:
+                entry_position = current_pos
+                exit_position = current_pos
+            # All operations use the unified distance field
+            distance_nm = activity.get("dist_nm", 0.0)
 
         else:
-            # Unknown activity type: use current position for both
+            # Unknown operation class: use current position for both
             entry_position = current_pos
             exit_position = current_pos
-            distance_nm = activity.get(
-                "transit_dist_nm", activity.get("operation_dist_nm", 0.0)
-            )
+            distance_nm = activity.get("dist_nm", 0.0)
 
         # Format distance
         if distance_nm == 0.0:

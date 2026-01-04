@@ -102,8 +102,15 @@ class TestCruise:
         """Test successful cruise initialization."""
         mock_load_yaml.return_value = self.test_yaml_data
 
+        # Create a mock port object for resolution
+        mock_port = MagicMock()
+        mock_port.name = "REYKJAVIK"
+        mock_port.latitude = 64.1466
+        mock_port.longitude = -21.9426
+        mock_port.display_name = "Reykjavik, Iceland"
+
         with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
-            mock_resolve.return_value = None  # No port resolution needed
+            mock_resolve.return_value = mock_port
 
             cruise = Cruise("test_config.yaml")
 
@@ -277,8 +284,15 @@ class TestCruise:
         # Ports are now defined within legs, not at cruise level
         mock_load_yaml.return_value = config_with_ports
 
+        # Create a mock port object for resolution
+        mock_port = MagicMock()
+        mock_port.name = "REYKJAVIK"
+        mock_port.latitude = 64.1466
+        mock_port.longitude = -21.9426
+        mock_port.display_name = "Reykjavik, Iceland"
+
         with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
-            mock_resolve.return_value = None  # Found in registry
+            mock_resolve.return_value = mock_port
 
             cruise = Cruise("config_with_ports.yaml")
 

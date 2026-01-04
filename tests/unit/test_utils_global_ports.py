@@ -75,21 +75,21 @@ class TestGlobalPorts:
         assert port.longitude == -15.0
 
     def test_resolve_port_reference_string_warning(self):
-        """Test that string without port_ prefix generates warning."""
+        """Test that unknown string without port_ prefix generates warning."""
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
 
-            port = resolve_port_reference("Reykjavik")
+            port = resolve_port_reference("NonexistentPort")
 
             # Should generate warning about missing port_ prefix
             assert len(w) > 0
             warning_message = str(w[0].message)
             assert "port_" in warning_message
-            assert "Reykjavik" in warning_message
+            assert "NonexistentPort" in warning_message
 
             # Should still create a basic port
             assert isinstance(port, PortDefinition)
-            assert port.name == "Reykjavik"
+            assert port.name == "NonexistentPort"
 
     def test_resolve_port_reference_invalid_type(self):
         """Test error for invalid port reference type."""

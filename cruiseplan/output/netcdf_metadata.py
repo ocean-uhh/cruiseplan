@@ -147,10 +147,10 @@ SCHEDULE_VARIABLES = {
         "units": "minutes",
         "description": "Duration of the activity in minutes",
     },
-    "transit_dist_nm": {
-        "long_name": "transit distance",
+    "dist_nm": {
+        "long_name": "distance",
         "units": "nautical_miles",
-        "description": "Distance traveled to reach this operation",
+        "description": "Distance associated with this activity (transit distance or operation distance)",
     },
 }
 

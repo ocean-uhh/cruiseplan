@@ -460,6 +460,9 @@ class TestLegOperationalWaypoints:
         exit_point = leg.get_operational_exit_point()
         assert exit_point is None
 
+    @pytest.mark.skip(
+        reason="Obsolete after scheduler refactor - _resolve_station_details removed"
+    )
     def test_get_operational_points_with_resolver(self):
         """Test operational points with mock resolver."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}

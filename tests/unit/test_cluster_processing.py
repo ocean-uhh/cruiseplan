@@ -1,14 +1,20 @@
 """
-Tests for cluster processing functionality in scheduler.
+DEPRECATED: Tests for old scheduler cluster processing functionality.
 
-This module tests the _extract_activities_from_leg function which handles
-the priority order: activities > clusters > sequence > stations, and properly processes
-cluster definitions containing activities, sequences, or stations.
+This module tested the _extract_activities_from_leg function which was part of the
+old scheduler implementation. This functionality has been replaced by the new
+TimelineGenerator class architecture in v0.3.1.
+
+These tests are no longer relevant as the functions they test no longer exist.
+See CLAUDE-v0.3.1-implementation_status.md for details on the new architecture.
 """
 
-from unittest.mock import MagicMock
+import pytest
 
-from cruiseplan.calculators.scheduler import _extract_activities_from_leg
+# Mark entire module as deprecated
+pytestmark = pytest.mark.skip(
+    reason="DEPRECATED: Old scheduler functions removed in v0.3.1 unified operations architecture"
+)
 
 
 class TestClusterProcessing:

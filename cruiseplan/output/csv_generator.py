@@ -10,6 +10,7 @@ from typing import List
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.output.output_utils import get_activity_depth
 from cruiseplan.utils.activity_utils import (
     format_operation_action,
     round_time_to_minute,
@@ -27,6 +28,51 @@ class CSVGenerator:
     def __init__(self):
         """Initialize the CSV generator."""
         pass
+
+    def _get_display_label(self, activity: dict) -> str:
+        """
+        Get appropriate display label for an activity.
+
+        For ports, use display_name if available, otherwise use label.
+        For other activities, use label directly.
+
+        Parameters
+        ----------
+        activity : dict
+            Activity record
+
+        Returns
+        -------
+        str
+            Display label for the activity
+        """
+        label = activity.get("label", "")
+
+        # For port activities, prefer display_name over label
+        if activity.get("activity", "").lower() == "port":
+            display_name = activity.get("display_name", "")
+            if display_name:
+                # Extract just the city name (before comma) for cleaner display
+                return display_name.split(",")[0].strip()
+
+        return label
+
+    def _get_depth_value(self, activity: dict) -> str:
+        """
+        Get depth value prioritizing operation_depth over water_depth.
+
+        Parameters
+        ----------
+        activity : dict
+            Activity record with depth information
+
+        Returns
+        -------
+        str
+            Depth value as string (rounded to whole number) or "0" if no depth available
+        """
+        depth = get_activity_depth(activity)
+        return str(round(depth))
 
     def generate_schedule_csv(
         self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
@@ -82,15 +128,8 @@ class CSVGenerator:
                 # Convert duration to hours and round to nearest 0.1 hour
                 duration_hours = round(activity["duration_minutes"] / 60.0, 1)
 
-                # Round transit distance to nearest 0.1 nm
-                # For scientific transits, use operation distance instead of transit distance
-                if (
-                    activity.get("activity", "").lower() == "transit"
-                    and activity.get("operation_dist_nm", 0.0) > 0
-                ):
-                    transit_dist_nm = round(activity.get("operation_dist_nm", 0.0), 1)
-                else:
-                    transit_dist_nm = round(activity.get("transit_dist_nm", 0.0), 1)
+                # Round distance to nearest 0.1 nm using unified dist_nm field
+                transit_dist_nm = round(activity.get("dist_nm", 0.0), 1)
 
                 # Vessel speed - 0 for station operations, actual speed for transits
                 activity_type = activity.get("activity", "").lower()
@@ -106,14 +145,16 @@ class CSVGenerator:
                 else:
                     vessel_speed = 0  # Station operations have 0 vessel speed
 
-                # Format operation and action
+                # Format operation and action using correct field names (with backward compatibility)
+                op_type = activity.get("op_type") or activity.get("operation_type", "")
                 operation_action = format_operation_action(
-                    activity.get("operation_type", ""), activity.get("action", "")
+                    op_type, activity.get("action", "")
                 )
 
                 # Coordinate conversions using existing utilities
-                lat_decimal = activity["lat"]
-                lon_decimal = activity["lon"]
+                # Use entry coordinates (with backward compatibility for legacy tests)
+                lat_decimal = activity.get("entry_lat")
+                lon_decimal = activity.get("entry_lon")
                 lat_deg_float, lat_min = UnitConverter.decimal_degrees_to_ddm(
                     lat_decimal
                 )
@@ -140,9 +181,7 @@ class CSVGenerator:
                     "Transit dist [nm]": transit_dist_nm,
                     "Vessel speed [kt]": vessel_speed,
                     "Duration [hrs]": duration_hours,
-                    "Depth [m]": round(
-                        abs(activity.get("depth", 0))
-                    ),  # Whole number, positive downward
+                    "Depth [m]": self._get_depth_value(activity),
                     "Lat [deg]": round(
                         lat_decimal, 6
                     ),  # High precision decimal degrees

@@ -175,7 +175,7 @@ class KMLGenerator:
                 Activity: {activity['activity']} ({action_str})
                 Start: {activity['start_time'].strftime('%Y-%m-%d %H:%M')}
                 Duration: {activity['duration_minutes']:.1f} min
-                Operation Distance: {activity.get('operation_dist_nm', 0):.1f} nm
+                Operation Distance: {activity.get('dist_nm', 0):.1f} nm
             </description>
             <styleUrl>#lineOpStyle</styleUrl>
             <LineString>

@@ -58,10 +58,16 @@ class OperationTypeEnum(str, Enum):
     Defines the type of scientific operation to be performed at a station.
     """
 
+    # Existing scientific operations
     CTD = "CTD"
     WATER_SAMPLING = "water_sampling"
     MOORING = "mooring"
     CALIBRATION = "calibration"
+
+    # v0.3.1 Unified operations - ports and waypoints become point operations
+    PORT = "port"  # Departure/arrival ports
+    WAYPOINT = "waypoint"  # Navigation waypoints
+
     # Placeholder for user guidance
     UPDATE_PLACEHOLDER = "UPDATE-CTD-mooring-etc"
 
@@ -73,11 +79,17 @@ class ActionEnum(str, Enum):
     Defines the specific scientific action to be taken for each operation type.
     """
 
+    # Point operation actions
     PROFILE = "profile"
     SAMPLING = "sampling"
     DEPLOYMENT = "deployment"
     RECOVERY = "recovery"
     CALIBRATION = "calibration"
+
+    # v0.3.1 Port operation actions
+    MOB = "mob"  # Port departure (mobilization)
+    DEMOB = "demob"  # Port arrival (demobilization)
+
     # Line operation actions
     ADCP = "ADCP"
     BATHYMETRY = "bathymetry"
@@ -293,7 +305,7 @@ class StationDefinition(FlexibleLocationModel):
 
     name: str
     operation_type: OperationTypeEnum
-    action: ActionEnum
+    action: Optional[ActionEnum] = None
     operation_depth: Optional[float] = Field(
         None, description="Target operation depth (e.g., CTD cast depth)"
     )
@@ -308,6 +320,12 @@ class StationDefinition(FlexibleLocationModel):
     comment: Optional[str] = None
     equipment: Optional[str] = None
     position_string: Optional[str] = None
+
+    # v0.3.1 Unified operations - optional fields for special operation types
+    port_timezone: Optional[str] = Field(
+        None, description="Port timezone (for port operations)"
+    )
+
     coordinates_ddm: Optional[str] = Field(
         None, description="Degrees decimal minutes coordinate string"
     )
@@ -519,16 +537,37 @@ class StationDefinition(FlexibleLocationModel):
             OperationTypeEnum.WATER_SAMPLING: [ActionEnum.SAMPLING],
             OperationTypeEnum.MOORING: [ActionEnum.DEPLOYMENT, ActionEnum.RECOVERY],
             OperationTypeEnum.CALIBRATION: [ActionEnum.CALIBRATION],
+            # v0.3.1 Unified operations
+            OperationTypeEnum.PORT: [ActionEnum.MOB, ActionEnum.DEMOB],
+            OperationTypeEnum.WAYPOINT: [],  # Waypoints typically have no action
         }
 
         if self.operation_type in valid_combinations:
-            if self.action not in valid_combinations[self.operation_type]:
-                valid_actions = ", ".join(
-                    [a.value for a in valid_combinations[self.operation_type]]
-                )
+            valid_actions = valid_combinations[self.operation_type]
+
+            # Special case for waypoints which may have no action
+            if self.operation_type == OperationTypeEnum.WAYPOINT:
+                if self.action is not None and self.action not in valid_actions:
+                    raise ValueError(
+                        f"Operation type 'waypoint' should typically have no action. "
+                        f"Got '{self.action.value}'"
+                    )
+            # Port operations must have mob/demob action
+            elif self.operation_type == OperationTypeEnum.PORT:
+                if self.action not in valid_actions:
+                    valid_actions_str = ", ".join([a.value for a in valid_actions])
+                    action_value = self.action.value if self.action else "None"
+                    raise ValueError(
+                        f"Operation type 'port' must use action: {valid_actions_str}. "
+                        f"Got '{action_value}'"
+                    )
+            # Standard validation for other operation types
+            elif self.action not in valid_actions:
+                valid_actions_str = ", ".join([a.value for a in valid_actions])
+                action_value = self.action.value if self.action else "None"
                 raise ValueError(
-                    f"Operation type '{self.operation_type.value}' must use action: {valid_actions}. "
-                    f"Got '{self.action.value}'"
+                    f"Operation type '{self.operation_type.value}' must use action: {valid_actions_str}. "
+                    f"Got '{action_value}'"
                 )
 
         return self
@@ -796,6 +835,13 @@ class PortDefinition(BaseModel):
     )
     description: Optional[str] = Field(
         None, description="Human-readable port description"
+    )
+    action: Optional[str] = Field(
+        None,
+        description="Port action (e.g., 'mob' for mobilization, 'demob' for demobilization)",
+    )
+    operation_type: Optional[str] = Field(
+        None, description="Operation type (typically 'port')"
     )
 
     @field_validator("name")
@@ -2723,6 +2769,78 @@ def enrich_configuration(
                     )
 
         enrichment_summary["ports_expanded"] = ports_expanded_count
+
+        # Expand leg-level port references into full port definitions with actions
+        leg_ports_expanded = 0
+        if "legs" in config_dict:
+            for leg_data in config_dict["legs"]:
+                # Expand departure_port
+                if "departure_port" in leg_data and isinstance(
+                    leg_data["departure_port"], str
+                ):
+                    port_ref = leg_data["departure_port"]
+                    if port_ref.startswith("port_"):
+                        try:
+                            port_definition = resolve_port_reference(port_ref)
+                            # Replace string reference with full port definition
+                            leg_data["departure_port"] = {
+                                "name": port_ref,
+                                "latitude": port_definition.latitude,
+                                "longitude": port_definition.longitude,
+                                "operation_type": "port",
+                                "action": "mob",  # Departure ports are mobilization
+                            }
+                            if hasattr(port_definition, "display_name"):
+                                leg_data["departure_port"][
+                                    "display_name"
+                                ] = port_definition.display_name
+                            elif hasattr(port_definition, "name"):
+                                leg_data["departure_port"][
+                                    "display_name"
+                                ] = port_definition.name
+                            leg_ports_expanded += 1
+                            logger.debug(
+                                f"Expanded departure_port '{port_ref}' with action 'mob'"
+                            )
+                        except ValueError as e:
+                            logger.warning(
+                                f"Could not expand departure_port '{port_ref}': {e}"
+                            )
+
+                # Expand arrival_port
+                if "arrival_port" in leg_data and isinstance(
+                    leg_data["arrival_port"], str
+                ):
+                    port_ref = leg_data["arrival_port"]
+                    if port_ref.startswith("port_"):
+                        try:
+                            port_definition = resolve_port_reference(port_ref)
+                            # Replace string reference with full port definition
+                            leg_data["arrival_port"] = {
+                                "name": port_ref,
+                                "latitude": port_definition.latitude,
+                                "longitude": port_definition.longitude,
+                                "operation_type": "port",
+                                "action": "demob",  # Arrival ports are demobilization
+                            }
+                            if hasattr(port_definition, "display_name"):
+                                leg_data["arrival_port"][
+                                    "display_name"
+                                ] = port_definition.display_name
+                            elif hasattr(port_definition, "name"):
+                                leg_data["arrival_port"][
+                                    "display_name"
+                                ] = port_definition.name
+                            leg_ports_expanded += 1
+                            logger.debug(
+                                f"Expanded arrival_port '{port_ref}' with action 'demob'"
+                            )
+                        except ValueError as e:
+                            logger.warning(
+                                f"Could not expand arrival_port '{port_ref}': {e}"
+                            )
+
+        enrichment_summary["leg_ports_expanded"] = leg_ports_expanded
 
     # Process coordinate additions for transit routes
     if add_coords and "transits" in config_dict:

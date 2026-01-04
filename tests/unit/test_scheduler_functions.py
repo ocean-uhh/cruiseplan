@@ -1,21 +1,24 @@
-"""Unit tests for scheduler.py helper functions.
-
-Tests the smaller, focused functions in the scheduler module that can be
-tested in isolation without complex integration setups.
 """
+DEPRECATED: Unit tests for old scheduler.py helper functions.
 
-from unittest.mock import MagicMock, patch
+This module tested internal scheduler functions that were part of the old
+scheduler implementation (v0.3.0 and earlier). These functions have been
+replaced by the new TimelineGenerator class architecture in v0.3.1.
+
+The tested functions no longer exist:
+- _calculate_inter_operation_transit
+- _extract_activities_from_leg
+- _get_operation_entry_exit_points_DEPRECATED
+- _resolve_station_details
+
+See CLAUDE-v0.3.1-implementation_status.md for details on the new architecture.
+"""
 
 import pytest
 
-from cruiseplan.calculators.scheduler import (
-    _calculate_inter_operation_transit,
-    _extract_activities_from_leg,
-    _get_operation_entry_exit_points_DEPRECATED,
-    _resolve_station_details,
-)
-from cruiseplan.core.validation import (
-    CruiseConfig,
+# Mark entire module as deprecated
+pytestmark = pytest.mark.skip(
+    reason="DEPRECATED: Old scheduler functions removed in v0.3.1 unified operations architecture"
 )
 
 

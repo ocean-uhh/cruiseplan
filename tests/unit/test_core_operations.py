@@ -41,7 +41,7 @@ class TestPointOperation:
         op = PointOperation(
             name="STN_001",
             position=(60.0, -20.0),
-            depth=500.0,
+            operation_depth=500.0,
             duration=120.0,
             comment="Test station",
             op_type="station",
@@ -50,7 +50,7 @@ class TestPointOperation:
 
         assert op.name == "STN_001"
         assert op.position == (60.0, -20.0)
-        assert op.depth == 500.0
+        assert op.operation_depth == 500.0
         assert op.manual_duration == 120.0
         assert op.comment == "Test station"
         assert op.op_type == "station"
@@ -60,7 +60,7 @@ class TestPointOperation:
         """Test PointOperation with default values."""
         op = PointOperation(name="STN_001", position=(60.0, -20.0))
 
-        assert op.depth == 0.0
+        assert op.water_depth == 0.0
         assert op.manual_duration == 0.0
         assert op.comment is None
         assert op.op_type == "station"
@@ -81,7 +81,10 @@ class TestPointOperation:
     def test_calculate_duration_station_ctd(self):
         """Test duration calculation for CTD stations."""
         op = PointOperation(
-            name="STN_001", position=(60.0, -20.0), depth=1000.0, op_type="station"
+            name="STN_001",
+            position=(60.0, -20.0),
+            operation_depth=1000.0,
+            op_type="station",
         )
 
         # Mock rules and config
@@ -178,9 +181,9 @@ class TestPointOperation:
 
         assert op.name == "STN_002"
         assert op.position == (65.0, -25.0)
-        assert op.depth == 800.0  # Uses operation_depth
+        assert op.operation_depth == 800.0  # Uses operation_depth
         assert op.comment == "Deep CTD cast"
-        assert op.op_type == "station"
+        assert op.op_type == "CTD"
         assert op.action is None
 
     def test_from_pydantic_mooring(self):
@@ -206,7 +209,7 @@ class TestPointOperation:
 
         assert op.name == "MOOR_001"
         assert op.position == (70.0, -30.0)
-        assert op.depth == 2000.0  # Falls back to water_depth
+        assert op.operation_depth == 2000.0  # Falls back to water_depth
         assert op.manual_duration == 180.0
         assert op.op_type == "mooring"
         assert op.action == "deployment"

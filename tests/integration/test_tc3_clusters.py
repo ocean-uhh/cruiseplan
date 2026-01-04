@@ -185,30 +185,6 @@ class TestTC3ClustersIntegration:
         assert reorder_leg.first_waypoint == "STN_004"
         assert reorder_leg.last_waypoint == "STN_001"
 
-    def test_tc3_html_working_area_transits(self, tc3_config):
-        """Test that HTML generator calculates correct working area transit totals."""
-        from cruiseplan.output.html_generator import _calculate_summary_statistics
-
-        timeline = generate_timeline(tc3_config)
-        stats = _calculate_summary_statistics(timeline)
-
-        # Verify working area transit calculations include all Port_Departure and Port_Arrival
-        expected_hours = 675.7  # Sum of all departure and arrival transits for 6 legs (updated for new coordinates)
-        expected_distance = 6949.7  # Total nm for port-to-working-area transits (updated for new coordinates)
-
-        assert (
-            abs(stats["port_area"]["total_duration_h"] - expected_hours) < 1.0
-        ), f"Expected ~{expected_hours}h working area transits, got {stats['port_area']['total_duration_h']:.1f}h"
-
-        assert (
-            abs(stats["port_area"]["total_distance_nm"] - expected_distance) < 10.0
-        ), f"Expected ~{expected_distance}nm working area transits, got {stats['port_area']['total_distance_nm']:.1f}nm"
-
-        # Verify average speed is reasonable (should be around 10.3 kts)
-        assert (
-            9.0 < stats["port_area"]["avg_speed_kts"] < 12.0
-        ), f"Expected reasonable avg speed ~10.3 kts, got {stats['port_area']['avg_speed_kts']:.1f} kts"
-
     def test_tc3_complete_workflow(self, tc3_config):
         """Test complete workflow from YAML to all output formats."""
         import tempfile
