@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=e259d695"></script>
+      <script src="_static/documentation_options.js?v=a448664d"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -175,10 +175,9 @@ ls<span class="w"> </span>tests_output/fixtures/
 <section id="tc1-single-test-enriched-yaml">
 <h3><strong>TC1_Single_Test_enriched.yaml</strong><a class="headerlink" href="#tc1-single-test-enriched-yaml" title="Link to this heading"></a></h3>
 <ol class="arabic simple">
-<li><p><input type="checkbox"> Verify that in <cite>STN_001</cite> the coordinates and water depth were enriched as:</p></li>
+<li><p><input type="checkbox"> Verify that in <cite>STN_001</cite> the coordinates were enriched as:</p></li>
 </ol>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">coordinates_ddm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45 00.00&#39;N, 045 00.00&#39;W</span>
-<span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">4411.0</span>
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
@@ -203,9 +202,9 @@ ls<span class="w"> </span>tests_output/fixtures/
 <section id="tc1-single-test-schedule-html">
 <h3><strong>TC1_Single_Test_schedule.html</strong><a class="headerlink" href="#tc1-single-test-schedule-html" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="4">
-<li><p><input type="checkbox"> Verify that the CTD takes <strong>3 hours</strong>, based on a 30 minute “turnaround_time” (the default from constants.py) and a 4411m CTD from <cite>DEFAULT_CTD_RATE_M_S</cite> in <cite>constants.py</cite>, which is 73.5 minutes down and 73.5 minutes up, plus 30 minutes turnaround = 177 minutes or 2.95 hours.</p></li>
-<li><p><input type="checkbox"> Verify that the total cruise duration is <strong>263.2 hours / 11.0 days</strong>.</p></li>
-<li><p><input type="checkbox"> Compare with the <a class="reference external" href="_static/screenshots/fig_TC1_Single_Test_html.png">HTML schedule output</a> to verify CTD timing calculations.</p></li>
+<li><p><input type="checkbox"> Verify that the CTD takes <strong>2.1 hours</strong>, based on a 30 minute “turnaround_time” (the default from constants.py) and a 2850m CTD (using mocked bathymetry) from <cite>DEFAULT_CTD_RATE_M_S</cite> in <cite>constants.py</cite>, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.</p></li>
+<li><p><input type="checkbox"> Verify that the total cruise duration is <strong>262.4 hours / 10.9 days</strong>.</p></li>
+<li><p><input type="checkbox"> Compare with the <a class="reference external" href="_static/fixtures/TC1_Single_Test_schedule.html">HTML schedule output</a> to verify CTD timing calculations.</p></li>
 </ol>
 </section>
 <section id="tc1-single-test-schedule-csv">
@@ -214,28 +213,30 @@ ls<span class="w"> </span>tests_output/fixtures/
 <li><p><input type="checkbox"> Verify that the first row, second to last entry is <strong>-34.51</strong> (Longitude minutes for -63.5752 degrees)</p></li>
 </ol>
 <div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
-Port_Departure,Departure: Halifax to Operations,,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
-Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:54:00,0.0,0,3.0,4411,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
-Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-01-11T23:13:00,1813.1,10.0,181.3,0,36.5298,-6.2923,36,31.79,-6,-17.54,Leg_Single
+Port,port_halifax,Port mob,1970-01-01T00:00:00,1970-01-01T00:00:00,0.0,0,0.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
+Transit,Transit to STN_001,Transit,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
+Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:02:00,0.0,0,2.1,2850,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
+Transit,Transit to port_cadiz,Transit,1970-01-04T09:02:00,1970-01-11T22:21:00,1813.1,10.0,181.3,,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
+Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.5298,-6.2923,36,31.79,-6,-17.54,Leg_Single
 </pre></div>
 </div>
 </section>
 <section id="tc1-single-test-stations-tex">
 <h3><strong>TC1_Single_Test_stations.tex</strong><a class="headerlink" href="#tc1-single-test-stations-tex" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="8">
-<li><p><input type="checkbox"> Verify that the LaTeX station table includes water depth <strong>4411</strong></p></li>
+<li><p><input type="checkbox"> Verify that the LaTeX station table includes water depth <strong>2850</strong></p></li>
 <li><p><input type="checkbox"> Verify the Latex-formated coordinate includes <strong>45$^circ$00.00’N</strong>:</p></li>
 </ol>
-<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span>Station <span class="nb">&amp;</span> STN-001 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 045<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 4411 <span class="k">\\</span>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span>Station <span class="nb">&amp;</span> STN-001 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 045<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 2850 <span class="k">\\</span>
 </pre></div>
 </div>
 </section>
 <section id="tc1-single-test-work-days-tex">
 <h3><strong>TC1_Single_Test_work_days.tex</strong><a class="headerlink" href="#tc1-single-test-work-days-tex" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="10">
-<li><p><input type="checkbox"> Verify that the LaTeX work days table includes total cruise duration of <strong>3.0</strong> operation hours and <strong>260.3</strong> transit hours:</p></li>
+<li><p><input type="checkbox"> Verify that the LaTeX work days table includes total cruise duration of <strong>2.1</strong> operation hours and <strong>260.3</strong> transit hours:</p></li>
 </ol>
-<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>3.0<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>260.3<span class="nb">}</span> <span class="k">\\</span>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>2.1<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>260.3<span class="nb">}</span> <span class="k">\\</span>
 </pre></div>
 </div>
 </section>
@@ -252,7 +253,7 @@ Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-
 <li><p><input type="checkbox"> Verify that the KML file includes the station details</p></li>
 </ol>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="_images/TC1_Single_Test_catalog_kml.png"><img alt="KML Output Screenshot" src="_images/TC1_Single_Test_catalog_kml.png" style="width: 600px;" />
+<a class="reference internal image-reference" href="_images/TC1_Single_Test_catalog_kml.png"><img alt="KML Output Screenshot" src="_images/TC1_Single_Test_catalog_kml.png" style="width: 400px;" />
 </a>
 <figcaption>
 <p><span class="caption-text">KML output viewed in Google Earth showing station location and details.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
@@ -274,8 +275,8 @@ Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-
 <ol class="arabic simple">
 <li><p><input type="checkbox"> Verify that the <cite>*.html</cite> shows total duration of <strong>1440.4 hours</strong> (because the default mooring time is <strong>999.0 hours</strong>)</p></li>
 <li><p><input type="checkbox"> Verify that two legs are generated with <strong>277.2 hours</strong> in Leg 1 and <strong>1163.2 hours</strong> in Leg 2.</p></li>
-<li><p><input type="checkbox"> Verify that the <cite>_schedule.png</cite> matches <a class="reference external" href="_static/fixtures/TC2_Two_Legs_Test_schedule.png">TC2_Two_Legs_Test_schedule.png</a></p></li>
-<li><p><input type="checkbox"> Verify that the <cite>_work_days.tex</cite> has a total duration with operations of <strong>1000.0</strong> hours and transit duration of <strong>440.5</strong> hours.</p></li>
+<li><p><input type="checkbox"> Verify that the <cite>_schedule.png</cite> matches <a class="reference external" href="_static/fixtures/TC2_TwoLegs_Test_schedule.png">TC2_TwoLegs_Test_schedule.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the <cite>_work_days.tex</cite> has a total duration with operations of <strong>1000.0</strong> hours and transit duration of <strong>440.4</strong> hours.</p></li>
 </ol>
 </section>
 <hr class="docutils" />
@@ -313,12 +314,11 @@ Port_Arrival,Arrival: Operations to Cadiz,Port_Arrival,1970-01-04T09:54:00,1970-
 <p><strong>Manual verification</strong>:</p>
 <ol class="arabic simple">
 <li><p><input type="checkbox"> Verify that the <cite>*_map.png</cite> shows a shaded area, a line and a station.  Compare to <a class="reference external" href="_static/fixtures/TC4_Mixed_Test_map.png">TC4_Mixed_Test_map.png</a></p></li>
-<li><p><input type="checkbox"> Verify that the <cite>*_stations.tex</cite> shows 4 lines with:</p></li>
+<li><p><input type="checkbox"> Verify that the <cite>*_stations.tex</cite> shows 3 lines with:</p></li>
 </ol>
 <div class="highlight-latex notranslate"><div class="highlight"><pre><span></span>Station <span class="nb">&amp;</span> STN-001 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 58 <span class="k">\\</span>
-Survey (start) <span class="nb">&amp;</span> ADCP-Survey <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> N/A <span class="k">\\</span>
-Survey (end) <span class="nb">&amp;</span> ADCP-Survey <span class="nb">&amp;</span> 46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> N/A <span class="k">\\</span>
-Area (bathymetry) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</span> Center: 48<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> Variable <span class="k">\\</span>
+Line (line) <span class="nb">&amp;</span> ADCP-Survey <span class="nb">&amp;</span> (46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W) to (46<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W) <span class="nb">&amp;</span> N/A <span class="k">\\</span>
+Area (None) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</span> Center: 47<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>30.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>30.00&#39;W <span class="nb">&amp;</span> Variable <span class="k">\\</span>
 </pre></div>
 </div>
 <p>Compare with the <a class="reference external" href="_static/fixtures/TC4_Mixed_Test_schedule.html">TC4_Mixed_Test_schedule.html</a> for coordinates and depths.</p>
@@ -327,9 +327,9 @@ Area (bathymetry) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</
 <li><p><input type="checkbox"> Verify that the total cruise shows <strong>3 operations</strong> and the <cite>3a. Mixed_Survey</cite> leg shows <strong>3 operations</strong>.</p></li>
 <li><p><input type="checkbox"> Verify that the Transit to ADCP survey in <cite>3a. Mixed_Survey</cite> shows a distance of <strong>60.0 nm</strong> taking <strong>6.0 hours</strong>.</p></li>
 <li><p><input type="checkbox"> Verify that the ADCP survey shows an entry position of <strong>46.0000, -50.0000</strong> and an exit position of <strong>47.0000, -50.0000</strong>.</p></li>
-<li><p><input type="checkbox"> Verify that the <cite>*_work_days.tex</cite> shows total operation duration of <strong>26.5</strong> hours and transit duration of <strong>260.7</strong> hours.</p></li>
+<li><p><input type="checkbox"> Verify that the <cite>*_work_days.tex</cite> shows total operation duration of <strong>24.2</strong> hours and transit duration of <strong>258.5</strong> hours.</p></li>
 </ol>
-<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>26.5<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>260.7<span class="nb">}</span> <span class="k">\\</span>
+<div class="highlight-latex notranslate"><div class="highlight"><pre><span></span><span class="k">\textbf</span><span class="nb">{</span>Total duration<span class="nb">}</span> <span class="nb">&amp;</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>24.2<span class="nb">}</span> <span class="nb">&amp;</span> <span class="k">\textbf</span><span class="nb">{</span>258.5<span class="nb">}</span> <span class="k">\\</span>
 </pre></div>
 </div>
 </section>
@@ -337,13 +337,30 @@ Area (bathymetry) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</
 <section id="test-case-5-sections-tc5-sections-yaml">
 <h2>Test Case 5: Sections (tc5_sections.yaml)<a class="headerlink" href="#test-case-5-sections-tc5-sections-yaml" title="Link to this heading"></a></h2>
 <p><strong>Purpose</strong>: Verify section-based definitions and expansions</p>
-<p><strong>Configuration</strong>:
-- Section definitions with waypoints
-- Section expansion to individual stations</p>
-<p><strong>Key Features Tested</strong>:
-- Section processing
-- Waypoint expansion
-- Linear station generation</p>
+<p><strong>Configuration</strong>:</p>
+<ul class="simple">
+<li><p>Section expansion to individual stations</p></li>
+</ul>
+<ol class="arabic simple">
+<li><p><input type="checkbox"> Verify that the <cite>_enriched.yaml</cite> contains individual stations instead of a section:</p></li>
+</ol>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<span class="p p-Indicator">-</span><span class="w">  </span><span class="c1">#  expanded by cruiseplan enrich --expand-sections</span>
+<span class="w">   </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SEC_001_Stn001</span>
+<span class="w">   </span><span class="nt">coordinates_ddm</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45 00.00&#39;N, 050 00.00&#39;W</span>
+<span class="w">   </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">58.0</span>
+<span class="w">   </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span>
+<span class="w">   </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span>
+<span class="w">   </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45.0</span>
+<span class="w">   </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-50.0</span>
+<span class="w">   </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Station 1/14 on SEC_001 section</span>
+<span class="w">   </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120.0</span>
+</pre></div>
+</div>
+<ol class="arabic simple" start="2">
+<li><p><input type="checkbox"> Verify that the <cite>_map.png</cite> shows all 14 stations from the section <a class="reference external" href="_static/fixtures/TC5_Sections_Test_map.png">TC5_Sections_Test_map.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the <cite>_schedule.html</cite> shows a station spacing of <strong>11.2 nm</strong>.</p></li>
+</ol>
 <p><strong>Mooring-focused</strong>: <code class="docutils literal notranslate"><span class="pre">tc1_mooring.yaml</span></code>
 - Mooring-specific operation testing
 - Extended duration operations</p>

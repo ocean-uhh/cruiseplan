@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/documentation_options.js?v=a448664d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -176,10 +176,16 @@
 <span class="sd">    Defines the type of scientific operation to be performed at a station.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># Existing scientific operations</span>
     <span class="n">CTD</span> <span class="o">=</span> <span class="s2">&quot;CTD&quot;</span>
     <span class="n">WATER_SAMPLING</span> <span class="o">=</span> <span class="s2">&quot;water_sampling&quot;</span>
     <span class="n">MOORING</span> <span class="o">=</span> <span class="s2">&quot;mooring&quot;</span>
     <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span>
+
+    <span class="c1"># v0.3.1 Unified operations - ports and waypoints become point operations</span>
+    <span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>  <span class="c1"># Departure/arrival ports</span>
+    <span class="n">WAYPOINT</span> <span class="o">=</span> <span class="s2">&quot;waypoint&quot;</span>  <span class="c1"># Navigation waypoints</span>
+
     <span class="c1"># Placeholder for user guidance</span>
     <span class="n">UPDATE_PLACEHOLDER</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span></div>
 
@@ -194,11 +200,17 @@
 <span class="sd">    Defines the specific scientific action to be taken for each operation type.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="c1"># Point operation actions</span>
     <span class="n">PROFILE</span> <span class="o">=</span> <span class="s2">&quot;profile&quot;</span>
     <span class="n">SAMPLING</span> <span class="o">=</span> <span class="s2">&quot;sampling&quot;</span>
     <span class="n">DEPLOYMENT</span> <span class="o">=</span> <span class="s2">&quot;deployment&quot;</span>
     <span class="n">RECOVERY</span> <span class="o">=</span> <span class="s2">&quot;recovery&quot;</span>
     <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span>
+
+    <span class="c1"># v0.3.1 Port operation actions</span>
+    <span class="n">MOB</span> <span class="o">=</span> <span class="s2">&quot;mob&quot;</span>  <span class="c1"># Port departure (mobilization)</span>
+    <span class="n">DEMOB</span> <span class="o">=</span> <span class="s2">&quot;demob&quot;</span>  <span class="c1"># Port arrival (demobilization)</span>
+
     <span class="c1"># Line operation actions</span>
     <span class="n">ADCP</span> <span class="o">=</span> <span class="s2">&quot;ADCP&quot;</span>
     <span class="n">BATHYMETRY</span> <span class="o">=</span> <span class="s2">&quot;bathymetry&quot;</span>
@@ -438,7 +450,7 @@
 
     <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
     <span class="n">operation_type</span><span class="p">:</span> <span class="n">OperationTypeEnum</span>
-    <span class="n">action</span><span class="p">:</span> <span class="n">ActionEnum</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">ActionEnum</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Target operation depth (e.g., CTD cast depth)&quot;</span>
     <span class="p">)</span>
@@ -453,6 +465,12 @@
     <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">equipment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">position_string</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># v0.3.1 Unified operations - optional fields for special operation types</span>
+    <span class="n">port_timezone</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Port timezone (for port operations)&quot;</span>
+    <span class="p">)</span>
+
     <span class="n">coordinates_ddm</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Degrees decimal minutes coordinate string&quot;</span>
     <span class="p">)</span>
@@ -687,16 +705,37 @@
             <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WATER_SAMPLING</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">SAMPLING</span><span class="p">],</span>
             <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">MOORING</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEPLOYMENT</span><span class="p">,</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">RECOVERY</span><span class="p">],</span>
             <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">CALIBRATION</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">CALIBRATION</span><span class="p">],</span>
+            <span class="c1"># v0.3.1 Unified operations</span>
+            <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">PORT</span><span class="p">:</span> <span class="p">[</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">MOB</span><span class="p">,</span> <span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEMOB</span><span class="p">],</span>
+            <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WAYPOINT</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># Waypoints typically have no action</span>
         <span class="p">}</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="ow">in</span> <span class="n">valid_combinations</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_combinations</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="p">]:</span>
-                <span class="n">valid_actions</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">valid_combinations</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="p">]]</span>
-                <span class="p">)</span>
+            <span class="n">valid_actions</span> <span class="o">=</span> <span class="n">valid_combinations</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="p">]</span>
+
+            <span class="c1"># Special case for waypoints which may have no action</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">==</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">WAYPOINT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_actions</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Operation type &#39;waypoint&#39; should typically have no action. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="p">)</span>
+            <span class="c1"># Port operations must have mob/demob action</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">==</span> <span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">PORT</span><span class="p">:</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_actions</span><span class="p">:</span>
+                    <span class="n">valid_actions_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">valid_actions</span><span class="p">])</span>
+                    <span class="n">action_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Operation type &#39;port&#39; must use action: </span><span class="si">{</span><span class="n">valid_actions_str</span><span class="si">}</span><span class="s2">. &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Got &#39;</span><span class="si">{</span><span class="n">action_value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="p">)</span>
+            <span class="c1"># Standard validation for other operation types</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">valid_actions</span><span class="p">:</span>
+                <span class="n">valid_actions_str</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">a</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">valid_actions</span><span class="p">])</span>
+                <span class="n">action_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="k">else</span> <span class="s2">&quot;None&quot;</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Operation type &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; must use action: </span><span class="si">{</span><span class="n">valid_actions</span><span class="si">}</span><span class="s2">. &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;Got &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Operation type &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&#39; must use action: </span><span class="si">{</span><span class="n">valid_actions_str</span><span class="si">}</span><span class="s2">. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Got &#39;</span><span class="si">{</span><span class="n">action_value</span><span class="si">}</span><span class="s2">&#39;&quot;</span>
                 <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">self</span></div>
@@ -989,6 +1028,13 @@
     <span class="p">)</span>
     <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
         <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Human-readable port description&quot;</span>
+    <span class="p">)</span>
+    <span class="n">action</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Port action (e.g., &#39;mob&#39; for mobilization, &#39;demob&#39; for demobilization)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">operation_type</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Operation type (typically &#39;port&#39;)&quot;</span>
     <span class="p">)</span>
 
 <div class="viewcode-block" id="PortDefinition.validate_name">
@@ -3009,6 +3055,78 @@
                     <span class="p">)</span>
 
         <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;ports_expanded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ports_expanded_count</span>
+
+        <span class="c1"># Expand leg-level port references into full port definitions with actions</span>
+        <span class="n">leg_ports_expanded</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="s2">&quot;legs&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">leg_data</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">]:</span>
+                <span class="c1"># Expand departure_port</span>
+                <span class="k">if</span> <span class="s2">&quot;departure_port&quot;</span> <span class="ow">in</span> <span class="n">leg_data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">],</span> <span class="nb">str</span>
+                <span class="p">):</span>
+                    <span class="n">port_ref</span> <span class="o">=</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">port_ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;port_&quot;</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">port_definition</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_ref</span><span class="p">)</span>
+                            <span class="c1"># Replace string reference with full port definition</span>
+                            <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_ref</span><span class="p">,</span>
+                                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;mob&quot;</span><span class="p">,</span>  <span class="c1"># Departure ports are mobilization</span>
+                            <span class="p">}</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">):</span>
+                                <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">][</span>
+                                    <span class="s2">&quot;display_name&quot;</span>
+                                <span class="p">]</span> <span class="o">=</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">display_name</span>
+                            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                                <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;departure_port&quot;</span><span class="p">][</span>
+                                    <span class="s2">&quot;display_name&quot;</span>
+                                <span class="p">]</span> <span class="o">=</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">name</span>
+                            <span class="n">leg_ports_expanded</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Expanded departure_port &#39;</span><span class="si">{</span><span class="n">port_ref</span><span class="si">}</span><span class="s2">&#39; with action &#39;mob&#39;&quot;</span>
+                            <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Could not expand departure_port &#39;</span><span class="si">{</span><span class="n">port_ref</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+
+                <span class="c1"># Expand arrival_port</span>
+                <span class="k">if</span> <span class="s2">&quot;arrival_port&quot;</span> <span class="ow">in</span> <span class="n">leg_data</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+                    <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">],</span> <span class="nb">str</span>
+                <span class="p">):</span>
+                    <span class="n">port_ref</span> <span class="o">=</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="n">port_ref</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;port_&quot;</span><span class="p">):</span>
+                        <span class="k">try</span><span class="p">:</span>
+                            <span class="n">port_definition</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_ref</span><span class="p">)</span>
+                            <span class="c1"># Replace string reference with full port definition</span>
+                            <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">port_ref</span><span class="p">,</span>
+                                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;demob&quot;</span><span class="p">,</span>  <span class="c1"># Arrival ports are demobilization</span>
+                            <span class="p">}</span>
+                            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">):</span>
+                                <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">][</span>
+                                    <span class="s2">&quot;display_name&quot;</span>
+                                <span class="p">]</span> <span class="o">=</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">display_name</span>
+                            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                                <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;arrival_port&quot;</span><span class="p">][</span>
+                                    <span class="s2">&quot;display_name&quot;</span>
+                                <span class="p">]</span> <span class="o">=</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">name</span>
+                            <span class="n">leg_ports_expanded</span> <span class="o">+=</span> <span class="mi">1</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Expanded arrival_port &#39;</span><span class="si">{</span><span class="n">port_ref</span><span class="si">}</span><span class="s2">&#39; with action &#39;demob&#39;&quot;</span>
+                            <span class="p">)</span>
+                        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+                            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;Could not expand arrival_port &#39;</span><span class="si">{</span><span class="n">port_ref</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+
+        <span class="n">enrichment_summary</span><span class="p">[</span><span class="s2">&quot;leg_ports_expanded&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">leg_ports_expanded</span>
 
     <span class="c1"># Process coordinate additions for transit routes</span>
     <span class="k">if</span> <span class="n">add_coords</span> <span class="ow">and</span> <span class="s2">&quot;transits&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>

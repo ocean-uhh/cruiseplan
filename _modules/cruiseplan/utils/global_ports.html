@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.global_ports &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>cruiseplan.utils.global_ports &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/documentation_options.js?v=a448664d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -645,6 +645,24 @@
                     <span class="sa">f</span><span class="s2">&quot;Available ports: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">available_ports</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Try reverse lookup: display name -&gt; port reference</span>
+            <span class="c1"># Look for port where display name starts with port_ref (before comma)</span>
+            <span class="k">for</span> <span class="n">port_id</span><span class="p">,</span> <span class="n">port_data</span> <span class="ow">in</span> <span class="n">GLOBAL_PORTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">display_name</span> <span class="o">=</span> <span class="n">port_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="n">port_name</span> <span class="o">=</span> <span class="n">port_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="c1"># Match if port_ref matches the display name up to comma, or the name field</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">display_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="n">port_ref</span>
+                    <span class="ow">or</span> <span class="n">port_name</span> <span class="o">==</span> <span class="n">port_ref</span>
+                <span class="p">):</span>
+                    <span class="k">return</span> <span class="n">PortDefinition</span><span class="p">(</span>
+                        <span class="n">name</span><span class="o">=</span><span class="n">port_id</span><span class="p">,</span>  <span class="c1"># Use the port_id (e.g. port_halifax) as the canonical name</span>
+                        <span class="n">latitude</span><span class="o">=</span><span class="n">port_data</span><span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">],</span>
+                        <span class="n">longitude</span><span class="o">=</span><span class="n">port_data</span><span class="p">[</span><span class="s2">&quot;longitude&quot;</span><span class="p">],</span>
+                        <span class="n">display_name</span><span class="o">=</span><span class="n">display_name</span><span class="p">,</span>
+                        <span class="n">description</span><span class="o">=</span><span class="n">port_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                    <span class="p">)</span>
+
             <span class="c1"># Simple string port name (backward compatibility)</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Port reference &#39;</span><span class="si">{</span><span class="n">port_ref</span><span class="si">}</span><span class="s2">&#39; should use &#39;port_&#39; prefix for global ports &quot;</span>

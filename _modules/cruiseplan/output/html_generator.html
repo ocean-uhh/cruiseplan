@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/documentation_options.js?v=a448664d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -127,9 +127,16 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ActivityRecord</span><span class="p">,</span>
+    <span class="n">calculate_timeline_statistics</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.activity_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_scientific_operation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.output_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">format_activity_type</span><span class="p">,</span>
+    <span class="n">get_activity_depth</span><span class="p">,</span>
+    <span class="n">get_activity_position</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NM_PER_KM</span><span class="p">,</span> <span class="n">hours_to_days</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
@@ -163,217 +170,6 @@
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;-</span><span class="si">{</span><span class="n">degrees</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">06.3f</span><span class="si">}</span><span class="s2">&quot;</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_summary_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Calculate summary statistics for HTML output from activity timeline.</span>
-
-<span class="sd">    Uses timeline-based categorization to ensure every activity is accounted for.</span>
-<span class="sd">    Categorizes activities into: moorings, stations, surveys, areas, port transits,</span>
-<span class="sd">    and within-area transits (everything else).</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    timeline : list of dict</span>
-<span class="sd">        List of activity records from the scheduler.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Dictionary containing statistics for each activity type with keys:</span>
-<span class="sd">        &#39;moorings&#39;, &#39;stations&#39;, &#39;surveys&#39;, &#39;areas&#39;, &#39;within_area&#39;, &#39;port_area&#39;,</span>
-<span class="sd">        and &#39;mooring_activities&#39; (raw mooring data).</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Initialize categorized activity lists</span>
-    <span class="n">station_activities</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">mooring_activities</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">area_activities</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">scientific_transits</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">port_transits</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">within_area_transits</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="c1"># Categorize every activity in the timeline</span>
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 HTML Generator: Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span><span class="si">}</span><span class="s2"> timeline activities&quot;</span><span class="p">)</span>
-    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">activity</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">timeline</span><span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Activity </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">: type=</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span><span class="si">}</span><span class="s2">, content=</span><span class="si">{</span><span class="n">activity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span>
-
-        <span class="k">if</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">:</span>
-            <span class="n">station_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">:</span>
-            <span class="n">mooring_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
-            <span class="n">area_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">]:</span>
-            <span class="n">port_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
-            <span class="c1"># Check if it&#39;s a scientific transit</span>
-            <span class="k">if</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">):</span>
-                <span class="n">scientific_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="c1"># All other transits are within-area transits</span>
-                <span class="n">within_area_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Any unrecognized activities also go to within-area as a fallback</span>
-            <span class="n">within_area_transits</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-
-    <span class="c1"># Calculate mooring statistics</span>
-    <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">mooring_activities</span><span class="p">:</span>
-        <span class="n">total_mooring_duration_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">mooring_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="p">)</span>
-        <span class="n">avg_mooring_duration_h</span> <span class="o">=</span> <span class="n">total_mooring_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">)</span>
-        <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">),</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_mooring_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_mooring_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_mooring_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">mooring_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># Calculate station statistics</span>
-    <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">station_activities</span><span class="p">:</span>
-        <span class="n">total_station_duration_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">station_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="p">)</span>
-        <span class="n">avg_station_duration_h</span> <span class="o">=</span> <span class="n">total_station_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_activities</span><span class="p">)</span>
-        <span class="n">avg_depth</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">station_activities</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span>
-            <span class="n">station_activities</span>
-        <span class="p">)</span>
-        <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">station_activities</span><span class="p">),</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_station_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;avg_depth_m&quot;</span><span class="p">:</span> <span class="n">avg_depth</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_station_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_station_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">station_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_depth_m&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># Calculate survey operations (scientific transits)</span>
-    <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">scientific_transits</span><span class="p">:</span>
-        <span class="n">total_survey_duration_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="p">)</span>
-        <span class="n">avg_survey_duration_h</span> <span class="o">=</span> <span class="n">total_survey_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">)</span>
-        <span class="n">total_survey_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">scientific_transits</span>
-        <span class="p">)</span>
-        <span class="n">avg_survey_distance_nm</span> <span class="o">=</span> <span class="n">total_survey_distance_nm</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">)</span>
-        <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">scientific_transits</span><span class="p">),</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_survey_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">:</span> <span class="n">avg_survey_distance_nm</span><span class="p">,</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_survey_distance_nm</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_survey_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_survey_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">survey_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># Calculate area operations</span>
-    <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">area_activities</span><span class="p">:</span>
-        <span class="n">total_area_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">area_activities</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="n">avg_area_duration_h</span> <span class="o">=</span> <span class="n">total_area_duration_h</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">)</span>
-        <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">area_activities</span><span class="p">),</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="n">avg_area_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_area_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_area_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># Calculate within-area transits (already categorized above)</span>
-    <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">within_area_transits</span><span class="p">:</span>
-        <span class="n">total_within_duration_h</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">within_area_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="p">)</span>
-        <span class="n">total_within_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
-            <span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">within_area_transits</span>
-        <span class="p">)</span>
-        <span class="n">avg_speed_kts</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">total_within_distance_nm</span> <span class="o">/</span> <span class="n">total_within_duration_h</span>
-            <span class="k">if</span> <span class="n">total_within_duration_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="k">else</span> <span class="mi">0</span>
-        <span class="p">)</span>
-        <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_within_distance_nm</span><span class="p">,</span>
-            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_within_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_within_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">within_area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="c1"># Calculate port area transits (already categorized above)</span>
-    <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="k">if</span> <span class="n">port_transits</span><span class="p">:</span>
-        <span class="n">total_port_duration_h</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">port_transits</span><span class="p">)</span> <span class="o">/</span> <span class="mi">60</span>
-        <span class="n">total_port_distance_nm</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">port_transits</span><span class="p">)</span>
-        <span class="n">avg_speed_kts</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">total_port_distance_nm</span> <span class="o">/</span> <span class="n">total_port_duration_h</span>
-            <span class="k">if</span> <span class="n">total_port_duration_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
-            <span class="k">else</span> <span class="mi">0</span>
-        <span class="p">)</span>
-        <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="n">total_port_distance_nm</span><span class="p">,</span>
-            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="n">avg_speed_kts</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="n">total_port_duration_h</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="n">hours_to_days</span><span class="p">(</span><span class="n">total_port_duration_h</span><span class="p">),</span>
-        <span class="p">}</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">port_area_stats</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;total_distance_nm&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_h&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-            <span class="s2">&quot;total_duration_days&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
-        <span class="p">}</span>
-
-    <span class="k">return</span> <span class="p">{</span>
-        <span class="s2">&quot;moorings&quot;</span><span class="p">:</span> <span class="n">mooring_stats</span><span class="p">,</span>
-        <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">station_stats</span><span class="p">,</span>
-        <span class="s2">&quot;surveys&quot;</span><span class="p">:</span> <span class="n">survey_stats</span><span class="p">,</span>
-        <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="n">area_stats</span><span class="p">,</span>
-        <span class="s2">&quot;within_area&quot;</span><span class="p">:</span> <span class="n">within_area_stats</span><span class="p">,</span>
-        <span class="s2">&quot;port_area&quot;</span><span class="p">:</span> <span class="n">port_area_stats</span><span class="p">,</span>
-        <span class="s2">&quot;mooring_activities&quot;</span><span class="p">:</span> <span class="n">mooring_activities</span><span class="p">,</span>
-    <span class="p">}</span>
 
 
 <div class="viewcode-block" id="HTMLGenerator">
@@ -415,8 +211,8 @@
 <span class="sd">        Path</span>
 <span class="sd">            Path to generated HTML file</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Calculate summary statistics</span>
-        <span class="n">stats</span> <span class="o">=</span> <span class="n">_calculate_summary_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
+        <span class="c1"># Calculate summary statistics using scheduler function</span>
+        <span class="n">stats</span> <span class="o">=</span> <span class="n">calculate_timeline_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
 
         <span class="c1"># Calculate total statistics - use simple sum like CLI to avoid categorization errors</span>
         <span class="n">total_duration_h</span> <span class="o">=</span> <span class="p">(</span>
@@ -498,24 +294,42 @@
 <span class="s2">&quot;&quot;&quot;</span>
 
         <span class="c1"># Transit within area row</span>
-        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area_transits&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr&gt;</span>
 <span class="s2">            &lt;td&gt;Transit within area&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
-<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
-<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area_transits&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area_transits&quot;</span><span class="p">][</span><span class="s2">&quot;avg_speed_kt&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area_transits&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;within_area_transits&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">        &lt;/tr&gt;</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
-        <span class="c1"># Transit to/from working area row</span>
-        <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Transit to/from working area row (combine both directions)</span>
+        <span class="n">total_port_distance_nm</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_to_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_from_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">total_port_duration_h</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_to_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_from_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">total_port_duration_days</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_to_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span>
+            <span class="o">+</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_from_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="n">avg_port_speed_kt</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">total_port_distance_nm</span> <span class="o">/</span> <span class="n">total_port_duration_h</span>
+            <span class="k">if</span> <span class="n">total_port_duration_h</span> <span class="o">&gt;</span> <span class="mi">0</span>
+            <span class="k">else</span> <span class="mi">0</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">total_port_distance_nm</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr&gt;</span>
 <span class="s2">            &lt;td&gt;Transit to/from working area&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_distance_nm&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;avg_speed_kts&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
-<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
-<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_days&quot;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">total_port_distance_nm</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> nm, avg </span><span class="si">{</span><span class="n">avg_port_speed_kt</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> kts&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_port_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_port_duration_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">        &lt;/tr&gt;</span>
 <span class="s2">&quot;&quot;&quot;</span>
 
@@ -549,17 +363,18 @@
 
         <span class="k">if</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
             <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;mooring_activities&quot;</span><span class="p">]:</span>
-                <span class="n">lat_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
-                <span class="n">lon_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">mooring</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">get_activity_position</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
+                <span class="n">lat_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+                <span class="n">lon_ddm</span> <span class="o">=</span> <span class="n">_convert_decimal_to_deg_min_html</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
                 <span class="n">comment</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="n">depth</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+                <span class="n">depth</span> <span class="o">=</span> <span class="n">get_activity_depth</span><span class="p">(</span><span class="n">mooring</span><span class="p">)</span>
                 <span class="n">action</span> <span class="o">=</span> <span class="n">mooring</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
 
                 <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;label&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">comment</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">lat</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">lat_ddm</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_ddm</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="p">[</span><span class="s1">&#39;duration_minutes&#39;</span><span class="p">]</span><span class="o">/</span><span class="mi">60</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
@@ -671,17 +486,8 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">_get_activity_entry_exit_distance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">activities</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
                 <span class="p">)</span>
 
-                <span class="c1"># Determine activity type using correct field names</span>
-                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Station&quot;</span><span class="p">:</span>
-                    <span class="n">operation</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
-                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Station (</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">:</span>
-                    <span class="n">action</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
-                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Mooring (</span><span class="si">{</span><span class="n">action</span><span class="si">}</span><span class="s2">)&quot;</span>
-                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
-                    <span class="n">operation</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
-                    <span class="n">activity_type</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Transit (</span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="c1"># Determine activity type using shared utility</span>
+                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">format_activity_type</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
 
                 <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr&gt;</span>
@@ -697,14 +503,10 @@
 
             <span class="c1"># Transit to arrival port is now handled by scheduler Port_Arrival activities</span>
 
-            <span class="c1"># Count scientific operations for leg total</span>
-            <span class="n">scientific_operations_count</span> <span class="o">=</span> <span class="mi">0</span>
-            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;activities&quot;</span><span class="p">]:</span>
-                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">,</span> <span class="s2">&quot;Area&quot;</span><span class="p">]:</span>
-                    <span class="n">scientific_operations_count</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">):</span>
-                    <span class="n">scientific_operations_count</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># Get scientific operations count from scheduler stats instead of recalculating</span>
+            <span class="n">leg_stats</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_stats&quot;</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">leg_stat</span> <span class="o">=</span> <span class="n">leg_stats</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">leg_name</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="n">scientific_operations_count</span> <span class="o">=</span> <span class="n">leg_stat</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
 
             <span class="c1"># Add leg total row</span>
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
@@ -856,48 +658,61 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">current_pos</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
 
-        <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+        <span class="c1"># Get operation class for extensible categorization</span>
+        <span class="n">operation_class</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_class&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
 
-        <span class="c1"># For station/mooring activities: entry = exit = activity position</span>
-        <span class="k">if</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]:</span>
-            <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="c1"># For point operations, use operation distance (0 for most point ops)</span>
-            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-
-        <span class="c1"># For port activities: entry = exit = port position, but use transit distance</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Port_Departure&quot;</span><span class="p">,</span> <span class="s2">&quot;Port_Arrival&quot;</span><span class="p">]:</span>
-            <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="c1"># For ports, use transit distance to show distance to next destination</span>
-            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-
-        <span class="c1"># For transit activities: use start_lat/start_lon and end_lat/end_lon if available</span>
-        <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
-            <span class="c1"># Entry position: use start_lat/start_lon if available, otherwise current position</span>
-            <span class="k">if</span> <span class="s2">&quot;start_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;start_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+        <span class="c1"># For PointOperations: entry = exit = activity position</span>
+        <span class="k">if</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;PointOperation&quot;</span><span class="p">:</span>
+            <span class="c1"># Use entry/exit coordinates if available, otherwise fall back to lat/lon</span>
+            <span class="k">if</span> <span class="s2">&quot;entry_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;entry_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
                 <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;start_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;start_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-
-            <span class="c1"># Exit position: use end_lat/end_lon if available, otherwise current position</span>
-            <span class="k">if</span> <span class="s2">&quot;end_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;end_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
-                <span class="n">exit_position</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;end_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;end_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="k">else</span><span class="p">:</span>
                 <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
 
-            <span class="c1"># For transit, use transit distance</span>
-            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="c1"># All operations use the unified distance field</span>
+            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># For LineOperations and AreaOperations: use entry/exit coordinates</span>
+        <span class="k">elif</span> <span class="n">operation_class</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LineOperation&quot;</span><span class="p">,</span> <span class="s2">&quot;AreaOperation&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;entry_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;entry_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+            <span class="c1"># All operations use the unified distance field</span>
+            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># For NavigationalTransit: use entry/exit coordinates with transit distance</span>
+        <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;NavigationalTransit&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;entry_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;entry_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+            <span class="c1"># All operations use the unified distance field</span>
+            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Unknown activity type: use current position for both</span>
+            <span class="c1"># Unknown operation class: use current position for both</span>
             <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
             <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
-                <span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="c1"># Format distance</span>
         <span class="k">if</span> <span class="n">distance_nm</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/documentation_options.js?v=a448664d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -217,10 +217,13 @@
         <span class="c1"># 3. Config Port Resolution Pass (Resolve top-level departure/arrival ports)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_config_ports</span><span class="p">()</span>
 
-        <span class="c1"># 4. Resolution Pass (Link Schedule to Catalog)</span>
+        <span class="c1"># 4. Port Enrichment Pass (Auto-expand leg port references with actions)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_enrich_leg_ports</span><span class="p">()</span>
+
+        <span class="c1"># 5. Resolution Pass (Link Schedule to Catalog)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_references</span><span class="p">()</span>
 
-        <span class="c1"># 5. Leg Conversion Pass (Convert LegDefinition to runtime Leg objects)</span>
+        <span class="c1"># 6. Leg Conversion Pass (Convert LegDefinition to runtime Leg objects)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_legs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_leg_definitions_to_legs</span><span class="p">()</span></div>
 
 
@@ -511,6 +514,83 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_port_reference</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
                 <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_enrich_leg_ports</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Automatically enrich leg-level port references with actions.</span>
+
+<span class="sd">        Handles both string port references and inline port objects:</span>
+<span class="sd">        - String references are expanded using global port registry</span>
+<span class="sd">        - Inline port objects get action and operation_type fields added</span>
+<span class="sd">        - departure_port gets action=&#39;mob&#39; (mobilization)</span>
+<span class="sd">        - arrival_port gets action=&#39;demob&#39; (demobilization)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">leg_def</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="c1"># Enrich departure_port with mob action</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">departure_port</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># String reference - expand from global registry</span>
+                    <span class="n">port_ref</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">departure_port</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">port_definition</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_ref</span><span class="p">)</span>
+                        <span class="c1"># Create enriched port with action</span>
+                        <span class="n">enriched_port</span> <span class="o">=</span> <span class="n">PortDefinition</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">latitude</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="n">longitude</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;mob&quot;</span><span class="p">,</span>  <span class="c1"># Departure ports are mobilization</span>
+                            <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span>
+                                <span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">name</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">leg_def</span><span class="o">.</span><span class="n">departure_port</span> <span class="o">=</span> <span class="n">enriched_port</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="c1"># If global port resolution fails, keep as string</span>
+                        <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Inline port object - add missing fields</span>
+                    <span class="n">port_obj</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">departure_port</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">port_obj</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;mob&quot;</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+                        <span class="ow">or</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="p">):</span>
+                        <span class="n">port_obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>
+
+            <span class="c1"># Enrich arrival_port with demob action</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">leg_def</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># String reference - expand from global registry</span>
+                    <span class="n">port_ref</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">arrival_port</span>
+                    <span class="k">try</span><span class="p">:</span>
+                        <span class="n">port_definition</span> <span class="o">=</span> <span class="n">resolve_port_reference</span><span class="p">(</span><span class="n">port_ref</span><span class="p">)</span>
+                        <span class="c1"># Create enriched port with action</span>
+                        <span class="n">enriched_port</span> <span class="o">=</span> <span class="n">PortDefinition</span><span class="p">(</span>
+                            <span class="n">name</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+                            <span class="n">latitude</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="n">longitude</span><span class="o">=</span><span class="n">port_definition</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;port&quot;</span><span class="p">,</span>
+                            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;demob&quot;</span><span class="p">,</span>  <span class="c1"># Arrival ports are demobilization</span>
+                            <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span>
+                                <span class="n">port_definition</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="n">port_definition</span><span class="o">.</span><span class="n">name</span>
+                            <span class="p">),</span>
+                        <span class="p">)</span>
+                        <span class="n">leg_def</span><span class="o">.</span><span class="n">arrival_port</span> <span class="o">=</span> <span class="n">enriched_port</span>
+                    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+                        <span class="c1"># If global port resolution fails, keep as string</span>
+                        <span class="k">pass</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="c1"># Inline port object - add missing fields</span>
+                    <span class="n">port_obj</span> <span class="o">=</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">arrival_port</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">action</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                        <span class="n">port_obj</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="s2">&quot;demob&quot;</span>
+                    <span class="k">if</span> <span class="p">(</span>
+                        <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+                        <span class="ow">or</span> <span class="n">port_obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="p">):</span>
+                        <span class="n">port_obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_convert_leg_definitions_to_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Leg</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.operations &mdash; CruisePlan v0.3.0 v0.3.0</title>
+  <title>cruiseplan.core.operations &mdash; CruisePlan v0.3.0 v0.3.0.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=e259d695"></script>
+      <script src="../../../_static/documentation_options.js?v=a448664d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -113,10 +113,11 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">AreaDefinition</span><span class="p">,</span>
+    <span class="n">GeoPoint</span><span class="p">,</span>
+    <span class="n">PortDefinition</span><span class="p">,</span>
     <span class="n">StationDefinition</span><span class="p">,</span>
     <span class="n">TransitDefinition</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NM_PER_KM</span>
 
 
 <div class="viewcode-block" id="BaseOperation">
@@ -139,7 +140,12 @@
 
 <div class="viewcode-block" id="BaseOperation.__init__">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a base operation.</span>
 
@@ -149,9 +155,13 @@
 <span class="sd">            Unique identifier for this operation.</span>
 <span class="sd">        comment : Optional[str], optional</span>
 <span class="sd">            Human-readable comment or description.</span>
+<span class="sd">        display_name : Optional[str], optional</span>
+<span class="sd">            Human-readable display name for maps, CSV, and HTML output.</span>
+<span class="sd">            Defaults to name if not provided.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">comment</span> <span class="o">=</span> <span class="n">comment</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span> <span class="o">=</span> <span class="n">display_name</span> <span class="ow">or</span> <span class="n">name</span></div>
 
 
 <div class="viewcode-block" id="BaseOperation.calculate_duration">
@@ -208,6 +218,60 @@
 <span class="sd">            (latitude, longitude) of the operation&#39;s exit point.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">pass</span></div>
+
+
+<div class="viewcode-block" id="BaseOperation.get_coordinates">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_coordinates">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_coordinates</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">,</span> <span class="n">GeoPoint</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get entry and exit coordinates as GeoPoint objects.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        Tuple[GeoPoint, GeoPoint]</span>
+<span class="sd">            (entry_point, exit_point) as GeoPoint objects.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span>
+        <span class="n">exit</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">entry</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">exit</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">exit</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseOperation.get_operation_type">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_operation_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_operation_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get operation type for timeline display.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Operation type identifier (e.g., &quot;Station&quot;, &quot;Transit&quot;, &quot;Area&quot;).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Default implementation based on class name</span>
+        <span class="n">class_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+        <span class="k">return</span> <span class="n">class_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;Operation&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BaseOperation.get_label">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.BaseOperation.get_label">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_label</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get human-readable label for this operation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Human-readable label, defaults to operation name.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># For ports, use display name if available</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="p">:</span>
+            <span class="c1"># Extract just the city name (before comma) for cleaner display</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">display_name</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span></div>
 </div>
 
 
@@ -241,11 +305,13 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
-        <span class="n">depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
+        <span class="n">operation_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">water_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
         <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a point operation.</span>
@@ -267,12 +333,35 @@
 <span class="sd">        action : str, optional</span>
 <span class="sd">            Specific action for moorings (deploy/recover).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>  <span class="c1"># (lat, lon)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">depth</span> <span class="o">=</span> <span class="n">depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">=</span> <span class="n">operation_depth</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">=</span> <span class="n">water_depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manual_duration</span> <span class="o">=</span> <span class="n">duration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>  <span class="c1"># Specific to Moorings</span></div>
+
+
+<div class="viewcode-block" id="PointOperation.get_depth">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_depth">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_depth</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get the appropriate depth for this operation.</span>
+
+<span class="sd">        Returns operation_depth if available, otherwise water_depth,</span>
+<span class="sd">        otherwise 0.0.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Depth in meters.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span></div>
 
 
 <div class="viewcode-block" id="PointOperation.calculate_duration">
@@ -306,8 +395,13 @@
 
         <span class="n">calc</span> <span class="o">=</span> <span class="n">DurationCalculator</span><span class="p">(</span><span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;station&quot;</span><span class="p">:</span>
-            <span class="k">return</span> <span class="n">calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">)</span>
+        <span class="c1"># Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span> <span class="s2">&quot;ADCP&quot;</span><span class="p">,</span> <span class="s2">&quot;XBT&quot;</span><span class="p">,</span> <span class="s2">&quot;XCTD&quot;</span><span class="p">]</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;operation_depth&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="n">calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_depth</span><span class="p">())</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
             <span class="c1"># Moorings should have manual duration, but fallback to default</span>
             <span class="k">return</span> <span class="p">(</span>
@@ -315,6 +409,12 @@
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_mooring_duration&quot;</span><span class="p">)</span>
                 <span class="k">else</span> <span class="mf">60.0</span>
             <span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span>
+            <span class="c1"># Ports typically have no operation duration (mobilization/demobilization time is separate)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;waypoint&quot;</span><span class="p">:</span>
+            <span class="c1"># Waypoints have no operation duration by default (waiting time is handled separately)</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
 
         <span class="k">return</span> <span class="mf">0.0</span></div>
 
@@ -351,6 +451,37 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span></div>
 
 
+<div class="viewcode-block" id="PointOperation.get_operation_type">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.get_operation_type">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_operation_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Get operation type for timeline display.</span>
+
+<span class="sd">        Returns appropriate display type based on the op_type and action attributes.</span>
+<span class="sd">        For ports, returns &quot;Port_Departure&quot; or &quot;Port_Arrival&quot; based on action.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        str</span>
+<span class="sd">            Operation type identifier (&quot;Station&quot;, &quot;Mooring&quot;, &quot;Port_Departure&quot;, &quot;Port_Arrival&quot;, etc.).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Special handling for ports with actions</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;mob&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Port_Departure&quot;</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;demob&quot;</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s2">&quot;Port_Arrival&quot;</span>
+
+        <span class="c1"># Map internal op_types to display names</span>
+        <span class="n">type_mapping</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;station&quot;</span><span class="p">:</span> <span class="s2">&quot;Station&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;mooring&quot;</span><span class="p">:</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;port&quot;</span><span class="p">:</span> <span class="s2">&quot;Port&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;waypoint&quot;</span><span class="p">:</span> <span class="s2">&quot;Waypoint&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="k">return</span> <span class="n">type_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">op_type</span><span class="p">,</span> <span class="s2">&quot;Station&quot;</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="PointOperation.from_pydantic">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.from_pydantic">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -374,27 +505,57 @@
         <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 
         <span class="c1"># 2. Map operation types to legacy internal types</span>
-        <span class="n">op_type_mapping</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;CTD&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;water_sampling&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;calibration&quot;</span><span class="p">:</span> <span class="s2">&quot;station&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;mooring&quot;</span><span class="p">:</span> <span class="s2">&quot;mooring&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-
-        <span class="n">internal_op_type</span> <span class="o">=</span> <span class="n">op_type_mapping</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+        <span class="c1"># Use the original operation_type from YAML for display</span>
+        <span class="c1"># The operation_class already tells us the implementation type</span>
+        <span class="n">display_op_type</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="k">else</span> <span class="s2">&quot;station&quot;</span>
         <span class="n">action</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="c1"># Use operation_depth for duration calculations, fallback to water_depth if needed</span>
-        <span class="n">operation_depth</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">or</span> <span class="n">obj</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">or</span> <span class="mf">0.0</span>
+        <span class="c1"># Use water_depth as fallback for operation_depth</span>
+        <span class="n">operation_depth</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">obj</span><span class="o">.</span><span class="n">operation_depth</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">obj</span><span class="o">.</span><span class="n">water_depth</span>
+        <span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">position</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
-            <span class="n">depth</span><span class="o">=</span><span class="n">operation_depth</span><span class="p">,</span>  <span class="c1"># This is now operation_depth for duration calculations</span>
+            <span class="n">operation_depth</span><span class="o">=</span><span class="n">operation_depth</span><span class="p">,</span>
+            <span class="n">water_depth</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">water_depth</span><span class="p">,</span>
             <span class="n">duration</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">duration</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">duration</span> <span class="k">else</span> <span class="mf">0.0</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
-            <span class="n">op_type</span><span class="o">=</span><span class="n">internal_op_type</span><span class="p">,</span>
+            <span class="n">op_type</span><span class="o">=</span><span class="n">display_op_type</span><span class="p">,</span>
             <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="PointOperation.from_port">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.PointOperation.from_port">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">from_port</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">PortDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;PointOperation&quot;</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Factory to create a PointOperation from a PortDefinition.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        obj : PortDefinition</span>
+<span class="sd">            Port definition model.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        PointOperation</span>
+<span class="sd">            New PointOperation instance representing a port.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+            <span class="n">position</span><span class="o">=</span><span class="n">pos</span><span class="p">,</span>
+            <span class="n">operation_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Ports don&#39;t have operation depth</span>
+            <span class="n">water_depth</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Ports don&#39;t need water depth</span>
+            <span class="n">duration</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># Ports have no operation duration</span>
+            <span class="n">comment</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">op_type</span><span class="o">=</span><span class="s2">&quot;port&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;mob&quot;</span><span class="p">),</span>  <span class="c1"># Use port&#39;s action or default to mob</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
         <span class="p">)</span></div>
 </div>
 
@@ -420,7 +581,14 @@
 <div class="viewcode-block" id="LineOperation.__init__">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">route</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span> <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+        <span class="n">route</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+        <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+        <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize a line operation.</span>
@@ -436,9 +604,11 @@
 <span class="sd">        comment : str, optional</span>
 <span class="sd">            Human-readable comment or description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="o">=</span> <span class="n">route</span>  <span class="c1"># List of (lat, lon)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span></div>
+        <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span></div>
 
 
 <div class="viewcode-block" id="LineOperation.calculate_duration">
@@ -460,30 +630,32 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
             <span class="k">return</span> <span class="mf">0.0</span>
 
-        <span class="c1"># Import here to avoid circular imports</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
+        <span class="c1"># Use centralized calculators</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">route_distance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.duration</span><span class="w"> </span><span class="kn">import</span> <span class="n">DurationCalculator</span>
 
-        <span class="c1"># Calculate total route distance by summing distances between consecutive waypoints</span>
-        <span class="n">total_route_distance_km</span> <span class="o">=</span> <span class="mf">0.0</span>
-        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
-            <span class="n">start_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
-            <span class="n">end_point</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-            <span class="n">segment_distance</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">start_point</span><span class="p">,</span> <span class="n">end_point</span><span class="p">)</span>
-            <span class="n">total_route_distance_km</span> <span class="o">+=</span> <span class="n">segment_distance</span>
+        <span class="c1"># Calculate route distance using centralized function</span>
+        <span class="n">route_distance_km</span> <span class="o">=</span> <span class="n">route_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span>
 
-        <span class="c1"># Convert to nautical miles</span>
-        <span class="n">route_distance_nm</span> <span class="o">=</span> <span class="n">total_route_distance_km</span> <span class="o">*</span> <span class="n">NM_PER_KM</span>  <span class="c1"># km to nautical miles</span>
+        <span class="c1"># Use DurationCalculator if rules/config available</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">):</span>
+            <span class="n">calc</span> <span class="o">=</span> <span class="n">DurationCalculator</span><span class="p">(</span><span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="p">)</span>
+            <span class="c1"># Use default vessel speed if self.speed is 0 or None</span>
+            <span class="n">effective_speed</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">speed</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">&gt;</span> <span class="mi">0</span>
+                <span class="k">else</span> <span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">calc</span><span class="o">.</span><span class="n">calculate_transit_time</span><span class="p">(</span><span class="n">route_distance_km</span><span class="p">,</span> <span class="n">effective_speed</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback for cases without config</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span>
 
-        <span class="c1"># Use transit-specific vessel speed if provided, otherwise use default</span>
-        <span class="n">vessel_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">vessel_speed</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">rules</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">):</span>
-            <span class="n">vessel_speed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">rules</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="ow">not</span> <span class="n">vessel_speed</span><span class="p">:</span>
-            <span class="n">vessel_speed</span> <span class="o">=</span> <span class="mf">10.0</span>  <span class="c1"># Fallback if no rules provided</span>
-
-        <span class="c1"># Calculate duration in hours, then convert to minutes</span>
-        <span class="n">duration_hours</span> <span class="o">=</span> <span class="n">route_distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
-        <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mf">60.0</span></div>
+            <span class="n">vessel_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="ow">or</span> <span class="mf">10.0</span>
+            <span class="n">route_distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">route_distance_km</span><span class="p">)</span>
+            <span class="n">duration_hours</span> <span class="o">=</span> <span class="n">route_distance_nm</span> <span class="o">/</span> <span class="n">vessel_speed</span>
+            <span class="k">return</span> <span class="n">hours_to_minutes</span><span class="p">(</span><span class="n">duration_hours</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LineOperation.get_entry_point">
@@ -522,6 +694,28 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
 
+<div class="viewcode-block" id="LineOperation.get_operation_distance_nm">
+<a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.get_operation_distance_nm">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_operation_distance_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Calculate the total route distance for this line operation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        float</span>
+<span class="sd">            Total route distance in nautical miles.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mf">0.0</span>
+
+        <span class="c1"># Use centralized calculators</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span><span class="p">,</span> <span class="n">route_distance</span>
+
+        <span class="c1"># Calculate route distance and convert to nautical miles</span>
+        <span class="n">route_distance_km</span> <span class="o">=</span> <span class="n">route_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">route_distance_km</span><span class="p">)</span></div>
+
+
 <div class="viewcode-block" id="LineOperation.from_pydantic">
 <a class="viewcode-back" href="../../../api/cruiseplan.core.html#cruiseplan.core.operations.LineOperation.from_pydantic">[docs]</a>
     <span class="nd">@classmethod</span>
@@ -546,11 +740,18 @@
         <span class="c1"># Convert List[GeoPoint] -&gt; List[tuple]</span>
         <span class="n">route_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">route</span><span class="p">]</span>
 
+        <span class="c1"># Use the original operation_type from YAML for display</span>
+        <span class="n">display_op_type</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="k">else</span> <span class="s2">&quot;line&quot;</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span> <span class="k">else</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">route</span><span class="o">=</span><span class="n">route_tuples</span><span class="p">,</span>
             <span class="n">speed</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="k">else</span> <span class="n">default_speed</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">op_type</span><span class="o">=</span><span class="n">display_op_type</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
         <span class="p">)</span></div>
 </div>
 
@@ -593,6 +794,9 @@
         <span class="n">end_point</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">sampling_density</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
         <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">display_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">op_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Initialize an area operation.</span>
@@ -616,11 +820,13 @@
 <span class="sd">        comment : str, optional</span>
 <span class="sd">            Human-readable comment or description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span> <span class="o">=</span> <span class="n">boundary_polygon</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">area_km2</span> <span class="o">=</span> <span class="n">area_km2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_density</span> <span class="o">=</span> <span class="n">sampling_density</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span>
 
         <span class="c1"># Set start/end points, defaulting to first/last corners if not specified</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">start_point</span> <span class="ow">or</span> <span class="p">(</span>
@@ -734,6 +940,10 @@
         <span class="n">start_point</span> <span class="o">=</span> <span class="n">boundary_tuples</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">boundary_tuples</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="n">end_point</span> <span class="o">=</span> <span class="n">boundary_tuples</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">boundary_tuples</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
+        <span class="c1"># Use the original operation_type from YAML for display</span>
+        <span class="n">display_op_type</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="k">else</span> <span class="s2">&quot;area&quot;</span>
+        <span class="n">action</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">action</span> <span class="k">else</span> <span class="kc">None</span>
+
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
             <span class="n">boundary_polygon</span><span class="o">=</span><span class="n">boundary_tuples</span><span class="p">,</span>
@@ -742,6 +952,9 @@
             <span class="n">start_point</span><span class="o">=</span><span class="n">start_point</span><span class="p">,</span>
             <span class="n">end_point</span><span class="o">=</span><span class="n">end_point</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
+            <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">op_type</span><span class="o">=</span><span class="n">display_op_type</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">action</span><span class="p">,</span>
         <span class="p">)</span></div>
 
 
