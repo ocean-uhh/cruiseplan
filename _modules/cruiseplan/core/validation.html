@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>cruiseplan.core.validation &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../../../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -2493,8 +2493,7 @@
 <span class="sd">        Updated configuration dictionary and list of fields that were added</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-        <span class="n">_add_configuration_fields</span><span class="p">,</span>
-        <span class="n">_add_cruise_level_defaults</span><span class="p">,</span>
+        <span class="n">_add_missing_defaults</span><span class="p">,</span>
         <span class="n">_add_port_defaults</span><span class="p">,</span>
         <span class="n">_insert_missing_fields</span><span class="p">,</span>
         <span class="n">_validate_required_structure</span><span class="p">,</span>
@@ -2502,19 +2501,15 @@
 
     <span class="n">all_defaults_added</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="c1"># Add cruise-level defaults</span>
-    <span class="n">cruise_defaults</span> <span class="o">=</span> <span class="n">_add_cruise_level_defaults</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
-    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cruise_defaults</span><span class="p">)</span>
+    <span class="c1"># Add all missing defaults (user parameters first, then technical parameters)</span>
+    <span class="n">fields_to_add</span><span class="p">,</span> <span class="n">defaults_added</span> <span class="o">=</span> <span class="n">_add_missing_defaults</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">defaults_added</span><span class="p">)</span>
 
     <span class="c1"># Add port defaults</span>
     <span class="n">port_defaults</span> <span class="o">=</span> <span class="n">_add_port_defaults</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
     <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">port_defaults</span><span class="p">)</span>
 
-    <span class="c1"># Add missing configuration fields</span>
-    <span class="n">fields_to_add</span><span class="p">,</span> <span class="n">config_defaults</span> <span class="o">=</span> <span class="n">_add_configuration_fields</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
-    <span class="n">all_defaults_added</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">config_defaults</span><span class="p">)</span>
-
-    <span class="c1"># Insert missing fields with proper formatting</span>
+    <span class="c1"># Insert all missing fields with proper formatting (user params after cruise_name, technical params later)</span>
     <span class="n">_insert_missing_fields</span><span class="p">(</span><span class="n">config_dict</span><span class="p">,</span> <span class="n">fields_to_add</span><span class="p">)</span>
 
     <span class="c1"># Validate and add required structure</span>

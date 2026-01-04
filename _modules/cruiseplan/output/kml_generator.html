@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.kml_generator &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>cruiseplan.output.kml_generator &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../../../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -550,18 +550,29 @@
     <span class="c1"># Add stations from configuration</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+            <span class="c1"># Convert enum values to strings</span>
             <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+
             <span class="n">action</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;profile&quot;</span><span class="p">)</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="c1"># Use water_depth field (added by enrichment) with fallback</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">station</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">depth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span>
 
             <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;Placemark&gt;</span>
 <span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
 <span class="s2">            &lt;description&gt;</span>
-<span class="s2">                Type: Station (</span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="si">}</span>
+<span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
 <span class="s2">                Location: </span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">station</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
-<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2"> m</span>
+<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> m</span>
 <span class="s2">            &lt;/description&gt;</span>
 <span class="s2">            &lt;styleUrl&gt;#stationStyle&lt;/styleUrl&gt;</span>
 <span class="s2">            &lt;Point&gt;</span>
@@ -576,18 +587,29 @@
     <span class="c1"># Add moorings from configuration</span>
     <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;moorings&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">mooring</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">moorings</span><span class="p">:</span>
+            <span class="c1"># Convert enum values to strings</span>
             <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;mooring&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
+
             <span class="n">action</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;deployment&quot;</span><span class="p">)</span>
-            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="s2">&quot;N/A&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                <span class="n">action</span> <span class="o">=</span> <span class="n">action</span><span class="o">.</span><span class="n">value</span>
+
+            <span class="c1"># Use water_depth field (added by enrichment) with fallback</span>
+            <span class="n">depth</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mooring</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="n">mooring</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">,</span> <span class="kc">None</span>
+            <span class="p">)</span>
+            <span class="n">depth_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;N/A&quot;</span>
 
             <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;Placemark&gt;</span>
 <span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
 <span class="s2">            &lt;description&gt;</span>
-<span class="s2">                Type: Mooring (</span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span><span class="s2">)</span>
-<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="si">}</span>
+<span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
+<span class="s2">                Action: </span><span class="si">{</span><span class="n">action</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span>
 <span class="s2">                Location: </span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">latitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">mooring</span><span class="o">.</span><span class="n">longitude</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
-<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2"> m</span>
+<span class="s2">                Depth: </span><span class="si">{</span><span class="n">depth_str</span><span class="si">}</span><span class="s2"> m</span>
 <span class="s2">            &lt;/description&gt;</span>
 <span class="s2">            &lt;styleUrl&gt;#mooringStyle&lt;/styleUrl&gt;</span>
 <span class="s2">            &lt;Point&gt;</span>

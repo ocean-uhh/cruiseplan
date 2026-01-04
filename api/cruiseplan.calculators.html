@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -100,12 +100,13 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.calculators.scheduler">cruiseplan.calculators.scheduler module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.ActivityRecord"><code class="docutils literal notranslate"><span class="pre">ActivityRecord</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction"><code class="docutils literal notranslate"><span class="pre">calculate_transit_distance_using_abstraction()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.OperationCoordinates"><code class="docutils literal notranslate"><span class="pre">OperationCoordinates</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.find_operation"><code class="docutils literal notranslate"><span class="pre">find_operation()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_cruise_schedule"><code class="docutils literal notranslate"><span class="pre">generate_cruise_schedule()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_timeline"><code class="docutils literal notranslate"><span class="pre">generate_timeline()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.generate_timeline_legacy"><code class="docutils literal notranslate"><span class="pre">generate_timeline_legacy()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.get_cluster_entry_exit_points"><code class="docutils literal notranslate"><span class="pre">get_cluster_entry_exit_points()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.get_operation_entry_exit_points"><code class="docutils literal notranslate"><span class="pre">get_operation_entry_exit_points()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.scheduler.get_operation_coordinates"><code class="docutils literal notranslate"><span class="pre">get_operation_coordinates()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -577,18 +578,93 @@ timing, positioning, and operational information.</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">calculate_transit_distance_using_abstraction</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">last_operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#calculate_transit_distance_using_abstraction"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction" title="Link to this definition"></a></dt>
-<dd><p>Calculate transit distance between operations using entry/exit point abstraction.</p>
-<p>This demonstrates how the new abstraction makes routing calculations cleaner:
-distance = last_operation.get_exit_point() → current_operation.get_entry_point()</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.OperationCoordinates">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">OperationCoordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">entry_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">entry_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exit_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#OperationCoordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.OperationCoordinates" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Represents the entry and exit coordinates for any operation type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.OperationCoordinates.entry_lat">
+<span class="sig-name descname"><span class="pre">entry_lat</span></span><a class="headerlink" href="#cruiseplan.calculators.scheduler.OperationCoordinates.entry_lat" title="Link to this definition"></a></dt>
+<dd><p>Latitude of entry position</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Transit distance in nautical miles</p>
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.OperationCoordinates.entry_lon">
+<span class="sig-name descname"><span class="pre">entry_lon</span></span><a class="headerlink" href="#cruiseplan.calculators.scheduler.OperationCoordinates.entry_lon" title="Link to this definition"></a></dt>
+<dd><p>Longitude of entry position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.OperationCoordinates.exit_lat">
+<span class="sig-name descname"><span class="pre">exit_lat</span></span><a class="headerlink" href="#cruiseplan.calculators.scheduler.OperationCoordinates.exit_lat" title="Link to this definition"></a></dt>
+<dd><p>Latitude of exit position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.OperationCoordinates.exit_lon">
+<span class="sig-name descname"><span class="pre">exit_lon</span></span><a class="headerlink" href="#cruiseplan.calculators.scheduler.OperationCoordinates.exit_lon" title="Link to this definition"></a></dt>
+<dd><p>Longitude of exit position</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">entry_lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id0" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">entry_lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id1" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">exit_lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id2" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">exit_lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#id3" title="Link to this definition"></a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.find_operation">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">find_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#find_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.find_operation" title="Link to this definition"></a></dt>
+<dd><p>Find an operation object by name from the cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – Cruise configuration</p></li>
+<li><p><strong>name</strong> (<em>str</em>) – Name of the operation to find</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The operation object if found, None otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[Any]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -678,17 +754,21 @@ and exit point is the last operation’s exit point.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.get_operation_entry_exit_points">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">get_operation_entry_exit_points</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#get_operation_entry_exit_points"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.get_operation_entry_exit_points" title="Link to this definition"></a></dt>
-<dd><p>Get entry and exit points for an operation using the new abstraction methods.</p>
-<p>This demonstrates the new architecture where routing calculations use
-standardized entry/exit point methods regardless of operation type.</p>
+<dt class="sig sig-object py" id="cruiseplan.calculators.scheduler.get_operation_coordinates">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.scheduler.</span></span><span class="sig-name descname"><span class="pre">get_operation_coordinates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">CruiseConfig</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.calculators.scheduler.OperationCoordinates" title="cruiseplan.calculators.scheduler.OperationCoordinates"><span class="pre">OperationCoordinates</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/scheduler.html#get_operation_coordinates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.scheduler.get_operation_coordinates" title="Link to this definition"></a></dt>
+<dd><p>Get standardized entry/exit coordinates for any operation type.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>((entry_lat, entry_lon), (exit_lat, exit_lon)) or None if not found</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>operation</strong> (<em>Any</em>) – Station, transit, area, or port operation</p></li>
+<li><p><strong>config</strong> (<em>CruiseConfig</em>) – Cruise configuration for context</p></li>
+</ul>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple[tuple[float, float], tuple[float, float]] or None</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Entry and exit coordinates for the operation</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.calculators.scheduler.OperationCoordinates" title="cruiseplan.calculators.scheduler.OperationCoordinates">OperationCoordinates</a></p>
 </dd>
 </dl>
 </dd></dl>

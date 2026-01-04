@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../../../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -118,6 +118,7 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
 
@@ -135,6 +136,141 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># --- Universal Entry/Exit Coordinate System ---</span>
+
+
+<div class="viewcode-block" id="OperationCoordinates">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.OperationCoordinates">[docs]</a>
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OperationCoordinates</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Represents the entry and exit coordinates for any operation type.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    entry_lat : float</span>
+<span class="sd">        Latitude of entry position</span>
+<span class="sd">    entry_lon : float</span>
+<span class="sd">        Longitude of entry position</span>
+<span class="sd">    exit_lat : float</span>
+<span class="sd">        Latitude of exit position</span>
+<span class="sd">    exit_lon : float</span>
+<span class="sd">        Longitude of exit position</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">entry_lat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">entry_lon</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">exit_lat</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">exit_lon</span><span class="p">:</span> <span class="nb">float</span></div>
+
+
+
+<div class="viewcode-block" id="find_operation">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.find_operation">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">find_operation</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Find an operation object by name from the cruise configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Name of the operation to find</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[Any]</span>
+<span class="sd">        The operation object if found, None otherwise</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Check stations first</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span>
+
+    <span class="c1"># Check areas</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">areas</span> <span class="k">if</span> <span class="n">a</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span>
+
+    <span class="c1"># Check transits</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span> <span class="k">if</span> <span class="n">t</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span>
+
+    <span class="c1"># Check ports</span>
+    <span class="k">if</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="nb">next</span><span class="p">((</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">ports</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">name</span><span class="p">),</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span>
+
+    <span class="k">return</span> <span class="kc">None</span></div>
+
+
+
+<div class="viewcode-block" id="get_operation_coordinates">
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_operation_coordinates">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_operation_coordinates</span><span class="p">(</span>
+    <span class="n">operation</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">OperationCoordinates</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get standardized entry/exit coordinates for any operation type.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    operation : Any</span>
+<span class="sd">        Station, transit, area, or port operation</span>
+<span class="sd">    config : CruiseConfig</span>
+<span class="sd">        Cruise configuration for context</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    OperationCoordinates</span>
+<span class="sd">        Entry and exit coordinates for the operation</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Handle areas first (before checking lat/lon since areas may have calculated center points)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;corners&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">operation</span><span class="o">.</span><span class="n">corners</span><span class="p">:</span>
+        <span class="n">first_corner</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">last_corner</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">corners</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Area </span><span class="si">{</span><span class="n">operation</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">: first=</span><span class="si">{</span><span class="n">first_corner</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">first_corner</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">, last=</span><span class="si">{</span><span class="n">last_corner</span><span class="o">.</span><span class="n">latitude</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">last_corner</span><span class="o">.</span><span class="n">longitude</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">OperationCoordinates</span><span class="p">(</span>
+            <span class="n">entry_lat</span><span class="o">=</span><span class="n">first_corner</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">entry_lon</span><span class="o">=</span><span class="n">first_corner</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="n">exit_lat</span><span class="o">=</span><span class="n">last_corner</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">exit_lon</span><span class="o">=</span><span class="n">last_corner</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Handle transits - use route start/end</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">operation</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+        <span class="n">start_point</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end_point</span> <span class="o">=</span> <span class="n">operation</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">OperationCoordinates</span><span class="p">(</span>
+            <span class="n">entry_lat</span><span class="o">=</span><span class="n">start_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">entry_lon</span><span class="o">=</span><span class="n">start_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="n">exit_lat</span><span class="o">=</span><span class="n">end_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">exit_lon</span><span class="o">=</span><span class="n">end_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Handle stations and ports - entry and exit are the same point</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">OperationCoordinates</span><span class="p">(</span>
+            <span class="n">entry_lat</span><span class="o">=</span><span class="n">operation</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">entry_lon</span><span class="o">=</span><span class="n">operation</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+            <span class="n">exit_lat</span><span class="o">=</span><span class="n">operation</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+            <span class="n">exit_lon</span><span class="o">=</span><span class="n">operation</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Fallback - should not happen in normal operation</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unable to determine coordinates for operation: </span><span class="si">{</span><span class="n">operation</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">OperationCoordinates</span><span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span></div>
+
+
 
 <span class="c1"># --- Helper Functions ---</span>
 
@@ -264,9 +400,8 @@
 <span class="c1"># --- Entry/Exit Point Abstraction Helpers ---</span>
 
 
-<div class="viewcode-block" id="get_operation_entry_exit_points">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.get_operation_entry_exit_points">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_operation_entry_exit_points</span><span class="p">(</span>
+<span class="c1"># DEPRECATED: Removing unused function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_operation_entry_exit_points_DEPRECATED</span><span class="p">(</span>
     <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -313,8 +448,7 @@
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Could not get entry/exit points for </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="kc">None</span></div>
-
+    <span class="k">return</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="get_cluster_entry_exit_points">
@@ -368,9 +502,8 @@
 
 
 
-<div class="viewcode-block" id="calculate_transit_distance_using_abstraction">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.calculate_transit_distance_using_abstraction">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_transit_distance_using_abstraction</span><span class="p">(</span>
+<span class="c1"># DEPRECATED: Removing unused function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_calculate_transit_distance_using_abstraction_DEPRECATED</span><span class="p">(</span>
     <span class="n">last_operation_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">current_operation_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
@@ -388,8 +521,12 @@
         <span class="k">return</span> <span class="mf">0.0</span>
 
     <span class="c1"># Get exit point of last operation and entry point of current operation</span>
-    <span class="n">last_points</span> <span class="o">=</span> <span class="n">get_operation_entry_exit_points</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">last_operation_name</span><span class="p">)</span>
-    <span class="n">current_points</span> <span class="o">=</span> <span class="n">get_operation_entry_exit_points</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">current_operation_name</span><span class="p">)</span>
+    <span class="n">last_points</span> <span class="o">=</span> <span class="n">_get_operation_entry_exit_points_DEPRECATED</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">last_operation_name</span>
+    <span class="p">)</span>
+    <span class="n">current_points</span> <span class="o">=</span> <span class="n">_get_operation_entry_exit_points_DEPRECATED</span><span class="p">(</span>
+        <span class="n">config</span><span class="p">,</span> <span class="n">current_operation_name</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">last_points</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">current_points</span><span class="p">:</span>
         <span class="k">return</span> <span class="mf">0.0</span>
@@ -399,8 +536,7 @@
     <span class="n">current_entry</span> <span class="o">=</span> <span class="n">current_points</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># (lat, lon)</span>
 
     <span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">last_exit</span><span class="p">,</span> <span class="n">current_entry</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span></div>
-
+    <span class="k">return</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">distance_km</span><span class="p">)</span>
 
 
 <span class="c1"># --- Core Scheduling Logic ---</span>
@@ -660,6 +796,8 @@
                     <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                     <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">start_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="p">)</span>
@@ -754,8 +892,19 @@
                     <span class="s2">&quot;operation_dist_nm&quot;</span><span class="p">:</span> <span class="mf">0.0</span><span class="p">,</span>  <span class="c1"># No operation distance for pure navigation</span>
                     <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
                     <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Inter-operation Transit&quot;</span><span class="p">),</span>
-                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span> <span class="k">if</span> <span class="n">last_position</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
-                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span> <span class="k">if</span> <span class="n">last_position</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+                    <span class="c1"># Add start/end coordinates for proper entry/exit position display</span>
+                    <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span>
+                        <span class="k">if</span> <span class="n">last_position</span>
+                        <span class="k">else</span> <span class="n">target_position</span><span class="o">.</span><span class="n">latitude</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span>
+                        <span class="k">if</span> <span class="n">last_position</span>
+                        <span class="k">else</span> <span class="n">target_position</span><span class="o">.</span><span class="n">longitude</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">target_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">target_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
             <span class="c1"># Advance current_time after the inter-operation transit</span>
@@ -926,6 +1075,8 @@
                     <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
                     <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                     <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                    <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                    <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">end_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="p">)</span>
@@ -1068,6 +1219,10 @@
                                 <span class="s2">&quot;duration_minutes&quot;</span><span class="p">:</span> <span class="n">transit_time</span><span class="p">,</span>
                                 <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                                 <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                                <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">prev_arrival_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                                <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">prev_arrival_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                                <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">curr_departure_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                                <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">curr_departure_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                             <span class="p">}</span>
                         <span class="p">)</span>
                     <span class="p">)</span>
@@ -1141,6 +1296,10 @@
                             <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">effective_speed</span><span class="p">,</span>
                             <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                             <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                            <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">operation_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">operation_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                            <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">arrival_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                            <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">arrival_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
@@ -1252,8 +1411,7 @@
             <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_mooring_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
             <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_area_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
-            <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_transit_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="c1"># Note: _resolve_station_details already handles transits, so _resolve_transit_details is redundant</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">details</span><span class="p">:</span>
             <span class="n">details</span> <span class="o">=</span> <span class="n">_resolve_port_details</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
 
@@ -1263,8 +1421,28 @@
             <span class="p">)</span>
             <span class="k">continue</span>
 
+        <span class="c1"># Get operation object and coordinates using universal system</span>
+        <span class="n">operation</span> <span class="o">=</span> <span class="n">find_operation</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">activity_name</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">operation</span><span class="p">:</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">get_operation_coordinates</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found operation </span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">: entry=(</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">entry_lat</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">entry_lon</span><span class="si">}</span><span class="s2">), exit=(</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">exit_lat</span><span class="si">}</span><span class="s2">,</span><span class="si">{</span><span class="n">coords</span><span class="o">.</span><span class="n">exit_lon</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># Fallback to details coordinates if operation not found</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Operation </span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2"> not found, using details coordinates&quot;</span>
+            <span class="p">)</span>
+            <span class="n">coords</span> <span class="o">=</span> <span class="n">OperationCoordinates</span><span class="p">(</span>
+                <span class="n">entry_lat</span><span class="o">=</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="n">entry_lon</span><span class="o">=</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="n">exit_lat</span><span class="o">=</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end_lat&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+                <span class="n">exit_lon</span><span class="o">=</span><span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;end_lon&quot;</span><span class="p">,</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)),</span>
+            <span class="p">)</span>
+
         <span class="c1"># Calculate and add separate transit activity if needed</span>
-        <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+        <span class="c1"># Use the entry coordinates as the position for this operation</span>
+        <span class="n">current_pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">coords</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">coords</span><span class="o">.</span><span class="n">entry_lon</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">last_position</span> <span class="ow">and</span> <span class="p">(</span>
             <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span> <span class="o">!=</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span>
@@ -1294,6 +1472,11 @@
                         <span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">:</span> <span class="n">vessel_speed</span><span class="p">,</span>
                         <span class="s2">&quot;leg_name&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
                         <span class="s2">&quot;op_type&quot;</span><span class="p">:</span> <span class="s2">&quot;transit&quot;</span><span class="p">,</span>
+                        <span class="c1"># Add start/end coordinates for proper entry/exit position display</span>
+                        <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                        <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">last_position</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                        <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                        <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">current_pos</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                     <span class="p">}</span>
                 <span class="p">)</span>
             <span class="p">)</span>
@@ -1324,6 +1507,11 @@
                 <span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;station&quot;</span>
             <span class="p">),</span>  <span class="c1"># For LaTeX compatibility</span>
             <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">),</span>
+            <span class="c1"># Use universal coordinate system for all operations</span>
+            <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="o">.</span><span class="n">entry_lat</span><span class="p">,</span>
+            <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="o">.</span><span class="n">entry_lon</span><span class="p">,</span>
+            <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="o">.</span><span class="n">exit_lat</span><span class="p">,</span>
+            <span class="s2">&quot;end_lon&quot;</span><span class="p">:</span> <span class="n">coords</span><span class="o">.</span><span class="n">exit_lon</span><span class="p">,</span>
         <span class="p">}</span>
 
         <span class="c1"># Add route distance for scientific transits</span>
@@ -1334,17 +1522,10 @@
 
         <span class="n">current_time</span> <span class="o">+=</span> <span class="n">timedelta</span><span class="p">(</span><span class="n">minutes</span><span class="o">=</span><span class="n">operation_duration</span> <span class="o">+</span> <span class="n">turnaround_time</span><span class="p">)</span>
 
-        <span class="c1"># For transits, update position to end point, otherwise use current position</span>
-        <span class="k">if</span> <span class="p">(</span>
-            <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;transit&quot;</span>
-            <span class="ow">and</span> <span class="s2">&quot;end_lat&quot;</span> <span class="ow">in</span> <span class="n">details</span>
-            <span class="ow">and</span> <span class="s2">&quot;end_lon&quot;</span> <span class="ow">in</span> <span class="n">details</span>
-        <span class="p">):</span>
-            <span class="n">last_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span>
-                <span class="n">latitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">],</span> <span class="n">longitude</span><span class="o">=</span><span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">last_position</span> <span class="o">=</span> <span class="n">current_pos</span>
+        <span class="c1"># Update position based on the operation&#39;s exit coordinates</span>
+        <span class="c1"># For transits and areas, this moves us to the exit point</span>
+        <span class="c1"># For stations/ports, this is the same as entry point</span>
+        <span class="n">last_position</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">coords</span><span class="o">.</span><span class="n">exit_lat</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">coords</span><span class="o">.</span><span class="n">exit_lon</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">activities</span>
 
@@ -1859,9 +2040,13 @@
                 <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">end</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
                     <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">latitude</span>
                     <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">longitude</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">latitude</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">longitude</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
                     <span class="n">details</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lat&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">))</span>
+                    <span class="n">details</span><span class="p">[</span><span class="s2">&quot;end_lon&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lon&quot;</span><span class="p">))</span>
 
                 <span class="c1"># Calculate route distance if needed</span>
                 <span class="k">if</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">details</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;lat&quot;</span><span class="p">):</span>

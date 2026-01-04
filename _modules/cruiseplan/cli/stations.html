@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../../../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -265,18 +265,15 @@
         <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinate bounds: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Determine output file</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">:</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">validate_output_path</span><span class="p">(</span><span class="n">output_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">output_dir</span> <span class="o">=</span> <span class="n">validate_output_path</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
-            <span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;stations.yaml&quot;</span>
-            <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">:</span>
-                <span class="c1"># Generate filename based on PANGAEA file</span>
-                <span class="n">output_filename</span> <span class="o">=</span> <span class="n">generate_output_filename</span><span class="p">(</span>
-                    <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">,</span> <span class="s2">&quot;_stations&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span>
-                <span class="p">)</span>
-            <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">output_filename</span>
+        <span class="c1"># Determine output file (output_file parameter was deprecated)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">validate_output_path</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;stations.yaml&quot;</span>
+        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">:</span>
+            <span class="c1"># Generate filename based on PANGAEA file</span>
+            <span class="n">output_filename</span> <span class="o">=</span> <span class="n">generate_output_filename</span><span class="p">(</span>
+                <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">,</span> <span class="s2">&quot;_stations&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span>
+            <span class="p">)</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">output_filename</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">optimal_bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

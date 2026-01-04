@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev10</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.2.2 v0.2.2.post1.dev11</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=ac9d8083"></script>
+      <script src="../../../_static/documentation_options.js?v=08e5049a"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -697,11 +697,20 @@
 
             <span class="c1"># Transit to arrival port is now handled by scheduler Port_Arrival activities</span>
 
+            <span class="c1"># Count scientific operations for leg total</span>
+            <span class="n">scientific_operations_count</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">leg_data</span><span class="p">[</span><span class="s2">&quot;activities&quot;</span><span class="p">]:</span>
+                <span class="n">activity_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">activity_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">,</span> <span class="s2">&quot;Area&quot;</span><span class="p">]:</span>
+                    <span class="n">scientific_operations_count</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">):</span>
+                    <span class="n">scientific_operations_count</span> <span class="o">+=</span> <span class="mi">1</span>
+
             <span class="c1"># Add leg total row</span>
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr style=&quot;font-weight: bold; background-color: #f2f2f2;&quot;&gt;</span>
 <span class="s2">            &lt;td&gt;Leg Total&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">leg_data</span><span class="p">[</span><span class="s1">&#39;activities&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">scientific_operations_count</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
 <span class="s2">            &lt;td&gt;&lt;/td&gt;</span>
@@ -863,29 +872,19 @@
             <span class="c1"># For ports, use transit distance to show distance to next destination</span>
             <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;transit_dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
-        <span class="c1"># For transit activities: entry = previous activity exit, exit = next activity entry</span>
+        <span class="c1"># For transit activities: use start_lat/start_lon and end_lat/end_lon if available</span>
         <span class="k">elif</span> <span class="n">activity_type</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
-            <span class="c1"># Entry position: previous activity position (or current if first)</span>
-            <span class="k">if</span> <span class="n">index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="n">prev_activity</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[</span><span class="n">index</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">prev_activity</span> <span class="ow">and</span> <span class="s2">&quot;lon&quot;</span> <span class="ow">in</span> <span class="n">prev_activity</span><span class="p">:</span>
-                    <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">prev_activity</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">prev_activity</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">entry_position</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+            <span class="c1"># Entry position: use start_lat/start_lon if available, otherwise current position</span>
+            <span class="k">if</span> <span class="s2">&quot;start_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;start_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;start_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;start_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
 
-            <span class="c1"># Exit position: next activity position (or current if last)</span>
-            <span class="k">if</span> <span class="n">index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">activities</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
-                <span class="n">next_activity</span> <span class="o">=</span> <span class="n">activities</span><span class="p">[</span><span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
-                <span class="k">if</span> <span class="s2">&quot;lat&quot;</span> <span class="ow">in</span> <span class="n">next_activity</span> <span class="ow">and</span> <span class="s2">&quot;lon&quot;</span> <span class="ow">in</span> <span class="n">next_activity</span><span class="p">:</span>
-                    <span class="n">exit_position</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">next_activity</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">next_activity</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">exit_position</span> <span class="o">=</span> <span class="s2">&quot;N/A&quot;</span>
+            <span class="c1"># Exit position: use end_lat/end_lon if available, otherwise current position</span>
+            <span class="k">if</span> <span class="s2">&quot;end_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;end_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
+                <span class="n">exit_position</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;end_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;end_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
 
