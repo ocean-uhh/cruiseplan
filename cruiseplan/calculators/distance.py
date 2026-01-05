@@ -8,13 +8,13 @@ kilometers and nautical miles.
 """
 
 import math
-from typing import List, Tuple, Union
+from typing import Union
 
 from cruiseplan.utils.constants import KM_PER_NM, NM_PER_KM, R_EARTH_KM
 from cruiseplan.validation import GeoPoint
 
 
-def to_coords(point: Union[GeoPoint, Tuple[float, float]]) -> Tuple[float, float]:
+def to_coords(point: Union[GeoPoint, tuple[float, float]]) -> tuple[float, float]:
     """
     Extract (latitude, longitude) coordinates from various input types.
 
@@ -36,8 +36,8 @@ def to_coords(point: Union[GeoPoint, Tuple[float, float]]) -> Tuple[float, float
 
 
 def haversine_distance(
-    start: Union[GeoPoint, Tuple[float, float]],
-    end: Union[GeoPoint, Tuple[float, float]],
+    start: Union[GeoPoint, tuple[float, float]],
+    end: Union[GeoPoint, tuple[float, float]],
 ) -> float:
     """
     Calculate Great Circle distance between two points using Haversine formula.
@@ -70,7 +70,7 @@ def haversine_distance(
     return R_EARTH_KM * c
 
 
-def route_distance(points: List[Union[GeoPoint, Tuple[float, float]]]) -> float:
+def route_distance(points: list[Union[GeoPoint, tuple[float, float]]]) -> float:
     """
     Calculate total distance of a path connecting multiple points.
 

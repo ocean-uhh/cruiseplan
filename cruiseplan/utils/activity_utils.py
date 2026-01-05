@@ -4,10 +4,10 @@ Shared utilities for processing cruise activities across different output genera
 """
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 
-def is_scientific_operation(activity: Dict[str, Any]) -> bool:
+def is_scientific_operation(activity: dict[str, Any]) -> bool:
     """
     Determine if an activity should be included as a scientific operation.
 
@@ -33,7 +33,7 @@ def is_scientific_operation(activity: Dict[str, Any]) -> bool:
     return activity_type in ["Station", "Mooring", "Area", "Line"]
 
 
-def is_scientific_transit(transit: Dict[str, Any]) -> bool:
+def is_scientific_transit(transit: dict[str, Any]) -> bool:
     """
     Distinguish a Transit activity as scientific based on the presence of the
     'action' field, as per the schema change description.
@@ -54,7 +54,7 @@ def is_scientific_transit(transit: Dict[str, Any]) -> bool:
     return transit.get("activity") == "Transit" and transit.get("action") is not None
 
 
-def is_line_operation(activity: Dict[str, Any]) -> bool:
+def is_line_operation(activity: dict[str, Any]) -> bool:
     """
     Check if activity is a line operation (scientific transit with start/end coordinates).
 

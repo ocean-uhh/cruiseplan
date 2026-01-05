@@ -19,7 +19,6 @@ location once regardless of visitation frequency.
 
 import logging
 from pathlib import Path
-from typing import List
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.utils.activity_utils import is_line_operation, is_scientific_operation
@@ -83,7 +82,7 @@ class KMLGenerator:
         pass
 
     def generate_schedule_kml(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
     ) -> Path:
         """
         Generate KML schedule output with only scientific operations.
@@ -615,7 +614,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
 
 def generate_kml_schedule(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
     Main interface to generate KML schedule from scheduler timeline.

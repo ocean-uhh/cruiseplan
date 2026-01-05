@@ -6,7 +6,7 @@ timeline validation to reduce code duplication across test files.
 """
 
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 from unittest.mock import MagicMock
 
 
@@ -59,7 +59,7 @@ def create_mock_port(
     return mock_port
 
 
-def validate_timeline_structure(timeline: List[Dict[str, Any]]) -> bool:
+def validate_timeline_structure(timeline: list[dict[str, Any]]) -> bool:
     """
     Validate that a timeline has the expected structure.
 
@@ -102,7 +102,7 @@ def validate_timeline_structure(timeline: List[Dict[str, Any]]) -> bool:
     return True
 
 
-def count_activities_by_type(timeline: List[Dict[str, Any]]) -> Dict[str, int]:
+def count_activities_by_type(timeline: list[dict[str, Any]]) -> dict[str, int]:
     """
     Count activities in timeline by op_type.
 
@@ -124,8 +124,8 @@ def count_activities_by_type(timeline: List[Dict[str, Any]]) -> Dict[str, int]:
 
 
 def get_activities_by_type(
-    timeline: List[Dict[str, Any]], op_type: str
-) -> List[Dict[str, Any]]:
+    timeline: list[dict[str, Any]], op_type: str
+) -> list[dict[str, Any]]:
     """
     Filter timeline activities by op_type.
 
@@ -144,7 +144,7 @@ def get_activities_by_type(
     return [activity for activity in timeline if activity.get("op_type") == op_type]
 
 
-def assert_activity_duration_positive(timeline: List[Dict[str, Any]]) -> None:
+def assert_activity_duration_positive(timeline: list[dict[str, Any]]) -> None:
     """
     Assert that all activities in timeline have positive duration.
 
@@ -165,7 +165,7 @@ def assert_activity_duration_positive(timeline: List[Dict[str, Any]]) -> None:
         ), f"Activity {i} ({activity.get('name', 'unnamed')}) has non-positive duration: {duration}"
 
 
-def assert_timeline_chronological(timeline: List[Dict[str, Any]]) -> None:
+def assert_timeline_chronological(timeline: list[dict[str, Any]]) -> None:
     """
     Assert that timeline activities are in chronological order.
 

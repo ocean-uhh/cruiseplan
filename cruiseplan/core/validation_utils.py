@@ -10,7 +10,7 @@ import math
 import re
 import warnings as python_warnings
 from contextlib import contextmanager
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 def _interpolate_great_circle_position(
     start_lat: float, start_lon: float, end_lat: float, end_lon: float, fraction: float
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Interpolate position along great circle route using spherical geometry.
 
@@ -97,8 +97,8 @@ def _sanitize_station_name(name: str) -> str:
 
 
 def _extract_coordinate_value(
-    coord_dict: Dict[str, Any], lat_keys: List[str], lon_keys: List[str]
-) -> Tuple[Optional[float], Optional[float]]:
+    coord_dict: dict[str, Any], lat_keys: list[str], lon_keys: list[str]
+) -> tuple[Optional[float], Optional[float]]:
     """
     Extract latitude and longitude from coordinate dictionary with flexible key names.
 
@@ -136,8 +136,8 @@ def _extract_coordinate_value(
 
 
 def _expand_single_ctd_section(
-    transit: Dict[str, Any], default_depth: float = -9999.0
-) -> List[Dict[str, Any]]:
+    transit: dict[str, Any], default_depth: float = -9999.0
+) -> list[dict[str, Any]]:
     """
     Expand a single CTD section transit into individual station definitions.
 
@@ -254,8 +254,8 @@ def _validation_warning_capture():
 
 
 def _add_missing_defaults(
-    config_dict: Dict[str, Any],
-) -> Tuple[List[Tuple[str, Any, str]], List[str]]:
+    config_dict: dict[str, Any],
+) -> tuple[list[tuple[str, Any, str]], list[str]]:
     """
     Prepare missing configuration defaults for insertion.
 
@@ -355,7 +355,7 @@ def _add_missing_defaults(
     return fields_to_add, defaults_added
 
 
-def _add_port_defaults(config_dict: Dict[str, Any]) -> List[str]:
+def _add_port_defaults(config_dict: dict[str, Any]) -> list[str]:
     """
     Add missing port configuration defaults.
 
@@ -389,7 +389,7 @@ def _add_port_defaults(config_dict: Dict[str, Any]) -> List[str]:
     return defaults_added
 
 
-def _validate_required_structure(config_dict: Dict[str, Any]) -> List[str]:
+def _validate_required_structure(config_dict: dict[str, Any]) -> list[str]:
     """
     Ensure required configuration structure exists.
 
@@ -431,7 +431,7 @@ def _validate_required_structure(config_dict: Dict[str, Any]) -> List[str]:
 
 
 def _insert_missing_fields(
-    config_dict: Dict[str, Any], fields_to_add: List[Tuple[str, Any, str]]
+    config_dict: dict[str, Any], fields_to_add: list[tuple[str, Any, str]]
 ) -> None:
     """
     Insert missing fields into configuration with proper formatting.
@@ -468,7 +468,7 @@ def _insert_missing_fields(
 # --- Validation Pattern Utilities ---
 
 
-def _check_placeholder_values(entity: Any, field_mapping: Dict[str, str]) -> List[str]:
+def _check_placeholder_values(entity: Any, field_mapping: dict[str, str]) -> list[str]:
     """
     Generic placeholder value checker for any entity.
 
@@ -495,7 +495,7 @@ def _check_placeholder_values(entity: Any, field_mapping: Dict[str, str]) -> Lis
     return warnings
 
 
-def _check_default_coordinates(entity: Any, coord_fields: List[str]) -> List[str]:
+def _check_default_coordinates(entity: Any, coord_fields: list[str]) -> list[str]:
     """
     Generic default coordinate checker.
 

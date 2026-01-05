@@ -1,6 +1,6 @@
 # cruiseplan/core/cruise.py
 from pathlib import Path
-from typing import Any, Dict, List, Union
+from typing import Any, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
@@ -84,16 +84,16 @@ class Cruise:
         self.config = CruiseConfig(**self.raw_data)
 
         # 2. Indexing Pass (Build the Catalog Registry)
-        self.station_registry: Dict[str, StationDefinition] = {
+        self.station_registry: dict[str, StationDefinition] = {
             s.name: s for s in (self.config.stations or [])
         }
-        self.transit_registry: Dict[str, TransitDefinition] = {
+        self.transit_registry: dict[str, TransitDefinition] = {
             t.name: t for t in (self.config.transits or [])
         }
-        self.area_registry: Dict[str, AreaDefinition] = {
+        self.area_registry: dict[str, AreaDefinition] = {
             a.name: a for a in (self.config.areas or [])
         }
-        self.port_registry: Dict[str, PortDefinition] = {
+        self.port_registry: dict[str, PortDefinition] = {
             p.name: p for p in (self.config.ports or [])
         }
 
@@ -109,7 +109,7 @@ class Cruise:
         # 6. Leg Conversion Pass (Convert LegDefinition to runtime Leg objects)
         self.runtime_legs = self._convert_leg_definitions_to_legs()
 
-    def _load_yaml(self) -> Dict[str, Any]:
+    def _load_yaml(self) -> dict[str, Any]:
         """
         Load and parse the YAML configuration file.
 
@@ -173,8 +173,8 @@ class Cruise:
                         )
 
     def _resolve_list(
-        self, items: List[Union[str, Any]], registry: Dict[str, Any], type_label: str
-    ) -> List[Any]:
+        self, items: list[Union[str, Any]], registry: dict[str, Any], type_label: str
+    ) -> list[Any]:
         """
         Resolve a list containing items of a specific type.
 
@@ -215,7 +215,7 @@ class Cruise:
                 resolved_items.append(item)
         return resolved_items
 
-    def _resolve_mixed_list(self, items: List[Union[str, Any]]) -> List[Any]:
+    def _resolve_mixed_list(self, items: list[Union[str, Any]]) -> list[Any]:
         """
         Resolve a mixed sequence list containing stations, transits, or areas.
 
@@ -474,7 +474,7 @@ class Cruise:
                     ):
                         port_obj.operation_type = "port"
 
-    def _convert_leg_definitions_to_legs(self) -> List[Leg]:
+    def _convert_leg_definitions_to_legs(self) -> list[Leg]:
         """
         Convert LegDefinition objects to runtime Leg objects with clusters.
 

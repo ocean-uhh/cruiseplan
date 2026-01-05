@@ -7,7 +7,7 @@ to the three main operation types: waypoints (point operations),
 transects (line operations), and areas (area operations).
 """
 
-from typing import List, Optional
+from typing import Optional
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -140,7 +140,7 @@ class TransectDefinition(BaseModel):
     """
 
     name: str
-    route: List[GeoPoint]
+    route: list[GeoPoint]
     comment: Optional[str] = None
     vessel_speed: Optional[float] = None
     # Optional fields for scientific transects
@@ -210,7 +210,7 @@ class AreaDefinition(BaseModel):
     """
 
     name: str
-    corners: List[GeoPoint]
+    corners: list[GeoPoint]
     comment: Optional[str] = None
     operation_type: Optional[AreaOperationTypeEnum] = AreaOperationTypeEnum.SURVEY
     action: Optional[ActionEnum] = None

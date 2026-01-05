@@ -9,7 +9,7 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional
 
 from cruiseplan.cli.cli_utils import (
     CLIError,
@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 def determine_coordinate_bounds(
     args: argparse.Namespace, campaign_data: Optional[list] = None
-) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+) -> tuple[tuple[float, float], tuple[float, float]]:
     """
     Determine coordinate bounds from arguments or PANGAEA data.
 

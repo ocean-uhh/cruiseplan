@@ -6,7 +6,6 @@ Generates comprehensive CSV files with detailed formatting for all cruise activi
 import csv
 import logging
 from pathlib import Path
-from typing import List
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.output.output_utils import get_activity_depth
@@ -75,7 +74,7 @@ class CSVGenerator:
         return str(round(depth))
 
     def generate_schedule_csv(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
     ) -> Path:
         """
         Generate CSV schedule output with comprehensive formatting.
@@ -201,7 +200,7 @@ class CSVGenerator:
 
 
 def generate_csv_schedule(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
     Main interface to generate CSV schedule from scheduler timeline.

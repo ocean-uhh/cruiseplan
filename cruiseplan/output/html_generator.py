@@ -15,7 +15,6 @@ tables for each operation type.
 
 import logging
 from pathlib import Path
-from typing import List
 
 from cruiseplan.calculators.scheduler import (
     ActivityRecord,
@@ -75,7 +74,7 @@ class HTMLGenerator:
         pass
 
     def generate_schedule_report(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
     ) -> Path:
         """
         Generate comprehensive HTML schedule report.
@@ -307,7 +306,7 @@ class HTMLGenerator:
         return output_file
 
     def _generate_leg_schedules(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], stats: dict
+        self, config: CruiseConfig, timeline: list[ActivityRecord], stats: dict
     ) -> str:
         """
         Generate HTML section with per-leg schedule tables.
@@ -407,7 +406,7 @@ class HTMLGenerator:
         return html_content
 
     def _group_activities_by_leg(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> dict:
         """
         Group timeline activities by leg and add appropriate transit connections.
@@ -637,7 +636,7 @@ class HTMLGenerator:
 
 
 def generate_html_schedule(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
     Main interface to generate HTML schedule from scheduler timeline.

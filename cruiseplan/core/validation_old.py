@@ -2,7 +2,7 @@ import logging
 import warnings
 from enum import Enum
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -644,7 +644,7 @@ class TransitDefinition(BaseModel):
     """
 
     name: str
-    route: List[GeoPoint]
+    route: list[GeoPoint]
     comment: Optional[str] = None
     vessel_speed: Optional[float] = None
     # Optional fields for scientific transits
@@ -897,7 +897,7 @@ class SectionDefinition(BaseModel):
     end: GeoPoint
     distance_between_stations: Optional[float] = None
     reversible: bool = True
-    stations: Optional[List[str]] = []
+    stations: Optional[list[str]] = []
 
     @model_validator(mode="before")
     @classmethod
@@ -945,7 +945,7 @@ class AreaDefinition(BaseModel):
     """
 
     name: str
-    corners: List[GeoPoint]
+    corners: list[GeoPoint]
     comment: Optional[str] = None
     operation_type: Optional[AreaOperationTypeEnum] = AreaOperationTypeEnum.SURVEY
     action: Optional[ActionEnum] = None
@@ -1033,16 +1033,16 @@ class ClusterDefinition(BaseModel):
     )
 
     # New activities-based architecture
-    activities: List[Union[str, dict]] = Field(
+    activities: list[Union[str, dict]] = Field(
         default_factory=list,
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
 
     # Deprecated fields (maintain temporarily for backward compatibility)
-    sequence: Optional[List[Union[str, StationDefinition, TransitDefinition]]] = Field(
+    sequence: Optional[list[Union[str, StationDefinition, TransitDefinition]]] = Field(
         default=None, description="DEPRECATED: Use 'activities' instead"
     )
-    stations: Optional[List[Union[str, StationDefinition]]] = Field(
+    stations: Optional[list[Union[str, StationDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
     generate_transect: Optional[GenerateTransect] = Field(
@@ -1254,22 +1254,22 @@ class LegDefinition(BaseModel):
     )
 
     # New activities-based architecture
-    activities: Optional[List[Union[str, dict]]] = Field(
+    activities: Optional[list[Union[str, dict]]] = Field(
         default_factory=list,
         description="Unified list of all activities in this leg (can be string references or dict objects)",
     )
-    clusters: Optional[List[ClusterDefinition]] = Field(
+    clusters: Optional[list[ClusterDefinition]] = Field(
         default_factory=list, description="List of operation clusters in the leg"
     )
 
     # Deprecated fields (maintain temporarily for backward compatibility)
-    stations: Optional[List[Union[str, StationDefinition]]] = Field(
+    stations: Optional[list[Union[str, StationDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
-    sections: Optional[List[SectionDefinition]] = Field(
+    sections: Optional[list[SectionDefinition]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
-    sequence: Optional[List[Union[str, StationDefinition]]] = Field(
+    sequence: Optional[list[Union[str, StationDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
 
@@ -1510,11 +1510,11 @@ class CruiseConfig(BaseModel):
         description="Port where the cruise ends (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
 
-    stations: Optional[List[StationDefinition]] = []
-    transits: Optional[List[TransitDefinition]] = []
-    areas: Optional[List[AreaDefinition]] = []
-    ports: Optional[List[PortDefinition]] = []
-    legs: Optional[List[LegDefinition]] = []
+    stations: Optional[list[StationDefinition]] = []
+    transits: Optional[list[TransitDefinition]] = []
+    areas: Optional[list[AreaDefinition]] = []
+    ports: Optional[list[PortDefinition]] = []
+    legs: Optional[list[LegDefinition]] = []
 
     model_config = ConfigDict(extra="allow")
 
@@ -2035,8 +2035,8 @@ class CruiseConfig(BaseModel):
 
 
 def replace_placeholder_values(
-    config_dict: Dict[str, Any],
-) -> Tuple[Dict[str, Any], bool]:
+    config_dict: dict[str, Any],
+) -> tuple[dict[str, Any], bool]:
     """
     Preserve placeholder values since they are now valid enum values.
 
@@ -2060,9 +2060,9 @@ def replace_placeholder_values(
 
 
 def expand_ctd_sections(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     default_depth: float = -9999.0,  # Use placeholder value to trigger bathymetry lookup
-) -> Tuple[Dict[str, Any], Dict[str, int]]:
+) -> tuple[dict[str, Any], dict[str, int]]:
     """
     Expand CTD sections into individual station definitions.
 
@@ -2243,8 +2243,8 @@ def expand_ctd_sections(
 
 
 def add_missing_required_fields(
-    config_dict: Dict[str, Any],
-) -> Tuple[Dict[str, Any], List[str]]:
+    config_dict: dict[str, Any],
+) -> tuple[dict[str, Any], list[str]]:
     """
     Add missing required fields with sensible defaults and provide user feedback.
 
@@ -2289,8 +2289,8 @@ def add_missing_required_fields(
 
 
 def add_missing_required_fields_DISABLED_OLD_VERSION(
-    config_dict: Dict[str, Any],
-) -> Tuple[Dict[str, Any], List[str]]:
+    config_dict: dict[str, Any],
+) -> tuple[dict[str, Any], list[str]]:
     """DISABLED - Old version kept for reference only."""
     # This function has been refactored into smaller utilities
     # See validation_utils.py for the extracted functions
@@ -2376,7 +2376,7 @@ def add_missing_required_fields_DISABLED_OLD_VERSION(
     return config_dict, defaults_added
 
 
-def add_missing_station_defaults(config_dict: Dict[str, Any]) -> int:
+def add_missing_station_defaults(config_dict: dict[str, Any]) -> int:
     """
     Add missing defaults to station definitions.
 
@@ -2476,7 +2476,7 @@ def enrich_configuration(
     bathymetry_dir: str = "data",
     coord_format: str = "ddm",
     output_path: Optional[Path] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Add missing data to cruise configuration.
 
@@ -2918,7 +2918,7 @@ def validate_configuration_file(
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
     strict: bool = False,
-) -> Tuple[bool, List[str], List[str]]:
+) -> tuple[bool, list[str], list[str]]:
     """
     Comprehensive validation of YAML configuration file.
 
@@ -3066,7 +3066,7 @@ def validate_configuration_file(
         python_warnings.showwarning = old_showwarning
 
 
-def _check_unexpanded_ctd_sections(cruise) -> List[str]:
+def _check_unexpanded_ctd_sections(cruise) -> list[str]:
     """
     Check for CTD sections that haven't been expanded yet.
 
@@ -3099,7 +3099,7 @@ def _check_unexpanded_ctd_sections(cruise) -> List[str]:
     return warnings
 
 
-def _check_unexpanded_ctd_sections_raw(config_dict: Dict[str, Any]) -> List[str]:
+def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]:
     """
     Check for CTD sections that haven't been expanded yet from raw YAML.
 
@@ -3203,7 +3203,7 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
     return " -> ".join(str(part) for part in path_parts)
 
 
-def _check_cruise_metadata(cruise) -> List[str]:
+def _check_cruise_metadata(cruise) -> list[str]:
     """
     Check cruise metadata for placeholder values and default coordinates.
 
@@ -3281,7 +3281,7 @@ def _check_cruise_metadata(cruise) -> List[str]:
     return []
 
 
-def _check_cruise_metadata_raw(raw_config: dict) -> List[str]:
+def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
     """
     Check cruise metadata for placeholder values and default coordinates from raw YAML.
 
@@ -3359,7 +3359,7 @@ def _check_cruise_metadata_raw(raw_config: dict) -> List[str]:
     return []
 
 
-def _format_validation_warnings(captured_warnings: List[str], cruise) -> List[str]:
+def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[str]:
     """
     Format captured Pydantic warnings into user-friendly grouped messages.
 
@@ -3514,7 +3514,7 @@ def _clean_warning_message(warning_msg: str) -> str:
 
 def validate_depth_accuracy(
     cruise, bathymetry_manager, tolerance: float
-) -> Tuple[int, List[str]]:
+) -> tuple[int, list[str]]:
     """
     Compare station water depths with bathymetry data.
 
@@ -3601,7 +3601,7 @@ def validate_depth_accuracy(
     return stations_checked, warning_messages
 
 
-def check_duplicate_names(cruise) -> Tuple[List[str], List[str]]:
+def check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
     """
     Check for duplicate names across different configuration sections.
 
@@ -3676,7 +3676,7 @@ def check_duplicate_names(cruise) -> Tuple[List[str], List[str]]:
     return errors, warnings
 
 
-def check_complete_duplicates(cruise) -> Tuple[List[str], List[str]]:
+def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
     """
     Check for completely identical entries (same name, coordinates, operation, etc.).
 

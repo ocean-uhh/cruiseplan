@@ -7,7 +7,7 @@ different model classes to ensure consistent validation logic.
 
 import logging
 import warnings
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def show_deprecation_warning(message: str, category: type = DeprecationWarning) 
         _shown_warnings.add(message)
 
 
-def validate_unique_names(items: List[Dict[str, Any]], item_type: str) -> None:
+def validate_unique_names(items: list[dict[str, Any]], item_type: str) -> None:
     """
     Validate that all items in a list have unique names.
 

@@ -12,7 +12,7 @@ with a focus on:
 import logging
 from dataclasses import dataclass
 from datetime import datetime, timedelta
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from cruiseplan.calculators.distance import haversine_distance, km_to_nm
 from cruiseplan.core.operations import (
@@ -68,7 +68,7 @@ class ActivityRecord:
     operation_depth: Optional[float] = None  # Depth for operation (e.g. CTD max depth)
     water_depth: Optional[float] = None  # Water depth at location
 
-    def __init__(self, data: Dict[str, Any]):
+    def __init__(self, data: dict[str, Any]):
         """Initialize from dictionary for compatibility with old system."""
         # Initialize all fields to None first
         for field in self.__dataclass_fields__:
@@ -79,7 +79,7 @@ class ActivityRecord:
             if hasattr(self, key):
                 setattr(self, key, value)
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """Convert to dictionary for output compatibility."""
         result = {
             field: getattr(self, field, None) for field in self.__dataclass_fields__
@@ -220,7 +220,7 @@ class OperationFactory:
 # =============================================================================
 
 
-def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, Any]:
+def calculate_timeline_statistics(timeline: list[dict[str, Any]]) -> dict[str, Any]:
     """
     Calculate summary statistics for cruise timeline activities.
 
@@ -541,8 +541,8 @@ class TimelineGenerator:
         self.current_time = self._parse_start_datetime()
 
     def generate_timeline(
-        self, legs: Optional[List[Any]] = None
-    ) -> List[Dict[str, Any]]:
+        self, legs: Optional[list[Any]] = None
+    ) -> list[dict[str, Any]]:
         """Generate complete cruise timeline."""
         if legs is None:
             legs = self._create_runtime_legs()
@@ -555,7 +555,7 @@ class TimelineGenerator:
 
         return [activity.to_dict() for activity in timeline]
 
-    def _create_runtime_legs(self) -> List[Any]:
+    def _create_runtime_legs(self) -> list[Any]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
         from cruiseplan.core.leg import Leg
@@ -585,7 +585,7 @@ class TimelineGenerator:
 
         return runtime_legs
 
-    def _process_leg(self, leg: Any) -> List[ActivityRecord]:
+    def _process_leg(self, leg: Any) -> list[ActivityRecord]:
         """Process a single leg and generate activities."""
         # Initialize current_time if not set
         if self.current_time is None:
@@ -750,7 +750,7 @@ class TimelineGenerator:
         self.current_time = activity.end_time
         return activity
 
-    def _extract_activities_from_leg(self, leg: Any) -> List[str]:
+    def _extract_activities_from_leg(self, leg: Any) -> list[str]:
         """Extract activity names from leg definition."""
         activities = []
 
@@ -846,8 +846,8 @@ class TimelineGenerator:
 
 
 def generate_timeline(
-    config: CruiseConfig, legs: Optional[List[Any]] = None
-) -> List[Dict[str, Any]]:
+    config: CruiseConfig, legs: Optional[list[Any]] = None
+) -> list[dict[str, Any]]:
     """
     Generate cruise timeline using the new unified operations model.
 
@@ -873,16 +873,16 @@ def generate_timeline(
 def generate_cruise_schedule(
     config_path: str,
     output_dir: str = "data",
-    formats: Optional[List[str]] = None,
+    formats: Optional[list[str]] = None,
     validate_depths: bool = False,
     selected_leg: Optional[str] = None,
     derive_netcdf: bool = False,
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_stride: int = 10,
-    figsize: Optional[List[float]] = None,
+    figsize: Optional[list[float]] = None,
     output_basename: Optional[str] = None,
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Generate cruise schedule (backward compatibility function).
 

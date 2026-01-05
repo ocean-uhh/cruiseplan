@@ -15,7 +15,7 @@ when viewing the generated HTML files.
 import logging
 import math
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 import folium
 import matplotlib.pyplot as plt
@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 # ============================================================================
 
 
-def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any]]:
+def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any]]:
     """
     Extract point features (stations, moorings, optionally ports) from cruise configuration.
 
@@ -138,7 +138,7 @@ def extract_points_from_cruise(cruise, include_ports=True) -> List[Dict[str, Any
     return points
 
 
-def extract_lines_from_cruise(cruise) -> List[Dict[str, Any]]:
+def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     """
     Extract line features (scientific transits, cruise tracks) from cruise configuration.
 
@@ -182,7 +182,7 @@ def extract_lines_from_cruise(cruise) -> List[Dict[str, Any]]:
     return lines
 
 
-def extract_areas_from_timeline(timeline_data) -> List[Dict[str, Any]]:
+def extract_areas_from_timeline(timeline_data) -> list[dict[str, Any]]:
     """
     Extract area features from timeline data.
 
@@ -230,7 +230,7 @@ def extract_areas_from_timeline(timeline_data) -> List[Dict[str, Any]]:
     return areas
 
 
-def extract_areas_from_cruise(cruise) -> List[Dict[str, Any]]:
+def extract_areas_from_cruise(cruise) -> list[dict[str, Any]]:
     """
     Extract area features (survey areas, polygons) from cruise configuration.
 
@@ -273,11 +273,11 @@ def extract_areas_from_cruise(cruise) -> List[Dict[str, Any]]:
 
 
 def calculate_optimal_figsize(
-    display_bounds: Tuple[float, float, float, float],
+    display_bounds: tuple[float, float, float, float],
     base_width: float = 12.0,  # inches
     max_height: float = 10.0,  # inches
     min_height: float = 4.0,  # inches
-) -> Tuple[float, float]:
+) -> tuple[float, float]:
     """
     Calculate figure size that matches geographic aspect ratio.
 
@@ -337,7 +337,7 @@ def calculate_optimal_figsize(
     return (width, height)
 
 
-def extract_points_from_timeline(timeline) -> List[Dict[str, Any]]:
+def extract_points_from_timeline(timeline) -> list[dict[str, Any]]:
     """
     Extract point features (stations, ports) from timeline activities.
 
@@ -425,7 +425,7 @@ def extract_points_from_timeline(timeline) -> List[Dict[str, Any]]:
     return points
 
 
-def extract_lines_from_timeline(timeline) -> List[Dict[str, Any]]:
+def extract_lines_from_timeline(timeline) -> list[dict[str, Any]]:
     """
     Extract line features (cruise tracks) from timeline activities by connecting sequential positions.
 
@@ -656,7 +656,7 @@ def plot_bathymetry(
 
 
 def plot_cruise_elements(
-    ax, map_data: Dict[str, Any], display_bounds: Tuple[float, float, float, float]
+    ax, map_data: dict[str, Any], display_bounds: tuple[float, float, float, float]
 ):
     """
     Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.
@@ -849,7 +849,7 @@ def generate_map(
     bathy_stride: int = 5,
     bathy_dir: str = "data",
     show_plot: bool = False,
-    figsize: Tuple[float, float] = (10, 8.1),
+    figsize: tuple[float, float] = (10, 8.1),
     include_ports: bool = True,
 ) -> Optional[Path]:
     """
@@ -1002,7 +1002,7 @@ def generate_map_from_yaml(
     bathy_stride: int = 5,
     bathy_dir: str = "data",
     show_plot: bool = False,
-    figsize: Tuple[float, float] = (10, 8),
+    figsize: tuple[float, float] = (10, 8),
     include_ports: bool = True,
 ) -> Optional[Path]:
     """
@@ -1051,7 +1051,7 @@ def generate_map_from_timeline(
     bathy_source: str = "gebco2025",
     bathy_dir: str = "data",
     bathy_stride: int = 5,
-    figsize: Tuple[float, float] = (10, 8),
+    figsize: tuple[float, float] = (10, 8),
     config=None,
 ) -> Optional[Path]:
     """
@@ -1098,7 +1098,7 @@ def generate_map_from_timeline(
 
 
 def generate_folium_map(
-    tracks: List[Dict[str, Any]], output_file: Union[str, Path] = "cruise_map.html"
+    tracks: list[dict[str, Any]], output_file: Union[str, Path] = "cruise_map.html"
 ) -> Optional[Path]:
     """
     Generates an interactive Leaflet map from merged cruise tracks.

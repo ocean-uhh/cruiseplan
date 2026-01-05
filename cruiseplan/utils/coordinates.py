@@ -15,7 +15,7 @@ The UnitConverter class provides static methods for coordinate conversions.
 
 import math
 import re
-from typing import Any, List, NamedTuple, Optional, Tuple
+from typing import Any, NamedTuple, Optional
 
 
 class Position(NamedTuple):
@@ -47,7 +47,7 @@ class Position(NamedTuple):
     latitude: float
     longitude: float
 
-    def to_tuple(self) -> Tuple[float, float]:
+    def to_tuple(self) -> tuple[float, float]:
         """Convert to tuple for functions expecting (lat, lon)."""
         return (self.latitude, self.longitude)
 
@@ -119,7 +119,7 @@ class UnitConverter:
     """
 
     @staticmethod
-    def decimal_degrees_to_ddm(decimal_degrees: float) -> Tuple[float, float]:
+    def decimal_degrees_to_ddm(decimal_degrees: float) -> tuple[float, float]:
         """
         Convert decimal degrees to degrees and decimal minutes.
 
@@ -257,7 +257,7 @@ def format_position_latex(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-def parse_ddm_format(coords_str: str) -> Tuple[float, float]:
+def parse_ddm_format(coords_str: str) -> tuple[float, float]:
     """
     Parse degrees/decimal minutes format with direction indicators.
 
@@ -374,7 +374,7 @@ def format_geographic_bounds(
     return f"{lat_bounds}, {lon_bounds}"
 
 
-def _extract_port_info(port: Any) -> Optional[Tuple[float, float, str]]:
+def _extract_port_info(port: Any) -> Optional[tuple[float, float, str]]:
     """
     Extract port information from a port object.
 
@@ -401,7 +401,7 @@ def _extract_port_info(port: Any) -> Optional[Tuple[float, float, str]]:
 
 def extract_coordinates_from_cruise(
     cruise: Any,
-) -> Tuple[List[float], List[float], List[str], Optional[Tuple], Optional[Tuple]]:
+) -> tuple[list[float], list[float], list[str], Optional[tuple], Optional[tuple]]:
     """
     Extract coordinates from cruise configuration.
 
@@ -468,13 +468,13 @@ def extract_coordinates_from_cruise(
 
 
 def calculate_map_bounds(
-    all_lats: List[float],
-    all_lons: List[float],
+    all_lats: list[float],
+    all_lons: list[float],
     padding_percent: float = 0.05,
     padding_degrees: Optional[float] = None,
     apply_aspect_ratio: bool = True,
     round_to_degrees: bool = True,
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """
     Calculate map bounds with flexible padding and aspect ratio correction.
 
@@ -545,7 +545,7 @@ def calculate_map_bounds(
 
 def compute_final_limits(
     lon_min: float, lon_max: float, lat_min: float, lat_max: float
-) -> Tuple[float, float, float, float]:
+) -> tuple[float, float, float, float]:
     """
     Compute final map limits accounting for geographic aspect ratio.
 

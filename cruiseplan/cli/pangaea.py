@@ -15,7 +15,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 import cruiseplan
 from cruiseplan.cli.cli_utils import (
@@ -57,8 +56,8 @@ logger = logging.getLogger(__name__)
 
 
 def validate_lat_lon_bounds(
-    lat_bounds: List[float], lon_bounds: List[float]
-) -> Tuple[float, float, float, float]:
+    lat_bounds: list[float], lon_bounds: list[float]
+) -> tuple[float, float, float, float]:
     """
     Validate and convert latitude/longitude bounds into bounding box tuple.
 

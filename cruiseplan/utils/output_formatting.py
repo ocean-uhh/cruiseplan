@@ -9,12 +9,12 @@ across all CLI commands.
 import logging
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
 
-def _format_timeline_summary(timeline: List[Dict], total_duration: float) -> str:
+def _format_timeline_summary(timeline: list[dict], total_duration: float) -> str:
     """
     Format timeline statistics for display.
 
@@ -60,7 +60,7 @@ def _format_timeline_summary(timeline: List[Dict], total_duration: float) -> str
     return " | ".join(summary_parts)
 
 
-def _format_file_list(files: List[Path], base_dir: Optional[Path] = None) -> str:
+def _format_file_list(files: list[Path], base_dir: Optional[Path] = None) -> str:
     """
     Format generated file list with relative paths.
 
@@ -141,7 +141,7 @@ def _format_duration(minutes: float) -> str:
 
 
 def _format_coordinate_summary(
-    lat_range: Tuple[float, float], lon_range: Tuple[float, float]
+    lat_range: tuple[float, float], lon_range: tuple[float, float]
 ) -> str:
     """
     Format coordinate bounds for display.
@@ -188,7 +188,7 @@ def _format_coordinate_summary(
 
 
 def _format_validation_results(
-    success: bool, errors: List[str], warnings: List[str]
+    success: bool, errors: list[str], warnings: list[str]
 ) -> str:
     """
     Format validation results with appropriate icons and colors.
@@ -264,7 +264,7 @@ def _format_progress_bar(current: int, total: int, description: str = "") -> str
         return f"[{bar}] {percentage}% ({current}/{total})"
 
 
-def _format_size_summary(files: List[Path]) -> str:
+def _format_size_summary(files: list[Path]) -> str:
     """
     Format file size summary for generated files.
 
@@ -307,7 +307,7 @@ def _format_size_summary(files: List[Path]) -> str:
     return f"{file_count} files, {size_str} total"
 
 
-def _format_operation_summary(operation: str, status: str, details: Dict = None) -> str:
+def _format_operation_summary(operation: str, status: str, details: dict = None) -> str:
     """
     Format operation summary with status and details.
 
@@ -344,7 +344,7 @@ def _format_operation_summary(operation: str, status: str, details: Dict = None)
     return summary
 
 
-def _format_table_row(columns: List[str], widths: List[int]) -> str:
+def _format_table_row(columns: list[str], widths: list[int]) -> str:
     """
     Format a table row with fixed column widths.
 
@@ -516,10 +516,10 @@ def _construct_output_path(
 def _generate_multi_format_paths(
     base_name: str,
     output_dir: Path,
-    formats: List[str],
+    formats: list[str],
     suffix: str = "",
-    format_extensions: Dict[str, str] = None,
-) -> Dict[str, Path]:
+    format_extensions: dict[str, str] = None,
+) -> dict[str, Path]:
     """
     Generate output paths for multiple formats.
 
@@ -609,8 +609,8 @@ def _standardize_output_setup(
     cruise_name: str = None,
     suffix: str = "",
     single_format: str = None,
-    multi_formats: List[str] = None,
-) -> Tuple[Path, str, Dict[str, Path]]:
+    multi_formats: list[str] = None,
+) -> tuple[Path, str, dict[str, Path]]:
     """
     Complete standardized output setup for CLI commands.
 
@@ -668,7 +668,7 @@ def _standardize_output_setup(
 
 
 def _format_output_summary(
-    generated_files: List[Path], operation: str, include_size: bool = True
+    generated_files: list[Path], operation: str, include_size: bool = True
 ) -> str:
     """
     Format standardized output summary for CLI commands.
@@ -727,8 +727,8 @@ def _format_output_summary(
 def _format_cli_error(
     operation: str,
     error: Exception,
-    context: Dict[str, Any] = None,
-    suggestions: List[str] = None,
+    context: dict[str, Any] = None,
+    suggestions: list[str] = None,
 ) -> str:
     """
     Format CLI error messages with consistent structure.
@@ -776,7 +776,7 @@ def _format_cli_error(
 
 
 def _format_cli_warning(
-    operation: str, message: str, details: Dict[str, Any] = None
+    operation: str, message: str, details: dict[str, Any] = None
 ) -> str:
     """
     Format CLI warning messages with consistent structure.
@@ -866,7 +866,7 @@ def _format_file_operation_error(
     operation: str,
     file_path: Path,
     error: Exception,
-    recovery_suggestions: List[str] = None,
+    recovery_suggestions: list[str] = None,
 ) -> str:
     """
     Format file operation error messages with consistent structure.
@@ -905,7 +905,7 @@ def _format_file_operation_error(
 
 
 def _format_configuration_error(
-    config_file: Path, section: str, error_details: List[str], line_number: int = None
+    config_file: Path, section: str, error_details: list[str], line_number: int = None
 ) -> str:
     """
     Format configuration error messages with consistent structure.

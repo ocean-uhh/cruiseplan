@@ -1,7 +1,7 @@
 # cruiseplan/utils/config.py
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
@@ -13,7 +13,7 @@ from cruiseplan.validation import CruiseConfig, CruiseConfigurationError
 logger = logging.getLogger(__name__)
 
 
-def _add_yaml_documentation(data: Dict) -> Dict:
+def _add_yaml_documentation(data: dict) -> dict:
     """
     Add comprehensive documentation headers to YAML configuration data.
 
@@ -172,7 +172,7 @@ Move this field to individual leg definitions to avoid validation conflicts""",
 
 
 def save_cruise_config(
-    data: Dict, filepath: Union[str, Path], add_documentation: bool = True
+    data: dict, filepath: Union[str, Path], add_documentation: bool = True
 ) -> None:
     """
     Save a dictionary to a YAML file with standard formatting and optional documentation headers.
@@ -209,7 +209,7 @@ def save_cruise_config(
         raise
 
 
-def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
+def format_station_for_yaml(station_data: dict, index: int) -> dict:
     """
     Transform internal station data into the YAML schema format with enhanced depth semantics.
 
@@ -362,10 +362,10 @@ class ConfigLoader:
             Path to the YAML configuration file.
         """
         self.config_path = Path(config_path)
-        self.raw_data: Optional[Dict[str, Any]] = None
+        self.raw_data: Optional[dict[str, Any]] = None
         self.cruise_config: Optional[CruiseConfig] = None
 
-    def load_raw_data(self) -> Dict[str, Any]:
+    def load_raw_data(self) -> dict[str, Any]:
         """
         Loads the raw data from the YAML file, handling file system errors.
 
@@ -401,7 +401,7 @@ class ConfigLoader:
         return self.raw_data
 
     def validate_and_parse(
-        self, raw_data: Optional[Dict[str, Any]] = None
+        self, raw_data: Optional[dict[str, Any]] = None
     ) -> CruiseConfig:
         """
         Validates the raw dictionary data against the CruiseConfig schema.
@@ -463,7 +463,7 @@ def setup_output_paths(
     config_file: Union[str, Path],
     output_dir: str = "data",
     output: Optional[str] = None,
-) -> Tuple[Path, str]:
+) -> tuple[Path, str]:
     """
     Helper function to set up output directory and base filename from config file and parameters.
 

@@ -8,7 +8,6 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
 
 import numpy as np
 import xarray as xr
@@ -42,8 +41,8 @@ class NetCDFGenerator:
         self.cf_conventions = "CF-1.8"
 
     def generate_all_netcdf_outputs(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
-    ) -> List[Path]:
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+    ) -> list[Path]:
         """
         Generate all NetCDF files according to netcdf_outputs.md specification.
 
@@ -96,7 +95,7 @@ class NetCDFGenerator:
         return generated_files
 
     def generate_point_operations(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_path: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
     ) -> None:
         """
         Generate point operations NetCDF from stations and moorings.
@@ -245,7 +244,7 @@ class NetCDFGenerator:
         logger.info(f"Point operations NetCDF written to: {output_path}")
 
     def generate_master_schedule(
-        self, timeline: List[ActivityRecord], config: CruiseConfig, output_path: Path
+        self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
     ) -> None:
         """
         Generate master schedule NetCDF from timeline with waterdepth included for all operations.
@@ -1020,7 +1019,7 @@ class NetCDFGenerator:
         ds_areas.close()
 
     def generate_ship_schedule(
-        self, timeline: List[ActivityRecord], config: CruiseConfig, output_path: Path
+        self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
     ) -> None:
         """
         Generate ship schedule NetCDF from timeline.
@@ -1229,7 +1228,7 @@ class NetCDFGenerator:
         logger.info(f"Ship schedule NetCDF written to: {output_path}")
 
     def generate_line_operations(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_path: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
     ) -> None:
         """
         Generate line operations NetCDF from scientific transits.
@@ -1467,8 +1466,8 @@ class NetCDFGenerator:
 
 # Convenience function for external use
 def generate_netcdf_outputs(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
-) -> List[Path]:
+    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+) -> list[Path]:
     """
     Convenience function to generate all NetCDF outputs.
 

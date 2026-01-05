@@ -9,7 +9,7 @@ CLI layer to validate inputs before passing them to the API layer.
 import logging
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -113,8 +113,8 @@ def _validate_directory_writable(
 
 
 def _validate_coordinate_bounds(
-    lat_bounds: List[float], lon_bounds: List[float]
-) -> Tuple[float, float, float, float]:
+    lat_bounds: list[float], lon_bounds: list[float]
+) -> tuple[float, float, float, float]:
     """
     Validate and normalize coordinate bounds to bbox format.
 
@@ -216,7 +216,7 @@ def _validate_coordinate_bounds(
     return (min_lon, min_lat, max_lon, max_lat)
 
 
-def _validate_file_extension(file_path: Path, allowed_extensions: List[str]) -> bool:
+def _validate_file_extension(file_path: Path, allowed_extensions: list[str]) -> bool:
     """
     Check if file has valid extension.
 
@@ -289,7 +289,7 @@ def _validate_numeric_range(
     return float(value)
 
 
-def _validate_format_list(formats: List[str], valid_formats: List[str]) -> List[str]:
+def _validate_format_list(formats: list[str], valid_formats: list[str]) -> list[str]:
     """
     Validate list of output formats.
 
@@ -341,7 +341,7 @@ def _validate_format_list(formats: List[str], valid_formats: List[str]) -> List[
     return result
 
 
-def _detect_pangaea_mode(args) -> Tuple[str, dict]:
+def _detect_pangaea_mode(args) -> tuple[str, dict]:
     """
     Detect PANGAEA command mode (search vs file processing).
 
@@ -391,7 +391,7 @@ def _detect_pangaea_mode(args) -> Tuple[str, dict]:
     return "search", {"query": query_or_file}
 
 
-def _validate_format_options(format_str: str, valid_formats: List[str]) -> List[str]:
+def _validate_format_options(format_str: str, valid_formats: list[str]) -> list[str]:
     """
     Validate and parse format string for output generation.
 
@@ -440,7 +440,7 @@ def _validate_format_options(format_str: str, valid_formats: List[str]) -> List[
         return [format_clean]
 
 
-def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:
+def _validate_bathymetry_params(args: Namespace) -> dict[str, Any]:
     """
     Validate and normalize bathymetry-related CLI parameters.
 
@@ -579,7 +579,7 @@ def _validate_cli_config_file(args: Namespace) -> Path:
     return _validate_config_file(args.config_file)
 
 
-def _validate_coordinate_args(args: Namespace) -> Tuple[float, float, float, float]:
+def _validate_coordinate_args(args: Namespace) -> tuple[float, float, float, float]:
     """
     Validate coordinate bounds from CLI arguments.
 
@@ -616,7 +616,7 @@ def _validate_coordinate_args(args: Namespace) -> Tuple[float, float, float, flo
 
 
 def _handle_deprecated_cli_params(
-    args: Namespace, param_map: Dict[str, str] = None
+    args: Namespace, param_map: dict[str, str] = None
 ) -> None:
     """
     Handle deprecated CLI parameters with warnings and migration.
@@ -678,7 +678,7 @@ def _apply_cli_defaults(args: Namespace) -> None:
 
 
 def _validate_choice_param(
-    value: str, param_name: str, valid_choices: List[str]
+    value: str, param_name: str, valid_choices: list[str]
 ) -> str:
     """
     Validate parameter value against allowed choices.

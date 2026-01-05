@@ -14,7 +14,7 @@ paginated to fit within LaTeX float environments.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -83,8 +83,8 @@ class LaTeXGenerator:
         )
 
     def _paginate_data(
-        self, data_rows: List[Dict], table_type: str
-    ) -> List[Dict[str, Any]]:
+        self, data_rows: list[dict], table_type: str
+    ) -> list[dict[str, Any]]:
         """
         Splits data rows into pages and adds metadata (caption, header).
 
@@ -125,8 +125,8 @@ class LaTeXGenerator:
         return pages
 
     def _generate_stations_rows(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
-    ) -> List[Dict[str, str]]:
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
+    ) -> list[dict[str, str]]:
         """
         Extract station/operation data from timeline for table generation.
 
@@ -207,7 +207,7 @@ class LaTeXGenerator:
         return table_rows
 
     def generate_stations_table(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
         """
         Generates the Working Area, Stations and Profiles table from scheduler timeline.
@@ -221,7 +221,7 @@ class LaTeXGenerator:
         return template.render(cruise_name=cruise_name, pages=paginated_data)
 
     def generate_work_days_table(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
         """
         Generates the Work Days at Sea table from scheduler timeline.
@@ -244,7 +244,7 @@ class LaTeXGenerator:
             )
 
     def _generate_single_work_days_table(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> str:
         """
         Generate a single work days table for the entire cruise.
@@ -302,7 +302,7 @@ class LaTeXGenerator:
         )
 
     def _generate_multi_leg_work_days_tables(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], leg_names: List[str]
+        self, config: CruiseConfig, timeline: list[ActivityRecord], leg_names: list[str]
     ) -> str:
         """
         Generate separate work days tables for each leg.
@@ -355,7 +355,7 @@ class LaTeXGenerator:
         return "\n\n\\clearpage\n\n".join(all_tables)
 
     def _generate_unified_multi_leg_work_days_table(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], leg_names: List[str]
+        self, config: CruiseConfig, timeline: list[ActivityRecord], leg_names: list[str]
     ) -> str:
         """
         Generate a unified work days table with leg information in the Area column.
@@ -412,8 +412,8 @@ class LaTeXGenerator:
         )
 
     def _generate_work_days_rows_for_timeline(
-        self, timeline: List[ActivityRecord]
-    ) -> List[Dict[str, str]]:
+        self, timeline: list[ActivityRecord]
+    ) -> list[dict[str, str]]:
         """
         Extract work days summary rows from a timeline (used for both single and multi-leg).
         """
@@ -548,8 +548,8 @@ class LaTeXGenerator:
 
 
 def generate_latex_tables(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
-) -> List[Path]:
+    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+) -> list[Path]:
     """
     Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.
 

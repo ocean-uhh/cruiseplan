@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional
 
 from cruiseplan.validation import (
     AreaDefinition,
@@ -96,7 +96,7 @@ class BaseOperation(ABC):
         """
         pass
 
-    def get_coordinates(self) -> Tuple[GeoPoint, GeoPoint]:
+    def get_coordinates(self) -> tuple[GeoPoint, GeoPoint]:
         """
         Get entry and exit coordinates as GeoPoint objects.
 
@@ -421,7 +421,7 @@ class LineOperation(BaseOperation):
     def __init__(
         self,
         name: str,
-        route: List[tuple],
+        route: list[tuple],
         speed: float = 10.0,
         comment: str = None,
         display_name: str = None,
@@ -604,11 +604,11 @@ class AreaOperation(BaseOperation):
     def __init__(
         self,
         name: str,
-        boundary_polygon: List[Tuple[float, float]],
+        boundary_polygon: list[tuple[float, float]],
         area_km2: float,
         duration: Optional[float] = None,
-        start_point: Optional[Tuple[float, float]] = None,
-        end_point: Optional[Tuple[float, float]] = None,
+        start_point: Optional[tuple[float, float]] = None,
+        end_point: Optional[tuple[float, float]] = None,
         sampling_density: float = 1.0,
         comment: str = None,
         display_name: str = None,
@@ -763,7 +763,7 @@ class AreaOperation(BaseOperation):
         )
 
     @staticmethod
-    def _calculate_polygon_area(coords: List[Tuple[float, float]]) -> float:
+    def _calculate_polygon_area(coords: list[tuple[float, float]]) -> float:
         """
         Calculate polygon area using shoelace formula.
 

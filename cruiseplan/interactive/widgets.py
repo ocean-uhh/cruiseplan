@@ -2,7 +2,7 @@
 Custom matplotlib widgets for oceanographic cruise planning interface.
 """
 
-from typing import Callable, Dict, List, Optional
+from typing import Callable, Optional
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Widget
@@ -32,7 +32,7 @@ class ModeIndicator(Widget):
     """
 
     def __init__(
-        self, ax: plt.Axes, modes: List[str], initial_mode: str = "navigation"
+        self, ax: plt.Axes, modes: list[str], initial_mode: str = "navigation"
     ):
         """
         Initialize the mode indicator widget.
@@ -50,7 +50,7 @@ class ModeIndicator(Widget):
         self.modes = modes
         self.current_mode = initial_mode
         # Callbacks are for external components (like StationPicker) to react to mode changes
-        self.callbacks: Dict[str, Callable] = {}
+        self.callbacks: dict[str, Callable] = {}
 
         # Style configuration aligned with visual distinction
         self.colors = {
@@ -155,7 +155,7 @@ class StatusDisplay(Widget):
             Matplotlib axes for widget placement.
         """
         self.ax = ax
-        self.status_lines: List[plt.Text] = []
+        self.status_lines: list[plt.Text] = []
         self._setup_display()
 
     def _setup_display(self):
