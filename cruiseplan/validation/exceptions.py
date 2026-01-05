@@ -12,4 +12,4 @@ class CruiseConfigurationError(Exception):
     that prevent the cruise plan from being properly loaded.
     """
 
-    pass
+    ...
