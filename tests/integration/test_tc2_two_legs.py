@@ -227,7 +227,7 @@ class TestTC2TwoLegsIntegration:
         ]
 
         # Leg_Atlantic activities (first 5)
-        assert activities[0][0] == "Port_Departure"  # Halifax departure
+        assert activities[0][0] == "Port"  # Halifax departure
         assert "Halifax" in activities[0][1]
         assert activities[0][2] == "Leg_Atlantic"
 
@@ -243,12 +243,12 @@ class TestTC2TwoLegsIntegration:
         assert "Bremerhaven" in activities[3][1]
         assert activities[3][2] == "Leg_Atlantic"
 
-        assert activities[4][0] == "Port_Arrival"  # Bremerhaven arrival
+        assert activities[4][0] == "Port"  # Bremerhaven arrival
         assert "Bremerhaven" in activities[4][1]
         assert activities[4][2] == "Leg_Atlantic"
 
         # Leg_North activities (last 5)
-        assert activities[5][0] == "Port_Departure"  # Bremerhaven departure
+        assert activities[5][0] == "Port"  # Bremerhaven departure
         assert "Bremerhaven" in activities[5][1]
         assert activities[5][2] == "Leg_North"
 
@@ -264,7 +264,7 @@ class TestTC2TwoLegsIntegration:
         assert "Reykjavik" in activities[8][1]
         assert activities[8][2] == "Leg_North"
 
-        assert activities[9][0] == "Port_Arrival"  # Reykjavik arrival
+        assert activities[9][0] == "Port"  # Reykjavik arrival
         assert "Reykjavik" in activities[9][1]
         assert activities[9][2] == "Leg_North"
 

@@ -316,7 +316,7 @@ class TestTC1SingleIntegration:
 
         # Validate Halifax port row (departure port)
         halifax_row = lines[1].split(",")
-        assert halifax_row[0] == "Port_Departure"
+        assert halifax_row[0] == "Port"
         assert halifax_row[1] == "Halifax"
         assert float(halifax_row[5]) == 0.0, "Port should have 0 transit distance"
 
@@ -342,7 +342,7 @@ class TestTC1SingleIntegration:
 
         # Validate Cadiz port row (arrival port)
         cadiz_row = lines[5].split(",")
-        assert cadiz_row[0] == "Port_Arrival"
+        assert cadiz_row[0] == "Port"
         assert cadiz_row[1] == "Cadiz"
         assert float(cadiz_row[5]) == 0.0, "Port should have 0 transit distance"
 
