@@ -451,23 +451,25 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
         operation_class = activity.get("operation_class", "")
         op_type = activity.get("op_type", "")
 
-        if operation_class == "PointOperation":
-            if op_type == "station":
-                leg_stats[leg_name]["stations"] += 1
-                leg_stats[leg_name]["total_scientific"] += 1
-            elif op_type == "mooring":
-                leg_stats[leg_name]["moorings"] += 1
-                leg_stats[leg_name]["total_scientific"] += 1
-            elif op_type == "port":
-                leg_stats[leg_name]["ports"] += 1
-        elif operation_class == "LineOperation":
-            leg_stats[leg_name]["surveys"] += 1
-            leg_stats[leg_name]["total_scientific"] += 1
-        elif operation_class == "AreaOperation":
-            leg_stats[leg_name]["areas"] += 1
-            leg_stats[leg_name]["total_scientific"] += 1
+        # Count all operations except ports
+        if op_type == "port":
+            leg_stats[leg_name]["ports"] += 1
         elif operation_class == "NavigationalTransit":
             leg_stats[leg_name]["transits"] += 1
+        else:
+            # This is a scientific operation - count it
+            leg_stats[leg_name]["total_scientific"] += 1
+
+            # Also increment specific counters for detailed stats
+            if operation_class == "PointOperation":
+                if op_type == "station" or op_type == "CTD":
+                    leg_stats[leg_name]["stations"] += 1
+                elif op_type == "mooring":
+                    leg_stats[leg_name]["moorings"] += 1
+            elif operation_class == "LineOperation":
+                leg_stats[leg_name]["surveys"] += 1
+            elif operation_class == "AreaOperation":
+                leg_stats[leg_name]["areas"] += 1
 
     # Debug output for operation counts
     total_scientific_operations = (
@@ -495,6 +497,11 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
         logger.info(f"   Total scientific operations: {stats['total_scientific']}")
         logger.info(f"   Total activities in leg: {stats['total_activities']}")
 
+    # Calculate total scientific operations from leg totals for consistency
+    total_scientific_operations_from_legs = sum(
+        leg_stats[leg_name]["total_scientific"] for leg_name in leg_stats
+    )
+
     return {
         "stations": calc_stats(station_activities, include_depth=True),
         "moorings": calc_stats(mooring_activities),
@@ -506,6 +513,8 @@ def calculate_timeline_statistics(timeline: List[Dict[str, Any]]) -> Dict[str, A
         "port_activities": calc_stats(port_activities),
         # Leg-specific operation counts
         "leg_stats": leg_stats,
+        # Total scientific operations calculated from legs for consistency
+        "total_scientific": total_scientific_operations_from_legs,
         # Raw data for detailed processing
         "station_activities": station_activities,
         "mooring_activities": mooring_activities,
@@ -729,7 +738,12 @@ class TimelineGenerator:
                     operation, "op_type", operation.get_operation_type().lower()
                 ),
                 "operation_class": operation.__class__.__name__,
-                "action": getattr(operation, "action", None),
+                "action": getattr(operation, "action", None)
+                and (
+                    operation.action.value
+                    if hasattr(operation.action, "value")
+                    else str(operation.action)
+                ),
             }
         )
 

@@ -511,13 +511,39 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 end_lon = transit.route[-1].longitude
 
                 # Calculate route distance if available
-                route_distance = getattr(transit, "distance", "calculated")
+                route_distance = getattr(transit, "distance", None)
+                if route_distance is None or route_distance == "calculated":
+                    # Calculate distance if not provided
+                    import math
+
+                    lat1, lon1 = math.radians(start_lat), math.radians(start_lon)
+                    lat2, lon2 = math.radians(end_lat), math.radians(end_lon)
+                    dlat, dlon = lat2 - lat1, lon2 - lon1
+                    a = (
+                        math.sin(dlat / 2) ** 2
+                        + math.cos(lat1) * math.cos(lat2) * math.sin(dlon / 2) ** 2
+                    )
+                    c = 2 * math.asin(math.sqrt(a))
+                    route_distance = 3440.065 * c  # Earth radius in nautical miles
+                    route_distance = f"{route_distance:.1f}"
+
+                # Determine operation type - check if this is an ADCP survey
+                operation_type = "Transit"
+                if hasattr(transit, "operation_type"):
+                    op_type = transit.operation_type
+                    if hasattr(op_type, "value"):
+                        op_type = op_type.value
+                    if (
+                        "survey" in str(op_type).lower()
+                        or "adcp" in transit.name.lower()
+                    ):
+                        operation_type = "Transect"
 
                 kml_content += f"""
         <Placemark>
             <name>{transit.name}</name>
             <description>
-                Type: Transit
+                Type: {operation_type}
                 Start: {start_lat:.6f}°N, {start_lon:.6f}°W
                 End: {end_lat:.6f}°N, {end_lon:.6f}°W
                 Distance: {route_distance} nm
@@ -551,13 +577,18 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
                 coordinates_str = " ".join(coord_list)
 
+                # Convert enum to string for display
+                operation_type = getattr(area, "operation_type", "survey")
+                if hasattr(operation_type, "value"):
+                    operation_type = operation_type.value
+
                 kml_content += f"""
         <Placemark>
             <name>{area.name}</name>
             <description>
                 Type: Area
                 Corners: {len(area.corners)}
-                Operation: {getattr(area, 'operation_type', 'survey')}
+                Operation: {operation_type}
             </description>
             <styleUrl>#areaStyle</styleUrl>
             <Polygon>

@@ -139,7 +139,9 @@ class LaTeXGenerator:
         science_operations = [
             activity
             for activity in timeline
-            if is_scientific_operation(activity) and activity.get("activity") != "Port"
+            if is_scientific_operation(activity)
+            and not activity.get("activity", "").startswith("Port")
+            and activity.get("op_type") != "port"
         ]
 
         # Format rows for the LaTeX template

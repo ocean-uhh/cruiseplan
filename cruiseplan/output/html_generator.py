@@ -222,7 +222,7 @@ class HTMLGenerator:
         html_content += f"""
         <tr style="font-weight: bold;">
             <td>Total Cruise</td>
-            <td>{stats["moorings"]["count"] + stats["stations"]["count"] + stats["surveys"]["count"] + stats["areas"]["count"]} operations</td>
+            <td>{stats["total_scientific"]} operations</td>
             <td class="number">{total_duration_h:.1f}</td>
             <td class="number">{total_duration_days:.1f}</td>
         </tr>

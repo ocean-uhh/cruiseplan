@@ -312,13 +312,6 @@ class PointOperation(BaseOperation):
         str
             Operation type identifier ("Station", "Mooring", "Port_Departure", "Port_Arrival", etc.).
         """
-        # Special handling for ports with actions
-        if self.op_type == "port" and self.action:
-            if self.action == "mob":
-                return "Port_Departure"
-            elif self.action == "demob":
-                return "Port_Arrival"
-
         # Map internal op_types to display names
         type_mapping = {
             "station": "Station",
@@ -351,7 +344,17 @@ class PointOperation(BaseOperation):
         # 2. Map operation types to legacy internal types
         # Use the original operation_type from YAML for display
         # The operation_class already tells us the implementation type
-        display_op_type = obj.operation_type.value if obj.operation_type else "station"
+        if obj.operation_type:
+            display_op_type = obj.operation_type.value
+        elif (
+            hasattr(obj, "action")
+            and obj.action
+            and obj.action.value in ["mob", "demob"]
+        ):
+            # This is a port (has mob/demob action)
+            display_op_type = "port"
+        else:
+            display_op_type = "station"
         action = obj.action.value if obj.action else None
 
         # Use water_depth as fallback for operation_depth
