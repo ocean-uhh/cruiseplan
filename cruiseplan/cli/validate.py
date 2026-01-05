@@ -146,7 +146,7 @@ def main(args: argparse.Namespace) -> None:
 
     except Exception as e:
         # Check if it's a configuration parsing error
-        if "yaml" in str(e).lower() or ("parse" in str(e).lower() and config_file):
+        if ("yaml" in str(e).lower() or "parse" in str(e).lower()) and config_file:
             error_msg = _format_configuration_error(
                 config_file, "configuration", [str(e)]
             )
