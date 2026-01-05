@@ -199,7 +199,7 @@ class TestPortRegistry:
     def test_port_data_consistency(self):
         """Test that all ports have consistent data structure."""
         required_fields = {"name", "latitude", "longitude"}
-        optional_fields = {"timezone", "comment", "display_name", "description"}
+        optional_fields = {"timezone", "comment", "display_name"}
 
         for port_id, port_data in GLOBAL_PORTS.items():
             # Check required fields
