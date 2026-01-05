@@ -6,7 +6,8 @@ from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
-from cruiseplan.core.validation import (
+
+from cruiseplan.validation import (
     enrich_configuration,
     validate_configuration_file,
     validate_depth_accuracy,
@@ -71,7 +72,7 @@ class TestEnrichConfiguration:
         mock_save_yaml.assert_called_once()
 
     @patch("cruiseplan.cli.cli_utils.save_yaml_config")
-    @patch("cruiseplan.core.validation.format_ddm_comment")
+    @patch("cruiseplan.core.validation_old.format_ddm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
     @patch("cruiseplan.utils.yaml_io.load_yaml")
@@ -151,11 +152,11 @@ class TestEnrichConfiguration:
 class TestValidateConfigurationFile:
     """Test the validate_configuration_file core function."""
 
-    @patch("cruiseplan.core.validation._check_cruise_metadata")
-    @patch("cruiseplan.core.validation._check_cruise_metadata_raw")
-    @patch("cruiseplan.core.validation.check_complete_duplicates")
-    @patch("cruiseplan.core.validation.check_duplicate_names")
-    @patch("cruiseplan.core.validation.validate_depth_accuracy")
+    @patch("cruiseplan.core.validation_old._check_cruise_metadata")
+    @patch("cruiseplan.core.validation_old._check_cruise_metadata_raw")
+    @patch("cruiseplan.core.validation_old.check_complete_duplicates")
+    @patch("cruiseplan.core.validation_old.check_duplicate_names")
+    @patch("cruiseplan.core.validation_old.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_no_depth_check(
@@ -190,11 +191,11 @@ class TestValidateConfigurationFile:
         assert warnings == []
         mock_validate_depth.assert_not_called()
 
-    @patch("cruiseplan.core.validation._check_cruise_metadata")
-    @patch("cruiseplan.core.validation._check_cruise_metadata_raw")
-    @patch("cruiseplan.core.validation.check_complete_duplicates")
-    @patch("cruiseplan.core.validation.check_duplicate_names")
-    @patch("cruiseplan.core.validation.validate_depth_accuracy")
+    @patch("cruiseplan.core.validation_old._check_cruise_metadata")
+    @patch("cruiseplan.core.validation_old._check_cruise_metadata_raw")
+    @patch("cruiseplan.core.validation_old.check_complete_duplicates")
+    @patch("cruiseplan.core.validation_old.check_duplicate_names")
+    @patch("cruiseplan.core.validation_old.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_with_depth_check(

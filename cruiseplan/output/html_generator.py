@@ -21,13 +21,13 @@ from cruiseplan.calculators.scheduler import (
     ActivityRecord,
     calculate_timeline_statistics,
 )
-from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.output.output_utils import (
     format_activity_type,
     get_activity_depth,
     get_activity_position,
 )
 from cruiseplan.utils.constants import NM_PER_KM, hours_to_days
+from cruiseplan.validation import CruiseConfig
 
 logger = logging.getLogger(__name__)
 

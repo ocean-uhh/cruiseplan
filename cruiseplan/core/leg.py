@@ -2,11 +2,11 @@ from typing import Any, List, Optional, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.operations import BaseOperation
-
-# Import validation models and port utilities
-from cruiseplan.core.validation import LegDefinition, PortDefinition, StrategyEnum
 from cruiseplan.utils.constants import NM_PER_KM
 from cruiseplan.utils.global_ports import resolve_port_reference
+
+# Import validation models and port utilities
+from cruiseplan.validation import LegDefinition, PortDefinition, StrategyEnum
 
 
 class Leg:

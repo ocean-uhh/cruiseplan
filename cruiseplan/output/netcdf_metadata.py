@@ -10,7 +10,7 @@ to CF conventions.
 from datetime import datetime
 from typing import Any, Dict
 
-from cruiseplan.core.validation import CruiseConfig
+from cruiseplan.validation import CruiseConfig
 
 
 # Global attributes factory functions

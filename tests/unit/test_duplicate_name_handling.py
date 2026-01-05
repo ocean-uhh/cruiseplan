@@ -8,7 +8,7 @@ by auto-numbering with suffixes.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.core.validation import (
+from cruiseplan.validation import (
     check_complete_duplicates,
     check_duplicate_names,
     expand_ctd_sections,

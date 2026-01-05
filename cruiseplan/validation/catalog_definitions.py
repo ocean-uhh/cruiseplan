@@ -61,7 +61,7 @@ class WaypointDefinition(FlexibleLocationModel):
     """
 
     name: str
-    operation_type: OperationTypeEnum
+    operation_type: Optional[OperationTypeEnum] = None
     action: Optional[ActionEnum] = None
     operation_depth: Optional[float] = Field(
         None, description="Target operation depth (e.g., CTD cast depth)"
@@ -236,6 +236,9 @@ class AreaDefinition(BaseModel):
 
 
 # Legacy aliases for backward compatibility during migration
+# TODO: Remove in v0.4.0 - Use WaypointDefinition instead
 StationDefinition = WaypointDefinition  # Stations are now waypoints
 PortDefinition = WaypointDefinition  # Ports are now waypoints
+
+# TODO: Remove in v0.4.0 - Use TransectDefinition instead
 TransitDefinition = TransectDefinition  # Transits are now transects

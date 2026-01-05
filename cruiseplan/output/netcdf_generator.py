@@ -14,12 +14,12 @@ import numpy as np
 import xarray as xr
 
 from cruiseplan.calculators.scheduler import ActivityRecord
-from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.output.netcdf_metadata import (
     create_coordinate_variables,
     create_global_attributes,
     create_operation_variables,
 )
+from cruiseplan.validation import CruiseConfig
 
 logger = logging.getLogger(__name__)
 

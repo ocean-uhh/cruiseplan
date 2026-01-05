@@ -40,7 +40,7 @@ class TestBathymetryAPI:
 class TestValidateAPI:
     """Test the cruiseplan.validate() API function."""
 
-    @patch("cruiseplan.core.validation.validate_configuration_file")
+    @patch("cruiseplan.core.validation_old.validate_configuration_file")
     def test_validate_success(self, mock_validate):
         """Test successful validation."""
         mock_validate.return_value = (True, [], [])  # success, errors, warnings
@@ -50,7 +50,7 @@ class TestValidateAPI:
         mock_validate.assert_called_once()
         assert result is True
 
-    @patch("cruiseplan.core.validation.validate_configuration_file")
+    @patch("cruiseplan.core.validation_old.validate_configuration_file")
     def test_validate_failure(self, mock_validate):
         """Test failed validation."""
         mock_validate.return_value = (False, ["Error message"], [])
@@ -59,7 +59,7 @@ class TestValidateAPI:
 
         assert result is False
 
-    @patch("cruiseplan.core.validation.validate_configuration_file")
+    @patch("cruiseplan.core.validation_old.validate_configuration_file")
     def test_validate_custom_parameters(self, mock_validate):
         """Test validation with custom parameters."""
         mock_validate.return_value = (True, [], [])
@@ -82,7 +82,7 @@ class TestValidateAPI:
 class TestEnrichAPI:
     """Test the cruiseplan.enrich() API function."""
 
-    @patch("cruiseplan.core.validation.enrich_configuration")
+    @patch("cruiseplan.core.validation_old.enrich_configuration")
     @patch("pathlib.Path.mkdir")
     def test_enrich_success(self, mock_mkdir, mock_enrich):
         """Test successful enrichment."""
@@ -99,7 +99,7 @@ class TestEnrichAPI:
             result == Path("data/test_enriched.yaml").resolve()
         )  # Default output path
 
-    @patch("cruiseplan.core.validation.enrich_configuration")
+    @patch("cruiseplan.core.validation_old.enrich_configuration")
     @patch("pathlib.Path.mkdir")
     def test_enrich_custom_output(self, mock_mkdir, mock_enrich):
         """Test enrichment with custom output."""

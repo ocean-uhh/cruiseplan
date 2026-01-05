@@ -1,16 +1,16 @@
 from datetime import datetime
 
 import pytest
-from cruiseplan.core.validation import CruiseConfig, PortDefinition
 
 from cruiseplan.calculators.distance import haversine_distance
 from cruiseplan.calculators.duration import DurationCalculator
+from cruiseplan.validation import CruiseConfig, PortDefinition
 
 
 # Mock Config
 @pytest.fixture
 def mock_config():
-    from cruiseplan.core.validation import LegDefinition
+    from cruiseplan.validation import LegDefinition
 
     return CruiseConfig(
         cruise_name="Test",
@@ -26,8 +26,17 @@ def mock_config():
                 arrival_port=PortDefinition(name="B", latitude=0.0, longitude=0.0),
                 first_station="S1",
                 last_station="S1",
-                activities=[],
+                activities=["S1"],  # Add the station we reference
             )
+        ],
+        stations=[
+            {
+                "name": "S1",
+                "latitude": 60.0,
+                "longitude": -20.0,
+                "operation_type": "CTD",
+                "action": "profile",
+            }
         ],
         ctd_descent_rate=1.0,  # 60 m/min
         ctd_ascent_rate=1.0,  # 60 m/min
@@ -82,7 +91,7 @@ def test_ctd_duration_custom_rates(slow_winch_config):
 def test_custom_day_window_wait():
     """Verify wait time respects custom daylight hours (e.g., High Latitude Summer)."""
     # Create config with LONG days (04:00 to 22:00)
-    from cruiseplan.core.validation import LegDefinition
+    from cruiseplan.validation import LegDefinition
 
     cfg = CruiseConfig(
         cruise_name="Summer Sun",
@@ -98,8 +107,17 @@ def test_custom_day_window_wait():
                 arrival_port=PortDefinition(name="B", latitude=0, longitude=0),
                 first_station="S1",
                 last_station="S1",
-                activities=[],
+                activities=["S1"],
             )
+        ],
+        stations=[
+            {
+                "name": "S1",
+                "latitude": 70.0,
+                "longitude": -10.0,
+                "operation_type": "CTD",
+                "action": "profile",
+            }
         ],
         day_start_hour=4,  # Sunrise 04:00
         day_end_hour=22,  # Sunset 22:00

@@ -3,9 +3,9 @@ Integration tests for the scheduler against real YAML fixture files.
 """
 
 import pytest
-from cruiseplan.core.validation import CruiseConfigurationError
 
 from cruiseplan.utils.config import ConfigLoader
+from cruiseplan.validation import CruiseConfigurationError
 
 
 class TestSchedulerWithYAMLFixtures:

@@ -12,10 +12,10 @@ import tempfile
 from pathlib import Path
 
 import pytest
-from cruiseplan.core.validation import enrich_configuration
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import Cruise
+from cruiseplan.core.validation_old import enrich_configuration
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
 from cruiseplan.utils.config import ConfigLoader

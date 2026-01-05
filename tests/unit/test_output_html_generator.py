@@ -8,7 +8,6 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from cruiseplan.core.validation import CruiseConfig
 
 from cruiseplan.calculators.scheduler import calculate_timeline_statistics
 from cruiseplan.output.html_generator import (
@@ -16,6 +15,7 @@ from cruiseplan.output.html_generator import (
     _convert_decimal_to_deg_min_html,
     generate_html_schedule,
 )
+from cruiseplan.validation import CruiseConfig
 
 
 class TestConversionFunctions:

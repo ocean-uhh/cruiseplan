@@ -9,9 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
-from cruiseplan.core.validation import CruiseConfig
-
 from cruiseplan.output.csv_generator import CSVGenerator, generate_csv_schedule
+from cruiseplan.validation import CruiseConfig
 
 
 class TestCSVGenerator:

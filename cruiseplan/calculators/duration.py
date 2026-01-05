@@ -10,11 +10,11 @@ from datetime import datetime, timedelta
 from typing import Literal
 
 from cruiseplan.calculators.distance import km_to_nm
-from cruiseplan.core.validation import CruiseConfig
 from cruiseplan.utils.constants import (
     hours_to_minutes,
     rate_per_second_to_rate_per_minute,
 )
+from cruiseplan.validation import CruiseConfig
 
 
 class DurationCalculator:

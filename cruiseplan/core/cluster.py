@@ -10,7 +10,7 @@ clusters or the parent leg.
 from typing import Any, List, Optional
 
 from cruiseplan.core.operations import BaseOperation
-from cruiseplan.core.validation import ClusterDefinition, StrategyEnum
+from cruiseplan.validation import ClusterDefinition, StrategyEnum
 
 
 class Cluster:

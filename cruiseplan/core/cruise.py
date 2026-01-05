@@ -4,16 +4,16 @@ from typing import Any, Dict, List, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
-from cruiseplan.core.validation import (
-    AreaDefinition,
-    CruiseConfig,
-    PortDefinition,
-    StationDefinition,
-    StrategyEnum,
-    TransitDefinition,
-)
 from cruiseplan.utils.global_ports import resolve_port_reference
 from cruiseplan.utils.yaml_io import load_yaml
+from cruiseplan.validation import (
+    AreaDefinition,
+    CruiseConfig,
+    PortDefinition,  # Legacy alias for WaypointDefinition
+    StationDefinition,  # Legacy alias for WaypointDefinition
+    StrategyEnum,
+    TransitDefinition,  # Legacy alias for TransectDefinition
+)
 
 
 class ReferenceError(Exception):

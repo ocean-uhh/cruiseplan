@@ -10,16 +10,25 @@ with existing imports.
 
 # Core exceptions and enums
 # Basic data models
+# Legacy validation functions (from validation_old.py)
+from ..core.validation_old import (
+    check_complete_duplicates,
+    check_duplicate_names,
+    enrich_configuration,
+    expand_ctd_sections,
+    validate_configuration_file,
+    validate_depth_accuracy,
+)
 from .base_models import FlexibleLocationModel, GeoPoint
 
 # Catalog definitions (with new terminology)
 from .catalog_definitions import (
     AreaDefinition,
-    # Legacy aliases for backward compatibility
-    PortDefinition,
-    StationDefinition,
+    # Legacy aliases for backward compatibility (TODO: Remove in v0.4.0)
+    PortDefinition,  # Use WaypointDefinition instead
+    StationDefinition,  # Use WaypointDefinition instead
     TransectDefinition,
-    TransitDefinition,
+    TransitDefinition,  # Use TransectDefinition instead
     WaypointDefinition,
 )
 
@@ -78,6 +87,13 @@ __all__ = [
     "validate_non_negative_number",
     "validate_positive_number",
     "validate_unique_names",
+    # Legacy validation functions
+    "check_complete_duplicates",
+    "check_duplicate_names",
+    "enrich_configuration",
+    "expand_ctd_sections",
+    "validate_configuration_file",
+    "validate_depth_accuracy",
     # Legacy aliases (backward compatibility)
     "PortDefinition",
     "StationDefinition",

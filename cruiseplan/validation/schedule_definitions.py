@@ -11,7 +11,7 @@ from typing import List, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .catalog_definitions import WaypointDefinition
+from .catalog_definitions import PortDefinition, WaypointDefinition
 from .enums import StrategyEnum
 
 
@@ -132,9 +132,9 @@ class LegDefinition(BaseModel):
         Unique identifier for the leg.
     description : Optional[str]
         Human-readable description of the leg.
-    departure_port : Union[str, WaypointDefinition]
+    departure_port : Union[str, PortDefinition]
         Required departure port for this leg.
-    arrival_port : Union[str, WaypointDefinition]
+    arrival_port : Union[str, PortDefinition]
         Required arrival port for this leg.
     vessel_speed : Optional[float]
         Vessel speed for this leg in knots (inheritable from cruise).
@@ -168,8 +168,8 @@ class LegDefinition(BaseModel):
     description: Optional[str] = None
 
     # Required maritime port-to-port structure
-    departure_port: Union[str, WaypointDefinition]
-    arrival_port: Union[str, WaypointDefinition]
+    departure_port: Union[str, PortDefinition]
+    arrival_port: Union[str, PortDefinition]
 
     # Inheritable cruise parameters
     vessel_speed: Optional[float] = Field(
@@ -274,28 +274,4 @@ class LegDefinition(BaseModel):
         ValueError
             If leg structure is invalid.
         """
-        # Ensure departure and arrival ports are different
-        if (
-            isinstance(self.departure_port, str)
-            and isinstance(self.arrival_port, str)
-            and self.departure_port == self.arrival_port
-        ):
-            msg = (
-                f"Departure and arrival ports cannot be the same: {self.departure_port}"
-            )
-            raise ValueError(msg)
-
-        # Check that leg has some content (activities, clusters, or deprecated fields)
-        has_content = (
-            bool(self.activities)
-            or bool(self.clusters)
-            or bool(self.stations)
-            or bool(self.sections)
-            or bool(self.sequence)
-        )
-
-        if not has_content:
-            msg = f"Leg '{self.name}' must contain activities, clusters, stations, sections, or sequence"
-            raise ValueError(msg)
-
         return self

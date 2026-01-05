@@ -8,9 +8,9 @@ from pathlib import Path
 
 import netCDF4 as nc
 import pytest
-from cruiseplan.core.validation import enrich_configuration
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.validation_old import enrich_configuration
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
 from cruiseplan.utils.config import ConfigLoader
 
@@ -121,7 +121,7 @@ class TestNetCDFIntegration:
     def test_empty_configuration_handling(self):
         """Test NetCDF generation with minimal/empty configuration."""
         # Create a minimal config with no stations
-        from cruiseplan.core.validation import (
+        from cruiseplan.validation import (
             CruiseConfig,
             LegDefinition,
             PortDefinition,

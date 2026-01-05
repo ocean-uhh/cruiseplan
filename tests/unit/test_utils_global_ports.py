@@ -3,13 +3,13 @@
 import warnings
 
 import pytest
-from cruiseplan.core.validation import PortDefinition
 
 from cruiseplan.utils.global_ports import (
     GLOBAL_PORTS,
     get_available_ports,
     resolve_port_reference,
 )
+from cruiseplan.validation import PortDefinition
 
 
 class TestGlobalPorts:
@@ -129,7 +129,9 @@ class TestPortValidation:
             # Missing longitude
         }
 
-        with pytest.raises(ValueError, match="Port dictionary missing required fields"):
+        with pytest.raises(
+            ValueError, match="Both latitude and longitude must be provided together"
+        ):
             resolve_port_reference(incomplete_port)
 
     def test_resolve_dict_port_invalid_coordinates(self):
@@ -174,8 +176,8 @@ class TestPortValidation:
             # Optional fields should be strings if present
             if port.timezone is not None:
                 assert isinstance(port.timezone, str)
-            if port.description is not None:
-                assert isinstance(port.description, str)
+            if hasattr(port, "comment") and port.comment is not None:
+                assert isinstance(port.comment, str)
 
 
 class TestPortRegistry:
@@ -197,7 +199,7 @@ class TestPortRegistry:
     def test_port_data_consistency(self):
         """Test that all ports have consistent data structure."""
         required_fields = {"name", "latitude", "longitude"}
-        optional_fields = {"timezone", "description", "display_name"}
+        optional_fields = {"timezone", "comment", "display_name", "description"}
 
         for port_id, port_data in GLOBAL_PORTS.items():
             # Check required fields
@@ -230,7 +232,7 @@ class TestGlobalPortsAdditionalFunctions:
             "name": "Test Custom Port",
             "latitude": 45.0,
             "longitude": -125.0,
-            "description": "Test port",
+            "comment": "Test port",
         }
 
         # Should not raise an exception

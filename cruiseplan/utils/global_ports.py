@@ -21,7 +21,7 @@ Usage:
       latitude: 64.1466
       longitude: -21.9426
       timezone: "GMT+0"
-      description: "Custom port definition"
+      comment: "Custom port definition"
 """
 
 import warnings
@@ -38,7 +38,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 64.1466,
         "longitude": -21.9426,
         "timezone": "Atlantic/Reykjavik",
-        "description": "Iceland capital, subpolar/Nordic Seas",
     },
     "port_nuuk": {
         "name": "Nuuk",
@@ -46,7 +45,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 64.1836,
         "longitude": -51.7214,
         "timezone": "GMT-3",
-        "description": "Greenland capital, Arctic research gateway",
     },
     # Norwegian Research Ports
     "port_tromso": {
@@ -55,7 +53,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 69.6496,
         "longitude": 18.9553,
         "timezone": "Europe/Oslo",
-        "description": "Northern Norway, Arctic gateway",
     },
     "port_trondheim": {
         "name": "Trondheim",
@@ -63,7 +60,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 63.4305,
         "longitude": 10.3951,
         "timezone": "Europe/Oslo",
-        "description": "Central Norway, Norwegian Sea operations",
     },
     "port_bergen": {
         "name": "Bergen",
@@ -71,7 +67,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 60.3913,
         "longitude": 5.3221,
         "timezone": "Europe/Oslo",
-        "description": "Western Norway, Nordic Seas",
     },
     # UK Research Ports
     "port_southampton": {
@@ -80,7 +75,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 50.9097,
         "longitude": -1.4044,
         "timezone": "GMT+0",
-        "description": "UK south coast, Atlantic access",
     },
     # German Research Ports
     "port_bremerhaven": {
@@ -89,7 +83,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 53.5395,
         "longitude": 8.5809,
         "timezone": "Europe/Berlin",
-        "description": "Germany, Arctic and Atlantic operations",
     },
     "port_hamburg": {
         "name": "Hamburg",
@@ -97,7 +90,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 53.5511,
         "longitude": 9.9937,
         "timezone": "Europe/Berlin",
-        "description": "Germany, North Sea and Baltic access",
     },
     "port_emden": {
         "name": "Emden",
@@ -105,7 +97,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 53.3594,
         "longitude": 7.2067,
         "timezone": "Europe/Berlin",
-        "description": "Germany, North Sea operations",
     },
     "port_rostock": {
         "name": "Rostock",
@@ -113,7 +104,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 54.0887,
         "longitude": 12.1308,
         "timezone": "Europe/Berlin",
-        "description": "Germany, Baltic Sea operations",
     },
     "port_kiel": {
         "name": "Kiel",
@@ -121,7 +111,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 54.3233,
         "longitude": 10.1394,
         "timezone": "Europe/Berlin",
-        "description": "Germany, Baltic Sea research hub",
     },
     # French Research Ports
     "port_brest": {
@@ -130,7 +119,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 48.3905,
         "longitude": -4.4860,
         "timezone": "Europe/Paris",
-        "description": "France, Atlantic operations",
     },
     "port_nice": {
         "name": "Nice",
@@ -138,7 +126,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 43.7102,
         "longitude": 7.2620,
         "timezone": "Europe/Paris",
-        "description": "France, Mediterranean research",
     },
     # Spanish Research Ports
     "port_vigo": {
@@ -147,7 +134,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 42.2406,
         "longitude": -8.7207,
         "timezone": "Europe/Madrid",
-        "description": "Spain northwest, Atlantic margin research",
     },
     "port_cadiz": {
         "name": "Cadiz",
@@ -155,7 +141,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 36.5298,
         "longitude": -6.2923,
         "timezone": "Europe/Madrid",
-        "description": "Spain southwest, Atlantic and Mediterranean",
     },
     "port_malaga": {
         "name": "Malaga",
@@ -163,7 +148,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 36.7196,
         "longitude": -4.4204,
         "timezone": "Europe/Madrid",
-        "description": "Spain south coast, Mediterranean research",
     },
     # Mediterranean Research Ports
     "port_heraklion": {
@@ -172,7 +156,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 35.3387,
         "longitude": 25.1442,
         "timezone": "Europe/Athens",
-        "description": "Crete, Eastern Mediterranean research",
     },
     "port_catania": {
         "name": "Catania",
@@ -180,7 +163,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 37.5079,
         "longitude": 15.0830,
         "timezone": "Europe/Rome",
-        "description": "Sicily, Mediterranean research",
     },
     "port_limassol": {
         "name": "Limassol",
@@ -188,7 +170,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 34.6823,
         "longitude": 33.0464,
         "timezone": "Asia/Nicosia",
-        "description": "Cyprus, Eastern Mediterranean operations",
     },
     # Atlantic Islands Research Ports
     "port_las_palmas": {
@@ -197,7 +178,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 28.1248,
         "longitude": -15.4300,
         "timezone": "Atlantic/Canary",
-        "description": "Canary Islands, subtropical Atlantic research",
     },
     "port_ponta_delgada": {
         "name": "Ponta Delgada",
@@ -205,7 +185,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 37.7412,
         "longitude": -25.6756,
         "timezone": "Atlantic/Azores",
-        "description": "Azores, mid-Atlantic research hub",
     },
     "port_funchal": {
         "name": "Funchal",
@@ -213,7 +192,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 32.6669,
         "longitude": -16.9241,
         "timezone": "Atlantic/Madeira",
-        "description": "Madeira, subtropical Atlantic operations",
     },
     # African Research Ports
     "port_mindelo": {
@@ -222,7 +200,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 16.8864,
         "longitude": -24.9811,
         "timezone": "Atlantic/Cape_Verde",
-        "description": "Cape Verde, tropical Atlantic research",
     },
     "port_walvis_bay": {
         "name": "Walvis Bay",
@@ -230,7 +207,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -22.9576,
         "longitude": 14.5052,
         "timezone": "Africa/Windhoek",
-        "description": "Namibia, Benguela upwelling system",
     },
     "port_durban": {
         "name": "Durban",
@@ -238,7 +214,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -29.8587,
         "longitude": 31.0218,
         "timezone": "Africa/Johannesburg",
-        "description": "South Africa, Indian Ocean operations",
     },
     # Canadian Research Ports
     "port_halifax": {
@@ -247,7 +222,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 44.6488,
         "longitude": -63.5752,
         "timezone": "America/Halifax",
-        "description": "Nova Scotia, North Atlantic research hub",
     },
     "port_st_johns": {
         "name": "St. John's",
@@ -255,7 +229,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 47.5615,
         "longitude": -52.7126,
         "timezone": "America/St_Johns",
-        "description": "Newfoundland, Labrador Sea operations",
     },
     "port_vancouver": {
         "name": "Vancouver",
@@ -263,7 +236,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 49.2827,
         "longitude": -123.1207,
         "timezone": "America/Vancouver",
-        "description": "British Columbia, North Pacific research",
     },
     # US Research Ports
     "port_woods_hole": {
@@ -272,7 +244,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 41.5265,
         "longitude": -70.6712,
         "timezone": "America/New_York",
-        "description": "Massachusetts, major oceanographic center",
     },
     "port_san_diego": {
         "name": "San Diego",
@@ -280,7 +251,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 32.7157,
         "longitude": -117.1611,
         "timezone": "America/Los_Angeles",
-        "description": "California, Pacific research operations",
     },
     "port_astoria": {
         "name": "Astoria",
@@ -288,7 +258,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 46.1879,
         "longitude": -123.8313,
         "timezone": "America/Los_Angeles",
-        "description": "Oregon, Pacific Northwest research",
     },
     "port_honolulu": {
         "name": "Honolulu",
@@ -296,7 +265,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 21.3099,
         "longitude": -157.8581,
         "timezone": "Pacific/Honolulu",
-        "description": "Hawaii, central Pacific research hub",
     },
     # Central American Research Ports
     "port_ensenada": {
@@ -305,7 +273,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 31.8444,
         "longitude": -116.6197,
         "timezone": "America/Tijuana",
-        "description": "Baja California, eastern Pacific research",
     },
     "port_balboa": {
         "name": "Balboa",
@@ -313,7 +280,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 8.9823,
         "longitude": -79.5661,
         "timezone": "America/Panama",
-        "description": "Panama, Pacific-Caribbean operations",
     },
     # Caribbean Research Ports
     "port_bridgetown": {
@@ -322,7 +288,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 13.1939,
         "longitude": -59.6161,
         "timezone": "America/Barbados",
-        "description": "Barbados, Caribbean research hub",
     },
     # South American Research Ports
     "port_rio_de_janeiro": {
@@ -331,7 +296,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -22.9068,
         "longitude": -43.1729,
         "timezone": "America/Sao_Paulo",
-        "description": "Brazil, South Atlantic research",
     },
     "port_fortaleza": {
         "name": "Fortaleza",
@@ -339,7 +303,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -3.7172,
         "longitude": -38.5433,
         "timezone": "America/Fortaleza",
-        "description": "Brazil northeast, equatorial Atlantic",
     },
     "port_belem": {
         "name": "Belem",
@@ -347,7 +310,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -1.4558,
         "longitude": -48.5044,
         "timezone": "America/Belem",
-        "description": "Brazil, Amazon outflow studies",
     },
     "port_recife": {
         "name": "Recife",
@@ -355,7 +317,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -8.0476,
         "longitude": -34.8770,
         "timezone": "America/Recife",
-        "description": "Brazil, tropical Atlantic research",
     },
     "port_antofagasta": {
         "name": "Antofagasta",
@@ -363,7 +324,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -23.6509,
         "longitude": -70.3975,
         "timezone": "America/Santiago",
-        "description": "Chile, Humboldt current research",
     },
     # Indian Ocean Research Ports
     "port_port_louis_mauritius": {
@@ -372,7 +332,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -20.1654,
         "longitude": 57.5074,
         "timezone": "Indian/Mauritius",
-        "description": "Mauritius, western Indian Ocean research",
     },
     "port_la_reunion": {
         "name": "La Reunion",
@@ -380,7 +339,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -21.1151,
         "longitude": 55.5364,
         "timezone": "Indian/Reunion",
-        "description": "Reunion, southwestern Indian Ocean",
     },
     "port_port_louis_seychelles": {
         "name": "Port Louis",
@@ -388,7 +346,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -4.6796,
         "longitude": 55.5274,
         "timezone": "Indian/Mahe",
-        "description": "Seychelles, equatorial Indian Ocean",
     },
     "port_colombo": {
         "name": "Colombo",
@@ -396,7 +353,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 6.9271,
         "longitude": 79.8612,
         "timezone": "Asia/Colombo",
-        "description": "Sri Lanka, northern Indian Ocean research",
     },
     "port_singapore": {
         "name": "Singapore",
@@ -404,7 +360,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 1.3521,
         "longitude": 103.8198,
         "timezone": "Asia/Singapore",
-        "description": "Singapore, Southeast Asian research hub",
     },
     # Pacific Research Ports
     "port_yokohama": {
@@ -413,7 +368,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 35.4437,
         "longitude": 139.6380,
         "timezone": "Asia/Tokyo",
-        "description": "Japan, western Pacific research",
     },
     "port_fremantle": {
         "name": "Fremantle",
@@ -421,7 +375,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -32.0569,
         "longitude": 115.7439,
         "timezone": "Australia/Perth",
-        "description": "Western Australia, Indian Ocean research",
     },
     "port_wellington": {
         "name": "Wellington",
@@ -429,7 +382,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -41.2865,
         "longitude": 174.7762,
         "timezone": "Pacific/Auckland",
-        "description": "New Zealand, Southern Ocean research",
     },
     "port_auckland": {
         "name": "Auckland",
@@ -437,7 +389,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -36.8485,
         "longitude": 174.7633,
         "timezone": "Pacific/Auckland",
-        "description": "New Zealand, Southwest Pacific research",
     },
     "port_papeete": {
         "name": "Papeete",
@@ -445,7 +396,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": -17.5516,
         "longitude": -149.5585,
         "timezone": "Pacific/Tahiti",
-        "description": "French Polynesia, central Pacific research",
     },
     # Default/Update Port for Station Picker
     "port_update": {
@@ -454,7 +404,6 @@ GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
         "latitude": 64.1466,
         "longitude": -21.9426,
         "timezone": "GMT+0",
-        "description": "Default port for station picker - update with actual ports",
     },
 }
 
@@ -486,7 +435,7 @@ def resolve_port_reference(
         If string reference is not found in global registry.
     """
     # Import locally to avoid circular dependency
-    from cruiseplan.core.validation import PortDefinition
+    from cruiseplan.validation import PortDefinition
 
     # If already a PortDefinition object, return as-is
     if isinstance(port_ref, PortDefinition):
@@ -548,7 +497,7 @@ def resolve_port_reference(
                         latitude=port_data["latitude"],
                         longitude=port_data["longitude"],
                         display_name=display_name,
-                        description=port_data.get("description", ""),
+                        comment=port_data.get("comment", ""),
                     )
 
             # Simple string port name (backward compatibility)
@@ -563,7 +512,7 @@ def resolve_port_reference(
                 name=port_ref,
                 latitude=0.0,  # Placeholder - needs enrichment
                 longitude=0.0,  # Placeholder - needs enrichment
-                description=f"Basic port '{port_ref}' - coordinates need enrichment",
+                comment=f"Basic port '{port_ref}' - coordinates need enrichment",
             )
     else:
         raise ValueError(f"Invalid port reference type: {type(port_ref)}")
@@ -571,15 +520,15 @@ def resolve_port_reference(
 
 def get_available_ports() -> Dict[str, str]:
     """
-    Get a dictionary of available global ports with descriptions.
+    Get a dictionary of available global ports with comments.
 
     Returns
     -------
     Dict[str, str]
-        Mapping of port identifiers to descriptions.
+        Mapping of port identifiers to comments.
     """
     return {
-        port_id: port_data.get("description", f"Port: {port_data['name']}")
+        port_id: port_data.get("comment", f"Port: {port_data['name']}")
         for port_id, port_data in GLOBAL_PORTS.items()
     }
 
@@ -612,7 +561,7 @@ def add_custom_port(port_id: str, port_data: dict) -> None:
 
     # Validate the port data by creating a PortDefinition
     try:
-        from cruiseplan.core.validation import PortDefinition
+        from cruiseplan.validation import PortDefinition
 
         PortDefinition(**port_data)
     except Exception as e:

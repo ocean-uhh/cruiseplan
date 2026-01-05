@@ -5,9 +5,10 @@ from typing import Any, Dict, Optional, Tuple, Union
 
 from pydantic import ValidationError
 
-# Centralized imports for configuration models and the custom error
-from cruiseplan.core.validation import CruiseConfig, CruiseConfigurationError
 from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml, save_yaml
+
+# Centralized imports for configuration models and the custom error
+from cruiseplan.validation import CruiseConfig, CruiseConfigurationError
 
 logger = logging.getLogger(__name__)
 

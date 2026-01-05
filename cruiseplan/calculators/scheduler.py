@@ -21,7 +21,7 @@ from cruiseplan.core.operations import (
     LineOperation,
     PointOperation,
 )
-from cruiseplan.core.validation import CruiseConfig, GeoPoint
+from cruiseplan.validation import CruiseConfig, GeoPoint
 
 logger = logging.getLogger(__name__)
 
@@ -910,7 +910,7 @@ def generate_cruise_schedule(
     # Validate depths if requested
     validation_warnings = []
     if validate_depths:
-        from cruiseplan.core.validation import validate_configuration_file
+        from cruiseplan.core.validation_old import validate_configuration_file
 
         is_valid, errors, warnings = validate_configuration_file(
             config_path, check_depths=True, tolerance=10.0

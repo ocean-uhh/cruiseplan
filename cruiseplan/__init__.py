@@ -355,7 +355,7 @@ def enrich(
     >>> # Enrich with custom filename but note output will be "enhanced_cruise_enriched.yaml"
     >>> cruiseplan.enrich(config_file="cruise.yaml", output="enhanced_cruise", add_depths=True)
     """
-    from cruiseplan.core.validation import enrich_configuration
+    from cruiseplan.core.validation_old import enrich_configuration
 
     config_path = Path(config_file).resolve()
 
@@ -437,7 +437,7 @@ def validate(
     >>> if is_valid:
     ...     print(" Configuration is valid")
     """
-    from cruiseplan.core.validation import validate_configuration_file
+    from cruiseplan.core.validation_old import validate_configuration_file
 
     if verbose:
         logging.basicConfig(level=logging.DEBUG)

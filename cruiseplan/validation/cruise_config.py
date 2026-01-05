@@ -23,9 +23,12 @@ from .catalog_definitions import AreaDefinition, TransectDefinition, WaypointDef
 from .schedule_definitions import LegDefinition
 
 # Legacy aliases for backward compatibility
+# TODO: Remove in v0.4.0 - Use WaypointDefinition instead
 StationDefinition = WaypointDefinition
-TransitDefinition = TransectDefinition
 PortDefinition = WaypointDefinition
+
+# TODO: Remove in v0.4.0 - Use TransectDefinition instead
+TransitDefinition = TransectDefinition
 
 
 class CruiseConfig(BaseModel):

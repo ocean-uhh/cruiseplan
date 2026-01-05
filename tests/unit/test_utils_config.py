@@ -2,7 +2,6 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import pytest
-from cruiseplan.core.validation import CruiseConfigurationError
 
 from cruiseplan.utils.config import (
     format_station_for_yaml,
@@ -10,6 +9,7 @@ from cruiseplan.utils.config import (
     save_cruise_config,
 )
 from cruiseplan.utils.yaml_io import YAMLIOError
+from cruiseplan.validation import CruiseConfigurationError
 
 # Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
 # Assuming FALLBACK_DEPTH is -9999.0 for testing the formatters.

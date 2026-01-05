@@ -10,8 +10,8 @@ kilometers and nautical miles.
 import math
 from typing import List, Tuple, Union
 
-from cruiseplan.core.validation import GeoPoint
 from cruiseplan.utils.constants import KM_PER_NM, NM_PER_KM, R_EARTH_KM
+from cruiseplan.validation import GeoPoint
 
 
 def to_coords(point: Union[GeoPoint, Tuple[float, float]]) -> Tuple[float, float]:

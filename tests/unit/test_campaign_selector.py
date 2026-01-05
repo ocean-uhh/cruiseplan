@@ -6,7 +6,7 @@ import pytest
 from cruiseplan.interactive.campaign_selector import CampaignSelector
 
 # Import the custom error if needed (not strictly necessary here, but good practice)
-# from cruiseplan.core.validation import CruiseConfigurationError
+# from cruiseplan.validation import CruiseConfigurationError
 
 # --- Fixtures and Setup ---
 

@@ -3,10 +3,10 @@
 from unittest.mock import MagicMock, patch
 
 import pytest
-from cruiseplan.core.validation import StrategyEnum
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
+from cruiseplan.validation import StrategyEnum
 
 
 class TestLeg:
@@ -661,11 +661,16 @@ class TestLegFactoryMethod:
 
     def test_from_definition_basic_leg(self):
         """Test creating leg from basic definition."""
-        from cruiseplan.core.validation import LegDefinition
+        from cruiseplan.validation import LegDefinition
 
         # Create mock definition using actual global ports
         leg_def = LegDefinition(
-            name="Test_Leg", departure_port="port_halifax", arrival_port="port_st_johns"
+            name="Test_Leg",
+            departure_port="port_halifax",
+            arrival_port="port_st_johns",
+            activities=[
+                {"name": "test_station", "operation_type": "CTD"}
+            ],  # Minimal activity to pass validation
         )
 
         # Create leg from definition
@@ -673,12 +678,13 @@ class TestLegFactoryMethod:
 
         assert leg.name == "Test_Leg"
         # Note: Ports will be resolved by resolve_port_reference function
+        # Activities are automatically converted to cluster operations
         assert len(leg.operations) == 0
-        assert len(leg.clusters) == 0
+        assert len(leg.clusters) == 1  # Activities automatically clustered
 
     def test_from_definition_with_waypoints(self):
         """Test creating leg with waypoints."""
-        from cruiseplan.core.validation import LegDefinition
+        from cruiseplan.validation import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",
@@ -686,6 +692,9 @@ class TestLegFactoryMethod:
             arrival_port="port_st_johns",
             first_waypoint="start_wp",
             last_waypoint="end_wp",
+            activities=[
+                {"name": "test_station", "operation_type": "CTD"}
+            ],  # Minimal activity to pass validation
         )
 
         leg = Leg.from_definition(leg_def)
@@ -693,10 +702,11 @@ class TestLegFactoryMethod:
         assert leg.name == "Test_Leg"
         assert leg.first_waypoint == "start_wp"
         assert leg.last_waypoint == "end_wp"
+        assert len(leg.clusters) == 1  # Activities automatically clustered
 
     def test_from_definition_with_parameter_overrides(self):
         """Test creating leg with parameter overrides."""
-        from cruiseplan.core.validation import LegDefinition
+        from cruiseplan.validation import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",
@@ -705,6 +715,9 @@ class TestLegFactoryMethod:
             vessel_speed=15.0,
             turnaround_time=45.0,
             distance_between_stations=20.0,
+            activities=[
+                {"name": "test_station", "operation_type": "CTD"}
+            ],  # Minimal activity to pass validation
         )
 
         leg = Leg.from_definition(leg_def)
@@ -713,3 +726,4 @@ class TestLegFactoryMethod:
         assert leg.vessel_speed == 15.0
         assert leg.turnaround_time == 45.0
         assert leg.distance_between_stations == 20.0
+        assert len(leg.clusters) == 1  # Activities automatically clustered

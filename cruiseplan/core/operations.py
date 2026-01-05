@@ -1,12 +1,12 @@
 from abc import ABC, abstractmethod
 from typing import Any, List, Optional, Tuple
 
-from cruiseplan.core.validation import (
+from cruiseplan.validation import (
     AreaDefinition,
     GeoPoint,
-    PortDefinition,
-    StationDefinition,
-    TransitDefinition,
+    PortDefinition,  # Legacy alias for WaypointDefinition
+    StationDefinition,  # Legacy alias for WaypointDefinition
+    TransitDefinition,  # Legacy alias for TransectDefinition
 )
 
 
