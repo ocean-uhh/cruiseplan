@@ -91,7 +91,7 @@ Programmatic Station Creation
 
 .. code-block:: python
 
-    from cruiseplan.core.validation import StationDefinition, CruiseConfig
+    from cruiseplan.validation import WaypointDefinition, CruiseConfig
     from cruiseplan.utils.yaml_io import save_yaml
     from pathlib import Path
 
@@ -100,7 +100,7 @@ Programmatic Station Creation
 
     # Generate CTD transect
     for i, lat in enumerate(range(60, 71, 2)):  # 60°N to 70°N every 2°
-        station = StationDefinition(
+        station = WaypointDefinition(
             name=f"CTD_{i+1:03d}",
             latitude=float(lat),
             longitude=-30.0,  # Fixed longitude
@@ -643,7 +643,7 @@ Error Handling
 .. code-block:: python
 
     from cruiseplan.core.cruise import Cruise
-    from cruiseplan.core.validation import ValidationError
+    from cruiseplan.validation import CruiseConfigurationError
     import logging
 
     # Setup logging for debugging

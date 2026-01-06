@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.output.latex_generator &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -124,15 +124,15 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">jinja2</span><span class="w"> </span><span class="kn">import</span> <span class="n">Environment</span><span class="p">,</span> <span class="n">FileSystemLoader</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.activity_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_scientific_operation</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_days</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_position_latex</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_format_depth_for_latex</span><span class="p">(</span><span class="n">activity</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -195,8 +195,8 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_paginate_data</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">data_rows</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">],</span> <span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">data_rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">table_type</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Splits data rows into pages and adds metadata (caption, header).</span>
 
@@ -237,8 +237,8 @@
         <span class="k">return</span> <span class="n">pages</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_stations_rows</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract station/operation data from timeline for table generation.</span>
 
@@ -251,7 +251,9 @@
         <span class="n">science_operations</span> <span class="o">=</span> <span class="p">[</span>
             <span class="n">activity</span>
             <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span>
-            <span class="k">if</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;Port&quot;</span>
+            <span class="k">if</span> <span class="n">is_scientific_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;Port&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;port&quot;</span>
         <span class="p">]</span>
 
         <span class="c1"># Format rows for the LaTeX template</span>
@@ -319,7 +321,7 @@
 <div class="viewcode-block" id="LaTeXGenerator.generate_stations_table">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.latex_generator.LaTeXGenerator.generate_stations_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_stations_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the Working Area, Stations and Profiles table from scheduler timeline.</span>
@@ -336,10 +338,11 @@
 <div class="viewcode-block" id="LaTeXGenerator.generate_work_days_table">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.latex_generator.LaTeXGenerator.generate_work_days_table">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_work_days_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generates the Work Days at Sea table from scheduler timeline.</span>
+
 <span class="sd">        If multiple legs exist, generates separate tables per leg.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check if we have multiple legs</span>
@@ -360,7 +363,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_single_work_days_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a single work days table for the entire cruise.</span>
@@ -383,12 +386,6 @@
         <span class="n">transit_to_area_h</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_to_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
         <span class="n">transit_from_area_h</span> <span class="o">=</span> <span class="n">stats</span><span class="p">[</span><span class="s2">&quot;port_transits_from_area&quot;</span><span class="p">][</span><span class="s2">&quot;total_duration_h&quot;</span><span class="p">]</span>
         <span class="n">total_port_transit_h</span> <span class="o">=</span> <span class="n">transit_to_area_h</span> <span class="o">+</span> <span class="n">transit_from_area_h</span>
-
-        <span class="n">ACTION_TO_DISPLAY_NAME</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;survey&quot;</span><span class="p">:</span> <span class="s2">&quot;Survey Operations&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;ADCP&quot;</span><span class="p">:</span> <span class="s2">&quot;ADCP Survey&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span> <span class="s2">&quot;Bathymetric Survey&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
 
         <span class="c1"># Generate work days rows for the timeline</span>
         <span class="n">summary_rows</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_generate_work_days_rows_for_timeline</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
@@ -418,7 +415,7 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_multi_leg_work_days_tables</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate separate work days tables for each leg.</span>
@@ -471,7 +468,7 @@
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n\n\\</span><span class="s2">clearpage</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">all_tables</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_unified_multi_leg_work_days_table</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">leg_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate a unified work days table with leg information in the Area column.</span>
@@ -528,8 +525,8 @@
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_work_days_rows_for_timeline</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Extract work days summary rows from a timeline (used for both single and multi-leg).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -667,8 +664,8 @@
 <div class="viewcode-block" id="generate_latex_tables">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.latex_generator.generate_latex_tables">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_latex_tables</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main interface to generate LaTeX tables for cruise proposal from scheduler timeline.</span>
 
@@ -692,8 +689,8 @@
     <span class="k">try</span><span class="p">:</span>
         <span class="n">stations_table</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_stations_table</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">)</span>
         <span class="n">work_days_table</span> <span class="o">=</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_work_days_table</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to generate LaTeX tables: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Failed to generate LaTeX tables&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="p">[]</span>
 
     <span class="c1"># Write to files</span>

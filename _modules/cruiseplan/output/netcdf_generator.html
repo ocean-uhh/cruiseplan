@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -118,18 +118,18 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">ActivityRecord</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.netcdf_metadata</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">create_coordinate_variables</span><span class="p">,</span>
     <span class="n">create_global_attributes</span><span class="p">,</span>
     <span class="n">create_operation_variables</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -156,8 +156,8 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_all_netcdf_outputs">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_all_netcdf_outputs">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_all_netcdf_outputs</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate all NetCDF files according to netcdf_outputs.md specification.</span>
 
@@ -213,10 +213,11 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_point_operations">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_point_operations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_point_operations</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate point operations NetCDF from stations and moorings.</span>
+
 <span class="sd">        FeatureType: point (CF discrete sampling geometry)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating point operations NetCDF: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -365,10 +366,11 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_master_schedule">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_master_schedule">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_master_schedule</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate master schedule NetCDF from timeline with waterdepth included for all operations.</span>
+
 <span class="sd">        FeatureType: trajectory (ship&#39;s continuous path)</span>
 <span class="sd">        This is the master file containing all data that other files derive from.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
@@ -380,8 +382,6 @@
                 <span class="p">}</span>
             <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
-
             <span class="c1"># Create station lookup for depth information</span>
             <span class="n">station_lookup</span> <span class="o">=</span> <span class="p">{</span>
                 <span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">station</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="ow">or</span> <span class="p">[])</span>
@@ -801,7 +801,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_empty_derived_dataset</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">operation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">operation_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an empty dataset with proper global attributes for derived files.&quot;&quot;&quot;</span>
         <span class="c1"># Determine featureType based on operation type</span>
@@ -939,6 +939,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive point operations file from master schedule.nc.</span>
+
 <span class="sd">        Filters to include only point_operation categories.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Read master schedule</span>
@@ -987,6 +988,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive line operations file from master schedule.nc.</span>
+
 <span class="sd">        Filters to include only line_operation categories.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Read master schedule</span>
@@ -1093,6 +1095,7 @@
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Derive area operations file from master schedule.nc.</span>
+
 <span class="sd">        Filters to include only area_operation categories.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Read master schedule</span>
@@ -1152,11 +1155,12 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_ship_schedule">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_ship_schedule">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_ship_schedule</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate ship schedule NetCDF from timeline.</span>
-<span class="sd">        FeatureType: trajectory (ship&#39;s continuous path)</span>
+
+<span class="sd">        FeatureType: trajectory (ship&#39;s continuous path).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating ship schedule NetCDF: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1164,8 +1168,6 @@
             <span class="c1"># Create empty dataset</span>
             <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">()</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">n_events</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">)</span>
-
             <span class="c1"># Extract timeline data</span>
             <span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
             <span class="n">lats</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1364,11 +1366,12 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_line_operations">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_line_operations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_line_operations</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate line operations NetCDF from scientific transits.</span>
-<span class="sd">        FeatureType: trajectory (start/end points defining survey lines)</span>
+
+<span class="sd">        FeatureType: trajectory (start/end points defining survey lines).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating line operations NetCDF: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1576,7 +1579,8 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_area_operations</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate area operations NetCDF (placeholder for future implementation).</span>
-<span class="sd">        FeatureType: trajectory (coverage patterns)</span>
+
+<span class="sd">        FeatureType: trajectory (coverage patterns).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating area operations NetCDF (placeholder): </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
@@ -1609,8 +1613,8 @@
 <div class="viewcode-block" id="generate_netcdf_outputs">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.generate_netcdf_outputs">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_netcdf_outputs</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_dir</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Convenience function to generate all NetCDF outputs.</span>
 

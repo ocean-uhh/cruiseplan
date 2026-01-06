@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.cli.main &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -253,7 +253,7 @@
 
 <span class="s2">Examples:</span>
 <span class="s2">  cruiseplan bathymetry                                          # Download ETOPO 2022 (default)</span>
-<span class="s2">  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly  </span>
+<span class="s2">  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly</span>
 <span class="s2">  cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025</span>
 <span class="s2">  cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
@@ -538,7 +538,7 @@
 
 <span class="s2">Examples:</span>
 <span class="s2">  cruiseplan map -c cruise.yaml                              # Generate map with default settings</span>
-<span class="s2">  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size  </span>
+<span class="s2">  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size</span>
 <span class="s2">  cruiseplan map -c cruise.yaml --bathy-source gebco2025     # High-resolution bathymetry</span>
 <span class="s2">  cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename</span>
 <span class="s2">        &quot;&quot;&quot;</span><span class="p">,</span>
@@ -631,7 +631,7 @@
 
 <span class="s2">Key Features:</span>
 <span class="s2">- Smart defaults: All enrichment options enabled by default</span>
-<span class="s2">- Flexible execution: Control which steps run with --only-* and --no-* flags  </span>
+<span class="s2">- Flexible execution: Control which steps run with --only-* and --no-* flags</span>
 <span class="s2">- Consistent output naming: Use --output for base filename across all generated files</span>
 <span class="s2">- Modern parameter names: Shorter --bathy-* parameters for reduced typing</span>
 
@@ -788,13 +788,13 @@
 <span class="s2">  → Generates: atlantic_study_dois.txt + atlantic_study_stations.pkl</span>
 
 <span class="s2">DOI FILE MODE (provide existing .txt file):</span>
-<span class="s2">  cruiseplan pangaea arctic_dois.txt --output arctic_analysis  </span>
+<span class="s2">  cruiseplan pangaea arctic_dois.txt --output arctic_analysis</span>
 <span class="s2">  → Generates: arctic_analysis_stations.pkl</span>
 
 <span class="s2">Output Strategy:</span>
 <span class="s2">  --output: Base filename (without extension) for generated files</span>
 <span class="s2">  --output-dir: Directory where files are saved (default: data/)</span>
-<span class="s2">  </span>
+
 <span class="s2">Examples:</span>
 <span class="s2">  cruiseplan pangaea &quot;CTD Arctic Ocean&quot; --lat 70 85 --lon -180 -120 --limit 50</span>
 <span class="s2">  cruiseplan pangaea my_dois.txt --rate-limit 0.5 --merge-campaigns</span>

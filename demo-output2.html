@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=4621528c"></script>
+      <script src="_static/documentation_options.js?v=cc9937a9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -207,7 +207,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [00:56, 8.72MB/s]
+Downloading ETOPO: 469MB [00:54, 8.98MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -265,7 +265,7 @@ Download complete!
     <span class="k">if</span> <span class="n">pangaea_files</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ PANGAEA processing completed!&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">pangaea_files</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="n">file</span><span class="o">.</span><span class="n">name</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ No datasets found or processing failed&quot;</span><span class="p">)</span>
 
@@ -526,57 +526,57 @@ INFO: Saved configuration to: ../tests_output/demo/demo_cruise.yaml
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
-port_reykjavik: Iceland capital, subpolar/Nordic Seas
-port_nuuk: Greenland capital, Arctic research gateway
-port_tromso: Northern Norway, Arctic gateway
-port_trondheim: Central Norway, Norwegian Sea operations
-port_bergen: Western Norway, Nordic Seas
-port_southampton: UK south coast, Atlantic access
-port_bremerhaven: Germany, Arctic and Atlantic operations
-port_hamburg: Germany, North Sea and Baltic access
-port_emden: Germany, North Sea operations
-port_rostock: Germany, Baltic Sea operations
-port_kiel: Germany, Baltic Sea research hub
-port_brest: France, Atlantic operations
-port_nice: France, Mediterranean research
-port_vigo: Spain northwest, Atlantic margin research
-port_cadiz: Spain southwest, Atlantic and Mediterranean
-port_malaga: Spain south coast, Mediterranean research
-port_heraklion: Crete, Eastern Mediterranean research
-port_catania: Sicily, Mediterranean research
-port_limassol: Cyprus, Eastern Mediterranean operations
-port_las_palmas: Canary Islands, subtropical Atlantic research
-port_ponta_delgada: Azores, mid-Atlantic research hub
-port_funchal: Madeira, subtropical Atlantic operations
-port_mindelo: Cape Verde, tropical Atlantic research
-port_walvis_bay: Namibia, Benguela upwelling system
-port_durban: South Africa, Indian Ocean operations
-port_halifax: Nova Scotia, North Atlantic research hub
-port_st_johns: Newfoundland, Labrador Sea operations
-port_vancouver: British Columbia, North Pacific research
-port_woods_hole: Massachusetts, major oceanographic center
-port_san_diego: California, Pacific research operations
-port_astoria: Oregon, Pacific Northwest research
-port_honolulu: Hawaii, central Pacific research hub
-port_ensenada: Baja California, eastern Pacific research
-port_balboa: Panama, Pacific-Caribbean operations
-port_bridgetown: Barbados, Caribbean research hub
-port_rio_de_janeiro: Brazil, South Atlantic research
-port_fortaleza: Brazil northeast, equatorial Atlantic
-port_belem: Brazil, Amazon outflow studies
-port_recife: Brazil, tropical Atlantic research
-port_antofagasta: Chile, Humboldt current research
-port_port_louis_mauritius: Mauritius, western Indian Ocean research
-port_la_reunion: Reunion, southwestern Indian Ocean
-port_port_louis_seychelles: Seychelles, equatorial Indian Ocean
-port_colombo: Sri Lanka, northern Indian Ocean research
-port_singapore: Singapore, Southeast Asian research hub
-port_yokohama: Japan, western Pacific research
-port_fremantle: Western Australia, Indian Ocean research
-port_wellington: New Zealand, Southern Ocean research
-port_auckland: New Zealand, Southwest Pacific research
-port_papeete: French Polynesia, central Pacific research
-port_update: Default port for station picker - update with actual ports
+port_reykjavik: Port: Reykjavik
+port_nuuk: Port: Nuuk
+port_tromso: Port: Tromsø
+port_trondheim: Port: Trondheim
+port_bergen: Port: Bergen
+port_southampton: Port: Southampton
+port_bremerhaven: Port: Bremerhaven
+port_hamburg: Port: Hamburg
+port_emden: Port: Emden
+port_rostock: Port: Rostock
+port_kiel: Port: Kiel
+port_brest: Port: Brest
+port_nice: Port: Nice
+port_vigo: Port: Vigo
+port_cadiz: Port: Cadiz
+port_malaga: Port: Malaga
+port_heraklion: Port: Heraklion
+port_catania: Port: Catania
+port_limassol: Port: Limassol
+port_las_palmas: Port: Las Palmas
+port_ponta_delgada: Port: Ponta Delgada
+port_funchal: Port: Funchal
+port_mindelo: Port: Mindelo
+port_walvis_bay: Port: Walvis Bay
+port_durban: Port: Durban
+port_halifax: Port: Halifax
+port_st_johns: Port: St. John&#39;s
+port_vancouver: Port: Vancouver
+port_woods_hole: Port: Woods Hole
+port_san_diego: Port: San Diego
+port_astoria: Port: Astoria
+port_honolulu: Port: Honolulu
+port_ensenada: Port: Ensenada
+port_balboa: Port: Balboa
+port_bridgetown: Port: Bridgetown
+port_rio_de_janeiro: Port: Rio de Janeiro
+port_fortaleza: Port: Fortaleza
+port_belem: Port: Belem
+port_recife: Port: Recife
+port_antofagasta: Port: Antofagasta
+port_port_louis_mauritius: Port: Port Louis
+port_la_reunion: Port: La Reunion
+port_port_louis_seychelles: Port: Port Louis
+port_colombo: Port: Colombo
+port_singapore: Port: Singapore
+port_yokohama: Port: Yokohama
+port_fremantle: Port: Fremantle
+port_wellington: Port: Wellington
+port_auckland: Port: Auckland
+port_papeete: Port: Papeete
+port_update: Port: Reykjavik (DEFAULT in stations.yaml)
 port_reykjavik: Reykjavik
 port_tromso: Tromsø
 port_trondheim: Trondheim
@@ -621,7 +621,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   - Configuration enriched&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   - Validation passed&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">generated_config_files</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="n">file</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Processing failed&quot;</span><span class="p">)</span>
 
@@ -641,7 +641,7 @@ INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
 INFO: 📁 Output will be saved to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km
-INFO: Saved configuration to: /tmp/tmp48m16jgb.yaml
+INFO: Saved configuration to: /tmp/tmp8zv6eidp.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 </pre></div></div>
 </div>
@@ -664,11 +664,11 @@ INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/dem
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 INFO: ✅ Validation passed
 INFO: 🗺️ Generating cruise maps...
-INFO: Display bounds: 42.6°-68.0°N, -57.7°--25.0°E
-INFO: Loading bathymetry for region: 39.6°-71.0°N, -60.7°--22.0°E
+INFO: Display bounds: 50.0°-68.0°N, -55.0°--25.0°E
+INFO: Loading bathymetry for region: 47.0°-71.0°N, -58.0°--22.0°E
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 INFO: Added bathymetry contours covering full region
-INFO: Map displayed with 9 points, 1 lines, 0 areas
+INFO: Map displayed with 7 points, 1 lines, 0 areas
 INFO: Map saved to /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_map.png
 INFO: ✅ Processing workflow completed successfully!
 </pre></div></div>
@@ -742,7 +742,7 @@ INFO: ✅ Processing workflow completed successfully!
 INFO: 📅 Generating schedule from /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: 🌐 HTML Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html
 INFO:    Timeline contains 19 activities
-INFO:    Adding to ports: St. John&#39;s (activity=Port_Departure, op_class=PointOperation, op_type=port)
+INFO:    Adding to ports: St. John&#39;s (activity=Port, op_class=PointOperation, op_type=port)
 INFO:    Adding to stations (other): STN_001 (activity=Station, op_class=PointOperation, op_type=CTD)
 INFO:    Adding to stations (other): STN_002 (activity=Station, op_class=PointOperation, op_type=CTD)
 INFO:    Adding to stations (other): STN_003 (activity=Station, op_class=PointOperation, op_type=CTD)
@@ -751,7 +751,7 @@ INFO:    Adding to stations (other): STN_004 (activity=Station, op_class=PointOp
 INFO:    Adding to moorings: MOOR_001 (activity=Mooring, op_class=PointOperation, op_type=mooring)
 INFO:    Adding to stations (other): STN_005 (activity=Station, op_class=PointOperation, op_type=CTD)
 INFO:    Adding to stations (other): STN_006 (activity=Station, op_class=PointOperation, op_type=CTD)
-INFO:    Adding to ports: St. John&#39;s (activity=Port_Arrival, op_class=PointOperation, op_type=port)
+INFO:    Adding to ports: St. John&#39;s (activity=Port, op_class=PointOperation, op_type=port)
 INFO: 🔍 Cruise-level operation counts:
 INFO:    Stations: 6
 INFO:    Moorings: 1
@@ -761,11 +761,11 @@ INFO:    Total scientific operations: 8
 INFO:    Port activities: 2
 INFO:    Within-area transits: 7
 INFO: 🔍 Leg &#39;Demo_Survey&#39; operation counts:
-INFO:    Stations: 0
+INFO:    Stations: 5
 INFO:    Moorings: 1
 INFO:    Surveys: 1
 INFO:    Areas: 0
-INFO:    Total scientific operations: 2
+INFO:    Total scientific operations: 8
 INFO:    Total activities in leg: 19
 INFO: ✅ Generated HTML schedule: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html
 INFO: 📊 CSV Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.csv
@@ -1315,8 +1315,8 @@ Attributes:
     source:               Scheduler computation from YAML configuration
     Conventions:          CF-1.8
     cruise_name:          Demo North Atlantic Survey 2025
-    total_duration_days:  7.057678885757923e-10
-    creation_date:        2026-01-04T19:17:33</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-aba05021-418b-4b85-96ac-fce1ff049035' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-aba05021-418b-4b85-96ac-fce1ff049035' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 19</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-15fea437-60ad-4e79-adef-0ee039fb4d77' class='xr-section-summary-in' type='checkbox'  checked><label for='section-15fea437-60ad-4e79-adef-0ee039fb4d77' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e677bc06-1f72-4a8c-bf5b-50924c592eb6' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e677bc06-1f72-4a8c-bf5b-50924c592eb6' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b26ab95e-d370-498a-bb90-f9a45f6f0369' class='xr-var-data-in' type='checkbox'><label for='data-b26ab95e-d370-498a-bb90-f9a45f6f0369' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-1c4e09fc-87b4-447b-b6f3-438569ca14b2' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-1c4e09fc-87b4-447b-b6f3-438569ca14b2' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-0dfbd66c-effd-430d-a013-389626154ccb' class='xr-var-data-in' type='checkbox'><label for='data-0dfbd66c-effd-430d-a013-389626154ccb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-df443d2c-831c-4af2-8ebb-90be1ac3e088' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-df443d2c-831c-4af2-8ebb-90be1ac3e088' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8c13db17-c26a-4218-9d5e-9e4cd68d83c9' class='xr-var-data-in' type='checkbox'><label for='data-8c13db17-c26a-4218-9d5e-9e4cd68d83c9' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-ba6fe8ea-5c66-442e-9d4a-7e143f5b9e0d' class='xr-section-summary-in' type='checkbox'  checked><label for='section-ba6fe8ea-5c66-442e-9d4a-7e143f5b9e0d' class='xr-section-summary' >Data variables: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U27</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-5a2397db-8d8a-47bf-b98f-de9fc76ff2b3' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-5a2397db-8d8a-47bf-b98f-de9fc76ff2b3' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-7bde13d4-3e37-4091-a0ba-2e595a9bbc90' class='xr-var-data-in' type='checkbox'><label for='data-7bde13d4-3e37-4091-a0ba-2e595a9bbc90' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U27]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-6c1b2a5f-690b-4fe1-9295-ffdf2df8c5cd' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-6c1b2a5f-690b-4fe1-9295-ffdf2df8c5cd' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-948079b6-91d1-4656-996d-4c958aa1941b' class='xr-var-data-in' type='checkbox'><label for='data-948079b6-91d1-4656-996d-4c958aa1941b' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-7a8b81eb-a4df-4cd6-be76-c5e3fe422414' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7a8b81eb-a4df-4cd6-be76-c5e3fe422414' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-2a7c07a4-c492-434a-a1c6-af359f5bd284' class='xr-var-data-in' type='checkbox'><label for='data-2a7c07a4-c492-434a-a1c6-af359f5bd284' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e62ad8dd-b752-45d2-9f56-9697c333bd27' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e62ad8dd-b752-45d2-9f56-9697c333bd27' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-a0cba98f-b786-4483-b619-ba6eb4596b84' class='xr-var-data-in' type='checkbox'><label for='data-a0cba98f-b786-4483-b619-ba6eb4596b84' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-7d0f1c4c-99a5-4a6f-bdd9-7e9413394598' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-7d0f1c4c-99a5-4a6f-bdd9-7e9413394598' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-88958919-435e-4476-90e5-a72372c476e6' class='xr-var-data-in' type='checkbox'><label for='data-88958919-435e-4476-90e5-a72372c476e6' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U1]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U11</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-ed898032-0d92-4b57-b06a-bd77e8c8df43' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ed898032-0d92-4b57-b06a-bd77e8c8df43' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-76d50251-662b-457f-803e-09a1d69902a5' class='xr-var-data-in' type='checkbox'><label for='data-76d50251-662b-457f-803e-09a1d69902a5' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U11]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-17484739-6a33-4b82-b67c-25731532b1ba' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-17484739-6a33-4b82-b67c-25731532b1ba' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-fca9e4d2-bd09-4e6a-b550-6521ee41d97f' class='xr-var-data-in' type='checkbox'><label for='data-fca9e4d2-bd09-4e6a-b550-6521ee41d97f' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-d0775c7b-70dc-4bc0-a105-4be6be3cce1d' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-d0775c7b-70dc-4bc0-a105-4be6be3cce1d' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-caddbd44-ae11-4e41-99a8-45240a0d7489' class='xr-var-data-in' type='checkbox'><label for='data-caddbd44-ae11-4e41-99a8-45240a0d7489' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-372d6374-3c16-46fa-ad7d-2cd150099a29' class='xr-section-summary-in' type='checkbox'  checked><label for='section-372d6374-3c16-46fa-ad7d-2cd150099a29' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>7.057678885757923e-10</dd><dt><span>creation_date :</span></dt><dd>2026-01-04T19:17:33</dd></dl></div></li></ul></div></div></div>
+    total_duration_days:  6.621121428906918e-10
+    creation_date:        2026-01-06T18:38:59</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-7fc6ede6-0188-4717-a0ca-302bf51db67b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7fc6ede6-0188-4717-a0ca-302bf51db67b' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 19</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-158108e7-19e3-4372-881c-1bc8baadacf8' class='xr-section-summary-in' type='checkbox'  checked><label for='section-158108e7-19e3-4372-881c-1bc8baadacf8' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-b008a40d-4f42-4012-be6a-0a51246d6326' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b008a40d-4f42-4012-be6a-0a51246d6326' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d531bc3c-918b-4f9e-ad6e-c89fa18807c0' class='xr-var-data-in' type='checkbox'><label for='data-d531bc3c-918b-4f9e-ad6e-c89fa18807c0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c35d0636-20fc-465b-9a46-49f051ea4d11' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c35d0636-20fc-465b-9a46-49f051ea4d11' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1f696ca9-80ca-4c00-9ccc-fcb4e3e421d3' class='xr-var-data-in' type='checkbox'><label for='data-1f696ca9-80ca-4c00-9ccc-fcb4e3e421d3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-edb52762-bfdc-4561-87f3-70ff9dcc83d4' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-edb52762-bfdc-4561-87f3-70ff9dcc83d4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9d8eca09-aa29-46ae-998f-86b10e2fcf08' class='xr-var-data-in' type='checkbox'><label for='data-9d8eca09-aa29-46ae-998f-86b10e2fcf08' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-35d26c56-e96d-42ca-bd79-2f38273b131a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-35d26c56-e96d-42ca-bd79-2f38273b131a' class='xr-section-summary' >Data variables: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U27</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-ed5ba3cb-5133-4e57-8953-a0ccc7597442' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ed5ba3cb-5133-4e57-8953-a0ccc7597442' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b0936c03-79c9-4ca8-9f86-f7bc4d42dc47' class='xr-var-data-in' type='checkbox'><label for='data-b0936c03-79c9-4ca8-9f86-f7bc4d42dc47' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U27]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e6061da5-0134-4b42-9257-c4c7d6e45343' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e6061da5-0134-4b42-9257-c4c7d6e45343' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bbd35a12-f778-4271-a5c3-fbff256072cc' class='xr-var-data-in' type='checkbox'><label for='data-bbd35a12-f778-4271-a5c3-fbff256072cc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0289df17-65f6-49d1-a616-e07d54b5c701' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0289df17-65f6-49d1-a616-e07d54b5c701' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8b3c74f7-c597-4b97-8648-b3e71efb9174' class='xr-var-data-in' type='checkbox'><label for='data-8b3c74f7-c597-4b97-8648-b3e71efb9174' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-55325034-5a11-4396-ba29-4fd1cfc8bdac' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-55325034-5a11-4396-ba29-4fd1cfc8bdac' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-547c70a2-8c58-4e57-8cc7-a0cd63e70a55' class='xr-var-data-in' type='checkbox'><label for='data-547c70a2-8c58-4e57-8cc7-a0cd63e70a55' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0acf074b-3067-4154-8b14-99d49ded68ee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0acf074b-3067-4154-8b14-99d49ded68ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b42a0192-683a-4e5d-ae4c-df16810e1897' class='xr-var-data-in' type='checkbox'><label for='data-b42a0192-683a-4e5d-ae4c-df16810e1897' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U1]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U11</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-47784949-a00d-4583-aafa-e4588f615c71' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-47784949-a00d-4583-aafa-e4588f615c71' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cef97ec2-6389-4bc5-b359-b966cc9946bb' class='xr-var-data-in' type='checkbox'><label for='data-cef97ec2-6389-4bc5-b359-b966cc9946bb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U11]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c46837df-4b47-4241-b419-2410127ed627' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c46837df-4b47-4241-b419-2410127ed627' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-416544d2-b1f4-4cfa-96a0-f5a10eec95d0' class='xr-var-data-in' type='checkbox'><label for='data-416544d2-b1f4-4cfa-96a0-f5a10eec95d0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0a3bf28b-1e95-4d8b-a8d2-cd0e87d90267' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0a3bf28b-1e95-4d8b-a8d2-cd0e87d90267' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5a86f8e9-5ec3-46d6-8956-a1f9affdf382' class='xr-var-data-in' type='checkbox'><label for='data-5a86f8e9-5ec3-46d6-8956-a1f9affdf382' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-635a882c-2885-4308-b0b3-219638f9ad33' class='xr-section-summary-in' type='checkbox'  checked><label for='section-635a882c-2885-4308-b0b3-219638f9ad33' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>6.621121428906918e-10</dd><dt><span>creation_date :</span></dt><dd>2026-01-06T18:38:59</dd></dl></div></li></ul></div></div></div>
 </div>
 </section>
 </section>

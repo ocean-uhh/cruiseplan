@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.output.html_generator &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -125,19 +125,18 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">List</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ActivityRecord</span><span class="p">,</span>
     <span class="n">calculate_timeline_statistics</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.output_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">format_activity_type</span><span class="p">,</span>
     <span class="n">get_activity_depth</span><span class="p">,</span>
     <span class="n">get_activity_position</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">NM_PER_KM</span><span class="p">,</span> <span class="n">hours_to_days</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -192,7 +191,7 @@
 <div class="viewcode-block" id="HTMLGenerator.generate_schedule_report">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.HTMLGenerator.generate_schedule_report">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_schedule_report</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate comprehensive HTML schedule report.</span>
@@ -339,7 +338,7 @@
         <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;tr style=&quot;font-weight: bold;&quot;&gt;</span>
 <span class="s2">            &lt;td&gt;Total Cruise&lt;/td&gt;</span>
-<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;moorings&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;stations&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;surveys&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;areas&quot;</span><span class="p">][</span><span class="s2">&quot;count&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
+<span class="s2">            &lt;td&gt;</span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span><span class="si">}</span><span class="s2"> operations&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_duration_h</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">            &lt;td class=&quot;number&quot;&gt;</span><span class="si">{</span><span class="n">total_duration_days</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&lt;/td&gt;</span>
 <span class="s2">        &lt;/tr&gt;</span>
@@ -402,8 +401,8 @@
             <span class="n">html_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">    &lt;h2&gt;4. Cruise Track Map&lt;/h2&gt;</span>
 <span class="s2">    &lt;div style=&quot;text-align: center; margin: 20px 0;&quot;&gt;</span>
-<span class="s2">        &lt;img src=&quot;</span><span class="si">{</span><span class="n">map_filename</span><span class="si">}</span><span class="s2">&quot; </span>
-<span class="s2">             alt=&quot;Cruise Track Map for </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot; </span>
+<span class="s2">        &lt;img src=&quot;</span><span class="si">{</span><span class="n">map_filename</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="s2">             alt=&quot;Cruise Track Map for </span><span class="si">{</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot;</span>
 <span class="s2">             style=&quot;max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);&quot;&gt;</span>
 <span class="s2">        &lt;p style=&quot;font-style: italic; color: #666; margin-top: 10px;&quot;&gt;</span>
 <span class="s2">            Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.</span>
@@ -425,7 +424,7 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_generate_leg_schedules</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">stats</span><span class="p">:</span> <span class="nb">dict</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">stats</span><span class="p">:</span> <span class="nb">dict</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate HTML section with per-leg schedule tables.</span>
@@ -525,7 +524,7 @@
         <span class="k">return</span> <span class="n">html_content</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_group_activities_by_leg</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Group timeline activities by leg and add appropriate transit connections.</span>
@@ -679,22 +678,10 @@
             <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
 
         <span class="c1"># For LineOperations and AreaOperations: use entry/exit coordinates</span>
-        <span class="k">elif</span> <span class="n">operation_class</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LineOperation&quot;</span><span class="p">,</span> <span class="s2">&quot;AreaOperation&quot;</span><span class="p">]:</span>
-            <span class="k">if</span> <span class="s2">&quot;entry_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;entry_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
-                <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="n">exit_position</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;exit_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">entry_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-                <span class="n">exit_position</span> <span class="o">=</span> <span class="n">current_pos</span>
-            <span class="c1"># All operations use the unified distance field</span>
-            <span class="n">distance_nm</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
-
-        <span class="c1"># For NavigationalTransit: use entry/exit coordinates with transit distance</span>
-        <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;NavigationalTransit&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="p">(</span>
+            <span class="n">operation_class</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;LineOperation&quot;</span><span class="p">,</span> <span class="s2">&quot;AreaOperation&quot;</span><span class="p">]</span>
+            <span class="ow">or</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;NavigationalTransit&quot;</span>
+        <span class="p">):</span>
             <span class="k">if</span> <span class="s2">&quot;entry_lat&quot;</span> <span class="ow">in</span> <span class="n">activity</span> <span class="ow">and</span> <span class="s2">&quot;entry_lon&quot;</span> <span class="ow">in</span> <span class="n">activity</span><span class="p">:</span>
                 <span class="n">entry_position</span> <span class="o">=</span> <span class="p">(</span>
                     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">activity</span><span class="p">[</span><span class="s1">&#39;entry_lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -755,12 +742,7 @@
                 <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mi">60</span>  <span class="c1"># convert to minutes</span>
             <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
                 <span class="c1"># Fallback to reasonable default if parsing fails</span>
-                <span class="k">return</span> <span class="mf">120.0</span>  <span class="c1"># 2 hours default</span>
-
-        <span class="c1"># Use vessel speed from config if available, otherwise default</span>
-        <span class="n">vessel_speed</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">,</span> <span class="mf">8.0</span><span class="p">)</span>
-
-        <span class="n">leg_names</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">legs_data</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span></div>
+                <span class="k">return</span> <span class="mf">120.0</span>  <span class="c1"># 2 hours default</span></div>
 
 
         <span class="c1"># Transit calculations removed - now handled by scheduler Port_Departure/Port_Arrival activities</span>
@@ -770,7 +752,7 @@
 <div class="viewcode-block" id="generate_html_schedule">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.html_generator.generate_html_schedule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_html_schedule</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_file</span><span class="p">:</span> <span class="n">Path</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Main interface to generate HTML schedule from scheduler timeline.</span>

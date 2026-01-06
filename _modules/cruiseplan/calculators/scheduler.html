@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -122,7 +122,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span><span class="p">,</span> <span class="n">km_to_nm</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.operations</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
@@ -131,7 +131,7 @@
     <span class="n">LineOperation</span><span class="p">,</span>
     <span class="n">PointOperation</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">GeoPoint</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">GeoPoint</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -188,7 +188,7 @@
 
 <div class="viewcode-block" id="ActivityRecord.__init__">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.__init__">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize from dictionary for compatibility with old system.&quot;&quot;&quot;</span>
         <span class="c1"># Initialize all fields to None first</span>
         <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dataclass_fields__</span><span class="p">:</span>
@@ -202,7 +202,7 @@
 
 <div class="viewcode-block" id="ActivityRecord.to_dict">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.to_dict">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to dictionary for output compatibility.&quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">field</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">__dataclass_fields__</span>
@@ -374,7 +374,7 @@
 
 <div class="viewcode-block" id="calculate_timeline_statistics">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.calculate_timeline_statistics">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">calculate_timeline_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_timeline_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate summary statistics for cruise timeline activities.</span>
 
@@ -605,23 +605,25 @@
         <span class="n">operation_class</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_class&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
         <span class="n">op_type</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;PointOperation&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;station&quot;</span><span class="p">:</span>
-                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
-                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;moorings&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="k">elif</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span>
-                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;ports&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;LineOperation&quot;</span><span class="p">:</span>
-            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;surveys&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-        <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;AreaOperation&quot;</span><span class="p">:</span>
-            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
-            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="c1"># Count all operations except ports</span>
+        <span class="k">if</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span><span class="p">:</span>
+            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;ports&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
         <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;NavigationalTransit&quot;</span><span class="p">:</span>
             <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;transits&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># This is a scientific operation - count it</span>
+            <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Also increment specific counters for detailed stats</span>
+            <span class="k">if</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;PointOperation&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">op_type</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD&quot;</span><span class="p">}:</span>
+                    <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;stations&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+                <span class="k">elif</span> <span class="n">op_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span><span class="p">:</span>
+                    <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;moorings&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;LineOperation&quot;</span><span class="p">:</span>
+                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;surveys&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">operation_class</span> <span class="o">==</span> <span class="s2">&quot;AreaOperation&quot;</span><span class="p">:</span>
+                <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;areas&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
 
     <span class="c1"># Debug output for operation counts</span>
     <span class="n">total_scientific_operations</span> <span class="o">=</span> <span class="p">(</span>
@@ -649,6 +651,11 @@
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Total scientific operations: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;total_scientific&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Total activities in leg: </span><span class="si">{</span><span class="n">stats</span><span class="p">[</span><span class="s1">&#39;total_activities&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
+    <span class="c1"># Calculate total scientific operations from leg totals for consistency</span>
+    <span class="n">total_scientific_operations_from_legs</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">leg_stats</span><span class="p">[</span><span class="n">leg_name</span><span class="p">][</span><span class="s2">&quot;total_scientific&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">leg_name</span> <span class="ow">in</span> <span class="n">leg_stats</span>
+    <span class="p">)</span>
+
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">calc_stats</span><span class="p">(</span><span class="n">station_activities</span><span class="p">,</span> <span class="n">include_depth</span><span class="o">=</span><span class="kc">True</span><span class="p">),</span>
         <span class="s2">&quot;moorings&quot;</span><span class="p">:</span> <span class="n">calc_stats</span><span class="p">(</span><span class="n">mooring_activities</span><span class="p">),</span>
@@ -660,6 +667,8 @@
         <span class="s2">&quot;port_activities&quot;</span><span class="p">:</span> <span class="n">calc_stats</span><span class="p">(</span><span class="n">port_activities</span><span class="p">),</span>
         <span class="c1"># Leg-specific operation counts</span>
         <span class="s2">&quot;leg_stats&quot;</span><span class="p">:</span> <span class="n">leg_stats</span><span class="p">,</span>
+        <span class="c1"># Total scientific operations calculated from legs for consistency</span>
+        <span class="s2">&quot;total_scientific&quot;</span><span class="p">:</span> <span class="n">total_scientific_operations_from_legs</span><span class="p">,</span>
         <span class="c1"># Raw data for detailed processing</span>
         <span class="s2">&quot;station_activities&quot;</span><span class="p">:</span> <span class="n">station_activities</span><span class="p">,</span>
         <span class="s2">&quot;mooring_activities&quot;</span><span class="p">:</span> <span class="n">mooring_activities</span><span class="p">,</span>
@@ -691,8 +700,8 @@
 <div class="viewcode-block" id="TimelineGenerator.generate_timeline">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.TimelineGenerator.generate_timeline">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete cruise timeline.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">legs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">legs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_runtime_legs</span><span class="p">()</span>
@@ -706,7 +715,7 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">activity</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">]</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_create_runtime_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_runtime_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create runtime legs from config.&quot;&quot;&quot;</span>
         <span class="c1"># Import here to avoid circular imports</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.leg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
@@ -736,7 +745,7 @@
 
         <span class="k">return</span> <span class="n">runtime_legs</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_process_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_process_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Process a single leg and generate activities.&quot;&quot;&quot;</span>
         <span class="c1"># Initialize current_time if not set</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -795,9 +804,9 @@
 
                 <span class="n">previous_operation</span> <span class="o">=</span> <span class="n">operation</span>
 
-            <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
                 <span class="n">activity_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">activity</span><span class="p">))</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process activity &#39;</span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">&#39;: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to process activity &#39;</span><span class="si">{</span><span class="n">activity_name</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
                 <span class="k">continue</span>
 
         <span class="k">return</span> <span class="n">activities</span>
@@ -889,14 +898,19 @@
                     <span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;op_type&quot;</span><span class="p">,</span> <span class="n">operation</span><span class="o">.</span><span class="n">get_operation_type</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
                 <span class="p">),</span>
                 <span class="s2">&quot;operation_class&quot;</span><span class="p">:</span> <span class="n">operation</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span>
-                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">operation</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="ow">and</span> <span class="p">(</span>
+                    <span class="n">operation</span><span class="o">.</span><span class="n">action</span><span class="o">.</span><span class="n">value</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">action</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">)</span>
+                    <span class="k">else</span> <span class="nb">str</span><span class="p">(</span><span class="n">operation</span><span class="o">.</span><span class="n">action</span><span class="p">)</span>
+                <span class="p">),</span>
             <span class="p">}</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="n">activity</span><span class="o">.</span><span class="n">end_time</span>
         <span class="k">return</span> <span class="n">activity</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_activities_from_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_extract_activities_from_leg</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leg</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Extract activity names from leg definition.&quot;&quot;&quot;</span>
         <span class="n">activities</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -980,8 +994,8 @@
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">start_time</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;start_time&quot;</span><span class="p">,</span> <span class="s2">&quot;08:00&quot;</span><span class="p">)</span>
                 <span class="k">return</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">start_date</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">start_time</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2"> %H:%M&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid start_date or start_time format: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">AttributeError</span><span class="p">):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;Invalid start_date or start_time format&quot;</span><span class="p">)</span>
             <span class="c1"># Return a default datetime instead of None</span>
             <span class="k">return</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span></div>
 
@@ -995,8 +1009,8 @@
 <div class="viewcode-block" id="generate_timeline">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate cruise timeline using the new unified operations model.</span>
 
@@ -1025,16 +1039,16 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_schedule</span><span class="p">(</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
-    <span class="n">formats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">formats</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">validate_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">selected_leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
     <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
     <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
     <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
-    <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">output_basename</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Generate cruise schedule (backward compatibility function).</span>
 
@@ -1076,7 +1090,7 @@
     <span class="c1"># Validate depths if requested</span>
     <span class="n">validation_warnings</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="k">if</span> <span class="n">validate_depths</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_configuration_file</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation_old</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_configuration_file</span>
 
         <span class="n">is_valid</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">validate_configuration_file</span><span class="p">(</span>
             <span class="n">config_path</span><span class="p">,</span> <span class="n">check_depths</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tolerance</span><span class="o">=</span><span class="mf">10.0</span>

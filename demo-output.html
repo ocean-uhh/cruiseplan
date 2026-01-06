@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=4621528c"></script>
+      <script src="_static/documentation_options.js?v=cc9937a9"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -261,7 +261,7 @@ File already exists at /Users/eddifying/Cloudfree/github/cruiseplan/data/bathyme
     <span class="k">if</span> <span class="n">pangaea_files</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ PANGAEA processing completed!&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">pangaea_files</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="n">files</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ No datasets found or processing failed&quot;</span><span class="p">)</span>
 
@@ -633,7 +633,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   - Configuration enriched&quot;</span><span class="p">)</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   - Validation passed&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">generated_config_files</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   📄 </span><span class="si">{</span><span class="n">file</span><span class="si">!s}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Processing failed&quot;</span><span class="p">)</span>
 

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.duration &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.calculators.duration &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -117,14 +117,14 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timedelta</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">hours_to_minutes</span><span class="p">,</span>
     <span class="n">rate_per_second_to_rate_per_minute</span><span class="p">,</span>
 <span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 
 
 <div class="viewcode-block" id="DurationCalculator">
@@ -193,7 +193,7 @@
 <div class="viewcode-block" id="DurationCalculator.calculate_transit_time">
 <a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.duration.DurationCalculator.calculate_transit_time">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_transit_time</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">distance_km</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">speed_knots</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">distance_km</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">speed_knots</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate vessel transit duration based on distance and speed.</span>
@@ -227,7 +227,7 @@
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">arrival_dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">,</span>
         <span class="n">duration_minutes</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
-        <span class="n">required_window</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">,</span> <span class="s2">&quot;night&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">required_window</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;day&quot;</span><span class="p">,</span> <span class="s2">&quot;night&quot;</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Calculate wait time to align operations with day/night windows.</span>

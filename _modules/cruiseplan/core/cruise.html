@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -108,22 +108,28 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cruiseplan.core.cruise</h1><div class="highlight"><pre>
-<span></span><span class="c1"># cruiseplan/core/cruise.py</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Core cruise management and configuration loading.</span>
+
+<span class="sd">This module provides the Cruise class for loading, validating, and managing</span>
+<span class="sd">cruise configurations from YAML files.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Union</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Union</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cluster</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cluster</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.leg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">AreaDefinition</span><span class="p">,</span>
-    <span class="n">CruiseConfig</span><span class="p">,</span>
-    <span class="n">PortDefinition</span><span class="p">,</span>
-    <span class="n">StationDefinition</span><span class="p">,</span>
-    <span class="n">StrategyEnum</span><span class="p">,</span>
-    <span class="n">TransitDefinition</span><span class="p">,</span>
-<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_port_reference</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AreaDefinition</span><span class="p">,</span>
+    <span class="n">CruiseConfig</span><span class="p">,</span>
+    <span class="n">PortDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for WaypointDefinition</span>
+    <span class="n">StationDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for WaypointDefinition</span>
+    <span class="n">StrategyEnum</span><span class="p">,</span>
+    <span class="n">TransitDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for TransectDefinition</span>
+<span class="p">)</span>
 
 
 <div class="viewcode-block" id="ReferenceError">
@@ -201,16 +207,16 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span><span class="p">)</span>
 
         <span class="c1"># 2. Indexing Pass (Build the Catalog Registry)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TransitDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TransitDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">transits</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">a</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">areas</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">port_registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PortDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">port_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PortDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ports</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
 
@@ -227,7 +233,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">runtime_legs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_convert_leg_definitions_to_legs</span><span class="p">()</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_load_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Load and parse the YAML configuration file.</span>
 
@@ -291,8 +297,8 @@
                         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_list</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">registry</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">type_label</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">type_label</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resolve a list containing items of a specific type.</span>
 
@@ -333,7 +339,7 @@
                 <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">resolved_items</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_mixed_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_mixed_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Resolve a mixed sequence list containing stations, transits, or areas.</span>
 
@@ -592,7 +598,7 @@
                     <span class="p">):</span>
                         <span class="n">port_obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_leg_definitions_to_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Leg</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_convert_leg_definitions_to_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Leg</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert LegDefinition objects to runtime Leg objects with clusters.</span>
 
@@ -722,19 +728,12 @@
 <span class="sd">        bool</span>
 <span class="sd">            True if the anchor reference exists in any registry.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="c1"># Check stations registry (includes moorings as operation_type=mooring)</span>
-        <span class="k">if</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="c1"># Check areas registry</span>
-        <span class="k">if</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="c1"># Check transits registry for scientific transits that can serve as anchors</span>
-        <span class="k">if</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">True</span>
-
-        <span class="k">return</span> <span class="kc">False</span></div>
+        <span class="c1"># Check all registries for the anchor reference</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span>
+            <span class="ow">or</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span>
+            <span class="ow">or</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span>
+        <span class="p">)</span></div>
 
 </pre></div>
 

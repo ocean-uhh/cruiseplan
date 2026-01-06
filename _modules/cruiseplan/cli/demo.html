@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.demo &mdash; CruisePlan v0.3.1 v0.3.1</title>
+  <title>cruiseplan.cli.demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=4621528c"></script>
+      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -108,7 +108,13 @@
            <div itemprop="articleBody">
              
   <h1>Source code for cruiseplan.cli.demo</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Demonstration script for CruisePlan functionality.</span>
+
+<span class="sd">This module provides example usage of bathymetry, PANGAEA data, and interactive station picker.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">PangaeaManager</span>
@@ -140,7 +146,7 @@
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">1. Testing Bathymetry Layer...&quot;</span><span class="p">)</span>
     <span class="n">depth</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="o">.</span><span class="n">get_depth_at_point</span><span class="p">(</span><span class="mf">47.5</span><span class="p">,</span> <span class="o">-</span><span class="mf">52.0</span><span class="p">)</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - Depth at St. Johns (47.5, -52.0): </span><span class="si">{</span><span class="n">depth</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">depth</span> <span class="o">==</span> <span class="o">-</span><span class="mf">9999.0</span> <span class="ow">or</span> <span class="n">depth</span> <span class="o">==</span> <span class="o">-</span><span class="mf">2750.0</span><span class="p">:</span>  <span class="c1"># -2750 is from the mock logic</span>
+    <span class="k">if</span> <span class="n">depth</span> <span class="ow">in</span> <span class="p">(</span><span class="o">-</span><span class="mf">9999.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">2750.0</span><span class="p">):</span>  <span class="c1"># -2750 is from the mock logic</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   - (Using Mock/Dev Data)&quot;</span><span class="p">)</span>
 
     <span class="c1"># 2. Test Pangaea</span>
