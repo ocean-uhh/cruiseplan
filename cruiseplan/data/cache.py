@@ -1,3 +1,10 @@
+"""
+Data caching utilities for CruisePlan.
+
+This module provides caching functionality for storing and retrieving
+expensive computations and external data.
+"""
+
 import logging
 import pickle
 from pathlib import Path

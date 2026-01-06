@@ -69,7 +69,7 @@ class TestOperationCountConsistency:
 
     def test_tc1_operation_consistency(self, tc1_cruise):
         """Test that TC1 single leg has consistent operation counts."""
-        cruise_total, leg_total_sum, unified_total = self._test_operation_consistency(
+        cruise_total, _leg_total_sum, _unified_total = self._test_operation_consistency(
             tc1_cruise
         )
 
@@ -78,7 +78,7 @@ class TestOperationCountConsistency:
 
     def test_tc2_operation_consistency(self, tc2_cruise):
         """Test that TC2 two legs has consistent operation counts."""
-        cruise_total, leg_total_sum, unified_total = self._test_operation_consistency(
+        cruise_total, _leg_total_sum, _unified_total = self._test_operation_consistency(
             tc2_cruise
         )
 
@@ -158,7 +158,7 @@ class TestOperationCountConsistency:
 
                 # Also increment specific counters for detailed stats
                 if operation_class == "PointOperation":
-                    if op_type == "station" or op_type == "CTD":
+                    if op_type in {"station", "CTD"}:
                         leg_stats[leg_name]["stations"] += 1
                     elif op_type == "mooring":
                         leg_stats[leg_name]["moorings"] += 1

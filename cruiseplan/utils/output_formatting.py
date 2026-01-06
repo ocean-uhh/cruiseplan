@@ -61,7 +61,7 @@ def _format_timeline_summary(timeline: list[dict], total_duration: float) -> str
 
 
 def _format_file_list(files: list[Path], base_dir: Optional[Path] = None) -> str:
-    """
+    r"""
     Format generated file list with relative paths.
 
     Internal utility function for consistent file list display.
@@ -132,7 +132,7 @@ def _format_duration(minutes: float) -> str:
         return f"{int(round(minutes))}m"
 
     hours = int(minutes // 60)
-    remaining_minutes = int(round(minutes % 60))
+    remaining_minutes = round(minutes % 60)
 
     if remaining_minutes == 0:
         return f"{hours}h"
@@ -307,7 +307,9 @@ def _format_size_summary(files: list[Path]) -> str:
     return f"{file_count} files, {size_str} total"
 
 
-def _format_operation_summary(operation: str, status: str, details: dict = None) -> str:
+def _format_operation_summary(
+    operation: str, status: str, details: Optional[dict] = None
+) -> str:
     """
     Format operation summary with status and details.
 
@@ -364,7 +366,7 @@ def _format_table_row(columns: list[str], widths: list[int]) -> str:
     """
     formatted_columns = []
 
-    for i, (content, width) in enumerate(zip(columns, widths)):
+    for _ii, (content, width) in enumerate(zip(columns, widths)):
         if len(content) > width:
             content = content[: width - 3] + "..."
         formatted_columns.append(content.ljust(width))
@@ -402,7 +404,9 @@ def _format_section_header(title: str, width: int = 60) -> str:
 # ============================================================================
 
 
-def _determine_output_basename(args: Namespace, cruise_name: str = None) -> str:
+def _determine_output_basename(
+    args: Namespace, cruise_name: Optional[str] = None
+) -> str:
     """
     Determine base filename from CLI arguments or cruise configuration.
 
@@ -467,7 +471,7 @@ def _construct_output_path(
     output_dir: Path,
     suffix: str = "",
     extension: str = "",
-    format_specific: str = None,
+    format_specific: Optional[str] = None,
 ) -> Path:
     """
     Construct complete output file path with consistent naming.
@@ -518,7 +522,7 @@ def _generate_multi_format_paths(
     output_dir: Path,
     formats: list[str],
     suffix: str = "",
-    format_extensions: dict[str, str] = None,
+    format_extensions: Optional[dict[str, str]] = None,
 ) -> dict[str, Path]:
     """
     Generate output paths for multiple formats.
@@ -606,10 +610,10 @@ def _validate_output_directory(
 
 def _standardize_output_setup(
     args: Namespace,
-    cruise_name: str = None,
+    cruise_name: Optional[str] = None,
     suffix: str = "",
-    single_format: str = None,
-    multi_formats: list[str] = None,
+    single_format: Optional[str] = None,
+    multi_formats: Optional[list[str]] = None,
 ) -> tuple[Path, str, dict[str, Path]]:
     """
     Complete standardized output setup for CLI commands.
@@ -670,7 +674,7 @@ def _standardize_output_setup(
 def _format_output_summary(
     generated_files: list[Path], operation: str, include_size: bool = True
 ) -> str:
-    """
+    r"""
     Format standardized output summary for CLI commands.
 
     Internal utility function for consistent output reporting.
@@ -727,8 +731,8 @@ def _format_output_summary(
 def _format_cli_error(
     operation: str,
     error: Exception,
-    context: dict[str, Any] = None,
-    suggestions: list[str] = None,
+    context: Optional[dict[str, Any]] = None,
+    suggestions: Optional[list[str]] = None,
 ) -> str:
     """
     Format CLI error messages with consistent structure.
@@ -776,7 +780,7 @@ def _format_cli_error(
 
 
 def _format_cli_warning(
-    operation: str, message: str, details: dict[str, Any] = None
+    operation: str, message: str, details: Optional[dict[str, Any]] = None
 ) -> str:
     """
     Format CLI warning messages with consistent structure.
@@ -821,9 +825,9 @@ def _format_validation_error(
     field_name: str,
     error_message: str,
     current_value: Any = None,
-    expected_format: str = None,
+    expected_format: Optional[str] = None,
 ) -> str:
-    """
+    r"""
     Format validation error messages with consistent structure.
 
     Internal utility function for validation error formatting.
@@ -866,9 +870,9 @@ def _format_file_operation_error(
     operation: str,
     file_path: Path,
     error: Exception,
-    recovery_suggestions: list[str] = None,
+    recovery_suggestions: Optional[list[str]] = None,
 ) -> str:
-    """
+    r"""
     Format file operation error messages with consistent structure.
 
     Internal utility function for file operation error formatting.
@@ -905,9 +909,12 @@ def _format_file_operation_error(
 
 
 def _format_configuration_error(
-    config_file: Path, section: str, error_details: list[str], line_number: int = None
+    config_file: Path,
+    section: str,
+    error_details: list[str],
+    line_number: Optional[int] = None,
 ) -> str:
-    """
+    r"""
     Format configuration error messages with consistent structure.
 
     Internal utility function for configuration error formatting.
@@ -952,10 +959,10 @@ def _format_api_error(
     api_operation: str,
     service: str,
     error: Exception,
-    status_code: int = None,
+    status_code: Optional[int] = None,
     retry_suggestion: bool = True,
 ) -> str:
-    """
+    r"""
     Format API error messages with consistent structure.
 
     Internal utility function for API error formatting.
@@ -1006,7 +1013,7 @@ def _format_processing_error(
     error: Exception,
     partial_results: bool = False,
 ) -> str:
-    """
+    r"""
     Format data processing error messages with consistent structure.
 
     Internal utility function for processing error formatting.
@@ -1044,9 +1051,9 @@ def _format_processing_error(
 
 
 def _format_dependency_error(
-    missing_dependency: str, operation: str, install_command: str = None
+    missing_dependency: str, operation: str, install_command: Optional[str] = None
 ) -> str:
-    """
+    r"""
     Format dependency error messages with consistent structure.
 
     Internal utility function for dependency error formatting.

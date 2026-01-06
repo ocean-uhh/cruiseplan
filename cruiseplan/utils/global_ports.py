@@ -455,10 +455,9 @@ def resolve_port_reference(
             return PortDefinition(**port_ref)
         except ValidationError as e:
             # Convert Pydantic validation error to more user-friendly message
-            missing_fields = []
-            for error in e.errors():
-                if error["type"] == "missing":
-                    missing_fields.append(error["loc"][0])
+            missing_fields = [
+                error["loc"][0] for error in e.errors() if error["type"] == "missing"
+            ]
 
             if missing_fields:
                 raise ValueError(

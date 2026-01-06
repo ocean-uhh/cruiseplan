@@ -83,7 +83,7 @@ def main(args: argparse.Namespace) -> int:
             format_list = valid_formats
 
         # Standardize output setup using new utilities
-        output_dir, base_name, format_paths = _standardize_output_setup(
+        output_dir, base_name, _format_paths = _standardize_output_setup(
             args, suffix="_map", multi_formats=format_list
         )
 

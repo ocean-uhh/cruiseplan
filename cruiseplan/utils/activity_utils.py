@@ -1,5 +1,6 @@
 """
 Activity and scheduling utility functions.
+
 Shared utilities for processing cruise activities across different output generators.
 """
 
@@ -35,8 +36,7 @@ def is_scientific_operation(activity: dict[str, Any]) -> bool:
 
 def is_scientific_transit(transit: dict[str, Any]) -> bool:
     """
-    Distinguish a Transit activity as scientific based on the presence of the
-    'action' field, as per the schema change description.
+    Distinguish a Transit activity as scientific based on the presence of the 'action' field.
 
     Scientific Transits: Have 'action' field (ADCP, bathymetry, etc.)
     Pure Navigation Transits: Lack the 'action' field.

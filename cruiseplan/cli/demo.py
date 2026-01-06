@@ -1,3 +1,9 @@
+"""
+Demonstration script for CruisePlan functionality.
+
+This module provides example usage of bathymetry, PANGAEA data, and interactive station picker.
+"""
+
 import logging
 
 from cruiseplan.data.bathymetry import bathymetry
@@ -28,7 +34,7 @@ def main():
     print("\n1. Testing Bathymetry Layer...")
     depth = bathymetry.get_depth_at_point(47.5, -52.0)
     print(f"   - Depth at St. Johns (47.5, -52.0): {depth}m")
-    if depth == -9999.0 or depth == -2750.0:  # -2750 is from the mock logic
+    if depth in (-9999.0, -2750.0):  # -2750 is from the mock logic
         print("   - (Using Mock/Dev Data)")
 
     # 2. Test Pangaea

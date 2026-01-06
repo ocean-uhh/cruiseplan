@@ -225,6 +225,7 @@ class LaTeXGenerator:
     ) -> str:
         """
         Generates the Work Days at Sea table from scheduler timeline.
+
         If multiple legs exist, generates separate tables per leg.
         """
         # Check if we have multiple legs
@@ -267,12 +268,6 @@ class LaTeXGenerator:
         transit_to_area_h = stats["port_transits_to_area"]["total_duration_h"]
         transit_from_area_h = stats["port_transits_from_area"]["total_duration_h"]
         total_port_transit_h = transit_to_area_h + transit_from_area_h
-
-        ACTION_TO_DISPLAY_NAME = {
-            "survey": "Survey Operations",
-            "ADCP": "ADCP Survey",
-            "bathymetry": "Bathymetric Survey",
-        }
 
         # Generate work days rows for the timeline
         summary_rows = self._generate_work_days_rows_for_timeline(timeline)

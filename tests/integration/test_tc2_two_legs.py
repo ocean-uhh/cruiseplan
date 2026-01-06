@@ -110,13 +110,13 @@ class TestTC2TwoLegsIntegration:
         assert len(config.legs) == 2
 
         # Leg_Atlantic
-        leg_atlantic = next(l for l in config.legs if l.name == "Leg_Atlantic")
+        leg_atlantic = next(leg for leg in config.legs if leg.name == "Leg_Atlantic")
         assert leg_atlantic.departure_port == "port_halifax"
         assert leg_atlantic.arrival_port == "port_bremerhaven"
         assert leg_atlantic.activities == ["STN_001"]
 
         # Leg_North
-        leg_north = next(l for l in config.legs if l.name == "Leg_North")
+        leg_north = next(leg for leg in config.legs if leg.name == "Leg_North")
         assert leg_north.departure_port == "port_bremerhaven"
         assert leg_north.arrival_port == "port_reykjavik"
         assert leg_north.activities == ["STN_002"]

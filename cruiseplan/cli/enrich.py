@@ -245,7 +245,7 @@ def main(args: argparse.Namespace) -> None:
         )
 
         # Standardize output setup using new utilities
-        output_dir, base_name, format_paths = _standardize_output_setup(
+        _output_dir, base_name, _format_paths = _standardize_output_setup(
             args, cruise_name=cruise_name, suffix="_enriched", single_format=".yaml"
         )
 

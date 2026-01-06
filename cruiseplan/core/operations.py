@@ -1,3 +1,10 @@
+"""
+Operation classes for cruise planning activities.
+
+This module provides the base operation classes and specialized implementations
+for stations, moorings, areas, and transects.
+"""
+
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
@@ -167,13 +174,13 @@ class PointOperation(BaseOperation):
         self,
         name: str,
         position: tuple,
-        operation_depth: float = None,
+        operation_depth: Optional[float] = None,
         water_depth: float = 0.0,
         duration: float = 0.0,
-        comment: str = None,
+        comment: Optional[str] = None,
         op_type: str = "station",
-        action: str = None,
-        display_name: str = None,
+        action: Optional[str] = None,
+        display_name: Optional[str] = None,
     ):
         """
         Initialize a point operation.
@@ -423,10 +430,10 @@ class LineOperation(BaseOperation):
         name: str,
         route: list[tuple],
         speed: float = 10.0,
-        comment: str = None,
-        display_name: str = None,
+        comment: Optional[str] = None,
+        display_name: Optional[str] = None,
         op_type: str = "line",
-        action: str = None,
+        action: Optional[str] = None,
     ):
         """
         Initialize a line operation.
@@ -610,10 +617,10 @@ class AreaOperation(BaseOperation):
         start_point: Optional[tuple[float, float]] = None,
         end_point: Optional[tuple[float, float]] = None,
         sampling_density: float = 1.0,
-        comment: str = None,
-        display_name: str = None,
+        comment: Optional[str] = None,
+        display_name: Optional[str] = None,
         op_type: str = "area",
-        action: str = None,
+        action: Optional[str] = None,
     ):
         """
         Initialize an area operation.

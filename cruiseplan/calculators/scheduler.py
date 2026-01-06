@@ -462,7 +462,7 @@ def calculate_timeline_statistics(timeline: list[dict[str, Any]]) -> dict[str, A
 
             # Also increment specific counters for detailed stats
             if operation_class == "PointOperation":
-                if op_type == "station" or op_type == "CTD":
+                if op_type in {"station", "CTD"}:
                     leg_stats[leg_name]["stations"] += 1
                 elif op_type == "mooring":
                     leg_stats[leg_name]["moorings"] += 1

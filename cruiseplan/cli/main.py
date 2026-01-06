@@ -126,7 +126,7 @@ Available sources:
 
 Examples:
   cruiseplan bathymetry                                          # Download ETOPO 2022 (default)
-  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly  
+  cruiseplan bathymetry --bathy-source etopo2022                # Download ETOPO 2022 explicitly
   cruiseplan bathymetry --bathy-source gebco2025                # Download high-res GEBCO 2025
   cruiseplan bathymetry --bathy-source etopo2022 --citation     # Show citation info only
         """,
@@ -411,7 +411,7 @@ KML files contain geographic data for Google Earth viewing of all catalog entiti
 
 Examples:
   cruiseplan map -c cruise.yaml                              # Generate map with default settings
-  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size  
+  cruiseplan map -c cruise.yaml -o maps/ --figsize 14 10     # Custom output dir and size
   cruiseplan map -c cruise.yaml --bathy-source gebco2025     # High-resolution bathymetry
   cruiseplan map -c cruise.yaml --output cruise_track        # Custom base filename
         """,
@@ -504,7 +504,7 @@ and map generation into a single command with smart defaults and flexible contro
 
 Key Features:
 - Smart defaults: All enrichment options enabled by default
-- Flexible execution: Control which steps run with --only-* and --no-* flags  
+- Flexible execution: Control which steps run with --only-* and --no-* flags
 - Consistent output naming: Use --output for base filename across all generated files
 - Modern parameter names: Shorter --bathy-* parameters for reduced typing
 
@@ -661,13 +661,13 @@ SEARCH + DOWNLOAD MODE (requires --lat and --lon):
   → Generates: atlantic_study_dois.txt + atlantic_study_stations.pkl
 
 DOI FILE MODE (provide existing .txt file):
-  cruiseplan pangaea arctic_dois.txt --output arctic_analysis  
+  cruiseplan pangaea arctic_dois.txt --output arctic_analysis
   → Generates: arctic_analysis_stations.pkl
 
 Output Strategy:
   --output: Base filename (without extension) for generated files
   --output-dir: Directory where files are saved (default: data/)
-  
+
 Examples:
   cruiseplan pangaea "CTD Arctic Ocean" --lat 70 85 --lon -180 -120 --limit 50
   cruiseplan pangaea my_dois.txt --rate-limit 0.5 --merge-campaigns

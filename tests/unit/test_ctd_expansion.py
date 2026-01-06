@@ -106,7 +106,7 @@ class TestCTDSectionExpansion:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # Check that special characters were sanitized
         station_names = [s["name"] for s in result_config["stations"]]
@@ -143,7 +143,7 @@ class TestCTDSectionExpansion:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # Check that duplicate names were handled
         station_names = [s["name"] for s in result_config["stations"]]
@@ -175,7 +175,7 @@ class TestCTDSectionExpansion:
         }
 
         # Use custom default depth of 2000m instead of default 1000m
-        result_config, summary = expand_ctd_sections(config, default_depth=2000.0)
+        result_config, _summary = expand_ctd_sections(config, default_depth=2000.0)
 
         # All stations should have the custom default depth
         for station in result_config["stations"]:
@@ -198,7 +198,7 @@ class TestCTDSectionExpansion:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # All stations should have the overridden depth
         for station in result_config["stations"]:
@@ -242,7 +242,7 @@ class TestCTDSectionExpansion:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        _result_config, summary = expand_ctd_sections(config)
 
         # The function still processes the section (sections_expanded = 1)
         # but creates no stations due to missing coordinates (stations_from_expansion = 0)
@@ -315,7 +315,7 @@ class TestCTDSectionExpansion:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # first_waypoint should point to first expanded station at leg level
         expanded_stations = [s["name"] for s in result_config["stations"]]
@@ -342,7 +342,7 @@ class TestCTDSectionExpansion:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # Check that custom fields were copied to all stations
         for station in result_config["stations"]:
@@ -368,7 +368,7 @@ class TestCTDSectionExpansion:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         stations = result_config["stations"]
 
@@ -423,7 +423,7 @@ class TestCTDExpansionEdgeCases:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        _result_config, summary = expand_ctd_sections(config)
 
         # Should still create minimum 2 stations
         assert summary["stations_from_expansion"] >= 2
@@ -464,7 +464,7 @@ class TestCTDExpansionEdgeCases:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        _result_config, summary = expand_ctd_sections(config)
 
         # Should work with alternative coordinate keys
         assert summary["sections_expanded"] == 1
@@ -487,7 +487,7 @@ class TestCTDExpansionEdgeCases:
         }
 
         config_copy = copy.deepcopy(original_config)
-        result_config, summary = expand_ctd_sections(config_copy)
+        result_config, _summary = expand_ctd_sections(config_copy)
 
         # Original should be unchanged
         assert original_config == {

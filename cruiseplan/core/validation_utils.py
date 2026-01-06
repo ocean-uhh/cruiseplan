@@ -346,7 +346,7 @@ def _add_missing_defaults(
             defaults_added.append(description)
 
     # Process technical parameters second (so they appear later)
-    for field_name, default_value, display_value, description in technical_params:
+    for field_name, default_value, display_value, _description in technical_params:
         if field_name not in config_dict or not config_dict[field_name]:
             fields_to_add.append((field_name, default_value, display_value))
             defaults_added.append(f"{field_name} = {default_value}")
@@ -453,7 +453,7 @@ def _insert_missing_fields(
         keys = list(config_dict.keys())
         insert_index = 1 if "cruise_name" in keys else 0
 
-        for field_name, value, display_value in fields_to_add:
+        for field_name, value, _display_value in fields_to_add:
             config_dict.insert(insert_index, field_name, value)
             config_dict.yaml_add_eol_comment(
                 " # default added by cruiseplan enrich", field_name
@@ -461,7 +461,7 @@ def _insert_missing_fields(
             insert_index += 1
     else:
         # Plain dictionary - just add fields
-        for field_name, value, display_value in fields_to_add:
+        for field_name, value, _display_value in fields_to_add:
             config_dict[field_name] = value
 
 

@@ -1,5 +1,6 @@
 """
 CSV Schedule Generation System.
+
 Generates comprehensive CSV files with detailed formatting for all cruise activities.
 """
 
@@ -132,11 +133,7 @@ class CSVGenerator:
 
                 # Vessel speed - 0 for station operations, actual speed for transits
                 activity_type = activity.get("activity", "").lower()
-                if (
-                    activity_type == "transit"
-                    or activity_type == "port_departure"
-                    or activity_type == "port_arrival"
-                ):
+                if activity_type in {"transit", "port_departure", "port_arrival"}:
                     vessel_speed = activity.get("vessel_speed_kt", 0)
                     # For scientific transits with 0 speed, try to calculate from distance/time
                     if vessel_speed == 0 and transit_dist_nm > 0 and duration_hours > 0:

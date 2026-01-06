@@ -1,5 +1,5 @@
 """
-cruiseplan.cli package
+cruiseplan.cli package.
 
 This package contains command-line interface modules for cruiseplan:
 

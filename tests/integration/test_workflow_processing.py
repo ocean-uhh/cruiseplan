@@ -62,36 +62,6 @@ def test_workflow_fetch_and_merge_mocked():
 
 
 # --------------------------------------------------------------------------
-# FAST MOCK TEST (Logic Verification)
-# --------------------------------------------------------------------------
-def test_workflow_fetch_and_merge_mocked():
-    """Verifies the loop from Manager -> Standardize -> Merge works."""
-    manager = PangaeaManager()
-
-    # Mock the internal _standardize method to avoid needing complex PanDataSet mocks
-    # We simulate that fetch_datasets has already done its job
-    with patch.object(PangaeaManager, "fetch_datasets") as mock_fetch:
-        mock_fetch.return_value = [
-            {
-                "label": "Cruise-A",
-                "latitude": [10, 11],
-                "longitude": [5, 5],
-                "doi": "d1",
-            },
-            {"label": "Cruise-A", "latitude": [12], "longitude": [6], "doi": "d2"},
-        ]
-
-        # Act
-        raw_data = manager.fetch_datasets(["fake-doi-1", "fake-doi-2"])
-        merged = merge_campaign_tracks(raw_data)
-
-        # Assert
-        assert len(merged) == 1
-        assert merged[0]["label"] == "Cruise-A"
-        assert len(merged[0]["latitude"]) == 3
-
-
-# --------------------------------------------------------------------------
 # REAL SLOW TEST (Network Verification)
 # --------------------------------------------------------------------------
 @pytest.mark.slow

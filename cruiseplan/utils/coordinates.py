@@ -222,7 +222,7 @@ def format_position_string(lat: float, lon: float, format_type: str = "ddm") -> 
 
 
 def format_position_latex(lat: float, lon: float) -> str:
-    """
+    r"""
     Format coordinates for LaTeX output with proper symbols.
 
     Parameters

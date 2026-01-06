@@ -284,8 +284,8 @@ class HTMLGenerator:
             html_content += f"""
     <h2>4. Cruise Track Map</h2>
     <div style="text-align: center; margin: 20px 0;">
-        <img src="{map_filename}" 
-             alt="Cruise Track Map for {config.cruise_name}" 
+        <img src="{map_filename}"
+             alt="Cruise Track Map for {config.cruise_name}"
              style="max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
         <p style="font-style: italic; color: #666; margin-top: 10px;">
             Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.
@@ -625,11 +625,6 @@ class HTMLGenerator:
             except (ValueError, AttributeError):
                 # Fallback to reasonable default if parsing fails
                 return 120.0  # 2 hours default
-
-        # Use vessel speed from config if available, otherwise default
-        vessel_speed = getattr(config, "default_vessel_speed", 8.0)
-
-        leg_names = list(legs_data.keys())
 
         # Transit calculations removed - now handled by scheduler Port_Departure/Port_Arrival activities
         # This eliminates duplication between scheduler activities and HTML generator calculations

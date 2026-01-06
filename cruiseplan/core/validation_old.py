@@ -1,3 +1,10 @@
+"""
+Legacy validation and enrichment functions (deprecated).
+
+This module contains the original validation and enrichment functions
+that are being gradually refactored. New code should use the refactored modules.
+"""
+
 import logging
 import warnings
 from enum import Enum
@@ -2360,7 +2367,7 @@ def add_missing_required_fields_DISABLED_OLD_VERSION(
         insert_index = 1 if "cruise_name" in keys else 0
 
         # Insert fields in reverse order so they appear in correct sequence
-        for field_name, field_value, comment_text in reversed(fields_to_add):
+        for field_name, field_value, _comment_text in reversed(fields_to_add):
             # Use the correct CommentedMap.insert() method signature
             config_dict.insert(insert_index, field_name, field_value)
 
@@ -2527,7 +2534,7 @@ def enrich_configuration(
     station_defaults_added = add_missing_station_defaults(config_dict)
 
     # Replace placeholder values with sensible defaults
-    config_dict, placeholders_replaced = replace_placeholder_values(config_dict)
+    config_dict, _placeholders_replaced = replace_placeholder_values(config_dict)
 
     # Expand CTD sections if requested
     sections_expanded = 0
@@ -2885,14 +2892,6 @@ def enrich_configuration(
                         )
     # Update the enrichment summary
     enrichment_summary["stations_with_coords_added"] = coord_changes_made
-    total_enriched = (
-        enrichment_summary["stations_with_depths_added"]
-        + enrichment_summary["stations_with_coords_added"]
-        + enrichment_summary["sections_expanded"]
-        + enrichment_summary["ports_expanded"]
-        + enrichment_summary["defaults_added"]
-        + enrichment_summary["station_defaults_added"]
-    )
 
     # Process captured warnings and display them in user-friendly format
     if captured_warnings:
@@ -3697,8 +3696,8 @@ def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
     # Check for complete duplicate stations
     if hasattr(cruise.config, "stations") and cruise.config.stations:
         stations = cruise.config.stations
-        for i, station1 in enumerate(stations):
-            for j, station2 in enumerate(stations[i + 1 :], i + 1):
+        for ii, station1 in enumerate(stations):
+            for _jj, station2 in enumerate(stations[ii + 1 :], ii + 1):
                 # Check if all key attributes are identical
                 if (
                     station1.name

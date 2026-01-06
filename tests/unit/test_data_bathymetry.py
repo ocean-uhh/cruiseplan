@@ -234,7 +234,7 @@ def test_download_bathymetry_success_path(
     # Assert successful calls
     mock_requests_get.assert_called_once()
     mock_tqdm.assert_called_once()
-    mock_path_instance.write.call_count == 10
+    assert mock_path_instance.write.call_count == 10
     mock_unlink.assert_not_called()  # No failure, no cleanup
 
 
@@ -453,7 +453,7 @@ class TestBathymetrySimpleCoverage:
         """Test the module __getattr__ with invalid attribute."""
         # Should raise AttributeError for invalid attributes
         with pytest.raises(AttributeError):
-            bathy_module.invalid_attribute
+            _ = bathy_module.invalid_attribute
 
     def test_interpolation_bounds_edge_cases(self):
         """Test interpolation boundary conditions that might cause errors."""

@@ -1,3 +1,10 @@
+"""
+Cruise leg management and operation sequencing.
+
+This module provides the Leg class for managing sequences of operations
+within cruise legs and parameter inheritance.
+"""
+
 from typing import Any, Optional, Union
 
 from cruiseplan.core.cluster import Cluster

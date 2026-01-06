@@ -162,11 +162,10 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     ):
         for transit in cruise.config.transits:
             if hasattr(transit, "route") and transit.route and len(transit.route) >= 2:
-                waypoints = []
-                for waypoint in transit.route:
-                    waypoints.append(
-                        {"lat": waypoint.latitude, "lon": waypoint.longitude}
-                    )
+                waypoints = [
+                    {"lat": waypoint.latitude, "lon": waypoint.longitude}
+                    for waypoint in transit.route
+                ]
 
                 lines.append(
                     {
@@ -207,14 +206,13 @@ def extract_areas_from_timeline(timeline_data) -> list[dict[str, Any]]:
         ):
 
             # Convert corners to the expected format
-            corners = []
-            for corner in activity["corners"]:
-                corners.append(
-                    {
-                        "lat": corner.get("latitude", corner.get("lat")),
-                        "lon": corner.get("longitude", corner.get("lon")),
-                    }
-                )
+            corners = [
+                {
+                    "lat": corner.get("latitude", corner.get("lat")),
+                    "lon": corner.get("longitude", corner.get("lon")),
+                }
+                for corner in activity["corners"]
+            ]
 
             areas.append(
                 {
@@ -254,9 +252,10 @@ def extract_areas_from_cruise(cruise) -> list[dict[str, Any]]:
     ):
         for area in cruise.config.areas:
             if hasattr(area, "corners") and area.corners and len(area.corners) >= 3:
-                corners = []
-                for corner in area.corners:
-                    corners.append({"lat": corner.latitude, "lon": corner.longitude})
+                corners = [
+                    {"lat": corner.latitude, "lon": corner.longitude}
+                    for corner in area.corners
+                ]
 
                 areas.append(
                     {

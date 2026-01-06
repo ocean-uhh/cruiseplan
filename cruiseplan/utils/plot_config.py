@@ -281,7 +281,7 @@ PLOT_STYLES = {
 
 
 def get_plot_style(
-    entity_type: str, operation_type: str = None, action: str = None
+    entity_type: str, operation_type: str | None = None, action: str | None = None
 ) -> dict[str, Any]:
     """
     Get plot styling for a specific entity type.
@@ -325,7 +325,7 @@ def get_legend_entries() -> dict[str, dict[str, Any]]:
         Dictionary mapping labels to style dictionaries for legend creation
     """
     legend_entries = {}
-    for style_name, style_dict in PLOT_STYLES.items():
+    for style_dict in PLOT_STYLES.values():
         if "label" in style_dict:
             legend_entries[style_dict["label"]] = style_dict.copy()
 

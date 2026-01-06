@@ -7,7 +7,7 @@ matplotlib-based interface for planning cruise stations, transects, and survey a
 
 import sys
 from pathlib import Path
-from typing import Optional
+from typing import ClassVar, Optional
 
 import matplotlib.pyplot as plt
 
@@ -63,8 +63,8 @@ class StationPicker:
     """
 
     # --- Class Attributes (Constants) ---
-    MODES = ["navigation", "point", "line", "area"]
-    KEY_BINDINGS = {
+    MODES: ClassVar[list[str]] = ["navigation", "point", "line", "area"]
+    KEY_BINDINGS: ClassVar[dict[str, str]] = {
         "n": "navigation",
         "p": "point",
         "w": "point",  # Shortcut alias
@@ -577,13 +577,11 @@ class StationPicker:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
-        depth = self.bathymetry.get_depth_at_point(lat, lon)
 
         # Draw a point marker
         (point_artist,) = self.ax_map.plot(
             lon, lat, "go", markersize=6, markeredgecolor="darkgreen", zorder=12
         )
-        data = {"lat": lat, "lon": lon, "depth": depth}
         self.area_point_artists.append(point_artist)
 
         # Update area polygon if we have 2+ points

@@ -1,5 +1,5 @@
 """
-CruisePlan: Oceanographic Research Cruise Planning System
+CruisePlan: Oceanographic Research Cruise Planning System.
 
 This package provides tools for planning oceanographic research cruises,
 including bathymetry data management, station planning, and schedule generation.
@@ -565,7 +565,11 @@ def schedule(
         # Handle specific leg processing if requested
         target_legs = cruise.runtime_legs
         if leg:
-            target_legs = [l for l in cruise.runtime_legs if l.name == leg]
+            target_legs = [
+                runtime_leg
+                for runtime_leg in cruise.runtime_legs
+                if runtime_leg.name == leg
+            ]
             if not target_legs:
                 logger.error(f"Leg '{leg}' not found in cruise configuration")
                 return None, None

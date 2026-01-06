@@ -1,4 +1,10 @@
-# cruiseplan/core/cruise.py
+"""
+Core cruise management and configuration loading.
+
+This module provides the Cruise class for loading, validating, and managing
+cruise configurations from YAML files.
+"""
+
 from pathlib import Path
 from typing import Any, Union
 

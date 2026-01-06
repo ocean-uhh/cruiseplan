@@ -702,7 +702,7 @@ class TestExtractCoordinatesFromCruise:
         mock_cruise.config.arrival_port = None
 
         # Extract coordinates
-        lats, lons, names, dep_port, arr_port = extract_coordinates_from_cruise(
+        lats, lons, _names, _dep_port, _arr_port = extract_coordinates_from_cruise(
             mock_cruise
         )
 

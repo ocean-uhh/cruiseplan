@@ -1,3 +1,10 @@
+"""
+PANGAEA database integration and data retrieval.
+
+This module provides functionality for searching, downloading, and processing
+oceanographic datasets from the PANGAEA data repository.
+"""
+
 import logging
 import pickle
 import re
@@ -44,7 +51,7 @@ class PangaeaManager:
         self.cache = CacheManager(cache_dir)
 
     def search(
-        self, query: str, bbox: tuple = None, limit: int = 10
+        self, query: str, bbox: Optional[tuple] = None, limit: int = 10
     ) -> list[dict[str, Any]]:
         """
         Search PANGAEA using the native PanQuery bbox support.

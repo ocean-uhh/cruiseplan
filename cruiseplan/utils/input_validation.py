@@ -9,7 +9,7 @@ CLI layer to validate inputs before passing them to the API layer.
 import logging
 from argparse import Namespace
 from pathlib import Path
-from typing import Any
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -107,7 +107,7 @@ def _validate_directory_writable(
         test_file.touch()
         test_file.unlink()
     except Exception as e:
-        raise ValueError(f"Directory is not writable: {resolved_path}. Error: {e}")
+        raise ValueError(f"Directory is not writable: {resolved_path}") from e
 
     return resolved_path
 
@@ -277,9 +277,7 @@ def _validate_numeric_range(
     5.5
     """
     if not isinstance(value, (int, float)):
-        raise ValueError(
-            f"{name} must be a number, got {type(value).__name__}: {value}"
-        )
+        raise TypeError(f"{name} must be a number, got {type(value).__name__}: {value}")
 
     if not (min_val <= value <= max_val):
         raise ValueError(
@@ -616,7 +614,7 @@ def _validate_coordinate_args(args: Namespace) -> tuple[float, float, float, flo
 
 
 def _handle_deprecated_cli_params(
-    args: Namespace, param_map: dict[str, str] = None
+    args: Namespace, param_map: Optional[dict[str, str]] = None
 ) -> None:
     """
     Handle deprecated CLI parameters with warnings and migration.

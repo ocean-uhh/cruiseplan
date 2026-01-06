@@ -164,6 +164,5 @@ def test_toggle_all_state_and_display_update(
         assert all(state is True for state in selector.selected_campaigns.values())
         mock_update_display.assert_called_once()
 
-        # Check that CheckButtons.set_active was called (visual update)
-        # Note: We assume CheckButtons.set_active is patched or works correctly in the loop
-        mock_check_buttons.return_value.set_active.call_count == 4 * 2  # 4 items * 2 calls (True/False)
+        # Visual updates are tested via the _update_campaign_display mock above
+        # The actual CheckButtons.set_active calls are implementation details

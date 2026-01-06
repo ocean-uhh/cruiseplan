@@ -1,4 +1,10 @@
-# cruiseplan/utils/config.py
+"""
+Configuration file utilities and path management.
+
+This module provides utilities for handling configuration files,
+output directory management, and file path operations.
+"""
+
 import logging
 from pathlib import Path
 from typing import Any, Optional, Union
@@ -51,9 +57,9 @@ CRUISE PLANNING WORKFLOW - Next Steps:
 ======================================================================================
 1. Review and update all 'UPDATE-*' placeholders below
 2. Set operation_type (CTD, mooring, water_sampling, etc.)
-3. Set action (profile, deployment, recovery, etc.)  
+3. Set action (profile, deployment, recovery, etc.)
 4. Run validation: cruiseplan validate <filename>
-5. Add depths: cruiseplan enrich <filename> --add-depths --add-coords --expand-sections   
+5. Add depths: cruiseplan enrich <filename> --add-depths --add-coords --expand-sections
 6. Generate schedule: cruiseplan schedule <filename>
 
 ======================================================================================
@@ -63,7 +69,7 @@ Required fields are marked with [REQUIRED]
 Optional fields are marked with [OPTIONAL]
 Fields marked 'UPDATE-*' must be reviewed and updated
 
-For complete field reference, see: 
+For complete field reference, see:
 https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
 """
     documented_data.yaml_set_start_comment(header_comment)
@@ -437,7 +443,7 @@ class ConfigLoader:
             # Catch Pydantic's ValidationError and re-raise it with a user-friendly message
             error_details = "\n".join(
                 [
-                    f"  -> {'.'.join(str(l) for l in err['loc'])}: {err['msg']}"
+                    f"  -> {'.'.join(str(loc_item) for loc_item in err['loc'])}: {err['msg']}"
                     for err in e.errors()
                 ]
             )

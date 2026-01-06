@@ -1,5 +1,5 @@
 """
-cruiseplan.core package
+cruiseplan.core package.
 
 This package contains the core classes and logic for cruise planning:
 

@@ -178,7 +178,7 @@ class TestCoordinateValidation:
         lon_bounds = [-10.0, 10.0]
 
         with pytest.raises(
-            ValueError, match="Minimum latitude .* must be less than maximum"
+            ValueError, match=r"Minimum latitude .* must be less than maximum"
         ):
             _validate_coordinate_bounds(lat_bounds, lon_bounds)
 
@@ -448,14 +448,14 @@ class TestCLIParameterValidation:
         """Test coordinate argument validation with missing latitude."""
         args = Namespace(lon=[-10.0, 10.0])
 
-        with pytest.raises(ValueError, match="Latitude bounds .* are required"):
+        with pytest.raises(ValueError, match=r"Latitude bounds .* are required"):
             _validate_coordinate_args(args)
 
     def test_validate_coordinate_args_missing_lon(self):
         """Test coordinate argument validation with missing longitude."""
         args = Namespace(lat=[50.0, 60.0])
 
-        with pytest.raises(ValueError, match="Longitude bounds .* are required"):
+        with pytest.raises(ValueError, match=r"Longitude bounds .* are required"):
             _validate_coordinate_args(args)
 
 

@@ -1,4 +1,10 @@
-# cruiseplan/data/bathymetry.py
+"""
+Bathymetry data download and management.
+
+This module provides functionality for downloading, caching, and accessing
+bathymetry data from ETOPO datasets for depth lookups.
+"""
+
 import logging
 import shutil
 import zipfile

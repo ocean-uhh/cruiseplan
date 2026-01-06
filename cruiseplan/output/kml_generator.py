@@ -38,7 +38,7 @@ KML_STYLES = """
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="mooringStyle">
             <IconStyle>
                 <color>ff00ff00</color>
@@ -48,14 +48,14 @@ KML_STYLES = """
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="lineOpStyle">
             <LineStyle>
                 <color>ff0066FF</color>
                 <width>3</width>
             </LineStyle>
         </Style>
-        
+
         <Style id="areaStyle">
             <LineStyle>
                 <color>ffFFD700</color>
@@ -107,7 +107,7 @@ class KMLGenerator:
     <Document>
         <name>{config.cruise_name} - Schedule</name>
         <description>{config.description or 'Cruise schedule'}</description>
-        
+
         <!-- Styles for different operation types -->
         <Style id="stationStyle">
             <IconStyle>
@@ -118,7 +118,7 @@ class KMLGenerator:
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="mooringStyle">
             <IconStyle>
                 <color>ff00ff00</color>
@@ -128,14 +128,14 @@ class KMLGenerator:
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="lineOpStyle">
             <LineStyle>
                 <color>ff0066FF</color>
                 <width>3</width>
             </LineStyle>
         </Style>
-        
+
         <Style id="areaStyle">
             <LineStyle>
                 <color>ff00ffff</color>
@@ -184,7 +184,7 @@ class KMLGenerator:
                 </coordinates>
             </LineString>
         </Placemark>
-        
+
         <Placemark>
             <name>{activity['label']}</name>
             <description>Midpoint label for {action_str} operation</description>
@@ -198,11 +198,10 @@ class KMLGenerator:
                 corners = activity.get("corners", [])
                 if corners and len(corners) >= 3:
                     # Create coordinate list for polygon (close the polygon by repeating first point)
-                    coord_list = []
-                    for corner in corners:
-                        coord_list.append(
-                            f"{corner['longitude']},{corner['latitude']},0"
-                        )
+                    coord_list = [
+                        f"{corner['longitude']},{corner['latitude']},0"
+                        for corner in corners
+                    ]
                     # Close the polygon
                     if len(corners) > 0:
                         coord_list.append(
@@ -315,7 +314,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
     <Document>
         <name>{config.cruise_name} - Catalog</name>
         <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
-        
+
         <!-- Styles for different entity types -->
         <Style id="stationStyle">
             <IconStyle>
@@ -326,7 +325,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="mooringStyle">
             <IconStyle>
                 <color>ff00ff00</color>
@@ -336,7 +335,7 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="portStyle">
             <IconStyle>
                 <color>ff0080ff</color>
@@ -346,14 +345,14 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                 </Icon>
             </IconStyle>
         </Style>
-        
+
         <Style id="transitStyle">
             <LineStyle>
                 <color>800066FF</color>
                 <width>3</width>
             </LineStyle>
         </Style>
-        
+
         <Style id="areaStyle">
             <LineStyle>
                 <color>ff00ffff</color>
@@ -565,9 +564,9 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         for area in config.areas:
             if hasattr(area, "corners") and area.corners:
                 # Create coordinate list for polygon
-                coord_list = []
-                for corner in area.corners:
-                    coord_list.append(f"{corner.longitude},{corner.latitude},0")
+                coord_list = [
+                    f"{corner.longitude},{corner.latitude},0" for corner in area.corners
+                ]
                 # Close the polygon
                 if area.corners:
                     coord_list.append(

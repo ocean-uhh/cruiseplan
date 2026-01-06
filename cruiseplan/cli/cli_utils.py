@@ -169,7 +169,7 @@ def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None
 
 
 def generate_output_filename(
-    input_path: Path, suffix: str, extension: str = None
+    input_path: Path, suffix: str, extension: Optional[str] = None
 ) -> str:
     """
     Generate output filename by adding suffix to input filename.
@@ -686,7 +686,7 @@ def _handle_common_deprecated_params(args: Namespace) -> None:
 
 def _initialize_cli_command(
     args: Namespace,
-    deprecated_param_map: dict[str, str] = None,
+    deprecated_param_map: Optional[dict[str, str]] = None,
     requires_config_file: bool = True,
 ) -> Optional[Path]:
     """
@@ -863,7 +863,7 @@ def _format_success_message(
 
 
 def _format_error_message(
-    operation: str, error: Exception, suggestions: list[str] = None
+    operation: str, error: Exception, suggestions: Optional[list[str]] = None
 ) -> None:
     """
     Consistent error reporting with actionable suggestions.
@@ -950,7 +950,7 @@ def _format_duration_seconds(seconds: float) -> str:
 
 
 def _collect_generated_files(
-    result: Any, base_patterns: list[str] = None
+    result: Any, base_patterns: Optional[list[str]] = None
 ) -> list[Path]:
     """
     Extract file paths from API responses.
