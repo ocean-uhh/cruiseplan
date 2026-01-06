@@ -7,7 +7,7 @@ This module provides:
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -282,7 +282,7 @@ PLOT_STYLES = {
 
 def get_plot_style(
     entity_type: str, operation_type: Optional[str] = None, action: Optional[str] = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get plot styling for a specific entity type.
 

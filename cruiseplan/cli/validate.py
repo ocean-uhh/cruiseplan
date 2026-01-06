@@ -121,7 +121,7 @@ def main(args: argparse.Namespace) -> None:
         if success:
             logger.info(summary_message)
             if warnings and getattr(args, "warnings_only", False):
-                logger.info("ℹ️ Treating warnings as informational only")
+                logger.info("i Treating warnings as informational only")
             sys.exit(0)
         else:
             logger.error(summary_message)

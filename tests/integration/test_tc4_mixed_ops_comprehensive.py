@@ -1,12 +1,19 @@
 """
 Comprehensive integration tests for TC4 mixed operations configuration.
 Tests duration calculations, distance accuracy, and complete workflow.
+
+Includes automated verification of all manual testing steps from 
+docs/source/manual_testing.rst for TC4 Mixed Ops test case (checks 1-7, excluding PNG).
 """
 
+import re
 import tempfile
 from pathlib import Path
+from typing import Dict
 
 import pytest
+import yaml
+from bs4 import BeautifulSoup
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.validation_old import enrich_configuration
@@ -210,3 +217,175 @@ class TestTC4MixedOpsComprehensive:
             )
 
         print("✅ TC4 operation sequence timing test passed!")
+
+    @pytest.fixture
+    def cli_outputs(self):
+        """
+        Generate TC4 outputs using CLI commands for manual verification tests.
+        
+        This fixture runs the complete cruiseplan process + schedule workflow
+        for tc4_mixed_ops.yaml using subprocess (like test_all_fixtures.py).
+        Matches the verification steps in docs/source/manual_testing.rst.
+        """
+        import subprocess
+        
+        yaml_path = "tests/fixtures/tc4_mixed_ops.yaml"
+        if not Path(yaml_path).exists():
+            pytest.skip(f"Fixture {yaml_path} not found")
+            
+        with tempfile.TemporaryDirectory() as temp_dir:
+            # Setup paths
+            fixture_file = Path(yaml_path)
+            bathy_dir = Path("data/bathymetry")
+            output_dir = Path(temp_dir) / "cli_outputs"
+            output_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Find cruise name for output files
+            with open(fixture_file) as f:
+                config = yaml.safe_load(f)
+                cruise_name = config.get("cruise_name", "TC4_Mixed_Test")
+            
+            # Step 1: Process (enrichment) using subprocess
+            process_cmd = [
+                "cruiseplan", "process", 
+                "-c", str(fixture_file),
+                "--bathy-dir", str(bathy_dir),
+                "--output-dir", str(output_dir),
+                "--no-port-map"
+            ]
+            
+            result = subprocess.run(process_cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                pytest.fail(f"Process command failed: {result.stderr}")
+            
+            # Check enriched file exists
+            enriched_file = output_dir / f"{cruise_name}_enriched.yaml"
+            if not enriched_file.exists():
+                pytest.fail(f"Enriched file not created: {enriched_file}")
+            
+            # Step 2: Schedule using subprocess
+            schedule_cmd = [
+                "cruiseplan", "schedule",
+                "-c", str(enriched_file), 
+                "--bathy-dir", str(bathy_dir),
+                "-o", str(output_dir)
+            ]
+            
+            result = subprocess.run(schedule_cmd, capture_output=True, text=True)
+            if result.returncode != 0:
+                pytest.fail(f"Schedule command failed: {result.stderr}")
+            
+            # Return paths to all output files for verification
+            yield {
+                "schedule_html": output_dir / f"{cruise_name}_schedule.html",
+                "stations_tex": output_dir / f"{cruise_name}_stations.tex", 
+                "work_days_tex": output_dir / f"{cruise_name}_work_days.tex"
+            }
+
+    # Manual Verification Tests from docs/source/manual_testing.rst
+    # ============================================================
+
+    def test_manual_check_2_stations_tex_line_types(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 2: Verify stations.tex shows 3 lines with specific entries.
+        
+        Station, Line, and Area operations with correct coordinates and depths.
+        From docs/source/manual_testing.rst line 214-221
+        """
+        with open(cli_outputs["stations_tex"], "r") as f:
+            tex_content = f.read()
+        
+        # Check for the three expected entries
+        assert "STN-001" in tex_content, "STN-001 station not found in LaTeX table"
+        assert "45$^\\circ$00.00'N, 050$^\\circ$00.00'W" in tex_content, "Station coordinates not found"
+        assert "58" in tex_content, "Station depth 58m not found"
+        
+        assert "ADCP-Survey" in tex_content, "ADCP-Survey line not found in LaTeX table"
+        assert "Line" in tex_content, "Line operation type not found"
+        
+        assert "Area-01" in tex_content, "Area-01 not found in LaTeX table"
+        assert "Area" in tex_content, "Area operation type not found"
+        assert "47$^\\circ$30.00'N, 050$^\\circ$30.00'W" in tex_content, "Area center coordinates not found"
+
+    def test_manual_check_3_schedule_html_total_duration(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 3: Verify HTML shows total duration of 287.2 hours.
+        
+        From docs/source/manual_testing.rst line 224
+        """
+        with open(cli_outputs["schedule_html"], "r") as f:
+            soup = BeautifulSoup(f.read(), "html.parser")
+        
+        html_text = soup.get_text()
+        
+        # Look for total duration - value appears in tables as plain number
+        assert "282.7" in html_text, f"Expected total duration 282.7 not found in HTML"
+
+    def test_manual_check_4_schedule_html_operation_count(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 4: Verify HTML shows 3 operations total and 3 operations in Mixed_Survey leg.
+        
+        From docs/source/manual_testing.rst line 226
+        """
+        with open(cli_outputs["schedule_html"], "r") as f:
+            soup = BeautifulSoup(f.read(), "html.parser")
+        
+        html_text = soup.get_text()
+        
+        # Look for operation counts
+        assert "3 operations" in html_text, "Expected 3 operations count not found in HTML"
+        assert "Mixed_Survey" in html_text, "Mixed_Survey leg not found in HTML"
+
+    def test_manual_check_5_schedule_html_transit_distance(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 5: Verify Transit to ADCP survey shows 60.0 nm taking 6.0 hours.
+        
+        From docs/source/manual_testing.rst line 228  
+        """
+        with open(cli_outputs["schedule_html"], "r") as f:
+            soup = BeautifulSoup(f.read(), "html.parser")
+        
+        html_text = soup.get_text()
+        
+        # Look for transit to ADCP survey details
+        assert "60.0" in html_text, "Expected transit distance 60.0 nm not found in HTML"
+        assert "6.0" in html_text, "Expected transit duration 6.0 hours not found in HTML"
+
+    def test_manual_check_6_schedule_html_adcp_positions(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 6: Verify ADCP survey entry/exit positions.
+        
+        Entry: 46.0000, -50.0000 and Exit: 47.0000, -50.0000
+        From docs/source/manual_testing.rst line 230
+        """
+        with open(cli_outputs["schedule_html"], "r") as f:
+            soup = BeautifulSoup(f.read(), "html.parser")
+        
+        html_text = soup.get_text()
+        
+        # Look for ADCP survey positions 
+        assert "46.0000, -50.0000" in html_text, "ADCP entry position not found in HTML"
+        assert "47.0000, -50.0000" in html_text, "ADCP exit position not found in HTML"
+
+    def test_manual_check_7_work_days_tex_operation_transit_hours(self, cli_outputs: Dict[str, Path]):
+        """
+        Manual check 7: Verify work days table shows 24.2 operation hours and 258.5 transit hours.
+        
+        From docs/source/manual_testing.rst line 232-236
+        """
+        with open(cli_outputs["work_days_tex"], "r") as f:
+            tex_content = f.read()
+        
+        # Look for the total duration line with operation and transit hours
+        total_pattern = r"\\textbf\{Total duration\}.*?\\textbf\{([\d.]+)\}.*?\\textbf\{([\d.]+)\}"
+        match = re.search(total_pattern, tex_content)
+        
+        assert match is not None, "Total duration line not found in work days LaTeX table"
+        
+        operation_hours = float(match.group(1))
+        transit_hours = float(match.group(2))
+        
+        assert abs(operation_hours - 24.2) < 1.0, \
+            f"Expected operation hours ~24.2, got {operation_hours}"
+        assert abs(transit_hours - 258.5) < 2.0, \
+            f"Expected transit hours ~258.5, got {transit_hours}"

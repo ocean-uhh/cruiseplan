@@ -7,6 +7,7 @@ data/tc*yaml*
 data/TC*
 data/Test*
 logs/*log
+coverage.json
 
 # VSCode settings
 .vscode/*

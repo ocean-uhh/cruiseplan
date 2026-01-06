@@ -128,6 +128,8 @@ ignore = [
 "cruiseplan/cli/main.py" = ["C901", "PLR0915"]  # CLI argument parsing
 "cruiseplan/cli/*.py" = ["C901"]  # CLI functions can be complex (temporary)
 "cruiseplan/utils/output_formatting.py" = ["RUF001"]  # Intentional use of emoji/unicode icons for visual output
+"cruiseplan/utils/coordinates.py" = ["RUF001"]  # Intentional use of mathematical symbols (′ prime for minutes)
+"cruiseplan/__init__.py" = ["TRY400"]  # ImportError for optional dependencies should use logger.error (expected condition)
 "tests/**/*.py" = ["D100", "D101", "D102", "D103", "D105", "D205", "D400", "E402", "E712", "F841", "PLR0913", "RUF001", "RUF003"]  # Test functions don't need docstrings, unused vars common, import placement flexible, explicit True/False comparisons allowed, many args OK for mocked tests, ambiguous characters OK in test data including multiplication symbols
 
 [tool.ruff.lint.pydocstyle]

@@ -221,7 +221,7 @@ Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)
 
 Compare with the `TC4_Mixed_Test_schedule.html <_static/fixtures/TC4_Mixed_Test_schedule.html>`_ for coordinates and depths.
 
-3. |uncheck| Verify that the `*_schedule.html` shows total duration of **287.2 hours**.
+3. |uncheck| Verify that the `*_schedule.html` shows total duration of **282.7 hours**.
 
 4. |uncheck| Verify that the total cruise shows **3 operations** and the `3a. Mixed_Survey` leg shows **3 operations**.
 

@@ -58,44 +58,34 @@ from .validators import (
 )
 
 __all__ = [
-    # Exceptions
-    "CruiseConfigurationError",
-    # Enums
     "ActionEnum",
-    "AreaOperationTypeEnum",
-    "LineOperationTypeEnum",
-    "OperationTypeEnum",
-    "StrategyEnum",
-    # Models
-    "FlexibleLocationModel",
-    "GeoPoint",
-    # Catalog Definitions (new terminology)
     "AreaDefinition",
-    "TransectDefinition",
-    "WaypointDefinition",
-    # Schedule Definitions (YAML layer)
+    "AreaOperationTypeEnum",
     "ClusterDefinition",
-    "LegDefinition",
-    # Generation Utilities
+    "CruiseConfig",
+    "CruiseConfigurationError",
+    "FlexibleLocationModel",
     "GenerateSection",
     "GenerateTransect",
+    "GeoPoint",
+    "LegDefinition",
+    "LineOperationTypeEnum",
+    "OperationTypeEnum",
+    "PortDefinition",
     "SectionDefinition",
-    # Main Configuration
-    "CruiseConfig",
-    # Validation Utilities
-    "show_deprecation_warning",
-    "validate_non_negative_number",
-    "validate_positive_number",
-    "validate_unique_names",
-    # Legacy validation functions
+    "StationDefinition",
+    "StrategyEnum",
+    "TransectDefinition",
+    "TransitDefinition",
+    "WaypointDefinition",
     "check_complete_duplicates",
     "check_duplicate_names",
     "enrich_configuration",
     "expand_ctd_sections",
+    "show_deprecation_warning",
     "validate_configuration_file",
     "validate_depth_accuracy",
-    # Legacy aliases (backward compatibility)
-    "PortDefinition",
-    "StationDefinition",
-    "TransitDefinition",
+    "validate_non_negative_number",
+    "validate_positive_number",
+    "validate_unique_names",
 ]

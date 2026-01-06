@@ -204,7 +204,7 @@ def _show_enrichment_summary(summary: dict, args: argparse.Namespace) -> None:
     if total_enriched > 0:
         logger.info(f"\n✅ Total enhancements: {total_enriched}")
     else:
-        logger.info("ℹ️ No enhancements were needed - configuration is already complete")
+        logger.info("i No enhancements were needed - configuration is already complete")
 
 
 def main(args: argparse.Namespace) -> None:
