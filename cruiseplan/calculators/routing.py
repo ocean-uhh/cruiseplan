@@ -6,12 +6,12 @@ Currently implements placeholder functions for composite route optimization that
 will eventually solve constrained Traveling Salesman Problems (TSP).
 """
 
-from typing import Any, List
+from typing import Any
 
 from cruiseplan.core.operations import BaseOperation
 
 
-def optimize_composite_route(children: List[BaseOperation], rules: Any) -> float:
+def optimize_composite_route(children: list[BaseOperation], rules: Any) -> float:
     """
     Calculate total duration for operations within a Cluster.
 

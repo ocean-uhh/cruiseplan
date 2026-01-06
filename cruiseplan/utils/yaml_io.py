@@ -8,7 +8,7 @@ and whitespace during configuration enrichment operations.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, Union
+from typing import Any, Union
 
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
@@ -47,7 +47,7 @@ def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML
     return yaml
 
 
-def load_yaml(file_path: Union[str, Path], encoding: str = "utf-8") -> Dict[str, Any]:
+def load_yaml(file_path: Union[str, Path], encoding: str = "utf-8") -> dict[str, Any]:
     """
     Load YAML configuration file with comment preservation.
 
@@ -87,7 +87,7 @@ def load_yaml(file_path: Union[str, Path], encoding: str = "utf-8") -> Dict[str,
         raise YAMLIOError(f"Error reading {file_path}: {e}") from e
 
 
-def dump_yaml_simple(data: Dict[str, Any], file_handle) -> None:
+def dump_yaml_simple(data: dict[str, Any], file_handle) -> None:
     """
     Dump YAML data to file handle without comment preservation.
 
@@ -115,7 +115,7 @@ def dump_yaml_simple(data: Dict[str, Any], file_handle) -> None:
 
 
 def save_yaml(
-    config: Dict[str, Any],
+    config: dict[str, Any],
     file_path: Union[str, Path],
     backup: bool = False,
     encoding: str = "utf-8",
@@ -177,7 +177,7 @@ def _get_incremental_backup_path(file_path: Path) -> Path:
         counter += 1
 
 
-def load_yaml_safe(file_path: Union[str, Path]) -> Dict[str, Any]:
+def load_yaml_safe(file_path: Union[str, Path]) -> dict[str, Any]:
     """
     Load YAML file using ruamel.yaml safe loading (returns plain dict).
 

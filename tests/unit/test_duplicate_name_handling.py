@@ -42,7 +42,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # Should have original + 2 new stations (with collision resolved names)
         assert len(result_config["stations"]) == 3
@@ -86,7 +86,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         station_names = [s["name"] for s in result_config["stations"]]
 
@@ -111,11 +111,10 @@ class TestDuplicateNameCollisionResolution:
     def test_collision_counter_increments_correctly(self):
         """Test that collision counter increments properly."""
         # Create scenario with extensive existing names
-        existing_stations = []
-        for i in range(1, 6):  # _01 through _05
-            existing_stations.append(
-                {"name": f"Busy_Section_Stn001_{i:02d}", "operation_type": "CTD"}
-            )
+        existing_stations = [
+            {"name": f"Busy_Section_Stn001_{ii:02d}", "operation_type": "CTD"}
+            for ii in range(1, 6)  # _01 through _05
+        ]
 
         config = {
             "stations": [
@@ -136,7 +135,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         station_names = [s["name"] for s in result_config["stations"]]
 
@@ -171,7 +170,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         station_names = [s["name"] for s in result_config["stations"]]
 
@@ -204,7 +203,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         station_names = [s["name"] for s in result_config["stations"]]
 
@@ -235,7 +234,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         station_names = [s["name"] for s in result_config["stations"]]
 
@@ -262,7 +261,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         # Should handle gracefully and create some valid names
         if "stations" in result_config:
@@ -294,7 +293,7 @@ class TestDuplicateNameDetection:
         cruise.config.sections = []
         cruise.config.moorings = []
 
-        errors, warnings = check_duplicate_names(cruise)
+        errors, _warnings = check_duplicate_names(cruise)
 
         # Should detect the duplicate station name
         assert len(errors) == 1
@@ -316,7 +315,7 @@ class TestDuplicateNameDetection:
         cruise.config.sections = []
         cruise.config.moorings = []
 
-        errors, warnings = check_duplicate_names(cruise)
+        errors, _warnings = check_duplicate_names(cruise)
 
         # Should detect the duplicate leg name
         assert len(errors) == 1
@@ -354,7 +353,7 @@ class TestDuplicateNameDetection:
 
         cruise.config.stations = [station1, station2, station3]
 
-        errors, warnings = check_complete_duplicates(cruise)
+        _errors, warnings = check_complete_duplicates(cruise)
 
         # Should warn about potential duplicates
         assert len(warnings) == 1
@@ -431,7 +430,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         stations = result_config["stations"]
 
@@ -463,7 +462,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         stations = result_config["stations"]
 
@@ -500,7 +499,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, summary = expand_ctd_sections(config)
+        result_config, _summary = expand_ctd_sections(config)
 
         stations = result_config["stations"]
 

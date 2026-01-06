@@ -180,7 +180,7 @@ class TestUtilityFunctions:
         10.1594/PANGAEA.12345
         doi:10.1594/PANGAEA.67890
         https://doi.org/10.1594/PANGAEA.11111
-        
+
         10.1594/PANGAEA.22222
         """
         doi_file.write_text(doi_content)

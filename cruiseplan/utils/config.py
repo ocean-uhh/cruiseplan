@@ -1,7 +1,13 @@
-# cruiseplan/utils/config.py
+"""
+Configuration file utilities and path management.
+
+This module provides utilities for handling configuration files,
+output directory management, and file path operations.
+"""
+
 import logging
 from pathlib import Path
-from typing import Any, Dict, Optional, Tuple, Union
+from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
@@ -13,7 +19,7 @@ from cruiseplan.validation import CruiseConfig, CruiseConfigurationError
 logger = logging.getLogger(__name__)
 
 
-def _add_yaml_documentation(data: Dict) -> Dict:
+def _add_yaml_documentation(data: dict) -> dict:
     """
     Add comprehensive documentation headers to YAML configuration data.
 
@@ -51,9 +57,9 @@ CRUISE PLANNING WORKFLOW - Next Steps:
 ======================================================================================
 1. Review and update all 'UPDATE-*' placeholders below
 2. Set operation_type (CTD, mooring, water_sampling, etc.)
-3. Set action (profile, deployment, recovery, etc.)  
+3. Set action (profile, deployment, recovery, etc.)
 4. Run validation: cruiseplan validate <filename>
-5. Add depths: cruiseplan enrich <filename> --add-depths --add-coords --expand-sections   
+5. Add depths: cruiseplan enrich <filename> --add-depths --add-coords --expand-sections
 6. Generate schedule: cruiseplan schedule <filename>
 
 ======================================================================================
@@ -63,7 +69,7 @@ Required fields are marked with [REQUIRED]
 Optional fields are marked with [OPTIONAL]
 Fields marked 'UPDATE-*' must be reviewed and updated
 
-For complete field reference, see: 
+For complete field reference, see:
 https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
 """
     documented_data.yaml_set_start_comment(header_comment)
@@ -172,7 +178,7 @@ Move this field to individual leg definitions to avoid validation conflicts""",
 
 
 def save_cruise_config(
-    data: Dict, filepath: Union[str, Path], add_documentation: bool = True
+    data: dict, filepath: Union[str, Path], add_documentation: bool = True
 ) -> None:
     """
     Save a dictionary to a YAML file with standard formatting and optional documentation headers.
@@ -204,12 +210,12 @@ def save_cruise_config(
 
         save_yaml(data, path, backup=False)  # No backup for new configs
         logger.info(f"✅ Configuration saved to {path}")
-    except YAMLIOError as e:
-        logger.error(f"❌ Failed to save configuration: {e}")
+    except YAMLIOError:
+        logger.exception("❌ Failed to save configuration")
         raise
 
 
-def format_station_for_yaml(station_data: Dict, index: int) -> Dict:
+def format_station_for_yaml(station_data: dict, index: int) -> dict:
     """
     Transform internal station data into the YAML schema format with enhanced depth semantics.
 
@@ -362,10 +368,10 @@ class ConfigLoader:
             Path to the YAML configuration file.
         """
         self.config_path = Path(config_path)
-        self.raw_data: Optional[Dict[str, Any]] = None
+        self.raw_data: Optional[dict[str, Any]] = None
         self.cruise_config: Optional[CruiseConfig] = None
 
-    def load_raw_data(self) -> Dict[str, Any]:
+    def load_raw_data(self) -> dict[str, Any]:
         """
         Loads the raw data from the YAML file, handling file system errors.
 
@@ -401,7 +407,7 @@ class ConfigLoader:
         return self.raw_data
 
     def validate_and_parse(
-        self, raw_data: Optional[Dict[str, Any]] = None
+        self, raw_data: Optional[dict[str, Any]] = None
     ) -> CruiseConfig:
         """
         Validates the raw dictionary data against the CruiseConfig schema.
@@ -437,7 +443,7 @@ class ConfigLoader:
             # Catch Pydantic's ValidationError and re-raise it with a user-friendly message
             error_details = "\n".join(
                 [
-                    f"  -> {'.'.join(str(l) for l in err['loc'])}: {err['msg']}"
+                    f"  -> {'.'.join(str(loc_item) for loc_item in err['loc'])}: {err['msg']}"
                     for err in e.errors()
                 ]
             )
@@ -463,7 +469,7 @@ def setup_output_paths(
     config_file: Union[str, Path],
     output_dir: str = "data",
     output: Optional[str] = None,
-) -> Tuple[Path, str]:
+) -> tuple[Path, str]:
     """
     Helper function to set up output directory and base filename from config file and parameters.
 

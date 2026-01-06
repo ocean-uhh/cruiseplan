@@ -1,5 +1,5 @@
 """
-cruiseplan.utils package
+cruiseplan.utils package.
 
 This package contains utility modules and helper functions for cruise planning:
 

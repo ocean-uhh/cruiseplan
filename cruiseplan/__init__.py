@@ -1,5 +1,5 @@
 """
-CruisePlan: Oceanographic Research Cruise Planning System
+CruisePlan: Oceanographic Research Cruise Planning System.
 
 This package provides tools for planning oceanographic research cruises,
 including bathymetry data management, station planning, and schedule generation.
@@ -192,7 +192,6 @@ def pangaea(
 
     from cruiseplan.data.pangaea import (
         PangaeaManager,
-        load_campaign_data,
         save_campaign_data,
     )
     from cruiseplan.init_utils import (
@@ -471,8 +470,8 @@ def validate(
 
         return success
 
-    except Exception as e:
-        logger.error(f"L Validation failed: {e}")
+    except Exception:
+        logger.exception("L Validation failed")
         return False
 
 
@@ -486,7 +485,7 @@ def schedule(
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data/bathymetry",
     bathy_stride: int = 10,
-    figsize: list = [12, 8],
+    figsize: Optional[list] = None,
     verbose: bool = False,
 ) -> tuple[Optional[list[Any]], Optional[list[Path]]]:
     """
@@ -555,6 +554,9 @@ def schedule(
 
     _setup_verbose_logging(verbose)
 
+    if figsize is None:
+        figsize = [12, 8]
+
     config_path = Path(config_file).resolve()
     logger.info(f"📅 Generating schedule from {config_path}")
 
@@ -565,7 +567,11 @@ def schedule(
         # Handle specific leg processing if requested
         target_legs = cruise.runtime_legs
         if leg:
-            target_legs = [l for l in cruise.runtime_legs if l.name == leg]
+            target_legs = [
+                runtime_leg
+                for runtime_leg in cruise.runtime_legs
+                if runtime_leg.name == leg
+            ]
             if not target_legs:
                 logger.error(f"Leg '{leg}' not found in cruise configuration")
                 return None, None
@@ -677,8 +683,8 @@ def schedule(
                 "Schedule generation failed: No output files were created"
             )
 
-    except Exception as e:
-        logger.error(f"❌ Schedule generation failed: {e}")
+    except Exception:
+        logger.exception("❌ Schedule generation failed")
         if verbose:
             import traceback
 
@@ -702,7 +708,7 @@ def process(
     tolerance: float = 10.0,
     format: str = "all",
     bathy_stride: int = 10,
-    figsize: list = [12, 8],
+    figsize: Optional[list] = None,
     no_port_map: bool = False,
     verbose: bool = False,
 ) -> tuple[Optional[Any], Optional[list[Path]]]:
@@ -767,6 +773,9 @@ def process(
 
     _setup_verbose_logging(verbose)
 
+    if figsize is None:
+        figsize = [12, 8]
+
     try:
         # Initialize with the original config file
         enriched_config_path = config_file
@@ -789,8 +798,8 @@ def process(
                     verbose=verbose,
                 )
                 generated_files.append(enriched_config_path)
-            except Exception as e:
-                logger.error(f"❌ Enrichment failed: {e}")
+            except Exception:
+                logger.exception("❌ Enrichment failed")
                 logger.info("💡 Try running validation only on your original config:")
                 logger.info(f"   cruiseplan.validate(config_file='{config_file}')")
                 logger.info("   Or use the CLI: cruiseplan validate {config_file}")
@@ -851,7 +860,7 @@ def map(
     bathy_source: str = "etopo2022",
     bathy_dir: str = "data",
     bathy_stride: int = 5,
-    figsize: list = [12, 8],
+    figsize: Optional[list] = None,
     show_plot: bool = False,
     no_ports: bool = False,
     verbose: bool = False,
@@ -903,6 +912,9 @@ def map(
     from cruiseplan.output.map_generator import generate_map
 
     _setup_verbose_logging(verbose)
+
+    if figsize is None:
+        figsize = [12, 8]
 
     try:
         # Load cruise configuration - direct core call

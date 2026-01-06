@@ -1,5 +1,5 @@
 """
-cruiseplan.data package
+cruiseplan.data package.
 
 This package contains data management and external data integration modules:
 

@@ -28,7 +28,7 @@ calculate_depth_via_bathymetry: false
 stations:
   - name: "STN_001"
     operation_type: CTD
-    action: profile  
+    action: profile
     position: "60.0, -20.0"
     operation_depth: 1000.0
     duration: 120.0  # 2 hours
@@ -55,7 +55,7 @@ legs:
       longitude: -21.0
       timezone: "UTC"
     arrival_port:
-      name: "Port_B" 
+      name: "Port_B"
       latitude: 64.0
       longitude: -16.0
       timezone: "UTC"

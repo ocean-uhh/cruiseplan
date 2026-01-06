@@ -7,7 +7,7 @@ matplotlib-based interface for planning cruise stations, transects, and survey a
 
 import sys
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import ClassVar, Optional
 
 import matplotlib.pyplot as plt
 
@@ -63,8 +63,8 @@ class StationPicker:
     """
 
     # --- Class Attributes (Constants) ---
-    MODES = ["navigation", "point", "line", "area"]
-    KEY_BINDINGS = {
+    MODES: ClassVar[list[str]] = ["navigation", "point", "line", "area"]
+    KEY_BINDINGS: ClassVar[dict[str, str]] = {
         "n": "navigation",
         "p": "point",
         "w": "point",  # Shortcut alias
@@ -79,7 +79,7 @@ class StationPicker:
 
     def __init__(
         self,
-        campaign_data: Optional[List[Dict]] = None,
+        campaign_data: Optional[list[dict]] = None,
         output_file: str = "stations.yaml",
         bathymetry_stride: int = 10,
         bathymetry_source: str = "etopo2022",
@@ -120,20 +120,20 @@ class StationPicker:
         )
 
         # Data Storage
-        self.stations: List[Dict] = []
-        self.transects: List[Dict] = []
-        self.areas: List[Dict] = []
-        self.history: List[Tuple[str, Dict, any]] = []
+        self.stations: list[dict] = []
+        self.transects: list[dict] = []
+        self.areas: list[dict] = []
+        self.history: list[tuple[str, dict, any]] = []
 
         # Line Drawing State
-        self.line_start: Optional[Tuple[float, float]] = None
+        self.line_start: Optional[tuple[float, float]] = None
         self.temp_line_artist: Optional[any] = None
         self.rubber_band_artist: Optional[any] = None
 
         # Area Drawing State
-        self.current_area_points: List[Tuple[float, float]] = []
+        self.current_area_points: list[tuple[float, float]] = []
         self.temp_area_artist: Optional[any] = None
-        self.area_point_artists: List[any] = []
+        self.area_point_artists: list[any] = []
 
         # Data layers
         self.campaigns = merge_campaign_tracks(campaign_data) if campaign_data else []
@@ -577,13 +577,11 @@ class StationPicker:
         """Handle click events in area drawing mode."""
         # Add point to current area
         self.current_area_points.append((lon, lat))
-        depth = self.bathymetry.get_depth_at_point(lat, lon)
 
         # Draw a point marker
         (point_artist,) = self.ax_map.plot(
             lon, lat, "go", markersize=6, markeredgecolor="darkgreen", zorder=12
         )
-        data = {"lat": lat, "lon": lon, "depth": depth}
         self.area_point_artists.append(point_artist)
 
         # Update area polygon if we have 2+ points
@@ -1004,7 +1002,7 @@ class StationPicker:
         """Display the interactive cruise planning interface."""
         plt.show()
 
-    def get_cruise_data(self) -> Dict:
+    def get_cruise_data(self) -> dict:
         """
         Get the current cruise plan data.
 

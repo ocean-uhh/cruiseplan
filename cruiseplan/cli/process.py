@@ -94,7 +94,7 @@ def main(args: argparse.Namespace) -> None:
         )
 
         # Standardize output setup using new utilities
-        output_dir, base_name, format_paths = _standardize_output_setup(
+        output_dir, base_name, _format_paths = _standardize_output_setup(
             args,
             cruise_name=cruise_name,
             suffix="",
@@ -149,7 +149,7 @@ def main(args: argparse.Namespace) -> None:
                 "Ensure bathymetry data is available",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -167,7 +167,7 @@ def main(args: argparse.Namespace) -> None:
                 "Run with --verbose for more details",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
 

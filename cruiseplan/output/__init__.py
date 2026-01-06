@@ -1,5 +1,5 @@
 """
-cruiseplan.output package
+cruiseplan.output package.
 
 This package contains output generation modules for various formats:
 

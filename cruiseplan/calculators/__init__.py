@@ -1,5 +1,5 @@
 """
-cruiseplan.calculators package
+cruiseplan.calculators package.
 
 This package contains calculation modules for cruise planning computations:
 

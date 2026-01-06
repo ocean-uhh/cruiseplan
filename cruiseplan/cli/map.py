@@ -83,7 +83,7 @@ def main(args: argparse.Namespace) -> int:
             format_list = valid_formats
 
         # Standardize output setup using new utilities
-        output_dir, base_name, format_paths = _standardize_output_setup(
+        output_dir, base_name, _format_paths = _standardize_output_setup(
             args, suffix="_map", multi_formats=format_list
         )
 
@@ -134,7 +134,7 @@ def main(args: argparse.Namespace) -> int:
                 "Verify file exists and is readable",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         return 1
     except Exception as e:
         error_msg = _format_cli_error(
@@ -147,7 +147,7 @@ def main(args: argparse.Namespace) -> int:
                 "Run with --verbose for more details",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

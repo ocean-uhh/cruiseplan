@@ -8,7 +8,7 @@ to CF conventions.
 """
 
 from datetime import datetime
-from typing import Any, Dict
+from typing import Any
 
 from cruiseplan.validation import CruiseConfig
 
@@ -19,7 +19,7 @@ def create_global_attributes(
     config: CruiseConfig,
     title_template: str,
     source: str = "YAML configuration file",
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Create standardized global attributes for NetCDF files.
 
@@ -168,7 +168,7 @@ TRANSIT_VARIABLES = {
 }
 
 
-def get_variable_attributes(variable_name: str) -> Dict[str, Any]:
+def get_variable_attributes(variable_name: str) -> dict[str, Any]:
     """
     Get standardized attributes for a variable name.
 
@@ -199,7 +199,7 @@ def get_variable_attributes(variable_name: str) -> Dict[str, Any]:
 
 def create_coordinate_variables(
     times, lats, lons, depths=None, operation_depths=None
-) -> Dict[str, tuple]:
+) -> dict[str, tuple]:
     """
     Create standardized coordinate variable definitions for xarray Dataset.
 
@@ -248,7 +248,7 @@ def create_coordinate_variables(
 
 def create_operation_variables(
     names, types, actions, durations, comments=None
-) -> Dict[str, tuple]:
+) -> dict[str, tuple]:
     """
     Create standardized operation variable definitions for xarray Dataset.
 

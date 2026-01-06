@@ -7,7 +7,7 @@ that contains all cruise metadata, global catalog definitions,
 and schedule organization.
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -125,27 +125,27 @@ class CruiseConfig(BaseModel):
     )
 
     # Global catalog definitions (new oceanographic terminology)
-    stations: Optional[List[WaypointDefinition]] = Field(
+    stations: Optional[list[WaypointDefinition]] = Field(
         default_factory=list, description="Global catalog of waypoint definitions"
     )
-    transects: Optional[List[TransectDefinition]] = Field(
+    transects: Optional[list[TransectDefinition]] = Field(
         default_factory=list, description="Global catalog of transect definitions"
     )
-    areas: Optional[List[AreaDefinition]] = Field(
+    areas: Optional[list[AreaDefinition]] = Field(
         default_factory=list, description="Global catalog of area definitions"
     )
-    ports: Optional[List[WaypointDefinition]] = Field(
+    ports: Optional[list[WaypointDefinition]] = Field(
         default_factory=list, description="Global catalog of port definitions"
     )
 
     # Schedule organization
-    legs: Optional[List[LegDefinition]] = Field(
+    legs: Optional[list[LegDefinition]] = Field(
         default_factory=list,
         description="List of cruise legs for schedule organization",
     )
 
     # Legacy fields (backward compatibility)
-    transits: Optional[List[TransectDefinition]] = Field(
+    transits: Optional[list[TransectDefinition]] = Field(
         default_factory=list, description="LEGACY: Use 'transects' instead"
     )
 

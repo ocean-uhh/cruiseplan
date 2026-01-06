@@ -15,7 +15,6 @@ tables for each operation type.
 
 import logging
 from pathlib import Path
-from typing import List
 
 from cruiseplan.calculators.scheduler import (
     ActivityRecord,
@@ -75,7 +74,7 @@ class HTMLGenerator:
         pass
 
     def generate_schedule_report(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
     ) -> Path:
         """
         Generate comprehensive HTML schedule report.
@@ -285,8 +284,8 @@ class HTMLGenerator:
             html_content += f"""
     <h2>4. Cruise Track Map</h2>
     <div style="text-align: center; margin: 20px 0;">
-        <img src="{map_filename}" 
-             alt="Cruise Track Map for {config.cruise_name}" 
+        <img src="{map_filename}"
+             alt="Cruise Track Map for {config.cruise_name}"
              style="max-width: 100%; height: auto; border: 1px solid #ccc; box-shadow: 2px 2px 8px rgba(0,0,0,0.1);">
         <p style="font-style: italic; color: #666; margin-top: 10px;">
             Figure 1: Cruise track map showing station locations, bathymetric context, and planned route.
@@ -307,7 +306,7 @@ class HTMLGenerator:
         return output_file
 
     def _generate_leg_schedules(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], stats: dict
+        self, config: CruiseConfig, timeline: list[ActivityRecord], stats: dict
     ) -> str:
         """
         Generate HTML section with per-leg schedule tables.
@@ -407,7 +406,7 @@ class HTMLGenerator:
         return html_content
 
     def _group_activities_by_leg(
-        self, config: CruiseConfig, timeline: List[ActivityRecord]
+        self, config: CruiseConfig, timeline: list[ActivityRecord]
     ) -> dict:
         """
         Group timeline activities by leg and add appropriate transit connections.
@@ -627,17 +626,12 @@ class HTMLGenerator:
                 # Fallback to reasonable default if parsing fails
                 return 120.0  # 2 hours default
 
-        # Use vessel speed from config if available, otherwise default
-        vessel_speed = getattr(config, "default_vessel_speed", 8.0)
-
-        leg_names = list(legs_data.keys())
-
         # Transit calculations removed - now handled by scheduler Port_Departure/Port_Arrival activities
         # This eliminates duplication between scheduler activities and HTML generator calculations
 
 
 def generate_html_schedule(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
     Main interface to generate HTML schedule from scheduler timeline.

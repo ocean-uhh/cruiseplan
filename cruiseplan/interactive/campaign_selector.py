@@ -4,7 +4,7 @@ PANGAEA campaign selection and management interface.
 
 import logging
 import pickle
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 import matplotlib.pyplot as plt
 from matplotlib.widgets import CheckButtons
@@ -36,7 +36,7 @@ class CampaignSelector:
         Reference to the main map axes for updating campaign display.
     """
 
-    def __init__(self, campaign_data: Optional[List[Dict]] = None):
+    def __init__(self, campaign_data: Optional[list[dict]] = None):
         """
         Initialize the campaign selector.
 
@@ -47,9 +47,9 @@ class CampaignSelector:
         """
         self.campaign_data = campaign_data or []
         # Stores the name -> boolean state (True = visible)
-        self.selected_campaigns: Dict[str, bool] = {}
+        self.selected_campaigns: dict[str, bool] = {}
         # Stores the name -> matplotlib artist object (the scatter plot)
-        self.campaign_artists: Dict[str, Any] = {}
+        self.campaign_artists: dict[str, Any] = {}
 
         # UI components
         self.ax_campaign: Optional[plt.Axes] = None
@@ -146,7 +146,7 @@ class CampaignSelector:
         if self.map_ax and self.map_ax.figure.canvas:
             self.map_ax.figure.canvas.draw_idle()
 
-    def get_selected_campaigns(self) -> List[Dict]:
+    def get_selected_campaigns(self) -> list[dict]:
         """
         Return list of currently selected campaigns.
 
@@ -179,8 +179,8 @@ class CampaignSelector:
             logger.info(
                 f"💾 Saved {len(selected_campaigns)} selected campaigns to {file_path}"
             )
-        except Exception as e:
-            logger.error(f"Failed to save campaign selection to {file_path}: {e}")
+        except Exception:
+            logger.exception(f"Failed to save campaign selection to {file_path}")
 
     def toggle_all(self, state: bool) -> None:
         """

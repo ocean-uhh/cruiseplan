@@ -1,4 +1,11 @@
-from typing import Any, List, Optional, Union
+"""
+Cruise leg management and operation sequencing.
+
+This module provides the Leg class for managing sequences of operations
+within cruise legs and parameter inheritance.
+"""
+
+from typing import Any, Optional, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.operations import BaseOperation
@@ -108,9 +115,9 @@ class Leg:
 
         # Operation containers
         # Operations are simple, standalone tasks (e.g., a single CTD, a single Transit)
-        self.operations: List[BaseOperation] = []
+        self.operations: list[BaseOperation] = []
         # Clusters provide boundary management for operation shuffling
-        self.clusters: List[Cluster] = []
+        self.clusters: list[Cluster] = []
 
         # Parameter inheritance attributes (to be set by parent Cruise)
         # These allow a Leg to override global cruise settings for this maritime segment.
@@ -140,7 +147,7 @@ class Leg:
         """
         self.clusters.append(cluster)
 
-    def get_all_operations(self) -> List[BaseOperation]:
+    def get_all_operations(self) -> list[BaseOperation]:
         """
         Flatten all operations including those within cluster boundaries.
 
@@ -162,7 +169,7 @@ class Leg:
 
         return all_ops
 
-    def get_all_clusters(self) -> List[Cluster]:
+    def get_all_clusters(self) -> list[Cluster]:
         """
         Get all clusters within this leg for boundary management.
 

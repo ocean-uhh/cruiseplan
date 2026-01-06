@@ -1,12 +1,12 @@
 """
 CSV Schedule Generation System.
+
 Generates comprehensive CSV files with detailed formatting for all cruise activities.
 """
 
 import csv
 import logging
 from pathlib import Path
-from typing import List
 
 from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.output.output_utils import get_activity_depth
@@ -75,7 +75,7 @@ class CSVGenerator:
         return str(round(depth))
 
     def generate_schedule_csv(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
     ) -> Path:
         """
         Generate CSV schedule output with comprehensive formatting.
@@ -133,11 +133,7 @@ class CSVGenerator:
 
                 # Vessel speed - 0 for station operations, actual speed for transits
                 activity_type = activity.get("activity", "").lower()
-                if (
-                    activity_type == "transit"
-                    or activity_type == "port_departure"
-                    or activity_type == "port_arrival"
-                ):
+                if activity_type in {"transit", "port_departure", "port_arrival"}:
                     vessel_speed = activity.get("vessel_speed_kt", 0)
                     # For scientific transits with 0 speed, try to calculate from distance/time
                     if vessel_speed == 0 and transit_dist_nm > 0 and duration_hours > 0:
@@ -201,7 +197,7 @@ class CSVGenerator:
 
 
 def generate_csv_schedule(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_file: Path
+    config: CruiseConfig, timeline: list[ActivityRecord], output_file: Path
 ) -> Path:
     """
     Main interface to generate CSV schedule from scheduler timeline.

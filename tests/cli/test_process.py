@@ -139,9 +139,9 @@ class TestProcessCommand:
                 main(mock_args)
 
             # Should log the error
-            mock_logger.error.assert_called_once()
+            mock_logger.exception.assert_called_once()
             # Error message should contain the CLIError content
-            error_call = mock_logger.error.call_args[0][0]
+            error_call = mock_logger.exception.call_args[0][0]
             assert "Configuration processing failed" in error_call
             assert "Invalid config file" in error_call
 
@@ -174,8 +174,8 @@ class TestProcessCommand:
                 main(mock_args)
 
             # Should log the error
-            mock_logger.error.assert_called_once()
+            mock_logger.exception.assert_called_once()
             # Error message should contain the exception content
-            error_call = mock_logger.error.call_args[0][0]
+            error_call = mock_logger.exception.call_args[0][0]
             assert "Configuration processing failed" in error_call
             assert "Unexpected error" in error_call

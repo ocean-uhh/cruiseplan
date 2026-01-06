@@ -7,7 +7,7 @@ operations can be reordered together while maintaining separation from other
 clusters or the parent leg.
 """
 
-from typing import Any, List, Optional
+from typing import Any, Optional
 
 from cruiseplan.core.operations import BaseOperation
 from cruiseplan.validation import ClusterDefinition, StrategyEnum
@@ -83,7 +83,7 @@ class Cluster:
         self.ordered = ordered
 
         # Operation container - maintains cluster boundary
-        self.operations: List[BaseOperation] = []
+        self.operations: list[BaseOperation] = []
 
     def add_operation(self, operation: BaseOperation) -> None:
         """
@@ -139,7 +139,7 @@ class Cluster:
                 return operation
         return None
 
-    def get_all_operations(self) -> List[BaseOperation]:
+    def get_all_operations(self) -> list[BaseOperation]:
         """
         Get all operations within this cluster boundary.
 
@@ -205,7 +205,7 @@ class Cluster:
         """
         return not self.ordered
 
-    def get_operation_names(self) -> List[str]:
+    def get_operation_names(self) -> list[str]:
         """
         Get names of all operations within this cluster.
 

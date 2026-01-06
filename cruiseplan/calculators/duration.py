@@ -7,7 +7,7 @@ day/night windows. Uses configuration parameters for vessel speeds and CTD rates
 """
 
 from datetime import datetime, timedelta
-from typing import Literal
+from typing import Literal, Optional
 
 from cruiseplan.calculators.distance import km_to_nm
 from cruiseplan.utils.constants import (
@@ -76,7 +76,7 @@ class DurationCalculator:
         return profile_time + self.config.turnaround_time
 
     def calculate_transit_time(
-        self, distance_km: float, speed_knots: float = None
+        self, distance_km: float, speed_knots: Optional[float] = None
     ) -> float:
         """
         Calculate vessel transit duration based on distance and speed.
@@ -107,7 +107,7 @@ class DurationCalculator:
         self,
         arrival_dt: datetime,
         duration_minutes: float,
-        required_window: Literal["day", "night"] = None,
+        required_window: Optional[Literal["day", "night"]] = None,
     ) -> float:
         """
         Calculate wait time to align operations with day/night windows.

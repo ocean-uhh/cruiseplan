@@ -12,7 +12,7 @@ import warnings as python_warnings
 from argparse import Namespace
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from cruiseplan.utils.input_validation import _validate_config_file
 from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml
@@ -169,7 +169,7 @@ def save_yaml_config(config: dict, file_path: Path, backup: bool = True) -> None
 
 
 def generate_output_filename(
-    input_path: Path, suffix: str, extension: str = None
+    input_path: Path, suffix: str, extension: Optional[str] = None
 ) -> str:
     """
     Generate output filename by adding suffix to input filename.
@@ -190,7 +190,7 @@ def generate_output_filename(
     return f"{stem}{suffix}{extension}"
 
 
-def read_doi_list(file_path: Path) -> List[str]:
+def read_doi_list(file_path: Path) -> list[str]:
     """
     Read DOI list from text file, filtering out comments and empty lines.
 
@@ -385,7 +385,7 @@ def confirm_operation(message: str, default: bool = True) -> bool:
         return False
 
 
-def count_individual_warnings(warnings: List[str]) -> int:
+def count_individual_warnings(warnings: list[str]) -> int:
     """
     Count individual warning messages from formatted warning groups.
 
@@ -410,7 +410,7 @@ def count_individual_warnings(warnings: List[str]) -> int:
 
 
 def display_user_warnings(
-    warnings: List[str], title: str = "Configuration Warnings"
+    warnings: list[str], title: str = "Configuration Warnings"
 ) -> None:
     """
     Display validation or configuration warnings in a consistent, user-friendly format.
@@ -565,7 +565,7 @@ def determine_output_path(
 # ============================================================================
 
 
-def _parse_format_options(format_str: str, valid_formats: List[str]) -> List[str]:
+def _parse_format_options(format_str: str, valid_formats: list[str]) -> list[str]:
     """
     Unified format string parsing for CLI commands.
 
@@ -610,7 +610,7 @@ def _parse_format_options(format_str: str, valid_formats: List[str]) -> List[str
         return [format_clean]
 
 
-def _handle_deprecated_params(args: Namespace, param_map: Dict[str, str]) -> None:
+def _handle_deprecated_params(args: Namespace, param_map: dict[str, str]) -> None:
     """
     Centralized deprecation warnings and parameter migration.
 
@@ -686,7 +686,7 @@ def _handle_common_deprecated_params(args: Namespace) -> None:
 
 def _initialize_cli_command(
     args: Namespace,
-    deprecated_param_map: Dict[str, str] = None,
+    deprecated_param_map: Optional[dict[str, str]] = None,
     requires_config_file: bool = True,
 ) -> Optional[Path]:
     """
@@ -746,7 +746,7 @@ def _initialize_cli_command(
     return None
 
 
-def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:
+def _validate_bathymetry_params(args: Namespace) -> dict[str, Any]:
     """
     Common bathymetry parameter validation and normalization.
 
@@ -791,7 +791,7 @@ def _validate_bathymetry_params(args: Namespace) -> Dict[str, Any]:
     }
 
 
-def _setup_output_strategy(config_file: Path, args: Namespace) -> Tuple[Path, str]:
+def _setup_output_strategy(config_file: Path, args: Namespace) -> tuple[Path, str]:
     """
     Unified output path and basename resolution for CLI commands.
 
@@ -824,7 +824,7 @@ def _setup_output_strategy(config_file: Path, args: Namespace) -> Tuple[Path, st
 
 
 def _format_success_message(
-    operation: str, files: List[Path], duration: Optional[float] = None
+    operation: str, files: list[Path], duration: Optional[float] = None
 ) -> None:
     """
     Consistent success reporting across CLI commands.
@@ -863,7 +863,7 @@ def _format_success_message(
 
 
 def _format_error_message(
-    operation: str, error: Exception, suggestions: List[str] = None
+    operation: str, error: Exception, suggestions: Optional[list[str]] = None
 ) -> None:
     """
     Consistent error reporting with actionable suggestions.
@@ -950,8 +950,8 @@ def _format_duration_seconds(seconds: float) -> str:
 
 
 def _collect_generated_files(
-    result: Any, base_patterns: List[str] = None
-) -> List[Path]:
+    result: Any, base_patterns: Optional[list[str]] = None
+) -> list[Path]:
     """
     Extract file paths from API responses.
 

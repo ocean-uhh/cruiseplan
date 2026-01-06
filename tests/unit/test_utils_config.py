@@ -4,6 +4,7 @@ from unittest.mock import mock_open, patch
 import pytest
 
 from cruiseplan.utils.config import (
+    ConfigLoader,
     format_station_for_yaml,
     format_transect_for_yaml,
     save_cruise_config,
@@ -14,9 +15,6 @@ from cruiseplan.validation import CruiseConfigurationError
 # Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
 # Assuming FALLBACK_DEPTH is -9999.0 for testing the formatters.
 FALLBACK_DEPTH = -9999.0
-
-# Import the system under test
-from cruiseplan.utils.config import ConfigLoader
 
 
 def test_format_station_standard():
@@ -312,7 +310,7 @@ class TestSetupOutputPaths:
         test_config = tmp_path / "test_cruise.yaml"
         test_config.write_text("start_date: '2024-01-01'\ndefault_vessel_speed: 10.0")
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=test_config, output_dir="test_output", output=None
         )
 
@@ -327,7 +325,7 @@ class TestSetupOutputPaths:
         test_config = tmp_path / "invalid_yaml.yaml"
         test_config.write_text("invalid: yaml: [missing bracket")
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=test_config, output_dir="test_output", output=None
         )
 
@@ -340,7 +338,7 @@ class TestSetupOutputPaths:
 
         nonexistent_file = Path("nonexistent.yaml")
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=nonexistent_file, output_dir="test_output", output=None
         )
 
@@ -355,7 +353,7 @@ class TestSetupOutputPaths:
         test_config = tmp_path / "test.yaml"
         test_config.write_text("cruise_name: 'Should_Be_Ignored'")
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=test_config,
             output_dir="test_output",
             output="Explicit_Override",
@@ -372,7 +370,7 @@ class TestSetupOutputPaths:
         test_config = tmp_path / "test.yaml"
         test_config.write_text('cruise_name: "My Special/Survey 2024"')
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=test_config, output_dir="test_output", output=None
         )
 
@@ -391,7 +389,7 @@ class TestSetupOutputPaths:
         new_output_dir = tmp_path / "new_output_dir"
         assert not new_output_dir.exists()
 
-        output_dir, base_name = setup_output_paths(
+        output_dir, _base_name = setup_output_paths(
             config_file=test_config, output_dir=str(new_output_dir), output=None
         )
 
@@ -409,7 +407,7 @@ class TestSetupOutputPaths:
         if not fixture_file.exists():
             pytest.skip("Fixture file not found - test environment issue")
 
-        output_dir, base_name = setup_output_paths(
+        _output_dir, base_name = setup_output_paths(
             config_file=fixture_file, output_dir="test_output", output=None
         )
 

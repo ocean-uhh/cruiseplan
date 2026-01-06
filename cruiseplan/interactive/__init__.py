@@ -1,5 +1,5 @@
 """
-cruiseplan.interactive package
+cruiseplan.interactive package.
 
 This package contains interactive components for cruise planning:
 

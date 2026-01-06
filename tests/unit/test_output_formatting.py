@@ -491,7 +491,7 @@ class TestStandardizedOutputSetup:
         ) as mock_validate:
             mock_validate.return_value = Path("data")
 
-            output_dir, base_name, format_paths = _standardize_output_setup(
+            _output_dir, base_name, format_paths = _standardize_output_setup(
                 args, cruise_name="Atlantic Survey", single_format=".yaml"
             )
 

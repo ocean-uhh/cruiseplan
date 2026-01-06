@@ -8,7 +8,7 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import List
+from typing import Optional
 
 import numpy as np
 import xarray as xr
@@ -42,8 +42,8 @@ class NetCDFGenerator:
         self.cf_conventions = "CF-1.8"
 
     def generate_all_netcdf_outputs(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
-    ) -> List[Path]:
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+    ) -> list[Path]:
         """
         Generate all NetCDF files according to netcdf_outputs.md specification.
 
@@ -96,10 +96,11 @@ class NetCDFGenerator:
         return generated_files
 
     def generate_point_operations(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_path: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
     ) -> None:
         """
         Generate point operations NetCDF from stations and moorings.
+
         FeatureType: point (CF discrete sampling geometry)
         """
         logger.info(f"Generating point operations NetCDF: {output_path}")
@@ -245,10 +246,11 @@ class NetCDFGenerator:
         logger.info(f"Point operations NetCDF written to: {output_path}")
 
     def generate_master_schedule(
-        self, timeline: List[ActivityRecord], config: CruiseConfig, output_path: Path
+        self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
     ) -> None:
         """
         Generate master schedule NetCDF from timeline with waterdepth included for all operations.
+
         FeatureType: trajectory (ship's continuous path)
         This is the master file containing all data that other files derive from.
         """
@@ -260,8 +262,6 @@ class NetCDFGenerator:
                 }
             )
         else:
-            n_events = len(timeline)
-
             # Create station lookup for depth information
             station_lookup = {
                 station.name: station for station in (config.stations or [])
@@ -680,7 +680,7 @@ class NetCDFGenerator:
         ds.to_netcdf(output_path, format="NETCDF4")
 
     def _create_empty_derived_dataset(
-        self, operation_type: str, config: CruiseConfig, comment: str = None
+        self, operation_type: str, config: CruiseConfig, comment: Optional[str] = None
     ) -> xr.Dataset:
         """Create an empty dataset with proper global attributes for derived files."""
         # Determine featureType based on operation type
@@ -816,6 +816,7 @@ class NetCDFGenerator:
     ) -> None:
         """
         Derive point operations file from master schedule.nc.
+
         Filters to include only point_operation categories.
         """
         # Read master schedule
@@ -861,6 +862,7 @@ class NetCDFGenerator:
     ) -> None:
         """
         Derive line operations file from master schedule.nc.
+
         Filters to include only line_operation categories.
         """
         # Read master schedule
@@ -964,6 +966,7 @@ class NetCDFGenerator:
     ) -> None:
         """
         Derive area operations file from master schedule.nc.
+
         Filters to include only area_operation categories.
         """
         # Read master schedule
@@ -1020,11 +1023,12 @@ class NetCDFGenerator:
         ds_areas.close()
 
     def generate_ship_schedule(
-        self, timeline: List[ActivityRecord], config: CruiseConfig, output_path: Path
+        self, timeline: list[ActivityRecord], config: CruiseConfig, output_path: Path
     ) -> None:
         """
         Generate ship schedule NetCDF from timeline.
-        FeatureType: trajectory (ship's continuous path)
+
+        FeatureType: trajectory (ship's continuous path).
         """
         logger.info(f"Generating ship schedule NetCDF: {output_path}")
 
@@ -1032,8 +1036,6 @@ class NetCDFGenerator:
             # Create empty dataset
             ds = xr.Dataset()
         else:
-            n_events = len(timeline)
-
             # Extract timeline data
             times = []
             lats = []
@@ -1229,11 +1231,12 @@ class NetCDFGenerator:
         logger.info(f"Ship schedule NetCDF written to: {output_path}")
 
     def generate_line_operations(
-        self, config: CruiseConfig, timeline: List[ActivityRecord], output_path: Path
+        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
     ) -> None:
         """
         Generate line operations NetCDF from scientific transits.
-        FeatureType: trajectory (start/end points defining survey lines)
+
+        FeatureType: trajectory (start/end points defining survey lines).
         """
         logger.info(f"Generating line operations NetCDF: {output_path}")
 
@@ -1438,7 +1441,8 @@ class NetCDFGenerator:
     def generate_area_operations(self, config: CruiseConfig, output_path: Path) -> None:
         """
         Generate area operations NetCDF (placeholder for future implementation).
-        FeatureType: trajectory (coverage patterns)
+
+        FeatureType: trajectory (coverage patterns).
         """
         logger.info(f"Generating area operations NetCDF (placeholder): {output_path}")
 
@@ -1467,8 +1471,8 @@ class NetCDFGenerator:
 
 # Convenience function for external use
 def generate_netcdf_outputs(
-    config: CruiseConfig, timeline: List[ActivityRecord], output_dir: Path
-) -> List[Path]:
+    config: CruiseConfig, timeline: list[ActivityRecord], output_dir: Path
+) -> list[Path]:
     """
     Convenience function to generate all NetCDF outputs.
 

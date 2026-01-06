@@ -15,7 +15,6 @@ import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import List, Tuple
 
 import cruiseplan
 from cruiseplan.cli.cli_utils import (
@@ -57,8 +56,8 @@ logger = logging.getLogger(__name__)
 
 
 def validate_lat_lon_bounds(
-    lat_bounds: List[float], lon_bounds: List[float]
-) -> Tuple[float, float, float, float]:
+    lat_bounds: list[float], lon_bounds: list[float]
+) -> tuple[float, float, float, float]:
     """
     Validate and convert latitude/longitude bounds into bounding box tuple.
 
@@ -157,7 +156,7 @@ def main(args: argparse.Namespace) -> None:
         )
 
         # Standardize output setup using new utilities
-        output_dir, base_name, format_paths = _standardize_output_setup(
+        output_dir, base_name, _format_paths = _standardize_output_setup(
             args, suffix="_stations", multi_formats=["pkl", "txt"]
         )
 
@@ -216,7 +215,7 @@ def main(args: argparse.Namespace) -> None:
                 "Ensure DOI file exists and is readable",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -240,7 +239,7 @@ def main(args: argparse.Namespace) -> None:
                     "Run with --verbose for more details",
                 ],
             )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

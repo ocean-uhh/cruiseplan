@@ -25,12 +25,12 @@ Usage:
 """
 
 import warnings
-from typing import Dict, Union
+from typing import Union
 
 from pydantic import ValidationError
 
 # Global port registry with common maritime research destinations
-GLOBAL_PORTS: Dict[str, Dict[str, Union[str, float]]] = {
+GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
     # North Atlantic Research Ports
     "port_reykjavik": {
         "name": "Reykjavik",
@@ -455,10 +455,9 @@ def resolve_port_reference(
             return PortDefinition(**port_ref)
         except ValidationError as e:
             # Convert Pydantic validation error to more user-friendly message
-            missing_fields = []
-            for error in e.errors():
-                if error["type"] == "missing":
-                    missing_fields.append(error["loc"][0])
+            missing_fields = [
+                error["loc"][0] for error in e.errors() if error["type"] == "missing"
+            ]
 
             if missing_fields:
                 raise ValueError(
@@ -518,7 +517,7 @@ def resolve_port_reference(
         raise ValueError(f"Invalid port reference type: {type(port_ref)}")
 
 
-def get_available_ports() -> Dict[str, str]:
+def get_available_ports() -> dict[str, str]:
     """
     Get a dictionary of available global ports with comments.
 
@@ -572,7 +571,7 @@ def add_custom_port(port_id: str, port_data: dict) -> None:
 
 def list_ports_in_region(
     min_lat: float, max_lat: float, min_lon: float, max_lon: float
-) -> Dict[str, str]:
+) -> dict[str, str]:
     """
     List ports within a geographic bounding box.
 

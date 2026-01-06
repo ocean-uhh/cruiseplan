@@ -79,7 +79,7 @@ def test_doi_cleaning():
 
 
 def test_missing_event_attribute():
-    """Verify safe_get works on partial objects"""
+    """Verify safe_get works on partial objects."""
     manager = PangaeaManager()
 
     # FIX: Use spec=['lat'] to strictly define valid attributes.

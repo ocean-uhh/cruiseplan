@@ -1,3 +1,10 @@
+"""
+Data caching utilities for CruisePlan.
+
+This module provides caching functionality for storing and retrieving
+expensive computations and external data.
+"""
+
 import logging
 import pickle
 from pathlib import Path
@@ -74,8 +81,8 @@ class CacheManager:
             with open(cache_file, "wb") as f:
                 pickle.dump(data, f, protocol=pickle.HIGHEST_PROTOCOL)
                 logger.debug(f"Cached: {key}")
-        except Exception as e:
-            logger.error(f"Cache write error for {key}: {e}")
+        except Exception:
+            logger.exception(f"Cache write error for {key}")
 
     def clear(self, key: str) -> None:
         """

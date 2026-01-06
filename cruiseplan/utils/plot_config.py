@@ -7,7 +7,7 @@ This module provides:
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
@@ -281,7 +281,7 @@ PLOT_STYLES = {
 
 
 def get_plot_style(
-    entity_type: str, operation_type: str = None, action: str = None
+    entity_type: str, operation_type: Optional[str] = None, action: Optional[str] = None
 ) -> Dict[str, Any]:
     """
     Get plot styling for a specific entity type.
@@ -315,7 +315,7 @@ def get_plot_style(
         return PLOT_STYLES["station"].copy()
 
 
-def get_legend_entries() -> Dict[str, Dict[str, Any]]:
+def get_legend_entries() -> dict[str, dict[str, Any]]:
     """
     Get legend entries for all plot styles.
 
@@ -325,7 +325,7 @@ def get_legend_entries() -> Dict[str, Dict[str, Any]]:
         Dictionary mapping labels to style dictionaries for legend creation
     """
     legend_entries = {}
-    for style_name, style_dict in PLOT_STYLES.items():
+    for style_dict in PLOT_STYLES.values():
         if "label" in style_dict:
             legend_entries[style_dict["label"]] = style_dict.copy()
 

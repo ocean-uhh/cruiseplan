@@ -2,7 +2,7 @@
 
 import logging
 from pathlib import Path
-from typing import Any, List, Optional, Tuple
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -30,8 +30,8 @@ def _handle_error_with_logging(
 
 
 def _validate_lat_lon_bounds(
-    lat_bounds: Optional[List[float]], lon_bounds: Optional[List[float]]
-) -> Optional[Tuple[float, float, float, float]]:
+    lat_bounds: Optional[list[float]], lon_bounds: Optional[list[float]]
+) -> Optional[tuple[float, float, float, float]]:
     """
     Validate and convert lat/lon bounds to bbox format.
 
@@ -57,7 +57,7 @@ def _validate_lat_lon_bounds(
 
 def _parse_schedule_formats(
     format_str: Optional[str], derive_netcdf: bool = False
-) -> List[str]:
+) -> list[str]:
     """
     Parse format string for schedule generation.
 
@@ -86,7 +86,7 @@ def _parse_schedule_formats(
     return formats
 
 
-def _parse_map_formats(format_str: Optional[str]) -> List[str]:
+def _parse_map_formats(format_str: Optional[str]) -> list[str]:
     """
     Parse format string for map/process functions.
 
@@ -117,7 +117,7 @@ def _parse_map_formats(format_str: Optional[str]) -> List[str]:
 
 
 def generate_html_format(
-    cruise_config: Any, timeline: List[Any], output_dir_path: Path, base_name: str
+    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
 ) -> Optional[Path]:
     """Generate HTML schedule output."""
     from cruiseplan.output.html_generator import generate_html_schedule
@@ -129,7 +129,7 @@ def generate_html_format(
 
 
 def generate_latex_format(
-    cruise_config: Any, timeline: List[Any], output_dir_path: Path, base_name: str
+    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
 ) -> Optional[Path]:
     """Generate LaTeX schedule output."""
     from cruiseplan.output.latex_generator import generate_latex_tables
@@ -143,7 +143,7 @@ def generate_latex_format(
 
 
 def generate_csv_format(
-    cruise_config: Any, timeline: List[Any], output_dir_path: Path, base_name: str
+    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
 ) -> Optional[Path]:
     """Generate CSV schedule output."""
     from cruiseplan.output.csv_generator import generate_csv_schedule
@@ -155,7 +155,7 @@ def generate_csv_format(
 
 
 def generate_netcdf_format(
-    cruise_config: Any, timeline: List[Any], output_dir_path: Path, base_name: str
+    cruise_config: Any, timeline: list[Any], output_dir_path: Path, base_name: str
 ) -> Optional[Path]:
     """Generate NetCDF schedule output."""
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
@@ -171,8 +171,8 @@ def generate_netcdf_format(
 
 
 def generate_specialized_netcdf(
-    cruise_config: Any, timeline: List[Any], output_dir_path: Path
-) -> List[Path]:
+    cruise_config: Any, timeline: list[Any], output_dir_path: Path
+) -> list[Path]:
     """Generate specialized NetCDF files."""
     from cruiseplan.output.netcdf_generator import NetCDFGenerator
 
@@ -188,7 +188,7 @@ def generate_specialized_netcdf(
 
 def generate_png_format(
     cruise: Any,
-    timeline: List[Any],
+    timeline: list[Any],
     output_dir_path: Path,
     base_name: str,
     bathy_source: str,
@@ -405,7 +405,7 @@ def _convert_api_response_to_cli(response: Any, command: str) -> dict:
     return result
 
 
-def _aggregate_generated_files(*file_lists: List[Path]) -> List[Path]:
+def _aggregate_generated_files(*file_lists: list[Path]) -> list[Path]:
     """
     Combine and deduplicate file lists from multiple operations.
 
@@ -441,7 +441,7 @@ def _aggregate_generated_files(*file_lists: List[Path]) -> List[Path]:
     return unique_files
 
 
-def _extract_api_errors(response: Any) -> Tuple[bool, List[str], List[str]]:
+def _extract_api_errors(response: Any) -> tuple[bool, list[str], list[str]]:
     """
     Extract success status, errors, and warnings from API response.
 

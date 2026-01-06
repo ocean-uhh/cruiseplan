@@ -7,7 +7,7 @@ These are YAML-layer definitions that get converted to runtime objects
 during scheduling.
 """
 
-from typing import List, Optional, Union
+from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -57,16 +57,16 @@ class ClusterDefinition(BaseModel):
     )
 
     # New activities-based architecture
-    activities: List[Union[str, dict]] = Field(
+    activities: list[Union[str, dict]] = Field(
         default_factory=list,
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
 
     # Deprecated fields (maintain temporarily for backward compatibility)
-    sequence: Optional[List[Union[str, WaypointDefinition, dict]]] = Field(
+    sequence: Optional[list[Union[str, WaypointDefinition, dict]]] = Field(
         default=None, description="DEPRECATED: Use 'activities' instead"
     )
-    stations: Optional[List[Union[str, WaypointDefinition]]] = Field(
+    stations: Optional[list[Union[str, WaypointDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
     generate_transect: Optional[dict] = Field(
@@ -202,22 +202,22 @@ class LegDefinition(BaseModel):
     )
 
     # Activity organization
-    activities: Optional[List[Union[str, dict]]] = Field(
+    activities: Optional[list[Union[str, dict]]] = Field(
         default_factory=list,
         description="Unified list of all activities in this leg (can be string references or dict objects)",
     )
-    clusters: Optional[List[ClusterDefinition]] = Field(
+    clusters: Optional[list[ClusterDefinition]] = Field(
         default_factory=list, description="List of operation clusters"
     )
 
     # Deprecated fields (backward compatibility)
-    stations: Optional[List[Union[str, WaypointDefinition]]] = Field(
+    stations: Optional[list[Union[str, WaypointDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
-    sections: Optional[List[dict]] = Field(
+    sections: Optional[list[dict]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
-    sequence: Optional[List[Union[str, WaypointDefinition]]] = Field(
+    sequence: Optional[list[Union[str, WaypointDefinition]]] = Field(
         default_factory=list, description="DEPRECATED: Use 'activities' instead"
     )
 
