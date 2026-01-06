@@ -611,6 +611,8 @@ class Cruise:
             True if the anchor reference exists in any registry.
         """
         # Check all registries for the anchor reference
-        return (anchor_ref in self.station_registry or 
-                anchor_ref in self.area_registry or 
-                anchor_ref in self.transit_registry)
+        return (
+            anchor_ref in self.station_registry
+            or anchor_ref in self.area_registry
+            or anchor_ref in self.transit_registry
+        )

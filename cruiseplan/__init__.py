@@ -772,7 +772,7 @@ def process(
     from cruiseplan.init_utils import _setup_verbose_logging
 
     _setup_verbose_logging(verbose)
-    
+
     if figsize is None:
         figsize = [12, 8]
 
@@ -912,7 +912,7 @@ def map(
     from cruiseplan.output.map_generator import generate_map
 
     _setup_verbose_logging(verbose)
-    
+
     if figsize is None:
         figsize = [12, 8]
 

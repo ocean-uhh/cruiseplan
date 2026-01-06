@@ -129,7 +129,7 @@ def _format_duration(minutes: float) -> str:
     '2m'
     """
     if minutes < 60:
-        return f"{int(round(minutes))}m"
+        return f"{round(minutes)}m"
 
     hours = int(minutes // 60)
     remaining_minutes = round(minutes % 60)
