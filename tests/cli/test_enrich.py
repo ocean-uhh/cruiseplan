@@ -378,7 +378,7 @@ class TestEnrichCommand:
 
             # Should log the "no enhancements needed" message
             mock_logger.info.assert_any_call(
-                "No enhancements were needed - configuration is already complete"
+                "ℹ️ No enhancements were needed - configuration is already complete"
             )
 
     def test_no_operations_specified_error(self):
@@ -536,7 +536,7 @@ class TestEnrichCommand:
                 main(args)
 
             # Should log error count and call format function
-            mock_logger.error.assert_called()
+            mock_logger.exception.assert_called()
             # Just verify the function was called, not the exact format
             mock_format_errors.assert_called_once()
 

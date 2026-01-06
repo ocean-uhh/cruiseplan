@@ -179,8 +179,8 @@ class CampaignSelector:
             logger.info(
                 f"💾 Saved {len(selected_campaigns)} selected campaigns to {file_path}"
             )
-        except Exception as e:
-            logger.error(f"Failed to save campaign selection to {file_path}: {e}")
+        except Exception:
+            logger.exception(f"Failed to save campaign selection to {file_path}")
 
     def toggle_all(self, state: bool) -> None:
         """

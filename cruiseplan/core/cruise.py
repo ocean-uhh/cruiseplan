@@ -610,16 +610,7 @@ class Cruise:
         bool
             True if the anchor reference exists in any registry.
         """
-        # Check stations registry (includes moorings as operation_type=mooring)
-        if anchor_ref in self.station_registry:
-            return True
-
-        # Check areas registry
-        if anchor_ref in self.area_registry:
-            return True
-
-        # Check transits registry for scientific transits that can serve as anchors
-        if anchor_ref in self.transit_registry:
-            return True
-
-        return False
+        # Check all registries for the anchor reference
+        return (anchor_ref in self.station_registry or 
+                anchor_ref in self.area_registry or 
+                anchor_ref in self.transit_registry)

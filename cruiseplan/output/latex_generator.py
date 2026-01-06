@@ -568,8 +568,8 @@ def generate_latex_tables(
     try:
         stations_table = generator.generate_stations_table(config, timeline)
         work_days_table = generator.generate_work_days_table(config, timeline)
-    except Exception as e:
-        logging.exception(f"Failed to generate LaTeX tables: {e}")
+    except Exception:
+        logging.exception("Failed to generate LaTeX tables")
         return []
 
     # Write to files

@@ -215,7 +215,7 @@ def main(args: argparse.Namespace) -> None:
                 "Ensure DOI file exists and is readable",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -239,7 +239,7 @@ def main(args: argparse.Namespace) -> None:
                     "Run with --verbose for more details",
                 ],
             )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

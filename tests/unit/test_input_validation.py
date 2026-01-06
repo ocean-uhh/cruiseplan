@@ -231,7 +231,7 @@ class TestNumericRangeValidation:
 
     def test_validate_numeric_range_invalid_type(self):
         """Test validation with invalid type."""
-        with pytest.raises(ValueError, match="test must be a number"):
+        with pytest.raises(TypeError, match="test must be a number"):
             _validate_numeric_range("not_a_number", 0.0, 10.0, "test")
 
 

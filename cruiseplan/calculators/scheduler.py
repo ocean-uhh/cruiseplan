@@ -644,9 +644,9 @@ class TimelineGenerator:
 
                 previous_operation = operation
 
-            except Exception as e:
+            except Exception:
                 activity_name = getattr(activity, "name", str(activity))
-                logger.error(f"Failed to process activity '{activity_name}': {e}")
+                logger.exception(f"Failed to process activity '{activity_name}'")
                 continue
 
         return activities
@@ -834,8 +834,8 @@ class TimelineGenerator:
             else:
                 start_time = getattr(self.config, "start_time", "08:00")
                 return datetime.strptime(f"{start_date} {start_time}", "%Y-%m-%d %H:%M")
-        except (ValueError, AttributeError) as e:
-            logger.error(f"Invalid start_date or start_time format: {e}")
+        except (ValueError, AttributeError):
+            logger.exception("Invalid start_date or start_time format")
             # Return a default datetime instead of None
             return datetime(1970, 1, 1, 8, 0, 0)
 

@@ -244,7 +244,7 @@ def main(args=None):
                     "Try again later if server is busy",
                 ],
             )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
 

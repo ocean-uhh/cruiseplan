@@ -190,8 +190,8 @@ class BathymetryManager:
 
         try:
             return self._interpolate_depth(lat, lon)
-        except Exception as e:
-            logger.error(f"Error interpolating depth at {lat}, {lon}: {e}")
+        except Exception:
+            logger.exception(f"Error interpolating depth at {lat}, {lon}")
             return FALLBACK_DEPTH
 
     def get_grid_subset(self, lat_min, lat_max, lon_min, lon_max, stride=1):
@@ -492,18 +492,18 @@ class BathymetryManager:
             logger.info(f"✅ GEBCO 2025 extraction complete ({file_size_gb:.1f} GB)")
             return True
 
-        except requests.RequestException as e:
-            logger.error(f"❌ Download failed: {e}")
+        except requests.RequestException:
+            logger.exception("❌ Download failed")
             if zip_path.exists():
                 zip_path.unlink()
             return False
-        except zipfile.BadZipFile as e:
-            logger.error(f"❌ Invalid zip file: {e}")
+        except zipfile.BadZipFile:
+            logger.exception("❌ Invalid zip file")
             if zip_path.exists():
                 zip_path.unlink()
             return False
-        except Exception as e:
-            logger.error(f"❌ Unexpected error: {e}")
+        except Exception:
+            logger.exception("❌ Unexpected error")
             # Cleanup on failure
             for path in [zip_path, nc_path]:
                 if path.exists():

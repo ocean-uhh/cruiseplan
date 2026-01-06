@@ -95,8 +95,8 @@ class PangaeaManager:
 
             return self.fetch_datasets(clean_dois)
 
-        except Exception as e:
-            logger.error(f"Search failed: {e}")
+        except Exception:
+            logger.exception("Search failed")
             return []
 
     def fetch_datasets(
@@ -181,7 +181,7 @@ class PangaeaManager:
             except Exception as e:
                 if progress_callback:
                     progress_callback(i, len(doi_list), f"✗ Error fetching {doi}: {e}")
-                logger.error(f"Error fetching {doi}: {e}")
+                logger.exception(f"Error fetching {doi}")
                 continue
 
         # Merge campaigns if requested
@@ -295,8 +295,8 @@ class PangaeaManager:
             logger.info(f"No events found for {doi}, falling back to data table.")
             return self._parse_data_table(ds, doi)
 
-        except Exception as e:
-            logger.error(f"Failed to fetch {doi}: {e}")
+        except Exception:
+            logger.exception(f"Failed to fetch {doi}")
             return None
 
     def _parse_events(self, events_data: Any, doi: str) -> Optional[dict[str, Any]]:

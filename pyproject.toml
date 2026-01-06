@@ -114,6 +114,7 @@ ignore = [
   "PERF401", # use list.extend - micro-optimization, current patterns are readable
   "B904",    # exception chaining - good practice but not critical, many cases to fix manually
   "TRY004",  # TypeError vs ValueError - good practice but not critical, many cases to fix manually
+  "B028",    # missing stacklevel in warnings - improves UX, documented in CLAUDE-v0.3.3-refactor-complex.md
 ]
 
 # Per-file ignores for complex legacy functions (to be refactored gradually)

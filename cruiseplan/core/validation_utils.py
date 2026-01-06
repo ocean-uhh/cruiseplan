@@ -461,8 +461,7 @@ def _insert_missing_fields(
             insert_index += 1
     else:
         # Plain dictionary - just add fields
-        for field_name, value, _display_value in fields_to_add:
-            config_dict[field_name] = value
+        config_dict.update({field_name: value for field_name, value, _display_value in fields_to_add})
 
 
 # --- Validation Pattern Utilities ---

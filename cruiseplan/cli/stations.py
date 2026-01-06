@@ -230,7 +230,7 @@ def main(args: argparse.Namespace) -> None:
             error_msg = _format_dependency_error(
                 "matplotlib", "Interactive station picker", "pip install matplotlib"
             )
-            logger.error(error_msg)
+            logger.exception(error_msg)
             sys.exit(1)
 
     except CLIError as e:
@@ -243,7 +243,7 @@ def main(args: argparse.Namespace) -> None:
                 "Ensure matplotlib is installed",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:
@@ -261,7 +261,7 @@ def main(args: argparse.Namespace) -> None:
                 "Run with --verbose for more details",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         if getattr(args, "verbose", False):
             import traceback
 

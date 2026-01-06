@@ -294,7 +294,7 @@ def main(args: argparse.Namespace) -> None:
                 "Verify output directory permissions",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
     except ValidationError as e:
@@ -307,7 +307,7 @@ def main(args: argparse.Namespace) -> None:
         config_error = _format_configuration_error(
             config_file, "configuration", error_details
         )
-        logger.error(config_error)
+        logger.exception(config_error)
 
         # Still use existing detailed validation error formatting for backward compatibility
         _format_validation_errors(e.errors())
@@ -328,7 +328,7 @@ def main(args: argparse.Namespace) -> None:
                 "Run with --verbose for more details",
             ],
         )
-        logger.error(error_msg)
+        logger.exception(error_msg)
         sys.exit(1)
 
 

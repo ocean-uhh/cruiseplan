@@ -14,8 +14,6 @@ from typing import Any, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from cruiseplan.utils.constants import (
-    DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-    DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
     DEFAULT_MOORING_DURATION_MIN,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
@@ -2295,94 +2293,6 @@ def add_missing_required_fields(
     return config_dict, all_defaults_added
 
 
-def add_missing_required_fields_DISABLED_OLD_VERSION(
-    config_dict: dict[str, Any],
-) -> tuple[dict[str, Any], list[str]]:
-    """DISABLED - Old version kept for reference only."""
-    # This function has been refactored into smaller utilities
-    # See validation_utils.py for the extracted functions
-    if "calculate_transfer_between_sections" not in config_dict:
-        fields_to_add.append(
-            (
-                "calculate_transfer_between_sections",
-                DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
-                str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS),
-            )
-        )
-        defaults_added.append(
-            f"calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}"
-        )
-        logger.warning(
-            f"⚠️ Added missing field: calculate_transfer_between_sections = {DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS}"
-        )
-
-    if "calculate_depth_via_bathymetry" not in config_dict:
-        fields_to_add.append(
-            (
-                "calculate_depth_via_bathymetry",
-                DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-                str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY),
-            )
-        )
-        defaults_added.append(
-            f"calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}"
-        )
-        logger.warning(
-            f"⚠️ Added missing field: calculate_depth_via_bathymetry = {DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY}"
-        )
-
-    if "default_distance_between_stations" not in config_dict:
-        fields_to_add.append(
-            (
-                "default_distance_between_stations",
-                DEFAULT_STATION_SPACING_KM,
-                f"{DEFAULT_STATION_SPACING_KM} km",
-            )
-        )
-        defaults_added.append(
-            f"default_distance_between_stations = {DEFAULT_STATION_SPACING_KM}"
-        )
-        logger.warning(
-            f"⚠️ Added missing field: default_distance_between_stations = {DEFAULT_STATION_SPACING_KM} km"
-        )
-
-    if "start_date" not in config_dict:
-        fields_to_add.append(
-            ("start_date", DEFAULT_START_DATE, f"'{DEFAULT_START_DATE}' (placeholder)")
-        )
-        defaults_added.append(f"start_date = '{DEFAULT_START_DATE}'")
-        logger.warning(
-            f"⚠️ Added missing field: start_date = '{DEFAULT_START_DATE}' (placeholder)"
-        )
-
-    # If we have fields to add, insert them properly at the top
-    if fields_to_add:
-        # Convert to CommentedMap if it isn't already
-        if not isinstance(config_dict, CommentedMap):
-            new_config = CommentedMap(config_dict)
-            config_dict = new_config
-
-        # Get current keys and find where to insert (after cruise_name)
-        keys = list(config_dict.keys())
-        insert_index = 1 if "cruise_name" in keys else 0
-
-        # Insert fields in reverse order so they appear in correct sequence
-        for field_name, field_value, _comment_text in reversed(fields_to_add):
-            # Use the correct CommentedMap.insert() method signature
-            config_dict.insert(insert_index, field_name, field_value)
-
-            # Add comment indicating this was added by enrichment
-            config_dict.yaml_add_eol_comment(
-                "# default added by cruiseplan enrich", field_name
-            )
-
-        logger.info(
-            "ℹ️ Missing required fields added with defaults. Update these values as needed."
-        )
-
-    return config_dict, defaults_added
-
-
 def add_missing_station_defaults(config_dict: dict[str, Any]) -> int:
     """
     Add missing defaults to station definitions.
@@ -3486,14 +3396,12 @@ def _warning_relates_to_entity(warning_msg: str, entity) -> bool:
         ]:
             return True
 
-    if (
+    return (
         hasattr(entity, "duration")
         and entity.duration is not None
         and entity.duration == 9999.0
         and "9999.0" in warning_msg
-    ):
-        return True
-    return False
+    )
 
 
 def _clean_warning_message(warning_msg: str) -> str:

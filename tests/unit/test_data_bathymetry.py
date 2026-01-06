@@ -369,7 +369,7 @@ class TestBathymetrySimpleCoverage:
             assert result == FALLBACK_DEPTH
 
             # Should log error
-            mock_logger.error.assert_called()
+            mock_logger.exception.assert_called()
 
     def test_initialization_with_custom_source(self, tmp_path):
         """Test initialization with custom (non-standard) source."""

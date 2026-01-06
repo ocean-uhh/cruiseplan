@@ -210,8 +210,8 @@ def save_cruise_config(
 
         save_yaml(data, path, backup=False)  # No backup for new configs
         logger.info(f"✅ Configuration saved to {path}")
-    except YAMLIOError as e:
-        logger.error(f"❌ Failed to save configuration: {e}")
+    except YAMLIOError:
+        logger.exception("❌ Failed to save configuration")
         raise
 
 
