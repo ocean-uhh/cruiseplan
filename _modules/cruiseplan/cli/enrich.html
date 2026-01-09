@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.enrich &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
+  <title>cruiseplan.cli.enrich &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
+      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -114,333 +114,67 @@
 <span class="sd">This module implements the &#39;cruiseplan enrich&#39; command for adding missing</span>
 <span class="sd">data to existing YAML configuration files.</span>
 
-<span class="sd">Uses the API-first architecture pattern with proper separation of concerns:</span>
-<span class="sd">- CLI layer handles argument parsing and output formatting</span>
-<span class="sd">- API layer (cruiseplan.__init__) contains business logic</span>
-<span class="sd">- Utility functions provide consistent formatting and error handling</span>
+<span class="sd">Thin CLI layer that delegates all business logic to the API layer.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
-
 <span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CLIError</span><span class="p">,</span>
-    <span class="n">_collect_generated_files</span><span class="p">,</span>
-    <span class="n">_format_error_message</span><span class="p">,</span>
-    <span class="n">_format_progress_header</span><span class="p">,</span>
-    <span class="n">_format_success_message</span><span class="p">,</span>
-    <span class="n">_initialize_cli_command</span><span class="p">,</span>
-    <span class="n">_setup_cli_logging</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_convert_api_response_to_cli</span><span class="p">,</span>
-    <span class="n">_resolve_cli_to_api_params</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
-    <span class="n">_handle_deprecated_cli_params</span><span class="p">,</span>
-    <span class="n">_validate_config_file</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_format_cli_error</span><span class="p">,</span>
-    <span class="n">_format_configuration_error</span><span class="p">,</span>
-    <span class="n">_format_output_summary</span><span class="p">,</span>
-    <span class="n">_standardize_output_setup</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="c1"># Re-export functions for test mocking (cleaner than complex patch paths)</span>
-<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">&quot;_collect_generated_files&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_convert_api_response_to_cli&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_format_error_message&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_format_progress_header&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_format_success_message&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_resolve_cli_to_api_params&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_setup_cli_logging&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;_validate_config_file&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;main&quot;</span><span class="p">,</span>
-<span class="p">]</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_format_validation_errors</span><span class="p">(</span><span class="n">errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format detailed validation errors using existing logic.&quot;&quot;&quot;</span>
-    <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
-        <span class="n">field_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
-        <span class="n">field_type</span> <span class="o">=</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span>
-        <span class="n">input_value</span> <span class="o">=</span> <span class="n">error</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;input&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">msg</span> <span class="o">=</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;msg&quot;</span><span class="p">]</span>
-
-        <span class="c1"># Extract entity type and name for better formatting</span>
-        <span class="k">if</span> <span class="n">field_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;stations.&quot;</span><span class="p">):</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">field_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;- Stations:&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
-                    <span class="n">field_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;field&quot;</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Station field missing: </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> (required field in yaml)&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    STN_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> value error: </span><span class="si">{</span><span class="n">input_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Stations: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;moorings.&quot;</span><span class="p">):</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">field_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;- Moorings:&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
-                    <span class="n">field_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;field&quot;</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Mooring field missing: </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> (required field in yaml)&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Mooring_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> value error: </span><span class="si">{</span><span class="n">input_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Moorings: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;transits.&quot;</span><span class="p">):</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">field_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;- Transits:&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
-                    <span class="n">field_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;field&quot;</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Transit field missing: </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> (required field in yaml)&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Transit_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> value error: </span><span class="si">{</span><span class="n">input_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Transits: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;legs.&quot;</span><span class="p">):</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">field_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;- Legs:&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
-                    <span class="n">field_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;field&quot;</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Leg field missing: </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> (required field in yaml)&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Leg_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> value error: </span><span class="si">{</span><span class="n">input_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Legs: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">field_path</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;areas.&quot;</span><span class="p">):</span>
-            <span class="n">parts</span> <span class="o">=</span> <span class="n">field_path</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">isdigit</span><span class="p">():</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;- Areas:&quot;</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">field_type</span> <span class="o">==</span> <span class="s2">&quot;missing&quot;</span><span class="p">:</span>
-                    <span class="n">field_name</span> <span class="o">=</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">2</span> <span class="k">else</span> <span class="s2">&quot;field&quot;</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Area field missing: </span><span class="si">{</span><span class="n">field_name</span><span class="si">}</span><span class="s2"> (required field in yaml)&quot;</span>
-                    <span class="p">)</span>
-                <span class="k">else</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;    Area_</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2"> value error: </span><span class="si">{</span><span class="n">input_value</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Areas: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">field_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_show_enrichment_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Show enrichment operation summary using existing detailed logic.&quot;&quot;&quot;</span>
-    <span class="c1"># Calculate total enriched items</span>
-    <span class="n">total_enriched</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="o">+</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="o">+</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sections_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-        <span class="o">+</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ports_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Show specific operation results</span>
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;add_depths&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;✓ Added depths to </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;stations_with_depths_added&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stations&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;add_coords&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;✓ Added coordinate fields to </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;stations_with_coords_added&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stations&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="p">(</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_sections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;sections_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
-    <span class="p">):</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;✓ Expanded </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;sections_expanded&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> CTD sections into </span><span class="si">{</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;stations_from_expansion&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_ports&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="ow">and</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ports_expanded&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✓ Expanded </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;ports_expanded&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> global port references&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;defaults_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;✓ Added </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;defaults_added&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> missing required fields with defaults&quot;</span>
-        <span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;station_defaults_added&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;✓ Added </span><span class="si">{</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;station_defaults_added&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> missing station defaults (e.g., mooring durations)&quot;</span>
-        <span class="p">)</span>
-
-    <span class="c1"># Show final summary</span>
-    <span class="k">if</span> <span class="n">total_enriched</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">✅ Total enhancements: </span><span class="si">{</span><span class="n">total_enriched</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ℹ️ No enhancements were needed - configuration is already complete&quot;</span><span class="p">)</span>
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.enrich.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main entry point for enrich command using API-first architecture.</span>
+<span class="sd">    Thin CLI wrapper for enrich command.</span>
 
-<span class="sd">    Args:</span>
-<span class="sd">        args: Parsed command line arguments</span>
+<span class="sd">    Delegates all business logic to the cruiseplan.enrich() API function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Handle deprecated parameters (currently no deprecated params for v0.3.0+)</span>
-        <span class="n">_handle_deprecated_cli_params</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="c1"># Apply standard CLI defaults</span>
-        <span class="n">_apply_cli_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="c1"># Standardized CLI initialization</span>
-        <span class="n">config_file</span> <span class="o">=</span> <span class="n">_initialize_cli_command</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="c1"># Extract cruise name from config file for proper naming</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
-
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">config_data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
-                <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">,</span> <span class="ne">KeyError</span><span class="p">):</span>
-            <span class="n">cruise_name</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># Format progress header using new utility</span>
-        <span class="n">_format_progress_header</span><span class="p">(</span>
-            <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;Configuration Enrichment&quot;</span><span class="p">,</span>
-            <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+        <span class="c1"># Call the API function with CLI arguments</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">enrich</span><span class="p">(</span>
+            <span class="n">config_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">config_file</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">output_dir</span>
+                <span class="k">else</span> <span class="s2">&quot;data&quot;</span>
+            <span class="p">),</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
             <span class="n">add_depths</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;add_depths&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
             <span class="n">add_coords</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;add_coords&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
             <span class="n">expand_sections</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_sections&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
             <span class="n">expand_ports</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;expand_ports&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">bathy_source</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">),</span>
+            <span class="n">bathy_dir</span><span class="o">=</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">bathy_dir</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">bathy_dir</span>
+                <span class="k">else</span> <span class="s2">&quot;data/bathymetry&quot;</span>
+            <span class="p">),</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="c1"># Standardize output setup using new utilities</span>
-        <span class="n">_output_dir</span><span class="p">,</span> <span class="n">base_name</span><span class="p">,</span> <span class="n">_format_paths</span> <span class="o">=</span> <span class="n">_standardize_output_setup</span><span class="p">(</span>
-            <span class="n">args</span><span class="p">,</span> <span class="n">cruise_name</span><span class="o">=</span><span class="n">cruise_name</span><span class="p">,</span> <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;_enriched&quot;</span><span class="p">,</span> <span class="n">single_format</span><span class="o">=</span><span class="s2">&quot;.yaml&quot;</span>
-        <span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Configuration enriched successfully: </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Convert CLI args to API parameters using bridge utility</span>
-        <span class="n">api_params</span> <span class="o">=</span> <span class="n">_resolve_cli_to_api_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;enrich&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Override output with standardized base name</span>
-        <span class="n">api_params</span><span class="p">[</span><span class="s2">&quot;output&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">base_name</span>
-
-        <span class="c1"># Call API function instead of core directly</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Processing configuration...&quot;</span><span class="p">)</span>
-        <span class="n">api_response</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">enrich</span><span class="p">(</span><span class="o">**</span><span class="n">api_params</span><span class="p">)</span>
-
-        <span class="c1"># Convert API response to CLI format using bridge utility</span>
-        <span class="n">cli_response</span> <span class="o">=</span> <span class="n">_convert_api_response_to_cli</span><span class="p">(</span><span class="n">api_response</span><span class="p">,</span> <span class="s2">&quot;enrich&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Collect generated files using utility</span>
-        <span class="n">generated_files</span> <span class="o">=</span> <span class="n">_collect_generated_files</span><span class="p">(</span>
-            <span class="n">cli_response</span><span class="p">,</span> <span class="n">base_patterns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;*_enriched.yaml&quot;</span><span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">and</span> <span class="n">generated_files</span><span class="p">:</span>
-            <span class="c1"># Use new standardized output summary</span>
-            <span class="n">success_summary</span> <span class="o">=</span> <span class="n">_format_output_summary</span><span class="p">(</span>
-                <span class="n">generated_files</span><span class="p">,</span> <span class="s2">&quot;Configuration enrichment&quot;</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">success_summary</span><span class="p">)</span>
-
-            <span class="c1"># Show operation summary if available in response data</span>
-            <span class="k">if</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">):</span>
-                <span class="n">summary</span> <span class="o">=</span> <span class="n">cli_response</span><span class="p">[</span><span class="s2">&quot;data&quot;</span><span class="p">]</span>
-                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-                    <span class="n">_show_enrichment_summary</span><span class="p">(</span><span class="n">summary</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Enrichment failed&quot;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="n">CLIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
-            <span class="s2">&quot;Configuration enrichment&quot;</span><span class="p">,</span>
-            <span class="n">e</span><span class="p">,</span>
-            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;Check configuration file path and syntax&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Verify output directory permissions&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Configuration validation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="c1"># Use new configuration error formatting</span>
-        <span class="n">error_details</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
-            <span class="n">field_path</span> <span class="o">=</span> <span class="s2">&quot;.&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">loc</span><span class="p">)</span> <span class="k">for</span> <span class="n">loc</span> <span class="ow">in</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">])</span>
-            <span class="n">error_details</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">field_path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">error</span><span class="p">[</span><span class="s1">&#39;msg&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="n">config_error</span> <span class="o">=</span> <span class="n">_format_configuration_error</span><span class="p">(</span>
-            <span class="n">config_file</span><span class="p">,</span> <span class="s2">&quot;configuration&quot;</span><span class="p">,</span> <span class="n">error_details</span>
-        <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">config_error</span><span class="p">)</span>
-
-        <span class="c1"># Still use existing detailed validation error formatting for backward compatibility</span>
-        <span class="n">_format_validation_errors</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">())</span>
+    <span class="k">except</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">FileError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ File operation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ File not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">⚠️ Operation cancelled by user.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">⚠️ Operation cancelled by user.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
-            <span class="s2">&quot;Configuration enrichment&quot;</span><span class="p">,</span>
-            <span class="n">e</span><span class="p">,</span>
-            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;Check configuration file syntax&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Verify bathymetry data availability&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Check output directory permissions&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Run with --verbose for more details&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 

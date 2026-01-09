@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.bathymetry &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
+  <title>cruiseplan.cli.bathymetry &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=cc9937a9"></script>
+      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -114,261 +114,128 @@
 <span class="sd">This module implements the &#39;cruiseplan bathymetry&#39; command for downloading</span>
 <span class="sd">bathymetry data assets required for cruise planning.</span>
 
-<span class="sd">Uses the API-first architecture pattern with proper separation of concerns:</span>
-<span class="sd">- CLI layer handles argument parsing and output formatting</span>
-<span class="sd">- API layer (cruiseplan.__init__) contains business logic</span>
-<span class="sd">- Utility functions provide consistent formatting and error handling</span>
+<span class="sd">Thin CLI layer that delegates all business logic to the API layer.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_format_progress_header</span><span class="p">,</span>
-    <span class="n">_initialize_cli_command</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_convert_api_response_to_cli</span><span class="p">,</span>
-    <span class="n">_resolve_cli_to_api_params</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
-    <span class="n">_handle_deprecated_cli_params</span><span class="p">,</span>
-    <span class="n">_validate_choice_param</span><span class="p">,</span>
-    <span class="n">_validate_directory_writable</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_format_api_error</span><span class="p">,</span>
-    <span class="n">_format_cli_error</span><span class="p">,</span>
-    <span class="n">_format_output_summary</span><span class="p">,</span>
-<span class="p">)</span>
-
-<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="get_citation_info">
-<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.bathymetry.get_citation_info">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_citation_info</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Get citation information for bathymetry data sources.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    source : str</span>
-<span class="sd">        Bathymetry source name (&#39;etopo2022&#39; or &#39;gebco2025&#39;)</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    dict</span>
-<span class="sd">        Citation information with formal citation, short citation, and license</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">citations</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="s2">&quot;etopo2022&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;ETOPO 2022 15 Arc-Second Global Relief Model&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;formal_citation&quot;</span><span class="p">:</span> <span class="s2">&quot;NOAA National Centers for Environmental Information. 2022: ETOPO 2022 15 Arc-Second Global Relief Model. NOAA National Centers for Environmental Information. https://doi.org/10.25921/fd45-gt74&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;short_citation&quot;</span><span class="p">:</span> <span class="s2">&quot;Bathymetry data from ETOPO 2022 (NOAA NCEI)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="s2">&quot;https://doi.org/10.25921/fd45-gt74&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;Public Domain (US Government Work). Free to use, modify, and distribute.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Global bathymetry and topography at 15 arc-second resolution (~500m)&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-        <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;GEBCO 2025 Grid&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;formal_citation&quot;</span><span class="p">:</span> <span class="s2">&quot;GEBCO Compilation Group (2025) GEBCO 2025 Grid (doi:10.5285/37c52e96-24ea-67ce-e063-7086abc05f29)&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;short_citation&quot;</span><span class="p">:</span> <span class="s2">&quot;Bathymetry data from GEBCO 2025&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;doi&quot;</span><span class="p">:</span> <span class="s2">&quot;https://doi.org/10.5285/37c52e96-24ea-67ce-e063-7086abc05f29&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;license&quot;</span><span class="p">:</span> <span class="s2">&quot;Public domain. Free to use, copy, publish, distribute, transmit, adapt, and commercially exploit. Users must acknowledge the source and not suggest official endorsement by GEBCO, IHO, or IOC.&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;High-resolution global bathymetric grid at 15 arc-second resolution&quot;</span><span class="p">,</span>
-        <span class="p">},</span>
-    <span class="p">}</span>
-    <span class="k">return</span> <span class="n">citations</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="p">{})</span></div>
-
-
-
-<div class="viewcode-block" id="show_citation">
-<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.bathymetry.show_citation">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">show_citation</span><span class="p">(</span><span class="n">source</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Display citation information for a bathymetry source.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    source : str</span>
-<span class="sd">        Bathymetry source name</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">citation</span> <span class="o">=</span> <span class="n">get_citation_info</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">citation</span><span class="p">:</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Unknown bathymetry source: </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   CITATION INFORMATION: </span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📖 FORMAL CITATION (for bibliography):&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;formal_citation&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📄 SHORT CITATION (for figure captions):&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&quot;</span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s2">&quot;short_citation&quot;</span><span class="p">]</span><span class="si">}</span><span class="s1">&quot;&#39;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔗 DOI:&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;doi&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;⚖️  LICENSE:&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;license&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📊 DESCRIPTION:&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;description&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">()</span>
-
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Please include appropriate citation when using this data in publications.&quot;</span><span class="p">)</span>
-    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">80</span><span class="p">)</span></div>
-
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.bathymetry.main">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Entry point for downloading bathymetry data assets using API-first architecture.</span>
+<span class="sd">    Thin CLI wrapper for bathymetry command.</span>
 
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : argparse.Namespace, optional</span>
-<span class="sd">        Parsed command-line arguments containing bathymetry source selection.</span>
+<span class="sd">    Delegates all business logic to the cruiseplan.bathymetry() API function.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Handle deprecated parameters</span>
-        <span class="n">deprecated_params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bathymetry_source&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">_handle_deprecated_cli_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">deprecated_params</span><span class="p">)</span>
-
-        <span class="c1"># Apply standard CLI defaults</span>
-        <span class="n">_apply_cli_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="c1"># Standardized CLI initialization</span>
-        <span class="n">_initialize_cli_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">requires_config_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="c1"># Extract and validate bathymetry source</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">)</span>
-        <span class="n">valid_sources</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">]</span>
-        <span class="n">source</span> <span class="o">=</span> <span class="n">_validate_choice_param</span><span class="p">(</span><span class="n">source</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="n">valid_sources</span><span class="p">)</span>
-
-        <span class="n">show_citation_only</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;citation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">))</span>
-
-        <span class="c1"># If citation flag is set, show citation and exit</span>
-        <span class="k">if</span> <span class="n">show_citation_only</span><span class="p">:</span>
-            <span class="n">show_citation</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="c1"># Validate output directory using new utility</span>
-        <span class="n">validated_output_dir</span> <span class="o">=</span> <span class="n">_validate_directory_writable</span><span class="p">(</span>
-            <span class="n">output_dir</span><span class="p">,</span> <span class="n">create_if_missing</span><span class="o">=</span><span class="kc">True</span>
+        <span class="c1"># Call the API function with CLI arguments</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">(</span>
+            <span class="n">bathy_source</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">),</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output_dir&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+            <span class="n">citation</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;citation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
 
-        <span class="c1"># Format progress header using new utility</span>
-        <span class="n">_format_progress_header</span><span class="p">(</span>
-            <span class="n">operation</span><span class="o">=</span><span class="s2">&quot;Bathymetry Data Download&quot;</span><span class="p">,</span>
-            <span class="n">config_file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-            <span class="n">source</span><span class="o">=</span><span class="n">source</span><span class="p">,</span>
-            <span class="n">output_dir</span><span class="o">=</span><span class="n">validated_output_dir</span><span class="p">,</span>
-        <span class="p">)</span>
+        <span class="c1"># Display results</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bathymetry Download Results&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;This utility will fetch the ETOPO 2022 bathymetry data (~500MB).</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="s2">&quot;This utility will fetch the GEBCO 2025 high-resolution bathymetry data (~7.5GB).</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">data_file</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📁 Downloaded file:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Convert CLI args to API parameters using bridge utility</span>
-        <span class="n">api_params</span> <span class="o">=</span> <span class="n">_resolve_cli_to_api_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
+            <span class="c1"># Show download summary</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📊 Download summary:&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • Data source: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • Output directory: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;output_dir&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;N/A&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file_size_mb&quot;</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • File size: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;file_size_mb&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> MB&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Call API function instead of core directly</span>
-        <span class="n">api_response</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">(</span><span class="o">**</span><span class="n">api_params</span><span class="p">)</span>
-
-        <span class="c1"># Convert API response to CLI format using bridge utility</span>
-        <span class="n">cli_response</span> <span class="o">=</span> <span class="n">_convert_api_response_to_cli</span><span class="p">(</span><span class="n">api_response</span><span class="p">,</span> <span class="s2">&quot;bathymetry&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;success&quot;</span><span class="p">,</span> <span class="kc">True</span><span class="p">):</span>
-            <span class="c1"># Use standardized output summary</span>
-            <span class="n">files_list</span> <span class="o">=</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;files&quot;</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="k">if</span> <span class="n">files_list</span><span class="p">:</span>
-                <span class="n">success_summary</span> <span class="o">=</span> <span class="n">_format_output_summary</span><span class="p">(</span>
-                    <span class="n">files_list</span><span class="p">,</span> <span class="s2">&quot;Bathymetry download&quot;</span>
-                <span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">success_summary</span><span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ Bathymetry download completed successfully&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Show citation info after successful download</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;📚 CITATION INFORMATION&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Please cite this data in your publications:&quot;</span><span class="p">)</span>
-            <span class="n">citation</span> <span class="o">=</span> <span class="n">get_citation_info</span><span class="p">(</span><span class="n">source</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">citation</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Short citation: </span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;short_citation&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DOI: </span><span class="si">{</span><span class="n">citation</span><span class="p">[</span><span class="s1">&#39;doi&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">For full citation details, run:&quot;</span><span class="p">)</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;  cruiseplan bathymetry --bathy-source </span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2"> --citation&quot;</span>
-                <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">60</span><span class="p">)</span>
+            <span class="c1"># Show citation if requested</span>
+            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;citation&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📖 Citation Information:&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;  NOAA National Centers for Environmental Information. 2022.&quot;</span>
+                    <span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  ETOPO 2022 15 Arc-Second Global Relief Model.&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  https://doi.org/10.25921/fd45-gt74&quot;</span><span class="p">)</span>
+                <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">:</span>
+                    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;  GEBCO Compilation Group (2025) GEBCO 2025 Grid&quot;</span><span class="p">)</span>
+                    <span class="nb">print</span><span class="p">(</span>
+                        <span class="s2">&quot;  https://doi.org/10.5285/c6612cbe-50b3-0cff-e053-6c86abc09f8f&quot;</span>
+                    <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="n">errors</span> <span class="o">=</span> <span class="n">cli_response</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;errors&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;Download failed&quot;</span><span class="p">])</span>
-            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;❌ Bathymetry download failed&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;error&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">:</span>
+                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Error: </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">summary</span><span class="p">[</span><span class="s1">&#39;error&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
+    <span class="k">except</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Configuration validation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">FileError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ File operation error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">BathymetryError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Bathymetry error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">FileNotFoundError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ File not found: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">RuntimeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Download error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">⚠️  Download cancelled by user.&quot;</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">⚠️ Operation cancelled by user.&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="c1"># Check if it&#39;s likely a network/download error</span>
-        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
-            <span class="n">keyword</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-            <span class="k">for</span> <span class="n">keyword</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;connection&quot;</span><span class="p">,</span> <span class="s2">&quot;timeout&quot;</span><span class="p">,</span> <span class="s2">&quot;network&quot;</span><span class="p">,</span> <span class="s2">&quot;http&quot;</span><span class="p">]</span>
-        <span class="p">):</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_api_error</span><span class="p">(</span>
-                <span class="s2">&quot;Bathymetry download&quot;</span><span class="p">,</span> <span class="s2">&quot;Data provider&quot;</span><span class="p">,</span> <span class="n">e</span><span class="p">,</span> <span class="n">retry_suggestion</span><span class="o">=</span><span class="kc">True</span>
-            <span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
-                <span class="s2">&quot;Bathymetry download&quot;</span><span class="p">,</span>
-                <span class="n">e</span><span class="p">,</span>
-                <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-                    <span class="s2">&quot;Check internet connection&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Verify output directory permissions&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Ensure sufficient disk space&quot;</span><span class="p">,</span>
-                    <span class="s2">&quot;Try again later if server is busy&quot;</span><span class="p">,</span>
-                <span class="p">],</span>
-            <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
-    <span class="n">main</span><span class="p">()</span>
+    <span class="c1"># This allows the module to be run directly for testing</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Download bathymetry data&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--source&quot;</span><span class="p">,</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
+        <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="s2">&quot;gebco2025&quot;</span><span class="p">],</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Bathymetry data source (default: etopo2022)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;--output-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Output directory for bathymetry files (default: data/bathymetry)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--citation&quot;</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Show citation information for the bathymetry source&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--verbose&quot;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Verbose output&quot;</span><span class="p">)</span>
+
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">main</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
 </pre></div>
 
            </div>

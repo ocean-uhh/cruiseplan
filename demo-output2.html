@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev2</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=cc9937a9"></script>
+      <script src="_static/documentation_options.js?v=68e1b3b0"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -180,7 +180,8 @@ Demo outputs will be saved to: /home/runner/work/cruiseplan/cruiseplan/notebooks
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Initialize bathymetry manager with ETOPO2022 data</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📥 Downloading bathymetry data...&quot;</span><span class="p">)</span>
-<span class="n">bathy_path</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">(</span><span class="n">bathy_source</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">)</span>
+<span class="n">bathy_result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">(</span><span class="n">bathy_source</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">)</span>
+<span class="n">bathy_path</span> <span class="o">=</span> <span class="n">bathy_result</span><span class="o">.</span><span class="n">data_file</span>
 </pre></div>
 </div>
 </div>
@@ -207,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [00:54, 8.98MB/s]
+Downloading ETOPO: 469MB [00:39, 12.6MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -253,7 +254,7 @@ Download complete!
 
 <span class="c1"># Search and download in one step</span>
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">pangaea_stations</span><span class="p">,</span> <span class="n">pangaea_files</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">pangaea</span><span class="p">(</span>
+    <span class="n">pangaea_result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">pangaea</span><span class="p">(</span>
         <span class="n">query_terms</span><span class="o">=</span><span class="n">query</span><span class="p">,</span>
         <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
         <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
@@ -261,6 +262,10 @@ Download complete!
         <span class="n">output_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">),</span>
         <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo&quot;</span>
     <span class="p">)</span>
+
+    <span class="c1"># Extract data from result</span>
+    <span class="n">pangaea_stations</span> <span class="o">=</span> <span class="n">pangaea_result</span><span class="o">.</span><span class="n">stations_data</span>
+    <span class="n">pangaea_files</span> <span class="o">=</span> <span class="n">pangaea_result</span><span class="o">.</span><span class="n">files_created</span>
 
     <span class="k">if</span> <span class="n">pangaea_files</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ PANGAEA processing completed!&quot;</span><span class="p">)</span>
@@ -294,7 +299,7 @@ INFO: Failed to extract font properties from /usr/share/fonts/truetype/noto/Noto
 INFO: generated new fontManager
 INFO: 🔍 Searching PANGAEA for: &#39;CTD&#39;
 INFO: 📍 Geographic bounds: lat [50, 70], lon [-60, -30]
-INFO: Search found 1823 total matches. Retrieving first 5...
+INFO: Search found 1826 total matches. Retrieving first 5...
 INFO: ✅ Found 5 datasets
 INFO: 📂 DOI file: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_dois.txt
 INFO: 📂 Stations file: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_stations.pkl
@@ -603,7 +608,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
 <span class="n">config_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;demo_cruise.yaml&quot;</span>
 
 <span class="k">try</span><span class="p">:</span>
-    <span class="n">cruise_config</span><span class="p">,</span> <span class="n">generated_config_files</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
+    <span class="n">process_result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">(</span>
         <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_dir</span><span class="p">),</span>
         <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo_cruise&quot;</span><span class="p">,</span>
@@ -615,6 +620,10 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
         <span class="n">depth_check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
         <span class="n">tolerance</span><span class="o">=</span><span class="mi">10</span>
     <span class="p">)</span>
+
+    <span class="c1"># Extract data from result</span>
+    <span class="n">cruise_config</span> <span class="o">=</span> <span class="n">process_result</span><span class="o">.</span><span class="n">config</span>
+    <span class="n">generated_config_files</span> <span class="o">=</span> <span class="n">process_result</span><span class="o">.</span><span class="n">files_created</span>
 
     <span class="k">if</span> <span class="n">cruise_config</span><span class="p">:</span>
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Processing completed successfully!&quot;</span><span class="p">)</span>
@@ -629,7 +638,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
     <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
     <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
-<br/></pre></div>
+</pre></div>
 </div>
 </div>
 <div class="nboutput docutils container">
@@ -639,9 +648,8 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
 <div class="highlight"><pre>
 INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
-INFO: 📁 Output will be saved to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km
-INFO: Saved configuration to: /tmp/tmp8zv6eidp.yaml
+INFO: Saved configuration to: /tmp/tmpybeqf41c.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 </pre></div></div>
 </div>
@@ -659,6 +667,7 @@ INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/ba
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 INFO: Saved configuration to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: ✅ Validating cruise configuration...
 INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
@@ -697,16 +706,21 @@ INFO: ✅ Processing workflow completed successfully!
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[7]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">generated_config_files</span><span class="p">:</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the enriched config file from the previous step</span>
+<span class="n">enriched_config_file</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">generated_config_files</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">files</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;enriched.yaml&#39;</span><span class="p">):</span>
-        <span class="n">enriched_config_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;demo_cruise_enriched.yaml&quot;</span>
+        <span class="n">enriched_config_file</span> <span class="o">=</span> <span class="n">files</span>
+        <span class="k">break</span>
 
+<span class="k">if</span> <span class="ow">not</span> <span class="n">enriched_config_file</span><span class="p">:</span>
+    <span class="n">enriched_config_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;demo_cruise_enriched.yaml&quot;</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;📅 Generating cruise schedule...&quot;</span><span class="p">)</span>
 
 <span class="k">try</span><span class="p">:</span>
     <span class="c1"># Generate the schedule with multiple output formats using new API</span>
-    <span class="n">timeline</span><span class="p">,</span> <span class="n">generated_files</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span>
+    <span class="n">schedule_result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">schedule</span><span class="p">(</span>
         <span class="n">config_file</span><span class="o">=</span><span class="n">enriched_config_file</span><span class="p">,</span>
         <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;../tests_output/demo&quot;</span><span class="p">,</span>
         <span class="n">output</span><span class="o">=</span><span class="s2">&quot;demo_cruise&quot;</span><span class="p">,</span>
@@ -714,6 +728,10 @@ INFO: ✅ Processing workflow completed successfully!
         <span class="n">leg</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">derive_netcdf</span><span class="o">=</span><span class="kc">True</span>
     <span class="p">)</span>
+
+    <span class="c1"># Extract data from result</span>
+    <span class="n">timeline</span> <span class="o">=</span> <span class="n">schedule_result</span><span class="o">.</span><span class="n">timeline</span>
+    <span class="n">generated_files</span> <span class="o">=</span> <span class="n">schedule_result</span><span class="o">.</span><span class="n">files_created</span>
 
     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Schedule generated successfully!&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">timeline</span><span class="p">:</span>
@@ -794,529 +812,24 @@ INFO: 📅 Schedule generation complete! Generated 3 files
    - /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.nc
 </pre></div></div>
 </div>
-<div class="nbinput docutils container">
+<div class="nbinput nblast docutils container">
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the *.nc file in generated_files list of paths</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the *.nc file in generated_files list of paths (from schedule result)</span>
 <span class="n">schedule_file</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="k">for</span> <span class="n">file</span> <span class="ow">in</span> <span class="n">generated_files</span><span class="p">:</span>
     <span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s1">&#39;.nc&#39;</span><span class="p">):</span>
         <span class="n">schedule_file</span> <span class="o">=</span> <span class="n">file</span>
         <span class="k">break</span>
-<span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
-<span class="n">ds</span>
+
+<span class="k">if</span> <span class="n">schedule_file</span><span class="p">:</span>
+    <span class="n">ds</span> <span class="o">=</span> <span class="n">xr</span><span class="o">.</span><span class="n">open_dataset</span><span class="p">(</span><span class="n">schedule_file</span><span class="p">)</span>
+    <span class="n">ds</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No NetCDF file found in generated files&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[8]:
-</pre></div>
-</div>
-<div class="output_area rendered_html docutils container">
-<div><svg style="position: absolute; width: 0; height: 0; overflow: hidden">
-<defs>
-<symbol id="icon-database" viewBox="0 0 32 32">
-<path d="M16 0c-8.837 0-16 2.239-16 5v4c0 2.761 7.163 5 16 5s16-2.239 16-5v-4c0-2.761-7.163-5-16-5z"></path>
-<path d="M16 17c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
-<path d="M16 26c-8.837 0-16-2.239-16-5v6c0 2.761 7.163 5 16 5s16-2.239 16-5v-6c0 2.761-7.163 5-16 5z"></path>
-</symbol>
-<symbol id="icon-file-text2" viewBox="0 0 32 32">
-<path d="M28.681 7.159c-0.694-0.947-1.662-2.053-2.724-3.116s-2.169-2.030-3.116-2.724c-1.612-1.182-2.393-1.319-2.841-1.319h-15.5c-1.378 0-2.5 1.121-2.5 2.5v27c0 1.378 1.122 2.5 2.5 2.5h23c1.378 0 2.5-1.122 2.5-2.5v-19.5c0-0.448-0.137-1.23-1.319-2.841zM24.543 5.457c0.959 0.959 1.712 1.825 2.268 2.543h-4.811v-4.811c0.718 0.556 1.584 1.309 2.543 2.268zM28 29.5c0 0.271-0.229 0.5-0.5 0.5h-23c-0.271 0-0.5-0.229-0.5-0.5v-27c0-0.271 0.229-0.5 0.5-0.5 0 0 15.499-0 15.5 0v7c0 0.552 0.448 1 1 1h7v19.5z"></path>
-<path d="M23 26h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-<path d="M23 22h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-<path d="M23 18h-14c-0.552 0-1-0.448-1-1s0.448-1 1-1h14c0.552 0 1 0.448 1 1s-0.448 1-1 1z"></path>
-</symbol>
-</defs>
-</svg>
-<style>/* CSS stylesheet for displaying xarray objects in notebooks */
-
-:root {
-  --xr-font-color0: var(
-    --jp-content-font-color0,
-    var(--pst-color-text-base rgba(0, 0, 0, 1))
-  );
-  --xr-font-color2: var(
-    --jp-content-font-color2,
-    var(--pst-color-text-base, rgba(0, 0, 0, 0.54))
-  );
-  --xr-font-color3: var(
-    --jp-content-font-color3,
-    var(--pst-color-text-base, rgba(0, 0, 0, 0.38))
-  );
-  --xr-border-color: var(
-    --jp-border-color2,
-    hsl(from var(--pst-color-on-background, white) h s calc(l - 10))
-  );
-  --xr-disabled-color: var(
-    --jp-layout-color3,
-    hsl(from var(--pst-color-on-background, white) h s calc(l - 40))
-  );
-  --xr-background-color: var(
-    --jp-layout-color0,
-    var(--pst-color-on-background, white)
-  );
-  --xr-background-color-row-even: var(
-    --jp-layout-color1,
-    hsl(from var(--pst-color-on-background, white) h s calc(l - 5))
-  );
-  --xr-background-color-row-odd: var(
-    --jp-layout-color2,
-    hsl(from var(--pst-color-on-background, white) h s calc(l - 15))
-  );
-}
-
-html[theme="dark"],
-html[data-theme="dark"],
-body[data-theme="dark"],
-body.vscode-dark {
-  --xr-font-color0: var(
-    --jp-content-font-color0,
-    var(--pst-color-text-base, rgba(255, 255, 255, 1))
-  );
-  --xr-font-color2: var(
-    --jp-content-font-color2,
-    var(--pst-color-text-base, rgba(255, 255, 255, 0.54))
-  );
-  --xr-font-color3: var(
-    --jp-content-font-color3,
-    var(--pst-color-text-base, rgba(255, 255, 255, 0.38))
-  );
-  --xr-border-color: var(
-    --jp-border-color2,
-    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 10))
-  );
-  --xr-disabled-color: var(
-    --jp-layout-color3,
-    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 40))
-  );
-  --xr-background-color: var(
-    --jp-layout-color0,
-    var(--pst-color-on-background, #111111)
-  );
-  --xr-background-color-row-even: var(
-    --jp-layout-color1,
-    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 5))
-  );
-  --xr-background-color-row-odd: var(
-    --jp-layout-color2,
-    hsl(from var(--pst-color-on-background, #111111) h s calc(l + 15))
-  );
-}
-
-.xr-wrap {
-  display: block !important;
-  min-width: 300px;
-  max-width: 700px;
-  line-height: 1.6;
-}
-
-.xr-text-repr-fallback {
-  /* fallback to plain text repr when CSS is not injected (untrusted notebook) */
-  display: none;
-}
-
-.xr-header {
-  padding-top: 6px;
-  padding-bottom: 6px;
-  margin-bottom: 4px;
-  border-bottom: solid 1px var(--xr-border-color);
-}
-
-.xr-header > div,
-.xr-header > ul {
-  display: inline;
-  margin-top: 0;
-  margin-bottom: 0;
-}
-
-.xr-obj-type,
-.xr-obj-name,
-.xr-group-name {
-  margin-left: 2px;
-  margin-right: 10px;
-}
-
-.xr-group-name::before {
-  content: "📁";
-  padding-right: 0.3em;
-}
-
-.xr-group-name,
-.xr-obj-type {
-  color: var(--xr-font-color2);
-}
-
-.xr-sections {
-  padding-left: 0 !important;
-  display: grid;
-  grid-template-columns: 150px auto auto 1fr 0 20px 0 20px;
-  margin-block-start: 0;
-  margin-block-end: 0;
-}
-
-.xr-section-item {
-  display: contents;
-}
-
-.xr-section-item input {
-  display: inline-block;
-  opacity: 0;
-  height: 0;
-  margin: 0;
-}
-
-.xr-section-item input + label {
-  color: var(--xr-disabled-color);
-  border: 2px solid transparent !important;
-}
-
-.xr-section-item input:enabled + label {
-  cursor: pointer;
-  color: var(--xr-font-color2);
-}
-
-.xr-section-item input:focus + label {
-  border: 2px solid var(--xr-font-color0) !important;
-}
-
-.xr-section-item input:enabled + label:hover {
-  color: var(--xr-font-color0);
-}
-
-.xr-section-summary {
-  grid-column: 1;
-  color: var(--xr-font-color2);
-  font-weight: 500;
-}
-
-.xr-section-summary > span {
-  display: inline-block;
-  padding-left: 0.5em;
-}
-
-.xr-section-summary-in:disabled + label {
-  color: var(--xr-font-color2);
-}
-
-.xr-section-summary-in + label:before {
-  display: inline-block;
-  content: "►";
-  font-size: 11px;
-  width: 15px;
-  text-align: center;
-}
-
-.xr-section-summary-in:disabled + label:before {
-  color: var(--xr-disabled-color);
-}
-
-.xr-section-summary-in:checked + label:before {
-  content: "▼";
-}
-
-.xr-section-summary-in:checked + label > span {
-  display: none;
-}
-
-.xr-section-summary,
-.xr-section-inline-details {
-  padding-top: 4px;
-}
-
-.xr-section-inline-details {
-  grid-column: 2 / -1;
-}
-
-.xr-section-details {
-  display: none;
-  grid-column: 1 / -1;
-  margin-top: 4px;
-  margin-bottom: 5px;
-}
-
-.xr-section-summary-in:checked ~ .xr-section-details {
-  display: contents;
-}
-
-.xr-group-box {
-  display: inline-grid;
-  grid-template-columns: 0px 20px auto;
-  width: 100%;
-}
-
-.xr-group-box-vline {
-  grid-column-start: 1;
-  border-right: 0.2em solid;
-  border-color: var(--xr-border-color);
-  width: 0px;
-}
-
-.xr-group-box-hline {
-  grid-column-start: 2;
-  grid-row-start: 1;
-  height: 1em;
-  width: 20px;
-  border-bottom: 0.2em solid;
-  border-color: var(--xr-border-color);
-}
-
-.xr-group-box-contents {
-  grid-column-start: 3;
-}
-
-.xr-array-wrap {
-  grid-column: 1 / -1;
-  display: grid;
-  grid-template-columns: 20px auto;
-}
-
-.xr-array-wrap > label {
-  grid-column: 1;
-  vertical-align: top;
-}
-
-.xr-preview {
-  color: var(--xr-font-color3);
-}
-
-.xr-array-preview,
-.xr-array-data {
-  padding: 0 5px !important;
-  grid-column: 2;
-}
-
-.xr-array-data,
-.xr-array-in:checked ~ .xr-array-preview {
-  display: none;
-}
-
-.xr-array-in:checked ~ .xr-array-data,
-.xr-array-preview {
-  display: inline-block;
-}
-
-.xr-dim-list {
-  display: inline-block !important;
-  list-style: none;
-  padding: 0 !important;
-  margin: 0;
-}
-
-.xr-dim-list li {
-  display: inline-block;
-  padding: 0;
-  margin: 0;
-}
-
-.xr-dim-list:before {
-  content: "(";
-}
-
-.xr-dim-list:after {
-  content: ")";
-}
-
-.xr-dim-list li:not(:last-child):after {
-  content: ",";
-  padding-right: 5px;
-}
-
-.xr-has-index {
-  font-weight: bold;
-}
-
-.xr-var-list,
-.xr-var-item {
-  display: contents;
-}
-
-.xr-var-item > div,
-.xr-var-item label,
-.xr-var-item > .xr-var-name span {
-  background-color: var(--xr-background-color-row-even);
-  border-color: var(--xr-background-color-row-odd);
-  margin-bottom: 0;
-  padding-top: 2px;
-}
-
-.xr-var-item > .xr-var-name:hover span {
-  padding-right: 5px;
-}
-
-.xr-var-list > li:nth-child(odd) > div,
-.xr-var-list > li:nth-child(odd) > label,
-.xr-var-list > li:nth-child(odd) > .xr-var-name span {
-  background-color: var(--xr-background-color-row-odd);
-  border-color: var(--xr-background-color-row-even);
-}
-
-.xr-var-name {
-  grid-column: 1;
-}
-
-.xr-var-dims {
-  grid-column: 2;
-}
-
-.xr-var-dtype {
-  grid-column: 3;
-  text-align: right;
-  color: var(--xr-font-color2);
-}
-
-.xr-var-preview {
-  grid-column: 4;
-}
-
-.xr-index-preview {
-  grid-column: 2 / 5;
-  color: var(--xr-font-color2);
-}
-
-.xr-var-name,
-.xr-var-dims,
-.xr-var-dtype,
-.xr-preview,
-.xr-attrs dt {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-right: 10px;
-}
-
-.xr-var-name:hover,
-.xr-var-dims:hover,
-.xr-var-dtype:hover,
-.xr-attrs dt:hover {
-  overflow: visible;
-  width: auto;
-  z-index: 1;
-}
-
-.xr-var-attrs,
-.xr-var-data,
-.xr-index-data {
-  display: none;
-  border-top: 2px dotted var(--xr-background-color);
-  padding-bottom: 20px !important;
-  padding-top: 10px !important;
-}
-
-.xr-var-attrs-in + label,
-.xr-var-data-in + label,
-.xr-index-data-in + label {
-  padding: 0 1px;
-}
-
-.xr-var-attrs-in:checked ~ .xr-var-attrs,
-.xr-var-data-in:checked ~ .xr-var-data,
-.xr-index-data-in:checked ~ .xr-index-data {
-  display: block;
-}
-
-.xr-var-data > table {
-  float: right;
-}
-
-.xr-var-data > pre,
-.xr-index-data > pre,
-.xr-var-data > table > tbody > tr {
-  background-color: transparent !important;
-}
-
-.xr-var-name span,
-.xr-var-data,
-.xr-index-name div,
-.xr-index-data,
-.xr-attrs {
-  padding-left: 25px !important;
-}
-
-.xr-attrs,
-.xr-var-attrs,
-.xr-var-data,
-.xr-index-data {
-  grid-column: 1 / -1;
-}
-
-dl.xr-attrs {
-  padding: 0;
-  margin: 0;
-  display: grid;
-  grid-template-columns: 125px auto;
-}
-
-.xr-attrs dt,
-.xr-attrs dd {
-  padding: 0;
-  margin: 0;
-  float: left;
-  padding-right: 10px;
-  width: auto;
-}
-
-.xr-attrs dt {
-  font-weight: normal;
-  grid-column: 1;
-}
-
-.xr-attrs dt:hover span {
-  display: inline-block;
-  background: var(--xr-background-color);
-  padding-right: 10px;
-}
-
-.xr-attrs dd {
-  grid-column: 2;
-  white-space: pre-wrap;
-  word-break: break-all;
-}
-
-.xr-icon-database,
-.xr-icon-file-text2,
-.xr-no-icon {
-  display: inline-block;
-  vertical-align: middle;
-  width: 1em;
-  height: 1.5em !important;
-  stroke-width: 0;
-  stroke: currentColor;
-  fill: currentColor;
-}
-
-.xr-var-attrs-in:checked + label > .xr-icon-file-text2,
-.xr-var-data-in:checked + label > .xr-icon-database,
-.xr-index-data-in:checked + label > .xr-icon-database {
-  color: var(--xr-font-color0);
-  filter: drop-shadow(1px 1px 5px var(--xr-font-color2));
-  stroke-width: 0.8px;
-}
-</style><pre class='xr-text-repr-fallback'>&lt;xarray.Dataset&gt; Size: 6kB
-Dimensions:         (obs: 19)
-Coordinates:
-    time            (obs) datetime64[ns] 152B ...
-    longitude       (obs) float32 76B ...
-    latitude        (obs) float32 76B ...
-Dimensions without coordinates: obs
-Data variables:
-    name            (obs) &lt;U27 2kB ...
-    category        (obs) &lt;U15 1kB ...
-    type            (obs) &lt;U10 760B ...
-    action          (obs) &lt;U10 760B ...
-    comment         (obs) &lt;U1 76B ...
-    leg_assignment  (obs) &lt;U11 836B ...
-    duration        (obs) float32 76B ...
-    vessel_speed    (obs) float32 76B ...
-Attributes:
-    featureType:          trajectory
-    title:                Ship Schedule: Demo North Atlantic Survey 2025
-    institution:          Generated by CruisePlan software
-    source:               Scheduler computation from YAML configuration
-    Conventions:          CF-1.8
-    cruise_name:          Demo North Atlantic Survey 2025
-    total_duration_days:  6.621121428906918e-10
-    creation_date:        2026-01-06T18:38:59</pre><div class='xr-wrap' style='display:none'><div class='xr-header'><div class='xr-obj-type'>xarray.Dataset</div></div><ul class='xr-sections'><li class='xr-section-item'><input id='section-7fc6ede6-0188-4717-a0ca-302bf51db67b' class='xr-section-summary-in' type='checkbox' disabled ><label for='section-7fc6ede6-0188-4717-a0ca-302bf51db67b' class='xr-section-summary'  title='Expand/collapse section'>Dimensions:</label><div class='xr-section-inline-details'><ul class='xr-dim-list'><li><span>obs</span>: 19</li></ul></div><div class='xr-section-details'></div></li><li class='xr-section-item'><input id='section-158108e7-19e3-4372-881c-1bc8baadacf8' class='xr-section-summary-in' type='checkbox'  checked><label for='section-158108e7-19e3-4372-881c-1bc8baadacf8' class='xr-section-summary' >Coordinates: <span>(3)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>time</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>datetime64[ns]</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-b008a40d-4f42-4012-be6a-0a51246d6326' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-b008a40d-4f42-4012-be6a-0a51246d6326' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-d531bc3c-918b-4f9e-ad6e-c89fa18807c0' class='xr-var-data-in' type='checkbox'><label for='data-d531bc3c-918b-4f9e-ad6e-c89fa18807c0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>time</dd><dt><span>long_name :</span></dt><dd>time of ship position</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=datetime64[ns]]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>longitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c35d0636-20fc-465b-9a46-49f051ea4d11' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c35d0636-20fc-465b-9a46-49f051ea4d11' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-1f696ca9-80ca-4c00-9ccc-fcb4e3e421d3' class='xr-var-data-in' type='checkbox'><label for='data-1f696ca9-80ca-4c00-9ccc-fcb4e3e421d3' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>longitude</dd><dt><span>long_name :</span></dt><dd>ship longitude</dd><dt><span>units :</span></dt><dd>degrees_east</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>latitude</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-edb52762-bfdc-4561-87f3-70ff9dcc83d4' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-edb52762-bfdc-4561-87f3-70ff9dcc83d4' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-9d8eca09-aa29-46ae-998f-86b10e2fcf08' class='xr-var-data-in' type='checkbox'><label for='data-9d8eca09-aa29-46ae-998f-86b10e2fcf08' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>standard_name :</span></dt><dd>latitude</dd><dt><span>long_name :</span></dt><dd>ship latitude</dd><dt><span>units :</span></dt><dd>degrees_north</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-35d26c56-e96d-42ca-bd79-2f38273b131a' class='xr-section-summary-in' type='checkbox'  checked><label for='section-35d26c56-e96d-42ca-bd79-2f38273b131a' class='xr-section-summary' >Data variables: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><ul class='xr-var-list'><li class='xr-var-item'><div class='xr-var-name'><span>name</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U27</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-ed5ba3cb-5133-4e57-8953-a0ccc7597442' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-ed5ba3cb-5133-4e57-8953-a0ccc7597442' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b0936c03-79c9-4ca8-9f86-f7bc4d42dc47' class='xr-var-data-in' type='checkbox'><label for='data-b0936c03-79c9-4ca8-9f86-f7bc4d42dc47' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U27]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>category</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U15</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-e6061da5-0134-4b42-9257-c4c7d6e45343' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-e6061da5-0134-4b42-9257-c4c7d6e45343' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-bbd35a12-f778-4271-a5c3-fbff256072cc' class='xr-var-data-in' type='checkbox'><label for='data-bbd35a12-f778-4271-a5c3-fbff256072cc' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity category</dd><dt><span>flag_values :</span></dt><dd>point_operation line_operation area_operation transit</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U15]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>type</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0289df17-65f6-49d1-a616-e07d54b5c701' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0289df17-65f6-49d1-a616-e07d54b5c701' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-8b3c74f7-c597-4b97-8648-b3e71efb9174' class='xr-var-data-in' type='checkbox'><label for='data-8b3c74f7-c597-4b97-8648-b3e71efb9174' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific type of activity</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>action</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U10</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-55325034-5a11-4396-ba29-4fd1cfc8bdac' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-55325034-5a11-4396-ba29-4fd1cfc8bdac' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-547c70a2-8c58-4e57-8cc7-a0cd63e70a55' class='xr-var-data-in' type='checkbox'><label for='data-547c70a2-8c58-4e57-8cc7-a0cd63e70a55' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>specific action or method</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U10]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>comment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U1</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0acf074b-3067-4154-8b14-99d49ded68ee' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0acf074b-3067-4154-8b14-99d49ded68ee' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-b42a0192-683a-4e5d-ae4c-df16810e1897' class='xr-var-data-in' type='checkbox'><label for='data-b42a0192-683a-4e5d-ae4c-df16810e1897' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity comments</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U1]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>leg_assignment</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>&lt;U11</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-47784949-a00d-4583-aafa-e4588f615c71' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-47784949-a00d-4583-aafa-e4588f615c71' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-cef97ec2-6389-4bc5-b359-b966cc9946bb' class='xr-var-data-in' type='checkbox'><label for='data-cef97ec2-6389-4bc5-b359-b966cc9946bb' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>cruise leg identifier</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=&lt;U11]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>duration</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-c46837df-4b47-4241-b419-2410127ed627' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-c46837df-4b47-4241-b419-2410127ed627' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-416544d2-b1f4-4cfa-96a0-f5a10eec95d0' class='xr-var-data-in' type='checkbox'><label for='data-416544d2-b1f4-4cfa-96a0-f5a10eec95d0' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>activity duration</dd><dt><span>units :</span></dt><dd>hour</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li><li class='xr-var-item'><div class='xr-var-name'><span>vessel_speed</span></div><div class='xr-var-dims'>(obs)</div><div class='xr-var-dtype'>float32</div><div class='xr-var-preview xr-preview'>...</div><input id='attrs-0a3bf28b-1e95-4d8b-a8d2-cd0e87d90267' class='xr-var-attrs-in' type='checkbox' ><label for='attrs-0a3bf28b-1e95-4d8b-a8d2-cd0e87d90267' title='Show/Hide attributes'><svg class='icon xr-icon-file-text2'><use xlink:href='#icon-file-text2'></use></svg></label><input id='data-5a86f8e9-5ec3-46d6-8956-a1f9affdf382' class='xr-var-data-in' type='checkbox'><label for='data-5a86f8e9-5ec3-46d6-8956-a1f9affdf382' title='Show/Hide data repr'><svg class='icon xr-icon-database'><use xlink:href='#icon-database'></use></svg></label><div class='xr-var-attrs'><dl class='xr-attrs'><dt><span>long_name :</span></dt><dd>vessel speed</dd><dt><span>units :</span></dt><dd>knots</dd></dl></div><div class='xr-var-data'><pre>[19 values with dtype=float32]</pre></div></li></ul></div></li><li class='xr-section-item'><input id='section-635a882c-2885-4308-b0b3-219638f9ad33' class='xr-section-summary-in' type='checkbox'  checked><label for='section-635a882c-2885-4308-b0b3-219638f9ad33' class='xr-section-summary' >Attributes: <span>(8)</span></label><div class='xr-section-inline-details'></div><div class='xr-section-details'><dl class='xr-attrs'><dt><span>featureType :</span></dt><dd>trajectory</dd><dt><span>title :</span></dt><dd>Ship Schedule: Demo North Atlantic Survey 2025</dd><dt><span>institution :</span></dt><dd>Generated by CruisePlan software</dd><dt><span>source :</span></dt><dd>Scheduler computation from YAML configuration</dd><dt><span>Conventions :</span></dt><dd>CF-1.8</dd><dt><span>cruise_name :</span></dt><dd>Demo North Atlantic Survey 2025</dd><dt><span>total_duration_days :</span></dt><dd>6.621121428906918e-10</dd><dt><span>creation_date :</span></dt><dd>2026-01-06T18:38:59</dd></dl></div></li></ul></div></div></div>
 </div>
 </section>
 </section>
