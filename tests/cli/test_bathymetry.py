@@ -68,7 +68,7 @@ class TestBathymetryThinCLI:
             main(args)
 
             mock_bathymetry.assert_called_once_with(
-                bathy_source="gebco2025", output_dir="/custom/bathy", citation=True
+                bathy_source="gebco2025", output_dir=str(Path("/custom/bathy")), citation=True
             )
 
     def test_bathymetry_failure(self):

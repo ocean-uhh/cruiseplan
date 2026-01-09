@@ -93,7 +93,7 @@ def main(args: argparse.Namespace) -> None:
         print(f"❌ Schedule generation error: {e}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"❌ Unexpected error: {e}", file=sys.stderr)

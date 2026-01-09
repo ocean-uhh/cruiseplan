@@ -43,10 +43,8 @@ def determine_workflow_mode(args: argparse.Namespace) -> str:
     """
     Determine whether we're in search mode or DOI file mode.
     """
-    if hasattr(args, "doi_file") and args.doi_file:
-        return "doi_file"
-    else:
-        return "search"
+    # Currently only search mode is supported in the thin CLI
+    return "search"
 
 
 def main(args: argparse.Namespace) -> None:
@@ -58,11 +56,6 @@ def main(args: argparse.Namespace) -> None:
     try:
         # Determine workflow mode (CLI-specific logic)
         mode = determine_workflow_mode(args)
-
-        # Handle DOI file mode (not yet implemented in API - would need enhancement)
-        if mode == "doi_file":
-            print("❌ DOI file mode not yet implemented in thin CLI", file=sys.stderr)
-            sys.exit(1)
 
         # Validate lat/lon bounds if provided (CLI-specific validation)
         lat_bounds = getattr(args, "lat", None)
@@ -126,7 +119,7 @@ def main(args: argparse.Namespace) -> None:
         print(f"❌ PANGAEA processing error: {e}", file=sys.stderr)
         sys.exit(1)
     except KeyboardInterrupt:
-        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
         sys.exit(1)
     except Exception as e:
         print(f"❌ Unexpected error: {e}", file=sys.stderr)
