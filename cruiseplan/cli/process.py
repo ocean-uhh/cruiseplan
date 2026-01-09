@@ -1,183 +1,104 @@
 """
-Unified configuration processing command - API-First Architecture.
+Unified configuration processing command.
 
-This module implements the 'cruiseplan process' command using the API-first
-pattern with proper separation of concerns:
-- CLI layer handles argument parsing and output formatting
-- API layer (cruiseplan.__init__) contains business logic
-- Utility functions provide consistent formatting and error handling
+This module implements the 'cruiseplan process' command that runs the complete
+workflow: enrichment -> validation -> map generation.
+
+Thin CLI layer that delegates all business logic to the API layer.
 """
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
 import cruiseplan
-from cruiseplan.cli.cli_utils import (
-    CLIError,
-    _collect_generated_files,
-    _format_error_message,
-    _format_progress_header,
-    _format_success_message,
-    _initialize_cli_command,
-    _setup_cli_logging,
-)
-from cruiseplan.init_utils import (
-    _convert_api_response_to_cli,
-    _resolve_cli_to_api_params,
-)
-from cruiseplan.utils.input_validation import (
-    _apply_cli_defaults,
-    _handle_deprecated_cli_params,
-    _validate_config_file,
-)
-from cruiseplan.utils.output_formatting import (
-    _format_cli_error,
-    _format_output_summary,
-    _standardize_output_setup,
-)
-
-# Re-export functions for test mocking (cleaner than complex patch paths)
-__all__ = [
-    "_collect_generated_files",
-    "_convert_api_response_to_cli",
-    "_format_error_message",
-    "_format_progress_header",
-    "_format_success_message",
-    "_resolve_cli_to_api_params",
-    "_setup_cli_logging",
-    "_validate_config_file",
-    "main",
-]
-
-logger = logging.getLogger(__name__)
 
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for process command using API-first architecture.
+    Thin CLI wrapper for process command.
 
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command line arguments
+    Delegates all business logic to the cruiseplan.process() API function.
     """
     try:
-        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
-        _handle_deprecated_cli_params(args)
-
-        # Apply standard CLI defaults
-        _apply_cli_defaults(args)
-
-        # Standardized CLI initialization
-        config_file = _initialize_cli_command(args)
-
-        # Extract cruise name from config file for proper naming
-        try:
-            import yaml
-
-            with open(config_file) as f:
-                config_data = yaml.safe_load(f)
-                cruise_name = config_data.get("cruise_name")
-        except (FileNotFoundError, yaml.YAMLError, KeyError):
-            cruise_name = None
-
-        # Format progress header using new utility
-        _format_progress_header(
-            operation="Configuration Processing",
-            config_file=config_file,
+        # Call the API function with CLI arguments
+        result = cruiseplan.process(
+            config_file=args.config_file,
+            output_dir=str(getattr(args, "output_dir", "data")),
+            output=getattr(args, "output", None),
+            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
             add_depths=getattr(args, "add_depths", True),
             add_coords=getattr(args, "add_coords", True),
+            expand_sections=getattr(args, "expand_sections", True),
+            expand_ports=getattr(args, "expand_ports", True),
             run_validation=getattr(args, "run_validation", True),
             run_map_generation=getattr(args, "run_map_generation", True),
+            depth_check=getattr(args, "depth_check", True),
+            tolerance=getattr(args, "tolerance", 10.0),
+            format=getattr(args, "format", "all"),
+            bathy_stride=getattr(args, "bathy_stride", 10),
+            figsize=getattr(args, "figsize", None),
+            no_port_map=getattr(args, "no_port_map", False),
+            verbose=getattr(args, "verbose", False),
         )
 
-        # Standardize output setup using new utilities
-        output_dir, base_name, _format_paths = _standardize_output_setup(
-            args,
-            cruise_name=cruise_name,
-            suffix="",
-            multi_formats=["yaml", "html", "csv", "png", "kml"],
-        )
+        # Display results
+        print("")
+        print("=" * 50)
+        print("Processing Results")
+        print("=" * 50)
 
-        # Convert CLI args to API parameters using bridge utility
-        api_params = _resolve_cli_to_api_params(args, "process")
+        if result.config:
+            print(f"✅ {result}")
+            print("📁 Generated files:")
+            for file_path in result.files_created:
+                print(f"  • {file_path}")
 
-        # Override output paths with standardized paths
-        api_params["output_dir"] = output_dir
-        api_params["output"] = base_name
-
-        # Call API function instead of complex wrapper logic
-        logger.info("Processing configuration through full workflow...")
-        timeline, generated_files = cruiseplan.process(**api_params)
-
-        # Convert API response to CLI format using bridge utility
-        api_response = (timeline, generated_files)
-        cli_response = _convert_api_response_to_cli(api_response, "process")
-
-        # Collect all generated files using utility
-        all_generated_files = _collect_generated_files(
-            cli_response,
-            base_patterns=[
-                "*_enriched.yaml",
-                "*_schedule.*",
-                "*_map.png",
-                "*_catalog.kml",
-            ],
-        )
-
-        if cli_response.get("success", True):
-            # Use new standardized output summary
-            success_summary = _format_output_summary(
-                all_generated_files, "Configuration processing"
-            )
-            logger.info(success_summary)
+            # Show processing summary
+            print("📊 Processing summary:")
+            print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
+            print(f"  • Files generated: {result.summary.get('files_generated', 0)}")
+            if result.summary.get("enrichment_run"):
+                print("  • ✅ Enrichment completed")
+            if result.summary.get("validation_run"):
+                print("  • ✅ Validation completed")
+            if result.summary.get("map_generation_run"):
+                print("  • ✅ Map generation completed")
         else:
-            errors = cli_response.get("errors", ["Processing failed"])
-            for error in errors:
-                logger.error(f"❌ {error}")
+            print("❌ Processing failed")
             sys.exit(1)
 
-    except CLIError as e:
-        error_msg = _format_cli_error(
-            "Configuration processing",
-            e,
-            suggestions=[
-                "Check configuration file path and syntax",
-                "Verify output directory permissions",
-                "Ensure bathymetry data is available",
-            ],
-        )
-        logger.exception(error_msg)
+    except cruiseplan.ValidationError as e:
+        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
         sys.exit(1)
-
+    except cruiseplan.FileError as e:
+        print(f"❌ File operation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except cruiseplan.BathymetryError as e:
+        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"❌ File not found: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"❌ Processing error: {e}", file=sys.stderr)
+        sys.exit(1)
     except KeyboardInterrupt:
-        logger.info("\n\n⚠️ Operation cancelled by user.")
+        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
         sys.exit(1)
-
     except Exception as e:
-        error_msg = _format_cli_error(
-            "Configuration processing",
-            e,
-            suggestions=[
-                "Check configuration file syntax",
-                "Verify bathymetry data availability",
-                "Ensure sufficient disk space",
-                "Run with --verbose for more details",
-            ],
-        )
-        logger.exception(error_msg)
+        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        if getattr(args, "verbose", False):
+            import traceback
+
+            traceback.print_exc()
         sys.exit(1)
 
 
 if __name__ == "__main__":
     # This allows the module to be run directly for testing
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Unified cruise configuration processing"
-    )
+    parser = argparse.ArgumentParser(description="Process cruise configurations")
     parser.add_argument(
         "-c",
         "--config-file",
@@ -186,15 +107,60 @@ if __name__ == "__main__":
         help="Input YAML configuration file",
     )
     parser.add_argument(
-        "-o", "--output-dir", type=Path, default=Path("data"), help="Output directory"
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory for processed files",
     )
     parser.add_argument(
         "--output", help="Base filename for outputs (without extension)"
     )
     parser.add_argument(
-        "--verbose", "-v", action="store_true", help="Enable verbose logging"
+        "--bathy-source",
+        default="etopo2022",
+        help="Bathymetry data source (default: etopo2022)",
     )
-    parser.add_argument("--quiet", "-q", action="store_true", help="Enable quiet mode")
+    parser.add_argument(
+        "--bathy-dir", default="data/bathymetry", help="Bathymetry data directory"
+    )
+    parser.add_argument(
+        "--no-add-depths",
+        action="store_false",
+        dest="add_depths",
+        help="Skip adding depth information",
+    )
+    parser.add_argument(
+        "--no-add-coords",
+        action="store_false",
+        dest="add_coords",
+        help="Skip adding coordinate information",
+    )
+    parser.add_argument(
+        "--no-validation",
+        action="store_false",
+        dest="run_validation",
+        help="Skip validation step",
+    )
+    parser.add_argument(
+        "--no-map-generation",
+        action="store_false",
+        dest="run_map_generation",
+        help="Skip map generation step",
+    )
+    parser.add_argument(
+        "--format",
+        choices=["html", "latex", "csv", "netcdf", "all"],
+        default="all",
+        help="Output format for schedule (default: all)",
+    )
+    parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=10.0,
+        help="Depth tolerance percentage (default: 10.0)",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
     main(args)

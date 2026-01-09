@@ -4,158 +4,103 @@ Cruise schedule generation command.
 This module implements the 'cruiseplan schedule' command for generating
 comprehensive cruise schedules from YAML configuration files.
 
-Uses the API-first architecture pattern with proper separation of concerns:
-- CLI layer handles argument parsing and output formatting
-- API layer (cruiseplan.__init__) contains business logic
-- Utility functions provide consistent formatting and error handling
+Thin CLI layer that delegates all business logic to the API layer.
 """
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
 import cruiseplan
-from cruiseplan.cli.cli_utils import (
-    CLIError,
-    _collect_generated_files,
-    _format_error_message,
-    _format_progress_header,
-    _format_success_message,
-    _initialize_cli_command,
-    _setup_cli_logging,
-)
-from cruiseplan.init_utils import (
-    _convert_api_response_to_cli,
-    _resolve_cli_to_api_params,
-)
-from cruiseplan.utils.input_validation import (
-    _apply_cli_defaults,
-    _handle_deprecated_cli_params,
-    _validate_config_file,
-)
-from cruiseplan.utils.output_formatting import (
-    _format_cli_error,
-    _format_timeline_summary,
-)
-
-# Re-export functions for test mocking (cleaner than complex patch paths)
-__all__ = [
-    "_collect_generated_files",
-    "_convert_api_response_to_cli",
-    "_format_error_message",
-    "_format_progress_header",
-    "_format_success_message",
-    "_resolve_cli_to_api_params",
-    "_setup_cli_logging",
-    "_validate_config_file",
-    "main",
-]
-
-logger = logging.getLogger(__name__)
 
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for schedule command using API-first architecture.
+    Thin CLI wrapper for schedule command.
 
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command line arguments containing config_file, output_dir, format, etc.
-
-    Raises
-    ------
-    CLIError
-        If input validation fails or schedule generation encounters errors.
+    Delegates all business logic to the cruiseplan.schedule() API function.
     """
     try:
-        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
-        _handle_deprecated_cli_params(args)
-
-        # Apply standard CLI defaults
-        _apply_cli_defaults(args)
-
-        # Standardized CLI initialization
-        config_file = _initialize_cli_command(args)
-
         # Check --derive-netcdf flag compatibility (CLI-specific logic)
         derive_netcdf = getattr(args, "derive_netcdf", False)
         format_str = getattr(args, "format", "all")
         if derive_netcdf and format_str != "all" and "netcdf" not in format_str:
-            logger.warning("⚠️  --derive-netcdf flag requires NetCDF output format")
-            logger.warning("   Either add 'netcdf' to --format or use --format all")
-            logger.warning("   Ignoring --derive-netcdf flag.")
+            print(
+                "⚠️  --derive-netcdf flag requires NetCDF output format", file=sys.stderr
+            )
+            print(
+                "   Either add 'netcdf' to --format or use --format all",
+                file=sys.stderr,
+            )
+            print("   Ignoring --derive-netcdf flag.", file=sys.stderr)
             derive_netcdf = False
 
-        # Format progress header using new utility
-        _format_progress_header(
-            operation="Cruise Schedule Generation",
-            config_file=config_file,
-            format=format_str,
+        # Call the API function with CLI arguments
+        result = cruiseplan.schedule(
+            config_file=args.config_file,
+            output_dir=str(getattr(args, "output_dir", "data")),
+            output=getattr(args, "output", None),
+            format=getattr(args, "format", "all"),
             leg=getattr(args, "leg", None),
             derive_netcdf=derive_netcdf,
+            bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_dir=getattr(args, "bathy_dir", "data/bathymetry"),
+            bathy_stride=getattr(args, "bathy_stride", 10),
+            figsize=getattr(args, "figsize", None),
+            verbose=getattr(args, "verbose", False),
         )
 
-        # Convert CLI args to API parameters using bridge utility
-        api_params = _resolve_cli_to_api_params(args, "schedule")
+        # Display results
+        print("")
+        print("=" * 50)
+        print("Schedule Generation Results")
+        print("=" * 50)
 
-        # Call API function instead of core directly
-        logger.info("Generating cruise schedule and timeline...")
-        timeline, generated_files = cruiseplan.schedule(**api_params)
+        if result.timeline:
+            print(f"✅ {result}")
+            print("📁 Generated files:")
+            for file_path in result.files_created:
+                print(f"  • {file_path}")
 
-        # Convert API response to CLI format using bridge utility
-        api_response = (timeline, generated_files)
-        cli_response = _convert_api_response_to_cli(api_response, "schedule")
-
-        # Collect generated files using utility
-        all_generated_files = _collect_generated_files(
-            cli_response,
-            base_patterns=[
-                "*_schedule.*",
-                "*_timeline.*",
-                "*_map.png",
-                "*_catalog.kml",
-            ],
-        )
-
-        if cli_response.get("success", True) and timeline:
-            # Show timeline summary using utility function
-            total_duration_hours = (
-                sum(activity.get("duration_minutes", 0) for activity in timeline) / 60.0
-            )
-
-            timeline_summary = _format_timeline_summary(timeline, total_duration_hours)
-            logger.info(f"\n{timeline_summary}")
-
-            # Format success message using new utility
-            _format_success_message("schedule generation", all_generated_files)
+            # Show timeline summary
+            if result.timeline:
+                total_duration_hours = (
+                    sum(
+                        activity.get("duration_minutes", 0)
+                        for activity in result.timeline
+                    )
+                    / 60.0
+                )
+                print(f"⏱️  Total timeline duration: {total_duration_hours:.1f} hours")
+                print(f"📊 Timeline activities: {len(result.timeline)}")
         else:
-            errors = cli_response.get("errors", ["Schedule generation failed"])
-            for error in errors:
-                logger.error(f"❌ {error}")
+            print("❌ Schedule generation failed")
             sys.exit(1)
 
-    except CLIError as e:
-        _format_error_message("schedule", e)
+    except cruiseplan.ValidationError as e:
+        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
         sys.exit(1)
-
+    except cruiseplan.FileError as e:
+        print(f"❌ File operation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except cruiseplan.BathymetryError as e:
+        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"❌ File not found: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"❌ Schedule generation error: {e}", file=sys.stderr)
+        sys.exit(1)
     except KeyboardInterrupt:
-        logger.info("\n\n⚠️ Operation cancelled by user.")
+        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
         sys.exit(1)
-
     except Exception as e:
-        error_msg = _format_cli_error(
-            "Schedule generation",
-            e,
-            suggestions=[
-                "Check configuration file syntax",
-                "Verify bathymetry data availability",
-                "Ensure sufficient disk space",
-                "Run with --verbose for more details",
-            ],
-        )
-        logger.exception(error_msg)
+        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        if getattr(args, "verbose", False):
+            import traceback
+
+            traceback.print_exc()
         sys.exit(1)
 
 
@@ -183,6 +128,9 @@ if __name__ == "__main__":
     )
     parser.add_argument("--verbose", action="store_true", help="Verbose output")
     parser.add_argument("--quiet", action="store_true", help="Quiet output")
+    parser.add_argument(
+        "--derive-netcdf", action="store_true", help="Generate specialized NetCDF files"
+    )
 
     args = parser.parse_args()
     main(args)

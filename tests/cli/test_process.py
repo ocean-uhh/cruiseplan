@@ -1,181 +1,332 @@
 """
-Test suite for cruiseplan process command.
+Test suite for cruiseplan.cli.process command - Thin CLI Architecture.
 
-Streamlined tests focused on CLI layer functionality after API-first refactoring.
-Tests verify CLI argument handling and API integration, not underlying business logic.
+This module implements streamlined tests for the thin CLI layer that only
+tests argument passing to the API. Business logic testing happens in API tests.
 """
 
+import argparse
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
+import cruiseplan
 from cruiseplan.cli.process import main
 
 
-class TestProcessCommand:
-    """Streamlined test suite for CLI process functionality."""
+class TestProcessThinCLI:
+    """Test suite for thin CLI process functionality."""
 
-    def test_main_calls_api_with_correct_params(self):
-        """Test that CLI correctly calls API layer with proper parameters."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.output_dir = Path("data")
-        mock_args.add_depths = True
-        mock_args.add_coords = True
-        mock_args.verbose = False
-        mock_args.quiet = False
+    def test_minimal_process_command(self):
+        """Test minimal process command with required arguments."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir="data",
+            output=None,
+            bathy_source="etopo2022",
+            bathy_dir="data/bathymetry",
+            add_depths=True,
+            add_coords=True,
+            expand_sections=True,
+            expand_ports=True,
+            run_validation=True,
+            run_map_generation=True,
+            depth_check=True,
+            tolerance=10.0,
+            format="all",
+            bathy_stride=10,
+            figsize=None,
+            no_port_map=False,
+            verbose=False,
+        )
 
-        with (
-            patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.cli.process._setup_cli_logging"),
-            patch("cruiseplan.cli.process._handle_deprecated_cli_params"),
-            patch("cruiseplan.cli.process._apply_cli_defaults"),
-            patch(
-                "cruiseplan.cli.process._initialize_cli_command",
-                return_value=Path("test_config.yaml"),
-            ),
-            patch("cruiseplan.cli.process._format_progress_header"),
-            patch(
-                "cruiseplan.cli.process._standardize_output_setup",
-                return_value=(Path("data"), "test", {}),
-            ),
-            patch("cruiseplan.cli.process._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.process._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.process._collect_generated_files") as mock_collect,
-            patch("cruiseplan.cli.process._format_output_summary"),
-        ):
-
-            mock_api.return_value = ([], [Path("data/test_enriched.yaml")])
-            mock_collect.return_value = [Path("data/test_enriched.yaml")]
-
-            main(mock_args)
-
-            # Verify API was called
-            mock_api.assert_called_once()
-
-    def test_main_handles_api_errors_gracefully(self):
-        """Test that CLI handles API errors gracefully."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.output_dir = Path("data")
-        mock_args.verbose = False
-
-        with patch("cruiseplan.process") as mock_api:
-            mock_api.side_effect = Exception("API error")
-
-            with pytest.raises(SystemExit):
-                main(mock_args)
-
-    def test_main_keyboard_interrupt_handling(self):
-        """Test graceful handling of keyboard interrupt."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.output_dir = Path("data")
-        mock_args.verbose = False
-
-        with patch("cruiseplan.process") as mock_api:
-            mock_api.side_effect = KeyboardInterrupt()
-
-            with pytest.raises(SystemExit):
-                main(mock_args)
-
-    def test_main_handles_processing_failure(self):
-        """Test handling of processing failure from API."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.output_dir = Path("data")
-        mock_args.add_depths = True
-        mock_args.add_coords = True
-        mock_args.verbose = False
-        mock_args.quiet = False
-
-        with (
-            patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.cli.process._setup_cli_logging"),
-            patch("cruiseplan.cli.cli_utils._handle_deprecated_params"),
-            patch(
-                "cruiseplan.cli.process._validate_config_file",
-                return_value=Path("test_config.yaml"),
-            ),
-            patch("cruiseplan.cli.process._format_progress_header"),
-            patch("cruiseplan.cli.process._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.process._convert_api_response_to_cli",
-                return_value={
-                    "success": False,
-                    "errors": ["Processing failed", "Missing data"],
+        with patch("cruiseplan.process") as mock_process:
+            # Mock successful process response
+            mock_process.return_value = cruiseplan.ProcessResult(
+                config={
+                    "cruise_name": "test_cruise",
+                    "stations": [{"name": "station1"}],
                 },
-            ),
-            patch("cruiseplan.cli.process._collect_generated_files", return_value=[]),
-        ):
+                files_created=[
+                    Path("data/test_enriched.yaml"),
+                    Path("data/test_schedule.html"),
+                    Path("data/test_map.png"),
+                ],
+                summary={
+                    "config_file": "test.yaml",
+                    "files_generated": 3,
+                    "enrichment_run": True,
+                    "validation_run": True,
+                    "map_generation_run": True,
+                },
+            )
 
-            # Mock API response with failure
-            mock_api.return_value = ([], [])
+            main(args)
 
-            with pytest.raises(SystemExit):
-                main(mock_args)
+            # Verify API was called with correct arguments
+            mock_process.assert_called_once_with(
+                config_file=Path("test.yaml"),
+                output_dir="data",
+                output=None,
+                bathy_source="etopo2022",
+                bathy_dir="data/bathymetry",
+                add_depths=True,
+                add_coords=True,
+                expand_sections=True,
+                expand_ports=True,
+                run_validation=True,
+                run_map_generation=True,
+                depth_check=True,
+                tolerance=10.0,
+                format="all",
+                bathy_stride=10,
+                figsize=None,
+                no_port_map=False,
+                verbose=False,
+            )
 
-    def test_main_handles_cli_error(self):
-        """Test handling of CLIError exceptions."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.verbose = False
-        mock_args.quiet = False
+    def test_process_with_custom_options(self):
+        """Test process command with custom options."""
+        args = argparse.Namespace(
+            config_file=Path("custom.yaml"),
+            output_dir="/custom/output",
+            output="custom_cruise",
+            bathy_source="gebco2025",
+            bathy_dir="/custom/bathy",
+            add_depths=False,
+            add_coords=False,
+            expand_sections=False,
+            expand_ports=False,
+            run_validation=False,
+            run_map_generation=False,
+            depth_check=False,
+            tolerance=5.0,
+            format="html",
+            bathy_stride=20,
+            figsize=[12, 8],
+            no_port_map=True,
+            verbose=True,
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.return_value = cruiseplan.ProcessResult(
+                config={"cruise_name": "custom_cruise"},
+                files_created=[Path("/custom/output/custom_cruise_enriched.yaml")],
+                summary={
+                    "config_file": "custom.yaml",
+                    "files_generated": 1,
+                    "enrichment_run": False,
+                    "validation_run": False,
+                    "map_generation_run": False,
+                },
+            )
+
+            main(args)
+
+            mock_process.assert_called_once_with(
+                config_file=Path("custom.yaml"),
+                output_dir="/custom/output",
+                output="custom_cruise",
+                bathy_source="gebco2025",
+                bathy_dir="/custom/bathy",
+                add_depths=False,
+                add_coords=False,
+                expand_sections=False,
+                expand_ports=False,
+                run_validation=False,
+                run_map_generation=False,
+                depth_check=False,
+                tolerance=5.0,
+                format="html",
+                bathy_stride=20,
+                figsize=[12, 8],
+                no_port_map=True,
+                verbose=True,
+            )
+
+    def test_process_failure(self):
+        """Test process command when processing fails."""
+        args = argparse.Namespace(
+            config_file=Path("invalid.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.return_value = cruiseplan.ProcessResult(
+                config=None,
+                files_created=[],
+                summary={"config_file": "invalid.yaml", "files_generated": 0},
+            )
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_validation_error_handling(self):
+        """Test handling of ValidationError from API."""
+        args = argparse.Namespace(
+            config_file=Path("invalid.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.side_effect = cruiseplan.ValidationError(
+                "Invalid YAML configuration: syntax error"
+            )
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_file_error_handling(self):
+        """Test handling of FileError from API."""
+        args = argparse.Namespace(
+            config_file=Path("missing.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.side_effect = cruiseplan.FileError(
+                "Configuration file not found"
+            )
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_bathymetry_error_handling(self):
+        """Test handling of BathymetryError from API."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"),
+            output_dir="data",
+            bathy_source="invalid_source",
+            verbose=False,
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.side_effect = cruiseplan.BathymetryError(
+                "Bathymetry data not found"
+            )
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_keyboard_interrupt_handling(self):
+        """Test graceful handling of keyboard interrupt."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.side_effect = KeyboardInterrupt()
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_runtime_error_handling(self):
+        """Test handling of RuntimeError from API."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.side_effect = RuntimeError("Processing failed unexpectedly")
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_process_unexpected_error_with_verbose(self):
+        """Test handling of unexpected errors with verbose traceback."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=True
+        )
 
         with (
-            patch("cruiseplan.cli.process._initialize_cli_command") as mock_init,
-            patch("cruiseplan.cli.process.logger") as mock_logger,
+            patch("cruiseplan.process") as mock_process,
+            patch("traceback.print_exc") as mock_traceback,
         ):
+            # Use an exception type that will fall through to general handler
+            mock_process.side_effect = ValueError("Unexpected error")
 
-            from cruiseplan.cli.cli_utils import CLIError
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
 
-            mock_init.side_effect = CLIError("Invalid config file")
+            # Should print traceback when verbose=True
+            mock_traceback.assert_called_once()
+            assert exc_info.value.code == 1
 
-            with pytest.raises(SystemExit):
-                main(mock_args)
+    def test_default_argument_handling(self):
+        """Test that missing arguments get proper defaults."""
+        # Minimal args - missing optional attributes
+        args = argparse.Namespace(
+            config_file=Path("test.yaml")
+            # Missing: output_dir, bathy_source, add_depths, etc.
+        )
 
-            # Should log the error
-            mock_logger.exception.assert_called_once()
-            # Error message should contain the CLIError content
-            error_call = mock_logger.exception.call_args[0][0]
-            assert "Configuration processing failed" in error_call
-            assert "Invalid config file" in error_call
+        with patch("cruiseplan.process") as mock_process:
+            mock_process.return_value = cruiseplan.ProcessResult(
+                config={"cruise_name": "test"},
+                files_created=[Path("data/test_enriched.yaml")],
+                summary={"config_file": "test.yaml", "files_generated": 1},
+            )
 
-    def test_main_handles_general_exception(self):
-        """Test handling of unexpected exceptions."""
-        mock_args = MagicMock()
-        mock_args.config_file = Path("test_config.yaml")
-        mock_args.verbose = False
-        mock_args.quiet = False
+            main(args)
 
-        with (
-            patch("cruiseplan.process") as mock_api,
-            patch("cruiseplan.cli.process._setup_cli_logging"),
-            patch("cruiseplan.cli.process._handle_deprecated_cli_params"),
-            patch("cruiseplan.cli.process._apply_cli_defaults"),
-            patch(
-                "cruiseplan.cli.process._initialize_cli_command",
-                return_value=Path("test_config.yaml"),
-            ),
-            patch(
-                "cruiseplan.cli.process._standardize_output_setup",
-                return_value=(Path("data"), "test", {}),
-            ),
-            patch("cruiseplan.cli.process.logger") as mock_logger,
-        ):
+            # Should use defaults for missing arguments
+            mock_process.assert_called_once_with(
+                config_file=Path("test.yaml"),
+                output_dir="data",  # default
+                output=None,  # default
+                bathy_source="etopo2022",  # default
+                bathy_dir="data/bathymetry",  # default
+                add_depths=True,  # default
+                add_coords=True,  # default
+                expand_sections=True,  # default
+                expand_ports=True,  # default
+                run_validation=True,  # default
+                run_map_generation=True,  # default
+                depth_check=True,  # default
+                tolerance=10.0,  # default
+                format="all",  # default
+                bathy_stride=10,  # default
+                figsize=None,  # default
+                no_port_map=False,  # default
+                verbose=False,  # default
+            )
 
-            mock_api.side_effect = RuntimeError("Unexpected error")
 
-            with pytest.raises(SystemExit):
-                main(mock_args)
+class TestProcessResultType:
+    """Test the ProcessResult type for completeness."""
 
-            # Should log the error
-            mock_logger.exception.assert_called_once()
-            # Error message should contain the exception content
-            error_call = mock_logger.exception.call_args[0][0]
-            assert "Configuration processing failed" in error_call
-            assert "Unexpected error" in error_call
+    def test_process_result_success(self):
+        """Test ProcessResult with successful processing."""
+        config = {"cruise_name": "test_cruise", "stations": [{"name": "station1"}]}
+        files = [Path("enriched.yaml"), Path("schedule.html"), Path("map.png")]
+        summary = {"files_generated": 3, "enrichment_run": True}
+
+        result = cruiseplan.ProcessResult(
+            config=config, files_created=files, summary=summary
+        )
+
+        assert result.config == config
+        assert bool(result) is True
+        assert len(result.files_created) == 3
+        assert "✅ Processing complete: 3 files generated" in str(result)
+
+    def test_process_result_failure(self):
+        """Test ProcessResult with failed processing."""
+        result = cruiseplan.ProcessResult(
+            config=None, files_created=[], summary={"files_generated": 0}
+        )
+
+        assert result.config is None
+        assert bool(result) is False
+        assert len(result.files_created) == 0
+        assert "❌ Processing failed" in str(result)

@@ -43,6 +43,188 @@ from cruiseplan.data.bathymetry import download_bathymetry
 logger = logging.getLogger(__name__)
 
 
+# Custom exception types for clean CLI error handling
+class ValidationError(Exception):
+    """Raised when configuration validation fails."""
+
+    pass
+
+
+class FileError(Exception):
+    """Raised when file operations fail (reading, writing, permissions)."""
+
+    pass
+
+
+class BathymetryError(Exception):
+    """Raised when bathymetry operations fail."""
+
+    pass
+
+
+# Result types for structured API responses
+class EnrichResult:
+    """Structured result from enrich operation."""
+
+    def __init__(
+        self, output_file: Path, files_created: list[Path], summary: dict[str, Any]
+    ):
+        self.output_file = output_file
+        self.files_created = files_created
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing the main output file."""
+        return str(self.output_file)
+
+
+class ValidationResult:
+    """Structured result from validate operation."""
+
+    def __init__(
+        self,
+        success: bool,
+        errors: list[str],
+        warnings: list[str],
+        summary: dict[str, Any],
+    ):
+        self.success = success
+        self.errors = errors
+        self.warnings = warnings
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing validation status."""
+        if self.success:
+            return f"✅ Validation passed ({len(self.warnings)} warnings)"
+        else:
+            return f"❌ Validation failed ({len(self.errors)} errors, {len(self.warnings)} warnings)"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if validation succeeded."""
+        return self.success
+
+
+class ScheduleResult:
+    """Structured result from schedule operation."""
+
+    def __init__(
+        self,
+        timeline: Optional[list[dict[str, Any]]],
+        files_created: list[Path],
+        summary: dict[str, Any],
+    ):
+        self.timeline = timeline
+        self.files_created = files_created
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing schedule generation status."""
+        if self.timeline is not None:
+            duration_hours = (
+                sum(activity.get("duration_minutes", 0) for activity in self.timeline)
+                / 60.0
+            )
+            return f"✅ Schedule generated: {len(self.timeline)} activities, {duration_hours:.1f} hours total"
+        else:
+            return "❌ Schedule generation failed"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if schedule was generated successfully."""
+        return self.timeline is not None and len(self.timeline) > 0
+
+
+class PangaeaResult:
+    """Structured result from pangaea operation."""
+
+    def __init__(
+        self,
+        stations_data: Optional[Any],
+        files_created: list[Path],
+        summary: dict[str, Any],
+    ):
+        self.stations_data = stations_data
+        self.files_created = files_created
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing PANGAEA processing status."""
+        if self.stations_data is not None:
+            station_count = (
+                len(self.stations_data) if hasattr(self.stations_data, "__len__") else 1
+            )
+            return f"✅ PANGAEA processing complete: {station_count} stations found, {len(self.files_created)} files generated"
+        else:
+            return "❌ PANGAEA processing failed"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if PANGAEA processing was successful."""
+        return self.stations_data is not None
+
+
+class ProcessResult:
+    """Structured result from process operation."""
+
+    def __init__(
+        self, config: Optional[Any], files_created: list[Path], summary: dict[str, Any]
+    ):
+        self.config = config
+        self.files_created = files_created
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing processing status."""
+        if self.config is not None:
+            return f"✅ Processing complete: {len(self.files_created)} files generated"
+        else:
+            return "❌ Processing failed"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if processing was successful."""
+        return self.config is not None
+
+
+class MapResult:
+    """Structured result from map operation."""
+
+    def __init__(self, map_files: list[Path], format: str, summary: dict[str, Any]):
+        self.map_files = map_files
+        self.format = format
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing map generation status."""
+        if self.map_files:
+            return f"✅ Map generation complete: {len(self.map_files)} files generated ({self.format})"
+        else:
+            return "❌ Map generation failed"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if map generation was successful."""
+        return len(self.map_files) > 0
+
+
+class BathymetryResult:
+    """Structured result from bathymetry operation."""
+
+    def __init__(self, data_file: Optional[Path], source: str, summary: dict[str, Any]):
+        self.data_file = data_file
+        self.source = source
+        self.summary = summary
+
+    def __str__(self) -> str:
+        """String representation showing bathymetry download status."""
+        if self.data_file and self.data_file.exists():
+            file_size = self.summary.get("file_size_mb", "Unknown")
+            return f"✅ Bathymetry data downloaded: {self.source} ({file_size} MB)"
+        else:
+            return "❌ Bathymetry download failed"
+
+    def __bool__(self) -> bool:
+        """Boolean representation - True if bathymetry download was successful."""
+        return self.data_file is not None and self.data_file.exists()
+
+
 def _setup_output_paths(
     config_file: Union[str, Path],
     output_dir: Optional[Union[str, Path]] = None,
@@ -91,7 +273,7 @@ def bathymetry(
     bathy_source: str = "etopo2022",
     output_dir: Optional[str] = None,
     citation: bool = False,
-) -> Path:
+) -> BathymetryResult:
     """
     Download bathymetry data (mirrors: cruiseplan bathymetry).
 
@@ -130,7 +312,21 @@ def bathymetry(
 
     logger.info(f"=� Downloading {bathy_source} bathymetry data to {data_dir}")
     result = download_bathymetry(target_dir=str(data_dir), source=bathy_source)
-    return Path(result) if result else data_dir
+    # Determine the data file path and gather metadata
+    data_file = Path(result) if result else None
+    file_size_mb = None
+    if data_file and data_file.exists():
+        file_size_mb = round(data_file.stat().st_size / (1024 * 1024), 1)
+
+    # Create structured result
+    summary = {
+        "source": bathy_source,
+        "output_dir": str(data_dir),
+        "file_size_mb": file_size_mb,
+        "citation_shown": citation,
+    }
+
+    return BathymetryResult(data_file=data_file, source=bathy_source, summary=summary)
 
 
 def pangaea(
@@ -143,7 +339,7 @@ def pangaea(
     rate_limit: float = 1.0,
     merge_campaigns: bool = True,
     verbose: bool = False,
-) -> tuple[Optional[Any], Optional[list[Path]]]:
+) -> PangaeaResult:
     """
     Search and download PANGAEA oceanographic data (mirrors: cruiseplan pangaea).
 
@@ -170,22 +366,22 @@ def pangaea(
 
     Returns
     -------
-    tuple[Optional[object], Optional[List[Path]]]
-        Tuple of (pangaea_stations_data, list_of_generated_files).
-        Stations data is None if search failed, file list is None if no files generated.
+    PangaeaResult
+        Structured result containing stations data, generated files, and summary information.
         Stations data contains the loaded PANGAEA campaign data for analysis.
-        File list contains paths to all generated files (DOI list, stations pickle).
+        Files list contains paths to all generated files (DOI list, stations pickle).
+        Summary contains metadata about the search and processing.
 
     Examples
     --------
     >>> import cruiseplan
     >>> # Search for CTD data in Arctic
-    >>> stations, files = cruiseplan.pangaea("CTD", lat_bounds=[70, 80], lon_bounds=[-10, 10])
-    >>> print(f"Found {len(stations)} campaigns in {len(files)} files")
+    >>> result = cruiseplan.pangaea("CTD", lat_bounds=[70, 80], lon_bounds=[-10, 10])
+    >>> print(f"Found {len(result.stations_data)} campaigns in {len(result.files_created)} files")
     >>> # Search with custom output directory and filename
-    >>> stations, files = cruiseplan.pangaea("temperature", output_dir="pangaea_data", output="arctic_temp")
+    >>> result = cruiseplan.pangaea("temperature", output_dir="pangaea_data", output="arctic_temp")
     >>> # Access the data directly
-    >>> for campaign in stations:
+    >>> for campaign in result.stations_data:
     ...     print(f"Campaign: {campaign['Campaign']}, Stations: {len(campaign['Stations'])}")
     """
     import re
@@ -206,7 +402,7 @@ def pangaea(
         # Validate lat/lon bounds if provided
         bbox = _validate_lat_lon_bounds(lat_bounds, lon_bounds)
         if (lat_bounds or lon_bounds) and bbox is None:
-            return None, None
+            raise ValidationError("Invalid latitude/longitude bounds provided")
 
         # Setup output paths
         output_dir_path = Path(output_dir).resolve()
@@ -250,7 +446,7 @@ def pangaea(
 
             if not clean_dois:
                 logger.warning("❌ No DOIs found. Try broadening your search criteria.")
-                return None, None
+                raise RuntimeError("No DOIs found for the given search criteria")
 
             logger.info(f"✅ Found {len(clean_dois)} datasets")
 
@@ -275,7 +471,7 @@ def pangaea(
                 logger.warning(
                     "⚠️ No datasets retrieved. Check DOI list and network connection."
                 )
-                return None, generated_files
+                raise RuntimeError("No datasets could be retrieved from PANGAEA")
 
             # Save results using data function
             save_campaign_data(detailed_datasets, stations_file)
@@ -285,16 +481,29 @@ def pangaea(
             logger.error(
                 "❌ pangaeapy not available. Please install with: pip install pangaeapy"
             )
-            return None, None
+            raise RuntimeError(
+                "pangaeapy package not available - please install with: pip install pangaeapy"
+            )
 
         logger.info("✅ PANGAEA processing completed successfully!")
         logger.info(f"🚀 Next step: cruiseplan stations -p {stations_file}")
 
-        return detailed_datasets, generated_files
+        return PangaeaResult(
+            stations_data=detailed_datasets,
+            files_created=generated_files,
+            summary={
+                "query_terms": query_terms,
+                "campaigns_found": len(detailed_datasets) if detailed_datasets else 0,
+                "files_generated": len(generated_files),
+                "lat_bounds": lat_bounds,
+                "lon_bounds": lon_bounds,
+                "max_results": max_results,
+            },
+        )
 
     except Exception as e:
         _handle_error_with_logging(e, "PANGAEA search failed", verbose)
-        return None, None
+        raise  # Re-raise the exception so caller knows it failed
 
 
 def enrich(
@@ -309,9 +518,12 @@ def enrich(
     expand_sections: bool = True,
     expand_ports: bool = True,
     verbose: bool = False,
-) -> Path:
+) -> EnrichResult:
     """
     Enrich a cruise configuration file (mirrors: cruiseplan enrich).
+
+    This function now handles all validation, file operations, and error handling
+    that was previously in the CLI layer.
 
     Parameters
     ----------
@@ -329,7 +541,6 @@ def enrich(
         Expand CTD sections into individual station definitions (default: True)
     expand_ports : bool
         Expand global port references (default: True)
-
     bathy_source : str
         Bathymetry dataset (default: "etopo2022")
     bathy_dir : str
@@ -341,51 +552,158 @@ def enrich(
 
     Returns
     -------
-    Path
-        Path to enriched output file
+    EnrichResult
+        Structured result with output file, files created, and summary
+
+    Raises
+    ------
+    ValidationError
+        If configuration validation fails
+    FileError
+        If file operations fail (reading, writing, permissions)
+    BathymetryError
+        If bathymetry operations fail
 
     Examples
     --------
     >>> import cruiseplan
-    >>> # Add depths and coordinates to cruise.yaml
-    >>> cruiseplan.enrich(config_file="cruise.yaml", add_depths=True, add_coords=True)
-    >>> # Enrich and save to custom output directory
-    >>> cruiseplan.enrich(config_file="cruise.yaml", output_dir="enriched", add_depths=True)
-    >>> # Enrich with custom filename but note output will be "enhanced_cruise_enriched.yaml"
-    >>> cruiseplan.enrich(config_file="cruise.yaml", output="enhanced_cruise", add_depths=True)
+    >>> result = cruiseplan.enrich(config_file="cruise.yaml", add_depths=True)
+    >>> print(f"Enriched file: {result.output_file}")
+    >>> print(f"Summary: {result.summary}")
     """
-    from cruiseplan.core.validation_old import enrich_configuration
+    try:
+        # Setup verbose logging if requested
+        if verbose:
+            logging.basicConfig(level=logging.DEBUG)
+            logger.debug("Verbose logging enabled")
 
-    config_path = Path(config_file).resolve()
+        # Validate and resolve input file path
+        config_path = Path(config_file).resolve()
+        if not config_path.exists():
+            raise FileError(f"Configuration file not found: {config_path}")
+        if not config_path.is_file():
+            raise FileError(f"Path is not a file: {config_path}")
+        if config_path.stat().st_size == 0:
+            raise FileError(f"Configuration file is empty: {config_path}")
 
-    # Setup output paths using helper function
-    from cruiseplan.utils.config import setup_output_paths
+        # Validate config file format
+        try:
+            from cruiseplan.utils.yaml_io import load_yaml
 
-    output_dir_path, base_name = setup_output_paths(config_file, output_dir, output)
+            config_data = load_yaml(config_path)
+            cruise_name = config_data.get("cruise_name")
+        except Exception as e:
+            raise ValidationError(f"Invalid YAML configuration: {e}")
 
-    # Determine final output file path - CLI behavior is to append "_enriched"
-    # Always append "_enriched" to maintain consistency with CLI and other commands
-    output_path = output_dir_path / f"{base_name}_enriched.yaml"
+        # Setup and validate output paths
+        try:
+            from cruiseplan.utils.config import setup_output_paths
 
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
+            output_dir_path, base_name = setup_output_paths(
+                config_file, output_dir, output
+            )
 
-    logger.info(f"🔧 Enriching {config_path}")
-    logger.info(f"📁 Output will be saved to: {output_path}")
+            # Create output directory if needed
+            output_dir_path.mkdir(parents=True, exist_ok=True)
 
-    enrich_configuration(
-        config_path,
-        output_path=output_path,
-        add_depths=add_depths,
-        add_coords=add_coords,
-        expand_sections=expand_sections,
-        expand_ports=expand_ports,
-        bathymetry_source=bathy_source,
-        bathymetry_dir=bathy_dir,
-        coord_format=coord_format,
-    )
+            # Test directory writability
+            test_file = output_dir_path / ".tmp_write_test"
+            try:
+                test_file.touch()
+                test_file.unlink()
+            except Exception:
+                raise FileError(f"Output directory is not writable: {output_dir_path}")
 
-    return output_path
+        except Exception as e:
+            if isinstance(e, FileError):
+                raise
+            raise FileError(f"Output directory setup failed: {e}")
+
+        # Determine final output file path
+        output_path = output_dir_path / f"{base_name}_enriched.yaml"
+
+        logger.info(f"🔧 Enriching {config_path}")
+        if verbose:
+            logger.info(f"📁 Output directory: {output_dir_path}")
+            logger.info(f"📄 Output file: {output_path}")
+            logger.info(
+                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}, ports={expand_ports}"
+            )
+
+        # Perform the actual enrichment
+        try:
+            from cruiseplan.core.validation_old import enrich_configuration
+
+            enrich_configuration(
+                config_path,
+                output_path=output_path,
+                add_depths=add_depths,
+                add_coords=add_coords,
+                expand_sections=expand_sections,
+                expand_ports=expand_ports,
+                bathymetry_source=bathy_source,
+                bathymetry_dir=bathy_dir,
+                coord_format=coord_format,
+            )
+
+        except Exception as e:
+            # Convert low-level errors to appropriate high-level exceptions
+            error_msg = str(e).lower()
+            if (
+                "validation" in error_msg
+                or "invalid" in error_msg
+                or "missing" in error_msg
+            ):
+                raise ValidationError(f"Configuration validation failed: {e}")
+            elif (
+                "bathymetry" in error_msg
+                or "etopo" in error_msg
+                or "gebco" in error_msg
+            ):
+                raise BathymetryError(f"Bathymetry processing failed: {e}")
+            elif (
+                "file" in error_msg
+                or "directory" in error_msg
+                or "permission" in error_msg
+            ):
+                raise FileError(f"File operation failed: {e}")
+            else:
+                # Re-raise as generic error for now
+                raise
+
+        # Verify output was created successfully
+        if not output_path.exists():
+            raise FileError(
+                f"Enrichment completed but output file was not created: {output_path}"
+            )
+
+        # Generate summary information (simplified for now)
+        summary = {
+            "config_file": str(config_path),
+            "cruise_name": cruise_name,
+            "operations_performed": {
+                "add_depths": add_depths,
+                "add_coords": add_coords,
+                "expand_sections": expand_sections,
+                "expand_ports": expand_ports,
+            },
+            "output_size_bytes": output_path.stat().st_size,
+        }
+
+        logger.info(f"✅ Configuration enriched successfully: {output_path}")
+
+        return EnrichResult(
+            output_file=output_path, files_created=[output_path], summary=summary
+        )
+
+    except (ValidationError, FileError, BathymetryError):
+        # Re-raise our custom exceptions as-is
+        raise
+    except KeyboardInterrupt:
+        raise  # Let CLI handle this
+    except Exception as e:
+        # Wrap unexpected errors
+        raise FileError(f"Unexpected error during enrichment: {e}") from e
 
 
 def validate(
@@ -397,7 +715,7 @@ def validate(
     strict: bool = False,
     warnings_only: bool = False,
     verbose: bool = False,
-) -> bool:
+) -> ValidationResult:
     """
     Validate a cruise configuration file (mirrors: cruiseplan validate).
 
@@ -487,7 +805,7 @@ def schedule(
     bathy_stride: int = 10,
     figsize: Optional[list] = None,
     verbose: bool = False,
-) -> tuple[Optional[list[Any]], Optional[list[Path]]]:
+) -> ScheduleResult:
     """
     Generate cruise schedule (mirrors: cruiseplan schedule).
 
@@ -519,32 +837,32 @@ def schedule(
 
     Returns
     -------
-    tuple[Optional[Timeline], Optional[List[Path]]]
-        Tuple of (timeline_object, list_of_generated_files).
-        Timeline is None if generation failed, file list is None if no files generated.
+    ScheduleResult
+        Structured result containing timeline, generated files, and summary information.
         Timeline contains computed schedule data for programmatic use.
-        File list contains paths to all generated files (HTML, CSV, NetCDF, etc.).
+        Files list contains paths to all generated files (HTML, CSV, NetCDF, etc.).
+        Summary contains metadata about the generation process.
 
     Examples
     --------
     >>> import cruiseplan
     >>> # Generate all formats and get timeline for analysis
-    >>> timeline, files = cruiseplan.schedule(config_file="cruise.yaml", format="all")
-    >>> print(f"Generated files: {files}")
-    >>> print(f"Timeline has {len(timeline)} activities")
+    >>> result = cruiseplan.schedule(config_file="cruise.yaml", format="all")
+    >>> print(f"Generated files: {result.files_created}")
+    >>> print(f"Timeline has {len(result.timeline)} activities")
     >>>
     >>> # Find specific file type from generated files
-    >>> netcdf_file = next(f for f in files if f.suffix == '.nc')
-    >>> html_file = next(f for f in files if f.suffix == '.html')
+    >>> netcdf_file = next(f for f in result.files_created if f.suffix == '.nc')
+    >>> html_file = next(f for f in result.files_created if f.suffix == '.html')
     >>>
     >>> # Get only timeline data without generating files
-    >>> timeline, _ = cruiseplan.schedule(config_file="cruise.yaml", format=None)
-    >>> for activity in timeline:
+    >>> result = cruiseplan.schedule(config_file="cruise.yaml", format=None)
+    >>> for activity in result.timeline:
     ...     print(f"{activity['label']}: {activity['start_time']} -> {activity['end_time']}")
     >>>
     >>> # Load NetCDF file with xarray
-    >>> timeline, files = cruiseplan.schedule(config_file="cruise.yaml", format="netcdf")
-    >>> netcdf_file = files[0]  # NetCDF file
+    >>> result = cruiseplan.schedule(config_file="cruise.yaml", format="netcdf")
+    >>> netcdf_file = result.files_created[0]  # NetCDF file
     >>> import xarray as xr
     >>> ds = xr.open_dataset(netcdf_file)
     """
@@ -574,24 +892,28 @@ def schedule(
             ]
             if not target_legs:
                 logger.error(f"Leg '{leg}' not found in cruise configuration")
-                return None, None
+                raise ValidationError(f"Leg '{leg}' not found in cruise configuration")
             logger.info(f"Processing specific leg: {leg}")
 
         if not target_legs:
             logger.error("No legs found in cruise configuration")
-            return None, None
+            raise ValidationError("No legs found in cruise configuration")
 
         # Generate timeline for specified legs
         timeline = generate_timeline(cruise.config, target_legs)
 
         if not timeline:
             logger.error("Failed to generate timeline")
-            return None, None
+            raise RuntimeError("Failed to generate timeline")
 
         # Handle format=None case (timeline only)
         if format is None:
             logger.info("📊 Computing timeline only (no file output)")
-            return timeline, None
+            return ScheduleResult(
+                timeline=timeline,
+                files_created=[],
+                summary={"activities": len(timeline), "files_generated": 0},
+            )
 
         # Setup output paths using helper function
         from cruiseplan.utils.config import setup_output_paths
@@ -673,10 +995,16 @@ def schedule(
             logger.info(
                 f"📅 Schedule generation complete! Generated {len(generated_files)} files"
             )
-            return (
-                timeline,
-                generated_files,
-            )  # Return timeline and list of all generated files
+            return ScheduleResult(
+                timeline=timeline,
+                files_created=generated_files,
+                summary={
+                    "activities": len(timeline),
+                    "files_generated": len(generated_files),
+                    "formats": list(formats),
+                    "leg": leg,
+                },
+            )
         else:
             logger.error("No schedule files were generated")
             raise RuntimeError(
@@ -711,7 +1039,7 @@ def process(
     figsize: Optional[list] = None,
     no_port_map: bool = False,
     verbose: bool = False,
-) -> tuple[Optional[Any], Optional[list[Path]]]:
+) -> ProcessResult:
     """
     Process cruise configuration with unified workflow (mirrors: cruiseplan process).
 
@@ -785,7 +1113,7 @@ def process(
         if add_depths or add_coords or expand_sections or expand_ports:
             logger.info("🔧 Enriching cruise configuration...")
             try:
-                enriched_config_path = enrich(
+                enrich_result = enrich(
                     config_file=config_file,
                     output_dir=output_dir,
                     output=output,
@@ -797,6 +1125,7 @@ def process(
                     expand_ports=expand_ports,
                     verbose=verbose,
                 )
+                enriched_config_path = enrich_result.output_file
                 generated_files.append(enriched_config_path)
             except Exception:
                 logger.exception("❌ Enrichment failed")
@@ -822,7 +1151,7 @@ def process(
         # Step 3: Map generation (optional)
         if run_map_generation:
             logger.info("🗺️ Generating cruise maps...")
-            map_file = map(
+            map_result = map(
                 config_file=enriched_config_path,  # Use enriched config if available
                 output_dir=output_dir,
                 output=output,
@@ -834,8 +1163,8 @@ def process(
                 no_ports=no_port_map,  # Pass through the no_port_map flag as no_ports
                 verbose=verbose,
             )
-            if map_file:
-                generated_files.append(map_file)
+            if map_result.map_files:
+                generated_files.extend(map_result.map_files)
 
         # Load the final config object for return
         from cruiseplan.core.cruise import Cruise
@@ -843,7 +1172,19 @@ def process(
         cruise = Cruise(enriched_config_path)
 
         logger.info("✅ Processing workflow completed successfully!")
-        return cruise.config, generated_files
+
+        # Create structured result
+        summary = {
+            "config_file": str(config_file),
+            "files_generated": len(generated_files),
+            "enrichment_run": add_depths or add_coords,
+            "validation_run": run_validation,
+            "map_generation_run": run_map_generation,
+        }
+
+        return ProcessResult(
+            config=cruise.config, files_created=generated_files, summary=summary
+        )
 
     except Exception as e:
         from cruiseplan.init_utils import _handle_error_with_logging
@@ -864,7 +1205,7 @@ def map(
     show_plot: bool = False,
     no_ports: bool = False,
     verbose: bool = False,
-) -> Optional[Path]:
+) -> MapResult:
     """
     Generate cruise track map (mirrors: cruiseplan map).
 
@@ -952,22 +1293,27 @@ def map(
             generate_kml_catalog(cruise.config, kml_file)
             generated_files.append(kml_file)
 
-        # Return appropriate file based on format
-        if format == "png" and generated_files:
-            return generated_files[0]
-        elif format == "kml" and len(generated_files) > 0:
-            # Return KML file if it was generated
-            kml_files = [f for f in generated_files if str(f).endswith(".kml")]
-            return kml_files[0] if kml_files else None
-        elif format == "all" and generated_files:
-            # For "all", return the PNG file for backward compatibility
-            png_files = [f for f in generated_files if str(f).endswith(".png")]
-            return png_files[0] if png_files else generated_files[0]
+        # Create structured result
+        summary = {
+            "config_file": str(config_file),
+            "format": format,
+            "files_generated": len(generated_files),
+            "output_dir": str(output_path),
+        }
 
-        return None
+        return MapResult(map_files=generated_files, format=format, summary=summary)
 
     except Exception as e:
         from cruiseplan.init_utils import _handle_error_with_logging
 
         _handle_error_with_logging(e, "Map generation failed", verbose)
-        return None
+
+        # Return failed result
+        summary = {
+            "config_file": str(config_file),
+            "format": format,
+            "files_generated": 0,
+            "error": str(e),
+        }
+
+        return MapResult(map_files=[], format=format, summary=summary)

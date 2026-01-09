@@ -1,157 +1,144 @@
 """
-Map generation CLI command for creating cruise track visualizations.
+Map generation command.
 
-This module provides command-line functionality for generating PNG maps
-directly from YAML cruise configuration files, independent of scheduling.
+This module implements the 'cruiseplan map' command for generating
+cruise track visualizations (PNG maps and KML files).
 
-Uses the API-first architecture pattern with proper separation of concerns:
-- CLI layer handles argument parsing and output formatting
-- API layer (cruiseplan.__init__) contains business logic
-- Utility functions provide consistent formatting and error handling
+Thin CLI layer that delegates all business logic to the API layer.
 """
 
 import argparse
-import logging
+import sys
+from pathlib import Path
 
 import cruiseplan
-from cruiseplan.cli.cli_utils import (
-    _collect_generated_files,
-    _format_error_message,
-    _format_progress_header,
-    _format_success_message,
-    _initialize_cli_command,
-    _setup_cli_logging,
-)
-from cruiseplan.init_utils import (
-    _convert_api_response_to_cli,
-    _resolve_cli_to_api_params,
-)
-from cruiseplan.utils.input_validation import (
-    _apply_cli_defaults,
-    _handle_deprecated_cli_params,
-    _validate_config_file,
-    _validate_format_options,
-)
-from cruiseplan.utils.output_formatting import (
-    _format_cli_error,
-    _format_output_summary,
-    _standardize_output_setup,
-)
-
-# Re-export functions for test mocking (cleaner than complex patch paths)
-__all__ = [
-    "_collect_generated_files",
-    "_convert_api_response_to_cli",
-    "_format_error_message",
-    "_format_progress_header",
-    "_format_success_message",
-    "_resolve_cli_to_api_params",
-    "_setup_cli_logging",
-    "_validate_config_file",
-    "main",
-]
-
-logger = logging.getLogger(__name__)
 
 
-def main(args: argparse.Namespace) -> int:
+def main(args: argparse.Namespace) -> None:
     """
-    Generate PNG maps and/or KML files from cruise configuration using API-first architecture.
+    Thin CLI wrapper for map command.
 
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command-line arguments containing config_file, output options, etc.
+    Delegates all business logic to the cruiseplan.map() API function.
     """
     try:
-        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
-        _handle_deprecated_cli_params(args)
-
-        # Apply standard CLI defaults
-        _apply_cli_defaults(args)
-
-        # Standardized CLI initialization
-        config_file = _initialize_cli_command(args)
-
-        # Validate format options using new utility
-        format_str = getattr(args, "format", "all")
-        valid_formats = ["png", "kml"]
-
-        if format_str != "all":
-            format_list = _validate_format_options(format_str, valid_formats)
-        else:
-            format_list = valid_formats
-
-        # Standardize output setup using new utilities
-        output_dir, base_name, _format_paths = _standardize_output_setup(
-            args, suffix="_map", multi_formats=format_list
-        )
-
-        # Format progress header using new utility
-        _format_progress_header(
-            operation="Map Generation",
-            config_file=config_file,
-            format=format_str,
+        # Call the API function with CLI arguments
+        result = cruiseplan.map(
+            config_file=args.config_file,
+            output_dir=str(getattr(args, "output_dir", "data")),
+            output=getattr(args, "output", None),
+            format=getattr(args, "format", "all"),
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
+            bathy_dir=getattr(args, "bathy_dir", "data"),
+            bathy_stride=getattr(args, "bathy_stride", 5),
+            figsize=getattr(args, "figsize", None),
+            show_plot=getattr(args, "show_plot", False),
+            no_ports=getattr(args, "no_ports", False),
+            verbose=getattr(args, "verbose", False),
         )
 
-        # Convert CLI args to API parameters using bridge utility
-        api_params = _resolve_cli_to_api_params(args, "map")
+        # Display results
+        print("")
+        print("=" * 50)
+        print("Map Generation Results")
+        print("=" * 50)
 
-        # Override output paths with standardized paths
-        api_params["output_dir"] = output_dir
-        api_params["output"] = base_name
-        api_params["formats"] = format_list
+        if result.map_files:
+            print(f"✅ {result}")
+            print("📁 Generated files:")
+            for file_path in result.map_files:
+                print(f"  • {file_path}")
 
-        # Call API function instead of core directly
-        logger.info("Generating maps and visualizations...")
-        api_response = cruiseplan.map(**api_params)
-
-        # Convert API response to CLI format using bridge utility
-        cli_response = _convert_api_response_to_cli(api_response, "map")
-
-        # Collect generated files using utility
-        generated_files = _collect_generated_files(
-            cli_response, base_patterns=["*_map.png", "*_catalog.kml"]
-        )
-
-        if cli_response.get("success", True) and generated_files:
-            # Use new standardized output summary
-            success_summary = _format_output_summary(generated_files, "Map generation")
-            logger.info(success_summary)
+            # Show map generation summary
+            print("📊 Generation summary:")
+            print(f"  • Config file: {result.summary.get('config_file', 'N/A')}")
+            print(f"  • Output format: {result.format}")
+            print(f"  • Files generated: {result.summary.get('files_generated', 0)}")
+            print(f"  • Output directory: {result.summary.get('output_dir', 'N/A')}")
         else:
-            errors = cli_response.get("errors", ["Map generation failed"])
-            for error in errors:
-                logger.error(f"❌ {error}")
-            return 1
+            print("❌ Map generation failed")
+            if "error" in result.summary:
+                print(f"Error: {result.summary['error']}")
+            sys.exit(1)
 
-    except FileNotFoundError:
-        error_msg = _format_cli_error(
-            "Map generation",
-            FileNotFoundError(f"Configuration file not found: {args.config_file}"),
-            suggestions=[
-                "Check configuration file path",
-                "Verify file exists and is readable",
-            ],
-        )
-        logger.exception(error_msg)
-        return 1
+    except cruiseplan.ValidationError as e:
+        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except cruiseplan.FileError as e:
+        print(f"❌ File operation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except cruiseplan.BathymetryError as e:
+        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"❌ File not found: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"❌ Map generation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        error_msg = _format_cli_error(
-            "Map generation",
-            e,
-            suggestions=[
-                "Check configuration file syntax",
-                "Verify bathymetry data availability",
-                "Check output directory permissions",
-                "Run with --verbose for more details",
-            ],
-        )
-        logger.exception(error_msg)
+        print(f"❌ Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
 
             traceback.print_exc()
-        return 1
+        sys.exit(1)
 
-    return 0
+
+if __name__ == "__main__":
+    # This allows the module to be run directly for testing
+    parser = argparse.ArgumentParser(description="Generate cruise maps")
+    parser.add_argument(
+        "-c",
+        "--config-file",
+        type=Path,
+        required=True,
+        help="Input YAML configuration file",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory for map files",
+    )
+    parser.add_argument(
+        "--output", help="Base filename for outputs (without extension)"
+    )
+    parser.add_argument(
+        "--format",
+        choices=["png", "kml", "all"],
+        default="all",
+        help="Output format (default: all)",
+    )
+    parser.add_argument(
+        "--bathy-source",
+        default="etopo2022",
+        help="Bathymetry data source (default: etopo2022)",
+    )
+    parser.add_argument("--bathy-dir", default="data", help="Bathymetry data directory")
+    parser.add_argument(
+        "--bathy-stride",
+        type=int,
+        default=5,
+        help="Bathymetry data stride (default: 5)",
+    )
+    parser.add_argument(
+        "--figsize",
+        type=float,
+        nargs=2,
+        metavar=("WIDTH", "HEIGHT"),
+        help="Figure size in inches (width height)",
+    )
+    parser.add_argument(
+        "--show-plot", action="store_true", help="Display plot interactively"
+    )
+    parser.add_argument(
+        "--no-ports", action="store_true", help="Exclude ports from map"
+    )
+    parser.add_argument("--verbose", action="store_true", help="Verbose output")
+
+    args = parser.parse_args()
+    main(args)

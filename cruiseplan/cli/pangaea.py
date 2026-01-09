@@ -1,58 +1,18 @@
 """
-Unified PANGAEA command - API-First Architecture.
+Unified PANGAEA command.
 
 This module implements the 'cruiseplan pangaea' command that can either:
 1. Search PANGAEA datasets by query + geographic bounds, then download station data
 2. Process an existing DOI list file directly into station data
 
-Uses the API-first architecture pattern with proper separation of concerns:
-- CLI layer handles argument parsing and output formatting
-- API layer (cruiseplan.__init__) contains business logic
-- Utility functions provide consistent formatting and error handling
+Thin CLI layer that delegates all business logic to the API layer.
 """
 
 import argparse
-import logging
 import sys
 from pathlib import Path
 
 import cruiseplan
-from cruiseplan.cli.cli_utils import (
-    CLIError,
-    _collect_generated_files,
-    _format_progress_header,
-    _format_success_message,
-    _setup_cli_logging,
-)
-from cruiseplan.init_utils import (
-    _convert_api_response_to_cli,
-    _resolve_cli_to_api_params,
-)
-from cruiseplan.utils.input_validation import (
-    _apply_cli_defaults,
-    _detect_pangaea_mode,
-    _handle_deprecated_cli_params,
-    _validate_coordinate_bounds,
-)
-from cruiseplan.utils.output_formatting import (
-    _format_api_error,
-    _format_cli_error,
-    _format_output_summary,
-    _standardize_output_setup,
-)
-
-# Re-export functions for test mocking (cleaner than complex patch paths)
-__all__ = [
-    "_collect_generated_files",
-    "_format_progress_header",
-    "_format_success_message",
-    "_setup_cli_logging",
-    "determine_workflow_mode",
-    "main",
-    "validate_lat_lon_bounds",
-]
-
-logger = logging.getLogger(__name__)
 
 
 def validate_lat_lon_bounds(
@@ -61,185 +21,115 @@ def validate_lat_lon_bounds(
     """
     Validate and convert latitude/longitude bounds into bounding box tuple.
 
-    CLI-specific coordinate validation that handles user input formats.
-    Uses the new utility function for core validation.
-
-    Parameters
-    ----------
-    lat_bounds : List[float]
-        List of [min_lat, max_lat]
-    lon_bounds : List[float]
-        List of [min_lon, max_lon]
-
-    Returns
-    -------
-    Tuple[float, float, float, float]
-        Bounding box as (min_lon, min_lat, max_lon, max_lat)
-
-    Raises
-    ------
-    CLIError
-        If bounds are invalid
+    This is a simple CLI helper that validates the user input format.
     """
-    try:
-        # Use new utility for comprehensive validation
-        bbox = _validate_coordinate_bounds(lat_bounds, lon_bounds)
-        return bbox
-    except ValueError as e:
-        raise CLIError(f"Invalid lat/lon bounds. Error: {e}") from e
+    if len(lat_bounds) != 2:
+        raise ValueError("lat_bounds must contain exactly 2 values [min_lat, max_lat]")
+    if len(lon_bounds) != 2:
+        raise ValueError("lon_bounds must contain exactly 2 values [min_lon, max_lon]")
+
+    min_lat, max_lat = lat_bounds
+    min_lon, max_lon = lon_bounds
+
+    if not (-90 <= min_lat <= 90) or not (-90 <= max_lat <= 90):
+        raise ValueError("Latitude values must be between -90 and 90 degrees")
+    if min_lat >= max_lat:
+        raise ValueError("min_lat must be less than max_lat")
+
+    return min_lon, min_lat, max_lon, max_lat
 
 
 def determine_workflow_mode(args: argparse.Namespace) -> str:
     """
     Determine whether we're in search mode or DOI file mode.
-
-    CLI-specific mode detection based on user input patterns.
-
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command line arguments
-
-    Returns
-    -------
-    str
-        Either 'search' or 'doi_file'
     """
-    # If first positional argument looks like a file path, it's DOI file mode
-    if hasattr(args, "query_or_file") and args.query_or_file:
-        potential_file = Path(args.query_or_file)
-        if potential_file.exists() and potential_file.suffix == ".txt":
-            return "doi_file"
-
-    # If lat/lon bounds provided, must be search mode
-    if args.lat and args.lon:
+    if hasattr(args, "doi_file") and args.doi_file:
+        return "doi_file"
+    else:
         return "search"
-
-    # If query looks like search terms (no file extension), search mode
-    if hasattr(args, "query_or_file") and not Path(args.query_or_file).suffix:
-        return "search"
-
-    # Default to search mode if ambiguous
-    return "search"
 
 
 def main(args: argparse.Namespace) -> None:
     """
-    Main entry point for unified PANGAEA command using API-first architecture.
+    Thin CLI wrapper for pangaea command.
 
-    Parameters
-    ----------
-    args : argparse.Namespace
-        Parsed command line arguments
+    Delegates all business logic to the cruiseplan.pangaea() API function.
     """
     try:
-        # Handle deprecated parameters (currently no deprecated params for v0.3.0+)
-        _handle_deprecated_cli_params(args)
+        # Determine workflow mode (CLI-specific logic)
+        mode = determine_workflow_mode(args)
 
-        # Apply standard CLI defaults
-        _apply_cli_defaults(args)
-
-        # Setup logging using new utility
-        _setup_cli_logging(verbose=getattr(args, "verbose", False))
-
-        # Detect mode and validate parameters using utility function
-        mode, processed_params = _detect_pangaea_mode(args)
-
-        # Format progress header using new utility
-        _format_progress_header(
-            operation="PANGAEA Data Processing",
-            config_file=None,
-            mode=mode,
-            query=processed_params.get("query", ""),
-            lat_bounds=getattr(args, "lat", None),
-            lon_bounds=getattr(args, "lon", None),
-        )
-
-        # Standardize output setup using new utilities
-        output_dir, base_name, _format_paths = _standardize_output_setup(
-            args, suffix="_stations", multi_formats=["pkl", "txt"]
-        )
-
-        # Convert CLI args to API parameters using bridge utility
-        api_params = _resolve_cli_to_api_params(args, "pangaea")
-
-        # Override output paths with standardized paths
-        api_params["output_dir"] = output_dir
-        api_params["output"] = base_name
-
-        # Call API function instead of complex processing logic
-        logger.info("Searching and processing PANGAEA data...")
-        stations_data, generated_files = cruiseplan.pangaea(**api_params)
-
-        # Convert API response to CLI format using bridge utility
-        api_response = (stations_data, generated_files)
-        cli_response = _convert_api_response_to_cli(api_response, "pangaea")
-
-        # Collect generated files using utility
-        all_generated_files = _collect_generated_files(
-            cli_response, base_patterns=["*_dois.txt", "*_stations.pkl"]
-        )
-
-        if cli_response.get("success", True) and stations_data:
-            # Use new standardized output summary
-            success_summary = _format_output_summary(
-                all_generated_files, "PANGAEA data processing"
-            )
-            logger.info(success_summary)
-
-            # Show next steps
-            logger.info("🚀 Next steps:")
-            if generated_files:
-                stations_file = next(
-                    (f for f in generated_files if str(f).endswith("_stations.pkl")),
-                    None,
-                )
-                if stations_file:
-                    logger.info(f"   1. Review stations: {stations_file}")
-                    logger.info(
-                        f"   2. Plan cruise: cruiseplan stations -p {stations_file}"
-                    )
-        else:
-            errors = cli_response.get("errors", ["PANGAEA processing failed"])
-            for error in errors:
-                logger.error(f"❌ {error}")
+        # Handle DOI file mode (not yet implemented in API - would need enhancement)
+        if mode == "doi_file":
+            print("❌ DOI file mode not yet implemented in thin CLI", file=sys.stderr)
             sys.exit(1)
 
-    except CLIError as e:
-        error_msg = _format_cli_error(
-            "PANGAEA data processing",
-            e,
-            suggestions=[
-                "Check query terms are valid",
-                "Verify coordinate bounds format",
-                "Ensure DOI file exists and is readable",
-            ],
+        # Validate lat/lon bounds if provided (CLI-specific validation)
+        lat_bounds = getattr(args, "lat", None)
+        lon_bounds = getattr(args, "lon", None)
+
+        if lat_bounds and lon_bounds:
+            try:
+                validate_lat_lon_bounds(lat_bounds, lon_bounds)
+            except ValueError as e:
+                print(f"❌ Invalid coordinate bounds: {e}", file=sys.stderr)
+                sys.exit(1)
+
+        # Call the API function with CLI arguments
+        result = cruiseplan.pangaea(
+            query_terms=args.query,
+            output_dir=str(getattr(args, "output_dir", "data")),
+            output=getattr(args, "output", None),
+            lat_bounds=lat_bounds,
+            lon_bounds=lon_bounds,
+            max_results=getattr(args, "max_results", 100),
+            rate_limit=getattr(args, "rate_limit", 1.0),
+            merge_campaigns=getattr(args, "merge_campaigns", True),
+            verbose=getattr(args, "verbose", False),
         )
-        logger.exception(error_msg)
-        sys.exit(1)
 
-    except KeyboardInterrupt:
-        logger.info("\n\n⚠️ Operation cancelled by user.")
-        sys.exit(1)
+        # Display results
+        print("")
+        print("=" * 50)
+        print("PANGAEA Processing Results")
+        print("=" * 50)
 
-    except Exception as e:
-        # Check if it's likely a network/API error
-        if "ConnectionError" in str(type(e)) or "requests" in str(type(e)):
-            error_msg = _format_api_error(
-                "PANGAEA search", "PANGAEA", e, retry_suggestion=True
+        if result.stations_data:
+            print(f"✅ {result}")
+            print("📁 Generated files:")
+            for file_path in result.files_created:
+                print(f"  • {file_path}")
+
+            # Show next steps
+            print("🚀 Next steps:")
+            stations_file = next(
+                (f for f in result.files_created if str(f).endswith("_stations.pkl")),
+                None,
             )
+            if stations_file:
+                print(f"   1. Review stations: {stations_file}")
+                print(f"   2. Plan cruise: cruiseplan stations -p {stations_file}")
         else:
-            error_msg = _format_cli_error(
-                "PANGAEA data processing",
-                e,
-                suggestions=[
-                    "Check query terms",
-                    "Verify coordinate bounds",
-                    "Check network connection",
-                    "Run with --verbose for more details",
-                ],
-            )
-        logger.exception(error_msg)
+            print("❌ PANGAEA processing failed")
+            sys.exit(1)
+
+    except cruiseplan.ValidationError as e:
+        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except cruiseplan.FileError as e:
+        print(f"❌ File operation error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except FileNotFoundError as e:
+        print(f"❌ File not found: {e}", file=sys.stderr)
+        sys.exit(1)
+    except RuntimeError as e:
+        print(f"❌ PANGAEA processing error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except KeyboardInterrupt:
+        print("\\n⚠️ Operation cancelled by user.", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}", file=sys.stderr)
         if getattr(args, "verbose", False):
             import traceback
 
@@ -249,16 +139,51 @@ def main(args: argparse.Namespace) -> None:
 
 if __name__ == "__main__":
     # This allows the module to be run directly for testing
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Process PANGAEA datasets")
-    parser.add_argument("query_or_file", help="Search query or DOI file path")
-    parser.add_argument("--lat", nargs=2, type=float, help="Latitude bounds")
-    parser.add_argument("--lon", nargs=2, type=float, help="Longitude bounds")
-    parser.add_argument("--output-dir", type=Path, default=Path("data"))
-    parser.add_argument("--output", help="Base filename for outputs")
-    parser.add_argument("--limit", type=int, default=100, help="Max results")
-    parser.add_argument("--verbose", "-v", action="store_true")
+    parser = argparse.ArgumentParser(description="Search and download PANGAEA data")
+    parser.add_argument("query", help="Search terms for PANGAEA database")
+    parser.add_argument(
+        "-o",
+        "--output-dir",
+        type=Path,
+        default=Path("data"),
+        help="Output directory for station files",
+    )
+    parser.add_argument(
+        "--output", type=str, help="Base filename for outputs (without extension)"
+    )
+    parser.add_argument(
+        "--lat",
+        type=float,
+        nargs=2,
+        metavar=("MIN_LAT", "MAX_LAT"),
+        help="Latitude bounds [min_lat, max_lat]",
+    )
+    parser.add_argument(
+        "--lon",
+        type=float,
+        nargs=2,
+        metavar=("MIN_LON", "MAX_LON"),
+        help="Longitude bounds [min_lon, max_lon]",
+    )
+    parser.add_argument(
+        "--max-results",
+        type=int,
+        default=100,
+        help="Maximum number of results to process",
+    )
+    parser.add_argument(
+        "--rate-limit",
+        type=float,
+        default=1.0,
+        help="API request rate limit (requests per second)",
+    )
+    parser.add_argument(
+        "--no-merge-campaigns",
+        action="store_false",
+        dest="merge_campaigns",
+        help="Don't merge campaigns with the same name",
+    )
+    parser.add_argument("--verbose", action="store_true", help="Verbose output")
 
     args = parser.parse_args()
     main(args)

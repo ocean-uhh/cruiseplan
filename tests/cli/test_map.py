@@ -1,228 +1,306 @@
 """
-Test suite for cruiseplan.cli.map command - API-First Architecture.
+Test suite for cruiseplan.cli.map command - Thin CLI Architecture.
 
-This module implements streamlined tests focused on CLI layer functionality
-after API-first refactoring. Tests verify CLI argument handling and API
-integration, not underlying business logic.
+This module implements streamlined tests for the thin CLI layer that only
+tests argument passing to the API. Business logic testing happens in API tests.
 """
 
 import argparse
 from pathlib import Path
 from unittest.mock import patch
 
+import pytest
+
+import cruiseplan
 from cruiseplan.cli.map import main
 
 
-class TestMapCommand:
-    """Streamlined test suite for CLI map functionality."""
+class TestMapThinCLI:
+    """Test suite for thin CLI map functionality."""
 
-    def get_fixture_path(self, filename: str) -> Path:
-        """Get path to test fixture file."""
-        return Path(__file__).parent.parent / "fixtures" / filename
-
-    def test_main_calls_api_with_correct_params(self):
-        """Test that CLI correctly calls API layer with proper parameters."""
+    def test_minimal_map_command(self):
+        """Test minimal map command with required arguments."""
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            output_dir=Path("output"),
-            output_file=None,
+            output_dir="data",
+            output=None,
+            format="all",
+            bathy_source="etopo2022",
+            bathy_dir="data",
+            bathy_stride=5,
+            figsize=None,
+            show_plot=False,
+            no_ports=False,
+            verbose=False,
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            # Mock successful map response
+            mock_map.return_value = cruiseplan.MapResult(
+                map_files=[Path("data/test_map.png"), Path("data/test_catalog.kml")],
+                format="all",
+                summary={
+                    "config_file": "test.yaml",
+                    "format": "all",
+                    "files_generated": 2,
+                    "output_dir": "data",
+                },
+            )
+
+            main(args)
+
+            # Verify API was called with correct arguments
+            mock_map.assert_called_once_with(
+                config_file=Path("test.yaml"),
+                output_dir="data",
+                output=None,
+                format="all",
+                bathy_source="etopo2022",
+                bathy_dir="data",
+                bathy_stride=5,
+                figsize=None,
+                show_plot=False,
+                no_ports=False,
+                verbose=False,
+            )
+
+    def test_map_with_custom_options(self):
+        """Test map command with custom options."""
+        args = argparse.Namespace(
+            config_file=Path("custom.yaml"),
+            output_dir="/custom/output",
+            output="custom_map",
             format="png",
             bathy_source="gebco2025",
-            bathy_dir=Path("data"),
-            bathy_stride=5,
-            show_plot=False,
-            figsize=[12, 10],
-            verbose=False,
-        )
-
-        with (
-            patch("cruiseplan.map") as mock_api,
-            patch(
-                "cruiseplan.cli.map._initialize_cli_command",
-                return_value=Path("test.yaml"),
-            ),
-            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.map._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.map._format_progress_header"),
-            patch(
-                "cruiseplan.cli.map._collect_generated_files",
-                return_value=[Path("output/test_map.png")],
-            ),
-            patch("cruiseplan.cli.map._format_success_message"),
-        ):
-
-            # Mock successful API response
-            mock_api.return_value = [Path("output/test_map.png")]
-
-            result = main(args)
-
-            # Should return 0 for success
-            assert result == 0
-
-            # Verify API was called
-            mock_api.assert_called_once()
-
-    def test_main_handles_api_errors_gracefully(self):
-        """Test that CLI handles API errors gracefully."""
-        args = argparse.Namespace(
-            config_file=Path("test.yaml"),
-            output_dir=Path("output"),
-            verbose=False,
-        )
-
-        with (
-            patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
-        ):
-            mock_api.side_effect = Exception("API error")
-
-            result = main(args)
-
-            # Should return 1 for error
-            assert result == 1
-
-    def test_main_file_not_found_handling(self):
-        """Test graceful handling of file not found."""
-        args = argparse.Namespace(
-            config_file=Path("nonexistent.yaml"),
-            output_dir=Path("output"),
-            verbose=False,
-        )
-
-        with (
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch("cruiseplan.cli.map._validate_config_file") as mock_validate,
-        ):
-            mock_validate.side_effect = FileNotFoundError()
-
-            result = main(args)
-
-            # Should return 1 for error
-            assert result == 1
-
-    def test_map_generation_with_all_formats(self):
-        """Test map generation with all output formats."""
-        args = argparse.Namespace(
-            config_file=Path("test.yaml"),
-            output_dir=Path("output"),
-            output_file=None,
-            format="all",  # PNG + KML
-            bathy_source="etopo2022",
-            bathy_dir=Path("data"),
+            bathy_dir="/custom/bathy",
             bathy_stride=10,
-            show_plot=False,
-            figsize=[15, 12],
+            figsize=[12.0, 8.0],
+            show_plot=True,
+            no_ports=True,
             verbose=True,
         )
 
-        with (
-            patch("cruiseplan.map") as mock_api,
-            patch(
-                "cruiseplan.cli.map._initialize_cli_command",
-                return_value=Path("test.yaml"),
-            ),
-            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.map._convert_api_response_to_cli",
-                return_value={"success": True},
-            ),
-            patch("cruiseplan.cli.map._format_progress_header"),
-            patch(
-                "cruiseplan.cli.map._collect_generated_files",
-                return_value=[
-                    Path("output/test_map.png"),
-                    Path("output/test_catalog.kml"),
-                ],
-            ),
-            patch("cruiseplan.cli.map._format_success_message"),
-        ):
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.return_value = cruiseplan.MapResult(
+                map_files=[Path("/custom/output/custom_map_map.png")],
+                format="png",
+                summary={
+                    "config_file": "custom.yaml",
+                    "format": "png",
+                    "files_generated": 1,
+                    "output_dir": "/custom/output",
+                },
+            )
 
-            # Mock successful API response with multiple files
-            mock_api.return_value = [
-                Path("output/test_map.png"),
-                Path("output/test_catalog.kml"),
-            ]
+            main(args)
 
-            result = main(args)
+            mock_map.assert_called_once_with(
+                config_file=Path("custom.yaml"),
+                output_dir="/custom/output",
+                output="custom_map",
+                format="png",
+                bathy_source="gebco2025",
+                bathy_dir="/custom/bathy",
+                bathy_stride=10,
+                figsize=[12.0, 8.0],
+                show_plot=True,
+                no_ports=True,
+                verbose=True,
+            )
 
-            # Should succeed
-            assert result == 0
+    def test_map_failure(self):
+        """Test map command when generation fails."""
+        args = argparse.Namespace(
+            config_file=Path("invalid.yaml"), output_dir="data", verbose=False
+        )
 
-            # Verify API was called
-            mock_api.assert_called_once()
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.return_value = cruiseplan.MapResult(
+                map_files=[],
+                format="all",
+                summary={
+                    "config_file": "invalid.yaml",
+                    "format": "all",
+                    "files_generated": 0,
+                    "error": "Configuration invalid",
+                },
+            )
 
-    def test_map_generation_failure_handling(self):
-        """Test handling when map generation fails."""
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_validation_error_handling(self):
+        """Test handling of ValidationError from API."""
+        args = argparse.Namespace(
+            config_file=Path("invalid.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = cruiseplan.ValidationError(
+                "Invalid YAML configuration: syntax error"
+            )
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_file_error_handling(self):
+        """Test handling of FileError from API."""
+        args = argparse.Namespace(
+            config_file=Path("missing.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = cruiseplan.FileError("Configuration file not found")
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_bathymetry_error_handling(self):
+        """Test handling of BathymetryError from API."""
         args = argparse.Namespace(
             config_file=Path("test.yaml"),
-            output_dir=Path("output"),
+            output_dir="data",
+            bathy_source="invalid_source",
             verbose=False,
         )
 
-        with (
-            patch("cruiseplan.map") as mock_api,
-            patch(
-                "cruiseplan.cli.map._initialize_cli_command",
-                return_value=Path("test.yaml"),
-            ),
-            patch("cruiseplan.cli.map._resolve_cli_to_api_params", return_value={}),
-            patch(
-                "cruiseplan.cli.map._convert_api_response_to_cli",
-                return_value={"success": False, "errors": ["Map generation failed"]},
-            ),
-            patch("cruiseplan.cli.map._format_progress_header"),
-            patch("cruiseplan.cli.map._collect_generated_files", return_value=[]),
-        ):
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = cruiseplan.BathymetryError(
+                "Bathymetry data not found"
+            )
 
-            # Mock failed API response
-            mock_api.return_value = []
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
 
-            result = main(args)
+            assert exc_info.value.code == 1
 
-            # Should return 1 for failure
-            assert result == 1
-
-    def test_verbose_exception_handling(self):
-        """Test verbose exception handling with traceback."""
+    def test_map_file_not_found_handling(self):
+        """Test handling of FileNotFoundError from API."""
         args = argparse.Namespace(
-            config_file=Path("test.yaml"),
-            output_dir=Path("output"),
-            verbose=True,
+            config_file=Path("missing.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = FileNotFoundError("Configuration file not found")
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_runtime_error_handling(self):
+        """Test handling of RuntimeError from API."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = RuntimeError("Map generation failed unexpectedly")
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_keyboard_interrupt_handling(self):
+        """Test graceful handling of keyboard interrupt."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=False
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.side_effect = KeyboardInterrupt()
+
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            assert exc_info.value.code == 1
+
+    def test_map_unexpected_error_with_verbose(self):
+        """Test handling of unexpected errors with verbose traceback."""
+        args = argparse.Namespace(
+            config_file=Path("test.yaml"), output_dir="data", verbose=True
         )
 
         with (
-            patch("cruiseplan.map") as mock_api,
-            patch("cruiseplan.cli.map._setup_cli_logging"),
-            patch(
-                "cruiseplan.cli.map._validate_config_file",
-                return_value=Path("test.yaml"),
-            ),
+            patch("cruiseplan.map") as mock_map,
             patch("traceback.print_exc") as mock_traceback,
         ):
-            mock_api.side_effect = RuntimeError("Unexpected error")
+            # Use an exception type that will fall through to general handler
+            mock_map.side_effect = ValueError("Unexpected error")
 
-            result = main(args)
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
 
-            # Should return 1 for error
-            assert result == 1
-
-            # Should print traceback in verbose mode
+            # Should print traceback when verbose=True
             mock_traceback.assert_called_once()
+            assert exc_info.value.code == 1
+
+    def test_default_argument_handling(self):
+        """Test that missing arguments get proper defaults."""
+        # Minimal args - missing optional attributes
+        args = argparse.Namespace(
+            config_file=Path("test.yaml")
+            # Missing: output_dir, format, bathy_source, etc.
+        )
+
+        with patch("cruiseplan.map") as mock_map:
+            mock_map.return_value = cruiseplan.MapResult(
+                map_files=[Path("data/test_map.png")],
+                format="all",
+                summary={"config_file": "test.yaml", "files_generated": 1},
+            )
+
+            main(args)
+
+            # Should use defaults for missing arguments
+            mock_map.assert_called_once_with(
+                config_file=Path("test.yaml"),
+                output_dir="data",  # default
+                output=None,  # default
+                format="all",  # default
+                bathy_source="etopo2022",  # default
+                bathy_dir="data",  # default
+                bathy_stride=5,  # default
+                figsize=None,  # default
+                show_plot=False,  # default
+                no_ports=False,  # default
+                verbose=False,  # default
+            )
 
 
-class TestMapCommandExecution:
-    """Test command can be executed directly."""
+class TestMapResultType:
+    """Test the MapResult type for completeness."""
 
-    def test_module_executable(self):
-        """Test the module can be imported and has required functions."""
-        from cruiseplan.cli import map as map_module
+    def test_map_result_success(self):
+        """Test MapResult with successful map generation."""
+        map_files = [Path("map.png"), Path("catalog.kml")]
+        result = cruiseplan.MapResult(
+            map_files=map_files,
+            format="all",
+            summary={"files_generated": 2, "config_file": "test.yaml"},
+        )
 
-        assert hasattr(map_module, "main")
-        assert callable(map_module.main)
+        assert result.map_files == map_files
+        assert bool(result) is True
+        assert len(result.map_files) == 2
+        assert "✅ Map generation complete: 2 files generated (all)" in str(result)
+
+    def test_map_result_failure(self):
+        """Test MapResult with failed map generation."""
+        result = cruiseplan.MapResult(
+            map_files=[],
+            format="all",
+            summary={"files_generated": 0, "error": "Generation failed"},
+        )
+
+        assert result.map_files == []
+        assert bool(result) is False
+        assert len(result.map_files) == 0
+        assert "❌ Map generation failed" in str(result)
