@@ -84,42 +84,48 @@ class TestValidateAPI:
 class TestEnrichAPI:
     """Test the cruiseplan.enrich() API function."""
 
-    # TODO: Update these tests for the new enhanced enrich API
-    # The old tests expect the old API that returned Path,
-    # but the new API returns EnrichResult and does file validation
+    @patch("cruiseplan.core.validation.enrich_configuration")
+    @patch("pathlib.Path.mkdir")
+    def test_enrich_success(self, mock_mkdir, mock_enrich):
+        """Test successful enrichment."""
+        mock_enrich.return_value = None
 
-    # @patch("cruiseplan.core.validation_old.enrich_configuration")
-    # @patch("pathlib.Path.mkdir")
-    # def test_enrich_success(self, mock_mkdir, mock_enrich):
-    #     """Test successful enrichment."""
-    #     # enrich_configuration doesn't return anything, just executes
-    #     mock_enrich.return_value = None
+        with patch("pathlib.Path.exists", return_value=True):
+            result = cruiseplan.enrich("test.yaml", add_coords=True, add_depths=True)
 
-    #     result = cruiseplan.enrich("test.yaml", add_coords=True, add_depths=True)
+        mock_enrich.assert_called_once()
+        call_args = mock_enrich.call_args[1]
+        assert call_args["add_coords"] is True
+        assert call_args["add_depths"] is True
 
-    #     mock_enrich.assert_called_once()
-    #     call_args = mock_enrich.call_args[1]
-    #     assert call_args["add_coords"] is True
-    #     assert call_args["add_depths"] is True
-    #     assert (
-    #         result == Path("data/test_enriched.yaml").resolve()
-    #     )  # Default output path
+        # Check EnrichResult properties
+        assert isinstance(result, cruiseplan.EnrichResult)
+        assert result.output_file == Path("data/test_enriched.yaml").resolve()
+        assert isinstance(result.files_created, list)
+        assert isinstance(result.summary, dict)
 
-    # @patch("cruiseplan.core.validation_old.enrich_configuration")
-    # @patch("pathlib.Path.mkdir")
-    # def test_enrich_custom_output(self, mock_mkdir, mock_enrich):
-    #     """Test enrichment with custom output."""
-    #     mock_enrich.return_value = None
+    @patch("cruiseplan.core.validation.enrich_configuration")
+    @patch("pathlib.Path.mkdir")
+    def test_enrich_custom_output(self, mock_mkdir, mock_enrich):
+        """Test enrichment with custom output."""
+        mock_enrich.return_value = None
 
-    #     result = cruiseplan.enrich(
-    #         config_file="custom.yaml", output_dir="/custom/path", output="custom_name"
-    #     )
+        with patch("pathlib.Path.exists", return_value=True):
+            result = cruiseplan.enrich(
+                config_file="custom.yaml",
+                output_dir="/custom/path",
+                output="custom_name",
+            )
 
-    #     mock_enrich.assert_called_once()
-    #     assert result == Path("/custom/path/custom_name_enriched.yaml").resolve()
-    #     mock_mkdir.assert_called()
+        mock_enrich.assert_called_once()
 
-    pass  # Placeholder until tests are updated
+        # Check EnrichResult properties
+        assert isinstance(result, cruiseplan.EnrichResult)
+        assert (
+            result.output_file
+            == Path("/custom/path/custom_name_enriched.yaml").resolve()
+        )
+        mock_mkdir.assert_called()
 
 
 class TestSetupOutputPaths:
