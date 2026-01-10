@@ -16,7 +16,7 @@ Overview
 CruisePlan uses YAML configuration files to define oceanographic cruises. The configuration consists of three main parts:
 
 1. **:ref:`Cruise-wide metadata and settings <cruise-wide-metadata>`**: Cruise-level fields defining defaults and settings
-2. **Global Catalog**: Definitions of stations, transits, areas, and sections (reusable components)
+2. **Global Catalog**: Definitions of stations, transects and areas (reusable components)
 3. **Schedule Organization**: Legs and clusters that organize catalog items into execution order (see :ref:`simplified-leg-creation` for default leg behavior)
 
 .. tip::
@@ -42,7 +42,7 @@ Configuration Structure
    legs: [...]          # Execution phases with clusters/stations/sequences
 
 .. warning::
-   **YAML Duplicate Key Limitation**: You cannot have multiple sections with the same name (e.g., multiple ``clusters:`` keys) in a single YAML file as they will overwrite each other. Instead, define multiple clusters as individual items within a single ``clusters:`` list.
+   **YAML Duplicate Key Limitation**: You cannot have multiple yaml sections with the same name (e.g., multiple ``clusters:`` keys) in a single YAML file as they will overwrite each other. Instead, define multiple clusters as individual items within a single ``clusters:`` list.
 
 .. _coordinate-conventions:
 
@@ -51,7 +51,7 @@ Formats and data conventions
 ----------------------------
 
 - **Depth Convention**: Positive values represent depth below sea surface (meters)
-- **Bathymetry Precision**: Depths from bathymetry are rounded to **nearest whole meter** (though 1 decimal place is acceptable)
+- **Bathymetry Precision**: Depths from bathymetry will be rounded to **nearest whole meter** (though 1 decimal place is acceptable)
 - **Manual Depths**: Can be specified to any precision but will be validated as ≥ 0
 - **Decimal Degrees**: All coordinates are stored internally as decimal degrees with **5 decimal places precision** (approximately 1.1 meter resolution).
 - **Longitude Range Consistency**: The entire cruise configuration must use **either** [-180°, 180°] **or** [0°, 360°] consistently. Mixing ranges will trigger validation errors.
@@ -60,13 +60,8 @@ Formats and data conventions
 
 .. code-block:: yaml
 
-   # Option 1: Explicit lat/lon fields
-   position:
-     latitude: 47.5678
-     longitude: -52.1234
-
-   # Option 2: String format (backward compatibility)
-   position: "47.5678, -52.1234"
+    latitude: 47.5678
+    longitude: -52.1234
 
 
 See also :doc:`units_and_defaults` for detailed conventions on units and default values used throughout CruisePlan.
@@ -76,7 +71,7 @@ See also :doc:`units_and_defaults` for detailed conventions on units and default
 Simplified Leg Creation
 -----------------------
 
-For simple single-leg cruises, you can omit the ``legs`` section entirely. When **departure_port** and **arrival_port** are specified at the cruise level along with activities (stations, transits, areas), CruisePlan automatically creates a default leg.
+For simple single-leg cruises, you can omit the ``legs`` section entirely.  In this case, **departure_port** and **arrival_port** are required at a cruise level.  During the enrichment process, a default leg will be created and the ports will be moved to the leg section.  
 
 **Automatic Default Leg Creation**:
 
@@ -97,7 +92,8 @@ For simple single-leg cruises, you can omit the ``legs`` section entirely. When 
    
    # CruisePlan automatically creates:
    # legs:
-   #   - name: "Simple Survey 2025_DefaultLeg"
+   #   - name: "Main_Leg"
+   #     description: "Main cruise leg"
    #     departure_port: "port_reykjavik"
    #     arrival_port: "port_reykjavik"
    #     activities: ["STN_001"]
@@ -150,12 +146,12 @@ Cruise-wide metadata
      - Human-readable description of the cruise
    * - ``start_date``
      - str
-     - "2025-01-01"
-     - Cruise start date (ISO format)
+     - "1970-01-01T00:00:00+00:00"
+     - Cruise start date (ISO format "YYYY-MM-DD" or full ISO datetime "YYYY-MM-DDTHH:MM:SS")
    * - ``start_time``
-     - str
+     - Optional[str]
      - "08:00"
-     - Cruise start time (HH:MM format)
+     - Cruise start time (HH:MM format). Only used if start_date is date-only format
 
 
 
@@ -241,10 +237,14 @@ Ports and Routing Waypoints
      - str
      - *required*
      - Name of the port
-   * - ``position``
-     - GeoPoint
+   * - ``latitude``
+     - float
      - *required*
-     - Geographic coordinates (see :ref:`coordinate-conventions`)
+     - Latitude in decimal degrees (see :ref:`coordinate-conventions`)
+   * - ``longitude``
+     - float  
+     - *required*
+     - Longitude in decimal degrees (see :ref:`coordinate-conventions`)
    * - ``timezone``
      - str
      - "UTC"
@@ -258,11 +258,13 @@ Ports and Routing Waypoints
      - name: "Atlantic_Survey"
        departure_port:
          name: "St. Johns"
-         position: "47.5678, -52.1234"
+         latitude: 47.5678
+         longitude: -52.1234
          timezone: "America/St_Johns"  # Optional, defaults to UTC
        arrival_port:
          name: "Reykjavik"
-         position: "64.1355, -21.8954"
+         latitude: 64.1355
+         longitude: -21.8954
          timezone: "Atlantic/Reykjavik"
 
 
@@ -279,13 +281,13 @@ The global catalog contains reusable definitions that can be referenced by legs 
    
    CruisePlan uses a two-layer architecture:
    
-   1. **YAML Layer**: Pydantic validation models (`StationDefinition`, `TransitDefinition`, `AreaDefinition`) validate and parse YAML configuration
-   2. **Operations Layer**: Operational classes (`PointOperation`, `LineOperation`, `AreaOperation`) handle scheduling calculations
+   1. **YAML Layer**: Pydantic validation models (`StationDefinition`, `TransectDefinition`, `AreaDefinition`) validate and parse YAML configuration according to `cruiseplan/validation/catalog_definitions.py`
+   2. **Operations Layer**: Operational classes (`PointOperation`, `LineOperation`, `AreaOperation`) handle scheduling calculations and duration estimation in `cruiseplan/scheduling/operations.py`
    
    During planning, definitions are converted:
 
    - `StationDefinition` → `PointOperation` (via `from_pydantic()`)
-   - `TransitDefinition` → `LineOperation` (via `from_pydantic()`)
+   - `TransectDefinition` → `LineOperation` (via `from_pydantic()`)
    - `AreaDefinition` → `AreaOperation` (via `from_pydantic()`)
    
    This separation allows complex validation rules in YAML while maintaining efficient calculation objects for scheduling.
@@ -309,7 +311,6 @@ Station definitions specify point operations at fixed locations. During scheduli
        water_depth: 3000.0     # Seafloor depth in meters (optional: will be enriched from bathymetry)
        duration: 120.0         # Optional: manual override in minutes
        comment: "Deep water station"
-       equipment: "SBE 911plus CTD"
 
 .. _station-fields:
 
@@ -360,10 +361,6 @@ Fields, Operations & Actions
      - str
      - None
      - Human-readable comment or description
-   * - ``equipment``
-     - str
-     - None
-     - Equipment required for the operation
    * - ``delay_start``
      - float
      - None
@@ -389,7 +386,7 @@ The distinction between ``operation_depth`` and ``water_depth`` meaningfully imp
   - Automatically enriched from bathymetry data if missing
   - Should represent true seafloor depth for the coordinates
 
-**Note:** that the operation_depth only affects timing for the CTD profile calculation.  Mooring timing must be specified manually via the duration field.
+**Note:** that the `operation_depth` only affects timing for the CTD profile calculation.  Mooring timing must be specified manually via the `duration` field.
 
 .. _operation-types:
 
@@ -444,9 +441,10 @@ Duration Calculation
 The duration calculation depends on operation type and manual overrides:
 
 1. **Manual Duration**: If ``duration`` field is specified, this value is used directly
-2. **CTD Operations**: Duration calculated based on depth, descent/ascent rates, and turnaround time
-3. **Mooring Operations**: Uses manual duration (required for moorings)
-4. **Other Operations**: Falls back to turnaround time if no manual duration specified
+2. **CTD Operations**: Duration calculated based on depth, descent/ascent rates, and turnaround time  
+3. **Mooring Operations**: Uses manual duration or falls back to default mooring duration (60 minutes)
+4. **Port/Waypoint Operations**: Returns 0.0 minutes (no operation time)
+5. **Other Operations**: Returns 0.0 minutes if no manual duration specified
 
 **CTD Duration Formula**:
 
@@ -470,7 +468,8 @@ The buffer time system provides multiple levels of buffer time control for reali
      - name: "Mooring_Deploy" 
        operation_type: "mooring"
        action: "deployment"
-       position: "53.0, -40.0"
+       latitude: 53.0
+       longitude: -40.0
        duration: 240.0         # 4 hours deployment time
        delay_start: 120.0      # Wait 2h for daylight
        delay_end: 60.0         # Wait 1h for anchor settling
@@ -486,23 +485,26 @@ The buffer time system provides multiple levels of buffer time control for reali
 - **delay_end**: Time to wait after operation ends (e.g., equipment settling, safety checks)  
 - **buffer_time**: Leg-level contingency time applied at leg completion (e.g., weather delays)
 
-.. _transit-definition:
+.. _transect-definition:
 
-Transit Definition
-------------------
+Transect Definition
+-------------------
 
-Transit definitions specify movement routes with waypoints. During scheduling, they are converted to `LineOperation` objects for distance and timing calculations. When `operation_type` and `action` are specified, they become scientific line operations (ADCP, bathymetry, etc.).
+Transect definitions specify movement routes with waypoints. During scheduling, they are converted to `LineOperation` objects for distance and timing calculations. When `operation_type` and `action` are specified, they become scientific line operations (ADCP, bathymetry, etc.). Without these fields, transects remain user-defined scientific operations but with timing calculated purely from route distance and vessel speed.
 
 .. code-block:: yaml
 
    transects:
      - name: "ADCP_Line_A"
        route:
-         - "50.0, -40.0"
-         - "51.0, -40.0"
-         - "52.0, -40.0"
-       operation_type: "underway"  # Optional: makes this a scientific transect
-       action: "ADCP"              # Required if operation_type specified
+         - latitude: 50.0
+           longitude: -40.0
+         - latitude: 51.0
+           longitude: -40.0
+         - latitude: 52.0
+           longitude: -40.0
+       operation_type: "underway"   
+       action: "ADCP"               
        vessel_speed: 8.0           # Optional: override default speed
        comment: "Deep water ADCP transect"
 
@@ -511,7 +513,7 @@ Transit definitions specify movement routes with waypoints. During scheduling, t
 Fields, Operations & Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. list-table:: Transit Definition Fields
+.. list-table:: Transect Definition Fields
    :widths: 20 15 15 50
    :header-rows: 1
 
@@ -522,25 +524,25 @@ Fields, Operations & Actions
    * - ``name``
      - str
      - *required*
-     - Unique identifier for the transit
+     - Unique identifier for the transect
    * - ``route``
      - List[GeoPoint]
      - *required*
-     - Waypoints defining the transit route
+     - Waypoints defining the transect route
    * - ``operation_type``
-     - LineOperationTypeEnum
+     - Optional[LineOperationTypeEnum]
      - None
      - Type of line operation (``underway``, ``towing``)
    * - ``action``
-     - ActionEnum
+     - Optional[ActionEnum]
      - None
      - Specific scientific action (required if operation_type set)
    * - ``vessel_speed``
-     - float
+     - Optional[float]
      - None
-     - Speed override for this transit in knots
+     - Speed override for this transect in knots
    * - ``comment``
-     - str
+     - Optional[str]
      - None
      - Human-readable description
 
@@ -570,7 +572,7 @@ Line Operation Types
 CTD Section Special Case
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-CTD sections are a special type of transit that can be expanded into individual stations:
+CTD sections are a special type of transect that can be expanded into individual stations:
 
 .. code-block:: yaml
 
@@ -582,8 +584,10 @@ CTD sections are a special type of transit that can be expanded into individual 
        operation_type: "CTD"
        action: "section"
        route:
-         - "53.0, -40.0"
-         - "53.0, -30.0"
+         - latitude: 53.0
+           longitude: -40.0
+         - latitude: 53.0
+           longitude: -30.0
 
 .. list-table:: Section Definition Fields
    :widths: 20 15 15 50
@@ -608,15 +612,15 @@ CTD sections are a special type of transit that can be expanded into individual 
    * - ``route``
      - List[GeoPoint]
      - *required*
-     - Starting point of the section
+     - Waypoints defining the section route
    * - ``distance_between_stations``
-     - float
+     - Optional[float]
      - None
      - Spacing between stations in km
    * - ``reversible``
      - bool
      - True
-     - Whether section can be traversed in reverse
+     - Whether section can be traversed in reverse (**not yet implemented**)
    * - ``stations``
      - List[str]
      - []
@@ -647,20 +651,20 @@ Transit operations (scientific transits and vessel movements) calculate duration
      haversine_distance(p1, p2) for p1, p2 in zip(route, route[1:])
   )
   route_distance_nm = total_route_distance_km * 0.539957  # km -> nautical miles
-  vessel_speed = transit.vessel_speed or config.default_vessel_speed  # knots
+  vessel_speed = transect.vessel_speed or config.default_vessel_speed  # knots
   duration_hours = route_distance_nm / vessel_speed
   duration_minutes = duration_hours * 60
 
 **Key Points:**
 
 - **Route Distance**: Sum of haversine distances between all consecutive waypoints in the route
-- **Vessel Speed**: Uses transit-specific `vessel_speed` if specified, otherwise falls back to `config.default_vessel_speed`
-- **Scientific vs Navigation**: When `operation_type` and `action` are specified, the transit becomes a scientific line operation (ADCP, bathymetry) but uses the same duration calculation
-- **Architectural Consistency**: Like `PointOperation` and `AreaOperation`, the `LineOperation` calculates its own duration
+- **Vessel Speed**: Uses transect-specific `vessel_speed` if specified, otherwise falls back to cruise-level `default_vessel_speed`
+- **Operation Classification**: Transects with `operation_type` and `action` become scientific operations (ADCP surveys, bathymetry mapping, etc.), while those without these fields remain simple route definitions
+- **Duration Calculation**: All transects calculate duration using the same route distance and vessel speed formula, regardless of whether they have scientific operation types
 
 **CTD Section Expansion**: When CTD sections are expanded using `cruiseplan enrich --expand-sections`, the resulting stations are treated as regular CTD stations with standard CTD duration calculations based on depth, descent/ascent rates, and turnaround time.
 
-**Inter-operation Transits**: The scheduler automatically calculates and adds transit time between operations when they are not geographically adjacent (> 0.1 nautical miles apart).
+**Note**: The scheduler also automatically generates NavigationalTransit objects (not visible in YAML) to handle vessel movement between non-adjacent operations (> 0.1 nautical miles apart).
 
 
 .. _area-definition:
@@ -668,17 +672,21 @@ Transit operations (scientific transits and vessel movements) calculate duration
 Area Definition
 ----------------
 
-Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using ``first_waypoint`` and ``last_waypoint`` fields, where the area center point is used for navigation calculations.
+Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using ``first_waypoint`` and ``last_waypoint`` fields, where the area entry point is used for ``first_waypoint`` routing and the exit point for ``last_waypoint`` routing.
 
 .. code-block:: yaml
 
    areas:
      - name: "Survey_Grid_A"
        corners:
-         - "50.0, -40.0"
-         - "51.0, -40.0"
-         - "51.0, -39.0"
-         - "50.0, -39.0"
+         - latitude: 50.0
+           longitude: -40.0
+         - latitude: 51.0
+           longitude: -40.0
+         - latitude: 51.0
+           longitude: -39.0
+         - latitude: 50.0
+           longitude: -39.0
        operation_type: "survey"
        action: "bathymetry"       # Optional
        duration: 480.0           # 8 hours
@@ -701,38 +709,38 @@ Areas represent operations covering defined geographic regions. Areas can also s
      - *required*
      - Corner points defining the area boundary (minimum 3 points for valid polygon)
    * - ``operation_type``
-     - AreaOperationTypeEnum
+     - Optional[AreaOperationTypeEnum]
      - ``survey``
      - Type of area operation
    * - ``action``
-     - ActionEnum
+     - Optional[ActionEnum]
      - None
      - Specific action for the area
    * - ``duration``
-     - float
-     - *required*
-     - Duration in minutes (≥0, must be specified by user)
+     - Optional[float]
+     - None
+     - Duration in minutes (≥0, typically specified by user)
    * - ``comment``
-     - str
+     - Optional[str]
      - None
      - Human-readable description
 
 .. _area-routing-anchors:
 
-Area Center Point Calculation
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Area Entry and Exit Points
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` in legs), CruisePlan calculates the center point of the area for navigation purposes:
+When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` in legs), CruisePlan uses entry and exit points for navigation:
 
-- **Center Point**: Calculated as the average of all corner coordinates
-- **Routing Distance**: Calculated from ship position to/from the area center point
-- **Entry/Exit Points**: The scheduler treats the center point as both entry and exit point for routing calculations
+- **Entry Point**: First corner coordinate (used for ``first_waypoint`` routing)
+- **Exit Point**: Last corner coordinate (used for ``last_waypoint`` routing) 
+- **Routing Distance**: Calculated from ship position to/from the appropriate entry or exit point
 
 .. code-block:: python
 
-   # Area center point calculation
-   center_lat = sum(corner.latitude for corner in corners) / len(corners)
-   center_lon = sum(corner.longitude for corner in corners) / len(corners)
+   # Area entry/exit point determination
+   entry_point = corners[0]   # First corner as entry point
+   exit_point = corners[-1]   # Last corner as exit point
 
 .. code-block:: yaml
 
@@ -740,10 +748,14 @@ When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` 
    areas:
      - name: "Survey_Grid_Alpha"
        corners:
-         - "50.0, -40.0"
-         - "51.0, -40.0" 
-         - "51.0, -39.0"
-         - "50.0, -39.0"
+         - latitude: 50.0
+           longitude: -40.0
+         - latitude: 51.0
+           longitude: -40.0
+         - latitude: 51.0
+           longitude: -39.0
+         - latitude: 50.0
+           longitude: -39.0
        operation_type: "survey"
        action: "bathymetry"
        duration: 480.0
@@ -751,48 +763,9 @@ When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` 
    legs:
      - name: "Survey_Operations"
        first_waypoint: "STN_001"        # Start at station
-       last_waypoint: "Survey_Grid_Alpha"  # End at area center point
+       last_waypoint: "Survey_Grid_Alpha"  # End at area exit point (50.0, -39.0)
        activities: ["STN_001", "Survey_Grid_Alpha"]
 
-**Advanced Routing Examples**:
-
-.. code-block:: yaml
-
-   areas:
-     - name: "Northern_Grid"
-       corners: ["60.0, -50.0", "62.0, -50.0", "62.0, -48.0", "60.0, -48.0"]
-       operation_type: "survey"
-       action: "bathymetry"
-       duration: 240.0  # 4-hour survey
-       
-     - name: "Southern_Box"
-       corners: ["58.0, -52.0", "59.0, -52.0", "59.0, -51.0", "58.0, -51.0"]
-       operation_type: "survey"
-       action: "mapping"
-       duration: 180.0  # 3-hour mapping
-   
-   stations:
-     - name: "CTD_01"
-       latitude: 61.0
-       longitude: -49.0
-       operation_type: "CTD"
-       action: "profile"
-   
-   legs:
-     - name: "Survey_Campaign"
-       first_waypoint: "CTD_01"         # Start at station coordinates
-       last_waypoint: "Northern_Grid"   # End at area center (61.0°N, 49.0°W)
-       activities: ["CTD_01", "Northern_Grid"]
-       
-     - name: "Mapping_Phase"
-       first_waypoint: "Northern_Grid"  # Start at area center from previous leg  
-       last_waypoint: "Southern_Box"    # End at area center (58.5°N, 51.5°W)
-       activities: ["Southern_Box"]
-
-**Center Point Calculations for Examples**:
-
-- ``Northern_Grid`` center: (60+62+62+60)/4 = 61.0°N, (-50-50-48-48)/4 = -49.0°W
-- ``Southern_Box`` center: (58+59+59+58)/4 = 58.5°N, (-52-52-51-51)/4 = -51.5°W
 
 **Routing Benefits**:
 
@@ -819,8 +792,8 @@ The schedule organization defines how catalog items are executed through legs an
    
    During scheduling, definitions are converted:
 
-   - `LegDefinition` → `Leg` (with inheritance of cruise-level parameters like ``vessel_speed``)
-   - `ClusterDefinition` → `Cluster` (with strategy-specific ordering logic)
+   - `LegDefinition` → `Leg` (via `from_definition()` with inheritance of cruise-level parameters like ``vessel_speed``)
+   - `ClusterDefinition` → `Cluster` (via `from_definition()` with strategy-specific ordering logic)
    
    This separation allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies.
 
@@ -829,9 +802,9 @@ The schedule organization defines how catalog items are executed through legs an
 Leg & Cluster Definitions
 -------------------------
 
-We have two organisational structures within a cruise.  The "Leg" is the highest level structure, representing a phase of the cruise with distinct operational or geographic characteristics.  Each leg contains a list of **activities** (references to items in the global catalog) that can be executed either in order or as an unordered set.  It can be useful, for instance, if a cruise is separated by two port calls or for main user and secondary user operations.
+We have two organisational structures within a cruise.  The "Leg" is the highest level structure, representing a phase of the cruise with distinct operational or geographic characteristics.  Each leg contains a list of **activities** (references to items in the global catalog) that can be executed either in order or as an unordered set.  It can be useful, for instance, if a cruise is separated by two port calls.
 
-A cluster is a sub-division within a leg that groups related operations with specific scheduling strategies.  Like legs, clusters use an **activities list** to reference catalog items.  Clusters are useful for grouping operations that share common characteristics, such as spatial interleaving or specific operational constraints.
+A cluster is a sub-division within a leg that groups related operations with specific scheduling strategies.  Like legs, clusters use an **activities list** to reference catalog items.  Clusters are useful for grouping operations that share common characteristics or sub-regions of the cruise area.
 
 .. code-block:: yaml
 
@@ -901,11 +874,6 @@ Clusters support intentional duplication of activities for repeated operations:
        last_waypoint: "STN_005"     # Navigation waypoint  
        activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]  # Explicit execution
 
-⚠️ **Waypoint Inclusion Warning**: When waypoints appear in activity lists, CruisePlan warns about the dual role:
-
-.. code-block:: text
-
-   ⚠️ first_waypoint 'STN_001' appears in activities. This station will serve dual roles: navigation waypoint AND executed operation.
 
 
 .. _leg-fields:
@@ -932,14 +900,34 @@ Leg & Cluster Fields
      - None
      - Both
      - Human-readable description
+   * - ``departure_port``
+     - str
+     - *required*
+     - Leg only
+     - Starting port for the leg
+   * - ``arrival_port``
+     - str
+     - *required*
+     - Leg only
+     - Ending port for the leg
+   * - ``first_waypoint``
+     - str
+     - None
+     - Leg only
+     - First navigation waypoint (routing only)
+   * - ``last_waypoint``
+     - str
+     - None
+     - Leg only
+     - Last navigation waypoint (routing only)
    * - ``strategy``
      - StrategyEnum
-     - None
+     - None (Leg), SEQUENTIAL (Cluster)
      - Both
      - Default scheduling strategy for the leg or cluster
    * - ``ordered``
      - bool
-     - None
+     - None (Leg), True (Cluster)
      - Both
      - Whether activities list should maintain order
    * - ``activities``
@@ -952,81 +940,27 @@ Leg & Cluster Fields
      - None
      - Leg only
      - Contingency time for entire leg in minutes (≥0)
+   * - ``vessel_speed``
+     - float
+     - None
+     - Leg only
+     - Leg-specific vessel speed override (knots, >0)
+   * - ``distance_between_stations``
+     - float
+     - None
+     - Leg only
+     - Leg-specific station spacing override (km, >0)
+   * - ``turnaround_time``
+     - float
+     - None
+     - Leg only
+     - Leg-specific turnaround time override (minutes, ≥0)
    * - ``clusters``
      - List[ClusterDefinition]
      - []
      - Leg only
      - List of operation clusters
 
-.. _planned-leg-enhancements:
-
-Planned Leg Enhancements
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. note::
-   **PLANNED FEATURES**: The following leg capabilities are planned for future implementation and will extend the current activities-based architecture.
-
-**Inheritable Cruise Parameters & Boundary Management**
-   Legs will be able to override cruise-level operational parameters for specific requirements:
-
-   .. list-table:: Planned Inheritable Parameter Fields & Waypoint Definition
-      :widths: 15 15 12 57
-      :header-rows: 1
-
-      * - Field
-        - Type  
-        - Default
-        - Description
-      * - ``vessel_speed``
-        - float
-        - None
-        - Leg-specific vessel speed override (knots, must be >0)
-      * - ``distance_between_stations``
-        - float
-        - None  
-        - Leg-specific station spacing override (nautical miles, must be >0)
-      * - ``turnaround_time``
-        - float
-        - None
-        - Leg-specific turnaround time override (minutes, must be ≥0)
-      * - ``first_waypoint``
-        - str
-        - None
-        - Entry point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses calculated center point from corner coordinates. To use as waypoint only, define with ``duration: 0``. Formerly ``first_station``.
-      * - ``last_waypoint``
-        - str
-        - None
-        - Exit point for this leg (station, area, or transit endpoint; must exist in catalog). **Executes the defined activity by default**. For areas, routing uses calculated center point from corner coordinates. To use as waypoint only, define with ``duration: 0``. Formerly ``last_station``.
-
-**Planned Usage Example**:
-
-.. code-block:: yaml
-
-   legs:
-     - name: "Transit_Leg"
-       vessel_speed: 12.0              # Fast transit speed
-       turnaround_time: 15.0           # Quick turnarounds  
-       first_waypoint: "PORT_START"    # Clear entry point
-       last_waypoint: "SURVEY_ENTRY"   # Hand-off to next leg
-       activities: ["PORT_START", "WAYPOINT_1", "SURVEY_ENTRY"]
-       
-     - name: "Survey_Leg"
-       vessel_speed: 8.0                     # Slower survey speed
-       distance_between_stations: 5.0        # Close station spacing
-       turnaround_time: 45.0                 # Science operations
-       first_waypoint: "SURVEY_ENTRY"        # Pick up from transit
-       last_waypoint: "MAPPING_AREA"         # Define survey boundary (area center point)
-       activities: ["CTD_001", "CTD_002", "MAPPING_AREA"]
-
-**Benefits**:
-
-- **Parameter inheritance**: Legs inherit cruise defaults but override for specific operational needs
-- **Boundary management**: Clear routing between legs with defined entry/exit points  
-- **Multi-leg support**: Enhanced routing logic for complex multi-leg cruises
-- **Operational flexibility**: Different speeds/timing for transit vs survey legs
-
-.. note::
-   **Current Implementation**: The runtime `Leg` class already supports parameter inheritance through ``get_effective_speed()`` and ``get_effective_spacing()`` methods. These planned enhancements will extend this capability to the YAML configuration layer.
 
 
 
@@ -1048,82 +982,58 @@ The scheduler processes leg components in this simplified order:
 Routing Anchor Behavior (first_waypoint & last_waypoint)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``first_waypoint`` and ``last_waypoint`` fields (formerly ``first_station`` and ``last_station``) serve dual purposes as routing anchors and operational activities. These fields can reference any catalog item: stations, areas, or transit endpoints.
+The ``first_waypoint`` and ``last_waypoint`` fields serve as **routing anchors only**. These fields can reference any catalog item (stations, areas, or transect endpoints) but are used exclusively for geographic positioning and route calculations.
 
-**Default Behavior - Execute Activities**:
+**Navigation Only - No Execution**:
 
-By default, ``first_waypoint`` and ``last_waypoint`` **execute their defined activities** (CTD casts, mooring deployments, area surveys, etc.) in addition to serving as routing waypoints. This provides a complete operational workflow where legs begin and end with actual scientific operations.
+By default, ``first_waypoint`` and ``last_waypoint`` do **not execute operations**. They provide entry and exit points for routing calculations within the leg. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
 
 .. code-block:: yaml
 
    stations:
      - name: "ENTRY_CTD"
        operation_type: CTD
-       # No explicit duration → normal CTD operation will be performed
+       latitude: 44.5
+       longitude: -63.5
        
-     - name: "EXIT_MOORING"  
+     - name: "EXIT_POINT"  
        operation_type: mooring
        action: deployment
-       # No explicit duration → full mooring deployment will be performed
-   
-   areas:
-     - name: "SURVEY_AREA_A"
-       operation_type: survey
-       action: bathymetry
-       duration: 360.0  # 6 hour survey
-       corners: ["50.0, -40.0", "51.0, -40.0", "51.0, -39.0", "50.0, -39.0"]
+       latitude: 44.7
+       longitude: -63.3
    
    legs:
      - name: "Survey_Leg"
-       first_waypoint: "ENTRY_CTD"      # Executes CTD cast at leg start
-       last_waypoint: "SURVEY_AREA_A"   # Executes area survey at leg end (routed to center point)
-       clusters: [...]
+       departure_port: "halifax"
+       arrival_port: "sydney"
+       first_waypoint: "ENTRY_CTD"      # Navigation only - provides entry coordinates
+       last_waypoint: "EXIT_POINT"      # Navigation only - provides exit coordinates
+       activities: ["ENTRY_CTD", "STN_002", "STN_003", "EXIT_POINT"]  # Explicit execution
 
-**Waypoint-Only Behavior - Zero Duration**:
+**To Execute Operations at Waypoints**:
 
-To use ``first_waypoint`` and ``last_waypoint`` as routing waypoints only (without executing activities), define them with ``duration: 0``:
-
-.. code-block:: yaml
-
-   stations:
-     - name: "WAYPOINT_START"
-       operation_type: CTD  
-       duration: 0  # ← Zero duration = waypoint only, no CTD operation
-       
-     - name: "WAYPOINT_END"
-       operation_type: mooring
-       duration: 0  # ← Zero duration = waypoint only, no mooring operation
-   
-   areas:
-     - name: "WAYPOINT_AREA"
-       operation_type: survey
-       duration: 0  # ← Zero duration = navigation waypoint only, no area survey
-       corners: ["52.0, -35.0", "53.0, -35.0", "53.0, -34.0", "52.0, -34.0"]
-   
-   legs:
-     - name: "Transit_Leg"
-       first_waypoint: "WAYPOINT_START"  # Navigation waypoint only
-       last_waypoint: "WAYPOINT_AREA"    # Navigation to area center point only
-
-**Cluster Integration**:
-
-It is completely normal for ``first_waypoint`` and ``last_waypoint`` to also appear in cluster activities. They will execute once as routing anchors and may execute additional times if included in cluster activities:
+To actually perform operations at waypoint locations, explicitly include them in the ``activities`` list:
 
 .. code-block:: yaml
 
    legs:
      - name: "Survey_Leg"
-       first_waypoint: "STN_001"    # Executes CTD cast as routing anchor
-       last_waypoint: "AREA_001"    # Executes area survey as routing anchor (routed to center)
-       clusters:
-         - name: "Repeat_Survey"
-           activities: ["STN_001", "STN_002", "AREA_001", "STN_001"]  # STN_001 and AREA_001 executed again in cluster
+       departure_port: "halifax"
+       arrival_port: "sydney"
+       first_waypoint: "ENTRY_CTD"      # Navigation waypoint
+       last_waypoint: "EXIT_POINT"      # Navigation waypoint
+       activities: [
+         "ENTRY_CTD",    # Actually executes CTD operation
+         "STN_002", 
+         "STN_003", 
+         "EXIT_POINT"    # Actually executes mooring deployment
+       ]
 
-**Benefits of Default Activity Execution**:
+**Benefits of Explicit Activity Control**:
 
-- **Complete workflow coverage**: Legs naturally begin and end with scientific operations
-- **Natural leg boundaries**: Clear operational transitions between legs
-- **Flexibility**: Zero-duration override available when waypoint-only behavior is needed
+- **Clear separation**: Navigation routing vs operational execution are explicitly controlled
+- **Flexible workflows**: Waypoints can serve purely navigational roles or be explicitly executed
+- **Predictable behavior**: Operations only occur when explicitly listed in activities
 
 .. _activity-types:
 
@@ -1145,7 +1055,7 @@ Activities in ``legs`` and ``clusters`` reference items from the global catalog 
    * - **Area Surveys**
      - Gridded sampling, multibeam mapping (``areas`` catalog)
    * - **Line Transects**
-     - ADCP transects, towed instrument lines (``transits`` catalog with ``operation_type``)
+     - ADCP transects, towed instrument lines (``transects`` catalog with ``operation_type``)
 
 **Examples**:
 
@@ -1214,7 +1124,7 @@ The interaction between ``strategy`` and ``ordered`` determines execution order:
 Deprecated Fields
 ~~~~~~~~~~~~~~~~~
 
-The following fields are **deprecated** and will be removed in future versions (v0.3.0). CruisePlan will issue **deprecation warnings** when these fields are used, but they remain functional for backward compatibility.
+The following fields are **deprecated** and will be removed in future versions (v0.4.0). CruisePlan will issue **deprecation warnings** when these fields are used, but they remain functional for backward compatibility.
 
 .. list-table:: Deprecated Leg/Cluster Fields
    :widths: 25 75
@@ -1232,7 +1142,7 @@ The following fields are **deprecated** and will be removed in future versions (
      - Create explicit stations in catalog and reference via ``activities``
 
 .. note::
-   **Deprecation Timeline**: These fields will be **removed in v0.3.0**. Update your configurations to use the ``activities`` field to avoid future compatibility issues.
+   **Deprecation Timeline**: These fields will be **removed in v0.4.0**. Update your configurations to use the ``activities`` field to avoid future compatibility issues.
 
 **Migration Example**:
 

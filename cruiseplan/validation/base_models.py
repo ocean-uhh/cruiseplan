@@ -93,6 +93,7 @@ class FlexibleLocationModel(BaseModel):
                 msg = "Both latitude and longitude must be provided together"
                 raise ValueError(msg)
 
+            # TODO: Remove in v0.4.0 - Legacy position format support
             # Case B: String Position (convert to lat/lon)
             if "position" in data and isinstance(data["position"], str):
                 try:
