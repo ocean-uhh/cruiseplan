@@ -18,11 +18,12 @@ from ..processing.validate import (
     validate_configuration,
     validate_depth_accuracy,
 )
-from .base_models import FlexibleLocationModel, GeoPoint
 
 # Catalog definitions (with new terminology)
 from .catalog_definitions import (
     AreaDefinition,
+    FlexibleLocationModel,
+    GeoPoint,
     # Legacy aliases for backward compatibility (TODO: Remove in v0.4.0)
     PortDefinition,  # Use WaypointDefinition instead
     StationDefinition,  # Use WaypointDefinition instead

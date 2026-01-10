@@ -36,7 +36,11 @@ class TestTC4MixedOpsComprehensive:
 
             # Enrich only for defaults and coords, skip depths to avoid CI bathymetry variability
             enrich_configuration(
-                yaml_path, output_path=enriched_path, add_depths=False, add_coords=True
+                yaml_path,
+                output_path=enriched_path,
+                add_depths=False,
+                add_coords=True,
+                expand_ports=True,
             )
 
             # Verify the enriched file exists and is readable

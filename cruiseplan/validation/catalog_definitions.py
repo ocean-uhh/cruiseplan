@@ -5,21 +5,121 @@ Defines all reusable operation definitions that users can define in the
 "Global Catalog" section of their YAML configuration. These correspond
 to the three main operation types: waypoints (point operations),
 transects (line operations), and areas (area operations).
+
+Also includes base geographic models used throughout the validation system.
 """
 
-from typing import Optional
+from typing import Any, Optional
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_validator
 
-from cruiseplan.utils.coordinates import format_ddm_comment
+from cruiseplan.utils.coordinates import (
+    _validate_latitude,
+    _validate_longitude,
+    format_ddm_comment,
+)
 
-from .base_models import FlexibleLocationModel, GeoPoint
 from .enums import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
     OperationTypeEnum,
 )
+
+
+class GeoPoint(BaseModel):
+    """
+    Internal representation of a geographic point.
+
+    Represents a latitude/longitude coordinate pair with validation.
+
+    Attributes
+    ----------
+    latitude : float
+        Latitude in decimal degrees (-90 to 90).
+    longitude : float
+        Longitude in decimal degrees (-180 to 360).
+    """
+
+    latitude: float
+    longitude: float
+
+    @field_validator("latitude")
+    def validate_lat(cls, v):
+        """Validate latitude using centralized coordinate utilities."""
+        return _validate_latitude(v)
+
+    @field_validator("longitude")
+    def validate_lon(cls, v):
+        """Validate longitude using centralized coordinate utilities."""
+        return _validate_longitude(v)
+
+
+class FlexibleLocationModel(BaseModel):
+    """
+    Base class that allows users to define location in multiple formats.
+
+    Supports both explicit latitude/longitude fields and string format
+    ("lat, lon") in YAML input for user convenience.
+
+    Attributes
+    ----------
+    latitude : Optional[float]
+        Latitude in decimal degrees.
+    longitude : Optional[float]
+        Longitude in decimal degrees.
+    """
+
+    latitude: Optional[float] = None
+    longitude: Optional[float] = None
+
+    @model_validator(mode="before")
+    @classmethod
+    def unify_coordinates(cls, data: Any) -> Any:
+        """
+        Unify different coordinate input formats.
+
+        Handles both explicit lat/lon fields and string position format.
+
+        Parameters
+        ----------
+        data : Any
+            Input data dictionary to process.
+
+        Returns
+        -------
+        Any
+            Processed data with latitude and longitude fields.
+
+        Raises
+        ------
+        ValueError
+            If position string cannot be parsed as "lat, lon".
+        """
+        if isinstance(data, dict):
+            # Check for incomplete coordinate pairs
+            has_lat = "latitude" in data
+            has_lon = "longitude" in data
+
+            if has_lat and not has_lon:
+                msg = "Both latitude and longitude must be provided together"
+                raise ValueError(msg)
+            if has_lon and not has_lat:
+                msg = "Both latitude and longitude must be provided together"
+                raise ValueError(msg)
+
+            # TODO: Remove in v0.4.0 - Legacy position format support
+            # Case B: String Position (convert to lat/lon)
+            if "position" in data and isinstance(data["position"], str):
+                try:
+                    lat, lon = map(float, data["position"].split(","))
+                    data["latitude"] = lat
+                    data["longitude"] = lon
+                    del data["position"]  # Remove the position field
+                except ValueError as exc:
+                    msg = f"Invalid position string: '{data['position']}'. Expected 'lat, lon'"
+                    raise ValueError(msg) from exc
+        return data
 
 
 class WaypointDefinition(FlexibleLocationModel):

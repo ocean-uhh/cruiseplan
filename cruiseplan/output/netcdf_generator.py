@@ -109,7 +109,7 @@ class NetCDFGenerator:
         point_operations = []
 
         # Create a lookup for station info
-        station_lookup = {station.name: station for station in (config.stations or [])}
+        station_lookup = {station.name: station for station in (config.waypoints or [])}
 
         # Get point operations from timeline
         for event in timeline:
@@ -264,7 +264,7 @@ class NetCDFGenerator:
         else:
             # Create station lookup for depth information
             station_lookup = {
-                station.name: station for station in (config.stations or [])
+                station.name: station for station in (config.waypoints or [])
             }
 
             # Create a lookup for area definitions

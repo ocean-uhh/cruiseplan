@@ -131,7 +131,7 @@ class TestKMLGeneratorCatalogMode:
         mock_station.operation_type.value = "CTD"
         mock_station.operation_depth = 800.0
         mock_station.water_depth = 3200.0
-        self.mock_config.stations = [mock_station]
+        self.mock_config.waypoints = [mock_station]
 
         # Mock areas
         mock_area = MagicMock()
@@ -193,7 +193,7 @@ class TestKMLGeneratorCatalogMode:
 
         empty_config = MagicMock(spec=CruiseConfig)
         empty_config.cruise_name = "Empty_Test"
-        empty_config.stations = []
+        empty_config.waypoints = []
         empty_config.areas = []
         empty_config.transects = []
         empty_config.ports = []

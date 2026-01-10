@@ -38,7 +38,7 @@ class TestExtractMapData:
         mock_station.latitude = 60.0
         mock_station.longitude = -20.0
         mock_station.operation_type = "CTD"
-        mock_cruise.station_registry = {"STN_001": mock_station}
+        mock_cruise.waypoint_registry = {"STN_001": mock_station}
 
         # Mock empty other registries
         mock_cruise.mooring_registry = {}

@@ -26,8 +26,8 @@ def test_load_and_validate_cruise():
     assert cruise.config.legs[0].departure_port.latitude == 64.1466
 
     # 3. Check Catalog Loading
-    assert "STN_Start_01" in cruise.station_registry
-    assert "M_End_01" in cruise.station_registry
+    assert "STN_Start_01" in cruise.waypoint_registry
+    assert "M_End_01" in cruise.waypoint_registry
 
     # 4. Check Schedule Resolution (The Hybrid Pattern)
     leg1 = cruise.config.legs[0]
@@ -65,7 +65,7 @@ default_distance_between_stations: 10
 calculate_transfer_between_sections: false
 calculate_depth_via_bathymetry: false
 
-stations:
+waypoints:
   - name: STN_Existing
     operation_type: CTD
     action: profile
@@ -76,9 +76,9 @@ legs:
   - name: Leg1
     departure_port: {name: P1, latitude: 0.0, longitude: 0.0}
     arrival_port: {name: P2, latitude: 1.0, longitude: 1.0}
-    first_station: "STN_Existing"
-    last_station: "GHOST_STATION"
-    stations:
+    first_waypoint: "STN_Existing"
+    last_waypoint: "GHOST_STATION"
+    activities:
       - "STN_Existing"
       - "GHOST_STATION"  # <--- This does not exist in catalog
     """
@@ -88,7 +88,7 @@ legs:
         Cruise(bad_yaml)
 
     assert "GHOST_STATION" in str(exc.value)
-    assert "not found in Catalog" in str(exc.value)
+    assert "not found in any Catalog" in str(exc.value)
 
 
 """
@@ -204,7 +204,7 @@ class TestWarningFormatting:
         # Mock station registry
         station = MagicMock()
         station.name = "STN_001"
-        cruise.station_registry = {"STN_001": station}
+        cruise.waypoint_registry = {"STN_001": station}
 
         # Mock transit registry
         transit = MagicMock()
@@ -306,7 +306,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 2000.0  # Station reported water depth
 
-        cruise.station_registry = {"STN_001": station}
+        cruise.waypoint_registry = {"STN_001": station}
 
         # Mock bathymetry manager
         bathymetry_manager = MagicMock()
@@ -332,7 +332,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 1000.0  # Station reported water depth
 
-        cruise.station_registry = {"STN_002": station}
+        cruise.waypoint_registry = {"STN_002": station}
 
         # Mock bathymetry manager to return very different depth
         bathymetry_manager = MagicMock()
@@ -356,7 +356,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 2000.0
 
-        cruise.station_registry = {"STN_003": station}
+        cruise.waypoint_registry = {"STN_003": station}
 
         # Mock bathymetry manager to return None
         bathymetry_manager = MagicMock()
@@ -373,7 +373,7 @@ class TestDepthValidation:
     def test_validate_depth_accuracy_no_stations(self):
         """Test depth validation with no stations."""
         cruise = MagicMock()
-        cruise.station_registry = {}
+        cruise.waypoint_registry = {}
 
         bathymetry_manager = MagicMock()
 
@@ -395,7 +395,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = None  # No depth specified
 
-        cruise.station_registry = {"STN_NO_DEPTH": station}
+        cruise.waypoint_registry = {"STN_NO_DEPTH": station}
 
         bathymetry_manager = MagicMock()
 
@@ -429,8 +429,8 @@ class TestValidationEdgeCases:
 
         # Cruise object missing expected attributes
         cruise = MagicMock()
-        if hasattr(cruise, "station_registry"):
-            delattr(cruise, "station_registry")
+        if hasattr(cruise, "waypoint_registry"):
+            delattr(cruise, "waypoint_registry")
         if hasattr(cruise, "transit_registry"):
             delattr(cruise, "transit_registry")
 

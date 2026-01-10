@@ -36,7 +36,7 @@ ports:
 # STATION CATALOG - Individual operation definitions
 # ================================================================
 
-stations:
+waypoints:
   # Manual station definition
   - name: "STN68" 
     comment: "Deep station"

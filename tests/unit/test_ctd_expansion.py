@@ -31,7 +31,7 @@ class TestCTDSectionExpansion:
                     "distance_between_stations": 50.0,  # 50 km spacing
                 }
             ],
-            "legs": [{"name": "Test Leg", "stations": ["Test Section"]}],
+            "legs": [{"name": "Test Leg", "activities": ["Test Section"]}],
         }
 
         result_config, summary = expand_ctd_sections(config)
@@ -40,9 +40,9 @@ class TestCTDSectionExpansion:
         assert summary["sections_expanded"] == 1
         assert summary["stations_from_expansion"] >= 2
 
-        # Check stations were created
-        assert "stations" in result_config
-        station_names = [s["name"] for s in result_config["stations"]]
+        # Check waypoints were created
+        assert "waypoints" in result_config
+        station_names = [s["name"] for s in result_config["waypoints"]]
 
         # Should have stations like Test_Section_Stn001, Test_Section_Stn002, etc.
         assert any("Test_Section_Stn" in name for name in station_names)
@@ -51,7 +51,7 @@ class TestCTDSectionExpansion:
         assert "transects" not in result_config or len(result_config["transects"]) == 0
 
         # Check leg references were updated
-        leg_stations = result_config["legs"][0]["stations"]
+        leg_stations = result_config["legs"][0]["activities"]
         assert all(name in station_names for name in leg_stations)
         assert "Test Section" not in leg_stations
 
@@ -78,7 +78,7 @@ class TestCTDSectionExpansion:
         assert summary["stations_from_expansion"] >= 20  # At least 20 stations
 
         # Check proper interpolation
-        stations = result_config["stations"]
+        stations = result_config["waypoints"]
         first_station = next(s for s in stations if "Stn001" in s["name"])
         last_station = stations[-1]
 
@@ -109,7 +109,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config)
 
         # Check that special characters were sanitized
-        station_names = [s["name"] for s in result_config["stations"]]
+        station_names = [s["name"] for s in result_config["waypoints"]]
 
         # Should be something like "Test_Section_1_North_South_Stn001"
         for name in station_names:
@@ -123,7 +123,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_duplicate_name_handling(self):
         """Test handling of duplicate station names in expansion."""
         config = {
-            "stations": [
+            "waypoints": [
                 {
                     "name": "Test_Section_Stn001",
                     "operation_type": "CTD",
@@ -146,7 +146,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config)
 
         # Check that duplicate names were handled
-        station_names = [s["name"] for s in result_config["stations"]]
+        station_names = [s["name"] for s in result_config["waypoints"]]
         unique_names = set(station_names)
 
         # All names should be unique
@@ -178,7 +178,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config, default_depth=2000.0)
 
         # All stations should have the custom default depth
-        for station in result_config["stations"]:
+        for station in result_config["waypoints"]:
             assert station["water_depth"] == 2000.0
 
     def test_expand_section_with_max_depth_override(self):
@@ -201,7 +201,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config)
 
         # All stations should have the overridden depth
-        for station in result_config["stations"]:
+        for station in result_config["waypoints"]:
             assert station["water_depth"] == 3500.0
 
     def test_expand_section_insufficient_route_points(self):
@@ -287,7 +287,7 @@ class TestCTDSectionExpansion:
         assert result_config["transects"][0]["name"] == "Regular Transit"
 
         # Should have stations from both sections
-        station_names = [s["name"] for s in result_config["stations"]]
+        station_names = [s["name"] for s in result_config["waypoints"]]
         assert any("Section_A_Stn" in name for name in station_names)
         assert any("Section_B_Stn" in name for name in station_names)
 
@@ -318,7 +318,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config)
 
         # first_waypoint should point to first expanded station at leg level
-        expanded_stations = [s["name"] for s in result_config["stations"]]
+        expanded_stations = [s["name"] for s in result_config["waypoints"]]
         leg = result_config["legs"][0]
         assert leg["first_waypoint"] == expanded_stations[0]
 
@@ -345,7 +345,7 @@ class TestCTDSectionExpansion:
         result_config, _summary = expand_ctd_sections(config)
 
         # Check that custom fields were copied to all stations
-        for station in result_config["stations"]:
+        for station in result_config["waypoints"]:
             assert station["duration"] == 180.0  # 3.0 hours converted to 180 minutes
 
     def test_expand_section_spherical_interpolation(self):
@@ -370,7 +370,7 @@ class TestCTDSectionExpansion:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        stations = result_config["stations"]
+        stations = result_config["waypoints"]
 
         # Check that intermediate stations follow great circle path
         # For this case (along equator), intermediate points should maintain latitude ≈ 0
@@ -506,4 +506,4 @@ class TestCTDExpansionEdgeCases:
 
         # Result should be different
         assert result_config != original_config
-        assert "stations" in result_config
+        assert "waypoints" in result_config

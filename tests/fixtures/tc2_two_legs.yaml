@@ -1,7 +1,7 @@
 cruise_name: "TC2_TwoLegs_Test"
 
 
-stations:
+waypoints:
   - name: STN_001  
     latitude: 50.0
     longitude: -50.0

@@ -206,9 +206,9 @@ def check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
     warnings = []
 
     # Check for duplicate station names - use raw config to catch duplicates
-    # that were silently overwritten during station_registry creation
-    if hasattr(cruise.config, "stations") and cruise.config.stations:
-        station_names = [station.name for station in cruise.config.stations]
+    # that were silently overwritten during waypoint_registry creation
+    if hasattr(cruise.config, "waypoints") and cruise.config.waypoints:
+        station_names = [station.name for station in cruise.config.waypoints]
         if len(station_names) != len(set(station_names)):
             duplicates = [
                 name for name in station_names if station_names.count(name) > 1
@@ -270,8 +270,8 @@ def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
     warned_pairs = set()  # Track warned pairs to avoid duplicates
 
     # Check for complete duplicate stations
-    if hasattr(cruise.config, "stations") and cruise.config.stations:
-        stations = cruise.config.stations
+    if hasattr(cruise.config, "waypoints") and cruise.config.waypoints:
+        stations = cruise.config.waypoints
         for ii, station1 in enumerate(stations):
             for _jj, station2 in enumerate(stations[ii + 1 :], ii + 1):
                 # Check if all key attributes are identical
@@ -330,7 +330,7 @@ def validate_depth_accuracy(
     stations_checked = 0
     warning_messages = []
 
-    for station_name, station in cruise.station_registry.items():
+    for station_name, station in cruise.waypoint_registry.items():
         # Check water_depth field (preferred for bathymetry comparison)
         water_depth = getattr(station, "water_depth", None)
         if water_depth is not None:
@@ -412,7 +412,7 @@ def _check_unexpanded_ctd_sections(cruise) -> list[str]:
     warnings = []
 
     # TODO: update to use sections instead of transits
-    for transit_name, transit in cruise.transit_registry.items():
+    for transit_name, transit in cruise.transect_registry.items():
         if (
             hasattr(transit, "operation_type")
             and transit.operation_type == "CTD"
@@ -608,8 +608,8 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
         entity_found = False
 
         # Check stations
-        if hasattr(cruise, "station_registry"):
-            for station_name, station in cruise.station_registry.items():
+        if hasattr(cruise, "waypoint_registry"):
+            for station_name, station in cruise.waypoint_registry.items():
                 if _warning_relates_to_entity(warning_msg, station):
                     if station_name not in warning_groups["Stations"]:
                         warning_groups["Stations"][station_name] = []
@@ -620,8 +620,8 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
                     break
 
         # Check transits  # TODO: update to sections
-        if not entity_found and hasattr(cruise, "transit_registry"):
-            for transit_name, transit in cruise.transit_registry.items():
+        if not entity_found and hasattr(cruise, "transect_registry"):
+            for transit_name, transit in cruise.transect_registry.items():
                 if _warning_relates_to_entity(warning_msg, transit):
                     if transit_name not in warning_groups["Transits"]:
                         warning_groups["Transits"][transit_name] = []

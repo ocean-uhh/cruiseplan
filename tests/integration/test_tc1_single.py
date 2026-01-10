@@ -57,8 +57,8 @@ class TestTC1SingleIntegration:
         assert leg.arrival_port == "port_cadiz"  # String reference
 
         # Validate stations
-        assert len(config.stations) == 1
-        station = config.stations[0]
+        assert len(config.waypoints) == 1
+        station = config.waypoints[0]
         assert station.name == "STN_001"
         assert station.latitude == 45.0
         assert station.longitude == -45.0
@@ -78,8 +78,8 @@ class TestTC1SingleIntegration:
         cruise = Cruise(yaml_path)
 
         # Check station registry
-        assert len(cruise.station_registry) == 1
-        assert "STN_001" in cruise.station_registry
+        assert len(cruise.waypoint_registry) == 1
+        assert "STN_001" in cruise.waypoint_registry
 
         # Check runtime legs
         assert len(cruise.runtime_legs) == 1
@@ -146,7 +146,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate depth enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.station_registry["STN_001"]
+        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
@@ -169,7 +169,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate coordinate enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.station_registry["STN_001"]
+        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
 
         # Check coordinate enrichment with precise DMM format
         assert hasattr(
@@ -196,7 +196,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate GEBCO2025 depth
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.station_registry["STN_001"]
+        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
@@ -227,7 +227,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate complete enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.station_registry["STN_001"]
+        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
         config = enriched_cruise.config
 
         # Validate all default values match constants
@@ -278,7 +278,7 @@ class TestTC1SingleIntegration:
 
         # Load enriched config and check the duration was added
         enriched_cruise = Cruise(output_path)
-        mooring_station = enriched_cruise.station_registry["MOORING_001"]
+        mooring_station = enriched_cruise.waypoint_registry["MOORING_001"]
 
         # Check that duration was added with correct value
         assert hasattr(

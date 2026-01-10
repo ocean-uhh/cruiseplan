@@ -1,7 +1,7 @@
 cruise_name: "TC4_Mixed_Test"
 
 
-stations:
+waypoints:
   - name: STN_001
     operation_type: CTD
     action: profile

@@ -28,7 +28,7 @@ class TestCruise:
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "turnaround_time": 30.0,
-            "stations": [
+            "waypoints": [
                 {
                     "name": "STN_001",
                     "latitude": 60.0,
@@ -84,7 +84,7 @@ class TestCruise:
                     "name": "Leg_1",
                     "departure_port": "REYKJAVIK",
                     "arrival_port": "REYKJAVIK",
-                    "stations": ["STN_001", "STN_002"],
+                    "activities": ["STN_001", "STN_002"],
                     "clusters": [
                         {
                             "name": "CTD_Cluster",
@@ -119,13 +119,13 @@ class TestCruise:
             assert cruise.config.cruise_name == "Test Cruise 2024"
 
             # Check registries were built
-            assert len(cruise.station_registry) == 3
-            assert "STN_001" in cruise.station_registry
-            assert "STN_002" in cruise.station_registry
-            assert "STN_003" in cruise.station_registry
+            assert len(cruise.waypoint_registry) == 3
+            assert "STN_001" in cruise.waypoint_registry
+            assert "STN_002" in cruise.waypoint_registry
+            assert "STN_003" in cruise.waypoint_registry
 
-            assert len(cruise.transit_registry) == 1
-            assert "TRANS_001" in cruise.transit_registry
+            assert len(cruise.transect_registry) == 1
+            assert "TRANS_001" in cruise.transect_registry
 
             assert len(cruise.area_registry) == 1
             assert "SURVEY_001" in cruise.area_registry
@@ -151,7 +151,7 @@ class TestCruise:
             "default_vessel_speed": 10.0,
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
-            "stations": [
+            "waypoints": [
                 {
                     "name": "STN_001",
                     "latitude": 60.0,
@@ -166,7 +166,7 @@ class TestCruise:
                     "name": "Test_Leg",
                     "departure_port": "TEST_PORT",
                     "arrival_port": "TEST_PORT",
-                    "stations": ["STN_001"],
+                    "activities": ["STN_001"],
                 }
             ],
         }
@@ -176,8 +176,8 @@ class TestCruise:
             cruise = Cruise("minimal_config.yaml")
 
             assert cruise.config.cruise_name == "Minimal Test"
-            assert len(cruise.station_registry) == 1
-            assert len(cruise.transit_registry) == 0
+            assert len(cruise.waypoint_registry) == 1
+            assert len(cruise.transect_registry) == 0
             assert len(cruise.area_registry) == 0
             assert len(cruise.port_registry) == 1  # TEST_PORT is defined
 
@@ -189,7 +189,7 @@ class TestCruise:
             "default_vessel_speed": 10.0,
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
-            "stations": None,
+            "waypoints": None,
             "transects": None,
             "areas": None,
             "ports": [{"name": "EMPTY_PORT", "latitude": 64.0, "longitude": -22.0}],
@@ -198,7 +198,7 @@ class TestCruise:
                     "name": "Empty_Leg",
                     "departure_port": "EMPTY_PORT",
                     "arrival_port": "EMPTY_PORT",
-                    "stations": [],
+                    "activities": [],
                 }
             ],
         }
@@ -208,8 +208,8 @@ class TestCruise:
             cruise = Cruise("empty_config.yaml")
 
             # Should handle None gracefully
-            assert len(cruise.station_registry) == 0
-            assert len(cruise.transit_registry) == 0
+            assert len(cruise.waypoint_registry) == 0
+            assert len(cruise.transect_registry) == 0
             assert len(cruise.area_registry) == 0
             assert len(cruise.port_registry) == 1  # EMPTY_PORT is defined
 
@@ -223,10 +223,10 @@ class TestCruise:
 
             # References should have been resolved
             leg = cruise.config.legs[0]
-            assert len(leg.stations) == 2
+            assert len(leg.activities) == 2
             # After resolution, these should be StationDefinition objects
-            assert hasattr(leg.stations[0], "name")
-            assert hasattr(leg.stations[1], "name")
+            assert hasattr(leg.activities[0], "name")
+            assert hasattr(leg.activities[1], "name")
 
     @patch("cruiseplan.core.cruise.load_yaml")
     def test_resolve_references_invalid_station(self, mock_load_yaml):
@@ -237,7 +237,7 @@ class TestCruise:
                 "name": "Bad_Leg",
                 "departure_port": "REYKJAVIK",
                 "arrival_port": "REYKJAVIK",
-                "stations": ["STN_001", "INVALID_STATION"],
+                "activities": ["STN_001", "INVALID_STATION"],
             }
         ]
         mock_load_yaml.return_value = invalid_config
@@ -394,11 +394,11 @@ class TestCruise:
             cruise = Cruise("test_config.yaml")
 
             # Test with a list containing actual objects (not strings)
-            station_obj = cruise.station_registry["STN_001"]
+            station_obj = cruise.waypoint_registry["STN_001"]
             mixed_list = ["STN_002", station_obj]  # String and object
 
             resolved = cruise._resolve_list(
-                mixed_list, cruise.station_registry, "Station"
+                mixed_list, cruise.waypoint_registry, "Station"
             )
             assert len(resolved) == 2
             assert resolved[1] == station_obj  # Object should be kept as-is
@@ -415,33 +415,33 @@ class TestCruise:
             invalid_list = ["STN_001", "INVALID_STATION"]
 
             with pytest.raises(ReferenceError):
-                cruise._resolve_list(invalid_list, cruise.station_registry, "Station")
+                cruise._resolve_list(invalid_list, cruise.waypoint_registry, "Station")
 
     @patch("cruiseplan.core.cruise.load_yaml")
-    def test_cluster_legacy_stations_field(self, mock_load_yaml):
-        """Test handling of deprecated 'stations' field in clusters."""
-        config_with_legacy = self.test_yaml_data.copy()
-        config_with_legacy["legs"] = [
+    def test_cluster_modern_activities_field(self, mock_load_yaml):
+        """Test handling of modern 'activities' field in clusters."""
+        config_with_modern = self.test_yaml_data.copy()
+        config_with_modern["legs"] = [
             {
-                "name": "Legacy_Leg",
+                "name": "Modern_Leg",
                 "departure_port": "REYKJAVIK",
                 "arrival_port": "REYKJAVIK",
                 "clusters": [
                     {
-                        "name": "Legacy_Cluster",
-                        "stations": ["STN_001", "STN_002"],  # Deprecated field
+                        "name": "Modern_Cluster",
+                        "activities": ["STN_001", "STN_002"],  # Modern field
                     }
                 ],
             }
         ]
-        mock_load_yaml.return_value = config_with_legacy
+        mock_load_yaml.return_value = config_with_modern
 
         with patch("cruiseplan.core.cruise.resolve_port_reference"):
-            cruise = Cruise("config_with_legacy.yaml")
+            cruise = Cruise("config_with_modern.yaml")
 
-            # Should still work with legacy field
+            # Should work with modern field
             cluster = cruise.config.legs[0].clusters[0]
-            assert len(cluster.stations) == 2
+            assert len(cluster.activities) == 2
 
     @patch("cruiseplan.core.cruise.load_yaml")
     def test_cluster_sequence_field(self, mock_load_yaml):

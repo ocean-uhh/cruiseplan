@@ -25,7 +25,7 @@ default_distance_between_stations: 20.0
 calculate_transfer_between_sections: true
 calculate_depth_via_bathymetry: false
 
-stations:
+waypoints:
   - name: "STN_001"
     operation_type: CTD
     action: profile

@@ -3,7 +3,7 @@ default_vessel_speed: 10.0
 calculate_transfer_between_sections: false
 calculate_depth_via_bathymetry: true
 
-stations:
+waypoints:
   - name: STN_001
     latitude: 45.0
     longitude: -50.0
