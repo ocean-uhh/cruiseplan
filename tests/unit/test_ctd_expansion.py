@@ -19,7 +19,7 @@ class TestCTDSectionExpansion:
     def test_expand_simple_section(self):
         """Test basic CTD section expansion with two-point route."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",
@@ -47,8 +47,8 @@ class TestCTDSectionExpansion:
         # Should have stations like Test_Section_Stn001, Test_Section_Stn002, etc.
         assert any("Test_Section_Stn" in name for name in station_names)
 
-        # Check transits were cleaned up
-        assert "transits" not in result_config or len(result_config["transits"]) == 0
+        # Check transects were cleaned up
+        assert "transects" not in result_config or len(result_config["transects"]) == 0
 
         # Check leg references were updated
         leg_stations = result_config["legs"][0]["stations"]
@@ -58,7 +58,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_with_custom_spacing(self):
         """Test CTD section expansion with custom station spacing."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Dense Section",
                     "operation_type": "CTD",
@@ -93,7 +93,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_with_special_characters(self):
         """Test CTD section expansion with special characters in names."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Test-Section #1 (North-South)",
                     "operation_type": "CTD",
@@ -130,7 +130,7 @@ class TestCTDSectionExpansion:
                     "action": "profile",
                 }
             ],
-            "transits": [
+            "transects": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",
@@ -161,7 +161,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_custom_depth_default(self):
         """Test CTD section expansion with custom default depth."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Deep Section",
                     "operation_type": "CTD",
@@ -184,7 +184,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_with_max_depth_override(self):
         """Test CTD section expansion with max_depth override from transit."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Custom Depth Section",
                     "operation_type": "CTD",
@@ -207,7 +207,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_insufficient_route_points(self):
         """Test CTD section expansion with insufficient route points."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Invalid Section",
                     "operation_type": "CTD",
@@ -223,13 +223,13 @@ class TestCTDSectionExpansion:
         # but creates no stations (stations_from_expansion = 0)
         assert summary["sections_expanded"] == 1
         assert summary["stations_from_expansion"] == 0
-        # The section should still be removed from transits
-        assert "transits" not in result_config or len(result_config["transits"]) == 0
+        # The section should still be removed from transects
+        assert "transects" not in result_config or len(result_config["transects"]) == 0
 
     def test_expand_section_missing_coordinates(self):
         """Test CTD section expansion with missing coordinates."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Bad Section",
                     "operation_type": "CTD",
@@ -252,7 +252,7 @@ class TestCTDSectionExpansion:
     def test_expand_multiple_sections(self):
         """Test expansion of multiple CTD sections."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Section A",
                     "operation_type": "CTD",
@@ -283,8 +283,8 @@ class TestCTDSectionExpansion:
 
         # Should expand both CTD sections but leave regular transit
         assert summary["sections_expanded"] == 2
-        assert len(result_config["transits"]) == 1
-        assert result_config["transits"][0]["name"] == "Regular Transit"
+        assert len(result_config["transects"]) == 1
+        assert result_config["transects"][0]["name"] == "Regular Transit"
 
         # Should have stations from both sections
         station_names = [s["name"] for s in result_config["stations"]]
@@ -294,7 +294,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_updates_first_last_station_refs(self):
         """Test that first_waypoint and last_waypoint references are updated at leg level."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Main Section",
                     "operation_type": "CTD",
@@ -326,9 +326,9 @@ class TestCTDSectionExpansion:
         assert leg["last_waypoint"] == expanded_stations[-1]
 
     def test_expand_section_preserves_other_transit_fields(self):
-        """Test that additional fields from transits are preserved in stations."""
+        """Test that additional fields from transects are preserved in stations."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Research Section",
                     "operation_type": "CTD",
@@ -351,7 +351,7 @@ class TestCTDSectionExpansion:
     def test_expand_section_spherical_interpolation(self):
         """Test that proper spherical interpolation is used for great circle routes."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Long Section",
                     "operation_type": "CTD",
@@ -380,8 +380,8 @@ class TestCTDSectionExpansion:
             assert abs(lat) < 1e-5, f"Station not on equator: lat={lat}, lon={lon}"
             assert 0.0 <= lon <= 90.0, f"Longitude out of range: {lon}"
 
-    def test_expand_section_no_transits_key(self):
-        """Test expansion when config has no transits key."""
+    def test_expand_section_no_transects_key(self):
+        """Test expansion when config has no transects key."""
         config = {"cruise_name": "Test Cruise", "legs": []}
 
         result_config, summary = expand_ctd_sections(config)
@@ -391,14 +391,14 @@ class TestCTDSectionExpansion:
         assert summary["stations_from_expansion"] == 0
         assert result_config == config
 
-    def test_expand_section_empty_transits(self):
-        """Test expansion with empty transits list."""
-        config = {"transits": [], "legs": []}
+    def test_expand_section_empty_transects(self):
+        """Test expansion with empty transects list."""
+        config = {"transects": [], "legs": []}
 
         result_config, summary = expand_ctd_sections(config)
 
-        # Empty transits list is preserved (not cleaned up)
-        assert result_config["transits"] == []
+        # Empty transects list is preserved (not cleaned up)
+        assert result_config["transects"] == []
         assert summary["sections_expanded"] == 0
         assert summary["stations_from_expansion"] == 0
 
@@ -409,7 +409,7 @@ class TestCTDExpansionEdgeCases:
     def test_very_short_distance_expansion(self):
         """Test expansion of very short sections."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Short Section",
                     "operation_type": "CTD",
@@ -431,7 +431,7 @@ class TestCTDExpansionEdgeCases:
     def test_malformed_route_coordinates(self):
         """Test handling of malformed coordinate data."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Bad Coords Section",
                     "operation_type": "CTD",
@@ -451,7 +451,7 @@ class TestCTDExpansionEdgeCases:
     def test_alternative_coordinate_keys(self):
         """Test handling of alternative coordinate key names."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Alt Keys Section",
                     "operation_type": "CTD",
@@ -473,7 +473,7 @@ class TestCTDExpansionEdgeCases:
     def test_deep_copy_isolation(self):
         """Test that original config is not modified."""
         original_config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",
@@ -491,7 +491,7 @@ class TestCTDExpansionEdgeCases:
 
         # Original should be unchanged
         assert original_config == {
-            "transits": [
+            "transects": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",

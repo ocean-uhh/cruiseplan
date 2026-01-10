@@ -55,7 +55,7 @@ class TestCruise:
                     "action": "deployment",
                 },
             ],
-            "transits": [
+            "transects": [
                 {
                     "name": "TRANS_001",
                     "route": [
@@ -190,7 +190,7 @@ class TestCruise:
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "stations": None,
-            "transits": None,
+            "transects": None,
             "areas": None,
             "ports": [{"name": "EMPTY_PORT", "latitude": 64.0, "longitude": -22.0}],
             "legs": [
@@ -376,8 +376,8 @@ class TestCruise:
             assert cruise._anchor_exists_in_catalog("SURVEY_001") is True
 
     @patch("cruiseplan.core.cruise.load_yaml")
-    def test_anchor_exists_in_catalog_transit(self, mock_load_yaml):
-        """Test anchor existence check for transits."""
+    def test_anchor_exists_in_catalog_transect(self, mock_load_yaml):
+        """Test anchor existence check for transects."""
         mock_load_yaml.return_value = self.test_yaml_data
 
         with patch("cruiseplan.core.cruise.resolve_port_reference"):

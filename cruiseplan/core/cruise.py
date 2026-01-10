@@ -94,7 +94,7 @@ class Cruise:
             s.name: s for s in (self.config.stations or [])
         }
         self.transit_registry: dict[str, TransitDefinition] = {
-            t.name: t for t in (self.config.transits or [])
+            t.name: t for t in (self.config.transects or [])
         }
         self.area_registry: dict[str, AreaDefinition] = {
             a.name: a for a in (self.config.areas or [])

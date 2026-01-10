@@ -35,7 +35,7 @@ Configuration Structure
    
    # Global Catalog (Reusable Definitions)
    stations: [...]      # Station definitions → converted to PointOperation objects for scheduling
-   transits: [...]      # Transit definitions → converted to LineOperation objects for scheduling
+   transects: [...]     # Line operation definitions → converted to LineOperation objects for scheduling
    areas: [...]         # Area operation definitions
    
    # Schedule Organization
@@ -495,13 +495,13 @@ Transit definitions specify movement routes with waypoints. During scheduling, t
 
 .. code-block:: yaml
 
-   transits:
+   transects:
      - name: "ADCP_Line_A"
        route:
          - "50.0, -40.0"
          - "51.0, -40.0"
          - "52.0, -40.0"
-       operation_type: "underway"  # Optional: makes this a scientific transit
+       operation_type: "underway"  # Optional: makes this a scientific transect
        action: "ADCP"              # Required if operation_type specified
        vessel_speed: 8.0           # Optional: override default speed
        comment: "Deep water ADCP transect"
@@ -574,7 +574,7 @@ CTD sections are a special type of transit that can be expanded into individual 
 
 .. code-block:: yaml
 
-   transits:
+   transects:
      - name: "53N_Section"
        distance_between_stations: 25.0  # km
        reversible: true

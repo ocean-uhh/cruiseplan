@@ -138,7 +138,7 @@ Example YAML States:
            operation_type: port
            action: departure
            
-       transits:
+       transects:
          - name: "CTD_LINE_001"
            operation_type: "CTD"
            action: "section"

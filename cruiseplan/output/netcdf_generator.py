@@ -270,12 +270,12 @@ class NetCDFGenerator:
             # Create a lookup for area definitions
             area_lookup = {area.name: area for area in (config.areas or [])}
 
-            # Create a lookup for transit definitions with routes
-            transit_lookup = {}
-            if hasattr(config, "transits") and config.transits:
-                for transit in config.transits:
-                    if hasattr(transit, "route") and transit.route:
-                        transit_lookup[transit.name] = transit
+            # Create a lookup for transect definitions with routes
+            transect_lookup = {}
+            if hasattr(config, "transects") and config.transects:
+                for transect in config.transects:
+                    if hasattr(transect, "route") and transect.route:
+                        transect_lookup[transect.name] = transect
 
             # Extract timeline data
             times = []
@@ -431,9 +431,9 @@ class NetCDFGenerator:
                         comment = getattr(area, "comment", "")
                 elif activity == "Transit":
                     transit_name = event["label"]
-                    transit = transit_lookup.get(transit_name)
-                    if transit and hasattr(transit, "comment"):
-                        comment = getattr(transit, "comment", "")
+                    transect = transect_lookup.get(transit_name)
+                    if transect and hasattr(transect, "comment"):
+                        comment = getattr(transect, "comment", "")
                 comments.append(comment if comment is not None else "")
 
                 # Extract start/end coordinates for line operations
@@ -443,14 +443,14 @@ class NetCDFGenerator:
                     start_lons.append(event.get("start_lon", event["lon"]))
                     # For end coordinates, use route end point from transit definition if available
                     transit_name = event["label"]
-                    transit_def = transit_lookup.get(transit_name)
+                    transect_def = transect_lookup.get(transit_name)
 
                     if (
-                        transit_def
-                        and hasattr(transit_def, "route")
-                        and len(transit_def.route) >= 2
+                        transect_def
+                        and hasattr(transect_def, "route")
+                        and len(transect_def.route) >= 2
                     ):
-                        end_point = transit_def.route[-1]
+                        end_point = transect_def.route[-1]
                         end_lats.append(end_point.latitude)
                         end_lons.append(end_point.longitude)
                     else:
@@ -1240,12 +1240,12 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating line operations NetCDF: {output_path}")
 
-        # Create a lookup for transit definitions with routes
-        transit_lookup = {}
-        if hasattr(config, "transits") and config.transits:
-            for transit in config.transits:
-                if hasattr(transit, "route") and transit.route:
-                    transit_lookup[transit.name] = transit
+        # Create a lookup for transect definitions with routes
+        transect_lookup = {}
+        if hasattr(config, "transects") and config.transects:
+            for transect in config.transects:
+                if hasattr(transect, "route") and transect.route:
+                    transect_lookup[transect.name] = transect
 
         # Extract line operations from timeline (scientific transits)
         line_operations = []
@@ -1253,12 +1253,12 @@ class NetCDFGenerator:
             if event["activity"] == "Transit" and event.get("action"):
                 # This is a scientific transit with action (ADCP, bathymetry, etc.)
                 transit_name = event["label"]
-                transit_def = transit_lookup.get(transit_name)
+                transect_def = transect_lookup.get(transit_name)
 
-                if transit_def and len(transit_def.route) >= 2:
+                if transect_def and len(transect_def.route) >= 2:
                     # Use actual route start and end points from YAML
-                    start_point = transit_def.route[0]
-                    end_point = transit_def.route[-1]
+                    start_point = transect_def.route[0]
+                    end_point = transect_def.route[-1]
 
                     line_operations.append(
                         {
@@ -1275,7 +1275,7 @@ class NetCDFGenerator:
                             ),
                             "duration": event["duration_minutes"]
                             / 60.0,  # Convert to hours
-                            "comment": getattr(transit_def, "comment", ""),
+                            "comment": getattr(transect_def, "comment", ""),
                         }
                     )
                 else:

@@ -48,7 +48,7 @@ The ``--expand-sections`` option processes CTD section transits and converts the
 .. code-block:: yaml
 
     # Input: CTD section definition
-    transits:
+    transects:
       - name: "Arctic_Section_1"
         operation_type: "ctd_section"
         spacing_km: 25.0

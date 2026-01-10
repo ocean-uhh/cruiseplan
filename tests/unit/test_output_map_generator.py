@@ -43,8 +43,8 @@ class TestExtractMapData:
         # Mock empty other registries
         mock_cruise.mooring_registry = {}
 
-        # Mock config with no transits/areas
-        mock_cruise.config.transits = []
+        # Mock config with no transects/areas
+        mock_cruise.config.transects = []
         mock_cruise.config.areas = []
 
         # Mock ports

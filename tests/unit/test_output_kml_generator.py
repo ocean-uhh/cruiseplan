@@ -153,7 +153,7 @@ class TestKMLGeneratorCatalogMode:
             MagicMock(latitude=65.0, longitude=-25.0),
         ]
         mock_transit.route = mock_route
-        self.mock_config.transits = [mock_transit]
+        self.mock_config.transects = [mock_transit]
 
         # Mock ports
         mock_port = MagicMock()
@@ -195,7 +195,7 @@ class TestKMLGeneratorCatalogMode:
         empty_config.cruise_name = "Empty_Test"
         empty_config.stations = []
         empty_config.areas = []
-        empty_config.transits = []
+        empty_config.transects = []
         empty_config.ports = []
 
         with tempfile.NamedTemporaryFile(suffix=".kml", delete=False) as tmp_file:
