@@ -15,9 +15,9 @@ import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import Cruise
-from cruiseplan.core.validation_old import enrich_configuration
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
+from cruiseplan.process.enrich import enrich_configuration
 from cruiseplan.utils.config import ConfigLoader
 from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
 

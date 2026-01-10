@@ -11,12 +11,11 @@ with existing imports.
 # Core exceptions and enums
 # Basic data models
 # Legacy validation functions (from validation_old.py)
-from ..core.validation_old import (
+from ..process.enrich import enrich_configuration, expand_ctd_sections
+from ..process.validate import (
     check_complete_duplicates,
     check_duplicate_names,
-    enrich_configuration,
-    expand_ctd_sections,
-    validate_configuration_file,
+    validate_configuration,
     validate_depth_accuracy,
 )
 from .base_models import FlexibleLocationModel, GeoPoint
@@ -92,7 +91,7 @@ __all__ = [
     "check_duplicate_names",
     "enrich_configuration",
     "expand_ctd_sections",
-    "validate_configuration_file",
+    "validate_configuration",
     "validate_depth_accuracy",
     # Legacy aliases (backward compatibility)
     "PortDefinition",

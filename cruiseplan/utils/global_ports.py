@@ -87,8 +87,8 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
     "port_hamburg": {
         "name": "Hamburg",
         "display_name": "Hamburg, Germany",
-        "latitude": 53.5511,
-        "longitude": 9.9937,
+        "latitude": 53.53490,
+        "longitude": 9.97992,
         "timezone": "Europe/Berlin",
     },
     "port_emden": {
@@ -397,13 +397,27 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
         "longitude": -149.5585,
         "timezone": "Pacific/Tahiti",
     },
-    # Default/Update Port for Station Picker
+    # Default/Update Ports for Placeholders
     "port_update": {
-        "name": "Reykjavik (DEFAULT in stations.yaml)",
-        "display_name": "Update Port - Please Replace",
-        "latitude": 64.1466,
-        "longitude": -21.9426,
-        "timezone": "GMT+0",
+        "name": "Hamburg (DEFAULT UPDATE PLACEHOLDER)",
+        "display_name": "Hamburg, Germany - UPDATE PLACEHOLDER",
+        "latitude": 53.53490,
+        "longitude": 9.97992,
+        "timezone": "Europe/Berlin",
+    },
+    "port_update_departure": {
+        "name": "Hamburg (DEPARTURE PLACEHOLDER)",
+        "display_name": "Hamburg, Germany - UPDATE DEPARTURE PORT",
+        "latitude": 53.53490,
+        "longitude": 9.97992,
+        "timezone": "Europe/Berlin",
+    },
+    "port_update_arrival": {
+        "name": "Hamburg (ARRIVAL PLACEHOLDER)",
+        "display_name": "Hamburg, Germany - UPDATE ARRIVAL PORT",
+        "latitude": 53.53490,
+        "longitude": 9.97992,
+        "timezone": "Europe/Berlin",
     },
 }
 

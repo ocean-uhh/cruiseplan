@@ -10,6 +10,7 @@ Notes
 All constants are defined at the module level for easy importing and use.
 Default values and sentinel constants for cruise planning operations.
 """
+
 from datetime import datetime, timezone
 
 # --- Depth/Bathymetry Constants ---
@@ -53,3 +54,11 @@ DEFAULT_MOORING_DURATION_MIN = 59940.0
 DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
 # Make this an ISO8601 string
 DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
+
+# --- Placeholder Values ---
+# Port placeholder names used to indicate fields that need user updates
+DEFAULT_PORT_PLACEHOLDER_DEPARTURE = "port_update_departure"
+DEFAULT_PORT_PLACEHOLDER_ARRIVAL = "port_update_arrival"
+
+# Legacy placeholder prefix for backwards compatibility
+DEFAULT_UPDATE_PREFIX = "UPDATE-"
