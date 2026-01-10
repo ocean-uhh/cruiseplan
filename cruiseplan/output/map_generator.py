@@ -154,7 +154,7 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     """
     lines = []
 
-    # Extract scientific transits with routes from config
+    # Extract scientific transects with routes from config
     if (
         hasattr(cruise, "config")
         and hasattr(cruise.config, "transects")

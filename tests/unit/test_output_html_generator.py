@@ -130,7 +130,7 @@ class TestSummaryStatistics:
         assert stats["areas"]["avg_duration_h"] == 2.5
 
     def test_calculate_summary_statistics_scientific_transits(self):
-        """Test statistics calculation with scientific transits."""
+        """Test statistics calculation with scientific transects."""
         timeline = [
             {
                 "activity": "Transit",
