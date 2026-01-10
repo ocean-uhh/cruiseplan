@@ -206,4 +206,3 @@ class TestPlotConfigIntegration:
                 )
         finally:
             plt.close(fig)
-
