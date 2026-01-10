@@ -11,8 +11,8 @@ with existing imports.
 # Core exceptions and enums
 # Basic data models
 # Legacy validation functions (from validation_old.py)
-from ..process.enrich import enrich_configuration, expand_ctd_sections
-from ..process.validate import (
+from ..processing.enrich import enrich_configuration, expand_ctd_sections
+from ..processing.validate import (
     check_complete_duplicates,
     check_duplicate_names,
     validate_configuration,

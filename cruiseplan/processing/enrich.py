@@ -1270,7 +1270,7 @@ def _process_warnings_and_save(
     # Process captured warnings and display them in user-friendly format
     if captured_warnings:
         # Keep this import conditional as it might create circular dependencies
-        from cruiseplan.process.validate import _format_validation_warnings
+        from cruiseplan.processing.validate import _format_validation_warnings
 
         formatted_warnings = _format_validation_warnings(captured_warnings, cruise)
         for warning_group in formatted_warnings:

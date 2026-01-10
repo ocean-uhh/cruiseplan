@@ -925,7 +925,7 @@ def generate_cruise_schedule(
     # Validate depths if requested
     validation_warnings = []
     if validate_depths:
-        from cruiseplan.process.validate import validate_configuration
+        from cruiseplan.processing.validate import validate_configuration
 
         is_valid, errors, warnings = validate_configuration(
             config_path, check_depths=True, tolerance=10.0

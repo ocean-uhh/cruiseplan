@@ -517,7 +517,7 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
         start_date = str(raw_config["start_date"])
         if start_date.startswith(DEFAULT_UPDATE_PREFIX):
             metadata_warnings.append(
-                "Start date is set to placeholder 'UPDATE-YYYY-MM-DDTHH:MM:SSZ'. Please update with actual cruise start date."
+                f"Start date is set to placeholder '{DEFAULT_UPDATE_PREFIX}YYYY-MM-DDTHH:MM:SSZ'. Please update with actual cruise start date."
             )
         elif start_date == DEFAULT_START_DATE:
             metadata_warnings.append(
@@ -743,7 +743,6 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
     for i, part in enumerate(location_path):
         if isinstance(part, int) and i > 0:
             # This is an array index
-            prev_part = location_path[i - 1]
 
             try:
                 if isinstance(current_config, list) and part < len(current_config):

@@ -631,7 +631,7 @@ def enrich(
 
         # Perform the actual enrichment
         try:
-            from cruiseplan.process.enrich import enrich_configuration
+            from cruiseplan.processing.enrich import enrich_configuration
 
             enrich_configuration(
                 config_path,
@@ -752,7 +752,7 @@ def validate(
     >>> if is_valid:
     ...     print(" Configuration is valid")
     """
-    from cruiseplan.process.validate import validate_configuration
+    from cruiseplan.processing.validate import validate_configuration
 
     if verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -793,6 +793,7 @@ def validate(
             if "cruise_name" in config_dict:
                 summary["cruise_name"] = config_dict["cruise_name"]
         except Exception:
+            # Best-effort enrichment: failure to read cruise_name should not break validation
             pass
 
         # Report results (UI layer responsibility)

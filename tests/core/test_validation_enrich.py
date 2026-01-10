@@ -17,11 +17,11 @@ from cruiseplan.validation import (
 class TestEnrichConfiguration:
     """Test the enrich_configuration core function."""
 
-    @patch("cruiseplan.process.enrich.save_yaml")
+    @patch("cruiseplan.processing.enrich.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("cruiseplan.process.enrich.load_yaml")
+    @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_depths_only(
         self,
         mock_yaml_load,
@@ -72,11 +72,11 @@ class TestEnrichConfiguration:
         # save_yaml is called twice: once for temp file, once for output
         assert mock_save_yaml.call_count == 2
 
-    @patch("cruiseplan.process.enrich.save_yaml")
-    @patch("cruiseplan.process.enrich.format_ddm_comment")
+    @patch("cruiseplan.processing.enrich.save_yaml")
+    @patch("cruiseplan.processing.enrich.format_ddm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("cruiseplan.process.enrich.load_yaml")
+    @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_coords_only(
         self,
         mock_yaml_load,
@@ -122,7 +122,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
-    @patch("cruiseplan.process.enrich.load_yaml")
+    @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_no_changes_needed(
         self, mock_yaml_load, mock_open, mock_cruise_class
     ):
@@ -154,12 +154,12 @@ class TestEnrichConfiguration:
 class TestValidateConfigurationFile:
     """Test the validate_configuration core function."""
 
-    @patch("cruiseplan.process.validate._check_cruise_metadata")
-    @patch("cruiseplan.process.validate._check_cruise_metadata_raw")
-    @patch("cruiseplan.process.validate.check_complete_duplicates")
-    @patch("cruiseplan.process.validate.check_duplicate_names")
-    @patch("cruiseplan.process.validate.validate_depth_accuracy")
-    @patch("cruiseplan.process.validate.BathymetryManager")
+    @patch("cruiseplan.processing.validate._check_cruise_metadata")
+    @patch("cruiseplan.processing.validate._check_cruise_metadata_raw")
+    @patch("cruiseplan.processing.validate.check_complete_duplicates")
+    @patch("cruiseplan.processing.validate.check_duplicate_names")
+    @patch("cruiseplan.processing.validate.validate_depth_accuracy")
+    @patch("cruiseplan.processing.validate.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_no_depth_check(
         self,
@@ -193,12 +193,12 @@ class TestValidateConfigurationFile:
         assert warnings == []
         mock_validate_depth.assert_not_called()
 
-    @patch("cruiseplan.process.validate._check_cruise_metadata")
-    @patch("cruiseplan.process.validate._check_cruise_metadata_raw")
-    @patch("cruiseplan.process.validate.check_complete_duplicates")
-    @patch("cruiseplan.process.validate.check_duplicate_names")
-    @patch("cruiseplan.process.validate.validate_depth_accuracy")
-    @patch("cruiseplan.process.validate.BathymetryManager")
+    @patch("cruiseplan.processing.validate._check_cruise_metadata")
+    @patch("cruiseplan.processing.validate._check_cruise_metadata_raw")
+    @patch("cruiseplan.processing.validate.check_complete_duplicates")
+    @patch("cruiseplan.processing.validate.check_duplicate_names")
+    @patch("cruiseplan.processing.validate.validate_depth_accuracy")
+    @patch("cruiseplan.processing.validate.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     def test_validate_success_with_depth_check(
         self,

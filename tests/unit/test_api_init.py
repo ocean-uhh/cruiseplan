@@ -42,7 +42,7 @@ class TestBathymetryAPI:
 class TestValidateAPI:
     """Test the cruiseplan.validate() API function."""
 
-    @patch("cruiseplan.process.validate.validate_configuration")
+    @patch("cruiseplan.processing.validate.validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_success(self, mock_file_validate, mock_validate):
         """Test successful validation."""
@@ -56,7 +56,7 @@ class TestValidateAPI:
         assert bool(result) is True
         assert result.success is True
 
-    @patch("cruiseplan.process.validate.validate_configuration")
+    @patch("cruiseplan.processing.validate.validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_failure(self, mock_file_validate, mock_validate):
         """Test failed validation."""
@@ -69,7 +69,7 @@ class TestValidateAPI:
         assert bool(result) is False
         assert result.success is False
 
-    @patch("cruiseplan.process.validate.validate_configuration")
+    @patch("cruiseplan.processing.validate.validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_custom_parameters(self, mock_file_validate, mock_validate):
         """Test validation with custom parameters."""
@@ -96,7 +96,7 @@ class TestValidateAPI:
 class TestEnrichAPI:
     """Test the cruiseplan.enrich() API function."""
 
-    @patch("cruiseplan.process.enrich.enrich_configuration")
+    @patch("cruiseplan.processing.enrich.enrich_configuration")
     def test_enrich_success(self, mock_enrich):
         """Test successful enrichment."""
         mock_enrich.return_value = None
@@ -127,7 +127,7 @@ class TestEnrichAPI:
         assert isinstance(result.files_created, list)
         assert isinstance(result.summary, dict)
 
-    @patch("cruiseplan.process.enrich.enrich_configuration")
+    @patch("cruiseplan.processing.enrich.enrich_configuration")
     def test_enrich_custom_output(self, mock_enrich):
         """Test enrichment with custom output."""
         mock_enrich.return_value = None

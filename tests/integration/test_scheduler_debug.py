@@ -9,7 +9,7 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.process.enrich import enrich_configuration
+from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.utils.config import ConfigLoader
 
 
