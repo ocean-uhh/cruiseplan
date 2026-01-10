@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.kml_generator &mdash; CruisePlan v0.3.2 v0.3.2</title>
+  <title>cruiseplan.output.kml_generator &mdash; CruisePlan v0.3.2 v0.3.2.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=71d9d8e6"></script>
+      <script src="../../../_static/documentation_options.js?v=1a1bd151"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -619,18 +619,18 @@
 
 <span class="s2">        &lt;!-- Transits --&gt;&quot;&quot;&quot;</span>
 
-    <span class="c1"># Add transits from configuration</span>
-    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;transits&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
-        <span class="k">for</span> <span class="n">transit</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transits</span><span class="p">:</span>
+    <span class="c1"># Add transects from configuration</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;transects&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">transect</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
             <span class="c1"># Extract start and end coordinates from route waypoints</span>
-            <span class="k">if</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">start_lat</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
-                <span class="n">start_lon</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
-                <span class="n">end_lat</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
-                <span class="n">end_lon</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="k">if</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="n">start_lat</span> <span class="o">=</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
+                <span class="n">start_lon</span> <span class="o">=</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
+                <span class="n">end_lat</span> <span class="o">=</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span>
+                <span class="n">end_lon</span> <span class="o">=</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span>
 
                 <span class="c1"># Calculate route distance if available</span>
-                <span class="n">route_distance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="n">route_distance</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;distance&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
                 <span class="k">if</span> <span class="n">route_distance</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">route_distance</span> <span class="o">==</span> <span class="s2">&quot;calculated&quot;</span><span class="p">:</span>
                     <span class="c1"># Calculate distance if not provided</span>
                     <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
@@ -646,21 +646,14 @@
                     <span class="n">route_distance</span> <span class="o">=</span> <span class="mf">3440.065</span> <span class="o">*</span> <span class="n">c</span>  <span class="c1"># Earth radius in nautical miles</span>
                     <span class="n">route_distance</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">route_distance</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">&quot;</span>
 
-                <span class="c1"># Determine operation type - check if this is an ADCP survey</span>
-                <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;Transit&quot;</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transit</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">):</span>
-                    <span class="n">op_type</span> <span class="o">=</span> <span class="n">transit</span><span class="o">.</span><span class="n">operation_type</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">op_type</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
-                        <span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span><span class="o">.</span><span class="n">value</span>
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="s2">&quot;survey&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">op_type</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                        <span class="ow">or</span> <span class="s2">&quot;adcp&quot;</span> <span class="ow">in</span> <span class="n">transit</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
-                    <span class="p">):</span>
-                        <span class="n">operation_type</span> <span class="o">=</span> <span class="s2">&quot;Transect&quot;</span>
+                <span class="c1"># Get the actual operation type from the config</span>
+                <span class="n">operation_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;transect&quot;</span><span class="p">)</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">operation_type</span><span class="p">,</span> <span class="s2">&quot;value&quot;</span><span class="p">):</span>
+                    <span class="n">operation_type</span> <span class="o">=</span> <span class="n">operation_type</span><span class="o">.</span><span class="n">value</span>
 
                 <span class="n">kml_content</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">        &lt;Placemark&gt;</span>
-<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">transit</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
+<span class="s2">            &lt;name&gt;</span><span class="si">{</span><span class="n">transect</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&lt;/name&gt;</span>
 <span class="s2">            &lt;description&gt;</span>
 <span class="s2">                Type: </span><span class="si">{</span><span class="n">operation_type</span><span class="si">}</span>
 <span class="s2">                Start: </span><span class="si">{</span><span class="n">start_lat</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">start_lon</span><span class="si">:</span><span class="s2">.6f</span><span class="si">}</span><span class="s2">°W</span>
