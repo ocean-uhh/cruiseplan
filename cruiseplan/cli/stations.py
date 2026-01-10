@@ -13,18 +13,15 @@ from typing import Optional
 
 from cruiseplan.cli.cli_utils import (
     CLIError,
+    _apply_cli_defaults,
+    _handle_deprecated_params,
     _initialize_cli_command,
     format_coordinate_bounds,
     generate_output_filename,
     load_pangaea_campaign_data,
-    validate_input_file,
-    validate_output_path,
 )
-from cruiseplan.utils.input_validation import (
-    _apply_cli_defaults,
-    _handle_deprecated_cli_params,
-    _validate_coordinate_bounds,
-)
+from cruiseplan.utils.coordinates import _validate_coordinate_bounds
+from cruiseplan.utils.io import validate_input_file, validate_output_directory
 from cruiseplan.utils.output_formatting import (
     _format_cli_error,
     _format_dependency_error,
@@ -107,7 +104,7 @@ def main(args: argparse.Namespace) -> None:
             "bathy_source_legacy": "bathy_source",
             "bathy_dir_legacy": "bathy_dir",
         }
-        _handle_deprecated_cli_params(args, deprecated_params)
+        _handle_deprecated_params(args, deprecated_params)
 
         # Apply standard CLI defaults
         _apply_cli_defaults(args)
@@ -151,7 +148,7 @@ def main(args: argparse.Namespace) -> None:
             raise CLIError(f"Invalid coordinate bounds: {e}")
 
         # Determine output file (output_file parameter was deprecated)
-        output_dir = validate_output_path(output_dir=args.output_dir)
+        output_dir = validate_output_directory(args.output_dir)
         output_filename = "stations.yaml"
         if args.pangaea_file:
             # Generate filename based on PANGAEA file

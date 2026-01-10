@@ -11,7 +11,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from cruiseplan.utils.constants import (
+from cruiseplan.utils.defaults import (
     DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
     DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
     DEFAULT_START_DATE,

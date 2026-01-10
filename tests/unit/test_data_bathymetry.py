@@ -8,7 +8,7 @@ import pytest
 import requests
 
 from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
-from cruiseplan.utils.constants import FALLBACK_DEPTH
+from cruiseplan.utils.defaults import DEFAULT_DEPTH
 
 
 @pytest.fixture
@@ -153,11 +153,11 @@ def test_interpolation_success(real_mode_manager):
 
 
 def test_interpolation_bounds_check(real_mode_manager):
-    """Ensure real mode bounds checking returns FALLBACK_DEPTH."""
+    """Ensure real mode bounds checking returns DEFAULT_DEPTH."""
     # Test point outside latitude bounds
-    assert real_mode_manager.get_depth_at_point(50.0, -49.0) == FALLBACK_DEPTH
+    assert real_mode_manager.get_depth_at_point(50.0, -49.0) == DEFAULT_DEPTH
     # Test point outside longitude bounds
-    assert real_mode_manager.get_depth_at_point(41.0, 0.0) == FALLBACK_DEPTH
+    assert real_mode_manager.get_depth_at_point(41.0, 0.0) == DEFAULT_DEPTH
 
 
 def test_get_grid_subset_real_mode(real_mode_manager):
@@ -364,9 +364,9 @@ class TestBathymetrySimpleCoverage:
             result = manager.get_depth_at_point(45.0, -60.0)
 
             # Should return fallback depth
-            from cruiseplan.utils.constants import FALLBACK_DEPTH
+            from cruiseplan.utils.defaults import DEFAULT_DEPTH
 
-            assert result == FALLBACK_DEPTH
+            assert result == DEFAULT_DEPTH
 
             # Should log error
             mock_logger.exception.assert_called()

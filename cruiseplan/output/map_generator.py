@@ -596,7 +596,7 @@ def plot_bathymetry(
     """
     try:
         from cruiseplan.data.bathymetry import BathymetryManager
-        from cruiseplan.interactive.colormaps import get_colormap
+        from cruiseplan.utils.plot_config import get_colormap
 
         logger.info(
             f"Loading bathymetry for region: {bathy_min_lat:.1f}°-{bathy_max_lat:.1f}°N, {bathy_min_lon:.1f}°-{bathy_max_lon:.1f}°E"

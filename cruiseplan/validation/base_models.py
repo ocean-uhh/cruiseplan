@@ -9,6 +9,8 @@ from typing import Any, Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 
+from cruiseplan.utils.coordinates import _validate_latitude, _validate_longitude
+
 
 class GeoPoint(BaseModel):
     """
@@ -29,54 +31,13 @@ class GeoPoint(BaseModel):
 
     @field_validator("latitude")
     def validate_lat(cls, v):
-        """
-        Validate latitude is within valid range.
-
-        Parameters
-        ----------
-        v : float
-            Latitude value to validate.
-
-        Returns
-        -------
-        float
-            Validated latitude value.
-
-        Raises
-        ------
-        ValueError
-            If latitude is outside -90 to 90 degrees.
-        """
-        if not (-90 <= v <= 90):
-            msg = f"Latitude {v} must be between -90 and 90"
-            raise ValueError(msg)
-        return v
+        """Validate latitude using centralized coordinate utilities."""
+        return _validate_latitude(v)
 
     @field_validator("longitude")
     def validate_lon(cls, v):
-        """
-        Validate longitude is within valid range.
-
-        Parameters
-        ----------
-        v : float
-            Longitude value to validate.
-
-        Returns
-        -------
-        float
-            Validated longitude value.
-
-        Raises
-        ------
-        ValueError
-            If longitude is outside -180 to 360 degrees.
-        """
-        # Individual point check: Must be valid in at least one system (-180..360 covers both)
-        if not (-180 <= v <= 360):
-            msg = f"Longitude {v} must be between -180 and 360"
-            raise ValueError(msg)
-        return v
+        """Validate longitude using centralized coordinate utilities."""
+        return _validate_longitude(v)
 
 
 class FlexibleLocationModel(BaseModel):

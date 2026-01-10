@@ -129,6 +129,7 @@ ignore = [
 "cruiseplan/cli/*.py" = ["C901"]  # CLI functions can be complex (temporary)
 "cruiseplan/utils/output_formatting.py" = ["RUF001"]  # Intentional use of emoji/unicode icons for visual output
 "tests/**/*.py" = ["D100", "D101", "D102", "D103", "D105", "D205", "D400", "E402", "E712", "F841", "PLR0913", "RUF001", "RUF003"]  # Test functions don't need docstrings, unused vars common, import placement flexible, explicit True/False comparisons allowed, many args OK for mocked tests, ambiguous characters OK in test data including multiplication symbols
+"**/*.ipynb" = ["B018"]  # Allow useless expressions in Jupyter notebooks (common for displaying values)
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"

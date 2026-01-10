@@ -13,8 +13,8 @@ from cruiseplan.utils.yaml_io import YAMLIOError
 from cruiseplan.validation import CruiseConfigurationError
 
 # Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
-# Assuming FALLBACK_DEPTH is -9999.0 for testing the formatters.
-FALLBACK_DEPTH = -9999.0
+# Assuming DEFAULT_DEPTH is -9999.0 for testing the formatters.
+DEFAULT_DEPTH = -9999.0
 
 
 def test_format_station_standard():

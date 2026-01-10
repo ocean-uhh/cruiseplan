@@ -17,7 +17,7 @@ from cruiseplan.validation import (
 class TestEnrichConfiguration:
     """Test the enrich_configuration core function."""
 
-    @patch("cruiseplan.cli.cli_utils.save_yaml_config")
+    @patch("cruiseplan.utils.yaml_io.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
@@ -69,9 +69,10 @@ class TestEnrichConfiguration:
         assert result["stations_with_depths_added"] == 1
         assert result["stations_with_coords_added"] == 0
         assert mock_station.water_depth == 1000.0  # Should be converted to positive
-        mock_save_yaml.assert_called_once()
+        # save_yaml is called twice: once for temp file, once for output
+        assert mock_save_yaml.call_count == 2
 
-    @patch("cruiseplan.cli.cli_utils.save_yaml_config")
+    @patch("cruiseplan.utils.yaml_io.save_yaml")
     @patch("cruiseplan.core.validation_old.format_ddm_comment")
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
@@ -116,7 +117,8 @@ class TestEnrichConfiguration:
         assert result["stations_with_depths_added"] == 0
         assert result["stations_with_coords_added"] == 1
         mock_format_ddm.assert_called_once_with(50.0, -40.0)
-        mock_save_yaml.assert_called_once()
+        # save_yaml is called twice: once for temp file, once for output
+        assert mock_save_yaml.call_count == 2
 
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")

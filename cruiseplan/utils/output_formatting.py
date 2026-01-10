@@ -8,6 +8,7 @@ across all CLI commands.
 
 import logging
 from argparse import Namespace
+from datetime import datetime
 from pathlib import Path
 from typing import Any, Optional
 
@@ -103,7 +104,7 @@ def _format_file_list(files: list[Path], base_dir: Optional[Path] = None) -> str
     return "\\n".join(formatted_files)
 
 
-def _format_duration(minutes: float) -> str:
+def _format_duration_minutes(minutes: float) -> str:
     """
     Convert minutes to human-readable duration.
 
@@ -121,11 +122,11 @@ def _format_duration(minutes: float) -> str:
 
     Examples
     --------
-    >>> _format_duration(90.5)
+    >>> _format_duration_minutes(90.5)
     '1h 31m'
-    >>> _format_duration(45)
+    >>> _format_duration_minutes(45)
     '45m'
-    >>> _format_duration(1.5)
+    >>> _format_duration_minutes(1.5)
     '2m'
     """
     if minutes < 60:
@@ -138,6 +139,67 @@ def _format_duration(minutes: float) -> str:
         return f"{hours}h"
     else:
         return f"{hours}h {remaining_minutes}m"
+
+
+def _format_duration_seconds(seconds: float) -> str:
+    """
+    Convert seconds to human-readable duration format.
+
+    Internal utility function for duration formatting in CLI operations.
+
+    Parameters
+    ----------
+    seconds : float
+        Duration in seconds
+
+    Returns
+    -------
+    str
+        Formatted duration string
+
+    Examples
+    --------
+    >>> _format_duration_seconds(30.5)
+    '30.5s'
+    >>> _format_duration_seconds(120.0)
+    '2.0m'
+    >>> _format_duration_seconds(3660.0)
+    '1.0h'
+    """
+    if seconds < 60:
+        return f"{seconds:.1f}s"
+    elif seconds < 3600:
+        minutes = seconds / 60
+        return f"{minutes:.1f}m"
+    else:
+        hours = seconds / 3600
+        return f"{hours:.1f}h"
+
+
+def round_time_to_minute(dt: datetime) -> datetime:
+    """
+    Round datetime to nearest minute.
+
+    Utility function for standardizing time formatting by removing
+    seconds and microseconds components for clean output display.
+
+    Parameters
+    ----------
+    dt : datetime
+        Input datetime
+
+    Returns
+    -------
+    datetime
+        Datetime rounded to nearest minute
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> round_time_to_minute(datetime(2023, 1, 1, 12, 30, 45))
+    datetime(2023, 1, 1, 12, 30)
+    """
+    return dt.replace(second=0, microsecond=0)
 
 
 def _format_coordinate_summary(
@@ -603,9 +665,26 @@ def _validate_output_directory(
     ValueError
         If directory validation fails
     """
-    from cruiseplan.utils.input_validation import _validate_directory_writable
+    resolved_path = output_dir.resolve()
 
-    return _validate_directory_writable(output_dir, create_if_missing)
+    if create_if_missing:
+        resolved_path.mkdir(parents=True, exist_ok=True)
+
+    if not resolved_path.exists():
+        raise ValueError(f"Output directory does not exist: {resolved_path}")
+
+    if not resolved_path.is_dir():
+        raise ValueError(f"Path is not a directory: {resolved_path}")
+
+    # Check if directory is writable by trying to create a temporary file
+    try:
+        test_file = resolved_path / ".tmp_write_test"
+        test_file.touch()
+        test_file.unlink()
+    except Exception as e:
+        raise ValueError(f"Directory is not writable: {resolved_path}") from e
+
+    return resolved_path
 
 
 def _standardize_output_setup(

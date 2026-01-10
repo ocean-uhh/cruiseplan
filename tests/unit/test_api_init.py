@@ -43,8 +43,10 @@ class TestValidateAPI:
     """Test the cruiseplan.validate() API function."""
 
     @patch("cruiseplan.core.validation_old.validate_configuration_file")
-    def test_validate_success(self, mock_validate):
+    @patch("cruiseplan.utils.io.validate_input_file")
+    def test_validate_success(self, mock_file_validate, mock_validate):
         """Test successful validation."""
+        mock_file_validate.return_value = Path("test.yaml")  # Mock file validation
         mock_validate.return_value = (True, [], [])  # success, errors, warnings
 
         result = cruiseplan.validate("test.yaml")
@@ -53,8 +55,10 @@ class TestValidateAPI:
         assert result is True
 
     @patch("cruiseplan.core.validation_old.validate_configuration_file")
-    def test_validate_failure(self, mock_validate):
+    @patch("cruiseplan.utils.io.validate_input_file")
+    def test_validate_failure(self, mock_file_validate, mock_validate):
         """Test failed validation."""
+        mock_file_validate.return_value = Path("test.yaml")  # Mock file validation
         mock_validate.return_value = (False, ["Error message"], [])
 
         result = cruiseplan.validate("test.yaml")
@@ -62,8 +66,10 @@ class TestValidateAPI:
         assert result is False
 
     @patch("cruiseplan.core.validation_old.validate_configuration_file")
-    def test_validate_custom_parameters(self, mock_validate):
+    @patch("cruiseplan.utils.io.validate_input_file")
+    def test_validate_custom_parameters(self, mock_file_validate, mock_validate):
         """Test validation with custom parameters."""
+        mock_file_validate.return_value = Path("custom.yaml")  # Mock file validation
         mock_validate.return_value = (True, [], [])
 
         result = cruiseplan.validate(

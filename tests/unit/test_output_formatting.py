@@ -14,7 +14,7 @@ from cruiseplan.utils.output_formatting import (
     _determine_output_basename,
     _determine_output_directory,
     _format_coordinate_summary,
-    _format_duration,
+    _format_duration_minutes,
     _format_file_list,
     _format_operation_summary,
     _format_output_summary,
@@ -26,7 +26,6 @@ from cruiseplan.utils.output_formatting import (
     _format_validation_results,
     _generate_multi_format_paths,
     _standardize_output_setup,
-    _validate_output_directory,
 )
 
 
@@ -109,21 +108,23 @@ class TestDurationFormatting:
 
     def test_format_duration_minutes_only(self):
         """Test duration formatting for minutes only."""
-        assert _format_duration(45) == "45m"
-        assert _format_duration(1.5) == "2m"  # Rounded
-        assert _format_duration(59.9) == "60m"
+        assert _format_duration_minutes(45) == "45m"
+        assert _format_duration_minutes(1.5) == "2m"  # Rounded
+        assert _format_duration_minutes(59.9) == "60m"
 
     def test_format_duration_hours_only(self):
         """Test duration formatting for exact hours."""
-        assert _format_duration(60) == "1h"
-        assert _format_duration(120) == "2h"
-        assert _format_duration(180) == "3h"
+        assert _format_duration_minutes(60) == "1h"
+        assert _format_duration_minutes(120) == "2h"
+        assert _format_duration_minutes(180) == "3h"
 
     def test_format_duration_hours_and_minutes(self):
         """Test duration formatting for hours and minutes."""
-        assert _format_duration(90) == "1h 30m"
-        assert _format_duration(125) == "2h 5m"
-        assert _format_duration(90.5) == "1h 30m"  # 90.5 rounds to 90 minutes = 1h 30m
+        assert _format_duration_minutes(90) == "1h 30m"
+        assert _format_duration_minutes(125) == "2h 5m"
+        assert (
+            _format_duration_minutes(90.5) == "1h 30m"
+        )  # 90.5 rounds to 90 minutes = 1h 30m
 
 
 class TestCoordinateFormatting:
@@ -426,20 +427,6 @@ class TestMultiFormatPaths:
 
         expected = {"unknown": Path("data/test.unknown")}
         assert result == expected
-
-
-class TestOutputDirectoryValidation:
-    """Test output directory validation functions."""
-
-    def test_validate_output_directory_existing(self, tmp_path):
-        """Test validation of existing directory."""
-        with patch(
-            "cruiseplan.utils.input_validation._validate_directory_writable"
-        ) as mock_validate:
-            mock_validate.return_value = tmp_path
-            result = _validate_output_directory(tmp_path)
-            assert result == tmp_path
-            mock_validate.assert_called_once_with(tmp_path, True)
 
 
 class TestStandardizedOutputSetup:

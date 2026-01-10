@@ -1,0 +1,57 @@
+"""
+Constants and default values for cruise planning.
+
+This module defines default parameters, conversion factors, and sentinel values
+used throughout the cruiseplan system. These constants provide fallback values
+for configuration parameters and standard conversion utilities.
+
+Notes
+-----
+All constants are defined at the module level for easy importing and use.
+Unit conversion functions are provided for common time conversions.
+"""
+
+# cruiseplan/utils/constants.py
+from datetime import datetime, timezone
+
+# --- Depth/Bathymetry Constants ---
+
+# Sentinel value indicating that depth data is missing, the station is outside
+# the bathymetry grid boundaries, or a calculation failed.
+# This value is defined in the specs as the fallback depth if ETOPO data is not found.
+DEFAULT_DEPTH = -9999.0
+
+# --- Default Cruise Parameters ---
+# These are used as code-level fallbacks if a configuration parameter is
+# required before the CruiseConfig object is fully initialized or if a
+# required field is missing (though the YAML schema should prevent the latter).
+
+# Default vessel transit speed in knots (kt)
+DEFAULT_VESSEL_SPEED_KT = 10.0
+
+# Default profile turnaround time in minutes (minutes)
+# Corresponds to CruiseConfig.turnaround_time default.
+DEFAULT_TURNAROUND_TIME_MIN = 30.0
+
+# Default CTD descent/ascent rate in meters per second (m/s)
+# Corresponds to CruiseConfig.ctd_descent_rate/ascent_rate default.
+DEFAULT_CTD_RATE_M_S = 1.0
+
+# Default distance between stations in kilometers (km)
+# Corresponds to CruiseConfig.default_distance_between_stations default.
+DEFAULT_STATION_SPACING_KM = 15.0
+
+# Default calculation flags - typically True for automated processing
+# Whether to calculate transit times between section waypoints
+DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS = True
+
+# Whether to automatically look up depth values from bathymetry data
+DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY = True
+
+# Default mooring operation duration in minutes (999 hours = 59940 minutes)
+# Used as a highly visible placeholder for mooring operations without specified duration
+DEFAULT_MOORING_DURATION_MIN = 59940.0
+
+DEFAULT_START_DATE_NUM = datetime(1970, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+# Make this an ISO8601 string
+DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()

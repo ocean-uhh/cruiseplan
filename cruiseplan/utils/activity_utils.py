@@ -4,7 +4,6 @@ Activity and scheduling utility functions.
 Shared utilities for processing cruise activities across different output generators.
 """
 
-from datetime import datetime
 from typing import Any
 
 
@@ -34,26 +33,6 @@ def is_scientific_operation(activity: dict[str, Any]) -> bool:
     return activity_type in ["Station", "Mooring", "Area", "Line"]
 
 
-def is_scientific_transit(transit: dict[str, Any]) -> bool:
-    """
-    Distinguish a Transit activity as scientific based on the presence of the 'action' field.
-
-    Scientific Transits: Have 'action' field (ADCP, bathymetry, etc.)
-    Pure Navigation Transits: Lack the 'action' field.
-
-    Parameters
-    ----------
-    transit : Dict[str, Any]
-        Transit activity record from timeline
-
-    Returns
-    -------
-    bool
-        True if this is a scientific transit
-    """
-    return transit.get("activity") == "Transit" and transit.get("action") is not None
-
-
 def is_line_operation(activity: dict[str, Any]) -> bool:
     """
     Check if activity is a line operation (scientific transit with start/end coordinates).
@@ -74,23 +53,6 @@ def is_line_operation(activity: dict[str, Any]) -> bool:
         and activity.get("start_lat") is not None
         and activity.get("start_lon") is not None
     )
-
-
-def round_time_to_minute(dt: datetime) -> datetime:
-    """
-    Round datetime to nearest minute.
-
-    Parameters
-    ----------
-    dt : datetime
-        Input datetime
-
-    Returns
-    -------
-    datetime
-        Datetime rounded to nearest minute
-    """
-    return dt.replace(second=0, microsecond=0)
 
 
 def format_operation_action(operation_type: str, action: str) -> str:

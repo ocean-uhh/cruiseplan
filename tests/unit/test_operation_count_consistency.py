@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators import scheduler
-from cruiseplan.cli.cli_utils import load_cruise_with_pretty_warnings
+from cruiseplan.core.cruise import Cruise
 
 
 class TestOperationCountConsistency:
@@ -21,7 +21,7 @@ class TestOperationCountConsistency:
         """Load TC1 single leg test cruise."""
         yaml_file = Path("tests_output/fixtures/TC1_Single_Test_enriched.yaml")
         if yaml_file.exists():
-            return load_cruise_with_pretty_warnings(yaml_file)
+            return Cruise(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")
 
     @pytest.fixture
@@ -29,7 +29,7 @@ class TestOperationCountConsistency:
         """Load TC2 two legs test cruise."""
         yaml_file = Path("tests_output/fixtures/TC2_TwoLegs_Test_enriched.yaml")
         if yaml_file.exists():
-            return load_cruise_with_pretty_warnings(yaml_file)
+            return Cruise(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")
 
     def _test_operation_consistency(self, cruise):

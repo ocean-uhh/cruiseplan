@@ -14,13 +14,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from cruiseplan.calculators.distance import haversine_distance, km_to_nm
+from cruiseplan.calculators.distance import haversine_distance
 from cruiseplan.core.operations import (
     AreaOperation,
     BaseOperation,
     LineOperation,
     PointOperation,
 )
+from cruiseplan.utils.units import km_to_nm
 from cruiseplan.validation import CruiseConfig, GeoPoint
 
 logger = logging.getLogger(__name__)
@@ -239,7 +240,7 @@ def calculate_timeline_statistics(timeline: list[dict[str, Any]]) -> dict[str, A
         'stations', 'surveys', 'areas', 'moorings', 'within_area_transits',
         'port_transits', and raw activity lists.
     """
-    from cruiseplan.utils.constants import hours_to_days
+    from cruiseplan.utils.units import hours_to_days
 
     # Initialize categorized activity lists
     station_activities = []

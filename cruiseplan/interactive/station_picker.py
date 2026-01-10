@@ -15,7 +15,6 @@ import matplotlib.pyplot as plt
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
 from cruiseplan.data.pangaea import merge_campaign_tracks
 from cruiseplan.interactive.campaign_selector import CampaignSelector
-from cruiseplan.interactive.colormaps import get_colormap
 
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
@@ -25,6 +24,7 @@ from cruiseplan.utils.config import (
     format_transect_for_yaml,
     save_cruise_config,
 )
+from cruiseplan.utils.plot_config import get_colormap
 
 
 class StationPicker:

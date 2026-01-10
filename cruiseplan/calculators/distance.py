@@ -10,8 +10,10 @@ kilometers and nautical miles.
 import math
 from typing import Union
 
-from cruiseplan.utils.constants import KM_PER_NM, NM_PER_KM, R_EARTH_KM
 from cruiseplan.validation import GeoPoint
+
+# Earth radius in kilometers (WGS84 approximate) - used for haversine distance calculation
+R_EARTH_KM = 6371.0
 
 
 def to_coords(point: Union[GeoPoint, tuple[float, float]]) -> tuple[float, float]:
@@ -91,37 +93,3 @@ def route_distance(points: list[Union[GeoPoint, tuple[float, float]]]) -> float:
     for i in range(len(points) - 1):
         total += haversine_distance(points[i], points[i + 1])
     return total
-
-
-def km_to_nm(km: float) -> float:
-    """
-    Convert kilometers to nautical miles.
-
-    Parameters
-    ----------
-    km : float
-        Distance in kilometers.
-
-    Returns
-    -------
-    float
-        Distance in nautical miles.
-    """
-    return km * NM_PER_KM
-
-
-def nm_to_km(nm: float) -> float:
-    """
-    Convert nautical miles to kilometers by multiplying nm * KM_PER_NM.
-
-    Parameters
-    ----------
-    nm : float
-        Distance in nautical miles.
-
-    Returns
-    -------
-    float
-        Distance in kilometers.
-    """
-    return nm * KM_PER_NM

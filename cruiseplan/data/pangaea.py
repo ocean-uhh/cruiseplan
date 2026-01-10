@@ -672,3 +672,52 @@ def load_campaign_data(
         )
     except Exception as e:
         raise ValueError(f"Error loading campaign data from {file_path}: {e}")
+
+
+def read_doi_list(file_path: Union[str, Path]) -> list[str]:
+    """
+    Read DOI list from text file, filtering out comments and empty lines.
+
+    Parameters
+    ----------
+    file_path : Union[str, Path]
+        Path to DOI list file
+
+    Returns
+    -------
+    list[str]
+        List of DOI strings
+
+    Raises
+    ------
+    ValueError
+        If file cannot be read or contains no valid DOIs
+    """
+    file_path = Path(file_path)
+
+    try:
+        with open(file_path, encoding="utf-8") as f:
+            lines = f.readlines()
+
+        dois = []
+        for line_num, line in enumerate(lines, 1):
+            line = line.strip()
+
+            # Skip empty lines and comments
+            if not line or line.startswith("#"):
+                continue
+
+            # Basic DOI format validation
+            if not line.startswith(("10.", "doi:10.", "https://doi.org/10.")):
+                logger.warning(f"Line {line_num}: '{line}' doesn't look like a DOI")
+
+            dois.append(line)
+
+        if not dois:
+            raise ValueError(f"No valid DOIs found in {file_path}")
+
+        logger.info(f"Loaded {len(dois)} DOIs from {file_path}")
+        return dois
+
+    except Exception as e:
+        raise ValueError(f"Error reading DOI list from {file_path}: {e}")

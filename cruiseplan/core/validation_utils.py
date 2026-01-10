@@ -274,7 +274,7 @@ def _add_missing_defaults(
         Tuple of (fields_to_add, defaults_added_list) where fields_to_add contains
         (field_name, value, display_value) tuples for proper insertion.
     """
-    from cruiseplan.utils.constants import (
+    from cruiseplan.utils.defaults import (
         DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
         DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
         DEFAULT_CTD_RATE_M_S,

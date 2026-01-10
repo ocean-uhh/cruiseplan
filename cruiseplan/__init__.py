@@ -577,14 +577,13 @@ def enrich(
             logging.basicConfig(level=logging.DEBUG)
             logger.debug("Verbose logging enabled")
 
-        # Validate and resolve input file path
-        config_path = Path(config_file).resolve()
-        if not config_path.exists():
-            raise FileError(f"Configuration file not found: {config_path}")
-        if not config_path.is_file():
-            raise FileError(f"Path is not a file: {config_path}")
-        if config_path.stat().st_size == 0:
-            raise FileError(f"Configuration file is empty: {config_path}")
+        # Validate input file path using centralized utility
+        from cruiseplan.utils.io import validate_input_file
+
+        try:
+            config_path = validate_input_file(config_file)
+        except ValueError as e:
+            raise FileError(str(e))
 
         # Validate config file format
         try:
@@ -759,7 +758,13 @@ def validate(
     if verbose:
         logging.basicConfig(level=logging.DEBUG)
 
-    config_path = Path(config_file).resolve()
+    # Validate input file path using centralized utility
+    from cruiseplan.utils.io import validate_input_file
+
+    try:
+        config_path = validate_input_file(config_file)
+    except ValueError as e:
+        raise FileError(str(e))
     logger.info(f" Validating {config_path}")
 
     try:
@@ -875,7 +880,14 @@ def schedule(
     if figsize is None:
         figsize = [12, 8]
 
-    config_path = Path(config_file).resolve()
+    # Validate input file path using centralized utility
+    from cruiseplan.utils.io import validate_input_file
+
+    try:
+        config_path = validate_input_file(config_file)
+    except ValueError as e:
+        raise FileError(str(e))
+
     logger.info(f"📅 Generating schedule from {config_path}")
 
     try:

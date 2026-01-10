@@ -181,7 +181,7 @@ class TestPlotBathymetry:
     """Test bathymetry plotting function."""
 
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
-    @patch("cruiseplan.interactive.colormaps.get_colormap")
+    @patch("cruiseplan.utils.plot_config.get_colormap")
     @patch("matplotlib.pyplot.colorbar")
     def test_plot_bathymetry_success(
         self, mock_colorbar, mock_get_colormap, mock_bathymetry_manager

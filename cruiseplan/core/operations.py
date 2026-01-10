@@ -491,8 +491,7 @@ class LineOperation(BaseOperation):
             return calc.calculate_transit_time(route_distance_km, effective_speed)
         else:
             # Fallback for cases without config
-            from cruiseplan.calculators.distance import km_to_nm
-            from cruiseplan.utils.constants import hours_to_minutes
+            from cruiseplan.utils.units import hours_to_minutes, km_to_nm
 
             vessel_speed = self.speed or 10.0
             route_distance_nm = km_to_nm(route_distance_km)
@@ -542,7 +541,8 @@ class LineOperation(BaseOperation):
             return 0.0
 
         # Use centralized calculators
-        from cruiseplan.calculators.distance import km_to_nm, route_distance
+        from cruiseplan.calculators.distance import route_distance
+        from cruiseplan.utils.units import km_to_nm
 
         # Calculate route distance and convert to nautical miles
         route_distance_km = route_distance(self.route)

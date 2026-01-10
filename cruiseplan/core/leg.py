@@ -9,8 +9,8 @@ from typing import Any, Optional, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.operations import BaseOperation
-from cruiseplan.utils.constants import NM_PER_KM
 from cruiseplan.utils.global_ports import resolve_port_reference
+from cruiseplan.utils.units import NM_PER_KM
 
 # Import validation models and port utilities
 from cruiseplan.validation import LegDefinition, PortDefinition, StrategyEnum

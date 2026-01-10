@@ -108,16 +108,18 @@ def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps)
 
 
 def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
-    """Tests successful execution when the PANGAEA file path is invalid/missing."""
-    _, MockLoadCampaign, _ = mock_external_deps
+    """Tests that main exits gracefully when the PANGAEA file path is invalid/missing."""
+    _, MockLoadCampaign, MockExit = mock_external_deps
 
     # Simulate non-existent file path
     mock_args.pangaea_file = Path("non_existent_path.pkl")
 
     main(mock_args)
 
-    # Assert load_campaign_data was NOT called
+    # Function should exit due to validation error, so load_campaign_data should not be called
     MockLoadCampaign.assert_not_called()
+    # Should exit with error code 1
+    MockExit.assert_called_once_with(1)
 
 
 @pytest.mark.skip(reason="Import error testing is complex with dynamic imports")

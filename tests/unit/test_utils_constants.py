@@ -2,7 +2,7 @@
 
 import pytest
 
-from cruiseplan.utils.constants import (
+from cruiseplan.utils.units import (
     KM_PER_NM,
     MINUTES_PER_HOUR,
     NM_PER_KM,

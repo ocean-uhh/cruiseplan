@@ -596,3 +596,185 @@ def compute_final_limits(
         final_lon_max = lon_max
 
     return final_lon_min, final_lon_max, final_lat_min, final_lat_max
+
+
+def _validate_coordinate_bounds(
+    lat_bounds: list[float], lon_bounds: list[float]
+) -> tuple[float, float, float, float]:
+    """
+    Validate and normalize coordinate bounds with sophisticated longitude format checking.
+
+    # NOTE: This sophisticated validation is now used by validation/base_models.py
+    # and core/validation_old.py for consistent coordinate validation across the codebase.
+    # It handles format consistency and meridian crossing properly.
+
+    This function enforces that longitude coordinates use consistent formats and handles
+    meridian crossing correctly. It supports both -180/180 and 0/360 longitude formats
+    but prevents mixing of formats which can cause confusion.
+
+    Parameters
+    ----------
+    lat_bounds : list[float]
+        Latitude bounds [min_lat, max_lat]
+    lon_bounds : list[float]
+        Longitude bounds [min_lon, max_lon]
+
+    Returns
+    -------
+    tuple[float, float, float, float]
+        Normalized bounds (min_lon, min_lat, max_lon, max_lat) in bbox format
+
+    Raises
+    ------
+    ValueError
+        If coordinate bounds are invalid or use inconsistent longitude formats
+
+    Examples
+    --------
+    >>> _validate_coordinate_bounds([50.0, 60.0], [-10.0, 10.0])
+    (-10.0, 50.0, 10.0, 60.0)
+    >>> _validate_coordinate_bounds([50.0, 60.0], [350.0, 360.0])
+    (350.0, 50.0, 360.0, 60.0)
+    """
+    # Validate input format
+    if not isinstance(lat_bounds, list) or len(lat_bounds) != 2:
+        raise ValueError(
+            "lat_bounds must be a list of exactly 2 values [min_lat, max_lat]"
+        )
+
+    if not isinstance(lon_bounds, list) or len(lon_bounds) != 2:
+        raise ValueError(
+            "lon_bounds must be a list of exactly 2 values [min_lon, max_lon]"
+        )
+
+    # Validate coordinate ranges
+    min_lat, max_lat = lat_bounds
+    min_lon, max_lon = lon_bounds
+
+    # Validate latitude (always -90 to 90)
+    if not (-90 <= min_lat <= 90):
+        raise ValueError(
+            f"Invalid minimum latitude: {min_lat}. Must be between -90 and 90."
+        )
+
+    if not (-90 <= max_lat <= 90):
+        raise ValueError(
+            f"Invalid maximum latitude: {max_lat}. Must be between -90 and 90."
+        )
+
+    if min_lat >= max_lat:
+        raise ValueError(
+            f"Minimum latitude ({min_lat}) must be less than maximum latitude ({max_lat})"
+        )
+
+    # Validate longitude ranges first - check for completely out-of-range values
+    if not (-180 <= min_lon <= 360):
+        raise ValueError(
+            f"Invalid minimum longitude: {min_lon}. Must be between -180 and 360."
+        )
+
+    if not (-180 <= max_lon <= 360):
+        raise ValueError(
+            f"Invalid maximum longitude: {max_lon}. Must be between -180 and 360."
+        )
+
+    # Validate longitude format and ranges
+    # Support both -180/180 and 0/360 formats, but not mixed
+    if -180 <= min_lon <= 180 and -180 <= max_lon <= 180:
+        # -180/180 format - allows meridian crossing
+        if min_lon >= max_lon:
+            raise ValueError(
+                f"Minimum longitude ({min_lon}) must be less than maximum longitude ({max_lon})"
+            )
+    elif 0 <= min_lon <= 360 and 0 <= max_lon <= 360:
+        # 0/360 format - NO meridian crossing allowed
+        if min_lon >= max_lon:
+            raise ValueError(
+                f"Minimum longitude ({min_lon}) must be less than maximum longitude ({max_lon}). "
+                f"For meridian crossing, use -180/180 format instead."
+            )
+    else:
+        # Mixed format (e.g., -90 and 240)
+        raise ValueError(
+            "Longitude coordinates must use the same format:\n"
+            "  - Both in -180 to 180 format (e.g., --lon -90 -30)\n"
+            "  - Both in 0 to 360 format (e.g., --lon 270 330)\n"
+            "  - Cannot mix formats (e.g., --lon -90 240 is invalid)\n"
+            "  - Use -180/180 format for meridian crossing ranges"
+        )
+
+    # Return in bbox format (min_lon, min_lat, max_lon, max_lat)
+    return (min_lon, min_lat, max_lon, max_lat)
+
+
+def _validate_latitude(value: float) -> float:
+    """
+    Validate a single latitude coordinate.
+
+    Parameters
+    ----------
+    value : float
+        Latitude value in decimal degrees
+
+    Returns
+    -------
+    float
+        Validated latitude value
+
+    Raises
+    ------
+    ValueError
+        If latitude is outside the valid range of -90 to 90 degrees
+
+    Examples
+    --------
+    >>> _validate_latitude(45.0)
+    45.0
+    >>> _validate_latitude(-91.0)  # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ValueError: Latitude -91.0 must be between -90 and 90
+    """
+    if not (-90 <= value <= 90):
+        raise ValueError(f"Latitude {value} must be between -90 and 90")
+    return value
+
+
+def _validate_longitude(value: float) -> float:
+    """
+    Validate a single longitude coordinate.
+
+    Accepts both -180/180 and 0/360 longitude formats for individual coordinates.
+    For coordinate bounds validation with format consistency checking, use
+    _validate_coordinate_bounds() instead.
+
+    Parameters
+    ----------
+    value : float
+        Longitude value in decimal degrees
+
+    Returns
+    -------
+    float
+        Validated longitude value
+
+    Raises
+    ------
+    ValueError
+        If longitude is outside the valid range of -180 to 360 degrees
+
+    Examples
+    --------
+    >>> _validate_longitude(45.0)
+    45.0
+    >>> _validate_longitude(-180.0)
+    -180.0
+    >>> _validate_longitude(360.0)
+    360.0
+    >>> _validate_longitude(400.0)  # doctest: +IGNORE_EXCEPTION_DETAIL
+    Traceback (most recent call last):
+    ValueError: Longitude 400.0 must be between -180 and 360
+    """
+    # Individual point check: Must be valid in at least one system (-180..360 covers both)
+    if not (-180 <= value <= 360):
+        raise ValueError(f"Longitude {value} must be between -180 and 360")
+    return value

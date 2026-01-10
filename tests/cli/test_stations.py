@@ -109,7 +109,7 @@ class TestMainCommand:
     @patch("matplotlib.pyplot.show")
     @patch("cruiseplan.cli.stations.load_pangaea_campaign_data")
     @patch("cruiseplan.cli.stations.validate_input_file")
-    @patch("cruiseplan.cli.stations.validate_output_path")
+    @patch("cruiseplan.utils.io.validate_output_directory")
     def test_main_with_pangaea(
         self,
         mock_validate_output,
@@ -156,7 +156,7 @@ class TestMainCommand:
 
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.cli.stations.validate_output_path")
+    @patch("cruiseplan.utils.io.validate_output_directory")
     def test_main_without_pangaea(
         self, mock_validate_output, mock_show, mock_picker_class
     ):
@@ -254,8 +254,12 @@ class TestMainCommand:
             bathy_source="etopo2022",
         )
 
-        with patch("cruiseplan.cli.stations.validate_output_path") as mock_validate:
-            mock_validate.side_effect = KeyboardInterrupt()
+        with patch(
+            "cruiseplan.interactive.station_picker.StationPicker"
+        ) as mock_picker_class:
+            mock_picker = MagicMock()
+            mock_picker_class.return_value = mock_picker
+            mock_picker.show.side_effect = KeyboardInterrupt()
 
             with pytest.raises(SystemExit):
                 main(args)
@@ -298,7 +302,7 @@ class TestLegacyParameterSupport:
 
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.cli.stations.validate_output_path")
+    @patch("cruiseplan.utils.io.validate_output_directory")
     @patch("cruiseplan.cli.cli_utils.logger")
     def test_no_warnings_when_no_deprecated_params_configured(
         self, mock_logger, mock_validate_output, mock_show, mock_picker_class

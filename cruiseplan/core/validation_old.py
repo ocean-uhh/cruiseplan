@@ -13,13 +13,17 @@ from typing import Any, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from cruiseplan.utils.constants import (
+from cruiseplan.utils.coordinates import (
+    _validate_latitude,
+    _validate_longitude,
+    format_ddm_comment,
+)
+from cruiseplan.utils.defaults import (
     DEFAULT_MOORING_DURATION_MIN,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
 )
-from cruiseplan.utils.coordinates import format_ddm_comment
 from cruiseplan.utils.global_ports import resolve_port_reference
 
 logger = logging.getLogger(__name__)
@@ -155,52 +159,13 @@ class GeoPoint(BaseModel):
 
     @field_validator("latitude")
     def validate_lat(cls, v):
-        """
-        Validate latitude is within valid range.
-
-        Parameters
-        ----------
-        v : float
-            Latitude value to validate.
-
-        Returns
-        -------
-        float
-            Validated latitude value.
-
-        Raises
-        ------
-        ValueError
-            If latitude is outside -90 to 90 degrees.
-        """
-        if not (-90 <= v <= 90):
-            raise ValueError(f"Latitude {v} must be between -90 and 90")
-        return v
+        """Validate latitude using centralized coordinate utilities."""
+        return _validate_latitude(v)
 
     @field_validator("longitude")
     def validate_lon(cls, v):
-        """
-        Validate longitude is within valid range.
-
-        Parameters
-        ----------
-        v : float
-            Longitude value to validate.
-
-        Returns
-        -------
-        float
-            Validated longitude value.
-
-        Raises
-        ------
-        ValueError
-            If longitude is outside -180 to 360 degrees.
-        """
-        # Individual point check: Must be valid in at least one system (-180..360 covers both)
-        if not (-180 <= v <= 360):
-            raise ValueError(f"Longitude {v} must be between -180 and 360")
-        return v
+        """Validate longitude using centralized coordinate utilities."""
+        return _validate_longitude(v)
 
 
 class FlexibleLocationModel(BaseModel):
@@ -2429,7 +2394,6 @@ def enrich_configuration(
         - stations_from_expansion: Number of stations generated from expansion
         - total_stations_processed: Total stations processed
     """
-    from cruiseplan.cli.cli_utils import save_yaml_config
     from cruiseplan.core.cruise import Cruise
     from cruiseplan.data.bathymetry import BathymetryManager
     from cruiseplan.utils.yaml_io import load_yaml, save_yaml
@@ -2815,7 +2779,7 @@ def enrich_configuration(
 
     # Save enriched configuration if output path is specified (always save for testing purposes)
     if output_path:
-        save_yaml_config(config_dict, output_path, backup=False)
+        save_yaml(config_dict, output_path, backup=False)
 
     return enrichment_summary
 

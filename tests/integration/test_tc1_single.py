@@ -18,7 +18,7 @@ from cruiseplan.output.csv_generator import generate_csv_schedule
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.map_generator import generate_map
 from cruiseplan.utils.config import ConfigLoader
-from cruiseplan.utils.constants import (
+from cruiseplan.utils.defaults import (
     DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
     DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
     DEFAULT_START_DATE,
@@ -260,7 +260,7 @@ class TestTC1SingleIntegration:
 
     def test_mooring_duration_defaults(self, temp_dir):
         """Test that mooring operations without duration get default 999-hour duration."""
-        from cruiseplan.utils.constants import DEFAULT_MOORING_DURATION_MIN
+        from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
 
         # Create test fixture path
         mooring_fixture = Path(__file__).parent.parent / "fixtures" / "tc1_mooring.yaml"

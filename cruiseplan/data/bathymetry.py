@@ -15,7 +15,7 @@ import numpy as np
 import requests
 from tqdm import tqdm
 
-from cruiseplan.utils.constants import FALLBACK_DEPTH
+from cruiseplan.utils.defaults import DEFAULT_DEPTH
 
 logger = logging.getLogger(__name__)
 
@@ -192,7 +192,7 @@ class BathymetryManager:
             return self._interpolate_depth(lat, lon)
         except Exception:
             logger.exception(f"Error interpolating depth at {lat}, {lon}")
-            return FALLBACK_DEPTH
+            return DEFAULT_DEPTH
 
     def get_grid_subset(self, lat_min, lat_max, lon_min, lon_max, stride=1):
         """
@@ -275,9 +275,9 @@ class BathymetryManager:
         """
         # 1. Bounds Check
         if lat < self._lats[0] or lat > self._lats[-1]:
-            return FALLBACK_DEPTH
+            return DEFAULT_DEPTH
         if lon < self._lons[0] or lon > self._lons[-1]:
-            return FALLBACK_DEPTH
+            return DEFAULT_DEPTH
 
         # 2. Find 2x2 Grid Indices
         # np.searchsorted gives the index *after* the point, so the grid is defined by [idx-1, idx]
@@ -297,7 +297,7 @@ class BathymetryManager:
             or x0_idx < 0
             or y0_idx < 0
         ):
-            return FALLBACK_DEPTH
+            return DEFAULT_DEPTH
 
         # 3. Extract 2x2 Grid (Lazy Load from Disk)
         # Note: z(lat, lon) -> z(y, x)
@@ -681,6 +681,63 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
     print(f"URL: {ETOPO_URLS[0]}")
     print(f"Save to: {local_path}")
     print("=" * 60 + "\n")
+
+
+def check_bathymetry_availability(source: str) -> bool:
+    """
+    Check if bathymetry files are available for the specified source.
+
+    Parameters
+    ----------
+    source : str
+        Bathymetry source ("etopo2022" or "gebco2025")
+
+    Returns
+    -------
+    bool
+        True if bathymetry files are available and valid, False otherwise
+    """
+    try:
+        # Create a temporary manager to check availability
+        manager = BathymetryManager(source=source)
+        return not manager._is_mock
+    except Exception:
+        return False
+
+
+def determine_bathymetry_source(requested_source: str) -> str:
+    """
+    Determine the optimal bathymetry source with automatic fallback.
+
+    If the requested source is not available but an alternative is,
+    automatically switch to the available source.
+
+    Parameters
+    ----------
+    requested_source : str
+        The user's requested bathymetry source
+
+    Returns
+    -------
+    str
+        The optimal available bathymetry source
+    """
+    # Check if requested source is available
+    if check_bathymetry_availability(requested_source):
+        return requested_source
+
+    # Try alternative source
+    alternative = "gebco2025" if requested_source == "etopo2022" else "etopo2022"
+
+    if check_bathymetry_availability(alternative):
+        logger.info(
+            f"📁 Requested {requested_source} not available, "
+            f"automatically switching to {alternative}"
+        )
+        return alternative
+
+    # Neither available - return requested (will trigger mock mode with appropriate warning)
+    return requested_source
 
 
 # Lazy singleton instance - only created when first accessed

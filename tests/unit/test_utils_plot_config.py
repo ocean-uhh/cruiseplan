@@ -7,11 +7,9 @@ import pytest
 
 from cruiseplan.utils.plot_config import (
     create_bathymetry_colormap,
-    create_bathymetry_colormap_v2,
     get_colormap,
     get_legend_entries,
     get_plot_style,
-    load_cpt_colormap,
 )
 
 
@@ -23,12 +21,12 @@ class TestBathymetryColormaps:
         cmap = create_bathymetry_colormap()
 
         assert isinstance(cmap, mcolors.LinearSegmentedColormap)
-        assert cmap.name == "bathymetry_flemish_cap"
+        assert cmap.name == "bathymetry_custom"
         assert cmap.N == 256  # Default number of colors
 
-    def test_create_bathymetry_colormap_v2_basic(self):
-        """Test that create_bathymetry_colormap_v2 returns a valid colormap."""
-        cmap = create_bathymetry_colormap_v2()
+    def test_create_bathymetry_colormap_improved(self):
+        """Test that create_bathymetry_colormap returns a valid colormap with improved features."""
+        cmap = create_bathymetry_colormap()
 
         assert isinstance(cmap, mcolors.LinearSegmentedColormap)
         # Don't assert exact name as it might be different
@@ -49,7 +47,7 @@ class TestBathymetryColormaps:
 
     def test_colormap_continuous_range(self):
         """Test that colormaps work across the full range."""
-        for cmap_func in [create_bathymetry_colormap, create_bathymetry_colormap_v2]:
+        for cmap_func in [create_bathymetry_colormap]:
             cmap = cmap_func()
 
             # Test at several points across range
@@ -159,8 +157,8 @@ class TestPlotConfigIntegration:
         """Test that colormaps work with actual matplotlib figures."""
         fig, ax = plt.subplots(figsize=(6, 4))
 
-        # Test both colormap functions
-        for cmap_func in [create_bathymetry_colormap, create_bathymetry_colormap_v2]:
+        # Test the colormap function
+        for cmap_func in [create_bathymetry_colormap]:
             cmap = cmap_func()
 
             # Create a simple depth grid
@@ -209,13 +207,3 @@ class TestPlotConfigIntegration:
         finally:
             plt.close(fig)
 
-    def test_load_cpt_colormap_basic(self):
-        """Test that load_cpt_colormap function exists and handles errors."""
-        # Test with a non-existent file to check error handling
-        try:
-            result = load_cpt_colormap("nonexistent_file.cpt")
-            # Function might return None or a default colormap instead of raising
-            assert result is None or isinstance(result, mcolors.Colormap)
-        except (FileNotFoundError, OSError, ValueError):
-            # Expected behavior for non-existent file
-            pass
