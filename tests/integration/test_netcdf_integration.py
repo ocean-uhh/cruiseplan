@@ -10,8 +10,8 @@ import netCDF4 as nc
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.validation_old import enrich_configuration
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
+from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.utils.config import ConfigLoader
 
 # Available test fixtures

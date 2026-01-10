@@ -101,12 +101,16 @@ that have large uncovered line ranges.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.core.validation_old import (
+from cruiseplan.processing.validate import (
     _check_cruise_metadata_raw,
     _clean_warning_message,
     _format_validation_warnings,
     _warning_relates_to_entity,
     validate_depth_accuracy,
+)
+from cruiseplan.utils.defaults import (
+    DEFAULT_PORT_PLACEHOLDER_DEPARTURE,
+    DEFAULT_START_DATE,
 )
 
 
@@ -139,7 +143,7 @@ class TestCruiseMetadataValidation:
     def test_check_cruise_metadata_raw_default_values(self):
         """Test detection of default values in metadata."""
         raw_config = {
-            "start_date": "1970-01-01T00:00:00Z",
+            "start_date": DEFAULT_START_DATE,
             "vessel_name": "RV Default",
             "cruise_name": "Test Cruise 2024",
         }
@@ -174,7 +178,7 @@ class TestCruiseMetadataValidation:
 
     def test_check_cruise_metadata_raw_partial_config(self):
         """Test with partial configuration."""
-        raw_config = {"departure_port": {"name": "UPDATE-departure-port-name"}}
+        raw_config = {"departure_port": {"name": DEFAULT_PORT_PLACEHOLDER_DEPARTURE}}
 
         warnings = _check_cruise_metadata_raw(raw_config)
 

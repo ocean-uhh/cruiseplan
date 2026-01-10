@@ -631,7 +631,7 @@ def enrich(
 
         # Perform the actual enrichment
         try:
-            from cruiseplan.core.validation_old import enrich_configuration
+            from cruiseplan.processing.enrich import enrich_configuration
 
             enrich_configuration(
                 config_path,
@@ -739,9 +739,8 @@ def validate(
 
     Returns
     -------
-    bool
-        True if validation passed (no errors), False if errors found.
-        When warnings_only=True, warnings don't affect the result.
+    ValidationResult
+        Structured validation result with success status, errors, warnings, and summary.
 
     Examples
     --------
@@ -753,7 +752,7 @@ def validate(
     >>> if is_valid:
     ...     print(" Configuration is valid")
     """
-    from cruiseplan.core.validation_old import validate_configuration_file
+    from cruiseplan.processing.validate import validate_configuration
 
     if verbose:
         logging.basicConfig(level=logging.DEBUG)
@@ -768,7 +767,7 @@ def validate(
     logger.info(f" Validating {config_path}")
 
     try:
-        success, errors, warnings = validate_configuration_file(
+        success, errors, warnings = validate_configuration(
             config_path=config_path,
             check_depths=check_depths,
             tolerance=tolerance,
@@ -777,7 +776,27 @@ def validate(
             strict=strict,
         )
 
-        # Report results (similar to CLI)
+        # Create summary information
+        summary = {
+            "config_file": str(config_path),
+            "error_count": len(errors),
+            "warning_count": len(warnings),
+            "depth_checking_enabled": check_depths,
+            "strict_mode": strict,
+        }
+
+        # Try to add cruise name to summary if available
+        try:
+            from cruiseplan.utils.yaml_io import load_yaml_safe
+
+            config_dict = load_yaml_safe(config_path)
+            if "cruise_name" in config_dict:
+                summary["cruise_name"] = config_dict["cruise_name"]
+        except Exception:
+            # Best-effort enrichment: failure to read cruise_name should not break validation
+            pass
+
+        # Report results (UI layer responsibility)
         if errors:
             logger.error("❌ Validation Errors:")
             for error in errors:
@@ -788,14 +807,33 @@ def validate(
             for warning in warnings:
                 logger.warning(f"  • {warning}")
 
-        if success:
+        # Handle warnings_only mode
+        final_success = success if not warnings_only else (success or len(errors) == 0)
+
+        if final_success:
             logger.info("✅ Validation passed")
+        else:
+            logger.error("❌ Validation failed")
 
-        return success
+        return ValidationResult(
+            success=final_success,
+            errors=errors,
+            warnings=warnings,
+            summary=summary,
+        )
 
-    except Exception:
-        logger.exception("L Validation failed")
-        return False
+    except Exception as e:
+        logger.exception("💥 Validation failed")
+        return ValidationResult(
+            success=False,
+            errors=[f"Validation failed: {e}"],
+            warnings=[],
+            summary={
+                "config_file": str(config_path),
+                "error_count": 1,
+                "warning_count": 0,
+            },
+        )
 
 
 def schedule(
