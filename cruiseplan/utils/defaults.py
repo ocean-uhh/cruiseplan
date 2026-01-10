@@ -8,17 +8,15 @@ for configuration parameters and standard conversion utilities.
 Notes
 -----
 All constants are defined at the module level for easy importing and use.
-Unit conversion functions are provided for common time conversions.
+Default values and sentinel constants for cruise planning operations.
 """
-
-# cruiseplan/utils/constants.py
 from datetime import datetime, timezone
 
 # --- Depth/Bathymetry Constants ---
 
 # Sentinel value indicating that depth data is missing, the station is outside
 # the bathymetry grid boundaries, or a calculation failed.
-# This value is defined in the specs as the fallback depth if ETOPO data is not found.
+# This value is defined in the specs as the default depth if ETOPO data is not found.
 DEFAULT_DEPTH = -9999.0
 
 # --- Default Cruise Parameters ---
