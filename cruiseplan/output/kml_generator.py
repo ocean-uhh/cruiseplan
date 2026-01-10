@@ -498,18 +498,18 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
         <!-- Transits -->"""
 
-    # Add transits from configuration
-    if hasattr(config, "transits") and config.transits:
-        for transit in config.transits:
+    # Add transects from configuration
+    if hasattr(config, "transects") and config.transects:
+        for transect in config.transects:
             # Extract start and end coordinates from route waypoints
-            if transit.route and len(transit.route) >= 2:
-                start_lat = transit.route[0].latitude
-                start_lon = transit.route[0].longitude
-                end_lat = transit.route[-1].latitude
-                end_lon = transit.route[-1].longitude
+            if transect.route and len(transect.route) >= 2:
+                start_lat = transect.route[0].latitude
+                start_lon = transect.route[0].longitude
+                end_lat = transect.route[-1].latitude
+                end_lon = transect.route[-1].longitude
 
                 # Calculate route distance if available
-                route_distance = getattr(transit, "distance", None)
+                route_distance = getattr(transect, "distance", None)
                 if route_distance is None or route_distance == "calculated":
                     # Calculate distance if not provided
                     import math
@@ -525,21 +525,14 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                     route_distance = 3440.065 * c  # Earth radius in nautical miles
                     route_distance = f"{route_distance:.1f}"
 
-                # Determine operation type - check if this is an ADCP survey
-                operation_type = "Transit"
-                if hasattr(transit, "operation_type"):
-                    op_type = transit.operation_type
-                    if hasattr(op_type, "value"):
-                        op_type = op_type.value
-                    if (
-                        "survey" in str(op_type).lower()
-                        or "adcp" in transit.name.lower()
-                    ):
-                        operation_type = "Transect"
+                # Get the actual operation type from the config
+                operation_type = getattr(transect, "operation_type", "transect")
+                if hasattr(operation_type, "value"):
+                    operation_type = operation_type.value
 
                 kml_content += f"""
         <Placemark>
-            <name>{transit.name}</name>
+            <name>{transect.name}</name>
             <description>
                 Type: {operation_type}
                 Start: {start_lat:.6f}°N, {start_lon:.6f}°W

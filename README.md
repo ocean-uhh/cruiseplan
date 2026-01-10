@@ -34,6 +34,8 @@ CruisePlan transforms complex cruise planning from a weeks-long manual process i
 
 **⚠️ Breaking Changes in v0.3.0:** Commands `cruiseplan download` and `cruiseplan pandoi` have been removed. Parameter names shortened (`--bathymetry-*` → `--bathy-*`). See [MIGRATION_v0.3.0.md](MIGRATION_v0.3.0.md) for migration guide and [CHANGELOG.md](CHANGELOG.md) for complete changes.
 
+**⚠️ Breaking Changes in v0.3.3:** YAML configuration now uses `transects:` instead of `transits:` for scientific line operations.
+
 **Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 
 📘 Full documentation available at:  
@@ -67,14 +69,21 @@ cruiseplan/
 │   └── Makefile                # for building HTML docs
 ├── notebooks/                  # Example notebooks and demos
 ├── cruiseplan/                 # Main Python package
+│   ├── calculators/            # Distance, duration, routing calculators
 │   ├── cli/                    # Command-line interface modules
 │   ├── core/                   # Core cruise planning logic
-│   ├── calculators/            # Distance, duration, routing calculators
 │   ├── data/                   # Bathymetry and PANGAEA data handling
 │   ├── interactive/            # Interactive station picking tools
 │   ├── output/                 # Multi-format output generators
-│   └── utils/                  # Utilities and coordinate handling
+│   ├── processing/             # Configuration processing and enrichment
+│   ├── utils/                  # Utilities and coordinate handling
+│   └── validation/             # Schema validation and configuration models
 ├── tests/                      # Comprehensive pytest test suite
+│   ├── cli/                    # CLI command tests
+│   ├── core/                   # Core logic tests
+│   ├── fixtures/               # Test data and configurations
+│   ├── integration/            # Integration and workflow tests
+│   └── unit/                   # Unit tests by module
 ├── data/                       # Bathymetry datasets
 ├── .gitignore
 ├── .pre-commit-config.yaml
@@ -85,8 +94,7 @@ cruiseplan/
 ├── pyproject.toml              # Modern packaging config
 ├── requirements.txt            # Core package dependencies
 ├── requirements-dev.txt        # Development and testing tools
-├── environment.yml             # Conda environment specification
-└── PROJECT_SPECS.md            # Development roadmap and specifications
+└── environment.yml             # Conda environment specification
 ```
 
 ---

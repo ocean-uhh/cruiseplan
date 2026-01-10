@@ -85,17 +85,17 @@ class TestSchedulerDebug:
                     else:
                         print(f"     {i+1}. {mooring.name} - NO POSITION!")
 
-            print(f"\n   Transits: {len(config.transits or [])}")
-            if config.transits:
-                for i, transit in enumerate(config.transits):
-                    vessel_speed = getattr(transit, "vessel_speed", None)
+            print(f"\n   Transects: {len(config.transects or [])}")
+            if config.transects:
+                for i, transect in enumerate(config.transects):
+                    vessel_speed = getattr(transect, "vessel_speed", None)
                     speed_str = (
                         f" at {vessel_speed} knots"
                         if vessel_speed
                         else " (default speed)"
                     )
-                    print(f"     {i+1}. {transit.name}{speed_str}")
-                    for j, point in enumerate(transit.route):
+                    print(f"     {i+1}. {transect.name}{speed_str}")
+                    for j, point in enumerate(transect.route):
                         print(f"        {j+1}. {point.latitude}, {point.longitude}")
 
             print(f"\n   Legs: {len(config.legs or [])}")

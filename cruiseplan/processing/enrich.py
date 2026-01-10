@@ -517,13 +517,13 @@ def expand_ctd_sections(
         config = copy.copy(config)
 
     ctd_sections = []
-    if "transits" in config:
-        for transit in config["transits"]:
+    if "transects" in config:
+        for transect in config["transects"]:
             if (
-                transit.get("operation_type") == "CTD"
-                and transit.get("action") == "section"
+                transect.get("operation_type") == "CTD"
+                and transect.get("action") == "section"
             ):
-                ctd_sections.append(transit)
+                ctd_sections.append(transect)
 
     expanded_stations = {}
     total_stations_created = 0
@@ -574,14 +574,14 @@ def expand_ctd_sections(
 
             expanded_stations[section_name] = station_names
 
-    if "transits" in config and ctd_sections:
-        config["transits"] = [
+    if "transects" in config and ctd_sections:
+        config["transects"] = [
             t
-            for t in config["transits"]
+            for t in config["transects"]
             if not (t.get("operation_type") == "CTD" and t.get("action") == "section")
         ]
-        if not config["transits"]:
-            del config["transits"]
+        if not config["transects"]:
+            del config["transects"]
 
     for leg in config.get("legs", []):
         if leg.get("first_waypoint") and leg["first_waypoint"] in expanded_stations:
@@ -1028,14 +1028,14 @@ def _enrich_transit_coordinates(config_dict: dict[str, Any], add_coords: bool) -
 
     coord_changes_made = 0
 
-    # Process coordinate additions for transit routes
-    if add_coords and "transits" in config_dict:
-        for transit_data in config_dict["transits"]:
-            if transit_data.get("route"):
+    # Process coordinate additions for transect routes
+    if add_coords and "transects" in config_dict:
+        for transect_data in config_dict["transects"]:
+            if transect_data.get("route"):
                 # Add route_ddm field with list of position_ddm entries
-                if "route_ddm" not in transit_data:
+                if "route_ddm" not in transect_data:
                     route_ddm_list = []
-                    for point in transit_data["route"]:
+                    for point in transect_data["route"]:
                         if "latitude" in point and "longitude" in point:
                             ddm_comment = format_ddm_comment(
                                 point["latitude"], point["longitude"]
@@ -1044,9 +1044,9 @@ def _enrich_transit_coordinates(config_dict: dict[str, Any], add_coords: bool) -
                             coord_changes_made += 1
 
                     if route_ddm_list:
-                        transit_data["route_ddm"] = route_ddm_list
+                        transect_data["route_ddm"] = route_ddm_list
                         logger.debug(
-                            f"Added ddm coordinates to transit {transit_data.get('name', 'unnamed')} route: {len(route_ddm_list)} points"
+                            f"Added ddm coordinates to transect {transect_data.get('name', 'unnamed')} route: {len(route_ddm_list)} points"
                         )
 
     return coord_changes_made

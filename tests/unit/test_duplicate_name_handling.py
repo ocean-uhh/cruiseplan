@@ -28,7 +28,7 @@ class TestDuplicateNameCollisionResolution:
                     "action": "profile",
                 }
             ],
-            "transits": [
+            "transects": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",
@@ -72,7 +72,7 @@ class TestDuplicateNameCollisionResolution:
                 },  # Existing collision resolution
                 {"name": "Route_A_Stn002", "operation_type": "CTD"},
             ],
-            "transits": [
+            "transects": [
                 {
                     "name": "Route A",
                     "operation_type": "CTD",
@@ -121,7 +121,7 @@ class TestDuplicateNameCollisionResolution:
                 {"name": "Busy_Section_Stn001", "operation_type": "CTD"}  # Original
             ]
             + existing_stations,
-            "transits": [
+            "transects": [
                 {
                     "name": "Busy Section",
                     "operation_type": "CTD",
@@ -156,7 +156,7 @@ class TestDuplicateNameCollisionResolution:
                     "operation_type": "CTD",
                 }  # Existing sanitized name
             ],
-            "transits": [
+            "transects": [
                 {
                     "name": "Test-Route!",  # Special chars will be sanitized to "Test_Route"
                     "operation_type": "CTD",
@@ -190,7 +190,7 @@ class TestNameSanitization:
     def test_special_character_replacement(self):
         """Test that special characters are properly replaced."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Test-Section #1 (North->South) @50°N",
                     "operation_type": "CTD",
@@ -221,7 +221,7 @@ class TestNameSanitization:
     def test_unicode_and_special_cases(self):
         """Test handling of unicode and edge case characters."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Ålesund→Bergen_Øresund",  # Unicode characters
                     "operation_type": "CTD",
@@ -248,7 +248,7 @@ class TestNameSanitization:
     def test_empty_name_after_sanitization(self):
         """Test handling when name becomes empty after sanitization."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "!@#$%^&*()",  # Only special characters
                     "operation_type": "CTD",
@@ -416,7 +416,7 @@ class TestSphericalInterpolation:
     def test_great_circle_interpolation_accuracy(self):
         """Test that spherical interpolation follows great circle path."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Great_Circle_Test",
                     "operation_type": "CTD",
@@ -448,7 +448,7 @@ class TestSphericalInterpolation:
     def test_short_distance_interpolation(self):
         """Test interpolation for very short distances."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Short_Distance_Test",
                     "operation_type": "CTD",
@@ -482,7 +482,7 @@ class TestSphericalInterpolation:
     def test_polar_region_interpolation(self):
         """Test interpolation near polar regions where spherical effects are more pronounced."""
         config = {
-            "transits": [
+            "transects": [
                 {
                     "name": "Arctic_Section",
                     "operation_type": "CTD",

@@ -154,27 +154,31 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     """
     lines = []
 
-    # Extract scientific transits with routes from config
+    # Extract scientific transects with routes from config
     if (
         hasattr(cruise, "config")
-        and hasattr(cruise.config, "transits")
-        and cruise.config.transits
+        and hasattr(cruise.config, "transects")
+        and cruise.config.transects
     ):
-        for transit in cruise.config.transits:
-            if hasattr(transit, "route") and transit.route and len(transit.route) >= 2:
+        for transect in cruise.config.transects:
+            if (
+                hasattr(transect, "route")
+                and transect.route
+                and len(transect.route) >= 2
+            ):
                 waypoints = [
                     {"lat": waypoint.latitude, "lon": waypoint.longitude}
-                    for waypoint in transit.route
+                    for waypoint in transect.route
                 ]
 
                 lines.append(
                     {
-                        "name": transit.name,
+                        "name": transect.name,
                         "waypoints": waypoints,
-                        "entity_type": "transit",
-                        "operation_type": getattr(transit, "operation_type", "transit"),
-                        "action": getattr(transit, "action", None),
-                        "vessel_speed": getattr(transit, "vessel_speed", None),
+                        "entity_type": "transect",
+                        "operation_type": getattr(transect, "operation_type", None),
+                        "action": getattr(transect, "action", None),
+                        "vessel_speed": getattr(transect, "vessel_speed", None),
                     }
                 )
 

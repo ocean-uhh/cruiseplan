@@ -144,11 +144,6 @@ class CruiseConfig(BaseModel):
         description="List of cruise legs for schedule organization",
     )
 
-    # Legacy fields (backward compatibility)
-    transits: Optional[list[TransectDefinition]] = Field(
-        default_factory=list, description="LEGACY: Use 'transects' instead"
-    )
-
     model_config = ConfigDict(extra="allow")
 
     @model_validator(mode="after")

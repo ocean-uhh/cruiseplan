@@ -291,7 +291,7 @@ Common Configuration Patterns
 
 .. code-block:: yaml
 
-   transits:
+   transects:
      - name: "Survey_Line_1"
        operation_type: "underway"
        action: "ADCP"

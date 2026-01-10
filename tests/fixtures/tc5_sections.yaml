@@ -2,7 +2,7 @@ cruise_name: "TC5_Sections_Test"
 
 
 
-transits:
+transects:
   - name: SEC_001
     route:
       - latitude: 45.0

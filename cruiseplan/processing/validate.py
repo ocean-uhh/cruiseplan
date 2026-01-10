@@ -443,15 +443,14 @@ def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]
     """
     warnings = []
 
-    # TODO: update to use sections instead of transits
-    if "transits" in config_dict:
-        for transit in config_dict["transits"]:
+    if "transects" in config_dict:
+        for transect in config_dict["transects"]:
             if (
-                transit.get("operation_type") == "CTD"
-                and transit.get("action") == "section"
+                transect.get("operation_type") == "CTD"
+                and transect.get("action") == "section"
             ):
                 warnings.append(
-                    f"CTD section '{transit.get('name', 'unnamed')}' should be expanded "
+                    f"CTD section '{transect.get('name', 'unnamed')}' should be expanded "
                     f"using 'cruiseplan enrich --expand-sections' before scheduling"
                 )
 

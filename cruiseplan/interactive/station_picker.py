@@ -890,9 +890,9 @@ class StationPicker:
             "calculate_transfer_between_sections": True,
             "calculate_depth_via_bathymetry": True,
             "start_date": "1970-01-01T00:00:00Z",
-            # Global catalog sections (stations, transits, areas) come BEFORE legs
+            # Global catalog sections (stations, transects, areas) come BEFORE legs
             "stations": yaml_stations,
-            "transits": yaml_sections,  # Schema expects 'transits' not 'sections'
+            "transects": yaml_sections,  # Schema expects 'transects' not 'sections'
             "areas": yaml_areas,
             # Scheduling/sequencing logic comes after catalog
             # IMPORTANT: No global departure_port, arrival_port, first_station, last_station
@@ -949,7 +949,7 @@ class StationPicker:
 
             save_cruise_config(output_data, self.output_file)
             print(
-                f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} transits, {len(yaml_areas)} areas."
+                f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} transects, {len(yaml_areas)} areas."
             )
         except Exception as e:
             print(f"❌ Save Error: {e}")

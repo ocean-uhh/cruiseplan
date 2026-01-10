@@ -216,7 +216,7 @@ class TestPointOperation:
 
 
 class TestLineOperation:
-    """Test LineOperation class for transits."""
+    """Test LineOperation class for transects."""
 
     def test_line_operation_initialization(self):
         """Test basic LineOperation initialization."""

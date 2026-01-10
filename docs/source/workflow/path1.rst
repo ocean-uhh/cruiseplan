@@ -360,7 +360,7 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
 .. code-block:: yaml
 
    # Before expansion:
-   transits:
+   transects:
      - name: "OVIDE_Section" 
        operation_type: "ctd_section"
        spacing_km: 50.0

@@ -87,11 +87,11 @@ Example CruisePlan YAML Configuration
         water_depth: 3499.6
     # [OPTIONAL] Transit catalog - Line operations and scientific transects
     # For transit legs between stations, these are auto-generated
-    # Define custom transits for:
+    # Define custom transects for:
     #   - Underway scientific operations (ADCP, multibeam)
     #   - Specific route requirements
     #   - Non-standard vessel speeds
-    transits: []
+    transects: []
     # [OPTIONAL] Area survey catalog - Survey boxes and polygons
     # Define survey areas for:
     #   - Multibeam bathymetry surveys

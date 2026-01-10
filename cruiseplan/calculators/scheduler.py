@@ -178,7 +178,7 @@ class OperationFactory:
             ("moorings", "point"),
             ("ports", "point"),
             ("waypoints", "point"),
-            ("transits", "line"),
+            ("transects", "line"),
             ("sections", "line"),
             ("areas", "area"),
         ]
