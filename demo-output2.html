@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev5</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=a368237d"></script>
+      <script src="_static/documentation_options.js?v=0710a764"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [00:56, 8.74MB/s]
+Downloading ETOPO: 469MB [01:05, 7.53MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -581,7 +581,9 @@ port_fremantle: Port: Fremantle
 port_wellington: Port: Wellington
 port_auckland: Port: Auckland
 port_papeete: Port: Papeete
-port_update: Port: Reykjavik (DEFAULT in stations.yaml)
+port_update: Port: Hamburg (DEFAULT UPDATE PLACEHOLDER)
+port_update_departure: Port: Hamburg (DEPARTURE PLACEHOLDER)
+port_update_arrival: Port: Hamburg (ARRIVAL PLACEHOLDER)
 port_reykjavik: Reykjavik
 port_tromso: Tromsø
 port_trondheim: Trondheim
@@ -592,7 +594,9 @@ port_hamburg: Hamburg
 port_emden: Emden
 port_rostock: Rostock
 port_kiel: Kiel
-port_update: Reykjavik (DEFAULT in stations.yaml)
+port_update: Hamburg (DEFAULT UPDATE PLACEHOLDER)
+port_update_departure: Hamburg (DEPARTURE PLACEHOLDER)
+port_update_arrival: Hamburg (ARRIVAL PLACEHOLDER)
 </pre></div></div>
 </div>
 </section>
@@ -604,7 +608,10 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[6]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔧 Processing configuration (enrich + validate + map)...&quot;</span><span class="p">)</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Verify the function is available</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Type of cruiseplan.process:&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Is callable:&quot;</span><span class="p">,</span> <span class="nb">callable</span><span class="p">(</span><span class="n">cruiseplan</span><span class="o">.</span><span class="n">process</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔧 Processing configuration (enrich + validate + map)...&quot;</span><span class="p">)</span>
 <span class="n">config_file</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="s2">&quot;demo_cruise.yaml&quot;</span>
 
 <span class="k">try</span><span class="p">:</span>
@@ -649,7 +656,7 @@ port_update: Reykjavik (DEFAULT in stations.yaml)
 INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
 WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km
-INFO: Saved configuration to: /tmp/tmpggsiks54.yaml
+INFO: Saved configuration to: /tmp/tmp5xne33su.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 </pre></div></div>
 </div>
@@ -658,6 +665,8 @@ INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/ba
 </div>
 <div class="output_area docutils container">
 <div class="highlight"><pre>
+Type of cruiseplan.process: &lt;class &#39;function&#39;&gt;
+Is callable: True
 🔧 Processing configuration (enrich + validate + map)...
 </pre></div></div>
 </div>
