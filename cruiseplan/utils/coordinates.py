@@ -10,7 +10,7 @@ Notes
 -----
 All coordinate functions expect input in decimal degrees and handle both
 northern/eastern (positive) and southern/western (negative) coordinates.
-The UnitConverter class provides static methods for coordinate conversions.
+The CoordConverter class provides static methods for coordinate conversions.
 """
 
 import math
@@ -110,7 +110,7 @@ class Position(NamedTuple):
         return cls(data[lat_key], data[lon_key])
 
 
-class UnitConverter:
+class CoordConverter:
     """
     Utility class for coordinate unit conversions.
 
@@ -135,7 +135,7 @@ class UnitConverter:
 
         Examples
         --------
-        >>> UnitConverter.decimal_degrees_to_ddm(65.7458)
+        >>> CoordConverter.decimal_degrees_to_ddm(65.7458)
         (65.0, 44.75)
         """
         degrees = int(abs(decimal_degrees))
@@ -171,8 +171,8 @@ def format_ddm_comment(lat: float, lon: float) -> str:
     "65 44.75'N, 024 28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
-    lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
+    lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
+    lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"
@@ -243,8 +243,8 @@ def format_position_latex(lat: float, lon: float) -> str:
     "65$^\\circ$44.75'N, 024$^\\circ$28.75'W"
     """
     # Convert to degrees and decimal minutes
-    lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
-    lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
+    lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
+    lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
 
     # Determine directions
     lat_dir = "N" if lat >= 0 else "S"

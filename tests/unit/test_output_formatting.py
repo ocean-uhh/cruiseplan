@@ -1,23 +1,24 @@
 """
 Tests for output formatting utility functions.
 
-This module tests the remaining formatting functions in cruiseplan.utils.output_formatting
-after cleanup to remove unused functionality.
+This module tests the remaining formatting functions after cleanup.
+- Time utilities moved to output.output_utils
+- Error formatters remain in utils.output_formatting as legacy functions
 """
 
 from datetime import datetime
 
+from cruiseplan.output.output_utils import round_time_to_minute
 from cruiseplan.utils.output_formatting import (
     _format_cli_error,  # Legacy alias
     _format_dependency_error,  # Legacy alias
     format_cli_error,
     format_dependency_error,
-    round_time_to_minute,
 )
 
 
 class TestTimeUtilities:
-    """Test time formatting utilities."""
+    """Test time formatting utilities in their new home."""
 
     def test_round_time_to_minute_basic(self):
         """Test basic time rounding functionality."""

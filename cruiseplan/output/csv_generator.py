@@ -9,10 +9,9 @@ import logging
 from pathlib import Path
 
 from cruiseplan.calculators.scheduler import ActivityRecord
-from cruiseplan.output.output_utils import get_activity_depth
+from cruiseplan.output.output_utils import get_activity_depth, round_time_to_minute
 from cruiseplan.utils.activity_utils import format_operation_action
-from cruiseplan.utils.coordinates import UnitConverter
-from cruiseplan.utils.output_formatting import round_time_to_minute
+from cruiseplan.utils.coordinates import CoordConverter
 from cruiseplan.validation import CruiseConfig
 
 logger = logging.getLogger(__name__)
@@ -149,10 +148,10 @@ class CSVGenerator:
                 # Use entry coordinates (with backward compatibility for legacy tests)
                 lat_decimal = activity.get("entry_lat")
                 lon_decimal = activity.get("entry_lon")
-                lat_deg_float, lat_min = UnitConverter.decimal_degrees_to_ddm(
+                lat_deg_float, lat_min = CoordConverter.decimal_degrees_to_ddm(
                     lat_decimal
                 )
-                lon_deg_float, lon_min = UnitConverter.decimal_degrees_to_ddm(
+                lon_deg_float, lon_min = CoordConverter.decimal_degrees_to_ddm(
                     lon_decimal
                 )
                 # Preserve sign for rounded degrees

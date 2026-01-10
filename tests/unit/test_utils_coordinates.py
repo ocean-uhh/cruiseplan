@@ -5,7 +5,7 @@ Tests for coordinate formatting utilities.
 import pytest
 
 from cruiseplan.utils.coordinates import (
-    UnitConverter,
+    CoordConverter,
     calculate_map_bounds,
     compute_final_limits,
     extract_coordinates_from_cruise,
@@ -17,30 +17,30 @@ from cruiseplan.utils.coordinates import (
 )
 
 
-class TestUnitConverter:
+class TestCoordConverter:
     """Test coordinate unit conversion utilities."""
 
     def test_decimal_degrees_to_ddm_positive(self):
         """Test conversion of positive decimal degrees to DMM."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(65.7458)
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(65.7458)
         assert degrees == 65.0
         assert minutes == pytest.approx(44.75, abs=0.01)
 
     def test_decimal_degrees_to_ddm_negative(self):
         """Test conversion of negative decimal degrees to DMM."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(-24.4792)
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(-24.4792)
         assert degrees == 24.0
         assert minutes == pytest.approx(28.75, abs=0.01)
 
     def test_decimal_degrees_to_ddm_zero(self):
         """Test conversion of zero degrees."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(0.0)
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(0.0)
         assert degrees == 0.0
         assert minutes == 0.0
 
     def test_decimal_degrees_to_ddm_exact_degrees(self):
         """Test conversion of exact degree values."""
-        degrees, minutes = UnitConverter.decimal_degrees_to_ddm(45.0)
+        degrees, minutes = CoordConverter.decimal_degrees_to_ddm(45.0)
         assert degrees == 45.0
         assert minutes == 0.0
 
@@ -147,9 +147,9 @@ class TestCoordinateFormatConsistency:
     )
     def test_coordinate_format_consistency(self, lat, lon):
         """Test that all formats produce consistent coordinate values."""
-        # Get DMM values from UnitConverter
-        lat_deg, lat_min = UnitConverter.decimal_degrees_to_ddm(lat)
-        lon_deg, lon_min = UnitConverter.decimal_degrees_to_ddm(lon)
+        # Get DMM values from CoordConverter
+        lat_deg, lat_min = CoordConverter.decimal_degrees_to_ddm(lat)
+        lon_deg, lon_min = CoordConverter.decimal_degrees_to_ddm(lon)
 
         # Test DMM comment format
         ddm_result = format_ddm_comment(lat, lon)

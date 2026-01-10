@@ -6,6 +6,8 @@ format generators (CSV, HTML, LaTeX, etc.) to ensure consistency and reduce
 code duplication.
 """
 
+from datetime import datetime
+
 
 def get_activity_depth(activity: dict) -> float:
     """
@@ -90,3 +92,29 @@ def format_activity_type(activity: dict) -> str:
     else:
         # Just use op_type for things like "Transit" without action
         return formatted_op_type
+
+
+def round_time_to_minute(dt: datetime) -> datetime:
+    """
+    Round datetime to nearest minute for clean output timestamps.
+
+    Utility function for standardizing time formatting by removing
+    seconds and microseconds components for clean output display.
+
+    Parameters
+    ----------
+    dt : datetime
+        Input datetime
+
+    Returns
+    -------
+    datetime
+        Datetime rounded to nearest minute
+
+    Examples
+    --------
+    >>> from datetime import datetime
+    >>> round_time_to_minute(datetime(2023, 1, 1, 12, 30, 45))
+    datetime(2023, 1, 1, 12, 30)
+    """
+    return dt.replace(second=0, microsecond=0)

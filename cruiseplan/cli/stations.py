@@ -22,6 +22,9 @@ from cruiseplan.cli.cli_utils import (
 )
 from cruiseplan.utils.coordinates import _validate_coordinate_bounds
 from cruiseplan.utils.io import validate_input_file, validate_output_directory
+
+# TODO: Remove these error formatters when stations.py is refactored to use API-first approach
+# These are legacy CLI formatting functions that won't be needed after refactor
 from cruiseplan.utils.output_formatting import (
     _format_cli_error,
     _format_dependency_error,

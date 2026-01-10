@@ -277,6 +277,74 @@ def get_legend_entries() -> dict[str, dict[str, Any]]:
 
 
 # ============================================================================
+# GREAT CIRCLE ROUTE UTILITIES
+# ============================================================================
+
+
+def interpolate_great_circle_position(
+    start_lat: float, start_lon: float, end_lat: float, end_lon: float, fraction: float
+) -> tuple[float, float]:
+    """
+    Interpolate position along great circle route using spherical geometry.
+
+    This function is useful for generating smooth great circle routes for map visualization,
+    which provides more accurate geographic representation than straight line interpolation.
+
+    Parameters
+    ----------
+    start_lat : float
+        Starting latitude in decimal degrees.
+    start_lon : float
+        Starting longitude in decimal degrees.
+    end_lat : float
+        Ending latitude in decimal degrees.
+    end_lon : float
+        Ending longitude in decimal degrees.
+    fraction : float
+        Interpolation fraction (0.0 = start, 1.0 = end).
+
+    Returns
+    -------
+    Tuple[float, float]
+        Interpolated (latitude, longitude) in decimal degrees.
+    """
+    import math
+
+    # Convert degrees to radians
+    lat1 = math.radians(start_lat)
+    lon1 = math.radians(start_lon)
+    lat2 = math.radians(end_lat)
+    lon2 = math.radians(end_lon)
+
+    # Calculate angular distance
+    d = math.acos(
+        min(
+            1,
+            math.sin(lat1) * math.sin(lat2)
+            + math.cos(lat1) * math.cos(lat2) * math.cos(lon2 - lon1),
+        )
+    )
+
+    # Handle edge case for very short distances
+    if d < 1e-9:
+        return start_lat, start_lon
+
+    # Spherical interpolation
+    A = math.sin((1 - fraction) * d) / math.sin(d)
+    B = math.sin(fraction * d) / math.sin(d)
+
+    x = A * math.cos(lat1) * math.cos(lon1) + B * math.cos(lat2) * math.cos(lon2)
+    y = A * math.cos(lat1) * math.sin(lon1) + B * math.cos(lat2) * math.sin(lon2)
+    z = A * math.sin(lat1) + B * math.sin(lat2)
+
+    # Convert back to lat/lon
+    lat_result = math.atan2(z, math.sqrt(x * x + y * y))
+    lon_result = math.atan2(y, x)
+
+    return math.degrees(lat_result), math.degrees(lon_result)
+
+
+# ============================================================================
 # PRE-DEFINED COLORMAP CONSTANTS
 # ============================================================================
 

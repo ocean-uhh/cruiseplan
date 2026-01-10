@@ -1,39 +1,15 @@
 """
-Output formatting utilities for CLI commands.
+Legacy CLI error formatting functions.
 
-This module provides essential utility functions for formatting and displaying
-output from CLI commands, focusing only on functions that are actually used
-in the codebase.
+TODO: This entire module should be removed when cli/stations.py is refactored
+to use the API-first approach. These functions are only used by the legacy
+CLI commands and won't be needed after the refactor.
+
+The round_time_to_minute function has been moved to output/output_utils.py
+where it belongs with other output formatting utilities.
 """
 
-from datetime import datetime
 from typing import Any, Optional
-
-
-def round_time_to_minute(dt: datetime) -> datetime:
-    """
-    Round datetime to nearest minute.
-
-    Utility function for standardizing time formatting by removing
-    seconds and microseconds components for clean output display.
-
-    Parameters
-    ----------
-    dt : datetime
-        Input datetime
-
-    Returns
-    -------
-    datetime
-        Datetime rounded to nearest minute
-
-    Examples
-    --------
-    >>> from datetime import datetime
-    >>> round_time_to_minute(datetime(2023, 1, 1, 12, 30, 45))
-    datetime(2023, 1, 1, 12, 30)
-    """
-    return dt.replace(second=0, microsecond=0)
 
 
 def format_cli_error(
@@ -44,6 +20,8 @@ def format_cli_error(
 ) -> str:
     """
     Format CLI error messages with consistent structure.
+
+    TODO: Remove when cli/stations.py is refactored to use API-first approach.
 
     Parameters
     ----------
@@ -60,11 +38,6 @@ def format_cli_error(
     -------
     str
         Formatted error message
-
-    Examples
-    --------
-    >>> format_cli_error("Configuration loading", FileNotFoundError("file.yaml"))
-    '❌ Configuration loading failed: file.yaml'
     """
     parts = [f"❌ {operation} failed: {error}"]
 
@@ -91,6 +64,8 @@ def format_dependency_error(
     """
     Format dependency error messages with consistent structure.
 
+    TODO: Remove when cli/stations.py is refactored to use API-first approach.
+
     Parameters
     ----------
     missing_dependency : str
@@ -104,11 +79,6 @@ def format_dependency_error(
     -------
     str
         Formatted dependency error message
-
-    Examples
-    --------
-    >>> format_dependency_error("netCDF4", "NetCDF export", "pip install netCDF4")
-    '❌ Dependency error: netCDF4 required for NetCDF export\\nInstall with: pip install netCDF4'
     """
     parts = [f"❌ Dependency error: {missing_dependency} required for {operation}"]
 
@@ -118,6 +88,7 @@ def format_dependency_error(
     return "\n".join(parts)
 
 
-# Legacy aliases for backward compatibility - will be removed in future versions
+# Legacy aliases for backward compatibility
+# TODO: Remove these when cli/stations.py is refactored
 _format_cli_error = format_cli_error
 _format_dependency_error = format_dependency_error

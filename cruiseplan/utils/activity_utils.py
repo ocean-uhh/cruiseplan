@@ -98,4 +98,4 @@ def format_operation_action(operation_type: str, action: str) -> str:
 
 
 # Note: Coordinate conversion functions are available in cruiseplan.utils.coordinates
-# Use UnitConverter.decimal_degrees_to_ddm() for coordinate conversions
+# Use CoordConverter.decimal_degrees_to_ddm() for coordinate conversions
