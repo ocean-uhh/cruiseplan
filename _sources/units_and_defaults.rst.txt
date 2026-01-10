@@ -349,7 +349,7 @@ Always use the provided helper functions instead of manual calculations to avoid
 .. code-block:: python
 
    # Good: Use helper functions
-   from cruiseplan.utils.constants import hours_to_minutes, km_to_nm
+   from cruiseplan.utils.units import hours_to_minutes, km_to_nm
    
    duration_min = hours_to_minutes(3.5)      # Convert 3.5 hours
    distance_nm = km_to_nm(185.2)             # Convert 185.2 km

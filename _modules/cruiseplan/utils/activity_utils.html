@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.activity_utils &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.utils.activity_utils &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -114,7 +114,6 @@
 <span class="sd">Shared utilities for processing cruise activities across different output generators.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
 
 
@@ -147,29 +146,6 @@
 
 
 
-<div class="viewcode-block" id="is_scientific_transit">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.activity_utils.is_scientific_transit">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">is_scientific_transit</span><span class="p">(</span><span class="n">transit</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Distinguish a Transit activity as scientific based on the presence of the &#39;action&#39; field.</span>
-
-<span class="sd">    Scientific Transits: Have &#39;action&#39; field (ADCP, bathymetry, etc.)</span>
-<span class="sd">    Pure Navigation Transits: Lack the &#39;action&#39; field.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    transit : Dict[str, Any]</span>
-<span class="sd">        Transit activity record from timeline</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    bool</span>
-<span class="sd">        True if this is a scientific transit</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;activity&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">transit</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span></div>
-
-
-
 <div class="viewcode-block" id="is_line_operation">
 <a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.activity_utils.is_line_operation">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">is_line_operation</span><span class="p">(</span><span class="n">activity</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -192,26 +168,6 @@
         <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
         <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
     <span class="p">)</span></div>
-
-
-
-<div class="viewcode-block" id="round_time_to_minute">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.activity_utils.round_time_to_minute">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">round_time_to_minute</span><span class="p">(</span><span class="n">dt</span><span class="p">:</span> <span class="n">datetime</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">datetime</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Round datetime to nearest minute.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    dt : datetime</span>
-<span class="sd">        Input datetime</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    datetime</span>
-<span class="sd">        Datetime rounded to nearest minute</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">dt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">second</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">microsecond</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span></div>
 
 
 
@@ -261,7 +217,7 @@
 
 
 <span class="c1"># Note: Coordinate conversion functions are available in cruiseplan.utils.coordinates</span>
-<span class="c1"># Use UnitConverter.decimal_degrees_to_ddm() for coordinate conversions</span>
+<span class="c1"># Use CoordConverter.decimal_degrees_to_ddm() for coordinate conversions</span>
 </pre></div>
 
            </div>

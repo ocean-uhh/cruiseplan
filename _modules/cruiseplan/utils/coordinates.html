@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,7 +120,7 @@
 <span class="sd">-----</span>
 <span class="sd">All coordinate functions expect input in decimal degrees and handle both</span>
 <span class="sd">northern/eastern (positive) and southern/western (negative) coordinates.</span>
-<span class="sd">The UnitConverter class provides static methods for coordinate conversions.</span>
+<span class="sd">The CoordConverter class provides static methods for coordinate conversions.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
@@ -232,9 +232,9 @@
 
 
 
-<div class="viewcode-block" id="UnitConverter">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.UnitConverter">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">UnitConverter</span><span class="p">:</span>
+<div class="viewcode-block" id="CoordConverter">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.CoordConverter">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CoordConverter</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Utility class for coordinate unit conversions.</span>
 
@@ -242,8 +242,8 @@
 <span class="sd">    coordinate representations commonly used in maritime and scientific contexts.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="UnitConverter.decimal_degrees_to_ddm">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.UnitConverter.decimal_degrees_to_ddm">[docs]</a>
+<div class="viewcode-block" id="CoordConverter.decimal_degrees_to_ddm">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.CoordConverter.decimal_degrees_to_ddm">[docs]</a>
     <span class="nd">@staticmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -261,7 +261,7 @@
 
 <span class="sd">        Examples</span>
 <span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; UnitConverter.decimal_degrees_to_ddm(65.7458)</span>
+<span class="sd">        &gt;&gt;&gt; CoordConverter.decimal_degrees_to_ddm(65.7458)</span>
 <span class="sd">        (65.0, 44.75)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">degrees</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="n">decimal_degrees</span><span class="p">))</span>
@@ -301,8 +301,8 @@
 <span class="sd">    &quot;65 44.75&#39;N, 024 28.75&#39;W&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert to degrees and decimal minutes</span>
-    <span class="n">lat_deg</span><span class="p">,</span> <span class="n">lat_min</span> <span class="o">=</span> <span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
-    <span class="n">lon_deg</span><span class="p">,</span> <span class="n">lon_min</span> <span class="o">=</span> <span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">lat_deg</span><span class="p">,</span> <span class="n">lat_min</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">lon_deg</span><span class="p">,</span> <span class="n">lon_min</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
 
     <span class="c1"># Determine directions</span>
     <span class="n">lat_dir</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
@@ -379,8 +379,8 @@
 <span class="sd">    &quot;65$^\\circ$44.75&#39;N, 024$^\\circ$28.75&#39;W&quot;</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="c1"># Convert to degrees and decimal minutes</span>
-    <span class="n">lat_deg</span><span class="p">,</span> <span class="n">lat_min</span> <span class="o">=</span> <span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
-    <span class="n">lon_deg</span><span class="p">,</span> <span class="n">lon_min</span> <span class="o">=</span> <span class="n">UnitConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
+    <span class="n">lat_deg</span><span class="p">,</span> <span class="n">lat_min</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span>
+    <span class="n">lon_deg</span><span class="p">,</span> <span class="n">lon_min</span> <span class="o">=</span> <span class="n">CoordConverter</span><span class="o">.</span><span class="n">decimal_degrees_to_ddm</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span>
 
     <span class="c1"># Determine directions</span>
     <span class="n">lat_dir</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
@@ -748,6 +748,188 @@
 
     <span class="k">return</span> <span class="n">final_lon_min</span><span class="p">,</span> <span class="n">final_lon_max</span><span class="p">,</span> <span class="n">final_lat_min</span><span class="p">,</span> <span class="n">final_lat_max</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_coordinate_bounds</span><span class="p">(</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">lon_bounds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate and normalize coordinate bounds with sophisticated longitude format checking.</span>
+
+<span class="sd">    # NOTE: This sophisticated validation is now used by validation/base_models.py</span>
+<span class="sd">    # and core/validation_old.py for consistent coordinate validation across the codebase.</span>
+<span class="sd">    # It handles format consistency and meridian crossing properly.</span>
+
+<span class="sd">    This function enforces that longitude coordinates use consistent formats and handles</span>
+<span class="sd">    meridian crossing correctly. It supports both -180/180 and 0/360 longitude formats</span>
+<span class="sd">    but prevents mixing of formats which can cause confusion.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    lat_bounds : list[float]</span>
+<span class="sd">        Latitude bounds [min_lat, max_lat]</span>
+<span class="sd">    lon_bounds : list[float]</span>
+<span class="sd">        Longitude bounds [min_lon, max_lon]</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[float, float, float, float]</span>
+<span class="sd">        Normalized bounds (min_lon, min_lat, max_lon, max_lat) in bbox format</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If coordinate bounds are invalid or use inconsistent longitude formats</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _validate_coordinate_bounds([50.0, 60.0], [-10.0, 10.0])</span>
+<span class="sd">    (-10.0, 50.0, 10.0, 60.0)</span>
+<span class="sd">    &gt;&gt;&gt; _validate_coordinate_bounds([50.0, 60.0], [350.0, 360.0])</span>
+<span class="sd">    (350.0, 50.0, 360.0, 60.0)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Validate input format</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;lat_bounds must be a list of exactly 2 values [min_lat, max_lat]&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">lon_bounds</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">lon_bounds</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;lon_bounds must be a list of exactly 2 values [min_lon, max_lon]&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Validate coordinate ranges</span>
+    <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lat</span> <span class="o">=</span> <span class="n">lat_bounds</span>
+    <span class="n">min_lon</span><span class="p">,</span> <span class="n">max_lon</span> <span class="o">=</span> <span class="n">lon_bounds</span>
+
+    <span class="c1"># Validate latitude (always -90 to 90)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">90</span> <span class="o">&lt;=</span> <span class="n">min_lat</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid minimum latitude: </span><span class="si">{</span><span class="n">min_lat</span><span class="si">}</span><span class="s2">. Must be between -90 and 90.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">90</span> <span class="o">&lt;=</span> <span class="n">max_lat</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid maximum latitude: </span><span class="si">{</span><span class="n">max_lat</span><span class="si">}</span><span class="s2">. Must be between -90 and 90.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">min_lat</span> <span class="o">&gt;=</span> <span class="n">max_lat</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Minimum latitude (</span><span class="si">{</span><span class="n">min_lat</span><span class="si">}</span><span class="s2">) must be less than maximum latitude (</span><span class="si">{</span><span class="n">max_lat</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Validate longitude ranges first - check for completely out-of-range values</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">min_lon</span> <span class="o">&lt;=</span> <span class="mi">360</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid minimum longitude: </span><span class="si">{</span><span class="n">min_lon</span><span class="si">}</span><span class="s2">. Must be between -180 and 360.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">max_lon</span> <span class="o">&lt;=</span> <span class="mi">360</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Invalid maximum longitude: </span><span class="si">{</span><span class="n">max_lon</span><span class="si">}</span><span class="s2">. Must be between -180 and 360.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Validate longitude format and ranges</span>
+    <span class="c1"># Support both -180/180 and 0/360 formats, but not mixed</span>
+    <span class="k">if</span> <span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">min_lon</span> <span class="o">&lt;=</span> <span class="mi">180</span> <span class="ow">and</span> <span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">max_lon</span> <span class="o">&lt;=</span> <span class="mi">180</span><span class="p">:</span>
+        <span class="c1"># -180/180 format - allows meridian crossing</span>
+        <span class="k">if</span> <span class="n">min_lon</span> <span class="o">&gt;=</span> <span class="n">max_lon</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Minimum longitude (</span><span class="si">{</span><span class="n">min_lon</span><span class="si">}</span><span class="s2">) must be less than maximum longitude (</span><span class="si">{</span><span class="n">max_lon</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+    <span class="k">elif</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">min_lon</span> <span class="o">&lt;=</span> <span class="mi">360</span> <span class="ow">and</span> <span class="mi">0</span> <span class="o">&lt;=</span> <span class="n">max_lon</span> <span class="o">&lt;=</span> <span class="mi">360</span><span class="p">:</span>
+        <span class="c1"># 0/360 format - NO meridian crossing allowed</span>
+        <span class="k">if</span> <span class="n">min_lon</span> <span class="o">&gt;=</span> <span class="n">max_lon</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Minimum longitude (</span><span class="si">{</span><span class="n">min_lon</span><span class="si">}</span><span class="s2">) must be less than maximum longitude (</span><span class="si">{</span><span class="n">max_lon</span><span class="si">}</span><span class="s2">). &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;For meridian crossing, use -180/180 format instead.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Mixed format (e.g., -90 and 240)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Longitude coordinates must use the same format:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Both in -180 to 180 format (e.g., --lon -90 -30)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Both in 0 to 360 format (e.g., --lon 270 330)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Cannot mix formats (e.g., --lon -90 240 is invalid)</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - Use -180/180 format for meridian crossing ranges&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Return in bbox format (min_lon, min_lat, max_lon, max_lat)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">min_lon</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_latitude</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a single latitude coordinate.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        Latitude value in decimal degrees</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Validated latitude value</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If latitude is outside the valid range of -90 to 90 degrees</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _validate_latitude(45.0)</span>
+<span class="sd">    45.0</span>
+<span class="sd">    &gt;&gt;&gt; _validate_latitude(-91.0)  # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: Latitude -91.0 must be between -90 and 90</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">90</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">90</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Latitude </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> must be between -90 and 90&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_longitude</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a single longitude coordinate.</span>
+
+<span class="sd">    Accepts both -180/180 and 0/360 longitude formats for individual coordinates.</span>
+<span class="sd">    For coordinate bounds validation with format consistency checking, use</span>
+<span class="sd">    _validate_coordinate_bounds() instead.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    value : float</span>
+<span class="sd">        Longitude value in decimal degrees</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    float</span>
+<span class="sd">        Validated longitude value</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If longitude is outside the valid range of -180 to 360 degrees</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; _validate_longitude(45.0)</span>
+<span class="sd">    45.0</span>
+<span class="sd">    &gt;&gt;&gt; _validate_longitude(-180.0)</span>
+<span class="sd">    -180.0</span>
+<span class="sd">    &gt;&gt;&gt; _validate_longitude(360.0)</span>
+<span class="sd">    360.0</span>
+<span class="sd">    &gt;&gt;&gt; _validate_longitude(400.0)  # doctest: +IGNORE_EXCEPTION_DETAIL</span>
+<span class="sd">    Traceback (most recent call last):</span>
+<span class="sd">    ValueError: Longitude 400.0 must be between -180 and 360</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Individual point check: Must be valid in at least one system (-180..360 covers both)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="o">-</span><span class="mi">180</span> <span class="o">&lt;=</span> <span class="n">value</span> <span class="o">&lt;=</span> <span class="mi">360</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Longitude </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2"> must be between -180 and 360&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">value</span>
 </pre></div>
 
            </div>

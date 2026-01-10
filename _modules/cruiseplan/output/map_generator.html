@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.output.map_generator &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -732,7 +732,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.colormaps</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
 
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
             <span class="sa">f</span><span class="s2">&quot;Loading bathymetry for region: </span><span class="si">{</span><span class="n">bathy_min_lat</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°-</span><span class="si">{</span><span class="n">bathy_max_lat</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°N, </span><span class="si">{</span><span class="n">bathy_min_lon</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°-</span><span class="si">{</span><span class="n">bathy_max_lon</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">°E&quot;</span>
@@ -883,7 +883,10 @@
             <span class="s2">&quot;transit&quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">),</span> <span class="n">line</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span>
         <span class="p">)</span>
 
-        <span class="c1"># Plot line</span>
+        <span class="c1"># Plot line (currently using straight-line interpolation)</span>
+        <span class="c1"># TODO: For enhanced geographic accuracy, consider using great circle routes</span>
+        <span class="c1"># by interpolating waypoints with interpolate_great_circle_position() from</span>
+        <span class="c1"># cruiseplan.utils.plot_config for more accurate route visualization</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span>
             <span class="n">line_lons</span><span class="p">,</span>
             <span class="n">line_lats</span><span class="p">,</span>

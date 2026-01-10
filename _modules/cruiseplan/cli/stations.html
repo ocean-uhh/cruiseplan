@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -123,18 +123,18 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">CLIError</span><span class="p">,</span>
+    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
+    <span class="n">_handle_deprecated_params</span><span class="p">,</span>
     <span class="n">_initialize_cli_command</span><span class="p">,</span>
     <span class="n">format_coordinate_bounds</span><span class="p">,</span>
     <span class="n">generate_output_filename</span><span class="p">,</span>
     <span class="n">load_pangaea_campaign_data</span><span class="p">,</span>
-    <span class="n">validate_input_file</span><span class="p">,</span>
-    <span class="n">validate_output_path</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.input_validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
-    <span class="n">_handle_deprecated_cli_params</span><span class="p">,</span>
-    <span class="n">_validate_coordinate_bounds</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_coordinate_bounds</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span><span class="p">,</span> <span class="n">validate_output_directory</span>
+
+<span class="c1"># TODO: Remove these error formatters when stations.py is refactored to use API-first approach</span>
+<span class="c1"># These are legacy CLI formatting functions that won&#39;t be needed after refactor</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">_format_cli_error</span><span class="p">,</span>
     <span class="n">_format_dependency_error</span><span class="p">,</span>
@@ -222,7 +222,7 @@
             <span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
             <span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span>
         <span class="p">}</span>
-        <span class="n">_handle_deprecated_cli_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">deprecated_params</span><span class="p">)</span>
+        <span class="n">_handle_deprecated_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">deprecated_params</span><span class="p">)</span>
 
         <span class="c1"># Apply standard CLI defaults</span>
         <span class="n">_apply_cli_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
@@ -266,7 +266,7 @@
             <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinate bounds: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="c1"># Determine output file (output_file parameter was deprecated)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">validate_output_path</span><span class="p">(</span><span class="n">output_dir</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
+        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">validate_output_directory</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
         <span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;stations.yaml&quot;</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">:</span>
             <span class="c1"># Generate filename based on PANGAEA file</span>

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data - Bathymetry &amp; Pangaea &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>Data - Bathymetry &amp; Pangaea &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../_static/documentation_options.js?v=a368237d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -82,6 +82,8 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Data - Bathymetry &amp; Pangaea</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.bathymetry">cruiseplan.data.bathymetry module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.BathymetryManager"><code class="docutils literal notranslate"><span class="pre">BathymetryManager</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.check_bathymetry_availability"><code class="docutils literal notranslate"><span class="pre">check_bathymetry_availability()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.determine_bathymetry_source"><code class="docutils literal notranslate"><span class="pre">determine_bathymetry_source()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.download_bathymetry"><code class="docutils literal notranslate"><span class="pre">download_bathymetry()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton"><code class="docutils literal notranslate"><span class="pre">get_bathymetry_singleton()</span></code></a></li>
 </ul>
@@ -94,6 +96,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.PangaeaManager"><code class="docutils literal notranslate"><span class="pre">PangaeaManager</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.load_campaign_data"><code class="docutils literal notranslate"><span class="pre">load_campaign_data()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.merge_campaign_tracks"><code class="docutils literal notranslate"><span class="pre">merge_campaign_tracks()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.read_doi_list"><code class="docutils literal notranslate"><span class="pre">read_doi_list()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.save_campaign_data"><code class="docutils literal notranslate"><span class="pre">save_campaign_data()</span></code></a></li>
 </ul>
 </li>
@@ -315,6 +318,42 @@ Supports downsampling with stride parameter for performance.</p>
 </dl>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.check_bathymetry_availability">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">check_bathymetry_availability</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#check_bathymetry_availability"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.check_bathymetry_availability" title="Link to this definition"></a></dt>
+<dd><p>Check if bathymetry files are available for the specified source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>source</strong> (<em>str</em>) – Bathymetry source (“etopo2022” or “gebco2025”)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if bathymetry files are available and valid, False otherwise</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.bathymetry.determine_bathymetry_source">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.bathymetry.</span></span><span class="sig-name descname"><span class="pre">determine_bathymetry_source</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">requested_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/bathymetry.html#determine_bathymetry_source"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.bathymetry.determine_bathymetry_source" title="Link to this definition"></a></dt>
+<dd><p>Determine the optimal bathymetry source with automatic fallback.</p>
+<p>If the requested source is not available but an alternative is,
+automatically switch to the available source.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>requested_source</strong> (<em>str</em>) – The user’s requested bathymetry source</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The optimal available bathymetry source</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
@@ -568,6 +607,26 @@ label are combined into a single track before being returned.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List[Dict]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="cruiseplan.data.pangaea.read_doi_list">
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.data.pangaea.</span></span><span class="sig-name descname"><span class="pre">read_doi_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/pangaea.html#read_doi_list"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.pangaea.read_doi_list" title="Link to this definition"></a></dt>
+<dd><p>Read DOI list from text file, filtering out comments and empty lines.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Path to DOI list file</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>List of DOI strings</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[str]</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ValueError</strong> – If file cannot be read or contains no valid DOIs</p>
 </dd>
 </dl>
 </dd></dl>

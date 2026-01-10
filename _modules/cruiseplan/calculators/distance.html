@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.distance &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.calculators.distance &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -120,8 +120,10 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Union</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">KM_PER_NM</span><span class="p">,</span> <span class="n">NM_PER_KM</span><span class="p">,</span> <span class="n">R_EARTH_KM</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPoint</span>
+
+<span class="c1"># Earth radius in kilometers (WGS84 approximate) - used for haversine distance calculation</span>
+<span class="n">R_EARTH_KM</span> <span class="o">=</span> <span class="mf">6371.0</span>
 
 
 <div class="viewcode-block" id="to_coords">
@@ -209,46 +211,6 @@
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">points</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
         <span class="n">total</span> <span class="o">+=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="n">points</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">points</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
     <span class="k">return</span> <span class="n">total</span></div>
-
-
-
-<div class="viewcode-block" id="km_to_nm">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.distance.km_to_nm">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">km_to_nm</span><span class="p">(</span><span class="n">km</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert kilometers to nautical miles.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    km : float</span>
-<span class="sd">        Distance in kilometers.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    float</span>
-<span class="sd">        Distance in nautical miles.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">km</span> <span class="o">*</span> <span class="n">NM_PER_KM</span></div>
-
-
-
-<div class="viewcode-block" id="nm_to_km">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.distance.nm_to_km">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">nm_to_km</span><span class="p">(</span><span class="n">nm</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Convert nautical miles to kilometers by multiplying nm * KM_PER_NM.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    nm : float</span>
-<span class="sd">        Distance in nautical miles.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    float</span>
-<span class="sd">        Distance in kilometers.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">return</span> <span class="n">nm</span> <span class="o">*</span> <span class="n">KM_PER_NM</span></div>
 
 </pre></div>
 

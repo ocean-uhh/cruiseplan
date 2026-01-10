@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>Calculators &amp; Scheduling &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../_static/documentation_options.js?v=a368237d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -83,8 +83,6 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Calculators &amp; Scheduling</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.calculators.distance">cruiseplan.calculators.distance module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.distance.haversine_distance"><code class="docutils literal notranslate"><span class="pre">haversine_distance()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.distance.km_to_nm"><code class="docutils literal notranslate"><span class="pre">km_to_nm()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.distance.nm_to_km"><code class="docutils literal notranslate"><span class="pre">nm_to_km()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.distance.route_distance"><code class="docutils literal notranslate"><span class="pre">route_distance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.calculators.distance.to_coords"><code class="docutils literal notranslate"><span class="pre">to_coords()</span></code></a></li>
 </ul>
@@ -178,40 +176,6 @@ kilometers and nautical miles.</p>
 <li><p><strong>start</strong> (<em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Starting point coordinates.</p></li>
 <li><p><strong>end</strong> (<em>GeoPoint</em><em> or </em><em>tuple</em><em> of </em><em>float</em>) – Ending point coordinates.</p></li>
 </ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Distance in kilometers.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.calculators.distance.km_to_nm">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.distance.</span></span><span class="sig-name descname"><span class="pre">km_to_nm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">km</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/distance.html#km_to_nm"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.distance.km_to_nm" title="Link to this definition"></a></dt>
-<dd><p>Convert kilometers to nautical miles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>km</strong> (<em>float</em>) – Distance in kilometers.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Distance in nautical miles.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.calculators.distance.nm_to_km">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.calculators.distance.</span></span><span class="sig-name descname"><span class="pre">nm_to_km</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nm</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/calculators/distance.html#nm_to_km"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.calculators.distance.nm_to_km" title="Link to this definition"></a></dt>
-<dd><p>Convert nautical miles to kilometers by multiplying nm * KM_PER_NM.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>nm</strong> (<em>float</em>) – Distance in nautical miles.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>Distance in kilometers.</p>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.plot_config &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.utils.plot_config &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -121,65 +121,17 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.colors</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">mcolors</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+
+<span class="c1"># Note: Colormap constants defined after function definitions to avoid forward references</span>
 
 <span class="c1"># ============================================================================</span>
-<span class="c1"># COLORMAPS (moved from interactive/colormaps.py)</span>
+<span class="c1"># COLORMAPS</span>
 <span class="c1"># ============================================================================</span>
 
 
 <div class="viewcode-block" id="create_bathymetry_colormap">
 <a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.plot_config.create_bathymetry_colormap">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">create_bathymetry_colormap</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Create a custom bathymetry colormap based on the Flemish Cap CPT.</span>
-
-<span class="sd">    This colormap provides a more oceanographically-appropriate color scheme</span>
-<span class="sd">    with deeper blues for abyssal depths and yellows for land areas.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    matplotlib.colors.LinearSegmentedColormap</span>
-<span class="sd">        Custom colormap for bathymetry visualization</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Color definitions from the Flemish Cap CPT</span>
-    <span class="c1"># Format: (depth, hex_color)</span>
-    <span class="n">color_points</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">8000</span><span class="p">,</span> <span class="s2">&quot;#032d44&quot;</span><span class="p">),</span>  <span class="c1"># Abyssal depths (darkest blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">7000</span><span class="p">,</span> <span class="s2">&quot;#2A5780&quot;</span><span class="p">),</span>  <span class="c1"># Very deep (darker blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">6000</span><span class="p">,</span> <span class="s2">&quot;#2A5780&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">5000</span><span class="p">,</span> <span class="s2">&quot;#3E8AA4&quot;</span><span class="p">),</span>  <span class="c1"># Deep water (blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">4000</span><span class="p">,</span> <span class="s2">&quot;#469AB2&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">3000</span><span class="p">,</span> <span class="s2">&quot;#4FAEC5&quot;</span><span class="p">),</span>  <span class="c1"># Deep shelf edge (darker blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">2000</span><span class="p">,</span> <span class="s2">&quot;#5DB9D2&quot;</span><span class="p">),</span>  <span class="c1"># Moderate depths (medium blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">1000</span><span class="p">,</span> <span class="s2">&quot;#77C1D4&quot;</span><span class="p">),</span>  <span class="c1"># Shallow continental shelf (light blue)</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;#94CBD1&quot;</span><span class="p">),</span>
-        <span class="p">(</span><span class="o">-</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;#addbd1&quot;</span><span class="p">),</span>  <span class="c1"># Very shallow water (very light blue/cyan)</span>
-        <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;#F7CE55&quot;</span><span class="p">),</span>  <span class="c1"># Land/shallow areas (yellow/tan)</span>
-        <span class="p">(</span><span class="mi">200</span><span class="p">,</span> <span class="s2">&quot;#F7CE55&quot;</span><span class="p">),</span>  <span class="c1"># Land areas</span>
-    <span class="p">]</span>
-
-    <span class="c1"># Normalize depths to 0-1 range for colormap</span>
-    <span class="n">depths</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">point</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">color_points</span><span class="p">])</span>
-    <span class="n">colors</span> <span class="o">=</span> <span class="p">[</span><span class="n">point</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">color_points</span><span class="p">]</span>
-
-    <span class="c1"># Create normalization from depth range to 0-1</span>
-    <span class="c1"># Using a reasonable depth range from -8000 to 200</span>
-    <span class="n">depth_min</span><span class="p">,</span> <span class="n">depth_max</span> <span class="o">=</span> <span class="o">-</span><span class="mi">8000</span><span class="p">,</span> <span class="mi">200</span>
-    <span class="n">normalized_positions</span> <span class="o">=</span> <span class="p">(</span><span class="n">depths</span> <span class="o">-</span> <span class="n">depth_min</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">depth_max</span> <span class="o">-</span> <span class="n">depth_min</span><span class="p">)</span>
-
-    <span class="c1"># Create the colormap</span>
-    <span class="n">cmap</span> <span class="o">=</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="o">.</span><span class="n">from_list</span><span class="p">(</span>
-        <span class="s2">&quot;bathymetry_flemish_cap&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">normalized_positions</span><span class="p">,</span> <span class="n">colors</span><span class="p">)),</span> <span class="n">N</span><span class="o">=</span><span class="mi">256</span>
-    <span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">cmap</span></div>
-
-
-
-<div class="viewcode-block" id="create_bathymetry_colormap_v2">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.plot_config.create_bathymetry_colormap_v2">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">create_bathymetry_colormap_v2</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create the Flemish Cap bathymetry colormap matching the CPT specification.</span>
 
@@ -245,17 +197,6 @@
 
     <span class="k">return</span> <span class="n">cmap</span></div>
 
-
-
-<span class="c1"># Pre-defined colormaps</span>
-<span class="n">BATHYMETRY_COLORMAP</span> <span class="o">=</span> <span class="n">create_bathymetry_colormap_v2</span><span class="p">()</span>
-<span class="n">BLUES_R_COLORMAP</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues_r</span>  <span class="c1"># Fallback to matplotlib&#39;s Blues_r</span>
-
-<span class="c1"># Available colormaps dictionary</span>
-<span class="n">AVAILABLE_COLORMAPS</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span> <span class="n">BATHYMETRY_COLORMAP</span><span class="p">,</span>
-    <span class="s2">&quot;blues_r&quot;</span><span class="p">:</span> <span class="n">BLUES_R_COLORMAP</span><span class="p">,</span>
-<span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_colormap">
@@ -458,35 +399,89 @@
 
 
 <span class="c1"># ============================================================================</span>
-<span class="c1"># BACKWARDS COMPATIBILITY</span>
+<span class="c1"># GREAT CIRCLE ROUTE UTILITIES</span>
 <span class="c1"># ============================================================================</span>
 
 
-<div class="viewcode-block" id="load_cpt_colormap">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.plot_config.load_cpt_colormap">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">load_cpt_colormap</span><span class="p">(</span><span class="n">cpt_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">mcolors</span><span class="o">.</span><span class="n">LinearSegmentedColormap</span><span class="p">:</span>
+<div class="viewcode-block" id="interpolate_great_circle_position">
+<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.plot_config.interpolate_great_circle_position">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">interpolate_great_circle_position</span><span class="p">(</span>
+    <span class="n">start_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">fraction</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Load a colormap from a GMT-style CPT file.</span>
+<span class="sd">    Interpolate position along great circle route using spherical geometry.</span>
+
+<span class="sd">    This function is useful for generating smooth great circle routes for map visualization,</span>
+<span class="sd">    which provides more accurate geographic representation than straight line interpolation.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    cpt_file : str</span>
-<span class="sd">        Path to the CPT file</span>
+<span class="sd">    start_lat : float</span>
+<span class="sd">        Starting latitude in decimal degrees.</span>
+<span class="sd">    start_lon : float</span>
+<span class="sd">        Starting longitude in decimal degrees.</span>
+<span class="sd">    end_lat : float</span>
+<span class="sd">        Ending latitude in decimal degrees.</span>
+<span class="sd">    end_lon : float</span>
+<span class="sd">        Ending longitude in decimal degrees.</span>
+<span class="sd">    fraction : float</span>
+<span class="sd">        Interpolation fraction (0.0 = start, 1.0 = end).</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
-<span class="sd">    matplotlib.colors.LinearSegmentedColormap</span>
-<span class="sd">        Colormap loaded from the CPT file</span>
-
-<span class="sd">    Note</span>
-<span class="sd">    ----</span>
-<span class="sd">    This is a placeholder for future CPT file support.</span>
-<span class="sd">    Currently only supports the hardcoded Flemish Cap colormap.</span>
+<span class="sd">    Tuple[float, float]</span>
+<span class="sd">        Interpolated (latitude, longitude) in decimal degrees.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># TODO: Implement full CPT file parsing</span>
-    <span class="c1"># For now, return the custom bathymetry colormap</span>
-    <span class="k">return</span> <span class="n">create_bathymetry_colormap_v2</span><span class="p">()</span></div>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
 
+    <span class="c1"># Convert degrees to radians</span>
+    <span class="n">lat1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lat</span><span class="p">)</span>
+    <span class="n">lon1</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">start_lon</span><span class="p">)</span>
+    <span class="n">lat2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lat</span><span class="p">)</span>
+    <span class="n">lon2</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">radians</span><span class="p">(</span><span class="n">end_lon</span><span class="p">)</span>
+
+    <span class="c1"># Calculate angular distance</span>
+    <span class="n">d</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">acos</span><span class="p">(</span>
+        <span class="nb">min</span><span class="p">(</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span> <span class="o">-</span> <span class="n">lon1</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Handle edge case for very short distances</span>
+    <span class="k">if</span> <span class="n">d</span> <span class="o">&lt;</span> <span class="mf">1e-9</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span>
+
+    <span class="c1"># Spherical interpolation</span>
+    <span class="n">A</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="n">fraction</span><span class="p">)</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+    <span class="n">B</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">fraction</span> <span class="o">*</span> <span class="n">d</span><span class="p">)</span> <span class="o">/</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+
+    <span class="n">x</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
+    <span class="n">y</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lon2</span><span class="p">)</span>
+    <span class="n">z</span> <span class="o">=</span> <span class="n">A</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat1</span><span class="p">)</span> <span class="o">+</span> <span class="n">B</span> <span class="o">*</span> <span class="n">math</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">lat2</span><span class="p">)</span>
+
+    <span class="c1"># Convert back to lat/lon</span>
+    <span class="n">lat_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">z</span><span class="p">,</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">*</span> <span class="n">y</span><span class="p">))</span>
+    <span class="n">lon_result</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">atan2</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">x</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lat_result</span><span class="p">),</span> <span class="n">math</span><span class="o">.</span><span class="n">degrees</span><span class="p">(</span><span class="n">lon_result</span><span class="p">)</span></div>
+
+
+
+<span class="c1"># ============================================================================</span>
+<span class="c1"># PRE-DEFINED COLORMAP CONSTANTS</span>
+<span class="c1"># ============================================================================</span>
+
+<span class="c1"># Pre-defined colormaps (defined here to avoid forward references)</span>
+<span class="n">BATHYMETRY_COLORMAP</span> <span class="o">=</span> <span class="n">create_bathymetry_colormap</span><span class="p">()</span>
+<span class="n">BLUES_R_COLORMAP</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">cm</span><span class="o">.</span><span class="n">Blues_r</span>  <span class="c1"># Fallback to matplotlib&#39;s Blues_r</span>
+
+<span class="c1"># Available colormaps dictionary</span>
+<span class="n">AVAILABLE_COLORMAPS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;bathymetry&quot;</span><span class="p">:</span> <span class="n">BATHYMETRY_COLORMAP</span><span class="p">,</span>
+    <span class="s2">&quot;blues_r&quot;</span><span class="p">:</span> <span class="n">BLUES_R_COLORMAP</span><span class="p">,</span>
+<span class="p">}</span>
 </pre></div>
 
            </div>

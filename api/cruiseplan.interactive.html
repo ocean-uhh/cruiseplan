@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Interactive pickers &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>Interactive pickers &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../_static/documentation_options.js?v=a368237d"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -89,13 +89,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.widgets.StatusDisplay"><code class="docutils literal notranslate"><span class="pre">StatusDisplay</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.interactive.colormaps">cruiseplan.interactive.colormaps module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.colormaps.create_bathymetry_colormap"><code class="docutils literal notranslate"><span class="pre">create_bathymetry_colormap()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.colormaps.create_bathymetry_colormap_v2"><code class="docutils literal notranslate"><span class="pre">create_bathymetry_colormap_v2()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.colormaps.get_colormap"><code class="docutils literal notranslate"><span class="pre">get_colormap()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.interactive.colormaps.load_cpt_colormap"><code class="docutils literal notranslate"><span class="pre">load_cpt_colormap()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-interactive-colormaps-module">cruiseplan.interactive.colormaps module</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.data.html">Data - Bathymetry &amp; Pangaea</a></li>
@@ -686,85 +680,8 @@ planned stations, transects, and areas.</p>
 </dd></dl>
 
 </section>
-<section id="module-cruiseplan.interactive.colormaps">
-<span id="cruiseplan-interactive-colormaps-module"></span><h2>cruiseplan.interactive.colormaps module<a class="headerlink" href="#module-cruiseplan.interactive.colormaps" title="Link to this heading"></a></h2>
-<p>Custom colormaps for cruiseplan visualization.</p>
-<p>This module provides custom colormaps for bathymetry and other oceanographic
-data visualization, including support for GMT-style CPT files.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.interactive.colormaps.create_bathymetry_colormap">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.colormaps.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/colormaps.html#create_bathymetry_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.colormaps.create_bathymetry_colormap" title="Link to this definition"></a></dt>
-<dd><p>Create a custom bathymetry colormap based on the Flemish Cap CPT.</p>
-<p>This colormap provides a more oceanographically-appropriate color scheme
-with deeper blues for abyssal depths and yellows for land areas.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Custom colormap for bathymetry visualization</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib.colors.LinearSegmentedColormap</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.interactive.colormaps.create_bathymetry_colormap_v2">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.colormaps.</span></span><span class="sig-name descname"><span class="pre">create_bathymetry_colormap_v2</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/colormaps.html#create_bathymetry_colormap_v2"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.colormaps.create_bathymetry_colormap_v2" title="Link to this definition"></a></dt>
-<dd><p>Create the Flemish Cap bathymetry colormap matching the CPT specification.</p>
-<p>This creates a colormap with constant colors within each depth range,
-exactly matching the CPT specification.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Bathymetry colormap with proper depth-color mapping</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>matplotlib.colors.LinearSegmentedColormap</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.interactive.colormaps.get_colormap">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.colormaps.</span></span><span class="sig-name descname"><span class="pre">get_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Colormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/colormaps.html#get_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.colormaps.get_colormap" title="Link to this definition"></a></dt>
-<dd><p>Get a colormap by name.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>name</strong> (<em>str</em>) – Name of the colormap (‘bathymetry’ or ‘blues_r’)</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The requested colormap</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>matplotlib.colors.Colormap</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If the colormap name is not recognized</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.interactive.colormaps.load_cpt_colormap">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.interactive.colormaps.</span></span><span class="sig-name descname"><span class="pre">load_cpt_colormap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cpt_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">LinearSegmentedColormap</span></span></span><a class="reference internal" href="../_modules/cruiseplan/interactive/colormaps.html#load_cpt_colormap"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.interactive.colormaps.load_cpt_colormap" title="Link to this definition"></a></dt>
-<dd><p>Load a colormap from a GMT-style CPT file.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cpt_file</strong> (<em>str</em>) – Path to the CPT file</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Colormap loaded from the CPT file</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>matplotlib.colors.LinearSegmentedColormap</p>
-</dd>
-</dl>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is a placeholder for future CPT file support.
-Currently only supports the hardcoded Flemish Cap colormap.</p>
-</div>
-</dd></dl>
-
+<section id="cruiseplan-interactive-colormaps-module">
+<h2>cruiseplan.interactive.colormaps module<a class="headerlink" href="#cruiseplan-interactive-colormaps-module" title="Link to this heading"></a></h2>
 </section>
 </section>
 

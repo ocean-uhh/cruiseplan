@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.operations &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev3</title>
+  <title>cruiseplan.core.operations &mdash; CruisePlan v0.3.1 v0.3.1.post1.dev4</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=68e1b3b0"></script>
+      <script src="../../../_static/documentation_options.js?v=a368237d"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -659,8 +659,7 @@
             <span class="k">return</span> <span class="n">calc</span><span class="o">.</span><span class="n">calculate_transit_time</span><span class="p">(</span><span class="n">route_distance_km</span><span class="p">,</span> <span class="n">effective_speed</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Fallback for cases without config</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">hours_to_minutes</span><span class="p">,</span> <span class="n">km_to_nm</span>
 
             <span class="n">vessel_speed</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="ow">or</span> <span class="mf">10.0</span>
             <span class="n">route_distance_nm</span> <span class="o">=</span> <span class="n">km_to_nm</span><span class="p">(</span><span class="n">route_distance_km</span><span class="p">)</span>
@@ -719,7 +718,8 @@
             <span class="k">return</span> <span class="mf">0.0</span>
 
         <span class="c1"># Use centralized calculators</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span><span class="p">,</span> <span class="n">route_distance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.calculators.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">route_distance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.units</span><span class="w"> </span><span class="kn">import</span> <span class="n">km_to_nm</span>
 
         <span class="c1"># Calculate route distance and convert to nautical miles</span>
         <span class="n">route_distance_km</span> <span class="o">=</span> <span class="n">route_distance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">)</span>
