@@ -85,12 +85,6 @@ class CruiseConfig(BaseModel):
         Global catalog of port definitions.
     legs : Optional[List[LegDefinition]]
         List of cruise legs for schedule organization.
-
-    # Legacy fields for backward compatibility
-    transits : Optional[List[TransectDefinition]]
-        LEGACY: Use 'transects' instead.
-    stations : Optional[List[WaypointDefinition]]
-        LEGACY: Use 'waypoints' instead.
     """
 
     cruise_name: str
