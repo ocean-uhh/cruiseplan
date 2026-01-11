@@ -60,6 +60,13 @@ DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 DEFAULT_DEPARTURE_PORT = "port_update_departure"
 DEFAULT_ARRIVAL_PORT = "port_update_arrival"
 
+# Default leg name for minimal cruise configurations
+DEFAULT_LEG_NAME = "CRUISE"
+
+# Default hours for daylight operations window
+DEFAULT_DAY_START_HR = 8
+DEFAULT_DAY_END_HR = 20
+
 # Legacy placeholder prefix for backwards compatibility
 DEFAULT_UPDATE_PREFIX = "UPDATE-"
 

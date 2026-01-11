@@ -40,7 +40,6 @@ class TestTC4MixedOpsComprehensive:
                 output_path=enriched_path,
                 add_depths=False,
                 add_coords=True,
-                expand_ports=True,
             )
 
             # Verify the enriched file exists and is readable

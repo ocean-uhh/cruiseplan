@@ -31,7 +31,6 @@ def main(args: argparse.Namespace) -> None:
             add_depths=getattr(args, "add_depths", True),
             add_coords=getattr(args, "add_coords", True),
             expand_sections=getattr(args, "expand_sections", True),
-            expand_ports=getattr(args, "expand_ports", True),
             run_validation=getattr(args, "run_validation", True),
             run_map_generation=getattr(args, "run_map_generation", True),
             depth_check=getattr(args, "depth_check", True),

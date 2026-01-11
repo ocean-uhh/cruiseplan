@@ -14,9 +14,13 @@ from pydantic import BaseModel, ConfigDict, Field, field_validator, model_valida
 from cruiseplan.utils.defaults import (
     DEFAULT_CALC_DEPTH,
     DEFAULT_CALC_TRANSFER,
+    DEFAULT_CTD_RATE_M_S,
+    DEFAULT_DAY_END_HR,
+    DEFAULT_DAY_START_HR,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
+    DEFAULT_VESSEL_SPEED_KT,
 )
 
 from .activities import AreaDefinition, LineDefinition, PointDefinition
@@ -304,19 +308,19 @@ class CruiseConfig(BaseModel):
         List of cruise legs for schedule organization.
     """
 
-    cruise_name: str
+    cruise_name: str  # TODO: Decide if needed as default - could use "Untitled Cruise"
     description: Optional[str] = None
 
     # --- LOGIC CONSTRAINTS ---
-    default_vessel_speed: float
+    default_vessel_speed: float = DEFAULT_VESSEL_SPEED_KT  # TODO: Decide if needed as default
     default_distance_between_stations: float = DEFAULT_STATION_SPACING_KM
     turnaround_time: float = DEFAULT_TURNAROUND_TIME_MIN
-    ctd_descent_rate: float = 1.0
-    ctd_ascent_rate: float = 1.0
+    ctd_descent_rate: float = DEFAULT_CTD_RATE_M_S
+    ctd_ascent_rate: float = DEFAULT_CTD_RATE_M_S
 
     # Configuration "daylight" or "dayshift" window for moorings
-    day_start_hour: int = 8  # Default 08:00
-    day_end_hour: int = 20  # Default 20:00
+    day_start_hour: int = DEFAULT_DAY_START_HR  # Default 08:00
+    day_end_hour: int = DEFAULT_DAY_END_HR  # Default 20:00
 
     calculate_transfer_between_sections: bool = DEFAULT_CALC_TRANSFER
     calculate_depth_via_bathymetry: bool = DEFAULT_CALC_DEPTH

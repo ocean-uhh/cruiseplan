@@ -26,7 +26,6 @@ class TestEnrichThinCLI:
             add_depths=False,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -50,8 +49,7 @@ class TestEnrichThinCLI:
                 add_depths=False,
                 add_coords=False,
                 expand_sections=False,
-                expand_ports=False,
-                bathy_source="etopo2022",
+                    bathy_source="etopo2022",
                 bathy_dir="data",
                 verbose=False,
             )
@@ -65,7 +63,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=True,
             expand_sections=True,
-            expand_ports=True,
             bathy_source="gebco2025",
             bathy_dir=Path("custom_bathy"),
             verbose=True,
@@ -87,8 +84,7 @@ class TestEnrichThinCLI:
                 add_depths=True,
                 add_coords=True,
                 expand_sections=True,
-                expand_ports=True,
-                bathy_source="gebco2025",
+                    bathy_source="gebco2025",
                 bathy_dir="custom_bathy",
                 verbose=True,
             )
@@ -101,7 +97,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -126,7 +121,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -150,7 +144,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -172,7 +165,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -194,7 +186,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=False,
@@ -216,7 +207,6 @@ class TestEnrichThinCLI:
             add_depths=True,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             bathy_source="etopo2022",
             bathy_dir=Path("data"),
             verbose=True,  # Should trigger traceback printing
@@ -260,7 +250,6 @@ class TestEnrichThinCLI:
                 add_depths=False,  # default
                 add_coords=False,  # default
                 expand_sections=False,  # default
-                expand_ports=False,  # default
                 bathy_source="etopo2022",  # default
                 bathy_dir="data/bathymetry",  # default
                 verbose=False,  # default

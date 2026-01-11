@@ -516,7 +516,6 @@ def enrich(
     bathy_dir: str = "data/bathymetry",
     coord_format: str = "ddm",
     expand_sections: bool = True,
-    expand_ports: bool = True,
     verbose: bool = False,
 ) -> EnrichResult:
     """
@@ -539,8 +538,6 @@ def enrich(
         Add formatted coordinate fields (default: True)
     expand_sections : bool
         Expand CTD sections into individual station definitions (default: True)
-    expand_ports : bool
-        Expand global port references (default: True)
     bathy_source : str
         Bathymetry dataset (default: "etopo2022")
     bathy_dir : str
@@ -626,7 +623,7 @@ def enrich(
             logger.info(f"📁 Output directory: {output_dir_path}")
             logger.info(f"📄 Output file: {output_path}")
             logger.info(
-                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}, ports={expand_ports}"
+                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}"
             )
 
         # Perform the actual enrichment
@@ -639,7 +636,6 @@ def enrich(
                 add_depths=add_depths,
                 add_coords=add_coords,
                 expand_sections=expand_sections,
-                expand_ports=expand_ports,
                 bathymetry_source=bathy_source,
                 bathymetry_dir=bathy_dir,
                 coord_format=coord_format,
@@ -684,7 +680,6 @@ def enrich(
                 "add_depths": add_depths,
                 "add_coords": add_coords,
                 "expand_sections": expand_sections,
-                "expand_ports": expand_ports,
             },
             "output_size_bytes": output_path.stat().st_size,
         }
@@ -1079,7 +1074,6 @@ def process(
     add_depths: bool = True,
     add_coords: bool = True,
     expand_sections: bool = True,
-    expand_ports: bool = True,
     run_validation: bool = True,
     run_map_generation: bool = True,
     depth_check: bool = True,
@@ -1113,8 +1107,6 @@ def process(
         Add formatted coordinate fields (default: True)
     expand_sections : bool
         Expand CTD sections into individual station definitions (default: True)
-    expand_ports : bool
-        Expand global port references (default: True)
     run_validation : bool
         Run validation step (default: True)
     run_map_generation : bool
@@ -1160,7 +1152,7 @@ def process(
         generated_files = []
 
         # Step 1: Enrichment (optional - runs if any enrichment options are enabled)
-        if add_depths or add_coords or expand_sections or expand_ports:
+        if add_depths or add_coords or expand_sections:
             logger.info("🔧 Enriching cruise configuration...")
             try:
                 enrich_result = enrich(
@@ -1172,7 +1164,6 @@ def process(
                     bathy_source=bathy_source,
                     bathy_dir=bathy_dir,
                     expand_sections=expand_sections,
-                    expand_ports=expand_ports,
                     verbose=verbose,
                 )
                 enriched_config_path = enrich_result.output_file

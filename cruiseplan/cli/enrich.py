@@ -33,7 +33,6 @@ def main(args: argparse.Namespace) -> None:
             add_depths=getattr(args, "add_depths", False),
             add_coords=getattr(args, "add_coords", False),
             expand_sections=getattr(args, "expand_sections", False),
-            expand_ports=getattr(args, "expand_ports", False),
             bathy_source=getattr(args, "bathy_source", "etopo2022"),
             bathy_dir=(
                 str(args.bathy_dir)

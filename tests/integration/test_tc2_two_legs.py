@@ -80,14 +80,15 @@ class TestTC2TwoLegsIntegration:
         # Validate first leg
         first_leg = config.legs[0]
         assert first_leg.name == "Leg_Atlantic"
-        assert first_leg.departure_port == "port_halifax"
-        assert first_leg.arrival_port == "port_bremerhaven"
+        # Port references are automatically resolved to PointDefinition objects
+        assert first_leg.departure_port.name == "Halifax"  # Resolved name
+        assert first_leg.arrival_port.name == "Bremerhaven"  # Resolved name
 
         # Validate second leg
         second_leg = config.legs[1]
         assert second_leg.name == "Leg_North"
-        assert second_leg.departure_port == "port_bremerhaven"
-        assert second_leg.arrival_port == "port_reykjavik"
+        assert second_leg.departure_port.name == "Bremerhaven"  # Resolved name  
+        assert second_leg.arrival_port.name == "Reykjavik"  # Resolved name
 
         # Validate stations
         assert len(config.points) == 2
@@ -112,15 +113,17 @@ class TestTC2TwoLegsIntegration:
 
         # Leg_Atlantic
         leg_atlantic = next(leg for leg in config.legs if leg.name == "Leg_Atlantic")
-        assert leg_atlantic.departure_port == "port_halifax"
-        assert leg_atlantic.arrival_port == "port_bremerhaven"
-        assert leg_atlantic.activities == ["STN_001"]
+        assert leg_atlantic.departure_port.name == "Halifax"
+        assert leg_atlantic.arrival_port.name == "Bremerhaven"
+        assert len(leg_atlantic.activities) == 1
+        assert leg_atlantic.activities[0]["name"] == "STN_001"
 
         # Leg_North
         leg_north = next(leg for leg in config.legs if leg.name == "Leg_North")
-        assert leg_north.departure_port == "port_bremerhaven"
-        assert leg_north.arrival_port == "port_reykjavik"
-        assert leg_north.activities == ["STN_002"]
+        assert leg_north.departure_port.name == "Bremerhaven"
+        assert leg_north.arrival_port.name == "Reykjavik"
+        assert len(leg_north.activities) == 1
+        assert leg_north.activities[0]["name"] == "STN_002"
 
     def test_cruise_object_creation_and_port_resolution(self, base_config_path):
         """Test Cruise object creation with proper port resolution."""

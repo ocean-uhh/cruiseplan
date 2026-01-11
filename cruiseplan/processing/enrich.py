@@ -53,6 +53,7 @@ from cruiseplan.utils.defaults import (
     DEFAULT_CALC_TRANSFER,
     DEFAULT_CTD_RATE_M_S,
     DEFAULT_DEPARTURE_PORT,
+    DEFAULT_LEG_NAME,
     DEFAULT_MOORING_DURATION_MIN,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
@@ -824,6 +825,111 @@ def _load_and_validate_config(
     return config_dict, cruise, enrichment_summary
 
 
+def _load_and_validate_config_modern(
+    config_path: Path, expand_sections: bool = False
+) -> tuple[Any, dict[str, Any]]:
+    """
+    Load, validate and preprocess cruise configuration using single source of truth.
+
+    This modernized version uses Cruise.from_dict() to eliminate temporary files
+    and dual state management, providing a clean single source of truth workflow.
+
+    Parameters
+    ----------
+    config_path : Path
+        Path to input YAML configuration.
+    expand_sections : bool, optional
+        Whether to expand CTD sections into individual stations.
+
+    Returns
+    -------
+    tuple[Cruise, dict[str, Any]]
+        Tuple of (cruise, enrichment_summary_base)
+    """
+    # Import here to avoid circular dependencies
+    from cruiseplan.core.cruise import Cruise
+
+    # Load and preprocess the YAML configuration to replace placeholders
+    config_dict = load_yaml(config_path)
+
+    # Add missing required fields with sensible defaults
+    config_dict, defaults_added = add_missing_required_fields(config_dict)
+
+    # Add missing station-level defaults (e.g., mooring durations)
+    station_defaults_added = add_missing_station_defaults(config_dict)
+
+    # Expand CTD sections if requested
+    sections_expanded = 0
+    stations_from_expansion = 0
+    if expand_sections:
+        config_dict, expansion_summary = expand_ctd_sections(config_dict)
+        sections_expanded = expansion_summary["sections_expanded"]
+        stations_from_expansion = expansion_summary["stations_from_expansion"]
+
+    # Create cruise directly from dictionary using single source of truth method
+    with _validation_warning_capture() as captured_warnings:
+        cruise = Cruise.from_dict(config_dict)
+
+    enrichment_summary = {
+        "stations_with_depths_added": 0,
+        "stations_with_coords_added": 0,
+        "sections_expanded": sections_expanded,
+        "stations_from_expansion": stations_from_expansion,
+        "ports_expanded": 0,
+        "defaults_added": len(defaults_added),
+        "station_defaults_added": station_defaults_added,
+        "defaults_list": defaults_added,
+        "total_stations_processed": len(cruise.point_registry),
+    }
+
+    return cruise, enrichment_summary
+
+
+def _minimal_preprocess_config(config_dict: dict[str, Any]) -> dict[str, Any]:
+    """
+    Minimal preprocessing to ensure config_dict can pass Pydantic validation.
+    
+    Only adds the absolute minimum required for Cruise.from_dict() to succeed.
+    All intelligent defaults and business logic moved to Cruise object methods.
+    
+    Parameters
+    ----------
+    config_dict : dict[str, Any]
+        Raw configuration dictionary from YAML.
+        
+    Returns
+    -------
+    dict[str, Any]
+        Minimally processed config dictionary ready for Cruise.from_dict().
+    """
+    # Create a copy to avoid modifying original
+    processed_config = config_dict.copy()
+    
+    # Only add what's absolutely required for Pydantic validation to pass
+    # Most defaults will be handled by Cruise object methods
+    
+    # Ensure legs list exists (required by schema)
+    if "legs" not in processed_config:
+        processed_config["legs"] = []
+    
+    # If no legs and no ports, add minimal default leg for validation
+    if not processed_config["legs"]:
+        departure_port = processed_config.get(DEPARTURE_PORT_FIELD, DEFAULT_DEPARTURE_PORT)
+        arrival_port = processed_config.get(ARRIVAL_PORT_FIELD, DEFAULT_ARRIVAL_PORT)
+        
+        processed_config["legs"] = [{
+            "name": DEFAULT_LEG_NAME,
+            DEPARTURE_PORT_FIELD: departure_port,
+            ARRIVAL_PORT_FIELD: arrival_port,
+        }]
+        
+        # Remove global ports since they're now in the leg
+        processed_config.pop(DEPARTURE_PORT_FIELD, None)
+        processed_config.pop(ARRIVAL_PORT_FIELD, None)
+    
+    return processed_config
+
+
 def _enrich_station_depths(
     cruise, add_depths: bool, bathymetry_source: str, bathymetry_dir: str
 ) -> set[str]:
@@ -927,26 +1033,72 @@ def _sync_depths_to_config(
                     station_data[WATER_DEPTH_FIELD] = water_depth_value
 
 
-def _enrich_station_coordinates(
+def _enrich_coordinates(
+    cruise, 
     config_dict: dict[str, Any],
-    cruise,
     add_coords: bool,
     coord_format: str,
 ) -> int:
     """
-    Add coordinate fields to stations in the config dictionary.
-
+    Add coordinate display fields to the configuration dictionary.
+    
+    This function adds human-readable coordinate annotations to the YAML output
+    without modifying the core Cruise object data. It operates on the config_dict
+    just before final YAML output to add display enhancements.
+    
     Parameters
     ----------
+    cruise : Cruise
+        Loaded cruise configuration object (source of coordinate data).
     config_dict : dict[str, Any]
-        Configuration dictionary to modify.
+        Configuration dictionary to add coordinate displays to.
+    add_coords : bool
+        Whether to add coordinate display fields.
+    coord_format : str
+        Coordinate format to use for display.
+    
+    Returns
+    -------
+    int
+        Number of coordinate display fields added.
+    """
+    if not add_coords:
+        return 0
+        
+    coord_changes_made = 0
+    
+    # Add coordinate displays for stations
+    coord_changes_made += _enrich_station_coordinates_display(
+        cruise, config_dict, coord_format
+    )
+    
+    # Add coordinate displays for ports
+    coord_changes_made += _enrich_port_coordinates_display(
+        cruise, config_dict, coord_format
+    )
+    
+    # Add coordinate displays for transits and areas
+    coord_changes_made += _enrich_transit_coordinates(config_dict, True)
+    coord_changes_made += _enrich_area_coordinates(config_dict, True)
+    
+    return coord_changes_made
+
+
+def _enrich_station_coordinates_display(
+    cruise, config_dict: dict[str, Any], coord_format: str
+) -> int:
+    """
+    Add coordinate display fields to stations in the config dictionary.
+    
+    Parameters
+    ----------
     cruise : Cruise
         Loaded cruise configuration object.
-    add_coords : bool
-        Whether to add coordinate fields.
+    config_dict : dict[str, Any]
+        Configuration dictionary to modify.
     coord_format : str
         Coordinate format to use.
-
+    
     Returns
     -------
     int
@@ -961,38 +1113,34 @@ def _enrich_station_coordinates(
             if station_name in cruise.point_registry:
                 station_obj = cruise.point_registry[station_name]
 
-                # Add coordinate fields if requested
-                if add_coords:
-                    ddm_result, changes_count = _add_ddm_coordinates(
-                        station_data,
-                        station_obj.latitude,
-                        station_obj.longitude,
-                        "coordinates_ddm",
-                        coord_format,
+                ddm_result, changes_count = _add_ddm_coordinates(
+                    station_data,
+                    station_obj.latitude,
+                    station_obj.longitude,
+                    "coordinates_ddm",
+                    coord_format,
+                )
+                coord_changes_made += changes_count
+                if ddm_result:
+                    logger.debug(
+                        f"Added ddm coordinates to station {station_name}: {ddm_result}"
                     )
-                    coord_changes_made += changes_count
-                    if ddm_result:
-                        logger.debug(
-                            f"Added ddm coordinates to station {station_name}: {ddm_result}"
-                        )
 
     return coord_changes_made
 
 
-def _enrich_port_coordinates(
-    config_dict: dict[str, Any], cruise, add_coords: bool, coord_format: str
+def _enrich_port_coordinates_display(
+    cruise, config_dict: dict[str, Any], coord_format: str
 ) -> int:
     """
-    Add coordinate fields to departure and arrival ports.
+    Add coordinate display fields to departure and arrival ports.
 
     Parameters
     ----------
-    config_dict : dict[str, Any]
-        Configuration dictionary to modify.
     cruise : Cruise
         Loaded cruise configuration object.
-    add_coords : bool
-        Whether to add coordinate fields.
+    config_dict : dict[str, Any]
+        Configuration dictionary to modify.
     coord_format : str
         Coordinate format to use.
 
@@ -1004,31 +1152,30 @@ def _enrich_port_coordinates(
     coord_changes_made = 0
 
     # Process coordinate additions for departure and arrival ports
-    if add_coords:
-        for port_key in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
-            if config_dict.get(port_key):
-                port_data = config_dict[port_key]
-                # Use literal attribute names for Pydantic model access
-                attr_name = (
-                    "departure_port"
-                    if port_key == DEPARTURE_PORT_FIELD
-                    else "arrival_port"
-                )
-                if hasattr(cruise.config, attr_name):
-                    port_obj = getattr(cruise.config, attr_name)
-                    if hasattr(port_obj, "latitude") and hasattr(port_obj, "longitude"):
-                        ddm_result, changes_count = _add_ddm_coordinates(
-                            port_data,
-                            port_obj.latitude,
-                            port_obj.longitude,
-                            "coordinates_ddm",
-                            coord_format,
+    for port_key in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
+        if config_dict.get(port_key):
+            port_data = config_dict[port_key]
+            # Use literal attribute names for Pydantic model access
+            attr_name = (
+                "departure_port"
+                if port_key == DEPARTURE_PORT_FIELD
+                else "arrival_port"
+            )
+            if hasattr(cruise.config, attr_name):
+                port_obj = getattr(cruise.config, attr_name)
+                if hasattr(port_obj, "latitude") and hasattr(port_obj, "longitude"):
+                    ddm_result, changes_count = _add_ddm_coordinates(
+                        port_data,
+                        port_obj.latitude,
+                        port_obj.longitude,
+                        "coordinates_ddm",
+                        coord_format,
+                    )
+                    coord_changes_made += changes_count
+                    if ddm_result:
+                        logger.debug(
+                            f"Added ddm coordinates to {port_key}: {ddm_result}"
                         )
-                        coord_changes_made += changes_count
-                        if ddm_result:
-                            logger.debug(
-                                f"Added ddm coordinates to {port_key}: {ddm_result}"
-                            )
 
     return coord_changes_made
 
@@ -1121,194 +1268,42 @@ def _enrich_area_coordinates(config_dict: dict[str, Any], add_coords: bool) -> i
     return coord_changes_made
 
 
-def _expand_port_references(
-    config_dict: dict[str, Any], expand_ports: bool
-) -> dict[str, int]:
-    """
-    Expand global port references into port catalog and leg definitions.
-
-    Parameters
-    ----------
-    config_dict : dict[str, Any]
-        Configuration dictionary to modify.
-    expand_ports : bool
-        Whether to expand port references.
-
-    Returns
-    -------
-    dict[str, int]
-        Dictionary with 'ports_expanded' and 'leg_ports_expanded' counts.
-    """
-    ports_expanded_count = 0
-    leg_ports_expanded = 0
-
-    # Expand global port references to ports catalog if requested
-    if expand_ports:
-        # Create ports catalog section if it doesn't exist
-        if "ports" not in config_dict:
-            config_dict["ports"] = []
-
-        # Track which ports we've already added to avoid duplicates
-        existing_port_names = {port.get("name", "") for port in config_dict["ports"]}
-
-        # Collect all port references from cruise-level and leg-level
-        port_references = set()
-
-        # Check cruise-level ports
-        for port_field in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
-            if port_field in config_dict and isinstance(config_dict[port_field], str):
-                port_ref = config_dict[port_field]
-                if port_ref.startswith("port_"):
-                    port_references.add(port_ref)
-
-        # Check leg-level ports
-        if LEGS_FIELD in config_dict:
-            for leg_data in config_dict[LEGS_FIELD]:
-                for port_field in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
-                    if port_field in leg_data and isinstance(leg_data[port_field], str):
-                        port_ref = leg_data[port_field]
-                        if port_ref.startswith("port_"):
-                            port_references.add(port_ref)
-
-        # Resolve each unique port reference and add to catalog
-        for port_ref in port_references:
-            if port_ref not in existing_port_names:
-                try:
-                    port_definition = resolve_port_reference(port_ref)
-                    # Add to ports catalog with display_name from global registry
-                    catalog_port = {
-                        "name": port_ref,  # Keep the full port_* name as catalog identifier
-                        "latitude": port_definition.latitude,
-                        "longitude": port_definition.longitude,
-                        OP_TYPE_FIELD: "port",  # Explicitly set operation_type for ports
-                    }
-                    # Add display_name if available
-                    if hasattr(port_definition, "display_name"):
-                        catalog_port["display_name"] = port_definition.display_name
-                    elif hasattr(port_definition, "name"):
-                        catalog_port["display_name"] = port_definition.name
-
-                    config_dict["ports"].append(catalog_port)
-                    ports_expanded_count += 1
-                    logger.debug(
-                        f"Added port '{port_ref}' to catalog as '{catalog_port.get('display_name', port_ref)}'"
-                    )
-                except ValueError as e:
-                    logger.warning(
-                        f"Could not resolve port reference '{port_ref}': {e}"
-                    )
-
-        # Expand leg-level port references into full port definitions with actions
-        if LEGS_FIELD in config_dict:
-            for leg_data in config_dict[LEGS_FIELD]:
-                # Expand departure_port
-                if DEPARTURE_PORT_FIELD in leg_data and isinstance(
-                    leg_data[DEPARTURE_PORT_FIELD], str
-                ):
-                    port_ref = leg_data[DEPARTURE_PORT_FIELD]
-                    if port_ref.startswith("port_"):
-                        try:
-                            port_definition = resolve_port_reference(port_ref)
-                            # Replace string reference with full port definition
-                            leg_data[DEPARTURE_PORT_FIELD] = {
-                                "name": port_ref,
-                                "latitude": port_definition.latitude,
-                                "longitude": port_definition.longitude,
-                                OP_TYPE_FIELD: "port",
-                                ACTION_FIELD: "mob",  # Departure ports are mobilization
-                            }
-                            if hasattr(port_definition, "display_name"):
-                                leg_data[DEPARTURE_PORT_FIELD][
-                                    "display_name"
-                                ] = port_definition.display_name
-                            elif hasattr(port_definition, "name"):
-                                leg_data[DEPARTURE_PORT_FIELD][
-                                    "display_name"
-                                ] = port_definition.name
-                            leg_ports_expanded += 1
-                            logger.debug(
-                                f"Expanded departure_port '{port_ref}' with action 'mob'"
-                            )
-                        except ValueError as e:
-                            logger.warning(
-                                f"Could not expand departure_port '{port_ref}': {e}"
-                            )
-
-                # Expand arrival_port
-                if ARRIVAL_PORT_FIELD in leg_data and isinstance(
-                    leg_data[ARRIVAL_PORT_FIELD], str
-                ):
-                    port_ref = leg_data[ARRIVAL_PORT_FIELD]
-                    if port_ref.startswith("port_"):
-                        try:
-                            port_definition = resolve_port_reference(port_ref)
-                            # Replace string reference with full port definition
-                            leg_data[ARRIVAL_PORT_FIELD] = {
-                                "name": port_ref,
-                                "latitude": port_definition.latitude,
-                                "longitude": port_definition.longitude,
-                                OP_TYPE_FIELD: "port",
-                                ACTION_FIELD: "demob",  # Arrival ports are demobilization
-                            }
-                            if hasattr(port_definition, "display_name"):
-                                leg_data[ARRIVAL_PORT_FIELD][
-                                    "display_name"
-                                ] = port_definition.display_name
-                            elif hasattr(port_definition, "name"):
-                                leg_data[ARRIVAL_PORT_FIELD][
-                                    "display_name"
-                                ] = port_definition.name
-                            leg_ports_expanded += 1
-                            logger.debug(
-                                f"Expanded arrival_port '{port_ref}' with action 'demob'"
-                            )
-                        except ValueError as e:
-                            logger.warning(
-                                f"Could not expand arrival_port '{port_ref}': {e}"
-                            )
-
-    return {
-        "ports_expanded": ports_expanded_count,
-        "leg_ports_expanded": leg_ports_expanded,
-    }
 
 
-def _process_warnings_and_save(
+def _save_config(
     config_dict: dict[str, Any],
-    captured_warnings: list[str],
-    cruise,
     output_path: Optional[Path],
 ) -> None:
     """
-    Process captured warnings and save configuration to file.
+    Save configuration to file.
 
     Parameters
     ----------
     config_dict : dict[str, Any]
         Configuration dictionary to save.
-    captured_warnings : list[str]
-        List of captured warning messages.
-    cruise : Cruise
-        Loaded cruise configuration object.
     output_path : Optional[Path]
         Path for output file (if None, no save).
     """
-    # Process captured warnings and display them in user-friendly format
-    if captured_warnings:
-        # Keep this import conditional as it might create circular dependencies
-        from cruiseplan.processing.validate import _format_validation_warnings
-
-        formatted_warnings = _format_validation_warnings(captured_warnings, cruise)
-        for warning_group in formatted_warnings:
-            logger.warning("⚠️ Configuration Warnings:")
-            for line in warning_group.split("\n"):
-                if line.strip():
-                    logger.warning(f"  {line}")
-            logger.warning("")  # Add spacing between warning groups
-
-    # Save enriched configuration if output path is specified
     if output_path:
         save_yaml(config_dict, output_path, backup=False)
+
+
+def _process_warnings(captured_warnings: list[str]) -> None:
+    """
+    Process and display captured warnings in user-friendly format.
+
+    Parameters
+    ----------
+    captured_warnings : list[str]
+        List of captured warning messages.
+    """
+    if captured_warnings:
+        logger.warning("⚠️ Configuration Warnings:")
+        for warning in captured_warnings:
+            for line in warning.split("\n"):
+                if line.strip():
+                    logger.warning(f"  {line}")
+        logger.warning("")  # Add spacing between warning groups
 
 
 def _build_enrichment_summary(
@@ -1347,7 +1342,6 @@ def enrich_configuration(
     add_depths: bool = False,
     add_coords: bool = False,
     expand_sections: bool = False,
-    expand_ports: bool = False,
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
     coord_format: str = "ddm",
@@ -1357,7 +1351,8 @@ def enrich_configuration(
     Add missing data to cruise configuration.
 
     Enriches the cruise configuration by adding bathymetric depths and
-    formatted coordinates where missing.
+    formatted coordinates where missing. Port references are automatically
+    resolved to full PortDefinition objects during loading.
 
     Parameters
     ----------
@@ -1369,8 +1364,6 @@ def enrich_configuration(
         Whether to add formatted coordinate fields (default: False).
     expand_sections : bool, optional
         Whether to expand CTD sections into individual stations (default: False).
-    expand_ports : bool, optional
-        Whether to expand global port references into full PortDefinition objects (default: False).
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "etopo2022").
     coord_format : str, optional
@@ -1388,50 +1381,59 @@ def enrich_configuration(
         - stations_from_expansion: Number of stations generated from expansion
         - total_stations_processed: Total stations processed
     """
-    # Load, validate, and preprocess configuration
-    config_dict, cruise, enrichment_summary = _load_and_validate_config(
-        config_path, expand_sections
-    )
-
-    # Capture warnings during enrichment
+    # === Clean Architecture: Minimal preprocessing → Cruise enhancement phase ===
+    
+    # 1. Load raw YAML
+    config_dict = load_yaml(config_path)
+    
+    # 2. Minimal preprocessing (only what's required for Pydantic validation)
+    processed_config = _minimal_preprocess_config(config_dict)
+    
+    # 3. Create Cruise object
+    from cruiseplan.core.cruise import Cruise
     with _validation_warning_capture() as captured_warnings:
-        # Add depths to stations if requested
-        stations_with_depths_added = _enrich_station_depths(
-            cruise, add_depths, bathymetry_source, bathymetry_dir
+        cruise = Cruise.from_dict(processed_config)
+
+    # 4. Cruise enhancement phase - all business logic in Cruise object methods
+    sections_expanded = 0
+    stations_from_expansion = 0
+    if expand_sections:
+        section_summary = cruise.expand_sections()
+        sections_expanded = section_summary["sections_expanded"]
+        stations_from_expansion = section_summary["stations_from_expansion"]
+    
+    # Add station defaults (like mooring durations)
+    station_defaults_added = cruise.add_station_defaults()
+    
+    stations_with_depths_added = set()
+    if add_depths:
+        stations_with_depths_added = cruise.enrich_depths(bathymetry_source, bathymetry_dir)
+    
+    # Ports are automatically resolved during Cruise object creation
+    # No need for explicit expand_ports flag anymore
+    
+    # 5. Generate final YAML output with display enhancements
+    output_config = cruise.to_commented_dict()
+    
+    # Add coordinate displays if requested (final formatting step)
+    coord_changes_made = 0
+    if add_coords:
+        coord_changes_made += _enrich_coordinates(
+            cruise, output_config, add_coords, coord_format
         )
-
-        # Sync depth changes from Cruise object back to config_dict
-        _sync_depths_to_config(config_dict, cruise, stations_with_depths_added)
-
-        # Initialize coordinate change tracking
-        coord_changes_made = 0
-
-        # Add coordinates if requested
-        if add_coords:
-            coord_changes_made += _enrich_station_coordinates(
-                config_dict,
-                cruise,
-                add_coords,
-                coord_format,
-            )
-            coord_changes_made += _enrich_port_coordinates(
-                config_dict, cruise, add_coords, coord_format
-            )
-            coord_changes_made += _enrich_transit_coordinates(config_dict, add_coords)
-            coord_changes_made += _enrich_area_coordinates(config_dict, add_coords)
-
-        # Expand port references if requested
-        port_summary = _expand_port_references(config_dict, expand_ports)
-
-        # Build final enrichment summary
-        final_summary = _build_enrichment_summary(
-            enrichment_summary,
-            stations_with_depths_added,
-            coord_changes_made,
-            port_summary,
-        )
-
-        # Process warnings and save configuration
-        _process_warnings_and_save(config_dict, captured_warnings, cruise, output_path)
-
-        return final_summary
+    
+    # 6. Build summary and save
+    final_summary = {
+        "sections_expanded": sections_expanded,
+        "stations_from_expansion": stations_from_expansion,
+        "stations_with_depths_added": len(stations_with_depths_added),
+        "stations_with_coords_added": coord_changes_made,
+        "station_defaults_added": station_defaults_added,
+        "total_stations_processed": len(cruise.point_registry),
+    }
+    
+    # Process warnings and save configuration
+    _process_warnings(captured_warnings)
+    _save_config(output_config, output_path)
+    
+    return final_summary

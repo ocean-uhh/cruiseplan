@@ -38,9 +38,9 @@ class TestEnrichConfiguration:
         }
         mock_yaml_load.return_value = config_data
 
-        # Setup mocks
+        # Setup mocks - now mocking from_dict instead of constructor
         mock_cruise = MagicMock()
-        mock_cruise_class.return_value = mock_cruise
+        mock_cruise_class.from_dict.return_value = mock_cruise
         mock_cruise.raw_data = config_data
 
         # Mock station without water_depth
@@ -50,8 +50,14 @@ class TestEnrichConfiguration:
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
+        
+        # Mock the new enrich_depths method to return the expected set
+        mock_cruise.enrich_depths.return_value = {"STN_001"}
+        
+        # Mock to_commented_dict method for output generation
+        mock_cruise.to_commented_dict.return_value = config_data
 
-        # Mock bathymetry
+        # Mock bathymetry (not needed for new approach but keeping for compatibility)
         mock_bathymetry = MagicMock()
         mock_bathymetry_class.return_value = mock_bathymetry
         mock_bathymetry.get_depth_at_point.return_value = (
@@ -69,9 +75,8 @@ class TestEnrichConfiguration:
         # Verify
         assert result["stations_with_depths_added"] == 1
         assert result["stations_with_coords_added"] == 0
-        assert mock_station.water_depth == 1000.0  # Should be converted to positive
-        # save_yaml is called twice: once for temp file, once for output
-        assert mock_save_yaml.call_count == 2
+        # save_yaml is called once: only for output (no more temp files)
+        assert mock_save_yaml.call_count == 1
 
     @patch("cruiseplan.processing.enrich.save_yaml")
     @patch("cruiseplan.processing.enrich.format_ddm_comment")
@@ -93,15 +98,18 @@ class TestEnrichConfiguration:
         }
         mock_yaml_load.return_value = config_data
 
-        # Setup mocks
+        # Setup mocks - now mocking from_dict instead of constructor
         mock_cruise = MagicMock()
-        mock_cruise_class.return_value = mock_cruise
+        mock_cruise_class.from_dict.return_value = mock_cruise
         mock_cruise.raw_data = config_data
 
         mock_station = MagicMock()
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
+        
+        # Mock to_commented_dict method for output generation
+        mock_cruise.to_commented_dict.return_value = config_data
 
         mock_format_ddm.return_value = "50 00.00'N, 040 00.00'W"
 
@@ -118,8 +126,8 @@ class TestEnrichConfiguration:
         assert result["stations_with_depths_added"] == 0
         assert result["stations_with_coords_added"] == 1
         mock_format_ddm.assert_called_once_with(50.0, -40.0)
-        # save_yaml is called twice: once for temp file, once for output
-        assert mock_save_yaml.call_count == 2
+        # save_yaml is called once: only for output (no more temp files)
+        assert mock_save_yaml.call_count == 1
 
     @patch("cruiseplan.core.cruise.Cruise")
     @patch("builtins.open")
@@ -132,11 +140,17 @@ class TestEnrichConfiguration:
         config_data = {POINTS_FIELD: []}
         mock_yaml_load.return_value = config_data
 
-        # Setup mocks
+        # Setup mocks - now mocking from_dict instead of constructor
         mock_cruise = MagicMock()
-        mock_cruise_class.return_value = mock_cruise
+        mock_cruise_class.from_dict.return_value = mock_cruise
         mock_cruise.raw_data = config_data
         mock_cruise.point_registry = {}
+        
+        # Mock enrich methods to return empty sets/dicts
+        mock_cruise.enrich_depths.return_value = set()
+        
+        # Mock to_commented_dict method for output generation
+        mock_cruise.to_commented_dict.return_value = config_data
 
         # Test
         result = enrich_configuration(

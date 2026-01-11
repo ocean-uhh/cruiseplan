@@ -632,25 +632,44 @@ class TimelineGenerator:
                         PointDefinition,
                     )
 
-                    if (
-                        isinstance(activity, PointDefinition)
-                        and hasattr(activity, "operation_type")
-                        and activity.operation_type
-                        and activity.operation_type.value == "port"
-                    ):
-                        # Port waypoint - create as port
-                        operation = PointOperation.from_port(activity)
-                    elif isinstance(activity, PointDefinition):
-                        # Non-port waypoint - create as scientific operation
-                        operation = PointOperation.from_pydantic(activity)
+                    # Handle both Pydantic objects and dictionaries (from YAML deserialization)
+                    if isinstance(activity, PointDefinition):
+                        if (
+                            hasattr(activity, "operation_type")
+                            and activity.operation_type
+                            and activity.operation_type.value == "port"
+                        ):
+                            # Port waypoint - create as port
+                            operation = PointOperation.from_port(activity)
+                        else:
+                            # Non-port waypoint - create as scientific operation
+                            operation = PointOperation.from_pydantic(activity)
                     elif isinstance(activity, LineDefinition):
                         # Transect - create as line operation
-                        operation = LineOperation.from_pydantic(activity)
+                        operation = LineOperation.from_pydantic(activity, leg.vessel_speed)
                     elif isinstance(activity, AreaDefinition):
                         # Area - create as area operation
                         operation = AreaOperation.from_pydantic(activity)
+                    elif isinstance(activity, dict):
+                        # Handle dictionary format (from YAML deserialization)
+                        if activity.get("operation_type") == "port":
+                            # Convert dict to PointDefinition for port processing
+                            point_def = PointDefinition(**activity)
+                            operation = PointOperation.from_port(point_def)
+                        elif "route" in activity:
+                            # LineDefinition (has route field)
+                            line_def = LineDefinition(**activity)
+                            operation = LineOperation.from_pydantic(line_def, leg.vessel_speed)
+                        elif "corners" in activity:
+                            # AreaDefinition (has corners field)
+                            area_def = AreaDefinition(**activity)
+                            operation = AreaOperation.from_pydantic(area_def)
+                        else:
+                            # PointDefinition (default)
+                            point_def = PointDefinition(**activity)
+                            operation = PointOperation.from_pydantic(point_def)
                     else:
-                        # Legacy port object - create as port
+                        # Legacy fallback
                         operation = PointOperation.from_port(activity)
 
                 # Add navigational transit between all operations
