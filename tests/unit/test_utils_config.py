@@ -3,7 +3,6 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from cruiseplan.schema import CruiseConfigurationError
 from cruiseplan.utils.config import (
     ConfigLoader,
     format_station_for_yaml,
@@ -17,7 +16,7 @@ from cruiseplan.utils.defaults import (
 )
 from cruiseplan.utils.yaml_io import YAMLIOError
 
-# Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
+# Mock the external dependencies (CruiseConfig, ValidationError)
 # Assuming DEFAULT_DEPTH is -9999.0 for testing the formatters.
 DEFAULT_DEPTH = -9999.0
 
@@ -137,7 +136,7 @@ class TestConfigLoader:
     def test_load_raw_data_file_not_found(self, mock_exists):
         """Tests the file not found exception path."""
         loader = ConfigLoader(self.mock_path)
-        with pytest.raises(CruiseConfigurationError, match="not found"):
+        with pytest.raises(FileNotFoundError, match="not found"):
             loader.load_raw_data()
 
     @patch.object(Path, "exists", return_value=True)
@@ -146,7 +145,7 @@ class TestConfigLoader:
     def test_load_raw_data_yaml_error(self, mock_load, mock_exists):
         """Tests the generic YAML parsing error path."""
         loader = ConfigLoader(self.mock_path)
-        with pytest.raises(CruiseConfigurationError, match="Failed to load or parse"):
+        with pytest.raises(ValueError, match="Failed to load or parse"):
             loader.load_raw_data()
 
     @patch.object(Path, "exists", return_value=True)
@@ -158,7 +157,7 @@ class TestConfigLoader:
         with patch("builtins.open", mock_open(read_data=self.valid_yaml)):
             loader = ConfigLoader(self.mock_path)
             with pytest.raises(
-                CruiseConfigurationError, match="not a valid dictionary"
+                ValueError, match="not a valid dictionary"
             ):
                 loader.load_raw_data()
 
@@ -189,7 +188,7 @@ class TestConfigLoader:
         invalid_data = self.valid_data.copy()
         invalid_data["raise_validation_error"] = True  # Trigger the mock error
 
-        with pytest.raises(CruiseConfigurationError, match="Validation Failed"):
+        with pytest.raises(ValueError, match="Validation Failed"):
             loader.validate_and_parse(invalid_data)
 
     @patch.object(ConfigLoader, "load_raw_data", return_value=None)

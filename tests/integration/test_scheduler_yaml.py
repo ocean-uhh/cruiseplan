@@ -4,7 +4,6 @@ Integration tests for the scheduler against real YAML fixture files.
 
 import pytest
 
-from cruiseplan.schema import CruiseConfigurationError
 from cruiseplan.utils.config import ConfigLoader
 
 
@@ -13,6 +12,6 @@ class TestSchedulerWithYAMLFixtures:
 
     def test_scheduler_handles_missing_fixtures_gracefully(self):
         """Test that scheduler handles missing files appropriately."""
-        with pytest.raises(CruiseConfigurationError):
+        with pytest.raises(FileNotFoundError):
             loader = ConfigLoader("tests/fixtures/nonexistent.yaml")
             loader.load()

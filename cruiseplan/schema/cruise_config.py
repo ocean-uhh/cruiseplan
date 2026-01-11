@@ -24,7 +24,7 @@ from cruiseplan.utils.defaults import (
 )
 
 from .activities import AreaDefinition, LineDefinition, PointDefinition
-from .enums import StrategyEnum
+from .options import StrategyEnum
 
 
 class ClusterDefinition(BaseModel):
