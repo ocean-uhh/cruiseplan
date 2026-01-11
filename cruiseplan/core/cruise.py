@@ -493,7 +493,7 @@ class Leg(BaseOrganizationUnit):
         Parameters
         ----------
         operation : BaseOperation
-            The operation to add (e.g., a single CTD cast or transit).
+            The operation to add (e.g., a single CTD cast or section).
         """
         self.operations.append(operation)
 
@@ -541,11 +541,11 @@ class Leg(BaseOrganizationUnit):
         """
         return self.clusters.copy()
 
-    def calculate_total_duration(self, rules: Any) -> float:
+    def calculate_total_duration_legacy(self, rules: Any) -> float:
         """
         Calculate total duration for all operations in this leg.
 
-        Includes port-to-port transit time, standalone operations, and cluster
+        Includes port transit time, standalone operations, and cluster
         operations with proper boundary management.
 
         Parameters
@@ -556,7 +556,7 @@ class Leg(BaseOrganizationUnit):
         Returns
         -------
         float
-            Total duration in minutes including all operations and transits.
+            Total duration in minutes including all operations and port transits.
         """
         total = 0.0
 
@@ -573,7 +573,7 @@ class Leg(BaseOrganizationUnit):
 
         return total
 
-    def _calculate_port_to_port_transit(self, rules: Any) -> float:
+    def _calculate_port_to_port_transit_legacy(self, rules: Any) -> float:
         """
         Calculate transit time from departure port to arrival port.
 
@@ -1602,17 +1602,18 @@ class CruiseInstance:
             )
 
         # 4. Catalog Definitions
-        if self.config.points:
+        if self.point_registry:
             output["points"] = [
-                self._serialize_point_definition(p) for p in self.config.points
+                self._serialize_point_definition(p)
+                for p in self.point_registry.values()
             ]
-        if self.config.lines:
+        if self.line_registry:
             output["lines"] = [
-                self._serialize_line_definition(l) for l in self.config.lines
+                self._serialize_line_definition(l) for l in self.line_registry.values()
             ]
-        if self.config.areas:
+        if self.area_registry:
             output["areas"] = [
-                self._serialize_area_definition(a) for a in self.config.areas
+                self._serialize_area_definition(a) for a in self.area_registry.values()
             ]
         if self.config.ports:
             output["ports"] = [
@@ -1652,6 +1653,30 @@ class CruiseInstance:
             leg_dict[ARRIVAL_PORT_FIELD] = leg_dict[ARRIVAL_PORT_FIELD].model_dump(
                 exclude_none=True, mode="json"
             )
+
+        # Handle activities serialization - activities should be references (names), not full objects
+        if "activities" in leg_dict and leg.activities:
+            activity_names = []
+            for activity in leg.activities:
+                if hasattr(activity, "name"):
+                    activity_names.append(activity.name)
+                else:
+                    # Fallback if it's already a string
+                    activity_names.append(str(activity))
+            leg_dict["activities"] = activity_names
+
+        # Handle first_activity and last_activity - should be names, not full objects
+        if hasattr(leg, "first_activity") and leg.first_activity:
+            if hasattr(leg.first_activity, "name"):
+                leg_dict["first_activity"] = leg.first_activity.name
+            else:
+                leg_dict["first_activity"] = str(leg.first_activity)
+
+        if hasattr(leg, "last_activity") and leg.last_activity:
+            if hasattr(leg.last_activity, "name"):
+                leg_dict["last_activity"] = leg.last_activity.name
+            else:
+                leg_dict["last_activity"] = str(leg.last_activity)
 
         return leg_dict
 
@@ -1742,9 +1767,7 @@ class CruiseInstance:
             - sections_expanded: Number of sections expanded
             - stations_from_expansion: Number of stations created
         """
-        from cruiseplan.utils.defaults import (
-            DURATION_FIELD,
-        )
+        from cruiseplan.schema.vocabulary import DURATION_FIELD
 
         sections_expanded = 0
         total_stations_created = 0
@@ -1752,13 +1775,18 @@ class CruiseInstance:
         # Find CTD sections in lines catalog
         ctd_sections = []
         for line_name, line_def in self.line_registry.items():
-            if hasattr(line_def, "operation_type") and line_def.operation_type == "CTD":
+            if (
+                hasattr(line_def, "operation_type")
+                and line_def.operation_type == "CTD"
+                and hasattr(line_def, "action")
+                and line_def.action == "section"
+            ):
                 ctd_sections.append(
                     {
                         "name": line_name,
                         "route": line_def.route,
-                        "distance_between_stations": getattr(
-                            line_def, "distance_between_stations", 20.0
+                        "distance_between_stations": (
+                            getattr(line_def, "distance_between_stations", None) or 20.0
                         ),
                         "max_depth": getattr(line_def, "max_depth", None),
                         "planned_duration_hours": getattr(
@@ -1769,33 +1797,103 @@ class CruiseInstance:
                 )
 
         # Expand each section
+        sections_to_remove = []
         for section in ctd_sections:
             expanded_stations = self._expand_single_ctd_section(section, default_depth)
             if expanded_stations:
+                section_name = section["name"]
+                station_names = []
+
                 # Add stations to point registry
                 for station_dict in expanded_stations:
                     station_name = station_dict["name"]
                     # Convert dict back to PointDefinition
                     point_def = PointDefinition(**station_dict)
                     self.point_registry[station_name] = point_def
+                    station_names.append(station_name)
                     total_stations_created += 1
+
+                # Update leg activities to reference expanded stations
+                self._update_leg_activities_for_expanded_section(
+                    section_name, station_names
+                )
+
+                # Mark section for removal from line registry
+                sections_to_remove.append(section_name)
                 sections_expanded += 1
+
+        # Remove expanded sections from line registry
+        for section_name in sections_to_remove:
+            if section_name in self.line_registry:
+                del self.line_registry[section_name]
 
         return {
             "sections_expanded": sections_expanded,
             "stations_from_expansion": total_stations_created,
         }
 
-    def _expand_single_ctd_section(
-        self, transit: dict[str, Any], default_depth: float = -9999.0
-    ) -> list[dict[str, Any]]:
+    def _update_leg_activities_for_expanded_section(
+        self, section_name: str, station_names: list[str]
+    ) -> None:
         """
-        Expand a single CTD section transit into individual station definitions.
+        Update leg activities to replace expanded section with station names.
 
         Parameters
         ----------
-        transit : dict[str, Any]
-            Transit definition containing route and section parameters.
+        section_name : str
+            Name of the section that was expanded.
+        station_names : list[str]
+            Names of the stations created from the expansion.
+        """
+        for leg in self.config.legs:
+            # Update activities list - activities are resolved objects, not strings
+            if hasattr(leg, "activities") and leg.activities:
+                updated_activities = []
+                for activity in leg.activities:
+                    # Check if this activity object has the name we're looking for
+                    if hasattr(activity, "name") and activity.name == section_name:
+                        # Replace with PointDefinition objects from registry
+                        for station_name in station_names:
+                            if station_name in self.point_registry:
+                                updated_activities.append(
+                                    self.point_registry[station_name]
+                                )
+                    else:
+                        updated_activities.append(activity)
+                leg.activities = updated_activities
+
+            # Update first_activity if it points to the expanded section
+            if hasattr(leg, "first_activity") and leg.first_activity:
+                # Handle both string references and resolved objects
+                activity_name = (
+                    leg.first_activity.name
+                    if hasattr(leg.first_activity, "name")
+                    else leg.first_activity
+                )
+                if activity_name == section_name:
+                    leg.first_activity = self.point_registry[station_names[0]]
+
+            # Update last_activity if it points to the expanded section
+            if hasattr(leg, "last_activity") and leg.last_activity:
+                # Handle both string references and resolved objects
+                activity_name = (
+                    leg.last_activity.name
+                    if hasattr(leg.last_activity, "name")
+                    else leg.last_activity
+                )
+                if activity_name == section_name:
+                    leg.last_activity = self.point_registry[station_names[-1]]
+
+    def _expand_single_ctd_section(
+        self, section: dict[str, Any], default_depth: float = -9999.0
+    ) -> list[dict[str, Any]]:
+        """
+        Expand a single CTD section into individual station definitions.
+
+        Parameters
+        ----------
+        section : dict[str, Any]
+            Line definition containing route and section parameters.
         default_depth : float, optional
             Default depth value to use for stations. Default is -9999.0.
 
@@ -1805,7 +1903,7 @@ class CruiseInstance:
             List of station definitions along the section.
         """
         from cruiseplan.calculators.distance import haversine_distance
-        from cruiseplan.utils.defaults import (
+        from cruiseplan.schema.vocabulary import (
             ACTION_FIELD,
             DURATION_FIELD,
             OP_TYPE_FIELD,
@@ -1813,17 +1911,16 @@ class CruiseInstance:
         )
         from cruiseplan.utils.plot_config import interpolate_great_circle_position
 
-        if not transit.get("route") or len(transit["route"]) < 2:
+        if not section.get("route") or len(section["route"]) < 2:
             return []
 
-        start = transit["route"][0]
-        end = transit["route"][-1]
-
-        # Extract coordinates using flexible key lookup
-        start_lat = start.get("latitude") or start.get("lat")
-        start_lon = start.get("longitude") or start.get("lon")
-        end_lat = end.get("latitude") or end.get("lat")
-        end_lon = end.get("longitude") or end.get("lon")
+        start = section["route"][0]
+        end = section["route"][-1]
+        # Extract coordinates from GeoPoint objects
+        start_lat = start.latitude
+        start_lon = start.longitude
+        end_lat = end.latitude
+        end_lon = end.longitude
 
         if any(coord is None for coord in [start_lat, start_lon, end_lat, end_lon]):
             return []
@@ -1831,11 +1928,11 @@ class CruiseInstance:
         total_distance_km = haversine_distance(
             (start_lat, start_lon), (end_lat, end_lon)
         )
-        spacing_km = transit.get("distance_between_stations", 20.0)
+        spacing_km = section.get("distance_between_stations", 20.0)
         num_stations = max(2, int(total_distance_km / spacing_km) + 1)
 
         stations = []
-        base_name = transit["name"].replace(" ", "_").replace("-", "_")
+        base_name = self._sanitize_name_for_stations(section["name"])
 
         for i in range(num_stations):
             fraction = i / (num_stations - 1) if num_stations > 1 else 0
@@ -1843,33 +1940,106 @@ class CruiseInstance:
                 start_lat, start_lon, end_lat, end_lon, fraction
             )
 
+            # Generate unique station name (handle duplicates)
+            base_station_name = f"{base_name}_Stn{i+1:03d}"
+            station_name = self._generate_unique_name(base_station_name)
+
             station = {
-                "name": f"{base_name}_Stn{i+1:03d}",
+                "name": station_name,
                 OP_TYPE_FIELD: "CTD",
                 ACTION_FIELD: "profile",
                 "latitude": round(lat, 5),
                 "longitude": round(lon, 5),
-                "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
+                "comment": f"Station {i+1}/{num_stations} on {section['name']} section",
                 DURATION_FIELD: 120.0,
             }
 
             # Add depth if available
-            if "max_depth" in transit:
-                station[WATER_DEPTH_FIELD] = transit["max_depth"]
+            if "max_depth" in section:
+                station[WATER_DEPTH_FIELD] = section["max_depth"]
             elif default_depth != -9999.0:
                 station[WATER_DEPTH_FIELD] = default_depth
 
             # Add duration if specified
-            if "planned_duration_hours" in transit:
+            if (
+                "planned_duration_hours" in section
+                and section["planned_duration_hours"] is not None
+            ):
                 station[DURATION_FIELD] = (
-                    float(transit["planned_duration_hours"]) * 60.0
+                    float(section["planned_duration_hours"]) * 60.0
                 )
-            elif DURATION_FIELD in transit:
-                station[DURATION_FIELD] = float(transit[DURATION_FIELD])
+            elif DURATION_FIELD in section and section[DURATION_FIELD] is not None:
+                station[DURATION_FIELD] = float(section[DURATION_FIELD])
 
             stations.append(station)
 
         return stations
+
+    def _generate_unique_name(self, base_name: str) -> str:
+        """
+        Generate a unique name by checking against existing point registry.
+
+        If the base name already exists, append _1, _2, etc. until a unique name is found.
+
+        Parameters
+        ----------
+        base_name : str
+            The base name to make unique.
+
+        Returns
+        -------
+        str
+            A unique name that doesn't exist in the point registry.
+        """
+        if base_name not in self.point_registry:
+            return base_name
+
+        # Name exists, find unique suffix (using legacy format _01, _02, etc.)
+        counter = 1
+        while f"{base_name}_{counter:02d}" in self.point_registry:
+            counter += 1
+
+        return f"{base_name}_{counter:02d}"
+
+    def _sanitize_name_for_stations(self, name: str) -> str:
+        """
+        Sanitize a name for use as a station name base.
+
+        Removes special characters, converts Unicode to ASCII, and ensures
+        the result contains only alphanumeric characters and underscores.
+
+        Parameters
+        ----------
+        name : str
+            Original name to sanitize.
+
+        Returns
+        -------
+        str
+            Sanitized name suitable for station naming.
+        """
+        import re
+        import unicodedata
+
+        # Convert Unicode to ASCII equivalent
+        name = unicodedata.normalize("NFD", name)
+        name = name.encode("ascii", "ignore").decode("ascii")
+
+        # Replace common separators and special chars with underscores
+        name = re.sub(r"[^\w\s]", "_", name)  # Replace non-word chars (except spaces)
+        name = re.sub(r"\s+", "_", name)  # Replace spaces with underscores
+
+        # Clean up multiple consecutive underscores
+        name = re.sub(r"_+", "_", name)
+
+        # Remove leading and trailing underscores
+        name = name.strip("_")
+
+        # If name becomes empty, provide a fallback
+        if not name:
+            name = "Section"
+
+        return name
 
     def enrich_depths(
         self, bathymetry_source: str = "etopo2022", bathymetry_dir: str = "data"
@@ -2029,16 +2199,28 @@ class CruiseInstance:
         -------
         int
             Number of coordinate display fields added.
-
-        Notes
-        -----
-        This method operates on the final export phase and adds display
-        annotations to the to_commented_dict() output, not the core registries.
         """
-        # This method is implemented as part of to_commented_dict()
-        # since coordinate displays are output-formatting concerns
-        # rather than core data modifications.
-        #
-        # The actual implementation will be in the export pipeline
-        # when we refactor enrich_configuration()
-        return 0
+        coord_changes_made = 0
+
+        # Add coordinate displays for points that have coordinates but lack display fields
+        for point_name, point in self.point_registry.items():
+            if (
+                hasattr(point, "latitude")
+                and hasattr(point, "longitude")
+                and point.latitude is not None
+                and point.longitude is not None
+            ):
+
+                # For now, we'll add the coordinate display as a "position_string" field
+                # This will be used for display purposes in the output
+                if coord_format == "ddm":
+                    from cruiseplan.utils.coordinates import format_ddm_comment
+
+                    position_display = format_ddm_comment(
+                        point.latitude, point.longitude
+                    )
+                    # Set the position string for display (this gets used in YAML output)
+                    point.position_string = position_display
+                    coord_changes_made += 1
+
+        return coord_changes_made

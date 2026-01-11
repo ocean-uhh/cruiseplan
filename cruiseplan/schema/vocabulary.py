@@ -25,6 +25,7 @@ LEGS_FIELD = "legs"
 CLUSTERS_FIELD = "clusters"
 ACTIVITIES_FIELD = "activities"
 STRATEGY_FIELD = "strategy"
+STATION_SPACING_FIELD = "distance_between_stations"
 
 # Geometry field constants
 LINE_VERTEX_FIELD = "route"
@@ -57,6 +58,7 @@ __all__ = [
     "CLUSTERS_FIELD",
     "ACTIVITIES_FIELD",
     "STRATEGY_FIELD",
+    "STATION_SPACING_FIELD",
     # Geometry field constants
     "LINE_VERTEX_FIELD",
     "AREA_VERTEX_FIELD",

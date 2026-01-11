@@ -53,6 +53,12 @@ class TestEnrichConfiguration:
 
         # Mock the new enrich_depths method to return the expected set
         mock_cruise.enrich_depths.return_value = {"STN_001"}
+        mock_cruise.add_coordinate_displays.return_value = 0
+        mock_cruise.add_station_defaults.return_value = 0
+        mock_cruise.expand_sections.return_value = {
+            "sections_expanded": 0,
+            "stations_from_expansion": 0,
+        }
 
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data
@@ -79,7 +85,7 @@ class TestEnrichConfiguration:
         assert mock_save_yaml.call_count == 1
 
     @patch("cruiseplan.processing.enrich.save_yaml")
-    @patch("cruiseplan.processing.enrich.format_ddm_comment")
+    @patch("cruiseplan.utils.coordinates.format_ddm_comment")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
     @patch("cruiseplan.processing.enrich.load_yaml")
@@ -107,6 +113,22 @@ class TestEnrichConfiguration:
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
+
+        # Mock enrich methods
+        mock_cruise.enrich_depths.return_value = set()
+        mock_cruise.add_station_defaults.return_value = 0
+        mock_cruise.expand_sections.return_value = {
+            "sections_expanded": 0,
+            "stations_from_expansion": 0,
+        }
+
+        # Let add_coordinate_displays work normally but mock its dependency
+        def mock_add_coordinate_displays(coord_format):
+            # Call the format function as the real method would
+            mock_format_ddm(50.0, -40.0)
+            return 1
+
+        mock_cruise.add_coordinate_displays.side_effect = mock_add_coordinate_displays
 
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data
@@ -148,6 +170,12 @@ class TestEnrichConfiguration:
 
         # Mock enrich methods to return empty sets/dicts
         mock_cruise.enrich_depths.return_value = set()
+        mock_cruise.add_coordinate_displays.return_value = 0
+        mock_cruise.add_station_defaults.return_value = 0
+        mock_cruise.expand_sections.return_value = {
+            "sections_expanded": 0,
+            "stations_from_expansion": 0,
+        }
 
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data

@@ -38,6 +38,7 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
+from cruiseplan.calculators import CruiseSchedule
 from cruiseplan.data.bathymetry import download_bathymetry
 
 logger = logging.getLogger(__name__)
@@ -110,7 +111,7 @@ class ScheduleResult:
 
     def __init__(
         self,
-        timeline: Optional[list[dict[str, Any]]],
+        timeline: Optional[CruiseSchedule],
         files_created: list[Path],
         summary: dict[str, Any],
     ):

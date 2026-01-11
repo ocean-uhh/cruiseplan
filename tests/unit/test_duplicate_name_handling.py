@@ -8,11 +8,44 @@ by auto-numbering with suffixes.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.processing.enrich import expand_ctd_sections
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.processing.validate import (
     check_complete_duplicates,
     check_duplicate_names,
 )
+from cruiseplan.schema.vocabulary import (
+    ACTION_FIELD,
+    ACTIVITIES_FIELD,
+    ARRIVAL_PORT_FIELD,
+    DEPARTURE_PORT_FIELD,
+    LEGS_FIELD,
+    LINE_VERTEX_FIELD,
+    OP_TYPE_FIELD,
+    POINTS_FIELD,
+    STATION_SPACING_FIELD,
+)
+
+
+def create_test_cruise_with_ctd_expansion(config_dict, default_depth=-9999.0):
+    """
+    Helper function to create a properly structured test cruise and perform CTD expansion.
+
+    Adds required fields to make config valid, then performs expansion.
+    """
+    # Ensure required fields for validation
+    if "cruise_name" not in config_dict:
+        config_dict["cruise_name"] = "Test Cruise"
+
+    if LEGS_FIELD not in config_dict:
+        config_dict[LEGS_FIELD] = []
+
+    # Create CruiseInstance and expand sections
+    cruise = CruiseInstance.from_dict(config_dict)
+    summary = cruise.expand_sections(default_depth)
+
+    # Return the same format as tests expect
+    result_config = cruise.to_commented_dict()
+    return result_config, summary
 
 
 class TestDuplicateNameCollisionResolution:
@@ -21,28 +54,40 @@ class TestDuplicateNameCollisionResolution:
     def test_single_collision_resolution(self):
         """Test resolution of single name collision during CTD expansion."""
         config = {
-            "points": [
+            "cruise_name": "Test Cruise",
+            POINTS_FIELD: [
                 {
                     "name": "Test_Section_Stn001",
-                    "operation_type": "CTD",
-                    "action": "profile",
+                    OP_TYPE_FIELD: "CTD",
+                    ACTION_FIELD: "profile",
                 }
             ],
             "lines": [
                 {
                     "name": "Test Section",
-                    "operation_type": "CTD",
-                    "action": "section",
-                    "route": [
+                    OP_TYPE_FIELD: "CTD",
+                    ACTION_FIELD: "section",
+                    LINE_VERTEX_FIELD: [
                         {"latitude": 50.0, "longitude": -30.0},
                         {"latitude": 50.1, "longitude": -30.1},
                     ],
-                    "distance_between_stations": 100.0,  # Will create 2 stations
+                    STATION_SPACING_FIELD: 100.0,  # Will create 2 stations
+                }
+            ],
+            LEGS_FIELD: [
+                {
+                    "name": "Test Leg",
+                    DEPARTURE_PORT_FIELD: "test_port",
+                    ARRIVAL_PORT_FIELD: "test_port",
+                    ACTIVITIES_FIELD: ["Test Section"],
                 }
             ],
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        # Create CruiseInstance and expand sections using modern approach
+        cruise = CruiseInstance.from_dict(config)
+        _summary = cruise.expand_sections()
+        result_config = cruise.to_commented_dict()
 
         # Should have original + 2 new stations (with collision resolved names)
         assert len(result_config["points"]) == 3
@@ -86,7 +131,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         station_names = [s["name"] for s in result_config["points"]]
 
@@ -135,7 +180,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         station_names = [s["name"] for s in result_config["points"]]
 
@@ -170,7 +215,7 @@ class TestDuplicateNameCollisionResolution:
             ],
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         station_names = [s["name"] for s in result_config["points"]]
 
@@ -203,7 +248,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         station_names = [s["name"] for s in result_config["points"]]
 
@@ -234,7 +279,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         station_names = [s["name"] for s in result_config["points"]]
 
@@ -261,7 +306,7 @@ class TestNameSanitization:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         # Should handle gracefully and create some valid names
         if "stations" in result_config:
@@ -430,7 +475,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         stations = result_config["points"]
 
@@ -462,7 +507,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         stations = result_config["points"]
 
@@ -499,7 +544,7 @@ class TestSphericalInterpolation:
             ]
         }
 
-        result_config, _summary = expand_ctd_sections(config)
+        result_config, _summary = create_test_cruise_with_ctd_expansion(config)
 
         stations = result_config["points"]
 

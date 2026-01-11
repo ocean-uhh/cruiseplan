@@ -31,6 +31,9 @@ logger = logging.getLogger(__name__)
 # Core Data Structures
 # =============================================================================
 
+# Type alias for cruise schedule (timeline) - list of activity dictionaries
+CruiseSchedule = list[dict[str, Any]]
+
 
 @dataclass
 class OperationCoordinates:
@@ -538,9 +541,7 @@ class TimelineGenerator:
         self.factory = OperationFactory(config)
         self.current_time = self._parse_start_datetime()
 
-    def generate_timeline(
-        self, legs: Optional[list[Any]] = None
-    ) -> list[dict[str, Any]]:
+    def generate_timeline(self, legs: Optional[list[Any]] = None) -> CruiseSchedule:
         """Generate complete cruise timeline."""
         if legs is None:
             legs = self._create_runtime_legs()
@@ -855,7 +856,7 @@ class TimelineGenerator:
 # =============================================================================
 
 
-def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> list[dict[str, Any]]:
+def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> CruiseSchedule:
     """
     Generate cruise timeline directly from CruiseInstance object.
 

@@ -122,7 +122,6 @@ class MockValidationError(Exception):
 
 # Patch the imports inside the ConfigLoader to use our mocks
 @patch("cruiseplan.utils.config.CruiseConfig", MockCruiseConfig)
-@patch("cruiseplan.utils.config.ValidationError", MockValidationError)
 class TestConfigLoader:
 
     def setup_method(self):
