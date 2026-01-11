@@ -286,7 +286,7 @@ departure_port: "port_reykjavik"    # Allowed when no explicit legs
 arrival_port: "port_reykjavik"      # Allowed when no explicit legs
 default_vessel_speed: 8.0
 
-stations:
+points:
   - name: "STN_001"
     latitude: 64.1
     longitude: -21.9

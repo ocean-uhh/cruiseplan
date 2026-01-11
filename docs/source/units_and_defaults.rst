@@ -128,7 +128,7 @@ Water depth uses positive values to indicate depth below sea surface.
 
 .. code-block:: yaml
 
-    stations:
+    points:
       - name: "Deep_Station"
         operation_depth: 500.0    # CTD cast to 500m
         water_depth: 4000.0       # Seafloor at 4000m
@@ -220,7 +220,7 @@ Complete station with all standard units clearly identified:
 
 .. code-block:: yaml
 
-    stations:
+    points:
       - name: "CTD_001"
         position:
           latitude: 50.5000        # decimal degrees (WGS84)
@@ -237,7 +237,7 @@ Station with advanced timing controls:
 
 .. code-block:: yaml
 
-    stations:
+    points:
       - name: "Mooring_Deploy"
         operation_type: "mooring"
         action: "deployment"

@@ -43,10 +43,10 @@ Loading and Accessing Cruise Configurations
 
     # Access cruise metadata
     print(f"Cruise name: {cruise.config.cruise_name}")
-    print(f"Number of stations: {len(cruise.station_registry)}")
+    print(f"Number of stations: {len(cruise.point_registry)}")
 
     # Iterate through stations
-    for station_name, station_def in cruise.station_registry.items():
+    for station_name, station_def in cruise.point_registry.items():
         print(f"Station {station_name}: {station_def.latitude:.4f}°N, {station_def.longitude:.4f}°E")
         print(f"  Operation: {station_def.operation_type}")
         if hasattr(station_def, 'depth') and station_def.depth:

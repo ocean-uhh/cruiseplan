@@ -34,8 +34,8 @@ Configuration Structure
    description: "Oceanographic survey of the North Atlantic"
    
    # Global Catalog (Reusable Definitions)
-   stations: [...]      # Station definitions → converted to PointOperation objects for scheduling
-   transects: [...]     # Line operation definitions → converted to LineOperation objects for scheduling
+   points: [...]        # Point definitions → converted to PointOperation objects for scheduling
+   lines: [...]         # Line operation definitions → converted to LineOperation objects for scheduling
    areas: [...]         # Area operation definitions
    
    # Schedule Organization
@@ -83,7 +83,7 @@ For simple single-leg cruises, you can omit the ``legs`` section entirely.  In t
    arrival_port: "port_reykjavik"      # Allowed when no explicit legs
    default_vessel_speed: 8.0
    
-   stations:
+   points:
      - name: "STN_001"
        latitude: 64.0
        longitude: -22.0
@@ -109,7 +109,7 @@ For simple single-leg cruises, you can omit the ``legs`` section entirely.  In t
    cruise_name: "Auto Leg Example"
    departure_port: "port_halifax"      # OK - no explicit legs
    arrival_port: "port_st_johns"       # OK - no explicit legs
-   stations: [...]
+   points: [...]
 
    # ❌ INVALID: Ports forbidden with explicit legs
    cruise_name: "Manual Leg Example"
@@ -301,7 +301,7 @@ Station definitions specify point operations at fixed locations. During scheduli
 
 .. code-block:: yaml
 
-   stations:
+   points:
      - name: "STN_001"
        operation_type: "CTD"
        action: "profile"
@@ -464,7 +464,7 @@ The buffer time system provides multiple levels of buffer time control for reali
 
 .. code-block:: yaml
 
-   stations:
+   points:
      - name: "Mooring_Deploy" 
        operation_type: "mooring"
        action: "deployment"
@@ -477,7 +477,7 @@ The buffer time system provides multiple levels of buffer time control for reali
    legs:
      - name: "Deep_Water_Survey"
        buffer_time: 480.0      # 8h weather contingency for entire leg
-       stations: ["Mooring_Deploy", "STN_001", "STN_002"]
+       activities: ["Mooring_Deploy", "STN_001", "STN_002"]
 
 **Buffer Time Types**:
 
@@ -494,7 +494,7 @@ Transect definitions specify movement routes with waypoints. During scheduling, 
 
 .. code-block:: yaml
 
-   transects:
+   lines:
      - name: "ADCP_Line_A"
        route:
          - latitude: 50.0
@@ -572,15 +572,15 @@ Line Operation Types
 CTD Section Special Case
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-CTD sections are a special type of transect that can be expanded into individual stations:
+CTD sections are a special type of transect (line operation) that can be expanded into individual stations (point operations):
 
 .. code-block:: yaml
 
-   transects:
+   lines:
      - name: "53N_Section"
        distance_between_stations: 25.0  # km
        reversible: true
-       stations: []  # Populated during expansion
+       points: []  # Populated during expansion
        operation_type: "CTD"
        action: "section"
        route:
@@ -672,7 +672,7 @@ Transit operations (scientific transits and vessel movements) calculate duration
 Area Definition
 ----------------
 
-Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using ``first_waypoint`` and ``last_waypoint`` fields, where the area entry point is used for ``first_waypoint`` routing and the exit point for ``last_waypoint`` routing.
+Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using ``first_activity`` and ``last_activity`` fields, where the area entry point is used for ``first_activity`` routing and the exit point for ``last_activity`` routing.
 
 .. code-block:: yaml
 
@@ -730,10 +730,10 @@ Areas represent operations covering defined geographic regions. Areas can also s
 Area Entry and Exit Points
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` in legs), CruisePlan uses entry and exit points for navigation:
+When areas are used as routing anchors (``first_activity`` or ``last_activity`` in legs), CruisePlan uses entry and exit points for navigation:
 
-- **Entry Point**: First corner coordinate (used for ``first_waypoint`` routing)
-- **Exit Point**: Last corner coordinate (used for ``last_waypoint`` routing) 
+- **Entry Point**: First corner coordinate (used for ``first_activity`` routing)
+- **Exit Point**: Last corner coordinate (used for ``last_activity`` routing) 
 - **Routing Distance**: Calculated from ship position to/from the appropriate entry or exit point
 
 .. code-block:: python
@@ -762,8 +762,8 @@ When areas are used as routing anchors (``first_waypoint`` or ``last_waypoint`` 
    
    legs:
      - name: "Survey_Operations"
-       first_waypoint: "STN_001"        # Start at station
-       last_waypoint: "Survey_Grid_Alpha"  # End at area exit point (50.0, -39.0)
+       first_activity: "STN_001"        # Start at station
+       last_activity: "Survey_Grid_Alpha"  # End at area exit point (50.0, -39.0)
        activities: ["STN_001", "Survey_Grid_Alpha"]
 
 
@@ -857,21 +857,21 @@ Clusters support intentional duplication of activities for repeated operations:
 **Waypoint vs Activity Execution**
 
 .. important::
-   **Navigation waypoints do NOT execute operations**. Waypoints (``first_waypoint``, ``last_waypoint``) are used only for routing calculations. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
+   **Navigation waypoints do NOT execute operations**. Waypoints (``first_activity``, ``last_activity``) are used only for routing calculations. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
 
 .. code-block:: yaml
 
    legs:
      - name: "Survey_Leg"
-       first_waypoint: "STN_001"    # Navigation only - NO execution
-       last_waypoint: "STN_005"     # Navigation only - NO execution
+       first_activity: "STN_001"    # Navigation only - NO execution
+       last_activity: "STN_005"     # Navigation only - NO execution
        activities: ["STN_002", "STN_003", "STN_004"]  # Only these execute
        
    # To execute operations at waypoint locations:
    legs:
      - name: "Survey_Leg_With_Execution"
-       first_waypoint: "STN_001"    # Navigation waypoint
-       last_waypoint: "STN_005"     # Navigation waypoint  
+       first_activity: "STN_001"    # Navigation waypoint
+       last_activity: "STN_005"     # Navigation waypoint  
        activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]  # Explicit execution
 
 
@@ -910,12 +910,12 @@ Leg & Cluster Fields
      - *required*
      - Leg only
      - Ending port for the leg
-   * - ``first_waypoint``
+   * - ``first_activity``
      - str
      - None
      - Leg only
      - First navigation waypoint (routing only)
-   * - ``last_waypoint``
+   * - ``last_activity``
      - str
      - None
      - Leg only
@@ -979,18 +979,18 @@ The scheduler processes leg components in this simplified order:
 
 .. _routing-anchor-behavior:
 
-Routing Anchor Behavior (first_waypoint & last_waypoint)
+Routing Anchor Behavior (first_activity & last_activity)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``first_waypoint`` and ``last_waypoint`` fields serve as **routing anchors only**. These fields can reference any catalog item (stations, areas, or transect endpoints) but are used exclusively for geographic positioning and route calculations.
+The ``first_activity`` and ``last_activity`` fields serve as **routing anchors only**. These fields can reference any catalog item (stations, areas, or line endpoints) but are used exclusively for geographic positioning and route calculations.
 
 **Navigation Only - No Execution**:
 
-By default, ``first_waypoint`` and ``last_waypoint`` do **not execute operations**. They provide entry and exit points for routing calculations within the leg. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
+By default, ``first_activity`` and ``last_activity`` do **not execute operations**. They provide entry and exit points for routing calculations within the leg. To execute an operation at a waypoint location, you must explicitly include it in the ``activities`` list.
 
 .. code-block:: yaml
 
-   stations:
+   points:
      - name: "ENTRY_CTD"
        operation_type: CTD
        latitude: 44.5
@@ -1006,8 +1006,8 @@ By default, ``first_waypoint`` and ``last_waypoint`` do **not execute operations
      - name: "Survey_Leg"
        departure_port: "halifax"
        arrival_port: "sydney"
-       first_waypoint: "ENTRY_CTD"      # Navigation only - provides entry coordinates
-       last_waypoint: "EXIT_POINT"      # Navigation only - provides exit coordinates
+       first_activity: "ENTRY_CTD"      # Navigation only - provides entry coordinates
+       last_activity: "EXIT_POINT"      # Navigation only - provides exit coordinates
        activities: ["ENTRY_CTD", "STN_002", "STN_003", "EXIT_POINT"]  # Explicit execution
 
 **To Execute Operations at Waypoints**:
@@ -1020,8 +1020,8 @@ To actually perform operations at waypoint locations, explicitly include them in
      - name: "Survey_Leg"
        departure_port: "halifax"
        arrival_port: "sydney"
-       first_waypoint: "ENTRY_CTD"      # Navigation waypoint
-       last_waypoint: "EXIT_POINT"      # Navigation waypoint
+       first_activity: "ENTRY_CTD"      # Navigation waypoint
+       last_activity: "EXIT_POINT"      # Navigation waypoint
        activities: [
          "ENTRY_CTD",    # Actually executes CTD operation
          "STN_002", 
@@ -1119,46 +1119,8 @@ The interaction between ``strategy`` and ``ordered`` determines execution order:
      - False  
      - Allow reordering within day/night groups
 
-.. _deprecated-fields:
 
-Deprecated Fields
-~~~~~~~~~~~~~~~~~
 
-The following fields are **deprecated** and will be removed in future versions (v0.4.0). CruisePlan will issue **deprecation warnings** when these fields are used, but they remain functional for backward compatibility.
-
-.. list-table:: Deprecated Leg/Cluster Fields
-   :widths: 25 75
-   :header-rows: 1
-
-   * - Deprecated Field
-     - Replacement
-   * - ``stations``
-     - Use ``activities`` with station names
-   * - ``sequence``
-     - Use ``activities`` with ``ordered: true``
-   * - ``sections``
-     - Expand sections to individual stations first with ``cruiseplan enrich --expand-sections``
-   * - ``generate_transect``
-     - Create explicit stations in catalog and reference via ``activities``
-
-.. note::
-   **Deprecation Timeline**: These fields will be **removed in v0.4.0**. Update your configurations to use the ``activities`` field to avoid future compatibility issues.
-
-**Migration Example**:
-
-.. code-block:: yaml
-
-   # OLD (deprecated)
-   legs:
-     - name: "Survey_Leg"
-       sequence: ["STN_001", "STN_002", "STN_003"]
-       stations: ["STN_004", "STN_005"]
-   
-   # NEW (recommended)
-   legs:  
-     - name: "Survey_Leg"
-       ordered: true
-       activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]
 
 .. _yaml-structure-notes:
 
@@ -1174,9 +1136,9 @@ Multiple Definitions
 
    clusters:
      - name: "Cluster_A"
-       stations: [...]
+       points: [...]
      - name: "Cluster_B" 
-       stations: [...]
+       points: [...]
 
 **Incorrect**: Multiple sections (overwrites)
 
@@ -1184,11 +1146,11 @@ Multiple Definitions
 
    clusters:
      - name: "Cluster_A"
-       stations: [...]
+       points: [...]
    
    clusters:  # This overwrites the previous clusters section!
      - name: "Cluster_B"
-       stations: [...]
+       points: [...]
 
 .. _validation-behavior:
 

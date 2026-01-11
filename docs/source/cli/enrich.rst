@@ -48,7 +48,7 @@ The ``--expand-sections`` option processes CTD section transits and converts the
 .. code-block:: yaml
 
     # Input: CTD section definition
-    transects:
+    lines:
       - name: "Arctic_Section_1"
         operation_type: "ctd_section"
         spacing_km: 25.0
@@ -60,7 +60,7 @@ The ``--expand-sections`` option processes CTD section transits and converts the
             longitude: -8.0
 
     # Output: Individual stations created
-    stations:
+    points:
       - name: "Arctic_Section_1_001"
         position:
           latitude: 75.0

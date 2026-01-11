@@ -38,7 +38,7 @@ class CruiseConfig(BaseModel):
     turnaround_time: float = DEFAULT_TURNAROUND_TIME_MIN
     # ... 20+ more fields
     departure_port: Optional[Union[str, PortDefinition]] = None  # Optional!
-    stations: Optional[List[StationDefinition]] = None  # Optional!
+    points: Optional[List[StationDefinition]] = None  # Optional!
     legs: List[LegDefinition]
     
 # Organizational definitions  

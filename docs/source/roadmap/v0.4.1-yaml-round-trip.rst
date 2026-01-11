@@ -131,14 +131,14 @@ Example YAML States:
 
    legs:
      - name: "Leg_01"  
-       stations:
+       activities:
          - name: PORT_START
            latitude: 44.6488
            longitude: -63.5752
            operation_type: port
            action: departure
            
-       transects:
+       lines:
          - name: "CTD_LINE_001"
            operation_type: "CTD"
            action: "section"
