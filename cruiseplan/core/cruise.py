@@ -1,7 +1,7 @@
 """
 Core cruise management and organizational runtime classes.
 
-This module provides the main Cruise class for loading, validating, and managing
+This module provides the main CruiseInstance class for loading, validating, and managing
 cruise configurations from YAML files, along with the organizational runtime
 classes (Leg, Cluster) that form the hierarchical structure for cruise execution.
 The BaseOrganizationUnit abstract base class provides the common interface for
@@ -14,17 +14,17 @@ from typing import Any, Optional, Union
 
 from cruiseplan.core.operations import BaseOperation
 from cruiseplan.schema import (
-    PointDefinition,
-    LineDefinition,
     AreaDefinition,
     ClusterDefinition,
-    LegDefinition,
     CruiseConfig,
+    LegDefinition,
+    LineDefinition,
+    PointDefinition,
     StrategyEnum,
 )
+from cruiseplan.schema.vocabulary import ARRIVAL_PORT_FIELD, DEPARTURE_PORT_FIELD
 from cruiseplan.utils.global_ports import resolve_port_reference
 from cruiseplan.utils.units import NM_PER_KM
-from cruiseplan.schema.vocabulary import ARRIVAL_PORT_FIELD, DEPARTURE_PORT_FIELD
 from cruiseplan.utils.yaml_io import load_yaml
 
 
@@ -41,38 +41,38 @@ class ReferenceError(Exception):
 class BaseOrganizationUnit(ABC):
     """
     Abstract base class for organizational units in cruise planning.
-    
+
     Provides common interface for hierarchical organization units (Leg, Cluster)
     that can contain operations and support parameter inheritance, boundary
     management, and geographic routing.
-    
+
     All organizational units share common capabilities:
     - Entry/exit point management for routing
     - Operation counting and duration calculation
     - Parameter inheritance from parent units
     - Reordering policies for scheduling flexibility
     """
-    
+
     @abstractmethod
     def get_all_operations(self) -> list[BaseOperation]:
         """Get all operations within this organizational unit."""
         pass
-    
+
     @abstractmethod
     def get_operation_count(self) -> int:
         """Get total number of operations in this unit."""
         pass
-    
+
     @abstractmethod
     def allows_reordering(self) -> bool:
         """Check if this unit allows operation reordering."""
         pass
-    
+
     @abstractmethod
     def get_entry_point(self) -> Optional[tuple[float, float]]:
         """Get geographic entry point for this unit."""
         pass
-    
+
     @abstractmethod
     def get_exit_point(self) -> Optional[tuple[float, float]]:
         """Get geographic exit point for this unit."""
@@ -908,7 +908,7 @@ class Leg(BaseOrganizationUnit):
 
 
 # TODO Question - why do we not also have a "leg_registry" and maybe a "cluster_registry"?
-class Cruise:
+class CruiseInstance:
     """
     The main container object for cruise planning.
 
@@ -938,7 +938,7 @@ class Cruise:
 
     def __init__(self, config_path: Union[str, Path]):
         """
-        Initialize a Cruise object from a YAML configuration file.
+        Initialize a CruiseInstance object from a YAML configuration file.
 
         Performs three main operations:
         1. Loads and validates the YAML configuration using Pydantic
@@ -1159,21 +1159,16 @@ class Cruise:
         ValueError
             If the definition type cannot be determined or validation fails.
         """
-        # Determine definition type based on key fields
-        if "operation_type" in definition_dict:
-            return PointDefinition(**definition_dict)
-        elif "start" in definition_dict and "end" in definition_dict:
+        # Import vocabulary constants
+        from cruiseplan.schema.vocabulary import AREA_VERTEX_FIELD, LINE_VERTEX_FIELD
+
+        # Determine definition type based on key fields (check most specific first)
+        if LINE_VERTEX_FIELD in definition_dict:  # "route"
             return LineDefinition(**definition_dict)
-        elif any(
-            field in definition_dict for field in ["polygon", "center", "boundary"]
-        ):
-            # This is an area definition
+        elif AREA_VERTEX_FIELD in definition_dict:
             return AreaDefinition(**definition_dict)
         # Fallback: assume it's a station if it has common station fields
-        elif any(
-            field in definition_dict
-            for field in ["latitude", "longitude", "position", "action"]
-        ):
+        elif any(field in definition_dict for field in ["latitude", "longitude"]):
             # Add default operation_type if missing
             if "operation_type" not in definition_dict:
                 definition_dict = definition_dict.copy()
@@ -1463,12 +1458,12 @@ class Cruise:
         )
 
     @classmethod
-    def from_dict(cls, config_dict: dict[str, Any]) -> "Cruise":
+    def from_dict(cls, config_dict: dict[str, Any]) -> "CruiseInstance":
         """
-        Create a Cruise instance from a dictionary without file I/O.
+        Create a CruiseInstance from a dictionary without file I/O.
 
         This class method provides single source of truth functionality by creating
-        a Cruise object directly from a configuration dictionary, eliminating the
+        a CruiseInstance object directly from a configuration dictionary, eliminating the
         need for temporary file creation during enrichment operations.
 
         Parameters
@@ -1478,8 +1473,8 @@ class Cruise:
 
         Returns
         -------
-        Cruise
-            New Cruise instance with all registries built and references resolved.
+        CruiseInstance
+            New CruiseInstance with all registries built and references resolved.
 
         Raises
         ------
@@ -1496,13 +1491,13 @@ class Cruise:
         ...     "points": [{"name": "P1", "latitude": 60.0, "longitude": 5.0}],
         ...     "legs": [{"name": "Leg1", "departure_port": "Bergen", "arrival_port": "Tromsø"}]
         ... }
-        >>> cruise = Cruise.from_dict(config)
+        >>> cruise = CruiseInstance.from_dict(config)
         >>> cruise.config.cruise_name
         'Test Cruise'
         """
         # Create a temporary instance to leverage existing initialization logic
         instance = cls.__new__(cls)
-        
+
         # Set path to None since we're creating from dict
         instance.config_path = None
         instance.raw_data = config_dict.copy()
@@ -1527,7 +1522,7 @@ class Cruise:
         # 3. Config Port Resolution Pass
         instance._resolve_config_ports()
 
-        # 4. Port Enrichment Pass  
+        # 4. Port Enrichment Pass
         instance._enrich_leg_ports()
 
         # 5. Resolution Pass
@@ -1540,7 +1535,7 @@ class Cruise:
 
     def to_commented_dict(self) -> dict[str, Any]:
         """
-        Export Cruise configuration to a structured dictionary with comment preservation.
+        Export CruiseInstance configuration to a structured dictionary with comment preservation.
 
         This method provides the foundation for YAML output with canonical field
         ordering and comment preservation capabilities. Returns a dictionary that
@@ -1577,14 +1572,20 @@ class Cruise:
 
         # 2. Vessel Parameters
         output["default_vessel_speed"] = self.config.default_vessel_speed
-        output["default_distance_between_stations"] = self.config.default_distance_between_stations
+        output["default_distance_between_stations"] = (
+            self.config.default_distance_between_stations
+        )
         output["turnaround_time"] = self.config.turnaround_time
         output["ctd_descent_rate"] = self.config.ctd_descent_rate
         output["ctd_ascent_rate"] = self.config.ctd_ascent_rate
 
         # 3. Calculation Settings
-        output["calculate_transfer_between_sections"] = self.config.calculate_transfer_between_sections
-        output["calculate_depth_via_bathymetry"] = self.config.calculate_depth_via_bathymetry
+        output["calculate_transfer_between_sections"] = (
+            self.config.calculate_transfer_between_sections
+        )
+        output["calculate_depth_via_bathymetry"] = (
+            self.config.calculate_depth_via_bathymetry
+        )
         output["day_start_hour"] = self.config.day_start_hour
         output["day_end_hour"] = self.config.day_end_hour
         output["station_label_format"] = self.config.station_label_format
@@ -1592,53 +1593,71 @@ class Cruise:
 
         # 3b. Single-leg cruise ports (if applicable)
         if self.config.departure_port:
-            output["departure_port"] = self._serialize_point_definition(self.config.departure_port)
+            output["departure_port"] = self._serialize_point_definition(
+                self.config.departure_port
+            )
         if self.config.arrival_port:
-            output["arrival_port"] = self._serialize_point_definition(self.config.arrival_port)
+            output["arrival_port"] = self._serialize_point_definition(
+                self.config.arrival_port
+            )
 
         # 4. Catalog Definitions
         if self.config.points:
-            output["points"] = [self._serialize_point_definition(p) for p in self.config.points]
+            output["points"] = [
+                self._serialize_point_definition(p) for p in self.config.points
+            ]
         if self.config.lines:
-            output["lines"] = [self._serialize_line_definition(l) for l in self.config.lines]
+            output["lines"] = [
+                self._serialize_line_definition(l) for l in self.config.lines
+            ]
         if self.config.areas:
-            output["areas"] = [self._serialize_area_definition(a) for a in self.config.areas]
+            output["areas"] = [
+                self._serialize_area_definition(a) for a in self.config.areas
+            ]
         if self.config.ports:
-            output["ports"] = [self._serialize_point_definition(p) for p in self.config.ports]
+            output["ports"] = [
+                self._serialize_point_definition(p) for p in self.config.ports
+            ]
 
         # 5. Schedule Organization
         if self.config.legs:
-            output["legs"] = [self._serialize_leg_definition(leg) for leg in self.config.legs]
+            output["legs"] = [
+                self._serialize_leg_definition(leg) for leg in self.config.legs
+            ]
 
         return output
 
     def _serialize_point_definition(self, point: PointDefinition) -> dict[str, Any]:
         """Serialize a PointDefinition to dictionary format."""
-        return point.model_dump(exclude_none=True, mode='json')
+        return point.model_dump(exclude_none=True, mode="json")
 
     def _serialize_line_definition(self, line: LineDefinition) -> dict[str, Any]:
         """Serialize a LineDefinition to dictionary format."""
-        return line.model_dump(exclude_none=True, mode='json')
+        return line.model_dump(exclude_none=True, mode="json")
 
     def _serialize_area_definition(self, area: AreaDefinition) -> dict[str, Any]:
         """Serialize an AreaDefinition to dictionary format."""
-        return area.model_dump(exclude_none=True, mode='json')
+        return area.model_dump(exclude_none=True, mode="json")
 
     def _serialize_leg_definition(self, leg: LegDefinition) -> dict[str, Any]:
         """Serialize a LegDefinition to dictionary format."""
-        leg_dict = leg.model_dump(exclude_none=True, mode='json')
-        
+        leg_dict = leg.model_dump(exclude_none=True, mode="json")
+
         # Handle port serialization (already handled by mode='json' but keeping for compatibility)
         if isinstance(leg_dict.get(DEPARTURE_PORT_FIELD), PointDefinition):
-            leg_dict[DEPARTURE_PORT_FIELD] = leg_dict[DEPARTURE_PORT_FIELD].model_dump(exclude_none=True, mode='json')
+            leg_dict[DEPARTURE_PORT_FIELD] = leg_dict[DEPARTURE_PORT_FIELD].model_dump(
+                exclude_none=True, mode="json"
+            )
         if isinstance(leg_dict.get(ARRIVAL_PORT_FIELD), PointDefinition):
-            leg_dict[ARRIVAL_PORT_FIELD] = leg_dict[ARRIVAL_PORT_FIELD].model_dump(exclude_none=True, mode='json')
-            
+            leg_dict[ARRIVAL_PORT_FIELD] = leg_dict[ARRIVAL_PORT_FIELD].model_dump(
+                exclude_none=True, mode="json"
+            )
+
         return leg_dict
 
     def to_yaml(self, output_path: Union[str, Path]) -> None:
         """
-        Export Cruise configuration to YAML file with canonical ordering.
+        Export CruiseInstance configuration to YAML file with canonical ordering.
 
         This method provides direct YAML export capability with standardized
         field ordering and basic comment preservation. Uses ruamel.yaml for
@@ -1656,7 +1675,7 @@ class Cruise:
 
         Examples
         --------
-        >>> cruise = Cruise.from_dict(config_dict)
+        >>> cruise = CruiseInstance.from_dict(config_dict)
         >>> cruise.to_yaml("enhanced_cruise.yaml")
 
         Notes
@@ -1670,10 +1689,10 @@ class Cruise:
         except ImportError:
             # Fallback to basic yaml if ruamel.yaml not available
             import yaml
-            
+
             output_dict = self.to_commented_dict()
             output_path = Path(output_path)
-            
+
             with output_path.open("w", encoding="utf-8") as f:
                 yaml.dump(output_dict, f, default_flow_style=False, sort_keys=False)
             return
@@ -1688,31 +1707,34 @@ class Cruise:
         output_path = Path(output_path)
 
         # Add section comments for readability
-        yaml.representer.add_representer(type(None), lambda dumper, value: dumper.represent_scalar('tag:yaml.org,2002:null', ''))
+        yaml.representer.add_representer(
+            type(None),
+            lambda dumper, value: dumper.represent_scalar("tag:yaml.org,2002:null", ""),
+        )
 
         with output_path.open("w", encoding="utf-8") as f:
             # Write file-level comment
             f.write("# Cruise configuration generated by CruisePlan\n")
             f.write("# Canonical field ordering enforced for consistency\n\n")
-            
+
             yaml.dump(output_dict, f)
 
-    # === Cruise Enhancement Methods ===
-    # These methods modify the Cruise object state to add functionality
+    # === CruiseInstance Enhancement Methods ===
+    # These methods modify the CruiseInstance object state to add functionality
 
     def expand_sections(self, default_depth: float = -9999.0) -> dict[str, int]:
         """
         Expand CTD sections into individual station definitions.
-        
+
         This method finds CTD sections in lines catalog and expands them into
         individual stations, adding them to the point_registry. This is structural
         enrichment that modifies the cruise configuration.
-        
+
         Parameters
         ----------
         default_depth : float, optional
             Default depth value for expanded stations. Default is -9999.0.
-            
+
         Returns
         -------
         dict[str, int]
@@ -1720,28 +1742,32 @@ class Cruise:
             - sections_expanded: Number of sections expanded
             - stations_from_expansion: Number of stations created
         """
-        from cruiseplan.calculators.distance import haversine_distance
-        from cruiseplan.utils.plot_config import interpolate_great_circle_position
         from cruiseplan.utils.defaults import (
-            OP_TYPE_FIELD, ACTION_FIELD, DURATION_FIELD, WATER_DEPTH_FIELD
+            DURATION_FIELD,
         )
-        
+
         sections_expanded = 0
         total_stations_created = 0
-        
+
         # Find CTD sections in lines catalog
         ctd_sections = []
         for line_name, line_def in self.line_registry.items():
-            if hasattr(line_def, 'operation_type') and line_def.operation_type == "CTD":
-                ctd_sections.append({
-                    'name': line_name,
-                    'route': line_def.route,
-                    'distance_between_stations': getattr(line_def, 'distance_between_stations', 20.0),
-                    'max_depth': getattr(line_def, 'max_depth', None),
-                    'planned_duration_hours': getattr(line_def, 'planned_duration_hours', None),
-                    DURATION_FIELD: getattr(line_def, DURATION_FIELD, None)
-                })
-        
+            if hasattr(line_def, "operation_type") and line_def.operation_type == "CTD":
+                ctd_sections.append(
+                    {
+                        "name": line_name,
+                        "route": line_def.route,
+                        "distance_between_stations": getattr(
+                            line_def, "distance_between_stations", 20.0
+                        ),
+                        "max_depth": getattr(line_def, "max_depth", None),
+                        "planned_duration_hours": getattr(
+                            line_def, "planned_duration_hours", None
+                        ),
+                        DURATION_FIELD: getattr(line_def, DURATION_FIELD, None),
+                    }
+                )
+
         # Expand each section
         for section in ctd_sections:
             expanded_stations = self._expand_single_ctd_section(section, default_depth)
@@ -1754,119 +1780,128 @@ class Cruise:
                     self.point_registry[station_name] = point_def
                     total_stations_created += 1
                 sections_expanded += 1
-        
+
         return {
             "sections_expanded": sections_expanded,
-            "stations_from_expansion": total_stations_created
+            "stations_from_expansion": total_stations_created,
         }
-    
-    def _expand_single_ctd_section(self, transit: dict[str, Any], default_depth: float = -9999.0) -> list[dict[str, Any]]:
+
+    def _expand_single_ctd_section(
+        self, transit: dict[str, Any], default_depth: float = -9999.0
+    ) -> list[dict[str, Any]]:
         """
         Expand a single CTD section transit into individual station definitions.
-        
+
         Parameters
         ----------
         transit : dict[str, Any]
             Transit definition containing route and section parameters.
         default_depth : float, optional
             Default depth value to use for stations. Default is -9999.0.
-            
+
         Returns
         -------
         list[dict[str, Any]]
             List of station definitions along the section.
         """
         from cruiseplan.calculators.distance import haversine_distance
-        from cruiseplan.utils.plot_config import interpolate_great_circle_position
         from cruiseplan.utils.defaults import (
-            OP_TYPE_FIELD, ACTION_FIELD, DURATION_FIELD, WATER_DEPTH_FIELD
+            ACTION_FIELD,
+            DURATION_FIELD,
+            OP_TYPE_FIELD,
+            WATER_DEPTH_FIELD,
         )
-        
+        from cruiseplan.utils.plot_config import interpolate_great_circle_position
+
         if not transit.get("route") or len(transit["route"]) < 2:
             return []
-            
+
         start = transit["route"][0]
         end = transit["route"][-1]
-        
-        # Extract coordinates using flexible key lookup  
+
+        # Extract coordinates using flexible key lookup
         start_lat = start.get("latitude") or start.get("lat")
         start_lon = start.get("longitude") or start.get("lon")
-        end_lat = end.get("latitude") or end.get("lat") 
+        end_lat = end.get("latitude") or end.get("lat")
         end_lon = end.get("longitude") or end.get("lon")
-        
+
         if any(coord is None for coord in [start_lat, start_lon, end_lat, end_lon]):
             return []
-            
-        total_distance_km = haversine_distance((start_lat, start_lon), (end_lat, end_lon))
+
+        total_distance_km = haversine_distance(
+            (start_lat, start_lon), (end_lat, end_lon)
+        )
         spacing_km = transit.get("distance_between_stations", 20.0)
         num_stations = max(2, int(total_distance_km / spacing_km) + 1)
-        
+
         stations = []
         base_name = transit["name"].replace(" ", "_").replace("-", "_")
-        
+
         for i in range(num_stations):
             fraction = i / (num_stations - 1) if num_stations > 1 else 0
             lat, lon = interpolate_great_circle_position(
                 start_lat, start_lon, end_lat, end_lon, fraction
             )
-            
+
             station = {
                 "name": f"{base_name}_Stn{i+1:03d}",
-                OP_TYPE_FIELD: "CTD", 
+                OP_TYPE_FIELD: "CTD",
                 ACTION_FIELD: "profile",
                 "latitude": round(lat, 5),
                 "longitude": round(lon, 5),
                 "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
                 DURATION_FIELD: 120.0,
             }
-            
+
             # Add depth if available
             if "max_depth" in transit:
                 station[WATER_DEPTH_FIELD] = transit["max_depth"]
             elif default_depth != -9999.0:
                 station[WATER_DEPTH_FIELD] = default_depth
-                
+
             # Add duration if specified
             if "planned_duration_hours" in transit:
-                station[DURATION_FIELD] = float(transit["planned_duration_hours"]) * 60.0
+                station[DURATION_FIELD] = (
+                    float(transit["planned_duration_hours"]) * 60.0
+                )
             elif DURATION_FIELD in transit:
                 station[DURATION_FIELD] = float(transit[DURATION_FIELD])
-                
+
             stations.append(station)
-            
+
         return stations
 
     def enrich_depths(
-        self, 
-        bathymetry_source: str = "etopo2022", 
-        bathymetry_dir: str = "data"
+        self, bathymetry_source: str = "etopo2022", bathymetry_dir: str = "data"
     ) -> set[str]:
         """
         Add bathymetry depths to stations that are missing water_depth values.
-        
+
         This method modifies the point_registry directly by adding water depth
         information from bathymetry datasets to stations that don't have depth
         values or have placeholder values.
-        
+
         Parameters
         ----------
         bathymetry_source : str, optional
             Bathymetry dataset to use. Default is "etopo2022".
         bathymetry_dir : str, optional
             Directory containing bathymetry data. Default is "data".
-            
+
         Returns
         -------
         set[str]
             Set of station names that had depths added.
         """
         from cruiseplan.data.bathymetry import BathymetryManager
-        
+
         stations_with_depths_added = set()
-        
+
         # Initialize bathymetry manager
-        bathymetry = BathymetryManager(source=bathymetry_source, data_dir=bathymetry_dir)
-        
+        bathymetry = BathymetryManager(
+            source=bathymetry_source, data_dir=bathymetry_dir
+        )
+
         # Process each station in the point registry
         for station_name, station in self.point_registry.items():
             # Check if station needs water depth
@@ -1875,53 +1910,56 @@ class Cruise:
                 or station.water_depth is None
                 or station.water_depth == -9999.0  # Replace placeholder depth
             )
-            
+
             if should_add_water_depth:
-                depth = bathymetry.get_depth_at_point(station.latitude, station.longitude)
+                depth = bathymetry.get_depth_at_point(
+                    station.latitude, station.longitude
+                )
                 if depth is not None and depth != 0:
                     # Modify the station object directly
                     station.water_depth = round(abs(depth))  # Convert to positive depth
                     stations_with_depths_added.add(station_name)
-        
+
         return stations_with_depths_added
 
     def add_station_defaults(self) -> int:
         """
         Add missing defaults to station definitions.
-        
+
         This method adds default duration to mooring operations and other stations
         that lack required default values.
-        
+
         Returns
         -------
         int
             Number of station defaults added.
         """
         station_defaults_added = 0
-        
+
         # Process each station in the point registry
         for station_name, station in self.point_registry.items():
             # Check for mooring operations without duration
             if (
-                hasattr(station, 'operation_type') 
-                and station.operation_type == 'mooring'
-                and (not hasattr(station, 'duration') or station.duration is None)
+                hasattr(station, "operation_type")
+                and station.operation_type == "mooring"
+                and (not hasattr(station, "duration") or station.duration is None)
             ):
                 from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
+
                 # Add default mooring duration
                 station.duration = DEFAULT_MOORING_DURATION_MIN
                 station_defaults_added += 1
-        
+
         return station_defaults_added
 
     def expand_ports(self) -> dict[str, int]:
         """
         Expand global port references into full PortDefinition objects.
-        
+
         This method finds string port references and expands them into full
         PortDefinition objects with coordinates and other metadata from the
         global ports database.
-        
+
         Returns
         -------
         dict[str, int]
@@ -1930,10 +1968,10 @@ class Cruise:
             - leg_ports_expanded: Number of leg ports expanded
         """
         from cruiseplan.utils.global_ports import resolve_port_reference
-        
+
         ports_expanded_count = 0
         leg_ports_expanded = 0
-        
+
         # Expand departure and arrival ports if they are string references
         if isinstance(self.config.departure_port, str):
             try:
@@ -1942,7 +1980,7 @@ class Cruise:
                 ports_expanded_count += 1
             except ValueError:
                 pass  # Keep as string reference if can't resolve
-                
+
         if isinstance(self.config.arrival_port, str):
             try:
                 port_obj = resolve_port_reference(self.config.arrival_port)
@@ -1950,57 +1988,57 @@ class Cruise:
                 ports_expanded_count += 1
             except ValueError:
                 pass  # Keep as string reference if can't resolve
-        
+
         # Expand leg-level port references
         for leg in self.runtime_legs:
-            if hasattr(leg, 'departure_port') and isinstance(leg.departure_port, str):
+            if hasattr(leg, "departure_port") and isinstance(leg.departure_port, str):
                 try:
                     port_obj = resolve_port_reference(leg.departure_port)
                     leg.departure_port = port_obj
                     leg_ports_expanded += 1
                 except ValueError:
                     pass
-                    
-            if hasattr(leg, 'arrival_port') and isinstance(leg.arrival_port, str):
+
+            if hasattr(leg, "arrival_port") and isinstance(leg.arrival_port, str):
                 try:
                     port_obj = resolve_port_reference(leg.arrival_port)
                     leg.arrival_port = port_obj
                     leg_ports_expanded += 1
                 except ValueError:
                     pass
-        
+
         return {
             "ports_expanded": ports_expanded_count,
-            "leg_ports_expanded": leg_ports_expanded
+            "leg_ports_expanded": leg_ports_expanded,
         }
 
     def add_coordinate_displays(self, coord_format: str = "ddm") -> int:
         """
         Add human-readable coordinate display fields for final YAML output.
-        
+
         This method adds formatted coordinate annotations that will appear in
         the YAML output but don't affect the core cruise data. This is for
         display enhancement only.
-        
+
         Parameters
         ----------
         coord_format : str, optional
             Coordinate format to use for display. Default is "ddm".
-            
+
         Returns
         -------
         int
             Number of coordinate display fields added.
-        
+
         Notes
         -----
         This method operates on the final export phase and adds display
         annotations to the to_commented_dict() output, not the core registries.
         """
-        # This method is implemented as part of to_commented_dict() 
+        # This method is implemented as part of to_commented_dict()
         # since coordinate displays are output-formatting concerns
         # rather than core data modifications.
-        # 
+        #
         # The actual implementation will be in the export pipeline
         # when we refactor enrich_configuration()
         return 0

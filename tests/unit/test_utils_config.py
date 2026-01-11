@@ -156,9 +156,7 @@ class TestConfigLoader:
         """Tests the path where the YAML file root is not a dict."""
         with patch("builtins.open", mock_open(read_data=self.valid_yaml)):
             loader = ConfigLoader(self.mock_path)
-            with pytest.raises(
-                ValueError, match="not a valid dictionary"
-            ):
+            with pytest.raises(ValueError, match="not a valid dictionary"):
                 loader.load_raw_data()
 
     @patch.object(Path, "exists", return_value=True)

@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators import scheduler
-from cruiseplan.core.cruise import Cruise
+from cruiseplan.core.cruise import CruiseInstance
 
 
 class TestOperationCountConsistency:
@@ -21,7 +21,7 @@ class TestOperationCountConsistency:
         """Load TC1 single leg test cruise."""
         yaml_file = Path("tests_output/fixtures/TC1_Single_Test_enriched.yaml")
         if yaml_file.exists():
-            return Cruise(yaml_file)
+            return CruiseInstance(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")
 
     @pytest.fixture
@@ -29,12 +29,12 @@ class TestOperationCountConsistency:
         """Load TC2 two legs test cruise."""
         yaml_file = Path("tests_output/fixtures/TC2_TwoLegs_Test_enriched.yaml")
         if yaml_file.exists():
-            return Cruise(yaml_file)
+            return CruiseInstance(yaml_file)
         pytest.skip(f"Test file not found: {yaml_file}")
 
     def _test_operation_consistency(self, cruise):
         """Helper method to test operation count consistency for any cruise."""
-        timeline = scheduler.generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = scheduler.generate_timeline(cruise)
         stats = scheduler.calculate_timeline_statistics(timeline)
 
         # Calculate cruise-level total from individual operation types

@@ -312,7 +312,9 @@ class CruiseConfig(BaseModel):
     description: Optional[str] = None
 
     # --- LOGIC CONSTRAINTS ---
-    default_vessel_speed: float = DEFAULT_VESSEL_SPEED_KT  # TODO: Decide if needed as default
+    default_vessel_speed: float = (
+        DEFAULT_VESSEL_SPEED_KT  # TODO: Decide if needed as default
+    )
     default_distance_between_stations: float = DEFAULT_STATION_SPACING_KM
     turnaround_time: float = DEFAULT_TURNAROUND_TIME_MIN
     ctd_descent_rate: float = DEFAULT_CTD_RATE_M_S

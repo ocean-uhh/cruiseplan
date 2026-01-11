@@ -5,7 +5,6 @@ import pytest
 # Import the system under test
 from cruiseplan.interactive.campaign_selector import CampaignSelector
 
-
 # --- Fixtures and Setup ---
 
 

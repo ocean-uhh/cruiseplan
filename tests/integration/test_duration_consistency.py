@@ -8,7 +8,7 @@ consistently, ensuring no double-counting of transit times or other operations.
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import Cruise
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.schema.vocabulary import (
     ACTION_FIELD,
     DURATION_FIELD,
@@ -83,12 +83,12 @@ legs:
     @pytest.fixture
     def cruise(self, sample_cruise_config):
         """Create a cruise object from the sample configuration."""
-        return Cruise(sample_cruise_config)
+        return CruiseInstance(sample_cruise_config)
 
     @pytest.fixture
     def timeline(self, cruise):
         """Generate timeline for the cruise."""
-        return generate_timeline(cruise.config, [cruise.runtime_legs[0]])
+        return generate_timeline(cruise)
 
     def test_latex_html_duration_consistency(self, cruise, timeline):
         """

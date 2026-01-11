@@ -632,7 +632,7 @@ class TimelineGenerator:
                         PointDefinition,
                     )
 
-                    # Handle both Pydantic objects and dictionaries (from YAML deserialization)
+                    # Handle Pydantic objects directly (no dictionary handling needed)
                     if isinstance(activity, PointDefinition):
                         if (
                             hasattr(activity, "operation_type")
@@ -646,31 +646,17 @@ class TimelineGenerator:
                             operation = PointOperation.from_pydantic(activity)
                     elif isinstance(activity, LineDefinition):
                         # Transect - create as line operation
-                        operation = LineOperation.from_pydantic(activity, leg.vessel_speed)
+                        operation = LineOperation.from_pydantic(
+                            activity, leg.vessel_speed
+                        )
                     elif isinstance(activity, AreaDefinition):
                         # Area - create as area operation
                         operation = AreaOperation.from_pydantic(activity)
-                    elif isinstance(activity, dict):
-                        # Handle dictionary format (from YAML deserialization)
-                        if activity.get("operation_type") == "port":
-                            # Convert dict to PointDefinition for port processing
-                            point_def = PointDefinition(**activity)
-                            operation = PointOperation.from_port(point_def)
-                        elif "route" in activity:
-                            # LineDefinition (has route field)
-                            line_def = LineDefinition(**activity)
-                            operation = LineOperation.from_pydantic(line_def, leg.vessel_speed)
-                        elif "corners" in activity:
-                            # AreaDefinition (has corners field)
-                            area_def = AreaDefinition(**activity)
-                            operation = AreaOperation.from_pydantic(area_def)
-                        else:
-                            # PointDefinition (default)
-                            point_def = PointDefinition(**activity)
-                            operation = PointOperation.from_pydantic(point_def)
                     else:
-                        # Legacy fallback
-                        operation = PointOperation.from_port(activity)
+                        raise TypeError(
+                            f"Unknown activity type: {type(activity)}. "
+                            f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
+                        )
 
                 # Add navigational transit between all operations
                 # Zero-duration transits will be filtered out in presentation layer
@@ -869,19 +855,17 @@ class TimelineGenerator:
 # =============================================================================
 
 
-def generate_timeline(
-    config: CruiseConfig, legs: Optional[list[Any]] = None
-) -> list[dict[str, Any]]:
+def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> list[dict[str, Any]]:
     """
-    Generate cruise timeline using the new unified operations model.
+    Generate cruise timeline directly from CruiseInstance object.
 
-    This is the main entry point that maintains backward compatibility
-    with the old scheduler interface.
+    This function eliminates the need for YAML serialization/deserialization
+    by working directly with the CruiseInstance object's validated configuration.
 
     Parameters
     ----------
-    config : CruiseConfig
-        Cruise configuration object
+    cruise : cruiseplan.core.cruise.CruiseInstance
+        CruiseInstance object with enhanced data
     legs : Optional[List[Any]]
         Runtime legs (if None, will be created from config)
 
@@ -890,6 +874,12 @@ def generate_timeline(
     List[Dict[str, Any]]
         Timeline activities as dictionaries
     """
+    # The CruiseInstance object already contains a validated CruiseConfig object
+    # This avoids the YAML serialization/deserialization that causes
+    # objects to become dictionaries
+    config = cruise.config
+
+    # Use existing timeline generation
     generator = TimelineGenerator(config)
     return generator.generate_timeline(legs)
 
@@ -940,10 +930,10 @@ def generate_cruise_schedule(
     Dict[str, Any]
         Schedule data with timeline and summary information
     """
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
 
     # Load cruise configuration
-    cruise = Cruise(config_path)
+    cruise = CruiseInstance(config_path)
 
     # Validate depths if requested
     validation_warnings = []

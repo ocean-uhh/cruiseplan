@@ -20,7 +20,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.processing.enrich.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
     @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_depths_only(
@@ -50,10 +50,10 @@ class TestEnrichConfiguration:
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
-        
+
         # Mock the new enrich_depths method to return the expected set
         mock_cruise.enrich_depths.return_value = {"STN_001"}
-        
+
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data
 
@@ -80,7 +80,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.processing.enrich.save_yaml")
     @patch("cruiseplan.processing.enrich.format_ddm_comment")
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
     @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_coords_only(
@@ -107,7 +107,7 @@ class TestEnrichConfiguration:
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
         mock_cruise.point_registry = {"STN_001": mock_station}
-        
+
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data
 
@@ -129,7 +129,7 @@ class TestEnrichConfiguration:
         # save_yaml is called once: only for output (no more temp files)
         assert mock_save_yaml.call_count == 1
 
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
     @patch("cruiseplan.processing.enrich.load_yaml")
     def test_enrich_no_changes_needed(
@@ -145,10 +145,10 @@ class TestEnrichConfiguration:
         mock_cruise_class.from_dict.return_value = mock_cruise
         mock_cruise.raw_data = config_data
         mock_cruise.point_registry = {}
-        
+
         # Mock enrich methods to return empty sets/dicts
         mock_cruise.enrich_depths.return_value = set()
-        
+
         # Mock to_commented_dict method for output generation
         mock_cruise.to_commented_dict.return_value = config_data
 
@@ -175,7 +175,7 @@ class TestValidateConfigurationFile:
     @patch("cruiseplan.processing.validate.check_duplicate_names")
     @patch("cruiseplan.processing.validate.validate_depth_accuracy")
     @patch("cruiseplan.processing.validate.BathymetryManager")
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_no_depth_check(
         self,
         mock_cruise_class,
@@ -214,7 +214,7 @@ class TestValidateConfigurationFile:
     @patch("cruiseplan.processing.validate.check_duplicate_names")
     @patch("cruiseplan.processing.validate.validate_depth_accuracy")
     @patch("cruiseplan.processing.validate.BathymetryManager")
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_with_depth_check(
         self,
         mock_cruise_class,
@@ -254,7 +254,7 @@ class TestValidateConfigurationFile:
         assert warnings == ["Warning about Station A"]
         mock_validate_depth.assert_called_once_with(mock_cruise, mock_bathymetry, 15.0)
 
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_pydantic_error(self, mock_cruise_class):
         """Test validation with Pydantic validation error."""
         from pydantic import ValidationError
@@ -283,7 +283,7 @@ class TestValidateConfigurationFile:
         assert "greater than 0" in errors[0]
         assert warnings == []
 
-    @patch("cruiseplan.core.cruise.Cruise")
+    @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_general_error(self, mock_cruise_class):
         """Test validation with general error."""
         mock_cruise_class.side_effect = RuntimeError("File not found")

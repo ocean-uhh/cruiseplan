@@ -49,7 +49,7 @@ class TestEnrichThinCLI:
                 add_depths=False,
                 add_coords=False,
                 expand_sections=False,
-                    bathy_source="etopo2022",
+                bathy_source="etopo2022",
                 bathy_dir="data",
                 verbose=False,
             )
@@ -84,7 +84,7 @@ class TestEnrichThinCLI:
                 add_depths=True,
                 add_coords=True,
                 expand_sections=True,
-                    bathy_source="gebco2025",
+                bathy_source="gebco2025",
                 bathy_dir="custom_bathy",
                 verbose=True,
             )

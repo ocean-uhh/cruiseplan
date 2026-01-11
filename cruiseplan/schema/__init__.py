@@ -22,19 +22,15 @@ from .activities import (
 )
 
 # Main cruise configuration
-from .cruise_config import CruiseConfig
+# Schedule definitions (YAML layer)
+from .cruise_config import ClusterDefinition, CruiseConfig, LegDefinition
 from .options import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
-    OperationTypeEnum, # TODO Why is this not a PointOperationTypeEnum?
+    OperationTypeEnum,  # TODO Why is this not a PointOperationTypeEnum?
     StrategyEnum,
 )
-
-
-# Schedule definitions (YAML layer)
-from .cruise_config import ClusterDefinition, LegDefinition
-
 from .vocabulary import *
 
 __all__ = [

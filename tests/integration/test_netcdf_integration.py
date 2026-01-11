@@ -10,9 +10,10 @@ import netCDF4 as nc
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
 from cruiseplan.processing.enrich import enrich_configuration
-from cruiseplan.utils.config import ConfigLoader
+from cruiseplan.utils.yaml_io import load_yaml
 
 # Available test fixtures
 TEST_FIXTURES = [
@@ -47,19 +48,19 @@ class TestNetCDFIntegration:
             # This will save the enriched config to the temporary file
             enrich_configuration(yaml_path, output_path=enriched_path)
 
-            # Load enriched configuration
-            loader = ConfigLoader(str(enriched_path))
-            config = loader.load()
+            # Load enriched configuration as Cruise object
+            config_dict = load_yaml(enriched_path)
+            cruise = CruiseInstance.from_dict(config_dict)
 
             # Generate timeline
-            timeline = generate_timeline(config)
+            timeline = generate_timeline(cruise)
             assert len(timeline) > 0, f"Timeline should not be empty for {yaml_path}"
 
             # Generate NetCDF outputs to dedicated directory
             fixture_name = Path(yaml_path).stem
             output_path = NETCDF_OUTPUT_DIR / f"all_fixtures/{fixture_name}"
             clean_netcdf_directory(output_path)
-            netcdf_files = generate_netcdf_outputs(config, timeline, output_path)
+            netcdf_files = generate_netcdf_outputs(cruise.config, timeline, output_path)
 
             # Verify files were created
             assert (
@@ -150,7 +151,9 @@ class TestNetCDFIntegration:
             ],
         )
 
-        timeline = generate_timeline(minimal_config)
+        # Convert to CruiseInstance
+        cruise = CruiseInstance.from_dict(minimal_config.model_dump())
+        timeline = generate_timeline(cruise)
 
         output_path = NETCDF_OUTPUT_DIR / "empty_config"
         clean_netcdf_directory(output_path)

@@ -9,8 +9,6 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from pydantic import ValidationError
-
 # Centralized imports for configuration models and the custom error
 from cruiseplan.schema import (
     ACTION_FIELD,
@@ -407,9 +405,7 @@ class ConfigLoader:
             If the file cannot be read or is not valid YAML.
         """
         if not self.config_path.exists():
-            raise FileNotFoundError(
-                f"Configuration file not found: {self.config_path}"
-            )
+            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
 
         try:
             raw_data = load_yaml(self.config_path)
@@ -462,7 +458,7 @@ class ConfigLoader:
             return config
         except Exception as e:
             # Check if this is a ValidationError or mock with errors() method
-            if hasattr(e, 'errors'):
+            if hasattr(e, "errors"):
                 # Catch Pydantic's ValidationError and re-raise it with a user-friendly message
                 error_details = "\n".join(
                     [

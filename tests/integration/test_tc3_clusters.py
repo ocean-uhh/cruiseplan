@@ -5,8 +5,8 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import Cruise
-from cruiseplan.utils.config import ConfigLoader
+from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class TestTC3ClustersIntegration:
@@ -20,13 +20,14 @@ class TestTC3ClustersIntegration:
     @pytest.fixture
     def tc3_config(self, tc3_config_path):
         """Load TC3 clusters configuration."""
-        loader = ConfigLoader(tc3_config_path)
-        return loader.load()
+        config_dict = load_yaml(tc3_config_path)
+        cruise = CruiseInstance.from_dict(config_dict)
+        return cruise.config
 
     @pytest.fixture
     def tc3_cruise(self, tc3_config_path):
         """Load TC3 clusters cruise object."""
-        return Cruise(tc3_config_path)
+        return CruiseInstance(tc3_config_path)
 
     def test_tc3_validation_warnings(self, tc3_config):
         """Test that validation produces expected warnings for duplicate activities."""
@@ -37,9 +38,9 @@ class TestTC3ClustersIntegration:
         assert tc3_config.cruise_name == "TC3_Clusters_Test"
         assert len(tc3_config.legs) == 6
 
-    def test_tc3_mooring_operations_count(self, tc3_config):
+    def test_tc3_mooring_operations_count(self, tc3_cruise):
         """Test that configuration generates expected number of mooring operations."""
-        timeline = generate_timeline(tc3_config)
+        timeline = generate_timeline(tc3_cruise)
 
         # Count mooring operations
         mooring_ops = [
@@ -60,9 +61,9 @@ class TestTC3ClustersIntegration:
             total_mooring_hours == 12.0
         ), f"Expected 12 hours of mooring, got {total_mooring_hours}"
 
-    def test_tc3_ctd_stations_count(self, tc3_config):
+    def test_tc3_ctd_stations_count(self, tc3_cruise):
         """Test that configuration generates expected number of CTD stations."""
-        timeline = generate_timeline(tc3_config)
+        timeline = generate_timeline(tc3_cruise)
 
         # Count CTD operations (station activities with CTD operation_type)
         ctd_ops = [
@@ -82,7 +83,7 @@ class TestTC3ClustersIntegration:
         # Total: 2 + 2 + 3 + 3 + 3 + 2 = 15 CTD stations
         assert len(ctd_ops) == 15, f"Expected 15 CTD operations, got {len(ctd_ops)}"
 
-    def test_tc3_vessel_speed_differences(self, tc3_config):
+    def test_tc3_vessel_speed_differences(self, tc3_config, tc3_cruise):
         """Test that leg-specific vessel speed configuration is preserved and applied."""
         # Verify that leg configurations have different vessel speeds
         leg_survey = next(leg for leg in tc3_config.legs if leg.name == "Leg_Survey")
@@ -99,7 +100,7 @@ class TestTC3ClustersIntegration:
         ), "Leg_Survey_Faster should have vessel_speed 12.0"
 
         # Verify that leg-specific speeds are applied in timeline generation
-        timeline = generate_timeline(tc3_config)
+        timeline = generate_timeline(tc3_cruise)
 
         # Extract transit activities for each leg
         leg_survey_transits = [
@@ -173,7 +174,7 @@ class TestTC3ClustersIntegration:
             if cluster.name == "CTD_Cluster5"
         )
 
-        assert "STN_001" in ctd_cluster5.activities
+        assert any(activity.name == "STN_001" for activity in ctd_cluster5.activities)
 
     def test_tc3_reorder_leg_behavior(self, tc3_config):
         """Test that Leg_Survey_Reorder correctly reverses first_station and last_station."""
@@ -185,7 +186,7 @@ class TestTC3ClustersIntegration:
         assert reorder_leg.first_activity == "STN_004"
         assert reorder_leg.last_activity == "STN_001"
 
-    def test_tc3_complete_workflow(self, tc3_config):
+    def test_tc3_complete_workflow(self, tc3_cruise):
         """Test complete workflow from YAML to all output formats."""
         import tempfile
 
@@ -193,7 +194,7 @@ class TestTC3ClustersIntegration:
             output_path = Path(tmp_dir)
 
             # Generate timeline
-            timeline = generate_timeline(tc3_config)
+            timeline = generate_timeline(tc3_cruise)
 
             # Verify timeline has expected activity count
             assert (

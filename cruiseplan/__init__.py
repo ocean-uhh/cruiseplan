@@ -30,7 +30,7 @@ that mirror the CLI commands:
 For more advanced usage, import the underlying classes directly:
 
     from cruiseplan.data.bathymetry import download_bathymetry
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.calculators.scheduler import generate_timeline
 """
 
@@ -905,7 +905,7 @@ def schedule(
     >>> ds = xr.open_dataset(netcdf_file)
     """
     from cruiseplan.calculators.scheduler import generate_timeline
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_schedule_formats, _setup_verbose_logging
 
     _setup_verbose_logging(verbose)
@@ -925,7 +925,7 @@ def schedule(
 
     try:
         # Load and validate cruise configuration
-        cruise = Cruise(config_path)
+        cruise = CruiseInstance(config_path)
 
         # Handle specific leg processing if requested
         target_legs = cruise.runtime_legs
@@ -945,7 +945,7 @@ def schedule(
             raise ValidationError("No legs found in cruise configuration")
 
         # Generate timeline for specified legs
-        timeline = generate_timeline(cruise.config, target_legs)
+        timeline = generate_timeline(cruise)
 
         if not timeline:
             logger.error("Failed to generate timeline")
@@ -1208,9 +1208,9 @@ def process(
                 generated_files.extend(map_result.map_files)
 
         # Load the final config object for return
-        from cruiseplan.core.cruise import Cruise
+        from cruiseplan.core.cruise import CruiseInstance
 
-        cruise = Cruise(enriched_config_path)
+        cruise = CruiseInstance(enriched_config_path)
 
         logger.info("✅ Processing workflow completed successfully!")
 
@@ -1288,7 +1288,7 @@ def map(
     >>> # Generate KML map with custom size
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_map_formats, _setup_verbose_logging
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
@@ -1300,7 +1300,7 @@ def map(
 
     try:
         # Load cruise configuration - direct core call
-        cruise = Cruise(Path(config_file))
+        cruise = CruiseInstance(Path(config_file))
 
         # Setup output paths using helper function
         from cruiseplan.utils.config import setup_output_paths

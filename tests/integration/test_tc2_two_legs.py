@@ -14,13 +14,13 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import Cruise
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
 from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.schema import POINTS_FIELD
-from cruiseplan.utils.config import ConfigLoader
 from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class TestTC2TwoLegsIntegration:
@@ -38,7 +38,7 @@ class TestTC2TwoLegsIntegration:
             yield Path(temp_dir)
 
     def _get_enriched_cruise(self, base_config_path):
-        """Helper to create a Cruise object with temporary enrichment."""
+        """Helper to create a CruiseInstance object with temporary enrichment."""
         with tempfile.NamedTemporaryFile(
             mode="w", suffix=".yaml", delete=False
         ) as tmp_file:
@@ -46,7 +46,7 @@ class TestTC2TwoLegsIntegration:
 
         try:
             enrich_configuration(str(base_config_path), output_path=enriched_path)
-            return Cruise(str(enriched_path))
+            return CruiseInstance(str(enriched_path))
         finally:
             if enriched_path.exists():
                 enriched_path.unlink()
@@ -64,8 +64,9 @@ class TestTC2TwoLegsIntegration:
             enrich_configuration(str(base_config_path), output_path=enriched_path)
 
             # Load enriched configuration
-            loader = ConfigLoader(str(enriched_path))
-            config = loader.load()
+            config_dict = load_yaml(enriched_path)
+            cruise = CruiseInstance.from_dict(config_dict)
+            config = cruise.config
         finally:
             # Clean up temporary enriched file
             if enriched_path.exists():
@@ -87,7 +88,7 @@ class TestTC2TwoLegsIntegration:
         # Validate second leg
         second_leg = config.legs[1]
         assert second_leg.name == "Leg_North"
-        assert second_leg.departure_port.name == "Bremerhaven"  # Resolved name  
+        assert second_leg.departure_port.name == "Bremerhaven"  # Resolved name
         assert second_leg.arrival_port.name == "Reykjavik"  # Resolved name
 
         # Validate stations
@@ -116,14 +117,14 @@ class TestTC2TwoLegsIntegration:
         assert leg_atlantic.departure_port.name == "Halifax"
         assert leg_atlantic.arrival_port.name == "Bremerhaven"
         assert len(leg_atlantic.activities) == 1
-        assert leg_atlantic.activities[0]["name"] == "STN_001"
+        assert leg_atlantic.activities[0].name == "STN_001"
 
         # Leg_North
         leg_north = next(leg for leg in config.legs if leg.name == "Leg_North")
         assert leg_north.departure_port.name == "Bremerhaven"
         assert leg_north.arrival_port.name == "Reykjavik"
         assert len(leg_north.activities) == 1
-        assert leg_north.activities[0]["name"] == "STN_002"
+        assert leg_north.activities[0].name == "STN_002"
 
     def test_cruise_object_creation_and_port_resolution(self, base_config_path):
         """Test Cruise object creation with proper port resolution."""
@@ -206,7 +207,7 @@ class TestTC2TwoLegsIntegration:
         assert enrichment_summary["station_defaults_added"] == 1
 
         # Load enriched config and verify duration
-        enriched_cruise = Cruise(enriched_path)
+        enriched_cruise = CruiseInstance(enriched_path)
         mooring_station = enriched_cruise.point_registry["STN_MOORING"]
         assert hasattr(mooring_station, "duration")
         assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN
@@ -215,7 +216,7 @@ class TestTC2TwoLegsIntegration:
     def test_timeline_generation_with_expected_structure(self, base_config_path):
         """Test timeline generation produces expected two-leg structure."""
         cruise = self._get_enriched_cruise(base_config_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
 
         # Validate timeline structure for two-leg cruise: should have 10 activities
         # Leg1: Port_Departure (Halifax), Transit, Station (STN_001), Transit, Port_Arrival (Bremerhaven)
@@ -275,7 +276,7 @@ class TestTC2TwoLegsIntegration:
     def test_specific_transit_distances(self, base_config_path):
         """Test that specific expected transit distances are generated."""
         cruise = self._get_enriched_cruise(base_config_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
 
         # Extract transit distances
         transit_activities = [act for act in timeline if act.get("dist_nm", 0) > 0]
@@ -340,7 +341,7 @@ class TestTC2TwoLegsIntegration:
     def test_html_output_leg_durations(self, base_config_path, temp_dir):
         """Test that HTML output shows expected leg durations: 11.5 days for Leg_Atlantic, 48.5 days for Leg_North."""
         cruise = self._get_enriched_cruise(base_config_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
 
         # Generate HTML
         html_path = temp_dir / "tc2_schedule.html"
@@ -381,7 +382,7 @@ class TestTC2TwoLegsIntegration:
     def test_netcdf_output_mooring_duration(self, base_config_path, temp_dir):
         """Test that NetCDF output contains the expected mooring duration value."""
         cruise = self._get_enriched_cruise(base_config_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
 
         # Generate NetCDF
         netcdf_generator = NetCDFGenerator()
@@ -459,7 +460,7 @@ class TestTC2TwoLegsIntegration:
         cruise = self._get_enriched_cruise(base_config_path)
 
         # 2. Generate timeline
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
 
         # Validate timeline has correct structure
         assert (

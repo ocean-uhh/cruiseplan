@@ -60,7 +60,6 @@ from cruiseplan.utils.defaults import (
     DEFAULT_TURNAROUND_TIME_MIN,
     DEFAULT_VESSEL_SPEED_KT,
 )
-from cruiseplan.utils.global_ports import resolve_port_reference
 from cruiseplan.utils.yaml_io import load_yaml, save_yaml
 
 logger = logging.getLogger(__name__)
@@ -773,7 +772,7 @@ def _load_and_validate_config(
         Tuple of (config_dict, cruise, enrichment_summary_base)
     """
     # Import here to avoid circular dependencies
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
 
     # Load and preprocess the YAML configuration to replace placeholders
     config_dict = load_yaml(config_path)
@@ -804,7 +803,7 @@ def _load_and_validate_config(
 
         # Load cruise configuration with warning capture
         with _validation_warning_capture() as captured_warnings:
-            cruise = Cruise(temp_config_path)
+            cruise = CruiseInstance(temp_config_path)
     finally:
         # Clean up temporary file safely
         if temp_config_path.exists():
@@ -843,11 +842,11 @@ def _load_and_validate_config_modern(
 
     Returns
     -------
-    tuple[Cruise, dict[str, Any]]
+    tuple[CruiseInstance, dict[str, Any]]
         Tuple of (cruise, enrichment_summary_base)
     """
     # Import here to avoid circular dependencies
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
 
     # Load and preprocess the YAML configuration to replace placeholders
     config_dict = load_yaml(config_path)
@@ -868,7 +867,7 @@ def _load_and_validate_config_modern(
 
     # Create cruise directly from dictionary using single source of truth method
     with _validation_warning_capture() as captured_warnings:
-        cruise = Cruise.from_dict(config_dict)
+        cruise = CruiseInstance.from_dict(config_dict)
 
     enrichment_summary = {
         "stations_with_depths_added": 0,
@@ -888,15 +887,15 @@ def _load_and_validate_config_modern(
 def _minimal_preprocess_config(config_dict: dict[str, Any]) -> dict[str, Any]:
     """
     Minimal preprocessing to ensure config_dict can pass Pydantic validation.
-    
+
     Only adds the absolute minimum required for Cruise.from_dict() to succeed.
     All intelligent defaults and business logic moved to Cruise object methods.
-    
+
     Parameters
     ----------
     config_dict : dict[str, Any]
         Raw configuration dictionary from YAML.
-        
+
     Returns
     -------
     dict[str, Any]
@@ -904,29 +903,33 @@ def _minimal_preprocess_config(config_dict: dict[str, Any]) -> dict[str, Any]:
     """
     # Create a copy to avoid modifying original
     processed_config = config_dict.copy()
-    
+
     # Only add what's absolutely required for Pydantic validation to pass
     # Most defaults will be handled by Cruise object methods
-    
+
     # Ensure legs list exists (required by schema)
     if "legs" not in processed_config:
         processed_config["legs"] = []
-    
+
     # If no legs and no ports, add minimal default leg for validation
     if not processed_config["legs"]:
-        departure_port = processed_config.get(DEPARTURE_PORT_FIELD, DEFAULT_DEPARTURE_PORT)
+        departure_port = processed_config.get(
+            DEPARTURE_PORT_FIELD, DEFAULT_DEPARTURE_PORT
+        )
         arrival_port = processed_config.get(ARRIVAL_PORT_FIELD, DEFAULT_ARRIVAL_PORT)
-        
-        processed_config["legs"] = [{
-            "name": DEFAULT_LEG_NAME,
-            DEPARTURE_PORT_FIELD: departure_port,
-            ARRIVAL_PORT_FIELD: arrival_port,
-        }]
-        
+
+        processed_config["legs"] = [
+            {
+                "name": DEFAULT_LEG_NAME,
+                DEPARTURE_PORT_FIELD: departure_port,
+                ARRIVAL_PORT_FIELD: arrival_port,
+            }
+        ]
+
         # Remove global ports since they're now in the leg
         processed_config.pop(DEPARTURE_PORT_FIELD, None)
         processed_config.pop(ARRIVAL_PORT_FIELD, None)
-    
+
     return processed_config
 
 
@@ -1034,18 +1037,18 @@ def _sync_depths_to_config(
 
 
 def _enrich_coordinates(
-    cruise, 
+    cruise,
     config_dict: dict[str, Any],
     add_coords: bool,
     coord_format: str,
 ) -> int:
     """
     Add coordinate display fields to the configuration dictionary.
-    
+
     This function adds human-readable coordinate annotations to the YAML output
     without modifying the core Cruise object data. It operates on the config_dict
     just before final YAML output to add display enhancements.
-    
+
     Parameters
     ----------
     cruise : Cruise
@@ -1056,7 +1059,7 @@ def _enrich_coordinates(
         Whether to add coordinate display fields.
     coord_format : str
         Coordinate format to use for display.
-    
+
     Returns
     -------
     int
@@ -1064,23 +1067,23 @@ def _enrich_coordinates(
     """
     if not add_coords:
         return 0
-        
+
     coord_changes_made = 0
-    
+
     # Add coordinate displays for stations
     coord_changes_made += _enrich_station_coordinates_display(
         cruise, config_dict, coord_format
     )
-    
+
     # Add coordinate displays for ports
     coord_changes_made += _enrich_port_coordinates_display(
         cruise, config_dict, coord_format
     )
-    
+
     # Add coordinate displays for transits and areas
     coord_changes_made += _enrich_transit_coordinates(config_dict, True)
     coord_changes_made += _enrich_area_coordinates(config_dict, True)
-    
+
     return coord_changes_made
 
 
@@ -1089,7 +1092,7 @@ def _enrich_station_coordinates_display(
 ) -> int:
     """
     Add coordinate display fields to stations in the config dictionary.
-    
+
     Parameters
     ----------
     cruise : Cruise
@@ -1098,7 +1101,7 @@ def _enrich_station_coordinates_display(
         Configuration dictionary to modify.
     coord_format : str
         Coordinate format to use.
-    
+
     Returns
     -------
     int
@@ -1157,9 +1160,7 @@ def _enrich_port_coordinates_display(
             port_data = config_dict[port_key]
             # Use literal attribute names for Pydantic model access
             attr_name = (
-                "departure_port"
-                if port_key == DEPARTURE_PORT_FIELD
-                else "arrival_port"
+                "departure_port" if port_key == DEPARTURE_PORT_FIELD else "arrival_port"
             )
             if hasattr(cruise.config, attr_name):
                 port_obj = getattr(cruise.config, attr_name)
@@ -1266,8 +1267,6 @@ def _enrich_area_coordinates(config_dict: dict[str, Any], add_coords: bool) -> i
                         )
 
     return coord_changes_made
-
-
 
 
 def _save_config(
@@ -1382,17 +1381,18 @@ def enrich_configuration(
         - total_stations_processed: Total stations processed
     """
     # === Clean Architecture: Minimal preprocessing → Cruise enhancement phase ===
-    
+
     # 1. Load raw YAML
     config_dict = load_yaml(config_path)
-    
+
     # 2. Minimal preprocessing (only what's required for Pydantic validation)
     processed_config = _minimal_preprocess_config(config_dict)
-    
+
     # 3. Create Cruise object
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
+
     with _validation_warning_capture() as captured_warnings:
-        cruise = Cruise.from_dict(processed_config)
+        cruise = CruiseInstance.from_dict(processed_config)
 
     # 4. Cruise enhancement phase - all business logic in Cruise object methods
     sections_expanded = 0
@@ -1401,27 +1401,29 @@ def enrich_configuration(
         section_summary = cruise.expand_sections()
         sections_expanded = section_summary["sections_expanded"]
         stations_from_expansion = section_summary["stations_from_expansion"]
-    
+
     # Add station defaults (like mooring durations)
     station_defaults_added = cruise.add_station_defaults()
-    
+
     stations_with_depths_added = set()
     if add_depths:
-        stations_with_depths_added = cruise.enrich_depths(bathymetry_source, bathymetry_dir)
-    
+        stations_with_depths_added = cruise.enrich_depths(
+            bathymetry_source, bathymetry_dir
+        )
+
     # Ports are automatically resolved during Cruise object creation
     # No need for explicit expand_ports flag anymore
-    
+
     # 5. Generate final YAML output with display enhancements
     output_config = cruise.to_commented_dict()
-    
+
     # Add coordinate displays if requested (final formatting step)
     coord_changes_made = 0
     if add_coords:
         coord_changes_made += _enrich_coordinates(
             cruise, output_config, add_coords, coord_format
         )
-    
+
     # 6. Build summary and save
     final_summary = {
         "sections_expanded": sections_expanded,
@@ -1431,9 +1433,9 @@ def enrich_configuration(
         "station_defaults_added": station_defaults_added,
         "total_stations_processed": len(cruise.point_registry),
     }
-    
+
     # Process warnings and save configuration
     _process_warnings(captured_warnings)
     _save_config(output_config, output_path)
-    
+
     return final_summary
