@@ -13,18 +13,18 @@ from pydantic import ValidationError
 
 # Centralized imports for configuration models and the custom error
 from cruiseplan.schema import (
-    CruiseConfig,
-    CruiseConfigurationError,
     ACTION_FIELD,
     AREA_VERTEX_FIELD,
     AREAS_FIELD,
-    DEPARTURE_PORT_FIELD,
     ARRIVAL_PORT_FIELD,
+    DEPARTURE_PORT_FIELD,
     DURATION_FIELD,
     LEGS_FIELD,
     LINE_VERTEX_FIELD,
     OP_TYPE_FIELD,
     START_DATE_FIELD,
+    CruiseConfig,
+    CruiseConfigurationError,
 )
 from cruiseplan.utils.defaults import (
     DEFAULT_AREA_ACTION,

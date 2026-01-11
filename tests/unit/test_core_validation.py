@@ -5,9 +5,15 @@ import pytest
 
 from cruiseplan.core.cruise import Cruise, ReferenceError
 from cruiseplan.schema import (
-    POINTS_FIELD, LEGS_FIELD, OP_TYPE_FIELD, ACTION_FIELD,
-    DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD, FIRST_ACTIVITY_FIELD, 
-    LAST_ACTIVITY_FIELD, START_DATE_FIELD
+    ACTION_FIELD,
+    ARRIVAL_PORT_FIELD,
+    DEPARTURE_PORT_FIELD,
+    FIRST_ACTIVITY_FIELD,
+    LAST_ACTIVITY_FIELD,
+    LEGS_FIELD,
+    OP_TYPE_FIELD,
+    POINTS_FIELD,
+    START_DATE_FIELD,
 )
 
 # Path to the sample file

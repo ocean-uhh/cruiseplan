@@ -102,9 +102,7 @@ class TestSchedulerDebug:
             if config.legs:
                 for i, leg in enumerate(config.legs):
                     activities = getattr(leg, "activities", [])
-                    print(
-                        f"     {i+1}. {leg.name}: activities={len(activities)} items"
-                    )
+                    print(f"     {i+1}. {leg.name}: activities={len(activities)} items")
 
             print("\n   Port information (leg-level):")
             for leg in config.legs:

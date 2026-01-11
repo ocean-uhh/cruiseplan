@@ -443,7 +443,6 @@ class TestCruise:
             cluster = cruise.config.legs[0].clusters[0]
             assert len(cluster.activities) == 2
 
-
     @patch("cruiseplan.core.cruise.load_yaml")
     def test_cruise_pathlib_path_input(self, mock_load_yaml):
         """Test cruise initialization with pathlib.Path input."""

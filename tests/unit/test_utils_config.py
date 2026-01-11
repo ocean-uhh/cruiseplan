@@ -4,16 +4,16 @@ from unittest.mock import mock_open, patch
 import pytest
 
 from cruiseplan.schema import CruiseConfigurationError
-from cruiseplan.utils.defaults import (
-    DEFAULT_POINT_ACTION,
-    DEFAULT_POINT_OPTYPE,
-    DEFAULT_LINE_ACTION,
-)
 from cruiseplan.utils.config import (
     ConfigLoader,
     format_station_for_yaml,
     format_transect_for_yaml,
     save_cruise_config,
+)
+from cruiseplan.utils.defaults import (
+    DEFAULT_LINE_ACTION,
+    DEFAULT_POINT_ACTION,
+    DEFAULT_POINT_OPTYPE,
 )
 from cruiseplan.utils.yaml_io import YAMLIOError
 
@@ -254,9 +254,7 @@ class TestConfigUtils:
         assert (
             formatted["operation_type"] == DEFAULT_POINT_OPTYPE
         )  # Reverted placeholder
-        assert (
-            formatted["action"] == DEFAULT_POINT_ACTION
-        )  # Reverted placeholder
+        assert formatted["action"] == DEFAULT_POINT_ACTION  # Reverted placeholder
         assert (
             "Interactive selection" in formatted["comment"]
         )  # Enhanced comment contains original

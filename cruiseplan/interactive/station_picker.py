@@ -21,9 +21,9 @@ from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
 from cruiseplan.schema import (
     ACTIVITIES_FIELD,
     AREAS_FIELD,
+    ARRIVAL_PORT_FIELD,
     DEFAULT_VESSEL_SPEED_FIELD,
     DEPARTURE_PORT_FIELD,
-    ARRIVAL_PORT_FIELD,
     FIRST_ACTIVITY_FIELD,
     LAST_ACTIVITY_FIELD,
     LEGS_FIELD,
@@ -31,6 +31,12 @@ from cruiseplan.schema import (
     POINTS_FIELD,
     START_DATE_FIELD,
     STRATEGY_FIELD,
+)
+from cruiseplan.utils.config import (
+    format_area_for_yaml,
+    format_station_for_yaml,
+    format_transect_for_yaml,
+    save_cruise_config,
 )
 from cruiseplan.utils.defaults import (
     DEFAULT_ARRIVAL_PORT,
@@ -42,12 +48,6 @@ from cruiseplan.utils.defaults import (
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_STRATEGY,
     DEFAULT_VESSEL_SPEED_KT,
-)
-from cruiseplan.utils.config import (
-    format_area_for_yaml,
-    format_station_for_yaml,
-    format_transect_for_yaml,
-    save_cruise_config,
 )
 from cruiseplan.utils.plot_config import get_colormap
 

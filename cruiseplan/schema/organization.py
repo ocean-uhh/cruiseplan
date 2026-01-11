@@ -56,7 +56,6 @@ class ClusterDefinition(BaseModel):
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
 
-
     model_config = ConfigDict(extra="allow")
 
     @model_validator(mode="after")
@@ -184,7 +183,6 @@ class LegDefinition(BaseModel):
     clusters: Optional[list[ClusterDefinition]] = Field(
         default_factory=list, description="List of operation clusters"
     )
-
 
     model_config = ConfigDict(extra="allow")
 

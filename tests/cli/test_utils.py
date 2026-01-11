@@ -16,9 +16,9 @@ from cruiseplan.cli.cli_utils import (
     generate_output_filename,
 )
 from cruiseplan.data.pangaea import read_doi_list
+from cruiseplan.schema import POINTS_FIELD
 from cruiseplan.utils.io import _setup_output_paths
 from cruiseplan.utils.yaml_io import load_yaml, save_yaml
-from cruiseplan.schema import POINTS_FIELD
 
 
 class TestYamlOperations:

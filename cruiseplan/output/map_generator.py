@@ -161,11 +161,7 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
         and cruise.config.lines
     ):
         for line in cruise.config.lines:
-            if (
-                hasattr(line, "route")
-                and line.route
-                and len(line.route) >= 2
-            ):
+            if hasattr(line, "route") and line.route and len(line.route) >= 2:
                 waypoints = [
                     {"lat": waypoint.latitude, "lon": waypoint.longitude}
                     for waypoint in line.route

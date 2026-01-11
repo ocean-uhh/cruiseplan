@@ -683,7 +683,9 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
     return formatted_sections
 
 
-def _warning_relates_to_entity(warning_msg: str, entity: Union[PointDefinition, LineDefinition, AreaDefinition]) -> bool:
+def _warning_relates_to_entity(
+    warning_msg: str, entity: Union[PointDefinition, LineDefinition, AreaDefinition]
+) -> bool:
     """Check if a warning message relates to a specific entity by examining field values."""
     # Use literal strings for Python object attribute access (entity is a Pydantic model)
     # not vocabulary constants which are for YAML field access

@@ -20,7 +20,6 @@ from cruiseplan.output.map_generator import (
     plot_bathymetry,
     plot_cruise_elements,
 )
-from cruiseplan.schema import LINE_VERTEX_FIELD
 
 
 class TestExtractMapData:
