@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Core Classes &mdash; CruisePlan v0.3.2 v0.3.2.post1.dev1</title>
+  <title>Core Classes &mdash; CruisePlan v0.3.2 v0.3.2.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=1a1bd151"></script>
+      <script src="../_static/documentation_options.js?v=2de35b3b"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -203,23 +203,23 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.station_registry">
-<span class="sig-name descname"><span class="pre">station_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.station_registry" title="Link to this definition"></a></dt>
-<dd><p>Dictionary mapping station names to StationDefinition objects.</p>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.waypoint_registry">
+<span class="sig-name descname"><span class="pre">waypoint_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.waypoint_registry" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping waypoint names to WaypointDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, StationDefinition]</p>
+<dd class="field-odd"><p>Dict[str, WaypointDefinition]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.transit_registry">
-<span class="sig-name descname"><span class="pre">transit_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.transit_registry" title="Link to this definition"></a></dt>
-<dd><p>Dictionary mapping transit names to TransitDefinition objects.</p>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.transect_registry">
+<span class="sig-name descname"><span class="pre">transect_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.transect_registry" title="Link to this definition"></a></dt>
+<dd><p>Dictionary mapping transect names to TransectDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, TransitDefinition]</p>
+<dd class="field-odd"><p>Dict[str, TransectDefinition]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -252,7 +252,7 @@ from the catalog registries.</p>
 <dd><p>Initialize a Cruise object from a YAML configuration file.</p>
 <p>Performs three main operations:
 1. Loads and validates the YAML configuration using Pydantic
-2. Builds registries for stations and transits
+2. Builds registries for waypoints and transects
 3. Resolves string references to full objects</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -263,7 +263,7 @@ from the catalog registries.</p>
 <li><p><strong>FileNotFoundError</strong> – If the configuration file does not exist.</p></li>
 <li><p><a class="reference internal" href="cruiseplan.utils.html#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If the YAML file cannot be parsed.</p></li>
 <li><p><strong>ValidationError</strong> – If the configuration does not match the expected schema.</p></li>
-<li><p><a class="reference internal" href="#cruiseplan.core.cruise.ReferenceError" title="cruiseplan.core.cruise.ReferenceError"><strong>ReferenceError</strong></a> – If referenced stations or transits are not found in the catalog.</p></li>
+<li><p><a class="reference internal" href="#cruiseplan.core.cruise.ReferenceError" title="cruiseplan.core.cruise.ReferenceError"><strong>ReferenceError</strong></a> – If referenced waypoints or transects are not found in the catalog.</p></li>
 </ul>
 </dd>
 </dl>

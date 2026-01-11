@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.2 v0.3.2.post1.dev1</title>
+  <title>cruiseplan.core.cruise &mdash; CruisePlan v0.3.2 v0.3.2.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=1a1bd151"></script>
+      <script src="../../../_static/documentation_options.js?v=2de35b3b"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -126,9 +126,9 @@
     <span class="n">AreaDefinition</span><span class="p">,</span>
     <span class="n">CruiseConfig</span><span class="p">,</span>
     <span class="n">PortDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for WaypointDefinition</span>
-    <span class="n">StationDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for WaypointDefinition</span>
     <span class="n">StrategyEnum</span><span class="p">,</span>
-    <span class="n">TransitDefinition</span><span class="p">,</span>  <span class="c1"># Legacy alias for TransectDefinition</span>
+    <span class="n">TransectDefinition</span><span class="p">,</span>
+    <span class="n">WaypointDefinition</span><span class="p">,</span>
 <span class="p">)</span>
 
 
@@ -163,10 +163,10 @@
 <span class="sd">        Raw dictionary data loaded from the YAML file.</span>
 <span class="sd">    config : CruiseConfig</span>
 <span class="sd">        Validated Pydantic configuration object.</span>
-<span class="sd">    station_registry : Dict[str, StationDefinition]</span>
-<span class="sd">        Dictionary mapping station names to StationDefinition objects.</span>
-<span class="sd">    transit_registry : Dict[str, TransitDefinition]</span>
-<span class="sd">        Dictionary mapping transit names to TransitDefinition objects.</span>
+<span class="sd">    waypoint_registry : Dict[str, WaypointDefinition]</span>
+<span class="sd">        Dictionary mapping waypoint names to WaypointDefinition objects.</span>
+<span class="sd">    transect_registry : Dict[str, TransectDefinition]</span>
+<span class="sd">        Dictionary mapping transect names to TransectDefinition objects.</span>
 <span class="sd">    port_registry : Dict[str, PortDefinition]</span>
 <span class="sd">        Dictionary mapping port names to PortDefinition objects.</span>
 <span class="sd">    runtime_legs : List[Leg]</span>
@@ -181,7 +181,7 @@
 
 <span class="sd">        Performs three main operations:</span>
 <span class="sd">        1. Loads and validates the YAML configuration using Pydantic</span>
-<span class="sd">        2. Builds registries for stations and transits</span>
+<span class="sd">        2. Builds registries for waypoints and transects</span>
 <span class="sd">        3. Resolves string references to full objects</span>
 
 <span class="sd">        Parameters</span>
@@ -198,7 +198,7 @@
 <span class="sd">        ValidationError</span>
 <span class="sd">            If the configuration does not match the expected schema.</span>
 <span class="sd">        ReferenceError</span>
-<span class="sd">            If referenced stations or transits are not found in the catalog.</span>
+<span class="sd">            If referenced waypoints or transects are not found in the catalog.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_load_yaml</span><span class="p">()</span>
@@ -207,10 +207,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span><span class="o">**</span><span class="bp">self</span><span class="o">.</span><span class="n">raw_data</span><span class="p">)</span>
 
         <span class="c1"># 2. Indexing Pass (Build the Catalog Registry)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">StationDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">stations</span> <span class="ow">or</span> <span class="p">[])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">waypoint_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">WaypointDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">waypoints</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TransitDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">transect_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TransectDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
             <span class="n">t</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">transects</span> <span class="ow">or</span> <span class="p">[])</span>
         <span class="p">}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -256,8 +256,8 @@
 <span class="sd">        Resolve string references to full objects from the registry.</span>
 
 <span class="sd">        Traverses the cruise legs, clusters, and sections to convert string</span>
-<span class="sd">        identifiers into their corresponding StationDefinition and</span>
-<span class="sd">        TransitDefinition objects from the registries.</span>
+<span class="sd">        identifiers into their corresponding WaypointDefinition and</span>
+<span class="sd">        TransectDefinition objects from the registries.</span>
 
 <span class="sd">        Resolves all references within legs to their corresponding definitions.</span>
 
@@ -270,11 +270,9 @@
         <span class="c1"># Note: Global anchor validation removed - waypoints are now handled at leg level</span>
 
         <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
-            <span class="c1"># Resolve Direct Leg Stations</span>
-            <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                <span class="n">leg</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_list</span><span class="p">(</span>
-                    <span class="n">leg</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">,</span> <span class="s2">&quot;Station&quot;</span>
-                <span class="p">)</span>
+            <span class="c1"># Resolve Direct Leg Activities (modern field)</span>
+            <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+                <span class="n">leg</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_mixed_list</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span>
 
             <span class="c1"># Resolve Clusters</span>
             <span class="k">if</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
@@ -288,12 +286,6 @@
                     <span class="k">if</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
                         <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_mixed_list</span><span class="p">(</span>
                             <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span>
-                        <span class="p">)</span>
-
-                    <span class="c1"># Resolve Buckets (deprecated field - kept for compatibility)</span>
-                    <span class="k">if</span> <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                        <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_resolve_list</span><span class="p">(</span>
-                            <span class="n">cluster</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">,</span> <span class="s2">&quot;Station&quot;</span>
                         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_list</span><span class="p">(</span>
@@ -341,7 +333,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_resolve_mixed_list</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Resolve a mixed sequence list containing stations, transits, or areas.</span>
+<span class="sd">        Resolve a mixed sequence list containing waypoints, transects, or areas.</span>
 
 <span class="sd">        Searches through all available registries to resolve string references</span>
 <span class="sd">        and converts inline dictionary definitions to proper object types.</span>
@@ -367,15 +359,15 @@
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
             <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
                 <span class="c1"># Try finding it in any registry</span>
-                <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">:</span>
-                    <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
-                <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">:</span>
-                    <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+                <span class="k">if</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">waypoint_registry</span><span class="p">:</span>
+                    <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">waypoint_registry</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
+                <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transect_registry</span><span class="p">:</span>
+                    <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transect_registry</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
                 <span class="k">elif</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span>
                     <span class="n">resolved_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span><span class="p">[</span><span class="n">item</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">raise</span> <span class="ne">ReferenceError</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;Activity ID &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; not found in any Catalog (Stations, Transits, Areas).&quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;Activity ID &#39;</span><span class="si">{</span><span class="n">item</span><span class="si">}</span><span class="s2">&#39; not found in any Catalog (Waypoints, Transects, Areas).&quot;</span>
                     <span class="p">)</span>
             <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
                 <span class="c1"># Convert inline dictionary definition to proper object type</span>
@@ -387,7 +379,7 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_convert_inline_definition</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">definition_dict</span><span class="p">:</span> <span class="nb">dict</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">StationDefinition</span><span class="p">,</span> <span class="n">TransitDefinition</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]:</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">WaypointDefinition</span><span class="p">,</span> <span class="n">TransectDefinition</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Convert an inline dictionary definition to the appropriate definition object.</span>
 
@@ -401,7 +393,7 @@
 
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
-<span class="sd">        Union[StationDefinition, TransitDefinition, AreaDefinition]</span>
+<span class="sd">        Union[WaypointDefinition, TransectDefinition, AreaDefinition]</span>
 <span class="sd">            The appropriate definition object created from the dictionary.</span>
 
 <span class="sd">        Raises</span>
@@ -412,10 +404,10 @@
         <span class="c1"># Determine definition type based on key fields</span>
         <span class="k">if</span> <span class="s2">&quot;operation_type&quot;</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>
             <span class="c1"># This is a station definition</span>
-            <span class="k">return</span> <span class="n">StationDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">WaypointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
         <span class="k">elif</span> <span class="s2">&quot;start&quot;</span> <span class="ow">in</span> <span class="n">definition_dict</span> <span class="ow">and</span> <span class="s2">&quot;end&quot;</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>
             <span class="c1"># This is a transit definition</span>
-            <span class="k">return</span> <span class="n">TransitDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">TransectDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
         <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span>
             <span class="n">field</span> <span class="ow">in</span> <span class="n">definition_dict</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;polygon&quot;</span><span class="p">,</span> <span class="s2">&quot;center&quot;</span><span class="p">,</span> <span class="s2">&quot;boundary&quot;</span><span class="p">]</span>
         <span class="p">):</span>
@@ -430,7 +422,7 @@
             <span class="k">if</span> <span class="s2">&quot;operation_type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>
                 <span class="n">definition_dict</span> <span class="o">=</span> <span class="n">definition_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
                 <span class="n">definition_dict</span><span class="p">[</span><span class="s2">&quot;operation_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;CTD&quot;</span>  <span class="c1"># Default operation type</span>
-            <span class="k">return</span> <span class="n">StationDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">WaypointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Cannot determine definition type for inline definition: </span><span class="si">{</span><span class="n">definition_dict</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -681,31 +673,6 @@
                 <span class="p">)</span>
                 <span class="c1"># TODO: Resolve activities to operations in Phase 3 completion</span>
                 <span class="n">runtime_leg</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">default_cluster</span><span class="p">)</span>
-            <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg_def</span><span class="p">,</span> <span class="s2">&quot;stations&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                <span class="c1"># Backward compatibility: create cluster from legacy stations field</span>
-                <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
-
-                <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; uses deprecated &#39;stations&#39; field. &quot;</span>
-                    <span class="s2">&quot;Use &#39;activities&#39; field for future compatibility.&quot;</span><span class="p">,</span>
-                    <span class="ne">DeprecationWarning</span><span class="p">,</span>
-                    <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="n">legacy_cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span>
-                    <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">_Legacy&quot;</span><span class="p">,</span>
-                    <span class="n">description</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Legacy stations cluster for leg </span><span class="si">{</span><span class="n">leg_def</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-                    <span class="n">strategy</span><span class="o">=</span><span class="n">StrategyEnum</span><span class="o">.</span><span class="n">SEQUENTIAL</span><span class="p">,</span>
-                    <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
-                <span class="p">)</span>
-                <span class="c1"># Convert station references to activities format</span>
-                <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">leg_def</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
-                        <span class="c1"># Station object</span>
-                        <span class="n">legacy_cluster</span><span class="o">.</span><span class="n">add_operation</span><span class="p">(</span><span class="n">station</span><span class="p">)</span>
-                    <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># Station reference - will be resolved in Phase 3</span>
-                        <span class="k">pass</span>
-                <span class="n">runtime_leg</span><span class="o">.</span><span class="n">clusters</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">legacy_cluster</span><span class="p">)</span>
 
             <span class="n">runtime_legs</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">runtime_leg</span><span class="p">)</span>
 
@@ -715,7 +682,7 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Check if an anchor reference exists in any catalog registry.</span>
 
-<span class="sd">        Anchors can be stations, areas, or other operation entities</span>
+<span class="sd">        Anchors can be waypoints, areas, or other operation entities</span>
 <span class="sd">        that can serve as routing points for maritime planning.</span>
 
 <span class="sd">        Parameters</span>
@@ -730,9 +697,9 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Check all registries for the anchor reference</span>
         <span class="k">return</span> <span class="p">(</span>
-            <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">station_registry</span>
+            <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">waypoint_registry</span>
             <span class="ow">or</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">area_registry</span>
-            <span class="ow">or</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transit_registry</span>
+            <span class="ow">or</span> <span class="n">anchor_ref</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transect_registry</span>
         <span class="p">)</span></div>
 
 </pre></div>
