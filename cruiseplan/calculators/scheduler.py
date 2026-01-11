@@ -556,7 +556,7 @@ class TimelineGenerator:
     def _create_runtime_legs(self) -> list[Any]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
-        from cruiseplan.core.leg import Leg
+        from cruiseplan.core.cruise import Leg
 
         runtime_legs = []
         for leg_def in self.config.legs or []:

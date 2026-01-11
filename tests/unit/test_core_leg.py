@@ -4,8 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.core.cluster import Cluster
-from cruiseplan.core.leg import Leg
+from cruiseplan.core.cruise import Cluster, Leg
 from cruiseplan.schema import StrategyEnum
 
 
@@ -71,7 +70,7 @@ class TestLeg:
         assert len(leg.clusters) == 1
         assert leg.clusters[0] == cluster
 
-    def test_leg_get_effective_speed_inheritance(self):
+    def test_leg_get_vessel_speed_inheritance(self):
         """Test speed parameter inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -82,11 +81,11 @@ class TestLeg:
             departure_port=departure_port,
             arrival_port=arrival_port,
         )
-        assert leg.get_effective_speed(12.0) == 12.0
+        assert leg.get_vessel_speed(12.0) == 12.0
 
         # Test with leg-specific override
         leg.vessel_speed = 15.0
-        assert leg.get_effective_speed(12.0) == 15.0
+        assert leg.get_vessel_speed(12.0) == 15.0
 
     def test_leg_string_representation(self):
         """Test string representation methods."""
@@ -139,7 +138,7 @@ class TestLeg:
 class TestLegParameterInheritance:
     """Test parameter inheritance functionality."""
 
-    def test_get_effective_turnaround_time(self):
+    def test_get_turnaround_time(self):
         """Test turnaround time inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -151,13 +150,13 @@ class TestLegParameterInheritance:
         )
 
         # Test default value
-        assert leg.get_effective_turnaround_time(30.0) == 30.0
+        assert leg.get_turnaround_time(30.0) == 30.0
 
         # Test override
         leg.turnaround_time = 45.0
-        assert leg.get_effective_turnaround_time(30.0) == 45.0
+        assert leg.get_turnaround_time(30.0) == 45.0
 
-    def test_get_effective_distance_between_stations(self):
+    def test_get_station_spacing(self):
         """Test station spacing inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -169,11 +168,11 @@ class TestLegParameterInheritance:
         )
 
         # Test default value
-        assert leg.get_effective_spacing(10.0) == 10.0
+        assert leg.get_station_spacing(10.0) == 10.0
 
         # Test override
         leg.distance_between_stations = 15.0
-        assert leg.get_effective_spacing(10.0) == 15.0
+        assert leg.get_station_spacing(10.0) == 15.0
 
 
 class TestLegOperationsManagement:

@@ -22,12 +22,12 @@ from .activities import (
 )
 
 # Main cruise configuration
-from .cruise import CruiseConfig
+from .cruise_config import CruiseConfig
 from .enums import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
-    OperationTypeEnum,
+    OperationTypeEnum, # TODO Why is this not a PointOperationTypeEnum?
     StrategyEnum,
 )
 from .exceptions import CruiseConfigurationError
@@ -36,7 +36,7 @@ from .exceptions import CruiseConfigurationError
 from .generation_models import GenerateSection, GenerateTransect, SectionDefinition
 
 # Schedule definitions (YAML layer)
-from .organization import ClusterDefinition, LegDefinition
+from .cruise_config import ClusterDefinition, LegDefinition
 
 # Validation utilities
 from .validators import (
