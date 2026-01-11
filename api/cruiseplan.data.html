@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Data - Bathymetry &amp; Pangaea &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>Data - Bathymetry &amp; Pangaea &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../_static/documentation_options.js?v=45320adf"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -88,10 +88,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.bathymetry.get_bathymetry_singleton"><code class="docutils literal notranslate"><span class="pre">get_bathymetry_singleton()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.cache">cruiseplan.data.cache module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.cache.CacheManager"><code class="docutils literal notranslate"><span class="pre">CacheManager</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-data-cache-module">cruiseplan.data.cache module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.data.pangaea">cruiseplan.data.pangaea module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.PangaeaManager"><code class="docutils literal notranslate"><span class="pre">PangaeaManager</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.data.pangaea.load_campaign_data"><code class="docutils literal notranslate"><span class="pre">load_campaign_data()</span></code></a></li>
@@ -316,6 +313,11 @@ Supports downsampling with stride parameter for performance.</p>
 <dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
+<p class="rubric">Notes</p>
+<p>This method performs expensive NetCDF grid slicing operations. Consider using
+cruiseplan.utils.cache.CacheManager for repeated grid subset requests with
+overlapping geographic bounds, especially in interactive applications like
+station_picker and map generation workflows.</p>
 </dd></dl>
 
 </dd></dl>
@@ -388,86 +390,8 @@ For ETOPO 2022: Returns None (legacy behavior).</p>
 </dd></dl>
 
 </section>
-<section id="module-cruiseplan.data.cache">
-<span id="cruiseplan-data-cache-module"></span><h2>cruiseplan.data.cache module<a class="headerlink" href="#module-cruiseplan.data.cache" title="Link to this heading"></a></h2>
-<p>Data caching utilities for CruisePlan.</p>
-<p>This module provides caching functionality for storing and retrieving
-expensive computations and external data.</p>
-<dl class="py class">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.data.cache.</span></span><span class="sig-name descname"><span class="pre">CacheManager</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.cache'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/cache.html#CacheManager"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.cache.CacheManager" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>Simple file-based cache using Pickle.</p>
-<p>Provides basic caching functionality with automatic serialization
-using Python’s pickle module. Cache files are stored as .pkl files
-in the specified cache directory.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager.cache_dir">
-<span class="sig-name descname"><span class="pre">cache_dir</span></span><a class="headerlink" href="#cruiseplan.data.cache.CacheManager.cache_dir" title="Link to this definition"></a></dt>
-<dd><p>Directory where cache files are stored.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Path</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cache_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'.cache'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/data/cache.html#CacheManager.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.cache.CacheManager.__init__" title="Link to this definition"></a></dt>
-<dd><p>Initialize cache manager.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cache_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory path for cache storage (default: “.cache”).
-Will be created if it doesn’t exist.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager.clear">
-<span class="sig-name descname"><span class="pre">clear</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/cache.html#CacheManager.clear"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.cache.CacheManager.clear" title="Link to this definition"></a></dt>
-<dd><p>Remove specific item from cache.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – Cache key identifier to remove.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager.get">
-<span class="sig-name descname"><span class="pre">get</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/cache.html#CacheManager.get"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.cache.CacheManager.get" title="Link to this definition"></a></dt>
-<dd><p>Retrieve item from cache if it exists.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>key</strong> (<em>str</em>) – Cache key identifier.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Cached data if found and successfully loaded, None otherwise.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[Any]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.data.cache.CacheManager.set">
-<span class="sig-name descname"><span class="pre">set</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/data/cache.html#CacheManager.set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.data.cache.CacheManager.set" title="Link to this definition"></a></dt>
-<dd><p>Save item to cache.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>key</strong> (<em>str</em>) – Cache key identifier.</p></li>
-<li><p><strong>data</strong> (<em>Any</em>) – Data to cache. Must be pickle-serializable.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
+<section id="cruiseplan-data-cache-module">
+<h2>cruiseplan.data.cache module<a class="headerlink" href="#cruiseplan-data-cache-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-cruiseplan.data.pangaea">
 <span id="cruiseplan-data-pangaea-module"></span><h2>cruiseplan.data.pangaea module<a class="headerlink" href="#module-cruiseplan.data.pangaea" title="Link to this heading"></a></h2>
@@ -489,7 +413,7 @@ cruise tracks into planning workflows.</p>
 <dd><p>File-based cache for storing fetched dataset metadata.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.data.cache.CacheManager" title="cruiseplan.data.cache.CacheManager">CacheManager</a></p>
+<dd class="field-odd"><p>CacheManager</p>
 </dd>
 </dl>
 </dd></dl>

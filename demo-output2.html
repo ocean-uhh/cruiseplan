@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="_static/documentation_options.js?v=45320adf"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [01:38, 4.98MB/s]
+Downloading ETOPO: 469MB [01:10, 6.97MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -353,7 +353,7 @@ INFO: 🚀 Next step: cruiseplan stations -p /home/runner/work/cruiseplan/cruise
     <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2025-06-01T00:00:00Z&#39;</span><span class="p">,</span>
 
     <span class="c1"># Define stations along a transect</span>
-    <span class="s1">&#39;waypoints&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
             <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">,</span>
@@ -415,7 +415,7 @@ INFO: 🚀 Next step: cruiseplan stations -p /home/runner/work/cruiseplan/cruise
     <span class="p">],</span>
 
     <span class="c1"># Add scientific transit</span>
-    <span class="s1">&#39;transects&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="s1">&#39;lines&#39;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo_ADCP_Survey&#39;</span><span class="p">,</span>
             <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;underway&#39;</span><span class="p">,</span>
@@ -435,8 +435,8 @@ INFO: 🚀 Next step: cruiseplan stations -p /home/runner/work/cruiseplan/cruise
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo_Survey&#39;</span><span class="p">,</span>
             <span class="s1">&#39;departure_port&#39;</span><span class="p">:</span> <span class="s1">&#39;port_st_johns&#39;</span><span class="p">,</span>
             <span class="s1">&#39;arrival_port&#39;</span><span class="p">:</span> <span class="s1">&#39;port_st_johns&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;first_waypoint&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
-            <span class="s1">&#39;last_waypoint&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;first_activity&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
+            <span class="s1">&#39;last_activity&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">,</span>
             <span class="s1">&#39;activities&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;STN_001&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_002&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_003&#39;</span><span class="p">,</span> <span class="s1">&#39;Demo_ADCP_Survey&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_004&#39;</span><span class="p">,</span> <span class="s1">&#39;MOOR_001&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_005&#39;</span><span class="p">,</span> <span class="s1">&#39;STN_006&#39;</span><span class="p">]</span>
         <span class="p">}</span>
     <span class="p">]</span>
@@ -448,8 +448,8 @@ INFO: 🚀 Next step: cruiseplan stations -p /home/runner/work/cruiseplan/cruise
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Station configuration created&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Configuration saved to: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Waypoints: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;waypoints&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Transects: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;transects&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Waypoints: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Transects: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Legs: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;legs&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -656,7 +656,7 @@ port_update_arrival: Hamburg (ARRIVAL PLACEHOLDER)
 INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
 WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km
-INFO: Saved configuration to: /tmp/tmpg87o0eei.yaml
+INFO: Saved configuration to: /tmp/tmpua5yq7e1.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 </pre></div></div>
 </div>
@@ -769,7 +769,7 @@ INFO: ✅ Processing workflow completed successfully!
 INFO: 📅 Generating schedule from /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 ERROR: Failed to process activity &#39;Demo_ADCP_Survey&#39;
 Traceback (most recent call last):
-  File &#34;/home/runner/work/cruiseplan/cruiseplan/cruiseplan/calculators/scheduler.py&#34;, line 649, in _process_leg
+  File &#34;/home/runner/work/cruiseplan/cruiseplan/cruiseplan/calculators/scheduler.py&#34;, line 648, in _process_leg
     operation = LineOperation.from_pydantic(activity)
 TypeError: LineOperation.from_pydantic() missing 1 required positional argument: &#39;default_speed&#39;
 INFO: 🌐 HTML Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html

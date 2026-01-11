@@ -144,15 +144,15 @@ For complex cruises with multiple operational phases, these can be separated int
    legs:
      - name: "Northern_Survey"
        strategy: "sequential"
-       stations: ["STN_001", "STN_002", "STN_003"]
+       activities: ["STN_001", "STN_002", "STN_003"]
        
      - name: "Mooring_Operations"
        strategy: "sequential"  
-       stations: ["MOOR_A_RECOVERY", "MOOR_B_DEPLOYMENT"]
+       activities: ["MOOR_A_RECOVERY", "MOOR_B_DEPLOYMENT"]
        
      - name: "Southern_Transect"
        strategy: "sequential"
-       stations: ["STN_004", "STN_005"]
+       activities: ["STN_004", "STN_005"]
 
 **Leg strategy options:**
 
@@ -257,7 +257,7 @@ Common Configuration Patterns
 
    cruise_name: "CTD_Survey_2024"
    
-   stations:
+   points:
      - name: "CTD_01"
        operation_type: "CTD"
        action: "profile"
@@ -266,13 +266,13 @@ Common Configuration Patterns
    
    legs:
      - name: "Main_Survey"
-       stations: ["CTD_01", "CTD_02", "CTD_03"]
+       activities: ["CTD_01", "CTD_02", "CTD_03"]
 
 **Mixed Operations:**
 
 .. code-block:: yaml
 
-   stations:
+   points:
      - name: "Site_A_CTD"
        operation_type: "CTD"
        action: "profile"
@@ -291,7 +291,7 @@ Common Configuration Patterns
 
 .. code-block:: yaml
 
-   transects:
+   lines:
      - name: "Survey_Line_1"
        operation_type: "underway"
        action: "ADCP"

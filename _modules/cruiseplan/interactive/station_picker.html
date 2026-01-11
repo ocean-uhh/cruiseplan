@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../../../_static/documentation_options.js?v=45320adf"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -128,11 +128,36 @@
 
 <span class="c1"># --- NEW WIDGET IMPORTS (Instruction 1) ---</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModeIndicator</span><span class="p">,</span> <span class="n">StatusDisplay</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ACTIVITIES_FIELD</span><span class="p">,</span>
+    <span class="n">AREAS_FIELD</span><span class="p">,</span>
+    <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">DEFAULT_VESSEL_SPEED_FIELD</span><span class="p">,</span>
+    <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">,</span>
+    <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">,</span>
+    <span class="n">LEGS_FIELD</span><span class="p">,</span>
+    <span class="n">LINES_FIELD</span><span class="p">,</span>
+    <span class="n">POINTS_FIELD</span><span class="p">,</span>
+    <span class="n">START_DATE_FIELD</span><span class="p">,</span>
+    <span class="n">STRATEGY_FIELD</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">format_area_for_yaml</span><span class="p">,</span>
     <span class="n">format_station_for_yaml</span><span class="p">,</span>
     <span class="n">format_transect_for_yaml</span><span class="p">,</span>
     <span class="n">save_cruise_config</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>
+    <span class="n">DEFAULT_CALC_DEPTH</span><span class="p">,</span>
+    <span class="n">DEFAULT_CALC_TRANSFER</span><span class="p">,</span>
+    <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>
+    <span class="n">DEFAULT_FIRST_ACTIVITY</span><span class="p">,</span>
+    <span class="n">DEFAULT_LAST_ACTIVITY</span><span class="p">,</span>
+    <span class="n">DEFAULT_STATION_SPACING_KM</span><span class="p">,</span>
+    <span class="n">DEFAULT_STRATEGY</span><span class="p">,</span>
+    <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
 
@@ -234,8 +259,8 @@
         <span class="p">)</span>
 
         <span class="c1"># Data Storage</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">,</span> <span class="nb">any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -547,19 +572,17 @@
             <span class="k">return</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;point&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_add_station</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_add_point</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;line&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_line_click</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_handle_area_click</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
         <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;remove&quot;</span><span class="p">:</span>
-            <span class="n">station_data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nearest_station</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">station_data</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_remove_specific_station</span><span class="p">(</span><span class="n">station_data</span><span class="p">)</span>
+            <span class="n">point_data</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_find_nearest_point</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">xdata</span><span class="p">,</span> <span class="n">event</span><span class="o">.</span><span class="n">ydata</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">point_data</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_remove_specific_point</span><span class="p">(</span><span class="n">point_data</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span>
-                    <span class="n">message</span><span class="o">=</span><span class="s2">&quot;No station close enough to remove.&quot;</span>
-                <span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;No point close enough to remove.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_on_mouse_move</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">event</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle mouse movement for real-time coordinate and depth display.&quot;&quot;&quot;</span>
@@ -647,7 +670,7 @@
 
     <span class="c1"># --- Operation Management ---</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_add_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_add_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Add a new station at the specified coordinates.</span>
 
@@ -664,9 +687,9 @@
         <span class="p">)</span>
 
         <span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">,</span> <span class="s2">&quot;depth&quot;</span><span class="p">:</span> <span class="nb">abs</span><span class="p">(</span><span class="n">depth</span><span class="p">)}</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;station&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">artist</span><span class="p">))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Station added.&quot;</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;point&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">artist</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">depth</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Point added.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_line_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle click events in line drawing mode.&quot;&quot;&quot;</span>
@@ -685,11 +708,11 @@
                 <span class="s2">&quot;end&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;lat&quot;</span><span class="p">:</span> <span class="n">lat</span><span class="p">,</span> <span class="s2">&quot;lon&quot;</span><span class="p">:</span> <span class="n">lon</span><span class="p">},</span>
                 <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;transect&quot;</span><span class="p">,</span>
             <span class="p">}</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;transect&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">artist</span><span class="p">))</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="s2">&quot;line&quot;</span><span class="p">,</span> <span class="n">data</span><span class="p">,</span> <span class="n">artist</span><span class="p">))</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">_reset_line_state</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Transect added.&quot;</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="s2">&quot;Line added.&quot;</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_handle_area_click</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Handle click events in area drawing mode.&quot;&quot;&quot;</span>
@@ -798,7 +821,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_find_nearest_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_find_nearest_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target_lon</span><span class="p">,</span> <span class="n">target_lat</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mf">2.0</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Find the station closest to the click coordinates.</span>
 
@@ -814,16 +837,16 @@
 <span class="sd">        Returns</span>
 <span class="sd">        -------</span>
 <span class="sd">        Tuple[Optional[Dict], Optional[int]]</span>
-<span class="sd">            Tuple of (station_data, station_index) if found within threshold, (None, None) otherwise.</span>
+<span class="sd">            Tuple of (point_data, station_index) if found within threshold, (None, None) otherwise.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
             <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
         <span class="n">closest_dist</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">)</span>
         <span class="n">closest_data</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="n">closest_index</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
 
-        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">):</span>
             <span class="n">dist</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="p">(</span><span class="n">station</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_lon</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="p">(</span><span class="n">station</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">target_lat</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
             <span class="p">)</span> <span class="o">**</span> <span class="mf">0.5</span>
@@ -837,13 +860,13 @@
             <span class="k">return</span> <span class="n">closest_data</span><span class="p">,</span> <span class="n">closest_index</span>
         <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_specific_station</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">station_data</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_remove_specific_point</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_data</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Remove a specific station from the display and data.&quot;&quot;&quot;</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">station_data</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">point_data</span><span class="p">)</span>
 
         <span class="n">history_item_to_remove</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">history</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">station_data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">item</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="n">point_data</span><span class="p">:</span>
                 <span class="n">history_item_to_remove</span> <span class="o">=</span> <span class="n">item</span>
                 <span class="k">break</span>
 
@@ -853,7 +876,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">figure</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_update_status_display</span><span class="p">(</span>
-            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Removed station at </span><span class="si">{</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">station_data</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Removed point at </span><span class="si">{</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;lat&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">point_data</span><span class="p">[</span><span class="s1">&#39;lon&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_remove_last_item</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -866,12 +889,12 @@
         <span class="k">if</span> <span class="n">artist</span><span class="p">:</span>
             <span class="n">artist</span><span class="o">.</span><span class="n">remove</span><span class="p">()</span>
 
-        <span class="k">if</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">&quot;station&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item_data</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">&quot;transect&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item_data</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">item_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;point&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item_data</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">item_type</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;line&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item_data</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">item_type</span> <span class="o">==</span> <span class="s2">&quot;area&quot;</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">item_data</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">item_data</span><span class="p">)</span>
@@ -906,8 +929,8 @@
             <span class="sa">f</span><span class="s2">&quot;Lon: </span><span class="si">{</span><span class="n">lon</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Depth: </span><span class="si">{</span><span class="n">depth</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> m</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;----------------</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Stations: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;Transects: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Points: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Lines: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Areas: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
 
@@ -982,16 +1005,16 @@
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Save current cruise plan to YAML format.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
             <span class="k">return</span>
 
         <span class="c1"># Format data for YAML export</span>
         <span class="n">yaml_stations</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">format_station_for_yaml</span><span class="p">(</span><span class="n">stn</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">format_station_for_yaml</span><span class="p">(</span><span class="n">stn</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="n">yaml_sections</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">format_transect_for_yaml</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="n">format_transect_for_yaml</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
         <span class="p">]</span>
 
         <span class="n">yaml_areas</span> <span class="o">=</span> <span class="p">[</span><span class="n">format_area_for_yaml</span><span class="p">(</span><span class="n">ar</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ar</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
@@ -1003,36 +1026,36 @@
         <span class="n">output_data</span> <span class="o">=</span> <span class="p">{</span>
             <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">current_name</span><span class="p">,</span>
             <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cruise plan created with interactive station picker&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-            <span class="s2">&quot;default_distance_between_stations&quot;</span><span class="p">:</span> <span class="mf">40.0</span><span class="p">,</span>
-            <span class="s2">&quot;calculate_transfer_between_sections&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;calculate_depth_via_bathymetry&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="s2">&quot;start_date&quot;</span><span class="p">:</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span><span class="p">,</span>
-            <span class="c1"># Global catalog sections (stations, transects, areas) come BEFORE legs</span>
-            <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="n">yaml_stations</span><span class="p">,</span>
-            <span class="s2">&quot;transects&quot;</span><span class="p">:</span> <span class="n">yaml_sections</span><span class="p">,</span>  <span class="c1"># Schema expects &#39;transects&#39; not &#39;sections&#39;</span>
-            <span class="s2">&quot;areas&quot;</span><span class="p">:</span> <span class="n">yaml_areas</span><span class="p">,</span>
+            <span class="n">DEFAULT_VESSEL_SPEED_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
+            <span class="s2">&quot;default_distance_between_stations&quot;</span><span class="p">:</span> <span class="n">DEFAULT_STATION_SPACING_KM</span><span class="p">,</span>
+            <span class="s2">&quot;calculate_transfer_between_sections&quot;</span><span class="p">:</span> <span class="n">DEFAULT_CALC_TRANSFER</span><span class="p">,</span>
+            <span class="s2">&quot;calculate_depth_via_bathymetry&quot;</span><span class="p">:</span> <span class="n">DEFAULT_CALC_DEPTH</span><span class="p">,</span>
+            <span class="n">START_DATE_FIELD</span><span class="p">:</span> <span class="s2">&quot;1970-01-01T00:00:00Z&quot;</span><span class="p">,</span>
+            <span class="c1"># Global catalog sections (points, lines, areas) come BEFORE legs</span>
+            <span class="n">POINTS_FIELD</span><span class="p">:</span> <span class="n">yaml_stations</span><span class="p">,</span>
+            <span class="n">LINES_FIELD</span><span class="p">:</span> <span class="n">yaml_sections</span><span class="p">,</span>  <span class="c1"># Schema expects &#39;lines&#39; not &#39;sections&#39;</span>
+            <span class="n">AREAS_FIELD</span><span class="p">:</span> <span class="n">yaml_areas</span><span class="p">,</span>
             <span class="c1"># Scheduling/sequencing logic comes after catalog</span>
             <span class="c1"># IMPORTANT: No global departure_port, arrival_port, first_station, last_station</span>
             <span class="c1"># These fields are now defined at leg level to avoid validation conflicts</span>
-            <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">LEGS_FIELD</span><span class="p">:</span> <span class="p">(</span>
                 <span class="p">[</span>
                     <span class="p">{</span>
                         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive_Survey&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;port_update&quot;</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
-                        <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;port_update&quot;</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
-                        <span class="s2">&quot;first_waypoint&quot;</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from first_station</span>
+                        <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
+                        <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
+                        <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from first_station</span>
                             <span class="n">yaml_stations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
                             <span class="k">if</span> <span class="n">yaml_stations</span>
-                            <span class="k">else</span> <span class="s2">&quot;UPDATE-first-station-name&quot;</span>
+                            <span class="k">else</span> <span class="n">DEFAULT_FIRST_ACTIVITY</span>
                         <span class="p">),</span>
-                        <span class="s2">&quot;last_waypoint&quot;</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from last_station</span>
+                        <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from last_station</span>
                             <span class="n">yaml_stations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
                             <span class="k">if</span> <span class="n">yaml_stations</span>
-                            <span class="k">else</span> <span class="s2">&quot;UPDATE-last-station-name&quot;</span>
+                            <span class="k">else</span> <span class="n">DEFAULT_LAST_ACTIVITY</span>
                         <span class="p">),</span>
-                        <span class="s2">&quot;strategy&quot;</span><span class="p">:</span> <span class="s2">&quot;sequential&quot;</span><span class="p">,</span>
-                        <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Use activities instead of sequence</span>
+                        <span class="n">STRATEGY_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_STRATEGY</span><span class="p">,</span>
+                        <span class="n">ACTIVITIES_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Use activities instead of sequence</span>
                             <span class="p">[</span><span class="n">station</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">yaml_stations</span><span class="p">]</span>
                             <span class="o">+</span> <span class="p">[</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">yaml_sections</span><span class="p">]</span>
                             <span class="o">+</span> <span class="p">[</span><span class="n">area</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">yaml_areas</span><span class="p">]</span>
@@ -1135,8 +1158,8 @@
 <span class="sd">            Dictionary containing current stations and transects data.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="p">{</span>
-            <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">stations</span><span class="p">,</span>
-            <span class="s2">&quot;transects&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">transects</span><span class="p">,</span>
+            <span class="s2">&quot;stations&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span>
+            <span class="s2">&quot;transects&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span>
         <span class="p">}</span></div>
 </div>
 

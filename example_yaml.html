@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Example CruisePlan YAML Configuration &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>Example CruisePlan YAML Configuration &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="_static/documentation_options.js?v=45320adf"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -175,7 +175,7 @@
 <span class="c1">#   - operation_depth: Target operation depth for CTD casts</span>
 <span class="c1">#   - duration: Operation duration in minutes (calculated if not provided)</span>
 <span class="c1">#   - comment: Free-text description</span>
-<span class="nt">stations</span><span class="p">:</span>
+<span class="nt">points</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">latitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.46082</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">longitude</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-57.33108</span>
@@ -190,13 +190,13 @@
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">operation_type</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-CTD-mooring-etc</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">action</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">UPDATE-profile-sampling-etc</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">water_depth</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3499.6</span>
-<span class="c1"># [OPTIONAL] Transit catalog - Line operations and scientific transects</span>
-<span class="c1"># For transit legs between stations, these are auto-generated</span>
-<span class="c1"># Define custom transects for:</span>
+<span class="c1"># [OPTIONAL] Transit catalog - Line operations and scientific lines</span>
+<span class="c1"># For transit legs between points, these are auto-generated</span>
+<span class="c1"># Define custom lines for:</span>
 <span class="c1">#   - Underway scientific operations (ADCP, multibeam)</span>
 <span class="c1">#   - Specific route requirements</span>
 <span class="c1">#   - Non-standard vessel speeds</span>
-<span class="nt">transects</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nt">lines</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
 <span class="c1"># [OPTIONAL] Area survey catalog - Survey boxes and polygons</span>
 <span class="c1"># Define survey areas for:</span>
 <span class="c1">#   - Multibeam bathymetry surveys</span>
@@ -222,7 +222,7 @@
 <span class="nt">legs</span><span class="p">:</span>
 <span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Interactive_Survey</span>
 <span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">strategy</span><span class="p p-Indicator">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sequential</span>
-<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">sequence</span><span class="p p-Indicator">:</span>
+<span class="w">    </span><span class="l l-Scalar l-Scalar-Plain">activities</span><span class="p p-Indicator">:</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_002</span>
 <span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Area_01</span>

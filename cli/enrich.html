@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>enrich &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>enrich &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../_static/documentation_options.js?v=45320adf"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -187,7 +187,7 @@
 <h2>CTD Section Expansion<a class="headerlink" href="#ctd-section-expansion" title="Link to this heading"></a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">--expand-sections</span></code> option processes CTD section transits and converts them into individual station definitions:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Input: CTD section definition</span>
-<span class="nt">transects</span><span class="p">:</span>
+<span class="nt">lines</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1&quot;</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ctd_section&quot;</span>
 <span class="w">    </span><span class="nt">spacing_km</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.0</span>
@@ -199,7 +199,7 @@
 <span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-8.0</span>
 
 <span class="c1"># Output: Individual stations created</span>
-<span class="nt">stations</span><span class="p">:</span>
+<span class="nt">points</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Arctic_Section_1_001&quot;</span>
 <span class="w">    </span><span class="nt">position</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">75.0</span>

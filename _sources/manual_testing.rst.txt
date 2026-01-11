@@ -250,7 +250,7 @@ Test Case 5: Sections (tc5_sections.yaml)
 
 .. code-block:: yaml
 
-   stations:
+   points:
    -  #  expanded by cruiseplan enrich --expand-sections
       name: SEC_001_Stn001
       coordinates_ddm: 45 00.00'N, 050 00.00'W

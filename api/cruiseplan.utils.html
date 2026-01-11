@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>General Utilities &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../_static/documentation_options.js?v=45320adf"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -848,7 +848,7 @@ timezones, and metadata. Users can reference these ports by standard identifiers
 - Standard port registry with common research cruise destinations
 - Timezone information for port operations
 - Extensible system allowing user-defined port overrides
-- Support for both string references and PortDefinition objects</p>
+- Support for both string references and PointDefinition objects</p>
 <dl>
 <dt>Usage:</dt><dd><p># In YAML configuration
 departure_port: “port_reykjavik”  # Reference to global port</p>
@@ -920,11 +920,11 @@ comment: “Custom port definition”</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.utils.global_ports.resolve_port_reference">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">resolve_port_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#resolve_port_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.resolve_port_reference" title="Link to this definition"></a></dt>
-<dd><p>Resolve a port reference to a complete PortDefinition object.</p>
+<dd><p>Resolve a port reference to a complete PointDefinition object.</p>
 <p>Handles three types of input:
 1. String reference to global port registry (e.g., ‘port_reykjavik’)
 2. Dictionary with port data (user-defined override)
-3. Already instantiated PortDefinition object</p>
+3. Already instantiated PointDefinition object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>port_ref</strong> – Port reference to resolve.</p>
@@ -933,7 +933,7 @@ comment: “Custom port definition”</p>
 <dd class="field-even"><p>Complete port definition object.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PortDefinition</p>
+<dd class="field-odd"><p>PointDefinition</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
 <dd class="field-even"><p><strong>ValueError</strong> – If string reference is not found in global registry.</p>

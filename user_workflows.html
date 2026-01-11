@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Overview &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>Overview &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="_static/documentation_options.js?v=45320adf"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -286,15 +286,15 @@ cruiseplan<span class="w"> </span>bathymetry<span class="w"> </span>--bathy-sour
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Northern_Survey&quot;</span>
 <span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
-<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_003&quot;</span><span class="p p-Indicator">]</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Mooring_Operations&quot;</span>
 <span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
-<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;MOOR_A_RECOVERY&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_B_DEPLOYMENT&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;MOOR_A_RECOVERY&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_B_DEPLOYMENT&quot;</span><span class="p p-Indicator">]</span>
 
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Southern_Transect&quot;</span>
 <span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
-<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_004&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_004&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_005&quot;</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <p><strong>Leg strategy options:</strong></p>
@@ -393,7 +393,7 @@ cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w
 <p><strong>Simple CTD Survey:</strong></p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_Survey_2024&quot;</span>
 
-<span class="nt">stations</span><span class="p">:</span>
+<span class="nt">points</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_01&quot;</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
@@ -402,11 +402,11 @@ cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w
 
 <span class="nt">legs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Main_Survey&quot;</span>
-<span class="w">    </span><span class="nt">stations</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_01&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_02&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_03&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_01&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_02&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_03&quot;</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <p><strong>Mixed Operations:</strong></p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">stations</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Site_A_CTD&quot;</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;profile&quot;</span>
@@ -423,7 +423,7 @@ cruiseplan<span class="w"> </span>enrich<span class="w"> </span>-c<span class="w
 </pre></div>
 </div>
 <p><strong>Survey Transects:</strong></p>
-<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">transects</span><span class="p">:</span>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lines</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Line_1&quot;</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;underway&quot;</span>
 <span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ADCP&quot;</span>

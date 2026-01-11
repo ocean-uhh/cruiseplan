@@ -207,7 +207,7 @@ Step 2.2: Manual Configuration Editing
 
 .. code-block:: yaml
 
-   stations:
+   points:
      - name: "STN_001"
        latitude: 60.5
        longitude: -30.2
@@ -217,14 +217,14 @@ Step 2.2: Manual Configuration Editing
        action: "profile"            # REPLACE: UPDATE-profile-sampling-etc
        # duration: 120              # OPTIONAL: manual override (minutes)
 
-2. **Define leg sequence** (determines station visit order):
+2. **Define leg activities** (determines station visit order):
 
 .. code-block:: yaml
 
    legs:
      - name: "Northern_Survey"
        strategy: "sequential"
-       stations: ["STN_001", "STN_002", "STN_003"]  # Visit order
+       activities: ["STN_001", "STN_002", "STN_003"]  # Visit order
 
 3. **Add/edit cruise metadata**:
 
@@ -246,8 +246,8 @@ otherwise, your cruise will start at 0.0, 0.0!
          name: "St. Johns"  
          latitude: 47.5705
          longitude: -52.6979
-       first_station: "STN_001"
-       last_station: "STN_005"
+       first_activity: "STN_001"
+       last_activity: "STN_005"
        activities: ["STN_001", "STN_002", "STN_003", "STN_004", "STN_005"]
 
 4. **Use Global Ports Reference**:
@@ -360,7 +360,7 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
 .. code-block:: yaml
 
    # Before expansion:
-   transects:
+   lines:
      - name: "OVIDE_Section" 
        operation_type: "ctd_section"
        spacing_km: 50.0
@@ -372,12 +372,12 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
    
    legs:
      - name: "Main_Survey"
-       first_waypoint: "OVIDE_Section"        # References transit
-       last_waypoint: "OVIDE_Section"
+       first_activity: "OVIDE_Section"        # References line
+       last_activity: "OVIDE_Section"
        activities: ["OVIDE_Section"]
    
    # After expansion:
-   stations:
+   points:
      - name: "OVIDE_Section_001"
        latitude: 40.33
        longitude: -10.0
@@ -400,8 +400,8 @@ The ``--expand-sections`` option transforms transit route definitions into indiv
    
    legs:
      - name: "Main_Survey"  
-       first_waypoint: "OVIDE_Section_001"    # Auto-updated to first station
-       last_waypoint: "OVIDE_Section_040"     # Auto-updated to last station  
+       first_activity: "OVIDE_Section_001"    # Auto-updated to first station
+       last_activity: "OVIDE_Section_040"     # Auto-updated to last station  
        activities: ["OVIDE_Section_001", "OVIDE_Section_002", ..., "OVIDE_Section_040"]
 
 **Automatic Waypoint Resolution:**

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.config &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>cruiseplan.utils.config &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../../../_static/documentation_options.js?v=45320adf"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -121,10 +121,30 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAMLIOError</span><span class="p">,</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">save_yaml</span>
-
 <span class="c1"># Centralized imports for configuration models and the custom error</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">CruiseConfigurationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ACTION_FIELD</span><span class="p">,</span>
+    <span class="n">AREA_VERTEX_FIELD</span><span class="p">,</span>
+    <span class="n">AREAS_FIELD</span><span class="p">,</span>
+    <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">DURATION_FIELD</span><span class="p">,</span>
+    <span class="n">LEGS_FIELD</span><span class="p">,</span>
+    <span class="n">LINE_VERTEX_FIELD</span><span class="p">,</span>
+    <span class="n">OP_TYPE_FIELD</span><span class="p">,</span>
+    <span class="n">START_DATE_FIELD</span><span class="p">,</span>
+    <span class="n">CruiseConfig</span><span class="p">,</span>
+    <span class="n">CruiseConfigurationError</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.defaults</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_AREA_ACTION</span><span class="p">,</span>
+    <span class="n">DEFAULT_AREA_OPTYPE</span><span class="p">,</span>
+    <span class="n">DEFAULT_LINE_ACTION</span><span class="p">,</span>
+    <span class="n">DEFAULT_LINE_OPTYPE</span><span class="p">,</span>
+    <span class="n">DEFAULT_POINT_ACTION</span><span class="p">,</span>
+    <span class="n">DEFAULT_POINT_OPTYPE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAMLIOError</span><span class="p">,</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">save_yaml</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -197,18 +217,18 @@
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[OPTIONAL] Human-readable cruise description&quot;</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;start_date&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">START_DATE_FIELD</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">before</span><span class="o">=</span><span class="s2">&quot;[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[DEPRECATED] Global departure port - use leg-level fields instead</span>
 <span class="s2">Move this field to individual leg definitions to avoid validation conflicts&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[DEPRECATED] Global arrival port - use leg-level fields instead</span>
@@ -239,7 +259,7 @@
 <span class="s2">  - Specific route requirements</span>
 <span class="s2">  - Non-standard vessel speeds&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;areas&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">AREAS_FIELD</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[OPTIONAL] Area survey catalog - Survey boxes and polygons</span>
@@ -248,14 +268,14 @@
 <span class="s2">  - Side-scan sonar operations</span>
 <span class="s2">  - Systematic sampling grids&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;legs&quot;</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="n">LEGS_FIELD</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
                 <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[REQUIRED] Operational sequence definition</span>
 <span class="s2">Legs define the order and grouping of operations</span>
 <span class="s2">Each leg must include:</span>
 <span class="s2">  - departure_port/arrival_port: Port references for this leg</span>
-<span class="s2">  - first_waypoint/last_waypoint: Starting and ending operations</span>
+<span class="s2">  - first_activity/last_waypoint: Starting and ending operations</span>
 <span class="s2">  - activities: List of operations to execute in sequence</span>
 <span class="s2">Strategy options: sequential, cluster, nearest_neighbor</span>
 <span class="s2">Each leg can override default vessel speeds and routing&quot;&quot;&quot;</span><span class="p">,</span>
@@ -263,7 +283,7 @@
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;first_station&quot;</span><span class="p">:</span>
             <span class="n">documented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                 <span class="n">key</span><span class="p">,</span>
-                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[DEPRECATED] Global first station - use leg-level first_waypoint instead</span>
+                <span class="n">before</span><span class="o">=</span><span class="s2">&quot;&quot;&quot;[DEPRECATED] Global first station - use leg-level first_activity instead</span>
 <span class="s2">Move this field to individual leg definitions to avoid validation conflicts&quot;&quot;&quot;</span><span class="p">,</span>
             <span class="p">)</span>
         <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;last_station&quot;</span><span class="p">:</span>
@@ -364,8 +384,8 @@
         <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
         <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">station_data</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive selection - Review coordinates and update operation details&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span><span class="p">,</span>  <span class="c1"># CTD, mooring, water_sampling, calibration</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span><span class="p">,</span>  <span class="c1"># profile, deployment, recovery, sampling</span>
+        <span class="n">OP_TYPE_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_POINT_OPTYPE</span><span class="p">,</span>  <span class="c1"># CTD, mooring, water_sampling, calibration</span>
+        <span class="n">ACTION_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_POINT_ACTION</span><span class="p">,</span>  <span class="c1"># profile, deployment, recovery, sampling</span>
     <span class="p">}</span>
 
     <span class="c1"># Add water_depth only if we have valid bathymetry data</span>
@@ -402,10 +422,10 @@
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Transit_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive transect - Review route and update operation details&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;underway&quot;</span><span class="p">,</span>  <span class="c1"># underway, survey_line</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span><span class="p">,</span>  <span class="c1"># transit, ADCP, multibeam, bathymetry</span>
+        <span class="n">OP_TYPE_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_LINE_OPTYPE</span><span class="p">,</span>  <span class="c1"># underway, survey_line</span>
+        <span class="n">ACTION_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_LINE_ACTION</span><span class="p">,</span>  <span class="c1"># transit, ADCP, multibeam, bathymetry</span>
         <span class="s2">&quot;vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
-        <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">LINE_VERTEX_FIELD</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">transect_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
                 <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">transect_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
@@ -444,7 +464,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Area_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;corners&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">AREA_VERTEX_FIELD</span><span class="p">:</span> <span class="p">[</span>
             <span class="p">{</span>
                 <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span>
                 <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span>
@@ -452,9 +472,9 @@
             <span class="k">for</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span>
         <span class="p">],</span>
         <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive area survey - Review polygon and update operation details&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;survey&quot;</span><span class="p">,</span>  <span class="c1"># survey, mapping</span>
-        <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;UPDATE-bathymetry-survey-etc&quot;</span><span class="p">,</span>  <span class="c1"># bathymetry, multibeam, sidescan, sampling</span>
-        <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="mf">9999.0</span><span class="p">,</span>  <span class="c1"># Placeholder duration in minutes - update based on survey type and area size</span>
+        <span class="n">OP_TYPE_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_AREA_OPTYPE</span><span class="p">,</span>  <span class="c1"># survey, mapping</span>
+        <span class="n">ACTION_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_AREA_ACTION</span><span class="p">,</span>  <span class="c1"># bathymetry, multibeam, sidescan, sampling</span>
+        <span class="n">DURATION_FIELD</span><span class="p">:</span> <span class="mf">9999.0</span><span class="p">,</span>  <span class="c1"># Placeholder duration in minutes - update based on survey type and area size</span>
     <span class="p">}</span></div>
 
 

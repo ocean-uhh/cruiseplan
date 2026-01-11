@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.3 v0.3.3</title>
+  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=d5a15cff"></script>
+      <script src="../../../_static/documentation_options.js?v=45320adf"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -129,7 +129,7 @@
     <span class="n">create_global_attributes</span><span class="p">,</span>
     <span class="n">create_operation_variables</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
 
@@ -226,7 +226,7 @@
         <span class="n">point_operations</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Create a lookup for station info</span>
-        <span class="n">station_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">station</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">waypoints</span> <span class="ow">or</span> <span class="p">[])}</span>
+        <span class="n">station_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">station</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">points</span> <span class="ow">or</span> <span class="p">[])}</span>
 
         <span class="c1"># Get point operations from timeline</span>
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
@@ -384,18 +384,18 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create station lookup for depth information</span>
             <span class="n">station_lookup</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">station</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">waypoints</span> <span class="ow">or</span> <span class="p">[])</span>
+                <span class="n">station</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">station</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">points</span> <span class="ow">or</span> <span class="p">[])</span>
             <span class="p">}</span>
 
             <span class="c1"># Create a lookup for area definitions</span>
             <span class="n">area_lookup</span> <span class="o">=</span> <span class="p">{</span><span class="n">area</span><span class="o">.</span><span class="n">name</span><span class="p">:</span> <span class="n">area</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="p">(</span><span class="n">config</span><span class="o">.</span><span class="n">areas</span> <span class="ow">or</span> <span class="p">[])}</span>
 
-            <span class="c1"># Create a lookup for transect definitions with routes</span>
-            <span class="n">transect_lookup</span> <span class="o">=</span> <span class="p">{}</span>
-            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;transects&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
-                <span class="k">for</span> <span class="n">transect</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
-                        <span class="n">transect_lookup</span><span class="p">[</span><span class="n">transect</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">transect</span>
+            <span class="c1"># Create a lookup for line definitions with routes</span>
+            <span class="n">line_lookup</span> <span class="o">=</span> <span class="p">{}</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+                        <span class="n">line_lookup</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span>
 
             <span class="c1"># Extract timeline data</span>
             <span class="n">times</span> <span class="o">=</span> <span class="p">[]</span>
@@ -551,9 +551,9 @@
                         <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
                     <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                    <span class="n">transect</span> <span class="o">=</span> <span class="n">transect_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">transect</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
-                        <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="n">line</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">line</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">):</span>
+                        <span class="n">comment</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="n">comments</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">comment</span> <span class="k">if</span> <span class="n">comment</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
                 <span class="c1"># Extract start/end coordinates for line operations</span>
@@ -563,14 +563,14 @@
                     <span class="n">start_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]))</span>
                     <span class="c1"># For end coordinates, use route end point from transit definition if available</span>
                     <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                    <span class="n">transect_def</span> <span class="o">=</span> <span class="n">transect_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
+                    <span class="n">line_def</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
 
                     <span class="k">if</span> <span class="p">(</span>
-                        <span class="n">transect_def</span>
-                        <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transect_def</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span>
-                        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transect_def</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+                        <span class="n">line_def</span>
+                        <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
                     <span class="p">):</span>
-                        <span class="n">end_point</span> <span class="o">=</span> <span class="n">transect_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                        <span class="n">end_point</span> <span class="o">=</span> <span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
                         <span class="n">end_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">)</span>
                         <span class="n">end_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
@@ -1375,12 +1375,12 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Generating line operations NetCDF: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Create a lookup for transect definitions with routes</span>
-        <span class="n">transect_lookup</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;transects&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
-            <span class="k">for</span> <span class="n">transect</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">transects</span><span class="p">:</span>
-                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">transect</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">transect</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
-                    <span class="n">transect_lookup</span><span class="p">[</span><span class="n">transect</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">transect</span>
+        <span class="c1"># Create a lookup for line definitions with routes</span>
+        <span class="n">line_lookup</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">config</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="s2">&quot;route&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
+                    <span class="n">line_lookup</span><span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">line</span>
 
         <span class="c1"># Extract line operations from timeline (scientific transits)</span>
         <span class="n">line_operations</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1388,12 +1388,12 @@
             <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
                 <span class="c1"># This is a scientific transit with action (ADCP, bathymetry, etc.)</span>
                 <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
-                <span class="n">transect_def</span> <span class="o">=</span> <span class="n">transect_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
+                <span class="n">line_def</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
 
-                <span class="k">if</span> <span class="n">transect_def</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">transect_def</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">line_def</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
                     <span class="c1"># Use actual route start and end points from YAML</span>
-                    <span class="n">start_point</span> <span class="o">=</span> <span class="n">transect_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-                    <span class="n">end_point</span> <span class="o">=</span> <span class="n">transect_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                    <span class="n">start_point</span> <span class="o">=</span> <span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="n">end_point</span> <span class="o">=</span> <span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
 
                     <span class="n">line_operations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                         <span class="p">{</span>
@@ -1410,7 +1410,7 @@
                             <span class="p">),</span>
                             <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span>
                             <span class="o">/</span> <span class="mf">60.0</span><span class="p">,</span>  <span class="c1"># Convert to hours</span>
-                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">transect_def</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;comment&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;comment&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
                         <span class="p">}</span>
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
