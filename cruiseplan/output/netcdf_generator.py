@@ -19,7 +19,7 @@ from cruiseplan.output.netcdf_metadata import (
     create_global_attributes,
     create_operation_variables,
 )
-from cruiseplan.validation import CruiseConfig
+from cruiseplan.schema import CruiseConfig
 
 logger = logging.getLogger(__name__)
 
@@ -109,7 +109,7 @@ class NetCDFGenerator:
         point_operations = []
 
         # Create a lookup for station info
-        station_lookup = {station.name: station for station in (config.waypoints or [])}
+        station_lookup = {station.name: station for station in (config.points or [])}
 
         # Get point operations from timeline
         for event in timeline:
@@ -264,18 +264,18 @@ class NetCDFGenerator:
         else:
             # Create station lookup for depth information
             station_lookup = {
-                station.name: station for station in (config.waypoints or [])
+                station.name: station for station in (config.points or [])
             }
 
             # Create a lookup for area definitions
             area_lookup = {area.name: area for area in (config.areas or [])}
 
-            # Create a lookup for transect definitions with routes
-            transect_lookup = {}
-            if hasattr(config, "transects") and config.transects:
-                for transect in config.transects:
-                    if hasattr(transect, "route") and transect.route:
-                        transect_lookup[transect.name] = transect
+            # Create a lookup for line definitions with routes
+            line_lookup = {}
+            if hasattr(config, "lines") and config.lines:
+                for line in config.lines:
+                    if hasattr(line, "route") and line.route:
+                        line_lookup[line.name] = line
 
             # Extract timeline data
             times = []
@@ -431,9 +431,9 @@ class NetCDFGenerator:
                         comment = getattr(area, "comment", "")
                 elif activity == "Transit":
                     transit_name = event["label"]
-                    transect = transect_lookup.get(transit_name)
-                    if transect and hasattr(transect, "comment"):
-                        comment = getattr(transect, "comment", "")
+                    line = line_lookup.get(transit_name)
+                    if line and hasattr(line, "comment"):
+                        comment = getattr(line, "comment", "")
                 comments.append(comment if comment is not None else "")
 
                 # Extract start/end coordinates for line operations
@@ -443,14 +443,14 @@ class NetCDFGenerator:
                     start_lons.append(event.get("start_lon", event["lon"]))
                     # For end coordinates, use route end point from transit definition if available
                     transit_name = event["label"]
-                    transect_def = transect_lookup.get(transit_name)
+                    line_def = line_lookup.get(transit_name)
 
                     if (
-                        transect_def
-                        and hasattr(transect_def, "route")
-                        and len(transect_def.route) >= 2
+                        line_def
+                        and hasattr(line_def, "route")
+                        and len(line_def.route) >= 2
                     ):
-                        end_point = transect_def.route[-1]
+                        end_point = line_def.route[-1]
                         end_lats.append(end_point.latitude)
                         end_lons.append(end_point.longitude)
                     else:
@@ -1240,12 +1240,12 @@ class NetCDFGenerator:
         """
         logger.info(f"Generating line operations NetCDF: {output_path}")
 
-        # Create a lookup for transect definitions with routes
-        transect_lookup = {}
-        if hasattr(config, "transects") and config.transects:
-            for transect in config.transects:
-                if hasattr(transect, "route") and transect.route:
-                    transect_lookup[transect.name] = transect
+        # Create a lookup for line definitions with routes
+        line_lookup = {}
+        if hasattr(config, "lines") and config.lines:
+            for line in config.lines:
+                if hasattr(line, "route") and line.route:
+                    line_lookup[line.name] = line
 
         # Extract line operations from timeline (scientific transits)
         line_operations = []
@@ -1253,12 +1253,12 @@ class NetCDFGenerator:
             if event["activity"] == "Transit" and event.get("action"):
                 # This is a scientific transit with action (ADCP, bathymetry, etc.)
                 transit_name = event["label"]
-                transect_def = transect_lookup.get(transit_name)
+                line_def = line_lookup.get(transit_name)
 
-                if transect_def and len(transect_def.route) >= 2:
+                if line_def and len(line_def.route) >= 2:
                     # Use actual route start and end points from YAML
-                    start_point = transect_def.route[0]
-                    end_point = transect_def.route[-1]
+                    start_point = line_def.route[0]
+                    end_point = line_def.route[-1]
 
                     line_operations.append(
                         {
@@ -1275,7 +1275,7 @@ class NetCDFGenerator:
                             ),
                             "duration": event["duration_minutes"]
                             / 60.0,  # Convert to hours
-                            "comment": getattr(transect_def, "comment", ""),
+                            "comment": getattr(line_def, "comment", ""),
                         }
                     )
                 else:

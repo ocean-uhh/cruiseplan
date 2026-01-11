@@ -1,10 +1,15 @@
 """
-Global catalog definitions for cruise configuration.
+Schema definitions for cruise configuration operations.
 
-Defines all reusable operation definitions that users can define in the
-"Global Catalog" section of their YAML configuration. These correspond
-to the three main operation types: waypoints (point operations),
-transects (line operations), and areas (area operations).
+Defines Pydantic models that validate and parse YAML configuration data for
+points, lines, and areas. These are the "schema layer" that ensures
+your YAML is structured correctly.
+
+**Relationship to core/operations.py:**
+- This module: Pydantic models that validate YAML → Python data
+- core/operations.py: Runtime business objects that do the actual work
+
+Example flow: YAML → PointDefinition (this module) → PointOperation (core)
 
 Also includes base geographic models used throughout the validation system.
 """
@@ -122,7 +127,7 @@ class FlexibleLocationModel(BaseModel):
         return data
 
 
-class WaypointDefinition(FlexibleLocationModel):
+class PointDefinition(FlexibleLocationModel):
     """
     Definition of a waypoint location with operation details.
 
@@ -214,7 +219,7 @@ class WaypointDefinition(FlexibleLocationModel):
         return ""
 
 
-class TransectDefinition(BaseModel):
+class LineDefinition(BaseModel):
     """
     Definition of a transect route for line operations.
 
@@ -333,12 +338,3 @@ class AreaDefinition(BaseModel):
             msg = "Area must have at least 3 corners"
             raise ValueError(msg)
         return v
-
-
-# Legacy aliases for backward compatibility during migration
-# TODO: Remove in v0.4.0 - Use WaypointDefinition instead
-StationDefinition = WaypointDefinition  # Stations are now waypoints
-PortDefinition = WaypointDefinition  # Ports are now waypoints
-
-# TODO: Remove in v0.4.0 - Use TransectDefinition instead
-TransitDefinition = TransectDefinition  # Transits are now transects

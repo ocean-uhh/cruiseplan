@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.output.kml_generator import KMLGenerator
-from cruiseplan.validation import CruiseConfig
+from cruiseplan.schema import CruiseConfig
 
 
 class TestKMLGenerator:
@@ -131,7 +131,7 @@ class TestKMLGeneratorCatalogMode:
         mock_station.operation_type.value = "CTD"
         mock_station.operation_depth = 800.0
         mock_station.water_depth = 3200.0
-        self.mock_config.waypoints = [mock_station]
+        self.mock_config.points = [mock_station]
 
         # Mock areas
         mock_area = MagicMock()
@@ -153,7 +153,7 @@ class TestKMLGeneratorCatalogMode:
             MagicMock(latitude=65.0, longitude=-25.0),
         ]
         mock_transit.route = mock_route
-        self.mock_config.transects = [mock_transit]
+        self.mock_config.lines = [mock_transit]
 
         # Mock ports
         mock_port = MagicMock()
@@ -193,9 +193,9 @@ class TestKMLGeneratorCatalogMode:
 
         empty_config = MagicMock(spec=CruiseConfig)
         empty_config.cruise_name = "Empty_Test"
-        empty_config.waypoints = []
+        empty_config.points = []
         empty_config.areas = []
-        empty_config.transects = []
+        empty_config.lines = []
         empty_config.ports = []
 
         with tempfile.NamedTemporaryFile(suffix=".kml", delete=False) as tmp_file:

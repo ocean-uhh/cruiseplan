@@ -10,7 +10,7 @@ clusters or the parent leg.
 from typing import Any, Optional
 
 from cruiseplan.core.operations import BaseOperation
-from cruiseplan.validation import ClusterDefinition, StrategyEnum
+from cruiseplan.schema import ClusterDefinition, StrategyEnum
 
 
 class Cluster:
@@ -153,6 +153,7 @@ class Cluster:
         """
         return self.operations.copy()
 
+    # TODO: Check why we need duration here - seems like a task for the timeline
     def calculate_total_duration(self, rules: Any) -> float:
         """
         Calculate total duration for all operations within this cluster.
@@ -216,6 +217,7 @@ class Cluster:
         """
         return [operation.name for operation in self.operations]
 
+    # TODO: Check all tuples for position and decide whether they should be GeoPoint
     def get_entry_point(self) -> Optional[tuple[float, float]]:
         """
         Get the geographic entry point for this cluster (first operation location).

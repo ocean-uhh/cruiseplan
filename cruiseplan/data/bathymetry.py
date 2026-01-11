@@ -218,6 +218,13 @@ class BathymetryManager:
         -------
         tuple
             Tuple of (lons, lats, depths) as 2D numpy arrays for contour plotting.
+
+        Notes
+        -----
+        This method performs expensive NetCDF grid slicing operations. Consider using
+        cruiseplan.utils.cache.CacheManager for repeated grid subset requests with
+        overlapping geographic bounds, especially in interactive applications like
+        station_picker and map generation workflows.
         """
         if self._is_mock:
             # Generate synthetic grid

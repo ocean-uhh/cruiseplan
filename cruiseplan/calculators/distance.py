@@ -10,7 +10,7 @@ kilometers and nautical miles.
 import math
 from typing import Union
 
-from cruiseplan.validation import GeoPoint
+from cruiseplan.schema import GeoPoint
 
 # Earth radius in kilometers (WGS84 approximate) - used for haversine distance calculation
 R_EARTH_KM = 6371.0

@@ -36,7 +36,7 @@ ports:
 # STATION CATALOG - Individual operation definitions
 # ================================================================
 
-waypoints:
+points:
   # Manual station definition
   - name: "STN68" 
     comment: "Deep station"
@@ -493,8 +493,8 @@ legs:
     arrival_port: "port_reykjavik"  # Intermediate port for crew change
     vessel_speed: 10.0
     buffer_time: 360.0  # 6h weather buffer for mooring operations
-    first_waypoint: "K7_Recovery" 
-    last_waypoint: "STN68"
+    first_activity: "K7_Recovery" 
+    last_activity: "STN68"
     
     # Activities include all 53N Observatory moorings in sequence
     clusters:

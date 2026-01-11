@@ -18,6 +18,7 @@ from cruiseplan.cli.cli_utils import (
 from cruiseplan.data.pangaea import read_doi_list
 from cruiseplan.utils.io import _setup_output_paths
 from cruiseplan.utils.yaml_io import load_yaml, save_yaml
+from cruiseplan.schema import POINTS_FIELD
 
 
 class TestYamlOperations:
@@ -25,7 +26,7 @@ class TestYamlOperations:
 
     def test_load_yaml(self, tmp_path):
         """Test loading valid YAML config."""
-        config = {"cruise_name": "Test Cruise", "stations": []}
+        config = {"cruise_name": "Test Cruise", POINTS_FIELD: []}
         yaml_file = tmp_path / "config.yaml"
 
         with open(yaml_file, "w") as f:

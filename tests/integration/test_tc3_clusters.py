@@ -164,7 +164,7 @@ class TestTC3ClustersIntegration:
             leg for leg in tc3_config.legs if leg.name == "Leg_Survey_Duplicate4"
         )
 
-        assert duplicate4_leg.first_waypoint == "STN_001"
+        assert duplicate4_leg.first_activity == "STN_001"
 
         # Find cluster containing first_station
         ctd_cluster5 = next(
@@ -182,8 +182,8 @@ class TestTC3ClustersIntegration:
         )
 
         # This leg should have STN_004 as first and STN_001 as last (reversed)
-        assert reorder_leg.first_waypoint == "STN_004"
-        assert reorder_leg.last_waypoint == "STN_001"
+        assert reorder_leg.first_activity == "STN_004"
+        assert reorder_leg.last_activity == "STN_001"
 
     def test_tc3_complete_workflow(self, tc3_config):
         """Test complete workflow from YAML to all output formats."""

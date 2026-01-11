@@ -58,9 +58,9 @@ class TestSchedulerDebug:
                 )
             print(f"   Default vessel speed: {config.default_vessel_speed} knots")
 
-            print(f"\n   Stations: {len(config.waypoints or [])}")
-            if config.waypoints:
-                for i, stn in enumerate(config.waypoints):
+            print(f"\n   Stations: {len(config.points or [])}")
+            if config.points:
+                for i, stn in enumerate(config.points):
                     if hasattr(stn, "latitude") and stn.latitude is not None:
                         print(
                             f"     {i+1}. {stn.name} at {stn.latitude}, {stn.longitude}"
@@ -71,7 +71,7 @@ class TestSchedulerDebug:
             # Count mooring operations from stations list
             mooring_operations = [
                 s
-                for s in (config.waypoints or [])
+                for s in (config.points or [])
                 if hasattr(s, "operation_type") and s.operation_type.value == "mooring"
             ]
             print(f"\n   Mooring operations: {len(mooring_operations)}")
@@ -85,26 +85,25 @@ class TestSchedulerDebug:
                     else:
                         print(f"     {i+1}. {mooring.name} - NO POSITION!")
 
-            print(f"\n   Transects: {len(config.transects or [])}")
-            if config.transects:
-                for i, transect in enumerate(config.transects):
-                    vessel_speed = getattr(transect, "vessel_speed", None)
+            print(f"\n   Lines: {len(config.lines or [])}")
+            if config.lines:
+                for i, line in enumerate(config.lines):
+                    vessel_speed = getattr(line, "vessel_speed", None)
                     speed_str = (
                         f" at {vessel_speed} knots"
                         if vessel_speed
                         else " (default speed)"
                     )
-                    print(f"     {i+1}. {transect.name}{speed_str}")
-                    for j, point in enumerate(transect.route):
+                    print(f"     {i+1}. {line.name}{speed_str}")
+                    for j, point in enumerate(line.route):
                         print(f"        {j+1}. {point.latitude}, {point.longitude}")
 
             print(f"\n   Legs: {len(config.legs or [])}")
             if config.legs:
                 for i, leg in enumerate(config.legs):
-                    stations = getattr(leg, "stations", [])
-                    sequence = getattr(leg, "sequence", [])
+                    activities = getattr(leg, "activities", [])
                     print(
-                        f"     {i+1}. {leg.name}: stations={stations}, sequence={sequence}"
+                        f"     {i+1}. {leg.name}: activities={len(activities)} items"
                     )
 
             print("\n   Port information (leg-level):")

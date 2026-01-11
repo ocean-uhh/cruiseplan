@@ -11,7 +11,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from .catalog_definitions import PortDefinition, WaypointDefinition
+from .activities import PointDefinition
 from .enums import StrategyEnum
 
 
@@ -35,12 +35,6 @@ class ClusterDefinition(BaseModel):
         Whether operations should maintain their order (default: True).
     activities : List[dict]
         Unified list of all activities (stations, transits, areas) in this cluster.
-    sequence : Optional[List[Union[str, WaypointDefinition, dict]]]
-        DEPRECATED: Ordered sequence of operations. Use 'activities' instead.
-    stations : Optional[List[Union[str, WaypointDefinition]]]
-        DEPRECATED: List of stations in the cluster. Use 'activities' instead.
-    generate_transect : Optional[dict]
-        DEPRECATED: Transect generation parameters. Use 'activities' instead.
     """
 
     name: str
@@ -62,16 +56,6 @@ class ClusterDefinition(BaseModel):
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
 
-    # Deprecated fields (maintain temporarily for backward compatibility)
-    sequence: Optional[list[Union[str, WaypointDefinition, dict]]] = Field(
-        default=None, description="DEPRECATED: Use 'activities' instead"
-    )
-    stations: Optional[list[Union[str, WaypointDefinition]]] = Field(
-        default_factory=list, description="DEPRECATED: Use 'activities' instead"
-    )
-    generate_transect: Optional[dict] = Field(
-        default=None, description="DEPRECATED: Use 'activities' instead"
-    )
 
     model_config = ConfigDict(extra="allow")
 
@@ -92,12 +76,9 @@ class ClusterDefinition(BaseModel):
         """
         # Check for deprecated field usage and migrate to activities
         has_activities = bool(self.activities)
-        has_deprecated = (
-            bool(self.sequence) or bool(self.stations) or bool(self.generate_transect)
-        )
 
-        if not has_activities and not has_deprecated:
-            msg = f"Cluster '{self.name}' must have at least one activity, sequence, station, or generate_transect"
+        if not has_activities:
+            msg = f"Cluster '{self.name}' must have at least one activity"
             raise ValueError(msg)
 
         # Warning for deprecated usage would go here in production
@@ -132,9 +113,9 @@ class LegDefinition(BaseModel):
         Unique identifier for the leg.
     description : Optional[str]
         Human-readable description of the leg.
-    departure_port : Union[str, PortDefinition]
+    departure_port : Union[str, PointDefinition]
         Required departure port for this leg.
-    arrival_port : Union[str, PortDefinition]
+    arrival_port : Union[str, PointDefinition]
         Required arrival port for this leg.
     vessel_speed : Optional[float]
         Vessel speed for this leg in knots (inheritable from cruise).
@@ -142,10 +123,10 @@ class LegDefinition(BaseModel):
         Default station spacing for this leg in kilometers (inheritable from cruise).
     turnaround_time : Optional[float]
         Turnaround time between operations in minutes (inheritable from cruise).
-    first_waypoint : Optional[str]
-        First waypoint/navigation marker for this leg (routing only, not executed).
-    last_waypoint : Optional[str]
-        Last waypoint/navigation marker for this leg (routing only, not executed).
+    first_activity : Optional[str]
+        First activity/navigation marker for this leg (routing only, not executed).
+    last_activity : Optional[str]
+        Last activity/navigation marker for this leg (routing only, not executed).
     strategy : Optional[StrategyEnum]
         Default scheduling strategy for the leg.
     ordered : Optional[bool]
@@ -153,23 +134,17 @@ class LegDefinition(BaseModel):
     buffer_time : Optional[float]
         Contingency time for entire leg operations in minutes (e.g., weather delays).
     activities : Optional[List[dict]]
-        Unified list of all activities (stations, transits, areas) in this leg.
+        Unified list of all activities (points, lines, areas) in this leg.
     clusters : Optional[List[ClusterDefinition]]
         List of operation clusters in the leg.
-    stations : Optional[List[Union[str, WaypointDefinition]]]
-        DEPRECATED: List of stations in the leg. Use 'activities' instead.
-    sections : Optional[List[dict]]
-        DEPRECATED: List of sections in the leg. Use 'activities' instead.
-    sequence : Optional[List[Union[str, WaypointDefinition]]]
-        DEPRECATED: Ordered sequence of operations. Use 'activities' instead.
     """
 
     name: str
     description: Optional[str] = None
 
     # Required maritime port-to-port structure
-    departure_port: Union[str, PortDefinition]
-    arrival_port: Union[str, PortDefinition]
+    departure_port: Union[str, PointDefinition]
+    arrival_port: Union[str, PointDefinition]
 
     # Inheritable cruise parameters
     vessel_speed: Optional[float] = Field(
@@ -182,12 +157,12 @@ class LegDefinition(BaseModel):
         None, description="Turnaround time between operations in minutes"
     )
 
-    # Navigation waypoints (not executed, routing only)
-    first_waypoint: Optional[str] = Field(
-        None, description="First navigation waypoint for this leg (routing only)"
+    # Navigation activities (not executed, routing only)
+    first_activity: Optional[str] = Field(
+        None, description="First navigation activity for this leg (routing only)"
     )
-    last_waypoint: Optional[str] = Field(
-        None, description="Last navigation waypoint for this leg (routing only)"
+    last_activity: Optional[str] = Field(
+        None, description="Last navigation activity for this leg (routing only)"
     )
 
     # Scheduling parameters
@@ -210,16 +185,6 @@ class LegDefinition(BaseModel):
         default_factory=list, description="List of operation clusters"
     )
 
-    # Deprecated fields (backward compatibility)
-    stations: Optional[list[Union[str, WaypointDefinition]]] = Field(
-        default_factory=list, description="DEPRECATED: Use 'activities' instead"
-    )
-    sections: Optional[list[dict]] = Field(
-        default_factory=list, description="DEPRECATED: Use 'activities' instead"
-    )
-    sequence: Optional[list[Union[str, WaypointDefinition]]] = Field(
-        default_factory=list, description="DEPRECATED: Use 'activities' instead"
-    )
 
     model_config = ConfigDict(extra="allow")
 

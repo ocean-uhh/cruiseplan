@@ -4,12 +4,12 @@ import warnings
 
 import pytest
 
+from cruiseplan.schema import PointDefinition
 from cruiseplan.utils.global_ports import (
     GLOBAL_PORTS,
     get_available_ports,
     resolve_port_reference,
 )
-from cruiseplan.validation import PortDefinition
 
 
 class TestGlobalPorts:
@@ -38,14 +38,14 @@ class TestGlobalPorts:
         # Test with proper port_ prefix
         port = resolve_port_reference("port_reykjavik")
 
-        assert isinstance(port, PortDefinition)
+        assert isinstance(port, PointDefinition)
         assert port.name == "Reykjavik"
         assert port.latitude == 64.1466
         assert port.longitude == -21.9426
 
     def test_resolve_port_reference_port_definition(self):
-        """Test resolving PortDefinition object directly."""
-        original_port = PortDefinition(
+        """Test resolving PointDefinition object directly."""
+        original_port = PointDefinition(
             name="Custom_Port",
             latitude=70.0,
             longitude=30.0,
@@ -69,7 +69,7 @@ class TestGlobalPorts:
 
         port = resolve_port_reference(port_dict)
 
-        assert isinstance(port, PortDefinition)
+        assert isinstance(port, PointDefinition)
         assert port.name == "Dict_Port"
         assert port.latitude == 55.0
         assert port.longitude == -15.0
@@ -88,7 +88,7 @@ class TestGlobalPorts:
             assert "NonexistentPort" in warning_message
 
             # Should still create a basic port
-            assert isinstance(port, PortDefinition)
+            assert isinstance(port, PointDefinition)
             assert port.name == "NonexistentPort"
 
     def test_resolve_port_reference_invalid_type(self):
@@ -160,14 +160,14 @@ class TestPortValidation:
             ), f"Port {port_id} has invalid longitude: {lon}"
 
     def test_port_definition_creation_from_global(self):
-        """Test that PortDefinition is created correctly from global port data."""
+        """Test that PointDefinition is created correctly from global port data."""
         # Test multiple global ports
         test_ports = ["port_reykjavik", "port_bergen", "port_southampton"]
 
         for port_ref in test_ports:
             port = resolve_port_reference(port_ref)
 
-            assert isinstance(port, PortDefinition)
+            assert isinstance(port, PointDefinition)
             assert isinstance(port.name, str)
             assert len(port.name) > 0
             assert isinstance(port.latitude, (int, float))

@@ -17,9 +17,10 @@ import pandas as pd
 from pangaeapy.pandataset import PanDataSet
 from pangaeapy.panquery import PanQuery
 
-# Local Imports
-from cruiseplan.data.cache import CacheManager
 from cruiseplan.output.map_generator import generate_folium_map
+
+# Local Imports
+from cruiseplan.utils.cache import CacheManager
 
 logger = logging.getLogger(__name__)
 

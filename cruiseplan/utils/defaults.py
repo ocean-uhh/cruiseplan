@@ -42,10 +42,10 @@ DEFAULT_STATION_SPACING_KM = 15.0
 
 # Default calculation flags - typically True for automated processing
 # Whether to calculate transit times between section waypoints
-DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS = True
+DEFAULT_CALC_TRANSFER = True
 
 # Whether to automatically look up depth values from bathymetry data
-DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY = True
+DEFAULT_CALC_DEPTH = True
 
 # Default mooring operation duration in minutes (999 hours = 59940 minutes)
 # Used as a highly visible placeholder for mooring operations without specified duration
@@ -57,8 +57,24 @@ DEFAULT_START_DATE = DEFAULT_START_DATE_NUM.isoformat()
 
 # --- Placeholder Values ---
 # Port placeholder names used to indicate fields that need user updates
-DEFAULT_PORT_PLACEHOLDER_DEPARTURE = "port_update_departure"
-DEFAULT_PORT_PLACEHOLDER_ARRIVAL = "port_update_arrival"
+DEFAULT_DEPARTURE_PORT = "port_update_departure"
+DEFAULT_ARRIVAL_PORT = "port_update_arrival"
 
 # Legacy placeholder prefix for backwards compatibility
 DEFAULT_UPDATE_PREFIX = "UPDATE-"
+
+# Default action values for interactive operations that need user review
+DEFAULT_POINT_ACTION = "UPDATE-profile-sampling-etc"
+DEFAULT_LINE_ACTION = "UPDATE-ADCP-bathymetry-etc"
+DEFAULT_AREA_ACTION = "UPDATE-bathymetry-survey-etc"
+
+# Default operation type values for interactive operations
+DEFAULT_POINT_OPTYPE = "UPDATE-CTD-mooring-etc"
+DEFAULT_LINE_OPTYPE = "underway"
+DEFAULT_AREA_OPTYPE = "survey"
+
+# Default first_waypoint
+DEFAULT_FIRST_ACTIVITY = "UPDATE-first-station-name"
+DEFAULT_LAST_ACTIVITY = "UPDATE-last-station-name"
+
+DEFAULT_STRATEGY = "sequential"

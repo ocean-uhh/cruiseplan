@@ -23,12 +23,36 @@ from typing import Any, Optional
 
 from ruamel.yaml.comments import CommentedMap, CommentedSeq
 
+from cruiseplan.schema.vocabulary import (
+    ACTION_FIELD,
+    ACTIVITIES_FIELD,
+    AREA_VERTEX_FIELD,
+    AREAS_FIELD,
+    ARRIVAL_PORT_FIELD,
+    CLUSTERS_FIELD,
+    DEFAULT_VESSEL_SPEED_FIELD,
+    DEPARTURE_PORT_FIELD,
+    DURATION_FIELD,
+    FIRST_ACTIVITY_FIELD,
+    LAST_ACTIVITY_FIELD,
+    LEGS_FIELD,
+    LINE_VERTEX_FIELD,
+    LINES_FIELD,
+    OP_TYPE_FIELD,
+    POINTS_FIELD,
+    START_DATE_FIELD,
+    START_TIME_FIELD,
+    WATER_DEPTH_FIELD,
+)
+
 # Core cruiseplan imports that don't cause circular imports
 from cruiseplan.utils.coordinates import format_ddm_comment
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-    DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_CALC_DEPTH,
+    DEFAULT_CALC_TRANSFER,
     DEFAULT_CTD_RATE_M_S,
+    DEFAULT_DEPARTURE_PORT,
     DEFAULT_MOORING_DURATION_MIN,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
@@ -71,6 +95,9 @@ def _validation_warning_capture():
 # --- Configuration Field Processing ---
 
 
+# Why do we add both a start_time and a start_date? If the start_date has the time in
+# it, isn't that enough?
+# Are these more opportunities to use vocabulary.py constants? START_DATE_FIELD, TURNAROUND_TIME_FIELDS
 def _add_missing_defaults(
     config_dict: dict[str, Any],
 ) -> tuple[list[tuple[str, Any, str]], list[str]]:
@@ -96,10 +123,10 @@ def _add_missing_defaults(
     fields_to_add = []
 
     user_params = [
-        ("start_date", DEFAULT_START_DATE, DEFAULT_START_DATE, "start_date"),
-        ("start_time", "08:00", "08:00", "start_time"),
+        (START_DATE_FIELD, DEFAULT_START_DATE, DEFAULT_START_DATE, "start_date"),
+        (START_TIME_FIELD, "08:00", "08:00", "start_time"),
         (
-            "default_vessel_speed",
+            DEFAULT_VESSEL_SPEED_FIELD,
             DEFAULT_VESSEL_SPEED_KT,
             f"{DEFAULT_VESSEL_SPEED_KT} knots",
             "default_vessel_speed",
@@ -127,14 +154,14 @@ def _add_missing_defaults(
     technical_params = [
         (
             "calculate_transfer_between_sections",
-            DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
-            str(DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS),
+            DEFAULT_CALC_TRANSFER,
+            str(DEFAULT_CALC_TRANSFER),
             "transfer calculation",
         ),
         (
             "calculate_depth_via_bathymetry",
-            DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-            str(DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY),
+            DEFAULT_CALC_DEPTH,
+            str(DEFAULT_CALC_DEPTH),
             "bathymetry depth calculation",
         ),
         (
@@ -178,18 +205,22 @@ def _add_port_defaults(config_dict: dict[str, Any]) -> list[str]:
     """
     defaults_added = []
 
-    if not config_dict.get("legs"):
-        if "departure_port" not in config_dict or not config_dict["departure_port"]:
-            config_dict["departure_port"] = "port_bergen"
+    if not config_dict.get(LEGS_FIELD):
+        if (
+            DEPARTURE_PORT_FIELD not in config_dict
+            or not config_dict[DEPARTURE_PORT_FIELD]
+        ):
+            config_dict[DEPARTURE_PORT_FIELD] = DEFAULT_DEPARTURE_PORT
             defaults_added.append("departure_port")
 
-        if "arrival_port" not in config_dict or not config_dict["arrival_port"]:
-            config_dict["arrival_port"] = "port_bergen"
+        if ARRIVAL_PORT_FIELD not in config_dict or not config_dict[ARRIVAL_PORT_FIELD]:
+            config_dict[ARRIVAL_PORT_FIELD] = DEFAULT_ARRIVAL_PORT
             defaults_added.append("arrival_port")
 
     return defaults_added
 
 
+# TODO Also LEGS_FIELD and CLUSTERS_FIELD
 def _validate_required_structure(config_dict: dict[str, Any]) -> list[str]:
     """
     Ensure required configuration structure exists.
@@ -206,32 +237,32 @@ def _validate_required_structure(config_dict: dict[str, Any]) -> list[str]:
     """
     structure_added = []
 
-    required_sections = ["legs"]
+    required_sections = [LEGS_FIELD]
     for section in required_sections:
         if section not in config_dict:
             config_dict[section] = []
             structure_added.append(f"empty_{section}_list")
 
-    if not config_dict["legs"]:
+    if not config_dict[LEGS_FIELD]:
         # Check for global-level ports to use in the leg
-        departure_port = config_dict.get("departure_port", "port_update_departure")
-        arrival_port = config_dict.get("arrival_port", "port_update_arrival")
+        departure_port = config_dict.get(DEPARTURE_PORT_FIELD, DEFAULT_DEPARTURE_PORT)
+        arrival_port = config_dict.get(ARRIVAL_PORT_FIELD, DEFAULT_ARRIVAL_PORT)
 
-        config_dict["legs"] = [
+        config_dict[LEGS_FIELD] = [
             {
                 "name": "Main_Leg",
                 "description": "Main cruise leg",
-                "departure_port": departure_port,
-                "arrival_port": arrival_port,
+                DEPARTURE_PORT_FIELD: departure_port,
+                ARRIVAL_PORT_FIELD: arrival_port,
             }
         ]
 
         # Remove global-level ports since they now belong to the leg
-        if "departure_port" in config_dict:
-            del config_dict["departure_port"]
+        if DEPARTURE_PORT_FIELD in config_dict:
+            del config_dict[DEPARTURE_PORT_FIELD]
             structure_added.append("moved_global_departure_port_to_leg")
-        if "arrival_port" in config_dict:
-            del config_dict["arrival_port"]
+        if ARRIVAL_PORT_FIELD in config_dict:
+            del config_dict[ARRIVAL_PORT_FIELD]
             structure_added.append("moved_global_arrival_port_to_leg")
 
         structure_added.append("default_main_leg")
@@ -383,6 +414,7 @@ def _expand_single_ctd_section(
     """
     from cruiseplan.calculators.distance import haversine_distance
 
+    # TODO why not use Geopoint here?
     def _extract_coordinate_value(
         coord_dict: dict[str, Any], lat_keys: list[str], lon_keys: list[str]
     ) -> tuple[Optional[float], Optional[float]]:
@@ -458,27 +490,31 @@ def _expand_single_ctd_section(
 
         station = {
             "name": f"{base_name}_Stn{i+1:03d}",
-            "operation_type": "CTD",
-            "action": "profile",
+            OP_TYPE_FIELD: "CTD",
+            ACTION_FIELD: "profile",
             "latitude": round(lat, 5),  # Direct coordinate storage
             "longitude": round(lon, 5),  # Direct coordinate storage
             "comment": f"Station {i+1}/{num_stations} on {transit['name']} section",
-            "duration": 120.0,  # Duration in minutes for consistency
+            DURATION_FIELD: 120.0,  # Duration in minutes for consistency
         }
 
         # Copy additional fields if present, converting to modern field names
         if "max_depth" in transit:
-            station["water_depth"] = transit["max_depth"]  # Use semantic water_depth
+            station[WATER_DEPTH_FIELD] = transit[
+                "max_depth"
+            ]  # Use semantic water_depth
         elif default_depth != -9999.0:
             # Use provided default depth if valid (not the placeholder value)
-            station["water_depth"] = default_depth
+            station[WATER_DEPTH_FIELD] = default_depth
         # If no depth is specified, let enrichment process handle bathymetry lookup
 
         if "planned_duration_hours" in transit:
             # Convert hours to minutes for consistency
-            station["duration"] = float(transit["planned_duration_hours"]) * 60.0
-        if "duration" in transit:
-            station["duration"] = float(transit["duration"])  # Already in minutes
+            station[DURATION_FIELD] = float(transit["planned_duration_hours"]) * 60.0
+        if DURATION_FIELD in transit:
+            station[DURATION_FIELD] = float(
+                transit[DURATION_FIELD]
+            )  # Already in minutes
 
         stations.append(station)
 
@@ -493,7 +529,7 @@ def expand_ctd_sections(
     """
     Expand CTD sections into individual station definitions.
 
-    This function finds transits with operation_type="CTD" and action="section",
+    This function finds transits with Ctype="CTD" and action="section",
     expands them into individual stations along the route, and updates all
     references in legs to point to the new stations.
 
@@ -517,11 +553,11 @@ def expand_ctd_sections(
         config = copy.copy(config)
 
     ctd_sections = []
-    if "transects" in config:
-        for transect in config["transects"]:
+    if LINES_FIELD in config:
+        for transect in config[LINES_FIELD]:
             if (
-                transect.get("operation_type") == "CTD"
-                and transect.get("action") == "section"
+                transect.get(OP_TYPE_FIELD) == "CTD"
+                and transect.get(ACTION_FIELD) == "section"
             ):
                 ctd_sections.append(transect)
 
@@ -533,14 +569,14 @@ def expand_ctd_sections(
         new_stations = _expand_single_ctd_section(section, default_depth)
 
         if new_stations:
-            if "waypoints" not in config:
+            if POINTS_FIELD not in config:
                 if hasattr(config, "copy"):
-                    config["waypoints"] = CommentedSeq()
+                    config[POINTS_FIELD] = CommentedSeq()
                 else:
-                    config["waypoints"] = []
+                    config[POINTS_FIELD] = []
 
             existing_names = {
-                s.get("name") for s in config["waypoints"] if s.get("name")
+                s.get("name") for s in config[POINTS_FIELD] if s.get("name")
             }
 
             station_names = []
@@ -560,11 +596,11 @@ def expand_ctd_sections(
                         commented_station = CommentedMap(station)
                         station = commented_station
 
-                config["waypoints"].append(station)
+                config[POINTS_FIELD].append(station)
 
-                if hasattr(config["waypoints"], "yaml_add_eol_comment"):
-                    station_index = len(config["waypoints"]) - 1
-                    config["waypoints"].yaml_add_eol_comment(
+                if hasattr(config[POINTS_FIELD], "yaml_add_eol_comment"):
+                    station_index = len(config[POINTS_FIELD]) - 1
+                    config[POINTS_FIELD].yaml_add_eol_comment(
                         " expanded by cruiseplan enrich --expand-sections",
                         station_index,
                     )
@@ -574,27 +610,32 @@ def expand_ctd_sections(
 
             expanded_stations[section_name] = station_names
 
-    if "transects" in config and ctd_sections:
-        config["transects"] = [
+    if LINES_FIELD in config and ctd_sections:
+        config[LINES_FIELD] = [
             t
-            for t in config["transects"]
-            if not (t.get("operation_type") == "CTD" and t.get("action") == "section")
+            for t in config[LINES_FIELD]
+            if not (t.get(OP_TYPE_FIELD) == "CTD" and t.get(ACTION_FIELD) == "section")
         ]
-        if not config["transects"]:
-            del config["transects"]
+        if not config[LINES_FIELD]:
+            del config[LINES_FIELD]
+    for leg in config.get(LEGS_FIELD, []):
+        if (
+            leg.get(FIRST_ACTIVITY_FIELD)
+            and leg[FIRST_ACTIVITY_FIELD] in expanded_stations
+        ):
+            leg[FIRST_ACTIVITY_FIELD] = expanded_stations[leg[FIRST_ACTIVITY_FIELD]][0]
+            logger.info(f"Updated leg first_activity to {leg[FIRST_ACTIVITY_FIELD]}")
 
-    for leg in config.get("legs", []):
-        if leg.get("first_waypoint") and leg["first_waypoint"] in expanded_stations:
-            leg["first_waypoint"] = expanded_stations[leg["first_waypoint"]][0]
-            logger.info(f"Updated leg first_waypoint to {leg['first_waypoint']}")
+        if (
+            leg.get(LAST_ACTIVITY_FIELD)
+            and leg[LAST_ACTIVITY_FIELD] in expanded_stations
+        ):
+            leg[LAST_ACTIVITY_FIELD] = expanded_stations[leg[LAST_ACTIVITY_FIELD]][-1]
+            logger.info(f"Updated leg last_activity to {leg[LAST_ACTIVITY_FIELD]}")
 
-        if leg.get("last_waypoint") and leg["last_waypoint"] in expanded_stations:
-            leg["last_waypoint"] = expanded_stations[leg["last_waypoint"]][-1]
-            logger.info(f"Updated leg last_waypoint to {leg['last_waypoint']}")
-
-        if leg.get("activities"):
+        if leg.get(ACTIVITIES_FIELD):
             new_activities = []
-            for item in leg["activities"]:
+            for item in leg[ACTIVITIES_FIELD]:
                 if isinstance(item, str) and item in expanded_stations:
                     new_activities.extend(expanded_stations[item])
                     logger.info(
@@ -602,17 +643,11 @@ def expand_ctd_sections(
                     )
                 else:
                     new_activities.append(item)
-            leg["activities"] = new_activities
+            leg[ACTIVITIES_FIELD] = new_activities
 
-        for cluster in leg.get("clusters", []):
-            if cluster.get("sequence"):
-                new_sequence = []
-                for item in cluster["sequence"]:
-                    if isinstance(item, str) and item in expanded_stations:
-                        new_sequence.extend(expanded_stations[item])
-                    else:
-                        new_sequence.append(item)
-                cluster["sequence"] = new_sequence
+        for cluster in leg.get(CLUSTERS_FIELD, []):
+            # Note: sequence field has been removed - all references now use activities
+            pass
 
     summary = {
         "sections_expanded": len(ctd_sections),
@@ -679,13 +714,13 @@ def add_missing_station_defaults(config_dict: dict[str, Any]) -> int:
     """
     station_defaults_added = 0
 
-    # Process waypoints for missing defaults
-    if "waypoints" in config_dict:
-        for station_data in config_dict["waypoints"]:
+    # Process points for missing defaults
+    if POINTS_FIELD in config_dict:
+        for station_data in config_dict[POINTS_FIELD]:
             # Check for mooring operations without duration
             if (
-                station_data.get("operation_type") == "mooring"
-                and "duration" not in station_data
+                station_data.get(OP_TYPE_FIELD) == "mooring"
+                and DURATION_FIELD not in station_data
             ):
                 station_name = station_data.get("name", "unnamed")
 
@@ -695,20 +730,20 @@ def add_missing_station_defaults(config_dict: dict[str, Any]) -> int:
                     keys = list(station_data.keys())
                     insert_index = len(keys)  # Default to end
 
-                    if "operation_type" in keys:
-                        insert_index = keys.index("operation_type") + 1
+                    if OP_TYPE_FIELD in keys:
+                        insert_index = keys.index(OP_TYPE_FIELD) + 1
                     elif "name" in keys:
                         insert_index = keys.index("name") + 1
 
                     station_data.insert(
-                        insert_index, "duration", DEFAULT_MOORING_DURATION_MIN
+                        insert_index, DURATION_FIELD, DEFAULT_MOORING_DURATION_MIN
                     )
                     station_data.yaml_add_eol_comment(
-                        "# default added by cruiseplan enrich", "duration"
+                        "# default added by cruiseplan enrich", DURATION_FIELD
                     )
                 else:
                     # Fallback for regular dict
-                    station_data["duration"] = DEFAULT_MOORING_DURATION_MIN
+                    station_data[DURATION_FIELD] = DEFAULT_MOORING_DURATION_MIN
 
                 station_defaults_added += 1
                 logger.warning(
@@ -783,7 +818,7 @@ def _load_and_validate_config(
         "defaults_added": len(defaults_added),
         "station_defaults_added": station_defaults_added,
         "defaults_list": defaults_added,
-        "total_stations_processed": len(cruise.waypoint_registry),
+        "total_stations_processed": len(cruise.point_registry),
     }
 
     return config_dict, cruise, enrichment_summary
@@ -822,7 +857,7 @@ def _enrich_station_depths(
     bathymetry = BathymetryManager(source=bathymetry_source, data_dir=bathymetry_dir)
 
     # Process each station
-    for station_name, station in cruise.waypoint_registry.items():
+    for station_name, station in cruise.point_registry.items():
         # Add water depths if requested (bathymetry enrichment targets water_depth field)
         should_add_water_depth = (
             not hasattr(station, "water_depth")
@@ -862,14 +897,14 @@ def _sync_depths_to_config(
     stations_with_depths_added : set[str]
         Station names that had depths added.
     """
-    if "waypoints" in config_dict:
-        for station_data in config_dict["waypoints"]:
+    if POINTS_FIELD in config_dict:
+        for station_data in config_dict[POINTS_FIELD]:
             station_name = station_data["name"]
             if (
-                station_name in cruise.waypoint_registry
+                station_name in cruise.point_registry
                 and station_name in stations_with_depths_added
             ):
-                station_obj = cruise.waypoint_registry[station_name]
+                station_obj = cruise.point_registry[station_name]
                 # Add water_depth field with careful placement after name field
                 water_depth_value = float(station_obj.water_depth)
 
@@ -884,10 +919,12 @@ def _sync_depths_to_config(
                     logger.debug(
                         f"Inserting water_depth at position {insert_pos} after 'name' field"
                     )
-                    station_data.insert(insert_pos, "water_depth", water_depth_value)
+                    station_data.insert(
+                        insert_pos, WATER_DEPTH_FIELD, water_depth_value
+                    )
                 else:
                     # Fallback for regular dict
-                    station_data["water_depth"] = water_depth_value
+                    station_data[WATER_DEPTH_FIELD] = water_depth_value
 
 
 def _enrich_station_coordinates(
@@ -918,11 +955,11 @@ def _enrich_station_coordinates(
     coord_changes_made = 0
 
     # Process coordinate additions for stations
-    if "waypoints" in config_dict:
-        for station_data in config_dict["waypoints"]:
+    if POINTS_FIELD in config_dict:
+        for station_data in config_dict[POINTS_FIELD]:
             station_name = station_data["name"]
-            if station_name in cruise.waypoint_registry:
-                station_obj = cruise.waypoint_registry[station_name]
+            if station_name in cruise.point_registry:
+                station_obj = cruise.point_registry[station_name]
 
                 # Add coordinate fields if requested
                 if add_coords:
@@ -968,11 +1005,17 @@ def _enrich_port_coordinates(
 
     # Process coordinate additions for departure and arrival ports
     if add_coords:
-        for port_key in ["departure_port", "arrival_port"]:
+        for port_key in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
             if config_dict.get(port_key):
                 port_data = config_dict[port_key]
-                if hasattr(cruise.config, port_key):
-                    port_obj = getattr(cruise.config, port_key)
+                # Use literal attribute names for Pydantic model access
+                attr_name = (
+                    "departure_port"
+                    if port_key == DEPARTURE_PORT_FIELD
+                    else "arrival_port"
+                )
+                if hasattr(cruise.config, attr_name):
+                    port_obj = getattr(cruise.config, attr_name)
                     if hasattr(port_obj, "latitude") and hasattr(port_obj, "longitude"):
                         ddm_result, changes_count = _add_ddm_coordinates(
                             port_data,
@@ -1011,13 +1054,13 @@ def _enrich_transit_coordinates(config_dict: dict[str, Any], add_coords: bool) -
     coord_changes_made = 0
 
     # Process coordinate additions for transect routes
-    if add_coords and "transects" in config_dict:
-        for transect_data in config_dict["transects"]:
-            if transect_data.get("route"):
+    if add_coords and LINES_FIELD in config_dict:
+        for transect_data in config_dict[LINES_FIELD]:
+            if transect_data.get(LINE_VERTEX_FIELD):
                 # Add route_ddm field with list of position_ddm entries
                 if "route_ddm" not in transect_data:
                     route_ddm_list = []
-                    for point in transect_data["route"]:
+                    for point in transect_data[LINE_VERTEX_FIELD]:
                         if "latitude" in point and "longitude" in point:
                             ddm_comment = format_ddm_comment(
                                 point["latitude"], point["longitude"]
@@ -1055,13 +1098,13 @@ def _enrich_area_coordinates(config_dict: dict[str, Any], add_coords: bool) -> i
     coord_changes_made = 0
 
     # Process coordinate additions for area corners
-    if add_coords and "areas" in config_dict:
-        for area_data in config_dict["areas"]:
-            if area_data.get("corners"):
+    if add_coords and AREAS_FIELD in config_dict:
+        for area_data in config_dict[AREAS_FIELD]:
+            if area_data.get(AREA_VERTEX_FIELD):
                 # Add corners_ddm field with list of position_ddm entries
                 if "corners_ddm" not in area_data:
                     corners_ddm_list = []
-                    for corner in area_data["corners"]:
+                    for corner in area_data[AREA_VERTEX_FIELD]:
                         if "latitude" in corner and "longitude" in corner:
                             ddm_comment = format_ddm_comment(
                                 corner["latitude"], corner["longitude"]
@@ -1112,16 +1155,16 @@ def _expand_port_references(
         port_references = set()
 
         # Check cruise-level ports
-        for port_field in ["departure_port", "arrival_port"]:
+        for port_field in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
             if port_field in config_dict and isinstance(config_dict[port_field], str):
                 port_ref = config_dict[port_field]
                 if port_ref.startswith("port_"):
                     port_references.add(port_ref)
 
         # Check leg-level ports
-        if "legs" in config_dict:
-            for leg_data in config_dict["legs"]:
-                for port_field in ["departure_port", "arrival_port"]:
+        if LEGS_FIELD in config_dict:
+            for leg_data in config_dict[LEGS_FIELD]:
+                for port_field in [DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD]:
                     if port_field in leg_data and isinstance(leg_data[port_field], str):
                         port_ref = leg_data[port_field]
                         if port_ref.startswith("port_"):
@@ -1137,7 +1180,7 @@ def _expand_port_references(
                         "name": port_ref,  # Keep the full port_* name as catalog identifier
                         "latitude": port_definition.latitude,
                         "longitude": port_definition.longitude,
-                        "operation_type": "port",  # Explicitly set operation_type for ports
+                        OP_TYPE_FIELD: "port",  # Explicitly set operation_type for ports
                     }
                     # Add display_name if available
                     if hasattr(port_definition, "display_name"):
@@ -1156,30 +1199,30 @@ def _expand_port_references(
                     )
 
         # Expand leg-level port references into full port definitions with actions
-        if "legs" in config_dict:
-            for leg_data in config_dict["legs"]:
+        if LEGS_FIELD in config_dict:
+            for leg_data in config_dict[LEGS_FIELD]:
                 # Expand departure_port
-                if "departure_port" in leg_data and isinstance(
-                    leg_data["departure_port"], str
+                if DEPARTURE_PORT_FIELD in leg_data and isinstance(
+                    leg_data[DEPARTURE_PORT_FIELD], str
                 ):
-                    port_ref = leg_data["departure_port"]
+                    port_ref = leg_data[DEPARTURE_PORT_FIELD]
                     if port_ref.startswith("port_"):
                         try:
                             port_definition = resolve_port_reference(port_ref)
                             # Replace string reference with full port definition
-                            leg_data["departure_port"] = {
+                            leg_data[DEPARTURE_PORT_FIELD] = {
                                 "name": port_ref,
                                 "latitude": port_definition.latitude,
                                 "longitude": port_definition.longitude,
-                                "operation_type": "port",
-                                "action": "mob",  # Departure ports are mobilization
+                                OP_TYPE_FIELD: "port",
+                                ACTION_FIELD: "mob",  # Departure ports are mobilization
                             }
                             if hasattr(port_definition, "display_name"):
-                                leg_data["departure_port"][
+                                leg_data[DEPARTURE_PORT_FIELD][
                                     "display_name"
                                 ] = port_definition.display_name
                             elif hasattr(port_definition, "name"):
-                                leg_data["departure_port"][
+                                leg_data[DEPARTURE_PORT_FIELD][
                                     "display_name"
                                 ] = port_definition.name
                             leg_ports_expanded += 1
@@ -1192,27 +1235,27 @@ def _expand_port_references(
                             )
 
                 # Expand arrival_port
-                if "arrival_port" in leg_data and isinstance(
-                    leg_data["arrival_port"], str
+                if ARRIVAL_PORT_FIELD in leg_data and isinstance(
+                    leg_data[ARRIVAL_PORT_FIELD], str
                 ):
-                    port_ref = leg_data["arrival_port"]
+                    port_ref = leg_data[ARRIVAL_PORT_FIELD]
                     if port_ref.startswith("port_"):
                         try:
                             port_definition = resolve_port_reference(port_ref)
                             # Replace string reference with full port definition
-                            leg_data["arrival_port"] = {
+                            leg_data[ARRIVAL_PORT_FIELD] = {
                                 "name": port_ref,
                                 "latitude": port_definition.latitude,
                                 "longitude": port_definition.longitude,
-                                "operation_type": "port",
-                                "action": "demob",  # Arrival ports are demobilization
+                                OP_TYPE_FIELD: "port",
+                                ACTION_FIELD: "demob",  # Arrival ports are demobilization
                             }
                             if hasattr(port_definition, "display_name"):
-                                leg_data["arrival_port"][
+                                leg_data[ARRIVAL_PORT_FIELD][
                                     "display_name"
                                 ] = port_definition.display_name
                             elif hasattr(port_definition, "name"):
-                                leg_data["arrival_port"][
+                                leg_data[ARRIVAL_PORT_FIELD][
                                     "display_name"
                                 ] = port_definition.name
                             leg_ports_expanded += 1

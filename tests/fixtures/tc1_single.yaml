@@ -9,7 +9,7 @@ default_distance_between_stations: 15.0
 start_date: '1970-01-01T00:00:00+00:00'
 
 
-waypoints:
+points:
   - name: STN_001
     latitude: 45.0
     longitude: -45.0
@@ -21,6 +21,6 @@ legs:
   - name: "Leg_Single"
     departure_port: port_halifax
     arrival_port: port_cadiz
-    first_waypoint: STN_001
-    last_waypoint: STN_001
+    first_activity: STN_001
+    last_activity: STN_001
     activities: [STN_001]

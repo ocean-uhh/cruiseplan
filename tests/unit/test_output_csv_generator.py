@@ -10,7 +10,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.output.csv_generator import CSVGenerator, generate_csv_schedule
-from cruiseplan.validation import CruiseConfig
+from cruiseplan.schema import CruiseConfig
 
 
 class TestCSVGenerator:

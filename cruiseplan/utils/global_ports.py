@@ -9,7 +9,7 @@ Features:
 - Standard port registry with common research cruise destinations
 - Timezone information for port operations
 - Extensible system allowing user-defined port overrides
-- Support for both string references and PortDefinition objects
+- Support for both string references and PointDefinition objects
 
 Usage:
     # In YAML configuration
@@ -426,12 +426,12 @@ def resolve_port_reference(
     port_ref,
 ):
     """
-    Resolve a port reference to a complete PortDefinition object.
+    Resolve a port reference to a complete PointDefinition object.
 
     Handles three types of input:
     1. String reference to global port registry (e.g., 'port_reykjavik')
     2. Dictionary with port data (user-defined override)
-    3. Already instantiated PortDefinition object
+    3. Already instantiated PointDefinition object
 
     Parameters
     ----------
@@ -440,7 +440,7 @@ def resolve_port_reference(
 
     Returns
     -------
-    PortDefinition
+    PointDefinition
         Complete port definition object.
 
     Raises
@@ -449,10 +449,10 @@ def resolve_port_reference(
         If string reference is not found in global registry.
     """
     # Import locally to avoid circular dependency
-    from cruiseplan.validation import PortDefinition
+    from cruiseplan.schema import PointDefinition
 
-    # If already a PortDefinition object, return as-is
-    if isinstance(port_ref, PortDefinition):
+    # If already a PointDefinition object, return as-is
+    if isinstance(port_ref, PointDefinition):
         return port_ref
 
     # Handle any port-like object (for compatibility)
@@ -466,7 +466,7 @@ def resolve_port_reference(
     if isinstance(port_ref, dict):
         # User-defined port override
         try:
-            return PortDefinition(**port_ref)
+            return PointDefinition(**port_ref)
         except ValidationError as e:
             # Convert Pydantic validation error to more user-friendly message
             missing_fields = [
@@ -487,7 +487,7 @@ def resolve_port_reference(
             port_key = port_ref.lower()
             if port_key in GLOBAL_PORTS:
                 port_data = GLOBAL_PORTS[port_key].copy()
-                return PortDefinition(**port_data)
+                return PointDefinition(**port_data)
             else:
                 available_ports = list(GLOBAL_PORTS.keys())
                 raise ValueError(
@@ -505,7 +505,7 @@ def resolve_port_reference(
                     display_name.split(",")[0].strip() == port_ref
                     or port_name == port_ref
                 ):
-                    return PortDefinition(
+                    return PointDefinition(
                         name=port_id,  # Use the port_id (e.g. port_halifax) as the canonical name
                         latitude=port_data["latitude"],
                         longitude=port_data["longitude"],
@@ -516,12 +516,12 @@ def resolve_port_reference(
             # Simple string port name (backward compatibility)
             warnings.warn(
                 f"Port reference '{port_ref}' should use 'port_' prefix for global ports "
-                "or be defined as a complete PortDefinition. "
+                "or be defined as a complete PointDefinition. "
                 "Creating basic port with name only.",
                 UserWarning,
                 stacklevel=3,
             )
-            return PortDefinition(
+            return PointDefinition(
                 name=port_ref,
                 latitude=0.0,  # Placeholder - needs enrichment
                 longitude=0.0,  # Placeholder - needs enrichment
@@ -572,11 +572,11 @@ def add_custom_port(port_id: str, port_data: dict) -> None:
     if missing_fields:
         raise ValueError(f"Port data missing required fields: {missing_fields}")
 
-    # Validate the port data by creating a PortDefinition
+    # Validate the port data by creating a PointDefinition
     try:
-        from cruiseplan.validation import PortDefinition
+        from cruiseplan.schema import PointDefinition
 
-        PortDefinition(**port_data)
+        PointDefinition(**port_data)
     except Exception as e:
         raise ValueError(f"Invalid port data: {e}") from e
 

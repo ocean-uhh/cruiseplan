@@ -14,14 +14,26 @@ without modifying the data (unlike enrichment operations).
 import logging
 import warnings as python_warnings
 from pathlib import Path
-from typing import Any
+from typing import Any, Union
 
 from pydantic import ValidationError
 
 from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
+from cruiseplan.schema.vocabulary import (
+    ACTION_FIELD,
+    AREA_REGISTRY,
+    ARRIVAL_PORT_FIELD,
+    DEPARTURE_PORT_FIELD,
+    LINE_REGISTRY,
+    LINES_FIELD,
+    OP_TYPE_FIELD,
+    POINT_REGISTRY,
+    START_DATE_FIELD,
+)
 from cruiseplan.utils.defaults import (
-    DEFAULT_PORT_PLACEHOLDER_ARRIVAL,
-    DEFAULT_PORT_PLACEHOLDER_DEPARTURE,
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_DEPARTURE_PORT,
     DEFAULT_START_DATE,
     DEFAULT_UPDATE_PREFIX,
 )
@@ -206,9 +218,9 @@ def check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
     warnings = []
 
     # Check for duplicate station names - use raw config to catch duplicates
-    # that were silently overwritten during waypoint_registry creation
-    if hasattr(cruise.config, "waypoints") and cruise.config.waypoints:
-        station_names = [station.name for station in cruise.config.waypoints]
+    # that were silently overwritten during point_registry creation
+    if hasattr(cruise.config, "points") and cruise.config.points:
+        station_names = [station.name for station in cruise.config.points]
         if len(station_names) != len(set(station_names)):
             duplicates = [
                 name for name in station_names if station_names.count(name) > 1
@@ -270,8 +282,8 @@ def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
     warned_pairs = set()  # Track warned pairs to avoid duplicates
 
     # Check for complete duplicate stations
-    if hasattr(cruise.config, "waypoints") and cruise.config.waypoints:
-        stations = cruise.config.waypoints
+    if hasattr(cruise.config, "points") and cruise.config.points:
+        stations = cruise.config.points
         for ii, station1 in enumerate(stations):
             for _jj, station2 in enumerate(stations[ii + 1 :], ii + 1):
                 # Check if all key attributes are identical
@@ -330,7 +342,7 @@ def validate_depth_accuracy(
     stations_checked = 0
     warning_messages = []
 
-    for station_name, station in cruise.waypoint_registry.items():
+    for station_name, station in cruise.point_registry.items():
         # Check water_depth field (preferred for bathymetry comparison)
         water_depth = getattr(station, "water_depth", None)
         if water_depth is not None:
@@ -412,7 +424,7 @@ def _check_unexpanded_ctd_sections(cruise) -> list[str]:
     warnings = []
 
     # TODO: update to use sections instead of transits
-    for transit_name, transit in cruise.transect_registry.items():
+    for transit_name, transit in cruise.line_registry.items():
         if (
             hasattr(transit, "operation_type")
             and transit.operation_type == "CTD"
@@ -443,14 +455,11 @@ def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]
     """
     warnings = []
 
-    if "transects" in config_dict:
-        for transect in config_dict["transects"]:
-            if (
-                transect.get("operation_type") == "CTD"
-                and transect.get("action") == "section"
-            ):
+    if LINES_FIELD in config_dict:
+        for line in config_dict[LINES_FIELD]:
+            if line.get(OP_TYPE_FIELD) == "CTD" and line.get(ACTION_FIELD) == "section":
                 warnings.append(
-                    f"CTD section '{transect.get('name', 'unnamed')}' should be expanded "
+                    f"CTD section '{line.get('name', 'unnamed')}' should be expanded "
                     f"using 'cruiseplan enrich --expand-sections' before scheduling"
                 )
 
@@ -512,8 +521,8 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
     # Check for UPDATE- placeholders in cruise-level fields
 
     # Check start_date
-    if "start_date" in raw_config:
-        start_date = str(raw_config["start_date"])
+    if START_DATE_FIELD in raw_config:
+        start_date = str(raw_config[START_DATE_FIELD])
         if start_date.startswith(DEFAULT_UPDATE_PREFIX):
             metadata_warnings.append(
                 f"Start date is set to placeholder '{DEFAULT_UPDATE_PREFIX}YYYY-MM-DDTHH:MM:SSZ'. Please update with actual cruise start date."
@@ -524,11 +533,11 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
             )
 
     # Check departure port
-    if "departure_port" in raw_config:
-        port = raw_config["departure_port"]
-        if "name" in port and str(port["name"]) == DEFAULT_PORT_PLACEHOLDER_DEPARTURE:
+    if DEPARTURE_PORT_FIELD in raw_config:
+        port = raw_config[DEPARTURE_PORT_FIELD]
+        if "name" in port and str(port["name"]) == DEFAULT_DEPARTURE_PORT:
             metadata_warnings.append(
-                f"Departure port name is set to placeholder '{DEFAULT_PORT_PLACEHOLDER_DEPARTURE}'. Please update with actual port name."
+                f"Departure port name is set to placeholder '{DEFAULT_DEPARTURE_PORT}'. Please update with actual port name."
             )
 
         if "latitude" in port and "longitude" in port:
@@ -543,11 +552,11 @@ def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
             )
 
     # Check arrival port
-    if "arrival_port" in raw_config:
-        port = raw_config["arrival_port"]
-        if "name" in port and str(port["name"]) == DEFAULT_PORT_PLACEHOLDER_ARRIVAL:
+    if ARRIVAL_PORT_FIELD in raw_config:
+        port = raw_config[ARRIVAL_PORT_FIELD]
+        if "name" in port and str(port["name"]) == DEFAULT_ARRIVAL_PORT:
             metadata_warnings.append(
-                f"Arrival port name is set to placeholder '{DEFAULT_PORT_PLACEHOLDER_ARRIVAL}'. Please update with actual port name."
+                f"Arrival port name is set to placeholder '{DEFAULT_ARRIVAL_PORT}'. Please update with actual port name."
             )
 
         if "latitude" in port and "longitude" in port:
@@ -596,8 +605,8 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
     # Group warnings by type and entity
     warning_groups = {
         "Cruise Metadata": [],
-        "Stations": {},
-        "Transits": {},  # TODO: update to "Sections"
+        "Points": {},
+        "Lines": {},
         "Areas": {},
         "Configuration": [],
     }
@@ -607,40 +616,34 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
         # Try to identify which entity this warning belongs to
         entity_found = False
 
-        # Check stations
-        if hasattr(cruise, "waypoint_registry"):
-            for station_name, station in cruise.waypoint_registry.items():
+        # Check points
+        if hasattr(cruise, POINT_REGISTRY):
+            for station_name, station in getattr(cruise, POINT_REGISTRY).items():
                 if _warning_relates_to_entity(warning_msg, station):
-                    if station_name not in warning_groups["Stations"]:
-                        warning_groups["Stations"][station_name] = []
-                    warning_groups["Stations"][station_name].append(
+                    if station_name not in warning_groups["Points"]:
+                        warning_groups["Points"][station_name] = []
+                    warning_groups["Points"][station_name].append(
                         _clean_warning_message(warning_msg)
                     )
                     entity_found = True
                     break
 
-        # Check transits  # TODO: update to sections
-        if not entity_found and hasattr(cruise, "transect_registry"):
-            for transit_name, transit in cruise.transect_registry.items():
+        # Check lines
+        if not entity_found and hasattr(cruise, LINE_REGISTRY):
+            for transit_name, transit in getattr(cruise, LINE_REGISTRY).items():
                 if _warning_relates_to_entity(warning_msg, transit):
-                    if transit_name not in warning_groups["Transits"]:
-                        warning_groups["Transits"][transit_name] = []
-                    warning_groups["Transits"][transit_name].append(
+                    if transit_name not in warning_groups["Lines"]:
+                        warning_groups["Lines"][transit_name] = []
+                    warning_groups["Lines"][transit_name].append(
                         _clean_warning_message(warning_msg)
                     )
                     entity_found = True
                     break
 
         # Check areas
-        if (
-            not entity_found
-            and hasattr(cruise, "config")
-            and hasattr(cruise.config, "areas")
-            and cruise.config.areas
-        ):
-            for area in cruise.config.areas:
+        if not entity_found and hasattr(cruise, AREA_REGISTRY):
+            for area_name, area in getattr(cruise, AREA_REGISTRY).items():
                 if _warning_relates_to_entity(warning_msg, area):
-                    area_name = area.name
                     if area_name not in warning_groups["Areas"]:
                         warning_groups["Areas"][area_name] = []
                     warning_groups["Areas"][area_name].append(
@@ -657,10 +660,10 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
     formatted_sections = []
 
     for group_name in [
-        "Stations",
-        "Transits",
+        "Points",
+        "Lines",
         "Areas",
-    ]:  # TODO: update "Transits" to "Sections"
+    ]:
         if warning_groups[group_name]:
             lines = [f"{group_name}:"]
             # Sort entity names alphabetically
@@ -680,8 +683,10 @@ def _format_validation_warnings(captured_warnings: list[str], cruise) -> list[st
     return formatted_sections
 
 
-def _warning_relates_to_entity(warning_msg: str, entity) -> bool:
+def _warning_relates_to_entity(warning_msg: str, entity: Union[PointDefinition, LineDefinition, AreaDefinition]) -> bool:
     """Check if a warning message relates to a specific entity by examining field values."""
+    # Use literal strings for Python object attribute access (entity is a Pydantic model)
+    # not vocabulary constants which are for YAML field access
     if hasattr(entity, "operation_type") and str(entity.operation_type) in warning_msg:
         if "placeholder" not in warning_msg:
             return True

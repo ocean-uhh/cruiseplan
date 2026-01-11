@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from cruiseplan.interactive.station_picker import StationPicker
+from cruiseplan.schema import POINTS_FIELD
 
 # The string must match the full path to the module where 'bathymetry' is USED
 BATHY_MOCK_PATH = "cruiseplan.interactive.station_picker.bathymetry.get_depth_at_point"
@@ -78,8 +79,8 @@ def picker():
 def test_initial_state(picker):
     """Verify default mode and empty containers."""
     assert picker.mode == "navigation"
-    assert len(picker.stations) == 0
-    assert len(picker.transects) == 0
+    assert len(picker.points) == 0
+    assert len(picker.lines) == 0
     assert len(picker.history) == 0
 
 
@@ -128,18 +129,18 @@ def test_station_placement(picker):
     # Mock the instance bathymetry method instead of the global one
     with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
         # Run the method
-        picker._add_station(-50.0, 45.0)
+        picker._add_point(-50.0, 45.0)
 
     # Assertions
-    assert len(picker.stations) == 1
-    assert picker.stations[0]["lat"] == 45.0
-    assert picker.stations[0]["lon"] == -50.0
+    assert len(picker.points) == 1
+    assert picker.points[0]["lat"] == 45.0
+    assert picker.points[0]["lon"] == -50.0
 
     # Station picker now uses absolute depth values (positive)
-    assert picker.stations[0]["depth"] == 1000.0
+    assert picker.points[0]["depth"] == 1000.0
 
     assert len(picker.history) == 1
-    assert picker.history[0][0] == "station"
+    assert picker.history[0][0] == "point"
 
     # 1. Verify 'plot' was called with the correct coordinates and style
     #    This ensures you didn't break the UI (e.g., making dots invisible or blue)
@@ -163,14 +164,14 @@ def test_undo_functionality(picker):
     """Test that 'r' removes the last item correctly."""
     # Setup: Add one station
     picker.mode = "point"
-    picker._add_station(-50, 45)
-    assert len(picker.stations) == 1
+    picker._add_point(-50, 45)
+    assert len(picker.points) == 1
 
     # Act: Remove it
     picker._remove_last_item()
 
     # Assert
-    assert len(picker.stations) == 0
+    assert len(picker.points) == 0
     assert len(picker.history) == 0
 
 
@@ -208,16 +209,16 @@ def test_sanitize_limits_explosion(picker):
 def test_undo_last_item(picker):
     """Test 'u' key removes the last added station (LIFO)."""
     with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
-        picker._add_station(-50.0, 45.0)  # 1st
-        picker._add_station(-60.0, 45.0)  # 2nd
+        picker._add_point(-50.0, 45.0)  # 1st
+        picker._add_point(-60.0, 45.0)  # 2nd
 
-    assert len(picker.stations) == 2
+    assert len(picker.points) == 2
 
     # Run the Undo logic directly (simulating 'u' press)
     picker._remove_last_item()
 
-    assert len(picker.stations) == 1
-    assert picker.stations[0]["lon"] == -50.0  # The 1st station should remain
+    assert len(picker.points) == 1
+    assert picker.points[0]["lon"] == -50.0  # The 1st station should remain
 
 
 def test_remove_last_item_empty_safe(picker):
@@ -233,17 +234,17 @@ def test_remove_last_item_empty_safe(picker):
     assert len(picker.history) == 0
 
     # Optional: If you want to be thorough, check that no stations were somehow deleted
-    assert len(picker.stations) == 0
+    assert len(picker.points) == 0
 
 
 def test_remove_specific_station_by_click(picker):
     """Test clicking near a station in remove mode deletes it."""
     # 1. Setup: Add two stations
     with patch.object(picker.bathymetry, "get_depth_at_point", return_value=-1000.0):
-        picker._add_station(-50.0, 45.0)  # Station 0
-        picker._add_station(-52.0, 46.0)  # Station 1
+        picker._add_point(-50.0, 45.0)  # Point 0
+        picker._add_point(-52.0, 46.0)  # Point 1
 
-    assert len(picker.stations) == 2
+    assert len(picker.points) == 2
 
     # 2. Switch to remove mode
     picker.mode = "remove"
@@ -264,16 +265,16 @@ def test_remove_specific_station_by_click(picker):
     picker._on_click(mock_event)
 
     # 5. Assertions
-    assert len(picker.stations) == 1
+    assert len(picker.points) == 1
     # Ensure the remaining station is Station 1 (-52.0)
-    assert picker.stations[0]["lon"] == -52.0
+    assert picker.points[0]["lon"] == -52.0
 
 
 def test_save_to_yaml_triggers_io(picker):
     """Test that _save_to_yaml correctly formats data and calls the save function."""
     # 1. Setup Data
-    picker.stations = [{"lat": 10.0, "lon": -10.0, "depth": -500.0}]
-    picker.transects = []  # Keep it simple
+    picker.points = [{"lat": 10.0, "lon": -10.0, "depth": -500.0}]
+    picker.lines = []  # Keep it simple
     picker.output_file = "test_cruise.yaml"
 
     # 2. Mock the external helpers
@@ -305,7 +306,7 @@ def test_save_to_yaml_triggers_io(picker):
 
         # specific check: Did it pass the right data structure?
         saved_data = mock_save.call_args[0][0]  # First arg of the call
-        assert saved_data["stations"][0]["name"] == "STN_01"  # Use 'name' not 'id'
+        assert saved_data[POINTS_FIELD][0]["name"] == "STN_01"  # Use 'name' not 'id'
         assert saved_data["cruise_name"] == "Interactive_Session"  # or whatever default
 
         # Check filename
@@ -344,7 +345,7 @@ def test_handle_line_click_workflow(picker):
 
         ## ASSERTIONS AFTER CLICK 1
         assert picker.line_start == (lon1, lat1)
-        assert len(picker.transects) == 0
+        assert len(picker.lines) == 0
         assert mock_reset.call_count == 0  # Should not have reset yet
         # Check plotting call for the start marker
         mock_plot.assert_called_once_with(
@@ -361,15 +362,15 @@ def test_handle_line_click_workflow(picker):
         mock_reset.assert_called_once()  # Must call cleanup
 
         # 2. Data Verification (One transect added)
-        assert len(picker.transects) == 1
-        transect_data = picker.transects[0]
-        assert transect_data["start"]["lat"] == lat1
-        assert transect_data["end"]["lon"] == lon2
+        assert len(picker.lines) == 1
+        line_data = picker.lines[0]
+        assert line_data["start"]["lat"] == lat1
+        assert line_data["end"]["lon"] == lon2
 
         # 3. History Verification (Action stored)
         assert len(picker.history) == 1
         history_entry = picker.history[0]
-        assert history_entry[0] == "transect"
+        assert history_entry[0] == "line"
         assert (
             history_entry[2] is mock_final_artist
         )  # Ensure the cleanup artist is stored

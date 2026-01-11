@@ -1,7 +1,7 @@
 cruise_name: "TC2_TwoLegs_Test"
 
 
-waypoints:
+points:
   - name: STN_001  
     latitude: 50.0
     longitude: -50.0
@@ -17,12 +17,12 @@ legs:
   - name: "Leg_Atlantic"
     departure_port: port_halifax
     arrival_port: port_bremerhaven
-    first_waypoint: STN_001
-    last_waypoint: STN_001
+    first_activity: STN_001
+    last_activity: STN_001
     activities: [STN_001]
   - name: "Leg_North" 
     departure_port: port_bremerhaven
     arrival_port: port_reykjavik
-    first_waypoint: STN_002
-    last_waypoint: STN_002
+    first_activity: STN_002
+    last_activity: STN_002
     activities: [STN_002]

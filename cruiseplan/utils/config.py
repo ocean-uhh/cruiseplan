@@ -11,10 +11,30 @@ from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
-from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml, save_yaml
-
 # Centralized imports for configuration models and the custom error
-from cruiseplan.validation import CruiseConfig, CruiseConfigurationError
+from cruiseplan.schema import (
+    CruiseConfig,
+    CruiseConfigurationError,
+    ACTION_FIELD,
+    AREA_VERTEX_FIELD,
+    AREAS_FIELD,
+    DEPARTURE_PORT_FIELD,
+    ARRIVAL_PORT_FIELD,
+    DURATION_FIELD,
+    LEGS_FIELD,
+    LINE_VERTEX_FIELD,
+    OP_TYPE_FIELD,
+    START_DATE_FIELD,
+)
+from cruiseplan.utils.defaults import (
+    DEFAULT_AREA_ACTION,
+    DEFAULT_AREA_OPTYPE,
+    DEFAULT_LINE_ACTION,
+    DEFAULT_LINE_OPTYPE,
+    DEFAULT_POINT_ACTION,
+    DEFAULT_POINT_OPTYPE,
+)
+from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml, save_yaml
 
 logger = logging.getLogger(__name__)
 
@@ -87,18 +107,18 @@ https://ocean-uhh.github.io/cruiseplan/yaml_reference.html
             documented_data.yaml_set_comment_before_after_key(
                 key, before="[OPTIONAL] Human-readable cruise description"
             )
-        elif key == "start_date":
+        elif key == START_DATE_FIELD:
             documented_data.yaml_set_comment_before_after_key(
                 key,
                 before="[REQUIRED] Cruise start date (ISO 8601 format: YYYY-MM-DDTHH:MM:SSZ)",
             )
-        elif key == "departure_port":
+        elif key == DEPARTURE_PORT_FIELD:
             documented_data.yaml_set_comment_before_after_key(
                 key,
                 before="""[DEPRECATED] Global departure port - use leg-level fields instead
 Move this field to individual leg definitions to avoid validation conflicts""",
             )
-        elif key == "arrival_port":
+        elif key == ARRIVAL_PORT_FIELD:
             documented_data.yaml_set_comment_before_after_key(
                 key,
                 before="""[DEPRECATED] Global arrival port - use leg-level fields instead
@@ -129,7 +149,7 @@ Define custom transits for:
   - Specific route requirements
   - Non-standard vessel speeds""",
             )
-        elif key == "areas":
+        elif key == AREAS_FIELD:
             documented_data.yaml_set_comment_before_after_key(
                 key,
                 before="""[OPTIONAL] Area survey catalog - Survey boxes and polygons
@@ -138,14 +158,14 @@ Define survey areas for:
   - Side-scan sonar operations
   - Systematic sampling grids""",
             )
-        elif key == "legs":
+        elif key == LEGS_FIELD:
             documented_data.yaml_set_comment_before_after_key(
                 key,
                 before="""[REQUIRED] Operational sequence definition
 Legs define the order and grouping of operations
 Each leg must include:
   - departure_port/arrival_port: Port references for this leg
-  - first_waypoint/last_waypoint: Starting and ending operations
+  - first_activity/last_waypoint: Starting and ending operations
   - activities: List of operations to execute in sequence
 Strategy options: sequential, cluster, nearest_neighbor
 Each leg can override default vessel speeds and routing""",
@@ -153,7 +173,7 @@ Each leg can override default vessel speeds and routing""",
         elif key == "first_station":
             documented_data.yaml_set_comment_before_after_key(
                 key,
-                before="""[DEPRECATED] Global first station - use leg-level first_waypoint instead
+                before="""[DEPRECATED] Global first station - use leg-level first_activity instead
 Move this field to individual leg definitions to avoid validation conflicts""",
             )
         elif key == "last_station":
@@ -249,8 +269,8 @@ def format_station_for_yaml(station_data: dict, index: int) -> dict:
         "latitude": round(float(station_data["lat"]), 5),
         "longitude": round(float(station_data["lon"]), 5),
         "comment": "Interactive selection - Review coordinates and update operation details",
-        "operation_type": "UPDATE-CTD-mooring-etc",  # CTD, mooring, water_sampling, calibration
-        "action": "UPDATE-profile-sampling-etc",  # profile, deployment, recovery, sampling
+        OP_TYPE_FIELD: DEFAULT_POINT_OPTYPE,  # CTD, mooring, water_sampling, calibration
+        ACTION_FIELD: DEFAULT_POINT_ACTION,  # profile, deployment, recovery, sampling
     }
 
     # Add water_depth only if we have valid bathymetry data
@@ -284,10 +304,10 @@ def format_transect_for_yaml(transect_data, index):
     return {
         "name": f"Transit_{index:02d}",
         "comment": "Interactive transect - Review route and update operation details",
-        "operation_type": "underway",  # underway, survey_line
-        "action": "UPDATE-ADCP-bathymetry-etc",  # transit, ADCP, multibeam, bathymetry
+        OP_TYPE_FIELD: DEFAULT_LINE_OPTYPE,  # underway, survey_line
+        ACTION_FIELD: DEFAULT_LINE_ACTION,  # transit, ADCP, multibeam, bathymetry
         "vessel_speed": 10.0,
-        "route": [
+        LINE_VERTEX_FIELD: [
             {
                 "latitude": round(float(transect_data["start"]["lat"]), 5),
                 "longitude": round(float(transect_data["start"]["lon"]), 5),
@@ -323,7 +343,7 @@ def format_area_for_yaml(area_data, index):
     """
     return {
         "name": f"Area_{index:02d}",
-        "corners": [
+        AREA_VERTEX_FIELD: [
             {
                 "latitude": round(float(lat), 5),
                 "longitude": round(float(lon), 5),
@@ -331,9 +351,9 @@ def format_area_for_yaml(area_data, index):
             for lon, lat in area_data["points"]
         ],
         "comment": "Interactive area survey - Review polygon and update operation details",
-        "operation_type": "survey",  # survey, mapping
-        "action": "UPDATE-bathymetry-survey-etc",  # bathymetry, multibeam, sidescan, sampling
-        "duration": 9999.0,  # Placeholder duration in minutes - update based on survey type and area size
+        OP_TYPE_FIELD: DEFAULT_AREA_OPTYPE,  # survey, mapping
+        ACTION_FIELD: DEFAULT_AREA_ACTION,  # bathymetry, multibeam, sidescan, sampling
+        DURATION_FIELD: 9999.0,  # Placeholder duration in minutes - update based on survey type and area size
     }
 
 

@@ -18,6 +18,7 @@ from cruiseplan.core.cruise import Cruise
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
 from cruiseplan.processing.enrich import enrich_configuration
+from cruiseplan.schema import POINTS_FIELD
 from cruiseplan.utils.config import ConfigLoader
 from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
 
@@ -89,17 +90,17 @@ class TestTC2TwoLegsIntegration:
         assert second_leg.arrival_port == "port_reykjavik"
 
         # Validate stations
-        assert len(config.waypoints) == 2
+        assert len(config.points) == 2
 
         # STN_001 (CTD station)
-        stn_001 = next(s for s in config.waypoints if s.name == "STN_001")
+        stn_001 = next(s for s in config.points if s.name == "STN_001")
         assert stn_001.latitude == 50.0
         assert stn_001.longitude == -50.0
         assert stn_001.operation_type.value == "CTD"
         assert stn_001.action.value == "profile"
 
         # STN_002 (Mooring station)
-        stn_002 = next(s for s in config.waypoints if s.name == "STN_002")
+        stn_002 = next(s for s in config.points if s.name == "STN_002")
         assert stn_002.latitude == 60.0
         assert stn_002.longitude == -30.0
         assert stn_002.operation_type.value == "mooring"
@@ -126,9 +127,9 @@ class TestTC2TwoLegsIntegration:
         cruise = self._get_enriched_cruise(base_config_path)
 
         # Check station registry
-        assert len(cruise.waypoint_registry) == 2
-        assert "STN_001" in cruise.waypoint_registry
-        assert "STN_002" in cruise.waypoint_registry
+        assert len(cruise.point_registry) == 2
+        assert "STN_001" in cruise.point_registry
+        assert "STN_002" in cruise.point_registry
 
         # Check runtime legs with port resolution
         assert len(cruise.runtime_legs) == 2
@@ -163,7 +164,7 @@ class TestTC2TwoLegsIntegration:
         # Create a minimal config without mooring duration to test enrichment
         minimal_config = {
             "cruise_name": "Test_Mooring_Enrichment",
-            "waypoints": [
+            POINTS_FIELD: [
                 {
                     "name": "STN_MOORING",
                     "latitude": 60.0,
@@ -178,8 +179,8 @@ class TestTC2TwoLegsIntegration:
                     "name": "Test_Leg",
                     "departure_port": "port_halifax",
                     "arrival_port": "port_reykjavik",
-                    "first_waypoint": "STN_MOORING",
-                    "last_waypoint": "STN_MOORING",
+                    "first_activity": "STN_MOORING",
+                    "last_activity": "STN_MOORING",
                     "activities": ["STN_MOORING"],
                 }
             ],
@@ -203,7 +204,7 @@ class TestTC2TwoLegsIntegration:
 
         # Load enriched config and verify duration
         enriched_cruise = Cruise(enriched_path)
-        mooring_station = enriched_cruise.waypoint_registry["STN_MOORING"]
+        mooring_station = enriched_cruise.point_registry["STN_MOORING"]
         assert hasattr(mooring_station, "duration")
         assert mooring_station.duration == DEFAULT_MOORING_DURATION_MIN
         assert mooring_station.duration == 59940.0  # 999 hours

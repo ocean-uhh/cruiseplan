@@ -3,6 +3,12 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
+from cruiseplan.schema import CruiseConfigurationError
+from cruiseplan.utils.defaults import (
+    DEFAULT_POINT_ACTION,
+    DEFAULT_POINT_OPTYPE,
+    DEFAULT_LINE_ACTION,
+)
 from cruiseplan.utils.config import (
     ConfigLoader,
     format_station_for_yaml,
@@ -10,7 +16,6 @@ from cruiseplan.utils.config import (
     save_cruise_config,
 )
 from cruiseplan.utils.yaml_io import YAMLIOError
-from cruiseplan.validation import CruiseConfigurationError
 
 # Mock the external dependencies (CruiseConfig, ValidationError, CruiseConfigurationError)
 # Assuming DEFAULT_DEPTH is -9999.0 for testing the formatters.
@@ -30,8 +35,8 @@ def test_format_station_standard():
         "longitude": -52.98765,  # Rounding check (5 decimals)
         "water_depth": 250.6,  # New semantic depth field - rounding (1 decimal)
         "comment": "Interactive selection - Review coordinates and update operation details",  # Enhanced comment
-        "operation_type": "UPDATE-CTD-mooring-etc",  # Reverted placeholder
-        "action": "UPDATE-profile-sampling-etc",  # Reverted placeholder
+        "operation_type": DEFAULT_POINT_OPTYPE,  # Reverted placeholder
+        "action": DEFAULT_POINT_ACTION,  # Reverted placeholder
     }
 
     assert result == expected
@@ -48,7 +53,7 @@ def test_format_station_missing_depth():
     assert "water_depth" not in result
     assert "depth" not in result  # Ensure legacy field is not present
     assert result["name"] == "STN_001"
-    assert result["operation_type"] == "UPDATE-CTD-mooring-etc"
+    assert result["operation_type"] == DEFAULT_POINT_OPTYPE
 
 
 def test_format_transect_standard():
@@ -65,7 +70,7 @@ def test_format_transect_standard():
         "name": "Transit_02",  # Updated naming from Section to Transit
         "comment": "Interactive transect - Review route and update operation details",  # Enhanced comment
         "operation_type": "underway",
-        "action": "UPDATE-ADCP-bathymetry-etc",  # Reverted placeholder
+        "action": DEFAULT_LINE_ACTION,  # Reverted placeholder
         "vessel_speed": 10.0,  # Number not string
         "route": [
             {
@@ -247,10 +252,10 @@ class TestConfigUtils:
             formatted["water_depth"] == 2000.1
         )  # New semantic depth field - rounded to 1 place
         assert (
-            formatted["operation_type"] == "UPDATE-CTD-mooring-etc"
+            formatted["operation_type"] == DEFAULT_POINT_OPTYPE
         )  # Reverted placeholder
         assert (
-            formatted["action"] == "UPDATE-profile-sampling-etc"
+            formatted["action"] == DEFAULT_POINT_ACTION
         )  # Reverted placeholder
         assert (
             "Interactive selection" in formatted["comment"]
@@ -265,7 +270,7 @@ class TestConfigUtils:
         assert "water_depth" not in formatted
         assert "depth" not in formatted  # Ensure legacy field is not present
         assert formatted["name"] == "STN_002"
-        assert formatted["operation_type"] == "UPDATE-CTD-mooring-etc"
+        assert formatted["operation_type"] == DEFAULT_POINT_OPTYPE
 
     def test_format_transect_for_yaml(self):
         """Tests correct formatting for transect data."""

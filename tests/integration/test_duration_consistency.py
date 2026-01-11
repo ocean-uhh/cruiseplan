@@ -9,6 +9,13 @@ import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import Cruise
+from cruiseplan.schema.vocabulary import (
+    ACTION_FIELD,
+    DURATION_FIELD,
+    OP_DEPTH_FIELD,
+    OP_TYPE_FIELD,
+    POINTS_FIELD,
+)
 
 
 class TestDurationConsistency:
@@ -17,7 +24,7 @@ class TestDurationConsistency:
     @pytest.fixture
     def sample_cruise_config(self, tmp_path):
         """Create a sample cruise configuration for testing."""
-        config_content = """
+        config_content = f"""
 cruise_name: "Duration_Test_Cruise"
 start_date: "2025-06-01T08:00:00"
 default_vessel_speed: 10.0
@@ -25,27 +32,30 @@ default_distance_between_stations: 20.0
 calculate_transfer_between_sections: true
 calculate_depth_via_bathymetry: false
 
-waypoints:
+{POINTS_FIELD}:
   - name: "STN_001"
-    operation_type: CTD
-    action: profile
-    position: "60.0, -20.0"
-    operation_depth: 1000.0
-    duration: 120.0  # 2 hours
+    {OP_TYPE_FIELD}: CTD
+    {ACTION_FIELD}: profile
+    latitude: 60.0
+    longitude: -20.0
+    {OP_DEPTH_FIELD}: 1000.0
+    {DURATION_FIELD}: 120.0  # 2 hours
 
   - name: "STN_002"
-    operation_type: CTD
-    action: profile
-    position: "61.0, -19.0"
-    operation_depth: 1500.0
-    duration: 180.0  # 3 hours
+    {OP_TYPE_FIELD}: CTD
+    {ACTION_FIELD}: profile
+    latitude: 61.0
+    longitude: -19.0
+    {OP_DEPTH_FIELD}: 1500.0
+    {DURATION_FIELD}: 180.0  # 3 hours
 
   - name: "MOORING_001"
-    operation_type: mooring
-    action: deployment
-    position: "62.0, -18.0"
-    operation_depth: 2000.0
-    duration: 240.0  # 4 hours
+    {OP_TYPE_FIELD}: mooring
+    {ACTION_FIELD}: deployment
+    latitude: 62.0
+    longitude: -18.0
+    {OP_DEPTH_FIELD}: 2000.0
+    {DURATION_FIELD}: 240.0  # 4 hours
 
 legs:
   - name: "Test_Leg"

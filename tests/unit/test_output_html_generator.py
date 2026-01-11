@@ -15,7 +15,7 @@ from cruiseplan.output.html_generator import (
     _convert_decimal_to_deg_min_html,
     generate_html_schedule,
 )
-from cruiseplan.validation import CruiseConfig
+from cruiseplan.schema import CruiseConfig
 
 
 class TestConversionFunctions:

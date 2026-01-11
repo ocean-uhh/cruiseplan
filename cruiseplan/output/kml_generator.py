@@ -21,8 +21,8 @@ import logging
 from pathlib import Path
 
 from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.schema import CruiseConfig
 from cruiseplan.utils.activity_utils import is_line_operation, is_scientific_operation
-from cruiseplan.validation import CruiseConfig
 
 logger = logging.getLogger(__name__)
 
@@ -425,8 +425,8 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Stations -->"""
 
     # Add stations from configuration
-    if hasattr(config, "waypoints") and config.waypoints:
-        for station in config.waypoints:
+    if hasattr(config, "points") and config.points:
+        for station in config.points:
             # Convert enum values to strings
             operation_type = getattr(station, "operation_type", "station")
             if hasattr(operation_type, "value"):
@@ -498,18 +498,18 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
 
         <!-- Transits -->"""
 
-    # Add transects from configuration
-    if hasattr(config, "transects") and config.transects:
-        for transect in config.transects:
+    # Add lines from configuration
+    if hasattr(config, "lines") and config.lines:
+        for line in config.lines:
             # Extract start and end coordinates from route waypoints
-            if transect.route and len(transect.route) >= 2:
-                start_lat = transect.route[0].latitude
-                start_lon = transect.route[0].longitude
-                end_lat = transect.route[-1].latitude
-                end_lon = transect.route[-1].longitude
+            if line.route and len(line.route) >= 2:
+                start_lat = line.route[0].latitude
+                start_lon = line.route[0].longitude
+                end_lat = line.route[-1].latitude
+                end_lon = line.route[-1].longitude
 
                 # Calculate route distance if available
-                route_distance = getattr(transect, "distance", None)
+                route_distance = getattr(line, "distance", None)
                 if route_distance is None or route_distance == "calculated":
                     # Calculate distance if not provided
                     import math
@@ -526,13 +526,13 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
                     route_distance = f"{route_distance:.1f}"
 
                 # Get the actual operation type from the config
-                operation_type = getattr(transect, "operation_type", "transect")
+                operation_type = getattr(line, "operation_type", "line")
                 if hasattr(operation_type, "value"):
                     operation_type = operation_type.value
 
                 kml_content += f"""
         <Placemark>
-            <name>{transect.name}</name>
+            <name>{line.name}</name>
             <description>
                 Type: {operation_type}
                 Start: {start_lat:.6f}°N, {start_lon:.6f}°W

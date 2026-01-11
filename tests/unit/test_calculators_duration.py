@@ -4,13 +4,13 @@ import pytest
 
 from cruiseplan.calculators.distance import haversine_distance
 from cruiseplan.calculators.duration import DurationCalculator
-from cruiseplan.validation import CruiseConfig, PortDefinition
+from cruiseplan.schema import CruiseConfig, PointDefinition
 
 
 # Mock Config
 @pytest.fixture
 def mock_config():
-    from cruiseplan.validation import LegDefinition
+    from cruiseplan.schema import LegDefinition
 
     return CruiseConfig(
         cruise_name="Test",
@@ -22,8 +22,8 @@ def mock_config():
         legs=[
             LegDefinition(
                 name="Test_Leg",
-                departure_port=PortDefinition(name="A", latitude=0.0, longitude=0.0),
-                arrival_port=PortDefinition(name="B", latitude=0.0, longitude=0.0),
+                departure_port=PointDefinition(name="A", latitude=0.0, longitude=0.0),
+                arrival_port=PointDefinition(name="B", latitude=0.0, longitude=0.0),
                 first_station="S1",
                 last_station="S1",
                 activities=["S1"],  # Add the station we reference
@@ -91,7 +91,7 @@ def test_ctd_duration_custom_rates(slow_winch_config):
 def test_custom_day_window_wait():
     """Verify wait time respects custom daylight hours (e.g., High Latitude Summer)."""
     # Create config with LONG days (04:00 to 22:00)
-    from cruiseplan.validation import LegDefinition
+    from cruiseplan.schema import LegDefinition
 
     cfg = CruiseConfig(
         cruise_name="Summer Sun",
@@ -103,8 +103,8 @@ def test_custom_day_window_wait():
         legs=[
             LegDefinition(
                 name="Summer_Leg",
-                departure_port=PortDefinition(name="A", latitude=0, longitude=0),
-                arrival_port=PortDefinition(name="B", latitude=0, longitude=0),
+                departure_port=PointDefinition(name="A", latitude=0, longitude=0),
+                arrival_port=PointDefinition(name="B", latitude=0, longitude=0),
                 first_station="S1",
                 last_station="S1",
                 activities=["S1"],

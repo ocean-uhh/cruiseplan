@@ -10,7 +10,7 @@ from typing import Optional
 
 from pydantic import BaseModel, field_validator, model_validator
 
-from .catalog_definitions import GeoPoint
+from .activities import GeoPoint
 
 
 class GenerateTransect(BaseModel):

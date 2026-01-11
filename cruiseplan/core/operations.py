@@ -1,5 +1,14 @@
 """
-Operation classes for cruise planning activities.
+Runtime operation classes for cruise planning activities.
+
+Provides the business logic classes that represent active cruise operations.
+These are the "core layer" that actually perform cruise planning work.
+
+**Relationship to schema/definitions.py:**
+- schema/definitions.py: Pydantic models that validate YAML → Python data
+- This module: Runtime business objects that do the actual work
+
+Example flow: YAML → PointDefinition (schema) → PointOperation (this module)
 
 This module provides the base operation classes and specialized implementations
 for stations, moorings, areas, and transects.
@@ -8,12 +17,12 @@ for stations, moorings, areas, and transects.
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from cruiseplan.validation import (
+from cruiseplan.schema import (
+    ACTION_FIELD,
     AreaDefinition,
     GeoPoint,
-    PortDefinition,  # Legacy alias for WaypointDefinition
-    StationDefinition,  # Legacy alias for WaypointDefinition
-    TransitDefinition,  # Legacy alias for TransectDefinition
+    LineDefinition,
+    PointDefinition,
 )
 
 
@@ -258,6 +267,7 @@ class PointOperation(BaseOperation):
 
         calc = DurationCalculator(rules.config)
 
+        # TODO - why is ADCP on the list? what is this hardcoded list for?
         # Check for station-like operations (CTD, ADCP, etc.) that need CTD time calculation
         if self.op_type in ["station", "CTD", "ADCP", "XBT", "XCTD"] or (
             hasattr(self, "operation_depth")
@@ -265,6 +275,7 @@ class PointOperation(BaseOperation):
             and self.operation_depth > 0
         ):
             return calc.calculate_ctd_time(self.get_depth())
+        # TODO: replace with default
         elif self.op_type == "mooring":
             # Moorings should have manual duration, but fallback to default
             return (
@@ -281,6 +292,7 @@ class PointOperation(BaseOperation):
 
         return 0.0
 
+    # Todo, check why these arenot using geopoint.
     def get_entry_point(self) -> tuple[float, float]:
         """
         Get the geographic entry point for this point operation.
@@ -307,6 +319,7 @@ class PointOperation(BaseOperation):
         """
         return self.position
 
+    # What is this used for? probably belongs in vocabulary.py if it's just a lookup.
     def get_operation_type(self) -> str:
         """
         Get operation type for timeline display.
@@ -329,7 +342,7 @@ class PointOperation(BaseOperation):
         return type_mapping.get(self.op_type, "Station")
 
     @classmethod
-    def from_pydantic(cls, obj: StationDefinition) -> "PointOperation":
+    def from_pydantic(cls, obj: PointDefinition) -> "PointOperation":
         """
         Factory to create a logical operation from a validated Pydantic model.
 
@@ -337,7 +350,7 @@ class PointOperation(BaseOperation):
 
         Parameters
         ----------
-        obj : StationDefinition
+        obj : PointDefinition
             Validated Pydantic station definition model.
 
         Returns
@@ -354,9 +367,9 @@ class PointOperation(BaseOperation):
         if obj.operation_type:
             display_op_type = obj.operation_type.value
         elif (
-            hasattr(obj, "action")
+            hasattr(obj, ACTION_FIELD)
             and obj.action
-            and obj.action.value in ["mob", "demob"]
+            and obj.action.value in PORT_ACTIONS  # ["mob", "demob"]
         ):
             # This is a port (has mob/demob action)
             display_op_type = "port"
@@ -381,13 +394,13 @@ class PointOperation(BaseOperation):
         )
 
     @classmethod
-    def from_port(cls, obj: PortDefinition) -> "PointOperation":
+    def from_port(cls, obj: PointDefinition) -> "PointOperation":
         """
-        Factory to create a PointOperation from a PortDefinition.
+        Factory to create a PointOperation from a PointDefinition.
 
         Parameters
         ----------
-        obj : PortDefinition
+        obj : PointDefinition
             Port definition model.
 
         Returns
@@ -405,7 +418,9 @@ class PointOperation(BaseOperation):
             duration=0.0,  # Ports have no operation duration
             comment=getattr(obj, "description", None),
             op_type="port",
-            action=getattr(obj, "action", "mob"),  # Use port's action or default to mob
+            action=getattr(
+                obj, ACTION_FIELD, "mob"
+            ),  # Use port's action or default to mob
             display_name=getattr(obj, "display_name", None),
         )
 
@@ -550,14 +565,14 @@ class LineOperation(BaseOperation):
 
     @classmethod
     def from_pydantic(
-        cls, obj: TransitDefinition, default_speed: float
+        cls, obj: LineDefinition, default_speed: float
     ) -> "LineOperation":
         """
         Factory to create a line operation from a validated Pydantic model.
 
         Parameters
         ----------
-        obj : TransitDefinition
+        obj : LineDefinition
             Validated Pydantic transit definition model.
         default_speed : float
             Default vessel speed to use if not specified in the model.

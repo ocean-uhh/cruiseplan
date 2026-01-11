@@ -70,7 +70,7 @@ Example CruisePlan YAML Configuration
     #   - operation_depth: Target operation depth for CTD casts
     #   - duration: Operation duration in minutes (calculated if not provided)
     #   - comment: Free-text description
-    stations:
+    points:
     - name: STN_001
         latitude: 60.46082
         longitude: -57.33108
@@ -85,13 +85,13 @@ Example CruisePlan YAML Configuration
         operation_type: UPDATE-CTD-mooring-etc
         action: UPDATE-profile-sampling-etc
         water_depth: 3499.6
-    # [OPTIONAL] Transit catalog - Line operations and scientific transects
-    # For transit legs between stations, these are auto-generated
-    # Define custom transects for:
+    # [OPTIONAL] Transit catalog - Line operations and scientific lines
+    # For transit legs between points, these are auto-generated
+    # Define custom lines for:
     #   - Underway scientific operations (ADCP, multibeam)
     #   - Specific route requirements
     #   - Non-standard vessel speeds
-    transects: []
+    lines: []
     # [OPTIONAL] Area survey catalog - Survey boxes and polygons
     # Define survey areas for:
     #   - Multibeam bathymetry surveys
@@ -117,7 +117,7 @@ Example CruisePlan YAML Configuration
     legs:
     - name: Interactive_Survey
         strategy: sequential
-        sequence:
+        activities:
         - STN_001
         - STN_002
         - Area_01

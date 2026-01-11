@@ -9,12 +9,12 @@ day/night windows. Uses configuration parameters for vessel speeds and CTD rates
 from datetime import datetime, timedelta
 from typing import Literal, Optional
 
+from cruiseplan.schema import CruiseConfig
 from cruiseplan.utils.units import (
     hours_to_minutes,
     km_to_nm,
     rate_per_second_to_rate_per_minute,
 )
-from cruiseplan.validation import CruiseConfig
 
 
 class DurationCalculator:

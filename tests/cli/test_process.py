@@ -13,6 +13,7 @@ import pytest
 
 import cruiseplan
 from cruiseplan.cli.process import main
+from cruiseplan.schema import POINTS_FIELD
 
 
 class TestProcessThinCLI:
@@ -46,7 +47,7 @@ class TestProcessThinCLI:
             mock_process.return_value = cruiseplan.ProcessResult(
                 config={
                     "cruise_name": "test_cruise",
-                    "stations": [{"name": "station1"}],
+                    POINTS_FIELD: [{"name": "station1"}],
                 },
                 files_created=[
                     Path("data/test_enriched.yaml"),
@@ -307,7 +308,7 @@ class TestProcessResultType:
 
     def test_process_result_success(self):
         """Test ProcessResult with successful processing."""
-        config = {"cruise_name": "test_cruise", "stations": [{"name": "station1"}]}
+        config = {"cruise_name": "test_cruise", POINTS_FIELD: [{"name": "station1"}]}
         files = [Path("enriched.yaml"), Path("schedule.html"), Path("map.png")]
         summary = {"files_generated": 3, "enrichment_run": True}
 

@@ -9,7 +9,7 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 from cruiseplan.output.latex_generator import generate_latex_tables
-from cruiseplan.validation import CruiseConfig
+from cruiseplan.schema import CruiseConfig
 
 
 def test_latex_generation_basic():

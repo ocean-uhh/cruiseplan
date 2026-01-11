@@ -4,6 +4,11 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.core.cruise import Cruise, ReferenceError
+from cruiseplan.schema import (
+    POINTS_FIELD, LEGS_FIELD, OP_TYPE_FIELD, ACTION_FIELD,
+    DEPARTURE_PORT_FIELD, ARRIVAL_PORT_FIELD, FIRST_ACTIVITY_FIELD, 
+    LAST_ACTIVITY_FIELD, START_DATE_FIELD
+)
 
 # Path to the sample file
 SAMPLE_YAML = Path("tests/data/cruise_example.yaml")
@@ -26,8 +31,8 @@ def test_load_and_validate_cruise():
     assert cruise.config.legs[0].departure_port.latitude == 64.1466
 
     # 3. Check Catalog Loading
-    assert "STN_Start_01" in cruise.waypoint_registry
-    assert "M_End_01" in cruise.waypoint_registry
+    assert "STN_Start_01" in cruise.point_registry
+    assert "M_End_01" in cruise.point_registry
 
     # 4. Check Schedule Resolution (The Hybrid Pattern)
     leg1 = cruise.config.legs[0]
@@ -57,7 +62,7 @@ def test_missing_reference_raises_error(tmp_path):
     """
     bad_yaml = tmp_path / "bad.yaml"
     bad_yaml.write_text(
-        """
+        f"""
 cruise_name: "Bad Cruise"
 start_date: "2025-01-01T00:00:00"
 default_vessel_speed: 10
@@ -65,19 +70,19 @@ default_distance_between_stations: 10
 calculate_transfer_between_sections: false
 calculate_depth_via_bathymetry: false
 
-waypoints:
+{POINTS_FIELD}:
   - name: STN_Existing
-    operation_type: CTD
-    action: profile
+    {OP_TYPE_FIELD}: CTD
+    {ACTION_FIELD}: profile
     latitude: 0.0
     longitude: 0.0
 
-legs:
+{LEGS_FIELD}:
   - name: Leg1
-    departure_port: {name: P1, latitude: 0.0, longitude: 0.0}
-    arrival_port: {name: P2, latitude: 1.0, longitude: 1.0}
-    first_waypoint: "STN_Existing"
-    last_waypoint: "GHOST_STATION"
+    {DEPARTURE_PORT_FIELD}: {{name: P1, latitude: 0.0, longitude: 0.0}}
+    {ARRIVAL_PORT_FIELD}: {{name: P2, latitude: 1.0, longitude: 1.0}}
+    {FIRST_ACTIVITY_FIELD}: "STN_Existing"
+    {LAST_ACTIVITY_FIELD}: "GHOST_STATION"
     activities:
       - "STN_Existing"
       - "GHOST_STATION"  # <--- This does not exist in catalog
@@ -109,7 +114,8 @@ from cruiseplan.processing.validate import (
     validate_depth_accuracy,
 )
 from cruiseplan.utils.defaults import (
-    DEFAULT_PORT_PLACEHOLDER_DEPARTURE,
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_DEPARTURE_PORT,
     DEFAULT_START_DATE,
 )
 
@@ -120,14 +126,14 @@ class TestCruiseMetadataValidation:
     def test_check_cruise_metadata_raw_update_placeholders(self):
         """Test detection of UPDATE- placeholders in metadata."""
         raw_config = {
-            "start_date": "UPDATE-YYYY-MM-DDTHH:MM:SSZ",
-            "departure_port": {
-                "name": "UPDATE-departure-port-name",
+            START_DATE_FIELD: "UPDATE-YYYY-MM-DDTHH:MM:SSZ",
+            DEPARTURE_PORT_FIELD: {
+                "name": DEFAULT_DEPARTURE_PORT,
                 "position": {"latitude": 0.0, "longitude": 0.0},
                 "timezone": "GMT+0",
             },
-            "arrival_port": {
-                "name": "UPDATE-arrival-port-name",
+            ARRIVAL_PORT_FIELD: {
+                "name": DEFAULT_ARRIVAL_PORT,
                 "position": {"latitude": 0.0, "longitude": 0.0},
                 "timezone": "GMT+0",
             },
@@ -143,7 +149,7 @@ class TestCruiseMetadataValidation:
     def test_check_cruise_metadata_raw_default_values(self):
         """Test detection of default values in metadata."""
         raw_config = {
-            "start_date": DEFAULT_START_DATE,
+            START_DATE_FIELD: DEFAULT_START_DATE,
             "vessel_name": "RV Default",
             "cruise_name": "Test Cruise 2024",
         }
@@ -156,7 +162,7 @@ class TestCruiseMetadataValidation:
     def test_check_cruise_metadata_raw_clean_config(self):
         """Test clean configuration with no warnings."""
         raw_config = {
-            "start_date": "2025-06-01T08:00:00Z",
+            START_DATE_FIELD: "2025-06-01T08:00:00Z",
             "vessel_name": "R/V Research",
             "cruise_name": "Arctic Survey 2025",
             "chief_scientist": "Dr. Smith",
@@ -178,7 +184,7 @@ class TestCruiseMetadataValidation:
 
     def test_check_cruise_metadata_raw_partial_config(self):
         """Test with partial configuration."""
-        raw_config = {"departure_port": {"name": DEFAULT_PORT_PLACEHOLDER_DEPARTURE}}
+        raw_config = {DEPARTURE_PORT_FIELD: {"name": DEFAULT_DEPARTURE_PORT}}
 
         warnings = _check_cruise_metadata_raw(raw_config)
 
@@ -204,7 +210,7 @@ class TestWarningFormatting:
         # Mock station registry
         station = MagicMock()
         station.name = "STN_001"
-        cruise.waypoint_registry = {"STN_001": station}
+        cruise.point_registry = {"STN_001": station}
 
         # Mock transit registry
         transit = MagicMock()
@@ -306,7 +312,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 2000.0  # Station reported water depth
 
-        cruise.waypoint_registry = {"STN_001": station}
+        cruise.point_registry = {"STN_001": station}
 
         # Mock bathymetry manager
         bathymetry_manager = MagicMock()
@@ -332,7 +338,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 1000.0  # Station reported water depth
 
-        cruise.waypoint_registry = {"STN_002": station}
+        cruise.point_registry = {"STN_002": station}
 
         # Mock bathymetry manager to return very different depth
         bathymetry_manager = MagicMock()
@@ -356,7 +362,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = 2000.0
 
-        cruise.waypoint_registry = {"STN_003": station}
+        cruise.point_registry = {"STN_003": station}
 
         # Mock bathymetry manager to return None
         bathymetry_manager = MagicMock()
@@ -373,7 +379,7 @@ class TestDepthValidation:
     def test_validate_depth_accuracy_no_stations(self):
         """Test depth validation with no stations."""
         cruise = MagicMock()
-        cruise.waypoint_registry = {}
+        cruise.point_registry = {}
 
         bathymetry_manager = MagicMock()
 
@@ -395,7 +401,7 @@ class TestDepthValidation:
         station.longitude = -30.0
         station.water_depth = None  # No depth specified
 
-        cruise.waypoint_registry = {"STN_NO_DEPTH": station}
+        cruise.point_registry = {"STN_NO_DEPTH": station}
 
         bathymetry_manager = MagicMock()
 
@@ -414,7 +420,7 @@ class TestValidationEdgeCases:
     def test_cruise_metadata_with_non_string_values(self):
         """Test metadata validation with non-string values."""
         raw_config = {
-            "start_date": 123456,  # Number instead of string
+            START_DATE_FIELD: 123456,  # Number instead of string
             "vessel_name": ["list", "instead", "of", "string"],
             "cruise_name": None,
         }
@@ -429,8 +435,8 @@ class TestValidationEdgeCases:
 
         # Cruise object missing expected attributes
         cruise = MagicMock()
-        if hasattr(cruise, "waypoint_registry"):
-            delattr(cruise, "waypoint_registry")
+        if hasattr(cruise, "point_registry"):
+            delattr(cruise, "point_registry")
         if hasattr(cruise, "transit_registry"):
             delattr(cruise, "transit_registry")
 

@@ -9,11 +9,11 @@ from typing import Any, Optional, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.operations import BaseOperation
-from cruiseplan.utils.global_ports import resolve_port_reference
-from cruiseplan.utils.units import NM_PER_KM
 
 # Import validation models and port utilities
-from cruiseplan.validation import LegDefinition, PortDefinition, StrategyEnum
+from cruiseplan.schema import LegDefinition, PointDefinition, StrategyEnum
+from cruiseplan.utils.global_ports import resolve_port_reference
+from cruiseplan.utils.units import NM_PER_KM
 
 
 class Leg:
@@ -34,9 +34,9 @@ class Leg:
         Unique identifier for this leg.
     description : Optional[str]
         Optional human-readable description of the leg's purpose.
-    departure_port : PortDefinition
+    departure_port : PointDefinition
         Required departure port for this maritime leg.
-    arrival_port : PortDefinition
+    arrival_port : PointDefinition
         Required arrival port for this maritime leg.
     strategy : StrategyEnum
         Execution strategy for operations (default: SEQUENTIAL).
@@ -46,9 +46,9 @@ class Leg:
         List of standalone operations (e.g., single CTD, single Transit).
     clusters : List[Cluster]
         List of cluster boundaries for operation shuffling control.
-    first_waypoint : Optional[str]
+    first_activity : Optional[str]
         First waypoint/navigation marker for routing (not executed).
-    last_waypoint : Optional[str]
+    last_activity : Optional[str]
         Last waypoint/navigation marker for routing (not executed).
     vessel_speed : Optional[float]
         Leg-specific vessel speed override (None uses cruise default).
@@ -72,13 +72,13 @@ class Leg:
     def __init__(
         self,
         name: str,
-        departure_port: Union[str, PortDefinition, dict],
-        arrival_port: Union[str, PortDefinition, dict],
+        departure_port: Union[str, PointDefinition, dict],
+        arrival_port: Union[str, PointDefinition, dict],
         description: Optional[str] = None,
         strategy: StrategyEnum = StrategyEnum.SEQUENTIAL,
         ordered: bool = True,
-        first_waypoint: Optional[str] = None,
-        last_waypoint: Optional[str] = None,
+        first_activity: Optional[str] = None,
+        last_activity: Optional[str] = None,
     ):
         """
         Initialize a maritime Leg with port-to-port structure.
@@ -87,27 +87,27 @@ class Leg:
         ----------
         name : str
             Unique identifier for this leg.
-        departure_port : Union[str, PortDefinition, dict]
-            Required departure port (can be global reference, PortDefinition, or dict).
-        arrival_port : Union[str, PortDefinition, dict]
-            Required arrival port (can be global reference, PortDefinition, or dict).
+        departure_port : Union[str, PointDefinition, dict]
+            Required departure port (can be global reference, PointDefinition, or dict).
+        arrival_port : Union[str, PointDefinition, dict]
+            Required arrival port (can be global reference, PointDefinition, or dict).
         description : Optional[str], optional
             Human-readable description of the leg's purpose.
         strategy : StrategyEnum, optional
             Execution strategy for operations (default: SEQUENTIAL).
         ordered : bool, optional
             Whether operations should maintain their specified order (default: True).
-        first_waypoint : Optional[str], optional
+        first_activity : Optional[str], optional
             First waypoint for navigation (not executed).
-        last_waypoint : Optional[str], optional
+        last_activity : Optional[str], optional
             Last waypoint for navigation (not executed).
         """
         self.name = name
         self.description = description
         self.strategy = strategy
         self.ordered = ordered
-        self.first_waypoint = first_waypoint
-        self.last_waypoint = last_waypoint
+        self.first_activity = first_activity
+        self.last_activity = last_activity
 
         # Resolve ports using global port system
         self.departure_port = resolve_port_reference(departure_port)
@@ -180,6 +180,7 @@ class Leg:
         """
         return self.clusters.copy()
 
+    # TODO: Check why we have a duration for the leg which doesn't include transits
     def calculate_total_duration(self, rules: Any) -> float:
         """
         Calculate total duration for all operations in this leg.
@@ -212,6 +213,7 @@ class Leg:
 
         return total
 
+    # TODO check why this is in Leg and not in the scheduler/timeline only
     def _calculate_port_to_port_transit(self, rules: Any) -> float:
         """
         Calculate transit time from departure port to arrival port.
@@ -247,6 +249,8 @@ class Leg:
         duration_hours = distance_nm / speed_knots
         return duration_hours * 60.0
 
+    # TODO rename: I don't like calling it "effective speed" sounds like we've
+    # Done a calculation rather than just getting an overridden value or default
     def get_effective_speed(self, default_speed: float) -> float:
         """
         Get leg-specific vessel speed or fallback to the parent cruise's default.
@@ -263,6 +267,8 @@ class Leg:
         """
         return self.vessel_speed if self.vessel_speed is not None else default_speed
 
+    # TODO rename: I don't like calling it "effective spacing" sounds like we've
+    # Done a calculation rather than just getting an overridden value or default
     def get_effective_spacing(self, default_spacing: float) -> float:
         """
         Get leg-specific station spacing or fallback to the parent cruise's default.
@@ -283,6 +289,8 @@ class Leg:
             else default_spacing
         )
 
+    # TODO rename: I don't like calling it "effective turnaround" sounds like we've
+    # Done a calculation rather than just getting an overridden value or default
     def get_effective_turnaround_time(self, default_turnaround: float) -> float:
         """
         Get leg-specific turnaround time or fallback to the parent cruise's default.
@@ -328,10 +336,11 @@ class Leg:
         Returns
         -------
         tuple[Optional[str], Optional[str]]
-            Tuple of (first_waypoint, last_waypoint) for boundary management.
+            Tuple of (first_activity, last_activity) for boundary management.
         """
-        return (self.first_waypoint, self.last_waypoint)
+        return (self.first_activity, self.last_activity)
 
+    # Why do we use a tuple here rather than a GeoPoint?
     def get_entry_point(self) -> tuple[float, float]:
         """
         Get the geographic entry point for this leg (departure port).
@@ -345,6 +354,7 @@ class Leg:
         """
         return (self.departure_port.latitude, self.departure_port.longitude)
 
+    # Why do we use a tuple here rather than a GeoPoint?
     def get_exit_point(self) -> tuple[float, float]:
         """
         Get the geographic exit point for this leg (arrival port).
@@ -358,13 +368,14 @@ class Leg:
         """
         return (self.arrival_port.latitude, self.arrival_port.longitude)
 
+    # why do we use a tuble here instead of a geopoint?
     def get_operational_entry_point(
         self, resolver=None
     ) -> Optional[tuple[float, float]]:
         """
         Get the geographic entry point for operations within this leg.
 
-        Uses first_waypoint if available, otherwise first activity.
+        Uses first_activity if available, otherwise first activity.
 
         Parameters
         ----------
@@ -376,21 +387,22 @@ class Leg:
         tuple[float, float] or None
             (latitude, longitude) of the operational entry point, or None if not resolvable.
         """
-        if self.first_waypoint and resolver:
+        if self.first_activity and resolver:
             from ..calculators.scheduler import _resolve_station_details
 
-            details = _resolve_station_details(resolver, self.first_waypoint)
+            details = _resolve_station_details(resolver, self.first_activity)
             if details:
                 return (details["lat"], details["lon"])
         return None
 
+    # why do we use a tuble here instead of a geopoint?
     def get_operational_exit_point(
         self, resolver=None
     ) -> Optional[tuple[float, float]]:
         """
         Get the geographic exit point for operations within this leg.
 
-        Uses last_waypoint if available, otherwise last activity.
+        Uses last_activity if available, otherwise last activity.
 
         Parameters
         ----------
@@ -402,14 +414,15 @@ class Leg:
         tuple[float, float] or None
             (latitude, longitude) of the operational exit point, or None if not resolvable.
         """
-        if self.last_waypoint and resolver:
+        if self.last_activity and resolver:
             from ..calculators.scheduler import _resolve_station_details
 
-            details = _resolve_station_details(resolver, self.last_waypoint)
+            details = _resolve_station_details(resolver, self.last_activity)
             if details:
                 return (details["lat"], details["lon"])
         return None
 
+    # why do we use a tuble here instead of a geopoint?
     def get_port_positions(self) -> tuple[tuple[float, float], tuple[float, float]]:
         """
         Get the geographic positions of departure and arrival ports.
@@ -511,8 +524,8 @@ class Leg:
             description=leg_def.description,
             strategy=leg_def.strategy if leg_def.strategy else StrategyEnum.SEQUENTIAL,
             ordered=leg_def.ordered if leg_def.ordered is not None else True,
-            first_waypoint=leg_def.first_waypoint,
-            last_waypoint=leg_def.last_waypoint,
+            first_activity=leg_def.first_activity,
+            last_activity=leg_def.last_activity,
         )
 
         # Set parameter overrides from leg definition

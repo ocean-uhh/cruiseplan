@@ -20,6 +20,7 @@ from cruiseplan.output.map_generator import (
     plot_bathymetry,
     plot_cruise_elements,
 )
+from cruiseplan.schema import LINE_VERTEX_FIELD
 
 
 class TestExtractMapData:
@@ -38,13 +39,13 @@ class TestExtractMapData:
         mock_station.latitude = 60.0
         mock_station.longitude = -20.0
         mock_station.operation_type = "CTD"
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         # Mock empty other registries
         mock_cruise.mooring_registry = {}
 
         # Mock config with no transects/areas
-        mock_cruise.config.transects = []
+        mock_cruise.config.lines = []
         mock_cruise.config.areas = []
 
         # Mock ports

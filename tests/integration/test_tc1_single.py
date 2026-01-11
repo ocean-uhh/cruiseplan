@@ -19,8 +19,8 @@ from cruiseplan.output.map_generator import generate_map
 from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.utils.config import ConfigLoader
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-    DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+    DEFAULT_CALC_DEPTH,
+    DEFAULT_CALC_TRANSFER,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_VESSEL_SPEED_KT,
@@ -57,8 +57,8 @@ class TestTC1SingleIntegration:
         assert leg.arrival_port == "port_cadiz"  # String reference
 
         # Validate stations
-        assert len(config.waypoints) == 1
-        station = config.waypoints[0]
+        assert len(config.points) == 1
+        station = config.points[0]
         assert station.name == "STN_001"
         assert station.latitude == 45.0
         assert station.longitude == -45.0
@@ -78,15 +78,15 @@ class TestTC1SingleIntegration:
         cruise = Cruise(yaml_path)
 
         # Check station registry
-        assert len(cruise.waypoint_registry) == 1
-        assert "STN_001" in cruise.waypoint_registry
+        assert len(cruise.point_registry) == 1
+        assert "STN_001" in cruise.point_registry
 
         # Check runtime legs
         assert len(cruise.runtime_legs) == 1
         leg = cruise.runtime_legs[0]
         assert leg.name == "Leg_Single"
 
-        # Check that ports are resolved to PortDefinition objects in legs
+        # Check that ports are resolved to PointDefinition objects in legs
         assert hasattr(
             leg.departure_port, "latitude"
         ), "Departure port should be resolved"
@@ -121,11 +121,11 @@ class TestTC1SingleIntegration:
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
         assert (
             config.calculate_transfer_between_sections
-            == DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS
+            == DEFAULT_CALC_TRANSFER
         )
         assert (
             config.calculate_depth_via_bathymetry
-            == DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY
+            == DEFAULT_CALC_DEPTH
         )
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
@@ -146,7 +146,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate depth enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
+        enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
@@ -169,7 +169,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate coordinate enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
+        enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check coordinate enrichment with precise DMM format
         assert hasattr(
@@ -196,7 +196,7 @@ class TestTC1SingleIntegration:
 
         # Load and validate GEBCO2025 depth
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
+        enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
         assert hasattr(enriched_station, "water_depth"), "Water depth should be present"
@@ -227,18 +227,18 @@ class TestTC1SingleIntegration:
 
         # Load and validate complete enrichment
         enriched_cruise = Cruise(output_path)
-        enriched_station = enriched_cruise.waypoint_registry["STN_001"]
+        enriched_station = enriched_cruise.point_registry["STN_001"]
         config = enriched_cruise.config
 
         # Validate all default values match constants
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
         assert (
             config.calculate_transfer_between_sections
-            == DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS
+            == DEFAULT_CALC_TRANSFER
         )
         assert (
             config.calculate_depth_via_bathymetry
-            == DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY
+            == DEFAULT_CALC_DEPTH
         )
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
@@ -278,7 +278,7 @@ class TestTC1SingleIntegration:
 
         # Load enriched config and check the duration was added
         enriched_cruise = Cruise(output_path)
-        mooring_station = enriched_cruise.waypoint_registry["MOORING_001"]
+        mooring_station = enriched_cruise.point_registry["MOORING_001"]
 
         # Check that duration was added with correct value
         assert hasattr(

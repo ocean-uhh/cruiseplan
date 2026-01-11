@@ -10,16 +10,15 @@ from typing import Any, Union
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
-from cruiseplan.utils.global_ports import resolve_port_reference
-from cruiseplan.utils.yaml_io import load_yaml
-from cruiseplan.validation import (
+from cruiseplan.schema import (
     AreaDefinition,
     CruiseConfig,
-    PortDefinition,  # Legacy alias for WaypointDefinition
+    LineDefinition,
+    PointDefinition,
     StrategyEnum,
-    TransectDefinition,
-    WaypointDefinition,
 )
+from cruiseplan.utils.global_ports import resolve_port_reference
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class ReferenceError(Exception):
@@ -32,6 +31,7 @@ class ReferenceError(Exception):
     """
 
 
+# Question - why do we not also have a "leg_registry" and maybe a "cluster_registry"?
 class Cruise:
     """
     The main container object for cruise planning.
@@ -48,12 +48,14 @@ class Cruise:
         Raw dictionary data loaded from the YAML file.
     config : CruiseConfig
         Validated Pydantic configuration object.
-    waypoint_registry : Dict[str, WaypointDefinition]
-        Dictionary mapping waypoint names to WaypointDefinition objects.
-    transect_registry : Dict[str, TransectDefinition]
-        Dictionary mapping transect names to TransectDefinition objects.
-    port_registry : Dict[str, PortDefinition]
-        Dictionary mapping port names to PortDefinition objects.
+    point_registry : Dict[str, PointDefinition]
+        Dictionary mapping point names to PointDefinition objects.
+    line_registry : Dict[str, LineDefinition]
+        Dictionary mapping line names to LineDefinition objects.
+    port_registry : Dict[str, PointDefinition]
+        Dictionary mapping port names to PointDefinition objects.
+    area_registry : Dict[str, AreaDefinition]
+        Dictionary mapping area names to AreaDefinition objects.
     runtime_legs : List[Leg]
         List of runtime Leg objects converted from LegDefinition objects.
     """
@@ -64,7 +66,7 @@ class Cruise:
 
         Performs three main operations:
         1. Loads and validates the YAML configuration using Pydantic
-        2. Builds registries for waypoints and transects
+        2. Builds registries for points and lines
         3. Resolves string references to full objects
 
         Parameters
@@ -81,7 +83,7 @@ class Cruise:
         ValidationError
             If the configuration does not match the expected schema.
         ReferenceError
-            If referenced waypoints or transects are not found in the catalog.
+            If referenced points or lines are not found in the catalog.
         """
         self.config_path = Path(config_path)
         self.raw_data = self._load_yaml()
@@ -90,16 +92,16 @@ class Cruise:
         self.config = CruiseConfig(**self.raw_data)
 
         # 2. Indexing Pass (Build the Catalog Registry)
-        self.waypoint_registry: dict[str, WaypointDefinition] = {
-            s.name: s for s in (self.config.waypoints or [])
+        self.point_registry: dict[str, PointDefinition] = {
+            s.name: s for s in (self.config.points or [])
         }
-        self.transect_registry: dict[str, TransectDefinition] = {
-            t.name: t for t in (self.config.transects or [])
+        self.line_registry: dict[str, LineDefinition] = {
+            t.name: t for t in (self.config.lines or [])
         }
         self.area_registry: dict[str, AreaDefinition] = {
             a.name: a for a in (self.config.areas or [])
         }
-        self.port_registry: dict[str, PortDefinition] = {
+        self.port_registry: dict[str, PointDefinition] = {
             p.name: p for p in (self.config.ports or [])
         }
 
@@ -138,8 +140,8 @@ class Cruise:
         Resolve string references to full objects from the registry.
 
         Traverses the cruise legs, clusters, and sections to convert string
-        identifiers into their corresponding WaypointDefinition and
-        TransectDefinition objects from the registries.
+        identifiers into their corresponding PointDefinition and
+        LineDefinition objects from the registries.
 
         Resolves all references within legs to their corresponding definitions.
 
@@ -159,17 +161,13 @@ class Cruise:
             # Resolve Clusters
             if leg.clusters:
                 for cluster in leg.clusters:
-                    # Resolve Mixed Sequence
-                    if cluster.sequence:
-                        # Sequence can contain anything, check all registries
-                        cluster.sequence = self._resolve_mixed_list(cluster.sequence)
-
                     # Resolve Activities (new unified field)
                     if cluster.activities:
                         cluster.activities = self._resolve_mixed_list(
                             cluster.activities
                         )
 
+    # TODO update docstring, I don't think we have "Station" and "Transit" are these supposed to be human readable for "operation_type"?
     def _resolve_list(
         self, items: list[Union[str, Any]], registry: dict[str, Any], type_label: str
     ) -> list[Any]:
@@ -215,7 +213,7 @@ class Cruise:
 
     def _resolve_mixed_list(self, items: list[Union[str, Any]]) -> list[Any]:
         """
-        Resolve a mixed sequence list containing waypoints, transects, or areas.
+        Resolve a mixed sequence list containing points, lines, or areas.
 
         Searches through all available registries to resolve string references
         and converts inline dictionary definitions to proper object types.
@@ -241,15 +239,15 @@ class Cruise:
         for item in items:
             if isinstance(item, str):
                 # Try finding it in any registry
-                if item in self.waypoint_registry:
-                    resolved_items.append(self.waypoint_registry[item])
-                elif item in self.transect_registry:
-                    resolved_items.append(self.transect_registry[item])
+                if item in self.point_registry:
+                    resolved_items.append(self.point_registry[item])
+                elif item in self.line_registry:
+                    resolved_items.append(self.line_registry[item])
                 elif item in self.area_registry:
                     resolved_items.append(self.area_registry[item])
                 else:
                     raise ReferenceError(
-                        f"Activity ID '{item}' not found in any Catalog (Waypoints, Transects, Areas)."
+                        f"Activity ID '{item}' not found in any Catalog (Points, Lines, Areas)."
                     )
             elif isinstance(item, dict):
                 # Convert inline dictionary definition to proper object type
@@ -259,9 +257,11 @@ class Cruise:
                 resolved_items.append(item)
         return resolved_items
 
+    # TODO What is going on here? why is "operation_type" returning a PointDefinition?
+    # Can we use vocabularly.py and OP_TYPE_FIELD here?
     def _convert_inline_definition(
         self, definition_dict: dict
-    ) -> Union[WaypointDefinition, TransectDefinition, AreaDefinition]:
+    ) -> Union[PointDefinition, LineDefinition, AreaDefinition]:
         """
         Convert an inline dictionary definition to the appropriate definition object.
 
@@ -275,7 +275,7 @@ class Cruise:
 
         Returns
         -------
-        Union[WaypointDefinition, TransectDefinition, AreaDefinition]
+        Union[PointDefinition, LineDefinition, AreaDefinition]
             The appropriate definition object created from the dictionary.
 
         Raises
@@ -285,11 +285,9 @@ class Cruise:
         """
         # Determine definition type based on key fields
         if "operation_type" in definition_dict:
-            # This is a station definition
-            return WaypointDefinition(**definition_dict)
+            return PointDefinition(**definition_dict)
         elif "start" in definition_dict and "end" in definition_dict:
-            # This is a transit definition
-            return TransectDefinition(**definition_dict)
+            return LineDefinition(**definition_dict)
         elif any(
             field in definition_dict for field in ["polygon", "center", "boundary"]
         ):
@@ -303,14 +301,16 @@ class Cruise:
             # Add default operation_type if missing
             if "operation_type" not in definition_dict:
                 definition_dict = definition_dict.copy()
-                definition_dict["operation_type"] = "CTD"  # Default operation type
-            return WaypointDefinition(**definition_dict)
+                definition_dict["operation_type"] = (
+                    "CTD"  # Default operation type - TODO this doesn't seem right, do we have a default operation defined in defaults.py?
+                )
+            return PointDefinition(**definition_dict)
         else:
             raise ValueError(
                 f"Cannot determine definition type for inline definition: {definition_dict}"
             )
 
-    def _resolve_port_reference(self, port_ref) -> PortDefinition:
+    def _resolve_port_reference(self, port_ref) -> PointDefinition:
         """
         Resolve a port reference checking catalog first, then global registry.
 
@@ -320,12 +320,12 @@ class Cruise:
 
         Parameters
         ----------
-        port_ref : Union[str, PortDefinition, dict]
+        port_ref : Union[str, PointDefinition, dict]
             Port reference to resolve.
 
         Returns
         -------
-        PortDefinition
+        PointDefinition
             Resolved port definition object.
 
         Raises
@@ -341,25 +341,25 @@ class Cruise:
         ):
             return port_ref
 
-        # If already a PortDefinition object, return as-is
-        if isinstance(port_ref, PortDefinition):
+        # If already a PointDefinition object, return as-is
+        if isinstance(port_ref, PointDefinition):
             return port_ref
 
-        # If dictionary, create PortDefinition
+        # If dictionary, create PointDefinition
         if isinstance(port_ref, dict):
-            return PortDefinition(**port_ref)
+            return PointDefinition(**port_ref)
 
         # String reference - check catalog first, then global registry
         if isinstance(port_ref, str):
             # Check local catalog first
             if port_ref in self.port_registry:
                 catalog_port = self.port_registry[port_ref]
-                # If catalog port is already a PortDefinition, return it
-                if isinstance(catalog_port, PortDefinition):
+                # If catalog port is already a PointDefinition, return it
+                if isinstance(catalog_port, PointDefinition):
                     return catalog_port
-                # If it's a dict, convert to PortDefinition
+                # If it's a dict, convert to PointDefinition
                 elif isinstance(catalog_port, dict):
-                    return PortDefinition(**catalog_port)
+                    return PointDefinition(**catalog_port)
                 else:
                     # Handle unexpected type in catalog
                     raise ReferenceError(
@@ -376,12 +376,13 @@ class Cruise:
 
         raise ReferenceError(f"Invalid port reference type: {type(port_ref)}")
 
+    # TODO check is this pydantic or yaml-based, if yaml-based can we use vocabulary.py for DEPARTURE_PORT_FIELD and ARRIVAL_PORT_FIELD?
     def _resolve_config_ports(self):
         """
         Resolve top-level config departure_port and arrival_port references.
 
         This method resolves string references in the cruise configuration's
-        top-level departure_port and arrival_port fields to PortDefinition objects.
+        top-level departure_port and arrival_port fields to PointDefinition objects.
         """
         if hasattr(self.config, "departure_port") and self.config.departure_port:
             if isinstance(self.config.departure_port, str):
@@ -395,6 +396,7 @@ class Cruise:
                     self.config.arrival_port
                 )
 
+    # TODO check if we can use vocabulary.py for DEPARTURE_PORT_FIELD and ARRIVAL_PORT_FIELD or if this is a pydantic-based thing
     def _enrich_leg_ports(self):
         """
         Automatically enrich leg-level port references with actions.
@@ -414,7 +416,7 @@ class Cruise:
                     try:
                         port_definition = resolve_port_reference(port_ref)
                         # Create enriched port with action
-                        enriched_port = PortDefinition(
+                        enriched_port = PointDefinition(
                             name=port_definition.name,
                             latitude=port_definition.latitude,
                             longitude=port_definition.longitude,
@@ -447,7 +449,7 @@ class Cruise:
                     try:
                         port_definition = resolve_port_reference(port_ref)
                         # Create enriched port with action
-                        enriched_port = PortDefinition(
+                        enriched_port = PointDefinition(
                             name=port_definition.name,
                             latitude=port_definition.latitude,
                             longitude=port_definition.longitude,
@@ -522,8 +524,8 @@ class Cruise:
                 description=leg_def.description,
                 strategy=leg_def.strategy or StrategyEnum.SEQUENTIAL,
                 ordered=leg_def.ordered if leg_def.ordered is not None else True,
-                first_waypoint=leg_def.first_waypoint,
-                last_waypoint=leg_def.last_waypoint,
+                first_activity=leg_def.first_activity,
+                last_activity=leg_def.last_activity,
             )
 
             # Apply parameter inheritance (leg overrides cruise defaults)
@@ -564,7 +566,7 @@ class Cruise:
         """
         Check if an anchor reference exists in any catalog registry.
 
-        Anchors can be waypoints, areas, or other operation entities
+        Anchors can be points, areas, or other operation entities
         that can serve as routing points for maritime planning.
 
         Parameters
@@ -579,7 +581,7 @@ class Cruise:
         """
         # Check all registries for the anchor reference
         return (
-            anchor_ref in self.waypoint_registry
+            anchor_ref in self.point_registry
             or anchor_ref in self.area_registry
-            or anchor_ref in self.transect_registry
+            or anchor_ref in self.line_registry
         )

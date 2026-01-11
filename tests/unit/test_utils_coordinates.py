@@ -616,7 +616,7 @@ class TestExtractCoordinatesFromCruise:
         mock_station2.latitude = 61.0
         mock_station2.longitude = -21.0
 
-        mock_cruise.waypoint_registry = {
+        mock_cruise.point_registry = {
             "STN_001": mock_station1,
             "STN_002": mock_station2,
         }
@@ -649,7 +649,7 @@ class TestExtractCoordinatesFromCruise:
 
         # Create mock cruise object
         mock_cruise = MagicMock()
-        mock_cruise.waypoint_registry = {}
+        mock_cruise.point_registry = {}
 
         # Mock departure port (support both formats)
         mock_dep_port = MagicMock()
@@ -694,7 +694,7 @@ class TestExtractCoordinatesFromCruise:
         mock_station2.latitude = 61.0
         mock_station2.longitude = -21.0
 
-        mock_cruise.waypoint_registry = {
+        mock_cruise.point_registry = {
             "STN_001": mock_station1,
             "STN_002": mock_station2,
         }

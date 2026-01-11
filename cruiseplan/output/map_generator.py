@@ -47,8 +47,8 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
     points = []
 
     # Extract stations
-    if hasattr(cruise, "waypoint_registry") and cruise.waypoint_registry:
-        for station_name, station in cruise.waypoint_registry.items():
+    if hasattr(cruise, "point_registry") and cruise.point_registry:
+        for station_name, station in cruise.point_registry.items():
             lat = station.latitude
             lon = station.longitude
             # Determine entity type based on operation type
@@ -157,28 +157,28 @@ def extract_lines_from_cruise(cruise) -> list[dict[str, Any]]:
     # Extract scientific transects with routes from config
     if (
         hasattr(cruise, "config")
-        and hasattr(cruise.config, "transects")
-        and cruise.config.transects
+        and hasattr(cruise.config, "lines")
+        and cruise.config.lines
     ):
-        for transect in cruise.config.transects:
+        for line in cruise.config.lines:
             if (
-                hasattr(transect, "route")
-                and transect.route
-                and len(transect.route) >= 2
+                hasattr(line, "route")
+                and line.route
+                and len(line.route) >= 2
             ):
                 waypoints = [
                     {"lat": waypoint.latitude, "lon": waypoint.longitude}
-                    for waypoint in transect.route
+                    for waypoint in line.route
                 ]
 
                 lines.append(
                     {
-                        "name": transect.name,
+                        "name": line.name,
                         "waypoints": waypoints,
-                        "entity_type": "transect",
-                        "operation_type": getattr(transect, "operation_type", None),
-                        "action": getattr(transect, "action", None),
-                        "vessel_speed": getattr(transect, "vessel_speed", None),
+                        "entity_type": "line",
+                        "operation_type": getattr(line, "operation_type", None),
+                        "action": getattr(line, "action", None),
+                        "vessel_speed": getattr(line, "vessel_speed", None),
                     }
                 )
 

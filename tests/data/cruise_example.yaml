@@ -14,7 +14,7 @@ calculate_depth_via_bathymetry: true
 # are now defined within individual leg definitions
 
 # --- PART 1: THE CATALOG (Definitions) ---
-waypoints:
+points:
   - name: STN_Start_01
     operation_type: CTD
     action: profile

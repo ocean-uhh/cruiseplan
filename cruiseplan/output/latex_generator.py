@@ -19,10 +19,10 @@ from typing import Any
 from jinja2 import Environment, FileSystemLoader
 
 from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.schema import CruiseConfig
 from cruiseplan.utils.activity_utils import is_scientific_operation
 from cruiseplan.utils.coordinates import format_position_latex
 from cruiseplan.utils.units import hours_to_days
-from cruiseplan.validation import CruiseConfig
 
 
 def _format_depth_for_latex(activity: dict) -> str:

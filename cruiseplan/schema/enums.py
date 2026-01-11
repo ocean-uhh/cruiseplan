@@ -7,6 +7,13 @@ consistent values across the system.
 
 from enum import Enum
 
+from cruiseplan.utils.defaults import (
+    DEFAULT_AREA_ACTION,
+    DEFAULT_LINE_ACTION,
+    DEFAULT_POINT_ACTION,
+    DEFAULT_POINT_OPTYPE,
+)
+
 
 class StrategyEnum(str, Enum):
     """
@@ -38,7 +45,7 @@ class OperationTypeEnum(str, Enum):
     WAYPOINT = "waypoint"  # Navigation waypoints
 
     # Placeholder for user guidance
-    UPDATE_PLACEHOLDER = "UPDATE-CTD-mooring-etc"
+    UPDATE_PLACEHOLDER = DEFAULT_POINT_OPTYPE
 
 
 class ActionEnum(str, Enum):
@@ -68,9 +75,9 @@ class ActionEnum(str, Enum):
     MICROSTRUCTURE = "microstructure"
     SECTION = "section"  # For CTD sections that can be expanded
     # Placeholders for user guidance
-    UPDATE_PROFILE_PLACEHOLDER = "UPDATE-profile-sampling-etc"
-    UPDATE_LINE_PLACEHOLDER = "UPDATE-ADCP-bathymetry-etc"
-    UPDATE_AREA_PLACEHOLDER = "UPDATE-bathymetry-survey-etc"
+    UPDATE_PROFILE_PLACEHOLDER = DEFAULT_POINT_ACTION
+    UPDATE_LINE_PLACEHOLDER = DEFAULT_LINE_ACTION
+    UPDATE_AREA_PLACEHOLDER = DEFAULT_AREA_ACTION
 
 
 class LineOperationTypeEnum(str, Enum):
@@ -94,4 +101,4 @@ class AreaOperationTypeEnum(str, Enum):
 
     SURVEY = "survey"
     # Placeholder for user guidance
-    UPDATE_PLACEHOLDER = "UPDATE-survey-mapping-etc"
+    UPDATE_PLACEHOLDER = DEFAULT_AREA_ACTION

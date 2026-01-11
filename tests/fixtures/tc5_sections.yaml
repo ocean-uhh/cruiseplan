@@ -2,7 +2,7 @@ cruise_name: "TC5_Sections_Test"
 
 
 
-transects:
+lines:
   - name: SEC_001
     route:
       - latitude: 45.0
@@ -17,6 +17,6 @@ legs:
   - name: "Section_Survey"
     departure_port: port_halifax  
     arrival_port: port_cadiz
-    first_waypoint: SEC_001
-    last_waypoint: SEC_001
+    first_activity: SEC_001
+    last_activity: SEC_001
     activities: [SEC_001]

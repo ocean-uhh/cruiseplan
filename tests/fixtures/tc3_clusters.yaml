@@ -3,7 +3,7 @@ default_vessel_speed: 10.0
 calculate_transfer_between_sections: false
 calculate_depth_via_bathymetry: true
 
-waypoints:
+points:
   - name: STN_001
     latitude: 45.0
     longitude: -50.0
@@ -32,8 +32,8 @@ legs:
     comment: "Should do actions in order STN_001, STN_002, STN_003, STN_004"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_001
-    last_waypoint: STN_004
+    first_activity: STN_001
+    last_activity: STN_004
     clusters:
       - name: "CTD_Cluster"
         activities: [STN_001, STN_002]
@@ -46,8 +46,8 @@ legs:
     comment: "Should be faster than Leg_Survey by 21.3 hours"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_001
-    last_waypoint: STN_004
+    first_activity: STN_001
+    last_activity: STN_004
     vessel_speed: 12.0
     clusters:
       - name: "CTD_Cluster2"
@@ -61,8 +61,8 @@ legs:
     comment: "Should repeat STN_002"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_001
-    last_waypoint: STN_004
+    first_activity: STN_001
+    last_activity: STN_004
     clusters:
       - name: "CTD_Cluster3"
         activities: [STN_001, STN_002, STN_002]
@@ -75,8 +75,8 @@ legs:
     comment: "Should repeat STN_001"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_001
-    last_waypoint: STN_004
+    first_activity: STN_001
+    last_activity: STN_004
     clusters:
       - name: "CTD_Cluster4"
         activities: [STN_001, STN_002, STN_001]
@@ -89,8 +89,8 @@ legs:
     comment: "Should repeat STN_001"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_001
-    last_waypoint: STN_004
+    first_activity: STN_001
+    last_activity: STN_004
     clusters:
       - name: "CTD_Cluster5"
         activities: [STN_001, STN_001, STN_002]
@@ -103,8 +103,8 @@ legs:
     comment: "Should do actions in order STN_004, STN_003, STN_002, STN_001"
     departure_port: port_halifax
     arrival_port: port_halifax
-    first_waypoint: STN_004
-    last_waypoint: STN_001
+    first_activity: STN_004
+    last_activity: STN_001
     clusters:
       - name: "Mooring_Cluster6"  
         activities: [STN_004, STN_003]

@@ -12,23 +12,15 @@ from typing import Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY,
-    DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS,
+    DEFAULT_CALC_DEPTH,
+    DEFAULT_CALC_TRANSFER,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_TURNAROUND_TIME_MIN,
 )
 
-from .catalog_definitions import AreaDefinition, TransectDefinition, WaypointDefinition
-from .schedule_definitions import LegDefinition
-
-# Legacy aliases for backward compatibility
-# TODO: Remove in v0.4.0 - Use WaypointDefinition instead
-StationDefinition = WaypointDefinition
-PortDefinition = WaypointDefinition
-
-# TODO: Remove in v0.4.0 - Use TransectDefinition instead
-TransitDefinition = TransectDefinition
+from .activities import AreaDefinition, LineDefinition, PointDefinition
+from .organization import LegDefinition
 
 
 class CruiseConfig(BaseModel):
@@ -71,14 +63,14 @@ class CruiseConfig(BaseModel):
         Format string for station labels.
     mooring_label_format : str
         Format string for mooring labels.
-    departure_port : Optional[Union[str, WaypointDefinition]]
+    departure_port : Optional[Union[str, PointDefinition]]
         Port where the cruise begins.
-    arrival_port : Optional[Union[str, WaypointDefinition]]
+    arrival_port : Optional[Union[str, PointDefinition]]
         Port where the cruise ends.
-    waypoints : Optional[List[WaypointDefinition]]
-        Global catalog of waypoint definitions.
-    transects : Optional[List[TransectDefinition]]
-        Global catalog of transect definitions.
+    points : Optional[List[PointDefinition]]
+        Global catalog of point definitions.
+    lines : Optional[List[LineDefinition]]
+        Global catalog of line definitions.
     areas : Optional[List[AreaDefinition]]
         Global catalog of area definitions.
     ports : Optional[List[WaypointDefinition]]
@@ -101,36 +93,34 @@ class CruiseConfig(BaseModel):
     day_start_hour: int = 8  # Default 08:00
     day_end_hour: int = 20  # Default 20:00
 
-    calculate_transfer_between_sections: bool = (
-        DEFAULT_CALCULATE_TRANSFER_BETWEEN_SECTIONS
-    )
-    calculate_depth_via_bathymetry: bool = DEFAULT_CALCULATE_DEPTH_VIA_BATHYMETRY
+    calculate_transfer_between_sections: bool = DEFAULT_CALC_TRANSFER
+    calculate_depth_via_bathymetry: bool = DEFAULT_CALC_DEPTH
     start_date: str = DEFAULT_START_DATE
     start_time: Optional[str] = "08:00"
     station_label_format: str = "C{:03d}"
     mooring_label_format: str = "M{:02d}"
 
     # Port definitions for single-leg cruises
-    departure_port: Optional[Union[str, WaypointDefinition]] = Field(
+    departure_port: Optional[Union[str, PointDefinition]] = Field(
         None,
         description="Port where the cruise begins (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
-    arrival_port: Optional[Union[str, WaypointDefinition]] = Field(
+    arrival_port: Optional[Union[str, PointDefinition]] = Field(
         None,
         description="Port where the cruise ends (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.",
     )
 
-    # Global catalog definitions (new oceanographic terminology)
-    waypoints: Optional[list[WaypointDefinition]] = Field(
-        default_factory=list, description="Global catalog of waypoint definitions"
+    # Global catalog definitions
+    points: Optional[list[PointDefinition]] = Field(
+        default_factory=list, description="Global catalog of point definitions"
     )
-    transects: Optional[list[TransectDefinition]] = Field(
-        default_factory=list, description="Global catalog of transect definitions"
+    lines: Optional[list[LineDefinition]] = Field(
+        default_factory=list, description="Global catalog of line definitions"
     )
     areas: Optional[list[AreaDefinition]] = Field(
         default_factory=list, description="Global catalog of area definitions"
     )
-    ports: Optional[list[WaypointDefinition]] = Field(
+    ports: Optional[list[PointDefinition]] = Field(
         default_factory=list, description="Global catalog of port definitions"
     )
 

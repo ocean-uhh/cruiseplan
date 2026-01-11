@@ -10,30 +10,19 @@ with existing imports.
 
 # Core exceptions and enums
 # Basic data models
-# Legacy validation functions (from validation_old.py)
-from ..processing.enrich import enrich_configuration, expand_ctd_sections
-from ..processing.validate import (
-    check_complete_duplicates,
-    check_duplicate_names,
-    validate_configuration,
-    validate_depth_accuracy,
-)
 
-# Catalog definitions (with new terminology)
-from .catalog_definitions import (
+# Field name constants for yaml - centralized for easy renaming
+# Activity definitions (new terminology)
+from .activities import (
     AreaDefinition,
     FlexibleLocationModel,
     GeoPoint,
-    # Legacy aliases for backward compatibility (TODO: Remove in v0.4.0)
-    PortDefinition,  # Use WaypointDefinition instead
-    StationDefinition,  # Use WaypointDefinition instead
-    TransectDefinition,
-    TransitDefinition,  # Use TransectDefinition instead
-    WaypointDefinition,
+    LineDefinition,
+    PointDefinition,
 )
 
 # Main cruise configuration
-from .cruise_config import CruiseConfig
+from .cruise import CruiseConfig
 from .enums import (
     ActionEnum,
     AreaOperationTypeEnum,
@@ -47,7 +36,7 @@ from .exceptions import CruiseConfigurationError
 from .generation_models import GenerateSection, GenerateTransect, SectionDefinition
 
 # Schedule definitions (YAML layer)
-from .schedule_definitions import ClusterDefinition, LegDefinition
+from .organization import ClusterDefinition, LegDefinition
 
 # Validation utilities
 from .validators import (
@@ -56,8 +45,31 @@ from .validators import (
     validate_positive_number,
     validate_unique_names,
 )
+from .vocabulary import *
 
 __all__ = [
+    # Field name constants
+    "POINTS_FIELD",
+    "LINES_FIELD",
+    "AREAS_FIELD",
+    "FIRST_ACTIVITY_FIELD",
+    "LAST_ACTIVITY_FIELD",
+    "OP_TYPE_FIELD",
+    "ACTION_FIELD",
+    "ACTIVITIES_FIELD",
+    "ARRIVAL_PORT_FIELD",
+    "CLUSTERS_FIELD",
+    "DEPARTURE_PORT_FIELD",
+    "DURATION_FIELD",
+    "LEGS_FIELD",
+    "OP_DEPTH_FIELD",
+    "START_DATE_FIELD",
+    "START_TIME_FIELD",
+    "DEFAULT_VESSEL_SPEED_FIELD",
+    "WATER_DEPTH_FIELD",
+    "POINT_REGISTRY",
+    "LINE_REGISTRY",
+    "AREA_REGISTRY",
     # Exceptions
     "CruiseConfigurationError",
     # Enums
@@ -69,10 +81,10 @@ __all__ = [
     # Models
     "FlexibleLocationModel",
     "GeoPoint",
-    # Catalog Definitions (new terminology)
+    # Activity Definitions (new terminology)
     "AreaDefinition",
-    "TransectDefinition",
-    "WaypointDefinition",
+    "LineDefinition",
+    "PointDefinition",
     # Schedule Definitions (YAML layer)
     "ClusterDefinition",
     "LegDefinition",
@@ -87,15 +99,4 @@ __all__ = [
     "validate_non_negative_number",
     "validate_positive_number",
     "validate_unique_names",
-    # Legacy validation functions
-    "check_complete_duplicates",
-    "check_duplicate_names",
-    "enrich_configuration",
-    "expand_ctd_sections",
-    "validate_configuration",
-    "validate_depth_accuracy",
-    # Legacy aliases (backward compatibility)
-    "PortDefinition",
-    "StationDefinition",
-    "TransitDefinition",
 ]

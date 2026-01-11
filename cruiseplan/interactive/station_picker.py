@@ -18,6 +18,31 @@ from cruiseplan.interactive.campaign_selector import CampaignSelector
 
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
+from cruiseplan.schema import (
+    ACTIVITIES_FIELD,
+    AREAS_FIELD,
+    DEFAULT_VESSEL_SPEED_FIELD,
+    DEPARTURE_PORT_FIELD,
+    ARRIVAL_PORT_FIELD,
+    FIRST_ACTIVITY_FIELD,
+    LAST_ACTIVITY_FIELD,
+    LEGS_FIELD,
+    LINES_FIELD,
+    POINTS_FIELD,
+    START_DATE_FIELD,
+    STRATEGY_FIELD,
+)
+from cruiseplan.utils.defaults import (
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_CALC_DEPTH,
+    DEFAULT_CALC_TRANSFER,
+    DEFAULT_DEPARTURE_PORT,
+    DEFAULT_FIRST_ACTIVITY,
+    DEFAULT_LAST_ACTIVITY,
+    DEFAULT_STATION_SPACING_KM,
+    DEFAULT_STRATEGY,
+    DEFAULT_VESSEL_SPEED_KT,
+)
 from cruiseplan.utils.config import (
     format_area_for_yaml,
     format_station_for_yaml,
@@ -120,8 +145,8 @@ class StationPicker:
         )
 
         # Data Storage
-        self.stations: list[dict] = []
-        self.transects: list[dict] = []
+        self.points: list[dict] = []
+        self.lines: list[dict] = []
         self.areas: list[dict] = []
         self.history: list[tuple[str, dict, any]] = []
 
@@ -432,19 +457,17 @@ class StationPicker:
             return
 
         if self.mode == "point":
-            self._add_station(event.xdata, event.ydata)
+            self._add_point(event.xdata, event.ydata)
         elif self.mode == "line":
             self._handle_line_click(event.xdata, event.ydata)
         elif self.mode == "area":
             self._handle_area_click(event.xdata, event.ydata)
         elif self.mode == "remove":
-            station_data, _ = self._find_nearest_station(event.xdata, event.ydata)
-            if station_data:
-                self._remove_specific_station(station_data)
+            point_data, _ = self._find_nearest_point(event.xdata, event.ydata)
+            if point_data:
+                self._remove_specific_point(point_data)
             else:
-                self._update_status_display(
-                    message="No station close enough to remove."
-                )
+                self._update_status_display(message="No point close enough to remove.")
 
     def _on_mouse_move(self, event):
         """Handle mouse movement for real-time coordinate and depth display."""
@@ -529,7 +552,7 @@ class StationPicker:
 
     # --- Operation Management ---
 
-    def _add_station(self, lon, lat):
+    def _add_point(self, lon, lat):
         """
         Add a new station at the specified coordinates.
 
@@ -546,9 +569,9 @@ class StationPicker:
         )
 
         data = {"lat": lat, "lon": lon, "depth": abs(depth)}
-        self.stations.append(data)
-        self.history.append(("station", data, artist))
-        self._update_status_display(lat, lon, depth, message="Station added.")
+        self.points.append(data)
+        self.history.append(("point", data, artist))
+        self._update_status_display(lat, lon, depth, message="Point added.")
 
     def _handle_line_click(self, lon, lat):
         """Handle click events in line drawing mode."""
@@ -567,11 +590,11 @@ class StationPicker:
                 "end": {"lat": lat, "lon": lon},
                 "type": "transect",
             }
-            self.transects.append(data)
-            self.history.append(("transect", data, artist))
+            self.lines.append(data)
+            self.history.append(("line", data, artist))
 
             self._reset_line_state()
-            self._update_status_display(message="Transect added.")
+            self._update_status_display(message="Line added.")
 
     def _handle_area_click(self, lon, lat):
         """Handle click events in area drawing mode."""
@@ -680,7 +703,7 @@ class StationPicker:
 
         self.fig.canvas.draw_idle()
 
-    def _find_nearest_station(self, target_lon, target_lat, threshold=2.0):
+    def _find_nearest_point(self, target_lon, target_lat, threshold=2.0):
         """
         Find the station closest to the click coordinates.
 
@@ -696,16 +719,16 @@ class StationPicker:
         Returns
         -------
         Tuple[Optional[Dict], Optional[int]]
-            Tuple of (station_data, station_index) if found within threshold, (None, None) otherwise.
+            Tuple of (point_data, station_index) if found within threshold, (None, None) otherwise.
         """
-        if not self.stations:
+        if not self.points:
             return None, None
 
         closest_dist = float("inf")
         closest_data = None
         closest_index = -1
 
-        for i, station in enumerate(self.stations):
+        for i, station in enumerate(self.points):
             dist = (
                 (station["lon"] - target_lon) ** 2 + (station["lat"] - target_lat) ** 2
             ) ** 0.5
@@ -719,13 +742,13 @@ class StationPicker:
             return closest_data, closest_index
         return None, None
 
-    def _remove_specific_station(self, station_data):
+    def _remove_specific_point(self, point_data):
         """Remove a specific station from the display and data."""
-        self.stations.remove(station_data)
+        self.points.remove(point_data)
 
         history_item_to_remove = None
         for item in self.history:
-            if item[1] == station_data:
+            if item[1] == point_data:
                 history_item_to_remove = item
                 break
 
@@ -735,7 +758,7 @@ class StationPicker:
 
         self.ax_map.figure.canvas.draw_idle()
         self._update_status_display(
-            message=f"Removed station at {station_data['lat']:.2f}, {station_data['lon']:.2f}"
+            message=f"Removed point at {point_data['lat']:.2f}, {point_data['lon']:.2f}"
         )
 
     def _remove_last_item(self):
@@ -748,12 +771,12 @@ class StationPicker:
         if artist:
             artist.remove()
 
-        if item_type == "station":
-            if item_data in self.stations:
-                self.stations.remove(item_data)
-        elif item_type == "transect":
-            if item_data in self.transects:
-                self.transects.remove(item_data)
+        if item_type in ["point"]:
+            if item_data in self.points:
+                self.points.remove(item_data)
+        elif item_type in ["line"]:
+            if item_data in self.lines:
+                self.lines.remove(item_data)
         elif item_type == "area":
             if item_data in self.areas:
                 self.areas.remove(item_data)
@@ -788,8 +811,8 @@ class StationPicker:
             f"Lon: {lon:.4f}\n"
             f"Depth: {depth:.0f} m\n"
             f"----------------\n"
-            f"Stations: {len(self.stations)}\n"
-            f"Transects: {len(self.transects)}\n"
+            f"Points: {len(self.points)}\n"
+            f"Lines: {len(self.lines)}\n"
             f"Areas: {len(self.areas)}\n"
         )
 
@@ -864,16 +887,16 @@ class StationPicker:
 
     def _save_to_yaml(self):
         """Save current cruise plan to YAML format."""
-        if not self.stations and not self.transects:
+        if not self.points and not self.lines:
             return
 
         # Format data for YAML export
         yaml_stations = [
-            format_station_for_yaml(stn, i) for i, stn in enumerate(self.stations, 1)
+            format_station_for_yaml(stn, i) for i, stn in enumerate(self.points, 1)
         ]
 
         yaml_sections = [
-            format_transect_for_yaml(tr, i) for i, tr in enumerate(self.transects, 1)
+            format_transect_for_yaml(tr, i) for i, tr in enumerate(self.lines, 1)
         ]
 
         yaml_areas = [format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)]
@@ -885,36 +908,36 @@ class StationPicker:
         output_data = {
             "cruise_name": current_name,
             "description": "Cruise plan created with interactive station picker",
-            "default_vessel_speed": 10.0,
-            "default_distance_between_stations": 40.0,
-            "calculate_transfer_between_sections": True,
-            "calculate_depth_via_bathymetry": True,
-            "start_date": "1970-01-01T00:00:00Z",
-            # Global catalog sections (stations, transects, areas) come BEFORE legs
-            "stations": yaml_stations,
-            "transects": yaml_sections,  # Schema expects 'transects' not 'sections'
-            "areas": yaml_areas,
+            DEFAULT_VESSEL_SPEED_FIELD: DEFAULT_VESSEL_SPEED_KT,
+            "default_distance_between_stations": DEFAULT_STATION_SPACING_KM,
+            "calculate_transfer_between_sections": DEFAULT_CALC_TRANSFER,
+            "calculate_depth_via_bathymetry": DEFAULT_CALC_DEPTH,
+            START_DATE_FIELD: "1970-01-01T00:00:00Z",
+            # Global catalog sections (points, lines, areas) come BEFORE legs
+            POINTS_FIELD: yaml_stations,
+            LINES_FIELD: yaml_sections,  # Schema expects 'lines' not 'sections'
+            AREAS_FIELD: yaml_areas,
             # Scheduling/sequencing logic comes after catalog
             # IMPORTANT: No global departure_port, arrival_port, first_station, last_station
             # These fields are now defined at leg level to avoid validation conflicts
-            "legs": (
+            LEGS_FIELD: (
                 [
                     {
                         "name": "Interactive_Survey",
-                        "departure_port": "port_update",  # Move from global to leg level
-                        "arrival_port": "port_update",  # Move from global to leg level
-                        "first_waypoint": (  # Renamed from first_station
+                        DEPARTURE_PORT_FIELD: DEFAULT_DEPARTURE_PORT,  # Move from global to leg level
+                        ARRIVAL_PORT_FIELD: DEFAULT_ARRIVAL_PORT,  # Move from global to leg level
+                        FIRST_ACTIVITY_FIELD: (  # Renamed from first_station
                             yaml_stations[0]["name"]
                             if yaml_stations
-                            else "UPDATE-first-station-name"
+                            else DEFAULT_FIRST_ACTIVITY
                         ),
-                        "last_waypoint": (  # Renamed from last_station
+                        LAST_ACTIVITY_FIELD: (  # Renamed from last_station
                             yaml_stations[-1]["name"]
                             if yaml_stations
-                            else "UPDATE-last-station-name"
+                            else DEFAULT_LAST_ACTIVITY
                         ),
-                        "strategy": "sequential",
-                        "activities": (  # Use activities instead of sequence
+                        STRATEGY_FIELD: DEFAULT_STRATEGY,
+                        ACTIVITIES_FIELD: (  # Use activities instead of sequence
                             [station["name"] for station in yaml_stations]
                             + [section["name"] for section in yaml_sections]
                             + [area["name"] for area in yaml_areas]
@@ -1012,8 +1035,8 @@ class StationPicker:
             Dictionary containing current stations and transects data.
         """
         return {
-            "stations": self.stations,
-            "transects": self.transects,
+            "stations": self.points,
+            "transects": self.lines,
         }
 
 

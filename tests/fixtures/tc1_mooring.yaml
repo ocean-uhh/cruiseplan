@@ -1,6 +1,6 @@
 cruise_name: "TC1_mooring"
 
-waypoints:
+points:
   - name: "MOORING_001"
     latitude: 45.0
     longitude: -45.0
@@ -13,5 +13,5 @@ legs:
     departure_port: "port_st_johns"
     arrival_port: "port_halifax"
     activities: ["MOORING_001"]
-    first_waypoint: "MOORING_001"
-    last_waypoint: "MOORING_001"
+    first_activity: "MOORING_001"
+    last_activity: "MOORING_001"

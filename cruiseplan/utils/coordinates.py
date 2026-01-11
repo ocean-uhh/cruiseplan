@@ -421,7 +421,7 @@ def extract_coordinates_from_cruise(
     station_names = []
 
     # Extract coordinates from all stations
-    for station_name, station in cruise.waypoint_registry.items():
+    for station_name, station in cruise.point_registry.items():
         lat = station.latitude
         lon = station.longitude
         all_lats.append(lat)

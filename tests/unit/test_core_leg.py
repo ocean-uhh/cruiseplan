@@ -6,7 +6,7 @@ import pytest
 
 from cruiseplan.core.cluster import Cluster
 from cruiseplan.core.leg import Leg
-from cruiseplan.validation import StrategyEnum
+from cruiseplan.schema import StrategyEnum
 
 
 class TestLeg:
@@ -43,16 +43,16 @@ class TestLeg:
             description="Test description",
             strategy=StrategyEnum.SPATIAL_INTERLEAVED,
             ordered=False,
-            first_waypoint="WP1",
-            last_waypoint="WP2",
+            first_activity="WP1",
+            last_activity="WP2",
         )
 
         assert leg.name == "Full_Leg"
         assert leg.description == "Test description"
         assert leg.strategy == StrategyEnum.SPATIAL_INTERLEAVED
         assert leg.ordered is False
-        assert leg.first_waypoint == "WP1"
-        assert leg.last_waypoint == "WP2"
+        assert leg.first_activity == "WP1"
+        assert leg.last_activity == "WP2"
 
     def test_leg_add_cluster(self):
         """Test adding clusters to a leg."""
@@ -335,7 +335,7 @@ class TestLegBehaviorMethods:
         assert leg.allows_reordering() is True
 
     def test_get_boundary_waypoints(self):
-        """Test boundary waypoint retrieval."""
+        """Test boundary activity retrieval."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
 
@@ -343,8 +343,8 @@ class TestLegBehaviorMethods:
             name="Waypoint_Leg",
             departure_port=departure_port,
             arrival_port=arrival_port,
-            first_waypoint="WP_Start",
-            last_waypoint="WP_End",
+            first_activity="WP_Start",
+            last_activity="WP_End",
         )
 
         first, last = leg.get_boundary_waypoints()
@@ -352,7 +352,7 @@ class TestLegBehaviorMethods:
         assert last == "WP_End"
 
     def test_get_boundary_waypoints_none(self):
-        """Test boundary waypoint retrieval when none set."""
+        """Test boundary activity retrieval when none set."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
 
@@ -429,11 +429,11 @@ class TestLegBehaviorMethods:
         assert "clusters=1" in repr_str
 
 
-class TestLegOperationalWaypoints:
-    """Test operational waypoint resolution methods."""
+class TestLegOperationalActivities:
+    """Test operational activity resolution methods."""
 
-    def test_get_operational_entry_point_no_waypoint(self):
-        """Test operational entry point when no waypoint is set."""
+    def test_get_operational_entry_point_no_activity(self):
+        """Test operational entry point when no activity is set."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
 
@@ -446,8 +446,8 @@ class TestLegOperationalWaypoints:
         entry_point = leg.get_operational_entry_point()
         assert entry_point is None
 
-    def test_get_operational_exit_point_no_waypoint(self):
-        """Test operational exit point when no waypoint is set."""
+    def test_get_operational_exit_point_no_activity(self):
+        """Test operational exit point when no activity is set."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
 
@@ -472,8 +472,8 @@ class TestLegOperationalWaypoints:
             name="Test_Leg",
             departure_port=departure_port,
             arrival_port=arrival_port,
-            first_waypoint="WP_Start",
-            last_waypoint="WP_End",
+            first_activity="WP_Start",
+            last_activity="WP_End",
         )
 
         # Mock resolver that returns coordinates
@@ -661,7 +661,7 @@ class TestLegFactoryMethod:
 
     def test_from_definition_basic_leg(self):
         """Test creating leg from basic definition."""
-        from cruiseplan.validation import LegDefinition
+        from cruiseplan.schema import LegDefinition
 
         # Create mock definition using actual global ports
         leg_def = LegDefinition(
@@ -682,16 +682,16 @@ class TestLegFactoryMethod:
         assert len(leg.operations) == 0
         assert len(leg.clusters) == 1  # Activities automatically clustered
 
-    def test_from_definition_with_waypoints(self):
-        """Test creating leg with waypoints."""
-        from cruiseplan.validation import LegDefinition
+    def test_from_definition_with_activities(self):
+        """Test creating leg with activities."""
+        from cruiseplan.schema import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",
             departure_port="port_halifax",
             arrival_port="port_st_johns",
-            first_waypoint="start_wp",
-            last_waypoint="end_wp",
+            first_activity="start_wp",
+            last_activity="end_wp",
             activities=[
                 {"name": "test_station", "operation_type": "CTD"}
             ],  # Minimal activity to pass validation
@@ -700,13 +700,13 @@ class TestLegFactoryMethod:
         leg = Leg.from_definition(leg_def)
 
         assert leg.name == "Test_Leg"
-        assert leg.first_waypoint == "start_wp"
-        assert leg.last_waypoint == "end_wp"
+        assert leg.first_activity == "start_wp"
+        assert leg.last_activity == "end_wp"
         assert len(leg.clusters) == 1  # Activities automatically clustered
 
     def test_from_definition_with_parameter_overrides(self):
         """Test creating leg with parameter overrides."""
-        from cruiseplan.validation import LegDefinition
+        from cruiseplan.schema import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",

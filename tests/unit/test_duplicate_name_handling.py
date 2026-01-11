@@ -8,10 +8,10 @@ by auto-numbering with suffixes.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.validation import (
+from cruiseplan.processing.enrich import expand_ctd_sections
+from cruiseplan.processing.validate import (
     check_complete_duplicates,
     check_duplicate_names,
-    expand_ctd_sections,
 )
 
 
@@ -21,14 +21,14 @@ class TestDuplicateNameCollisionResolution:
     def test_single_collision_resolution(self):
         """Test resolution of single name collision during CTD expansion."""
         config = {
-            "waypoints": [
+            "points": [
                 {
                     "name": "Test_Section_Stn001",
                     "operation_type": "CTD",
                     "action": "profile",
                 }
             ],
-            "transects": [
+            "lines": [
                 {
                     "name": "Test Section",
                     "operation_type": "CTD",
@@ -45,9 +45,9 @@ class TestDuplicateNameCollisionResolution:
         result_config, _summary = expand_ctd_sections(config)
 
         # Should have original + 2 new stations (with collision resolved names)
-        assert len(result_config["waypoints"]) == 3
+        assert len(result_config["points"]) == 3
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         # Original station should remain unchanged
         assert "Test_Section_Stn001" in station_names
@@ -64,7 +64,7 @@ class TestDuplicateNameCollisionResolution:
     def test_multiple_collision_resolution(self):
         """Test resolution of multiple name collisions."""
         config = {
-            "waypoints": [
+            "points": [
                 {"name": "Route_A_Stn001", "operation_type": "CTD"},
                 {
                     "name": "Route_A_Stn001_01",
@@ -72,7 +72,7 @@ class TestDuplicateNameCollisionResolution:
                 },  # Existing collision resolution
                 {"name": "Route_A_Stn002", "operation_type": "CTD"},
             ],
-            "transects": [
+            "lines": [
                 {
                     "name": "Route A",
                     "operation_type": "CTD",
@@ -88,7 +88,7 @@ class TestDuplicateNameCollisionResolution:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         # All names should be unique despite multiple collisions
         assert len(station_names) == len(set(station_names))
@@ -117,11 +117,11 @@ class TestDuplicateNameCollisionResolution:
         ]
 
         config = {
-            "waypoints": [
+            "points": [
                 {"name": "Busy_Section_Stn001", "operation_type": "CTD"}  # Original
             ]
             + existing_stations,
-            "transects": [
+            "lines": [
                 {
                     "name": "Busy Section",
                     "operation_type": "CTD",
@@ -137,7 +137,7 @@ class TestDuplicateNameCollisionResolution:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         # Should have new stations with _06 suffix for the colliding Stn001
         assert "Busy_Section_Stn001_06" in station_names
@@ -150,13 +150,13 @@ class TestDuplicateNameCollisionResolution:
     def test_name_sanitization_prevents_collisions(self):
         """Test that name sanitization doesn't create unintended collisions."""
         config = {
-            "waypoints": [
+            "points": [
                 {
                     "name": "Test_Route_Stn001",
                     "operation_type": "CTD",
                 }  # Existing sanitized name
             ],
-            "transects": [
+            "lines": [
                 {
                     "name": "Test-Route!",  # Special chars will be sanitized to "Test_Route"
                     "operation_type": "CTD",
@@ -172,7 +172,7 @@ class TestDuplicateNameCollisionResolution:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         # Should detect collision and resolve it
         assert "Test_Route_Stn001" in station_names  # Original
@@ -190,7 +190,7 @@ class TestNameSanitization:
     def test_special_character_replacement(self):
         """Test that special characters are properly replaced."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "Test-Section #1 (North->South) @50°N",
                     "operation_type": "CTD",
@@ -205,7 +205,7 @@ class TestNameSanitization:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         for name in station_names:
             # Should only contain alphanumeric and underscores
@@ -221,7 +221,7 @@ class TestNameSanitization:
     def test_unicode_and_special_cases(self):
         """Test handling of unicode and edge case characters."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "Ålesund→Bergen_Øresund",  # Unicode characters
                     "operation_type": "CTD",
@@ -236,7 +236,7 @@ class TestNameSanitization:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        station_names = [s["name"] for s in result_config["waypoints"]]
+        station_names = [s["name"] for s in result_config["points"]]
 
         # Should properly sanitize unicode characters
         for name in station_names:
@@ -248,7 +248,7 @@ class TestNameSanitization:
     def test_empty_name_after_sanitization(self):
         """Test handling when name becomes empty after sanitization."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "!@#$%^&*()",  # Only special characters
                     "operation_type": "CTD",
@@ -265,7 +265,7 @@ class TestNameSanitization:
 
         # Should handle gracefully and create some valid names
         if "stations" in result_config:
-            station_names = [s["name"] for s in result_config["waypoints"]]
+            station_names = [s["name"] for s in result_config["points"]]
             for name in station_names:
                 assert len(name) > 0, "Empty station name created"
                 assert name != "_", "Name is just underscore"
@@ -288,7 +288,7 @@ class TestDuplicateNameDetection:
         station3 = MagicMock()
         station3.name = "DUPLICATE_STN"  # Same as station1
 
-        cruise.config.waypoints = [station1, station2, station3]
+        cruise.config.points = [station1, station2, station3]
         cruise.config.legs = []
         cruise.config.sections = []
         cruise.config.moorings = []
@@ -310,7 +310,7 @@ class TestDuplicateNameDetection:
         leg2 = MagicMock()
         leg2.name = "DUPLICATE_LEG"
 
-        cruise.config.waypoints = []
+        cruise.config.points = []
         cruise.config.legs = [leg1, leg2]
         cruise.config.sections = []
         cruise.config.moorings = []
@@ -351,7 +351,7 @@ class TestDuplicateNameDetection:
         station3.operation_type = ctd_op_type
         station3.action = profile_action
 
-        cruise.config.waypoints = [station1, station2, station3]
+        cruise.config.points = [station1, station2, station3]
 
         _errors, warnings = check_complete_duplicates(cruise)
 
@@ -373,7 +373,7 @@ class TestDuplicateNameDetection:
         leg1 = MagicMock()
         leg1.name = "LEG_001"
 
-        cruise.config.waypoints = [station1, station2]
+        cruise.config.points = [station1, station2]
         cruise.config.legs = [leg1]
         cruise.config.sections = []
         cruise.config.moorings = []
@@ -393,7 +393,7 @@ class TestDuplicateNameDetection:
         cruise = MagicMock()
 
         # Create cruise without some attributes
-        cruise.config.waypoints = []
+        cruise.config.points = []
         # Remove other attributes to test hasattr checks
         if hasattr(cruise.config, "legs"):
             delattr(cruise.config, "legs")
@@ -416,7 +416,7 @@ class TestSphericalInterpolation:
     def test_great_circle_interpolation_accuracy(self):
         """Test that spherical interpolation follows great circle path."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "Great_Circle_Test",
                     "operation_type": "CTD",
@@ -432,7 +432,7 @@ class TestSphericalInterpolation:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        stations = result_config["waypoints"]
+        stations = result_config["points"]
 
         # For great circle along equator, all intermediate points should have lat ≈ 0
         for station in stations:
@@ -448,7 +448,7 @@ class TestSphericalInterpolation:
     def test_short_distance_interpolation(self):
         """Test interpolation for very short distances."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "Short_Distance_Test",
                     "operation_type": "CTD",
@@ -464,7 +464,7 @@ class TestSphericalInterpolation:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        stations = result_config["waypoints"]
+        stations = result_config["points"]
 
         # Should have at least 2 stations
         assert len(stations) >= 2
@@ -482,7 +482,7 @@ class TestSphericalInterpolation:
     def test_polar_region_interpolation(self):
         """Test interpolation near polar regions where spherical effects are more pronounced."""
         config = {
-            "transects": [
+            "lines": [
                 {
                     "name": "Arctic_Section",
                     "operation_type": "CTD",
@@ -501,7 +501,7 @@ class TestSphericalInterpolation:
 
         result_config, _summary = expand_ctd_sections(config)
 
-        stations = result_config["waypoints"]
+        stations = result_config["points"]
 
         # Should create multiple stations
         assert len(stations) >= 2

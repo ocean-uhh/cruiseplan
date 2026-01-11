@@ -151,7 +151,7 @@ When calculating the Cruise Timeline and Path, the system follows this strict hi
 3. **Cluster Constraints (The "Paragraphs"):**
    - **Contiguity:** The ship enters a Cluster and completes ALL tasks inside before leaving (unless `--flatten-groups` is used)
    - **Internal Order:**
-     - If `sequence` is defined → Follow it exactly
+     - If `activities` is defined → Follow it exactly
      - If `strategy: sequential` → Finish List A, then List B
      - If `strategy: day_night_split` → Interleave based on time constraints
      - If `strategy: spatial_interleaved` → Solve TSP for shortest path
@@ -402,18 +402,15 @@ legs:
         strategy: day_night_split    # Tells the scheduler: Day? Pop from moorings, Night? Pop from stations
 
         # OPTION A: Explicit Mixed Sequence (Manual Control)
-        sequence:
+        activities:
           - "MOOR_K7"          # Reference to a Mooring
           - "STN_001"          # Reference to a Station  
           - "ADCP_Transect_A"  # Reference to a Survey
           - "Grid_Survey_Alpha" # Reference to an Area Survey
 
-        # OPTION B: Unordered Buckets (Optimization Target)
-        # Note: moorings are now included in stations list, not as separate field
+        # OPTION B: Unordered Activities (Optimization Target)
         ordered: false
-        stations: [CTD_01, CTD_02, CTD_20, M_53_A, M_53_B, M_53_C]
-        surveys: [ADCP_Line_1, Bathymetry_Survey_2]
-        area_surveys: [Grid_Alpha, Systematic_Mapping_Beta]
+        activities: [CTD_01, CTD_02, CTD_20, M_53_A, M_53_B, M_53_C, ADCP_Line_1, Bathymetry_Survey_2, Grid_Alpha, Systematic_Mapping_Beta]
 ```
 
 ### Controlled Vocabulary
@@ -446,9 +443,7 @@ legs:
 - **Resource Management**: Equipment and personnel allocation by leg or by Cluster
 - **Risk Assessment**: Isolated evaluation of different cruise components
 
-If both sequence and lists of moorings, stations are given, and ordered=True, then the sequence will first be execuded followed by the buckets of activites in the order specified.
-
-If both sequence and lists of moorings/stations are given, and ordered=False, then the optimizer will expand all activites to atomic activities and perform a TSP on them.
+The activities field provides a unified list of all operations to be executed within the cluster. If ordered=True, activities will be executed in the exact order specified. If ordered=False, the optimizer will perform route optimization (TSP) on all activities.
 
 ---
 
@@ -550,9 +545,9 @@ The Route Optimizer uses a hierarchical approach. It respects the "Container" st
 
 When parsing a Cluster, the system looks for operations in this priority order:
 
-1. **sequence** List: If present, this is the **Absolute Truth**. It defines a specific mixed order (e.g., M1 → S1 → S2 → M2). The optimizer treats this as ordered: true
+1. **activities** List: This is the **Absolute Truth**. It defines a specific mixed order (e.g., M1 → S1 → S2 → M2). The ordered flag controls whether this sequence is strict (ordered: true) or can be optimized (ordered: false)
 
-2. **Split Lists** (moorings, stations): If sequence is missing, the system gathers these lists. Their interaction is controlled by the strategy (e.g., zipped or merged)
+2. **Legacy Support**: Older configurations may still use separate moorings/stations lists, but these are deprecated in favor of the unified activities field
 
 **Distance Calculation:**
 
@@ -695,28 +690,12 @@ legs:
     - "STN_001"                     # String reference from global catalog
     - "Transit_Line_A"
 
-    # 2. Category buckets
-    # Used if "sequence" is undefined. System applies `strategy` to these
-    # Note: moorings are now included in stations list
-    stations:
-      - "STN_Deep_01"             # Reference by ID (includes both stations and moorings)
-
-    # Hybrid Support: You can still define inline if needed
+    # Hybrid Support: You can mix references and inline definitions
     # (Useful for one-off operations not worth cataloging)
     activities:
-      - name: "Unexpected_Calibration"
+      - "STN_Deep_01"             # Reference by ID (includes stations, moorings, lines, areas)
+      - name: "Unexpected_Calibration"  # Inline definition
         duration: 60
-
-    # Generators (create new stations dynamically)
-    generate_transect:
-      start:
-            latitude: float             # Required. Decimal degrees
-            longitude: float            # Required. Decimal degrees
-      end:
-            latitude: float             # Required. Decimal degrees
-            longitude: float            # Required. Decimal degrees
-      spacing: 20
-      reversible: boolean         # true
 
       # Naming logic for Internal IDs
       # Used to generate unique IDs for the system to reference

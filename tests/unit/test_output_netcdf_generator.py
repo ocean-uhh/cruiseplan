@@ -34,7 +34,7 @@ class TestNetCDFCoverageBoost:
         config = MagicMock()
         config.cruise_name = "Test Cruise"
         config.vessel_name = "R/V Test"
-        config.waypoints = []
+        config.points = []
         return config
 
     def create_basic_timeline(self):
@@ -221,7 +221,7 @@ class TestNetCDFCoverageBoost:
         station.operation_type.value = "CTD"
         station.action = "profile"
 
-        config.waypoints = [station]
+        config.points = [station]
 
         timeline = [
             ActivityRecord(
@@ -328,7 +328,7 @@ class TestNetCDFErrorPaths:
         config = MagicMock()
         config.cruise_name = "Test"
         config.vessel_name = "Test Vessel"
-        config.waypoints = []  # No stations
+        config.points = []  # No stations
 
         timeline = [
             ActivityRecord(
@@ -376,7 +376,7 @@ class TestNetCDFErrorPaths:
         station.operation_type = "water_sampling"  # String instead of enum
         station.action = "sample"
 
-        config.waypoints = [station]
+        config.points = [station]
 
         timeline = [
             ActivityRecord(

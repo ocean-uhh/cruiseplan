@@ -21,8 +21,8 @@ from cruiseplan.core.operations import (
     LineOperation,
     PointOperation,
 )
+from cruiseplan.schema import CruiseConfig, GeoPoint
 from cruiseplan.utils.units import km_to_nm
-from cruiseplan.validation import CruiseConfig, GeoPoint
 
 logger = logging.getLogger(__name__)
 
@@ -174,10 +174,9 @@ class OperationFactory:
         """Create operation from configuration using catalog-based type detection."""
         # Check each catalog to find the operation
         catalog_checks = [
-            ("waypoints", "point"),
+            ("points", "point"),
             ("ports", "point"),
-            ("transects", "line"),
-            ("sections", "line"),
+            ("lines", "line"),
             ("areas", "area"),
         ]
 
@@ -567,8 +566,8 @@ class TimelineGenerator:
                     departure_port=getattr(leg_def, "departure_port", None),
                     arrival_port=getattr(leg_def, "arrival_port", None),
                     description=getattr(leg_def, "description", None),
-                    first_waypoint=getattr(leg_def, "first_waypoint", None),
-                    last_waypoint=getattr(leg_def, "last_waypoint", None),
+                    first_activity=getattr(leg_def, "first_activity", None),
+                    last_activity=getattr(leg_def, "last_activity", None),
                 )
                 runtime_leg.vessel_speed = getattr(leg_def, "vessel_speed", None)
                 runtime_leg.turnaround_time = getattr(leg_def, "turnaround_time", None)
@@ -621,30 +620,30 @@ class TimelineGenerator:
                     # Regular activity name - use factory
                     operation = self.factory.create_operation(activity, leg.name)
                 else:
-                    # Definition object (WaypointDefinition, TransectDefinition, AreaDefinition, or PortDefinition) - create directly
+                    # Definition object (PointDefinition, LineDefinition, AreaDefinition) - create directly
                     from cruiseplan.core.operations import (
                         AreaOperation,
                         LineOperation,
                         PointOperation,
                     )
-                    from cruiseplan.validation.catalog_definitions import (
+                    from cruiseplan.schema.activities import (
                         AreaDefinition,
-                        TransectDefinition,
-                        WaypointDefinition,
+                        LineDefinition,
+                        PointDefinition,
                     )
 
                     if (
-                        isinstance(activity, WaypointDefinition)
+                        isinstance(activity, PointDefinition)
                         and hasattr(activity, "operation_type")
                         and activity.operation_type
                         and activity.operation_type.value == "port"
                     ):
                         # Port waypoint - create as port
                         operation = PointOperation.from_port(activity)
-                    elif isinstance(activity, WaypointDefinition):
+                    elif isinstance(activity, PointDefinition):
                         # Non-port waypoint - create as scientific operation
                         operation = PointOperation.from_pydantic(activity)
-                    elif isinstance(activity, TransectDefinition):
+                    elif isinstance(activity, LineDefinition):
                         # Transect - create as line operation
                         operation = LineOperation.from_pydantic(activity)
                     elif isinstance(activity, AreaDefinition):

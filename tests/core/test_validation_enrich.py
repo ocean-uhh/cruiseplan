@@ -7,11 +7,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.validation import (
-    enrich_configuration,
+from cruiseplan.processing.enrich import enrich_configuration
+from cruiseplan.processing.validate import (
     validate_configuration,
     validate_depth_accuracy,
 )
+from cruiseplan.schema import POINTS_FIELD
 
 
 class TestEnrichConfiguration:
@@ -33,7 +34,7 @@ class TestEnrichConfiguration:
         """Test enriching depths only."""
         # Setup file reading mocks
         config_data = {
-            "waypoints": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
+            "points": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
         }
         mock_yaml_load.return_value = config_data
 
@@ -48,7 +49,7 @@ class TestEnrichConfiguration:
         mock_station.water_depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         # Mock bathymetry
         mock_bathymetry = MagicMock()
@@ -88,7 +89,7 @@ class TestEnrichConfiguration:
         """Test enriching coordinates only."""
         # Setup file reading mocks
         config_data = {
-            "waypoints": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
+            "points": [{"name": "STN_001", "latitude": 50.0, "longitude": -40.0}]
         }
         mock_yaml_load.return_value = config_data
 
@@ -100,7 +101,7 @@ class TestEnrichConfiguration:
         mock_station = MagicMock()
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         mock_format_ddm.return_value = "50 00.00'N, 040 00.00'W"
 
@@ -128,14 +129,14 @@ class TestEnrichConfiguration:
     ):
         """Test when no enrichment is needed."""
         # Setup file reading mocks
-        config_data = {"stations": []}
+        config_data = {POINTS_FIELD: []}
         mock_yaml_load.return_value = config_data
 
         # Setup mocks
         mock_cruise = MagicMock()
         mock_cruise_class.return_value = mock_cruise
         mock_cruise.raw_data = config_data
-        mock_cruise.waypoint_registry = {}
+        mock_cruise.point_registry = {}
 
         # Test
         result = enrich_configuration(
@@ -297,7 +298,7 @@ class TestValidateDepthAccuracy:
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager
         mock_bathymetry = MagicMock()
@@ -321,7 +322,7 @@ class TestValidateDepthAccuracy:
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager
         mock_bathymetry = MagicMock()
@@ -347,7 +348,7 @@ class TestValidateDepthAccuracy:
         mock_station.depth = None
         mock_station.latitude = 50.0
         mock_station.longitude = -40.0
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         # Setup mock bathymetry manager with no data
         mock_bathymetry = MagicMock()
@@ -370,7 +371,7 @@ class TestValidateDepthAccuracy:
         mock_station = MagicMock()
         mock_station.water_depth = None
         mock_station.depth = None
-        mock_cruise.waypoint_registry = {"STN_001": mock_station}
+        mock_cruise.point_registry = {"STN_001": mock_station}
 
         mock_bathymetry = MagicMock()
 
