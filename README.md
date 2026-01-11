@@ -34,7 +34,7 @@ CruisePlan transforms complex cruise planning from a weeks-long manual process i
 
 **⚠️ Breaking Changes in v0.3.0:** Commands `cruiseplan download` and `cruiseplan pandoi` have been removed. Parameter names shortened (`--bathymetry-*` → `--bathy-*`). See [MIGRATION_v0.3.0.md](MIGRATION_v0.3.0.md) for migration guide and [CHANGELOG.md](CHANGELOG.md) for complete changes.
 
-**⚠️ Breaking Changes in v0.3.3:** YAML configuration now uses `transects:` instead of `transits:` for scientific line operations.
+**⚠️ Breaking Changes in v0.3.3:** YAML configuration now uses `transects:` instead of `transits:` for scientific line operations and `waypoints:` instead of `stations:` for point operations.
 
 **Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 

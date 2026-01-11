@@ -1,6 +1,6 @@
 cruise_name: "TC1_mooring"
 
-stations:
+waypoints:
   - name: "MOORING_001"
     latitude: 45.0
     longitude: -45.0

@@ -16,9 +16,9 @@ from cruiseplan.validation import (
     AreaDefinition,
     CruiseConfig,
     PortDefinition,  # Legacy alias for WaypointDefinition
-    StationDefinition,  # Legacy alias for WaypointDefinition
     StrategyEnum,
-    TransitDefinition,  # Legacy alias for TransectDefinition
+    TransectDefinition,
+    WaypointDefinition,
 )
 
 
@@ -48,10 +48,10 @@ class Cruise:
         Raw dictionary data loaded from the YAML file.
     config : CruiseConfig
         Validated Pydantic configuration object.
-    station_registry : Dict[str, StationDefinition]
-        Dictionary mapping station names to StationDefinition objects.
-    transit_registry : Dict[str, TransitDefinition]
-        Dictionary mapping transit names to TransitDefinition objects.
+    waypoint_registry : Dict[str, WaypointDefinition]
+        Dictionary mapping waypoint names to WaypointDefinition objects.
+    transect_registry : Dict[str, TransectDefinition]
+        Dictionary mapping transect names to TransectDefinition objects.
     port_registry : Dict[str, PortDefinition]
         Dictionary mapping port names to PortDefinition objects.
     runtime_legs : List[Leg]
@@ -64,7 +64,7 @@ class Cruise:
 
         Performs three main operations:
         1. Loads and validates the YAML configuration using Pydantic
-        2. Builds registries for stations and transits
+        2. Builds registries for waypoints and transects
         3. Resolves string references to full objects
 
         Parameters
@@ -81,7 +81,7 @@ class Cruise:
         ValidationError
             If the configuration does not match the expected schema.
         ReferenceError
-            If referenced stations or transits are not found in the catalog.
+            If referenced waypoints or transects are not found in the catalog.
         """
         self.config_path = Path(config_path)
         self.raw_data = self._load_yaml()
@@ -90,10 +90,10 @@ class Cruise:
         self.config = CruiseConfig(**self.raw_data)
 
         # 2. Indexing Pass (Build the Catalog Registry)
-        self.station_registry: dict[str, StationDefinition] = {
-            s.name: s for s in (self.config.stations or [])
+        self.waypoint_registry: dict[str, WaypointDefinition] = {
+            s.name: s for s in (self.config.waypoints or [])
         }
-        self.transit_registry: dict[str, TransitDefinition] = {
+        self.transect_registry: dict[str, TransectDefinition] = {
             t.name: t for t in (self.config.transects or [])
         }
         self.area_registry: dict[str, AreaDefinition] = {
@@ -138,8 +138,8 @@ class Cruise:
         Resolve string references to full objects from the registry.
 
         Traverses the cruise legs, clusters, and sections to convert string
-        identifiers into their corresponding StationDefinition and
-        TransitDefinition objects from the registries.
+        identifiers into their corresponding WaypointDefinition and
+        TransectDefinition objects from the registries.
 
         Resolves all references within legs to their corresponding definitions.
 
@@ -152,11 +152,9 @@ class Cruise:
         # Note: Global anchor validation removed - waypoints are now handled at leg level
 
         for leg in self.config.legs:
-            # Resolve Direct Leg Stations
-            if leg.stations:
-                leg.stations = self._resolve_list(
-                    leg.stations, self.station_registry, "Station"
-                )
+            # Resolve Direct Leg Activities (modern field)
+            if leg.activities:
+                leg.activities = self._resolve_mixed_list(leg.activities)
 
             # Resolve Clusters
             if leg.clusters:
@@ -170,12 +168,6 @@ class Cruise:
                     if cluster.activities:
                         cluster.activities = self._resolve_mixed_list(
                             cluster.activities
-                        )
-
-                    # Resolve Buckets (deprecated field - kept for compatibility)
-                    if cluster.stations:
-                        cluster.stations = self._resolve_list(
-                            cluster.stations, self.station_registry, "Station"
                         )
 
     def _resolve_list(
@@ -223,7 +215,7 @@ class Cruise:
 
     def _resolve_mixed_list(self, items: list[Union[str, Any]]) -> list[Any]:
         """
-        Resolve a mixed sequence list containing stations, transits, or areas.
+        Resolve a mixed sequence list containing waypoints, transects, or areas.
 
         Searches through all available registries to resolve string references
         and converts inline dictionary definitions to proper object types.
@@ -249,15 +241,15 @@ class Cruise:
         for item in items:
             if isinstance(item, str):
                 # Try finding it in any registry
-                if item in self.station_registry:
-                    resolved_items.append(self.station_registry[item])
-                elif item in self.transit_registry:
-                    resolved_items.append(self.transit_registry[item])
+                if item in self.waypoint_registry:
+                    resolved_items.append(self.waypoint_registry[item])
+                elif item in self.transect_registry:
+                    resolved_items.append(self.transect_registry[item])
                 elif item in self.area_registry:
                     resolved_items.append(self.area_registry[item])
                 else:
                     raise ReferenceError(
-                        f"Activity ID '{item}' not found in any Catalog (Stations, Transits, Areas)."
+                        f"Activity ID '{item}' not found in any Catalog (Waypoints, Transects, Areas)."
                     )
             elif isinstance(item, dict):
                 # Convert inline dictionary definition to proper object type
@@ -269,7 +261,7 @@ class Cruise:
 
     def _convert_inline_definition(
         self, definition_dict: dict
-    ) -> Union[StationDefinition, TransitDefinition, AreaDefinition]:
+    ) -> Union[WaypointDefinition, TransectDefinition, AreaDefinition]:
         """
         Convert an inline dictionary definition to the appropriate definition object.
 
@@ -283,7 +275,7 @@ class Cruise:
 
         Returns
         -------
-        Union[StationDefinition, TransitDefinition, AreaDefinition]
+        Union[WaypointDefinition, TransectDefinition, AreaDefinition]
             The appropriate definition object created from the dictionary.
 
         Raises
@@ -294,10 +286,10 @@ class Cruise:
         # Determine definition type based on key fields
         if "operation_type" in definition_dict:
             # This is a station definition
-            return StationDefinition(**definition_dict)
+            return WaypointDefinition(**definition_dict)
         elif "start" in definition_dict and "end" in definition_dict:
             # This is a transit definition
-            return TransitDefinition(**definition_dict)
+            return TransectDefinition(**definition_dict)
         elif any(
             field in definition_dict for field in ["polygon", "center", "boundary"]
         ):
@@ -312,7 +304,7 @@ class Cruise:
             if "operation_type" not in definition_dict:
                 definition_dict = definition_dict.copy()
                 definition_dict["operation_type"] = "CTD"  # Default operation type
-            return StationDefinition(**definition_dict)
+            return WaypointDefinition(**definition_dict)
         else:
             raise ValueError(
                 f"Cannot determine definition type for inline definition: {definition_dict}"
@@ -563,31 +555,6 @@ class Cruise:
                 )
                 # TODO: Resolve activities to operations in Phase 3 completion
                 runtime_leg.clusters.append(default_cluster)
-            elif hasattr(leg_def, "stations") and leg_def.stations:
-                # Backward compatibility: create cluster from legacy stations field
-                import warnings
-
-                warnings.warn(
-                    f"Leg '{leg_def.name}' uses deprecated 'stations' field. "
-                    "Use 'activities' field for future compatibility.",
-                    DeprecationWarning,
-                    stacklevel=2,
-                )
-                legacy_cluster = Cluster(
-                    name=f"{leg_def.name}_Legacy",
-                    description=f"Legacy stations cluster for leg {leg_def.name}",
-                    strategy=StrategyEnum.SEQUENTIAL,
-                    ordered=True,
-                )
-                # Convert station references to activities format
-                for station in leg_def.stations:
-                    if hasattr(station, "name"):
-                        # Station object
-                        legacy_cluster.add_operation(station)
-                    else:
-                        # Station reference - will be resolved in Phase 3
-                        pass
-                runtime_leg.clusters.append(legacy_cluster)
 
             runtime_legs.append(runtime_leg)
 
@@ -597,7 +564,7 @@ class Cruise:
         """
         Check if an anchor reference exists in any catalog registry.
 
-        Anchors can be stations, areas, or other operation entities
+        Anchors can be waypoints, areas, or other operation entities
         that can serve as routing points for maritime planning.
 
         Parameters
@@ -612,7 +579,7 @@ class Cruise:
         """
         # Check all registries for the anchor reference
         return (
-            anchor_ref in self.station_registry
+            anchor_ref in self.waypoint_registry
             or anchor_ref in self.area_registry
-            or anchor_ref in self.transit_registry
+            or anchor_ref in self.transect_registry
         )

@@ -174,10 +174,8 @@ class OperationFactory:
         """Create operation from configuration using catalog-based type detection."""
         # Check each catalog to find the operation
         catalog_checks = [
-            ("stations", "point"),
-            ("moorings", "point"),
-            ("ports", "point"),
             ("waypoints", "point"),
+            ("ports", "point"),
             ("transects", "line"),
             ("sections", "line"),
             ("areas", "area"),
@@ -262,7 +260,7 @@ def calculate_timeline_statistics(timeline: list[dict[str, Any]]) -> dict[str, A
         label = activity.get("label", "")
 
         if operation_class == "PointOperation":
-            if op_type == "station":
+            if op_type in ["CTD"]:
                 station_activities.append(activity)
                 logger.info(
                     f"   Adding to stations: {label} (activity={activity_type}, op_class={operation_class}, op_type={op_type})"
@@ -618,15 +616,43 @@ class TimelineGenerator:
         # Process complete activities sequence (ports are treated as regular operations)
         for activity in complete_activities:
             try:
-                # Handle both activity names (strings) and port objects
+                # Handle both activity names (strings) and definition objects
                 if isinstance(activity, str):
                     # Regular activity name - use factory
                     operation = self.factory.create_operation(activity, leg.name)
                 else:
-                    # Port object with enriched information (action, etc.) - create directly
-                    from cruiseplan.core.operations import PointOperation
+                    # Definition object (WaypointDefinition, TransectDefinition, AreaDefinition, or PortDefinition) - create directly
+                    from cruiseplan.core.operations import (
+                        AreaOperation,
+                        LineOperation,
+                        PointOperation,
+                    )
+                    from cruiseplan.validation.catalog_definitions import (
+                        AreaDefinition,
+                        TransectDefinition,
+                        WaypointDefinition,
+                    )
 
-                    operation = PointOperation.from_port(activity)
+                    if (
+                        isinstance(activity, WaypointDefinition)
+                        and hasattr(activity, "operation_type")
+                        and activity.operation_type
+                        and activity.operation_type.value == "port"
+                    ):
+                        # Port waypoint - create as port
+                        operation = PointOperation.from_port(activity)
+                    elif isinstance(activity, WaypointDefinition):
+                        # Non-port waypoint - create as scientific operation
+                        operation = PointOperation.from_pydantic(activity)
+                    elif isinstance(activity, TransectDefinition):
+                        # Transect - create as line operation
+                        operation = LineOperation.from_pydantic(activity)
+                    elif isinstance(activity, AreaDefinition):
+                        # Area - create as area operation
+                        operation = AreaOperation.from_pydantic(activity)
+                    else:
+                        # Legacy port object - create as port
+                        operation = PointOperation.from_port(activity)
 
                 # Add navigational transit between all operations
                 # Zero-duration transits will be filtered out in presentation layer
@@ -796,32 +822,11 @@ class TimelineGenerator:
                     # Check config leg activities (for backwards compatibility)
                     elif hasattr(config_leg, "activities") and config_leg.activities:
                         activities.extend(config_leg.activities)
-                    # Check config leg stations (legacy)
-                    elif hasattr(config_leg, "stations") and config_leg.stations:
-                        activities.extend(
-                            [
-                                (
-                                    station.name
-                                    if hasattr(station, "name")
-                                    else str(station)
-                                )
-                                for station in config_leg.stations
-                            ]
-                        )
                     break
 
         # Fallback: Get activities from leg definition (for backwards compatibility)
         if not activities and hasattr(leg, "activities") and leg.activities:
             activities.extend(leg.activities)
-
-        # Fallback: Handle legacy 'stations' field
-        if not activities and hasattr(leg, "stations") and leg.stations:
-            activities.extend(
-                [
-                    station.name if hasattr(station, "name") else str(station)
-                    for station in leg.stations
-                ]
-            )
 
         return activities
 

@@ -425,8 +425,8 @@ def generate_kml_catalog(config: CruiseConfig, output_file: Path) -> Path:
         <!-- Stations -->"""
 
     # Add stations from configuration
-    if hasattr(config, "stations") and config.stations:
-        for station in config.stations:
+    if hasattr(config, "waypoints") and config.waypoints:
+        for station in config.waypoints:
             # Convert enum values to strings
             operation_type = getattr(station, "operation_type", "station")
             if hasattr(operation_type, "value"):

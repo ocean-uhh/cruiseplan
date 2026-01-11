@@ -533,14 +533,14 @@ def expand_ctd_sections(
         new_stations = _expand_single_ctd_section(section, default_depth)
 
         if new_stations:
-            if "stations" not in config:
+            if "waypoints" not in config:
                 if hasattr(config, "copy"):
-                    config["stations"] = CommentedSeq()
+                    config["waypoints"] = CommentedSeq()
                 else:
-                    config["stations"] = []
+                    config["waypoints"] = []
 
             existing_names = {
-                s.get("name") for s in config["stations"] if s.get("name")
+                s.get("name") for s in config["waypoints"] if s.get("name")
             }
 
             station_names = []
@@ -560,11 +560,11 @@ def expand_ctd_sections(
                         commented_station = CommentedMap(station)
                         station = commented_station
 
-                config["stations"].append(station)
+                config["waypoints"].append(station)
 
-                if hasattr(config["stations"], "yaml_add_eol_comment"):
-                    station_index = len(config["stations"]) - 1
-                    config["stations"].yaml_add_eol_comment(
+                if hasattr(config["waypoints"], "yaml_add_eol_comment"):
+                    station_index = len(config["waypoints"]) - 1
+                    config["waypoints"].yaml_add_eol_comment(
                         " expanded by cruiseplan enrich --expand-sections",
                         station_index,
                     )
@@ -592,15 +592,6 @@ def expand_ctd_sections(
             leg["last_waypoint"] = expanded_stations[leg["last_waypoint"]][-1]
             logger.info(f"Updated leg last_waypoint to {leg['last_waypoint']}")
 
-        if leg.get("stations"):
-            new_stations = []
-            for item in leg["stations"]:
-                if isinstance(item, str) and item in expanded_stations:
-                    new_stations.extend(expanded_stations[item])
-                else:
-                    new_stations.append(item)
-            leg["stations"] = new_stations
-
         if leg.get("activities"):
             new_activities = []
             for item in leg["activities"]:
@@ -622,15 +613,6 @@ def expand_ctd_sections(
                     else:
                         new_sequence.append(item)
                 cluster["sequence"] = new_sequence
-
-            if cluster.get("stations"):
-                new_stations = []
-                for item in cluster["stations"]:
-                    if isinstance(item, str) and item in expanded_stations:
-                        new_stations.extend(expanded_stations[item])
-                    else:
-                        new_stations.append(item)
-                cluster["stations"] = new_stations
 
     summary = {
         "sections_expanded": len(ctd_sections),
@@ -697,9 +679,9 @@ def add_missing_station_defaults(config_dict: dict[str, Any]) -> int:
     """
     station_defaults_added = 0
 
-    # Process stations for missing defaults
-    if "stations" in config_dict:
-        for station_data in config_dict["stations"]:
+    # Process waypoints for missing defaults
+    if "waypoints" in config_dict:
+        for station_data in config_dict["waypoints"]:
             # Check for mooring operations without duration
             if (
                 station_data.get("operation_type") == "mooring"
@@ -801,7 +783,7 @@ def _load_and_validate_config(
         "defaults_added": len(defaults_added),
         "station_defaults_added": station_defaults_added,
         "defaults_list": defaults_added,
-        "total_stations_processed": len(cruise.station_registry),
+        "total_stations_processed": len(cruise.waypoint_registry),
     }
 
     return config_dict, cruise, enrichment_summary
@@ -840,7 +822,7 @@ def _enrich_station_depths(
     bathymetry = BathymetryManager(source=bathymetry_source, data_dir=bathymetry_dir)
 
     # Process each station
-    for station_name, station in cruise.station_registry.items():
+    for station_name, station in cruise.waypoint_registry.items():
         # Add water depths if requested (bathymetry enrichment targets water_depth field)
         should_add_water_depth = (
             not hasattr(station, "water_depth")
@@ -880,14 +862,14 @@ def _sync_depths_to_config(
     stations_with_depths_added : set[str]
         Station names that had depths added.
     """
-    if "stations" in config_dict:
-        for station_data in config_dict["stations"]:
+    if "waypoints" in config_dict:
+        for station_data in config_dict["waypoints"]:
             station_name = station_data["name"]
             if (
-                station_name in cruise.station_registry
+                station_name in cruise.waypoint_registry
                 and station_name in stations_with_depths_added
             ):
-                station_obj = cruise.station_registry[station_name]
+                station_obj = cruise.waypoint_registry[station_name]
                 # Add water_depth field with careful placement after name field
                 water_depth_value = float(station_obj.water_depth)
 
@@ -936,11 +918,11 @@ def _enrich_station_coordinates(
     coord_changes_made = 0
 
     # Process coordinate additions for stations
-    if "stations" in config_dict:
-        for station_data in config_dict["stations"]:
+    if "waypoints" in config_dict:
+        for station_data in config_dict["waypoints"]:
             station_name = station_data["name"]
-            if station_name in cruise.station_registry:
-                station_obj = cruise.station_registry[station_name]
+            if station_name in cruise.waypoint_registry:
+                station_obj = cruise.waypoint_registry[station_name]
 
                 # Add coordinate fields if requested
                 if add_coords:
@@ -1155,6 +1137,7 @@ def _expand_port_references(
                         "name": port_ref,  # Keep the full port_* name as catalog identifier
                         "latitude": port_definition.latitude,
                         "longitude": port_definition.longitude,
+                        "operation_type": "port",  # Explicitly set operation_type for ports
                     }
                     # Add display_name if available
                     if hasattr(port_definition, "display_name"):

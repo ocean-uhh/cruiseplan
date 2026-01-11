@@ -75,7 +75,7 @@ class CruiseConfig(BaseModel):
         Port where the cruise begins.
     arrival_port : Optional[Union[str, WaypointDefinition]]
         Port where the cruise ends.
-    stations : Optional[List[WaypointDefinition]]
+    waypoints : Optional[List[WaypointDefinition]]
         Global catalog of waypoint definitions.
     transects : Optional[List[TransectDefinition]]
         Global catalog of transect definitions.
@@ -85,10 +85,6 @@ class CruiseConfig(BaseModel):
         Global catalog of port definitions.
     legs : Optional[List[LegDefinition]]
         List of cruise legs for schedule organization.
-
-    # Legacy fields for backward compatibility
-    transits : Optional[List[TransectDefinition]]
-        LEGACY: Use 'transects' instead.
     """
 
     cruise_name: str
@@ -125,7 +121,7 @@ class CruiseConfig(BaseModel):
     )
 
     # Global catalog definitions (new oceanographic terminology)
-    stations: Optional[list[WaypointDefinition]] = Field(
+    waypoints: Optional[list[WaypointDefinition]] = Field(
         default_factory=list, description="Global catalog of waypoint definitions"
     )
     transects: Optional[list[TransectDefinition]] = Field(

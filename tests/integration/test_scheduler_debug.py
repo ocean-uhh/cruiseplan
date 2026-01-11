@@ -58,9 +58,9 @@ class TestSchedulerDebug:
                 )
             print(f"   Default vessel speed: {config.default_vessel_speed} knots")
 
-            print(f"\n   Stations: {len(config.stations or [])}")
-            if config.stations:
-                for i, stn in enumerate(config.stations):
+            print(f"\n   Stations: {len(config.waypoints or [])}")
+            if config.waypoints:
+                for i, stn in enumerate(config.waypoints):
                     if hasattr(stn, "latitude") and stn.latitude is not None:
                         print(
                             f"     {i+1}. {stn.name} at {stn.latitude}, {stn.longitude}"
@@ -71,7 +71,7 @@ class TestSchedulerDebug:
             # Count mooring operations from stations list
             mooring_operations = [
                 s
-                for s in (config.stations or [])
+                for s in (config.waypoints or [])
                 if hasattr(s, "operation_type") and s.operation_type.value == "mooring"
             ]
             print(f"\n   Mooring operations: {len(mooring_operations)}")

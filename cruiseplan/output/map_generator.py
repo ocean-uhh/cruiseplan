@@ -47,8 +47,8 @@ def extract_points_from_cruise(cruise, include_ports=True) -> list[dict[str, Any
     points = []
 
     # Extract stations
-    if hasattr(cruise, "station_registry") and cruise.station_registry:
-        for station_name, station in cruise.station_registry.items():
+    if hasattr(cruise, "waypoint_registry") and cruise.waypoint_registry:
+        for station_name, station in cruise.waypoint_registry.items():
             lat = station.latitude
             lon = station.longitude
             # Determine entity type based on operation type
