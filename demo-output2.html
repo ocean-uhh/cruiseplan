@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.4 v0.3.4</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=72ca80b5"></script>
+      <script src="_static/documentation_options.js?v=1e28cc32"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -35,7 +35,7 @@
           
           
           <a href="index.html" class="icon icon-home">
-            CruisePlan v0.3.3
+            CruisePlan v0.3.4
               <img src="_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
           </a>
 <div role="search">
@@ -93,7 +93,7 @@
 
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="index.html">CruisePlan v0.3.3</a>
+          <a href="index.html">CruisePlan v0.3.4</a>
       </nav>
 
       <div class="wy-nav-content">
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [01:40, 4.88MB/s]
+Downloading ETOPO: 469MB [01:41, 4.84MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -682,9 +682,6 @@ WARNING: PointDefinition &#39;STN_006&#39; has fields not in allowed set: [&#39;
   PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
   return self.__pydantic_serializer__.to_python(
 INFO: Saved configuration to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-INFO: ✅ Validating cruise configuration...
-INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -702,6 +699,9 @@ Is callable: True
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Validating cruise configuration...
+INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 INFO: ✅ Validation passed
 INFO: 🗺️ Generating cruise maps...
