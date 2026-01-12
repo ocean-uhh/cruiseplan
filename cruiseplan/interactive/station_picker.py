@@ -18,10 +18,12 @@ from cruiseplan.interactive.campaign_selector import CampaignSelector
 
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
-from cruiseplan.schema import (
+from cruiseplan.schema import CruiseConfig
+from cruiseplan.schema.vocabulary import (
     ACTIVITIES_FIELD,
     AREAS_FIELD,
     ARRIVAL_PORT_FIELD,
+    DEFAULT_STATION_SPACING_FIELD,
     DEFAULT_VESSEL_SPEED_FIELD,
     DEPARTURE_PORT_FIELD,
     FIRST_ACTIVITY_FIELD,
@@ -40,14 +42,10 @@ from cruiseplan.utils.config import (
 )
 from cruiseplan.utils.defaults import (
     DEFAULT_ARRIVAL_PORT,
-    DEFAULT_CALC_DEPTH,
-    DEFAULT_CALC_TRANSFER,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_FIRST_ACTIVITY,
     DEFAULT_LAST_ACTIVITY,
-    DEFAULT_STATION_SPACING_KM,
     DEFAULT_STRATEGY,
-    DEFAULT_VESSEL_SPEED_KT,
 )
 from cruiseplan.utils.plot_config import get_colormap
 
@@ -884,7 +882,7 @@ class StationPicker:
         self.fig.canvas.draw_idle()
 
     # --- File Operations ---
-
+    # TODO Use Station picker to make a cruise config and then use cruise config to write YAML
     def _save_to_yaml(self):
         """Save current cruise plan to YAML format."""
         if not self.points and not self.lines:
@@ -903,16 +901,17 @@ class StationPicker:
 
         current_name = getattr(self, "cruise_name", "Interactive_Session")
 
+        # Get defaults from CruiseConfig instead of hardcoded constants
+        default_config = CruiseConfig(cruise_name="temp")
+        
         # Add minimal defaults for required cruise configuration fields
         # This allows the output to be used directly with 'cruiseplan enrich'
         output_data = {
             "cruise_name": current_name,
             "description": "Cruise plan created with interactive station picker",
-            DEFAULT_VESSEL_SPEED_FIELD: DEFAULT_VESSEL_SPEED_KT,
-            "default_distance_between_stations": DEFAULT_STATION_SPACING_KM,
-            "calculate_transfer_between_sections": DEFAULT_CALC_TRANSFER,
-            "calculate_depth_via_bathymetry": DEFAULT_CALC_DEPTH,
-            START_DATE_FIELD: "1970-01-01T00:00:00Z",
+            DEFAULT_VESSEL_SPEED_FIELD: default_config.default_vessel_speed,
+            DEFAULT_STATION_SPACING_FIELD: default_config.default_distance_between_stations,
+            START_DATE_FIELD: default_config.start_date,
             # Global catalog sections (points, lines, areas) come BEFORE legs
             POINTS_FIELD: yaml_stations,
             LINES_FIELD: yaml_sections,  # Schema expects 'lines' not 'sections'

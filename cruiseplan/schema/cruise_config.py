@@ -12,8 +12,6 @@ from typing import Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALC_DEPTH,
-    DEFAULT_CALC_TRANSFER,
     DEFAULT_CTD_RATE_M_S,
     DEFAULT_DAY_END_HR,
     DEFAULT_DAY_START_HR,
@@ -280,18 +278,10 @@ class CruiseConfig(BaseModel):
         Start hour for daytime operations (0-23).
     day_end_hour : int
         End hour for daytime operations (0-23).
-    calculate_transfer_between_sections : bool
-        Whether to calculate transit times between sections.
-    calculate_depth_via_bathymetry : bool
-        Whether to calculate depths using bathymetry data.
     start_date : str
         Cruise start date.
     start_time : Optional[str]
         Cruise start time.
-    station_label_format : str
-        Format string for station labels.
-    mooring_label_format : str
-        Format string for mooring labels.
     departure_port : Optional[Union[str, PointDefinition]]
         Port where the cruise begins.
     arrival_port : Optional[Union[str, PointDefinition]]
@@ -324,12 +314,8 @@ class CruiseConfig(BaseModel):
     day_start_hour: int = DEFAULT_DAY_START_HR  # Default 08:00
     day_end_hour: int = DEFAULT_DAY_END_HR  # Default 20:00
 
-    calculate_transfer_between_sections: bool = DEFAULT_CALC_TRANSFER
-    calculate_depth_via_bathymetry: bool = DEFAULT_CALC_DEPTH
     start_date: str = DEFAULT_START_DATE
     start_time: Optional[str] = "08:00"
-    station_label_format: str = "C{:03d}"
-    mooring_label_format: str = "M{:02d}"
 
     # Port definitions for single-leg cruises
     departure_port: Optional[Union[str, PointDefinition]] = Field(

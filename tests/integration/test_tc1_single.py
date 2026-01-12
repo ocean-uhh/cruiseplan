@@ -18,8 +18,6 @@ from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.map_generator import generate_map
 from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALC_DEPTH,
-    DEFAULT_CALC_TRANSFER,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_VESSEL_SPEED_KT,
@@ -120,8 +118,6 @@ class TestTC1SingleIntegration:
 
         # Verify values match constants exactly
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.calculate_transfer_between_sections == DEFAULT_CALC_TRANSFER
-        assert config.calculate_depth_via_bathymetry == DEFAULT_CALC_DEPTH
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 
@@ -227,8 +223,6 @@ class TestTC1SingleIntegration:
 
         # Validate all default values match constants
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.calculate_transfer_between_sections == DEFAULT_CALC_TRANSFER
-        assert config.calculate_depth_via_bathymetry == DEFAULT_CALC_DEPTH
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 

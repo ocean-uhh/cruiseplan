@@ -19,6 +19,12 @@ WATER_DEPTH_FIELD = "water_depth"
 START_DATE_FIELD = "start_date"
 START_TIME_FIELD = "start_time"
 DEFAULT_VESSEL_SPEED_FIELD = "default_vessel_speed"
+DEFAULT_STATION_SPACING_FIELD = "default_distance_between_stations"
+CTD_DESCENT_RATE_FIELD = "ctd_descent_rate"
+CTD_ASCENT_RATE_FIELD = "ctd_ascent_rate"
+DAY_START_HOUR_FIELD = "day_start_hour"
+DAY_END_HOUR_FIELD = "day_end_hour"
+TURNAROUND_TIME_FIELD = "turnaround_time"
 DEPARTURE_PORT_FIELD = "departure_port"
 ARRIVAL_PORT_FIELD = "arrival_port"
 LEGS_FIELD = "legs"
@@ -26,6 +32,12 @@ CLUSTERS_FIELD = "clusters"
 ACTIVITIES_FIELD = "activities"
 STRATEGY_FIELD = "strategy"
 STATION_SPACING_FIELD = "distance_between_stations"
+COMMENT_FIELD = "comment"
+DESCRIPTION_FIELD = "description"
+VESSEL_SPEED_FIELD = "vessel_speed"
+LATITUDE_FIELD = "latitude"
+LONGITUDE_FIELD = "longitude"
+MAX_DEPTH_FIELD = "max_depth"
 
 # Geometry field constants
 LINE_VERTEX_FIELD = "route"
@@ -59,6 +71,12 @@ __all__ = [
     "ACTIVITIES_FIELD",
     "STRATEGY_FIELD",
     "STATION_SPACING_FIELD",
+    "COMMENT_FIELD",
+    "DESCRIPTION_FIELD",
+    "VESSEL_SPEED_FIELD",
+    "LATITUDE_FIELD",
+    "LONGITUDE_FIELD",
+    "MAX_DEPTH_FIELD",
     # Geometry field constants
     "LINE_VERTEX_FIELD",
     "AREA_VERTEX_FIELD",

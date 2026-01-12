@@ -22,7 +22,42 @@ from cruiseplan.schema import (
     PointDefinition,
     StrategyEnum,
 )
-from cruiseplan.schema.vocabulary import ARRIVAL_PORT_FIELD, DEPARTURE_PORT_FIELD
+from cruiseplan.schema.vocabulary import (
+    ACTION_FIELD,
+    ACTIVITIES_FIELD,
+    AREA_VERTEX_FIELD,
+    AREAS_FIELD,
+    ARRIVAL_PORT_FIELD,
+    CLUSTERS_FIELD,
+    COMMENT_FIELD,
+    CTD_ASCENT_RATE_FIELD,
+    CTD_DESCENT_RATE_FIELD,
+    DAY_END_HOUR_FIELD,
+    DAY_START_HOUR_FIELD,
+    DEFAULT_STATION_SPACING_FIELD,
+    DEFAULT_VESSEL_SPEED_FIELD,
+    DEPARTURE_PORT_FIELD,
+    DESCRIPTION_FIELD,
+    DURATION_FIELD,
+    FIRST_ACTIVITY_FIELD,
+    LAST_ACTIVITY_FIELD,
+    LATITUDE_FIELD,
+    LEGS_FIELD,
+    LONGITUDE_FIELD,
+    MAX_DEPTH_FIELD,
+    LINE_VERTEX_FIELD,
+    LINES_FIELD,
+    OP_DEPTH_FIELD,
+    OP_TYPE_FIELD,
+    POINTS_FIELD,
+    START_DATE_FIELD,
+    START_TIME_FIELD,
+    STATION_SPACING_FIELD,
+    STRATEGY_FIELD,
+    TURNAROUND_TIME_FIELD,
+    VESSEL_SPEED_FIELD,
+    WATER_DEPTH_FIELD,
+)
 from cruiseplan.utils.global_ports import resolve_port_reference
 from cruiseplan.utils.units import NM_PER_KM
 from cruiseplan.utils.yaml_io import load_yaml
@@ -1560,61 +1595,72 @@ class CruiseInstance:
         with end-of-line and section header comment support.
         """
         # Build ordered output dictionary following canonical structure
-        output = {}
+        try:
+            from ruamel.yaml.comments import CommentedMap
+
+            output = CommentedMap()
+        except ImportError:
+            # Fallback to regular dict if ruamel.yaml not available
+            output = {}
 
         # 1. Cruise Metadata
         output["cruise_name"] = self.config.cruise_name
         if self.config.description:
             output["description"] = self.config.description
-        output["start_date"] = self.config.start_date
+        output[START_DATE_FIELD] = self.config.start_date
         if self.config.start_time:
-            output["start_time"] = self.config.start_time
+            output[START_TIME_FIELD] = self.config.start_time
 
         # 2. Vessel Parameters
-        output["default_vessel_speed"] = self.config.default_vessel_speed
-        output["default_distance_between_stations"] = (
+        output[DEFAULT_VESSEL_SPEED_FIELD] = self.config.default_vessel_speed
+        output[DEFAULT_STATION_SPACING_FIELD] = (
             self.config.default_distance_between_stations
         )
-        output["turnaround_time"] = self.config.turnaround_time
-        output["ctd_descent_rate"] = self.config.ctd_descent_rate
-        output["ctd_ascent_rate"] = self.config.ctd_ascent_rate
+        output[TURNAROUND_TIME_FIELD] = self.config.turnaround_time
+        output[CTD_DESCENT_RATE_FIELD] = self.config.ctd_descent_rate
+        output[CTD_ASCENT_RATE_FIELD] = self.config.ctd_ascent_rate
 
         # 3. Calculation Settings
-        output["calculate_transfer_between_sections"] = (
-            self.config.calculate_transfer_between_sections
-        )
-        output["calculate_depth_via_bathymetry"] = (
-            self.config.calculate_depth_via_bathymetry
-        )
-        output["day_start_hour"] = self.config.day_start_hour
-        output["day_end_hour"] = self.config.day_end_hour
-        output["station_label_format"] = self.config.station_label_format
-        output["mooring_label_format"] = self.config.mooring_label_format
+        output[DAY_START_HOUR_FIELD] = self.config.day_start_hour
+        output[DAY_END_HOUR_FIELD] = self.config.day_end_hour
 
         # 3b. Single-leg cruise ports (if applicable)
         if self.config.departure_port:
-            output["departure_port"] = self._serialize_point_definition(
+            output[DEPARTURE_PORT_FIELD] = self._serialize_point_definition(
                 self.config.departure_port
             )
         if self.config.arrival_port:
-            output["arrival_port"] = self._serialize_point_definition(
+            output[ARRIVAL_PORT_FIELD] = self._serialize_point_definition(
                 self.config.arrival_port
             )
 
         # 4. Catalog Definitions
         if self.point_registry:
-            output["points"] = [
+            output[POINTS_FIELD] = [
                 self._serialize_point_definition(p)
                 for p in self.point_registry.values()
             ]
         if self.line_registry:
-            output["lines"] = [
+            output[LINES_FIELD] = [
                 self._serialize_line_definition(l) for l in self.line_registry.values()
             ]
         if self.area_registry:
-            output["areas"] = [
+            output[AREAS_FIELD] = [
                 self._serialize_area_definition(a) for a in self.area_registry.values()
             ]
+
+        # Add section comment for catalog definitions
+        try:
+            if (
+                hasattr(output, "yaml_set_comment_before_after_key")
+                and self.point_registry
+            ):
+                output.yaml_set_comment_before_after_key(
+                    POINTS_FIELD,
+                    before="\n# === CATALOG DEFINITIONS ===\n# Station definitions, transect routes, and survey areas",
+                )
+        except (AttributeError, ImportError):
+            pass  # Fallback for when ruamel.yaml is not available
         if self.config.ports:
             output["ports"] = [
                 self._serialize_point_definition(p) for p in self.config.ports
@@ -1622,40 +1668,210 @@ class CruiseInstance:
 
         # 5. Schedule Organization
         if self.config.legs:
-            output["legs"] = [
+            output[LEGS_FIELD] = [
                 self._serialize_leg_definition(leg) for leg in self.config.legs
             ]
+
+            # Add section comment for cruise organization
+            try:
+                if hasattr(output, "yaml_set_comment_before_after_key"):
+                    output.yaml_set_comment_before_after_key(
+                        LEGS_FIELD,
+                        before="\n# === CRUISE ORGANIZATION ===\n# Leg definitions with port-to-port routing and activity schedules",
+                    )
+            except (AttributeError, ImportError):
+                pass  # Fallback for when ruamel.yaml is not available
 
         return output
 
     def _serialize_point_definition(self, point: PointDefinition) -> dict[str, Any]:
-        """Serialize a PointDefinition to dictionary format."""
-        return point.model_dump(exclude_none=True, mode="json")
+        """Serialize a PointDefinition to dictionary format with canonical field ordering."""
+        data = point.model_dump(exclude_none=True, mode="json")
+
+        # Canonical field ordering for point definitions
+        ordered_dict = {}
+
+        # 1. Identifier
+        if "name" in data:
+            ordered_dict["name"] = data["name"]
+        if "comment" in data:
+            ordered_dict[COMMENT_FIELD] = data["comment"]
+        if "operation_type" in data:
+            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
+        if "action" in data:
+            ordered_dict[ACTION_FIELD] = data["action"]
+
+        # 2. Coordinates
+        if "latitude" in data:
+            ordered_dict[LATITUDE_FIELD] = data["latitude"]
+        if "longitude" in data:
+            ordered_dict[LONGITUDE_FIELD] = data["longitude"]
+        if "water_depth" in data:
+            ordered_dict[WATER_DEPTH_FIELD] = data["water_depth"]
+            
+        if "operation_depth" in data:
+            ordered_dict[OP_DEPTH_FIELD] = data["operation_depth"]
+        if "duration" in data:
+            ordered_dict[DURATION_FIELD] = data["duration"]
+
+        # 3. Optional fields in alphabetical order
+        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
+        for field in remaining_fields:
+            ordered_dict[field] = data[field]
+
+        return ordered_dict
 
     def _serialize_line_definition(self, line: LineDefinition) -> dict[str, Any]:
-        """Serialize a LineDefinition to dictionary format."""
-        return line.model_dump(exclude_none=True, mode="json")
+        """Serialize a LineDefinition to dictionary format with canonical field ordering."""
+        data = line.model_dump(exclude_none=True, mode="json")
+
+        # Canonical field ordering for line definitions
+        ordered_dict = {}
+
+        # 1. Identifier
+        if "name" in data:
+            ordered_dict["name"] = data["name"]
+        if "comment" in data:
+            ordered_dict[COMMENT_FIELD] = data["comment"]
+        if "operation_type" in data:
+            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
+        if "action" in data:
+            ordered_dict[ACTION_FIELD] = data["action"]
+
+        # 2. Geographic route
+        if "distance_between_stations" in data:
+            ordered_dict[STATION_SPACING_FIELD] = data["distance_between_stations"]
+        if "max_depth" in data:
+            ordered_dict[MAX_DEPTH_FIELD] = data["max_depth"]
+        if "vessel_speed" in data:
+            ordered_dict[VESSEL_SPEED_FIELD] = data["vessel_speed"]
+        if "duration" in data:
+            ordered_dict[DURATION_FIELD] = data["duration"]
+        if "route" in data:
+            ordered_dict[LINE_VERTEX_FIELD] = data["route"]
+
+        # 3. Optional fields in alphabetical order
+        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
+        for field in remaining_fields:
+            ordered_dict[field] = data[field]
+
+        return ordered_dict
 
     def _serialize_area_definition(self, area: AreaDefinition) -> dict[str, Any]:
-        """Serialize an AreaDefinition to dictionary format."""
-        return area.model_dump(exclude_none=True, mode="json")
+        """Serialize an AreaDefinition to dictionary format with canonical field ordering."""
+        data = area.model_dump(exclude_none=True, mode="json")
+
+        # Canonical field ordering for area definitions
+        ordered_dict = {}
+
+        # 1. Identifier
+        if "name" in data:
+            ordered_dict["name"] = data["name"]
+        if "operation_type" in data:
+            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
+        if "action" in data:
+            ordered_dict[ACTION_FIELD] = data["action"]
+
+        # 2. Geographic boundary
+        if "duration" in data:
+            ordered_dict[DURATION_FIELD] = data["duration"]
+        if "corners" in data:
+            ordered_dict[AREA_VERTEX_FIELD] = data["corners"]
+
+        # 3. Optional fields in alphabetical order
+        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
+        for field in remaining_fields:
+            ordered_dict[field] = data[field]
+
+        return ordered_dict
+
+    def _serialize_cluster_definition(self, cluster: ClusterDefinition) -> dict[str, Any]:
+        """Serialize a ClusterDefinition to dictionary format with canonical field ordering."""
+        data = cluster.model_dump(exclude_none=True, mode="json")
+
+        # Canonical field ordering for cluster definitions
+        ordered_dict = {}
+
+        # 1. Identifier
+        if "name" in data:
+            ordered_dict["name"] = data["name"]
+
+        # 2. Description/comment
+        if "description" in data:
+            ordered_dict[DESCRIPTION_FIELD] = data["description"]
+        if "comment" in data:
+            ordered_dict[COMMENT_FIELD] = data["comment"]
+
+        # 3. Strategy and ordering
+        if "strategy" in data:
+            ordered_dict[STRATEGY_FIELD] = data["strategy"]
+        if "ordered" in data:
+            ordered_dict["ordered"] = data["ordered"]
+
+        # 4. Activity list (last)
+        if hasattr(cluster, "activities") and cluster.activities:
+            activity_names = []
+            for activity in cluster.activities:
+                if hasattr(activity, "name"):
+                    activity_names.append(activity.name)
+                else:
+                    # Fallback if it's already a string
+                    activity_names.append(str(activity))
+            ordered_dict[ACTIVITIES_FIELD] = activity_names
+
+        # 5. Optional fields in alphabetical order
+        processed_pydantic_fields = {"name", "description", "comment", "strategy", "ordered", "activities"}
+        remaining_fields = sorted(set(data.keys()) - processed_pydantic_fields)
+        for field in remaining_fields:
+            ordered_dict[field] = data[field]
+
+        return ordered_dict
 
     def _serialize_leg_definition(self, leg: LegDefinition) -> dict[str, Any]:
         """Serialize a LegDefinition to dictionary format."""
-        leg_dict = leg.model_dump(exclude_none=True, mode="json")
+        data = leg.model_dump(
+            exclude_none=True,
+            mode="json",
+            exclude={ACTIVITIES_FIELD, FIRST_ACTIVITY_FIELD, LAST_ACTIVITY_FIELD},
+        )
 
-        # Handle port serialization (already handled by mode='json' but keeping for compatibility)
-        if isinstance(leg_dict.get(DEPARTURE_PORT_FIELD), PointDefinition):
-            leg_dict[DEPARTURE_PORT_FIELD] = leg_dict[DEPARTURE_PORT_FIELD].model_dump(
-                exclude_none=True, mode="json"
-            )
-        if isinstance(leg_dict.get(ARRIVAL_PORT_FIELD), PointDefinition):
-            leg_dict[ARRIVAL_PORT_FIELD] = leg_dict[ARRIVAL_PORT_FIELD].model_dump(
-                exclude_none=True, mode="json"
-            )
+        # Canonical field ordering for leg definitions
+        ordered_dict = {}
 
-        # Handle activities serialization - activities should be references (names), not full objects
-        if "activities" in leg_dict and leg.activities:
+        # 1. Identifier
+        if "name" in data:
+            ordered_dict["name"] = data["name"]
+        if "description" in data:
+            ordered_dict[DESCRIPTION_FIELD] = data["description"]
+        if "comment" in data:
+            ordered_dict[COMMENT_FIELD] = data["comment"]
+
+        # 2. Routing information
+        if "departure_port" in data:
+            ordered_dict[DEPARTURE_PORT_FIELD] = data["departure_port"]
+        if "arrival_port" in data:
+            ordered_dict[ARRIVAL_PORT_FIELD] = data["arrival_port"]
+
+        # 3. Activity boundaries
+        if hasattr(leg, "first_activity") and getattr(leg, "first_activity"):
+            first_activity = getattr(leg, "first_activity")
+            if hasattr(first_activity, "name"):
+                ordered_dict[FIRST_ACTIVITY_FIELD] = first_activity.name
+            else:
+                ordered_dict[FIRST_ACTIVITY_FIELD] = str(first_activity)
+        if hasattr(leg, "last_activity") and getattr(leg, "last_activity"):
+            last_activity = getattr(leg, "last_activity")
+            if hasattr(last_activity, "name"):
+                ordered_dict[LAST_ACTIVITY_FIELD] = last_activity.name
+            else:
+                ordered_dict[LAST_ACTIVITY_FIELD] = str(last_activity)
+
+        # 4. Vessel configuration (before activities/clusters)
+        if "vessel_speed" in data:
+            ordered_dict[VESSEL_SPEED_FIELD] = data["vessel_speed"]
+
+        # 5. Activity list
+        if leg.activities:
             activity_names = []
             for activity in leg.activities:
                 if hasattr(activity, "name"):
@@ -1663,24 +1879,25 @@ class CruiseInstance:
                 else:
                     # Fallback if it's already a string
                     activity_names.append(str(activity))
-            leg_dict["activities"] = activity_names
+            ordered_dict[ACTIVITIES_FIELD] = activity_names
 
-        # Handle first_activity and last_activity - should be names, not full objects
-        if hasattr(leg, "first_activity") and leg.first_activity:
-            if hasattr(leg.first_activity, "name"):
-                leg_dict["first_activity"] = leg.first_activity.name
-            else:
-                leg_dict["first_activity"] = str(leg.first_activity)
+        # 7. Sub-organization
+        if hasattr(leg, "clusters") and leg.clusters:
+            ordered_dict[CLUSTERS_FIELD] = [
+                self._serialize_cluster_definition(cluster) 
+                for cluster in leg.clusters
+            ]
 
-        if hasattr(leg, "last_activity") and leg.last_activity:
-            if hasattr(leg.last_activity, "name"):
-                leg_dict["last_activity"] = leg.last_activity.name
-            else:
-                leg_dict["last_activity"] = str(leg.last_activity)
+        # 8. Optional fields in alphabetical order
+        # Track which pydantic fields we've already processed
+        processed_pydantic_fields = {"name", "departure_port", "arrival_port", "first_activity", "last_activity", "description", "comment", "vessel_speed", "clusters"}
+        remaining_fields = sorted(set(data.keys()) - processed_pydantic_fields)
+        for field in remaining_fields:
+            ordered_dict[field] = data[field]
 
-        return leg_dict
+        return ordered_dict
 
-    def to_yaml(self, output_path: Union[str, Path]) -> None:
+    def to_yaml(self, output_path: Union[str, Path], enrichment_command: Optional[str] = None) -> None:
         """
         Export CruiseInstance configuration to YAML file with canonical ordering.
 
@@ -1692,6 +1909,8 @@ class CruiseInstance:
         ----------
         output_path : Union[str, Path]
             Path where the YAML file should be written.
+        enrichment_command : Optional[str]
+            The enrichment command that was used to create this file, for documentation.
 
         Raises
         ------
@@ -1719,6 +1938,13 @@ class CruiseInstance:
             output_path = Path(output_path)
 
             with output_path.open("w", encoding="utf-8") as f:
+                # Write file-level comment
+                f.write("# Cruise configuration generated by CruisePlan\n")
+                f.write("# Canonical field ordering enforced for consistency\n")
+                if enrichment_command:
+                    f.write(f"# Enriched with command: {enrichment_command}\n")
+                f.write("\n")
+                
                 yaml.dump(output_dict, f, default_flow_style=False, sort_keys=False)
             return
 
@@ -1740,7 +1966,10 @@ class CruiseInstance:
         with output_path.open("w", encoding="utf-8") as f:
             # Write file-level comment
             f.write("# Cruise configuration generated by CruisePlan\n")
-            f.write("# Canonical field ordering enforced for consistency\n\n")
+            f.write("# Canonical field ordering enforced for consistency\n")
+            if enrichment_command:
+                f.write(f"# Enriched with command: {enrichment_command}\n")
+            f.write("\n")
 
             yaml.dump(output_dict, f)
 
@@ -2073,7 +2302,7 @@ class CruiseInstance:
         )
 
         # Process each station in the point registry
-        for station_name, station in self.point_registry.items():
+        for _, station in self.point_registry.items():
             # Check if station needs water depth
             should_add_water_depth = (
                 not hasattr(station, "water_depth")
@@ -2088,7 +2317,7 @@ class CruiseInstance:
                 if depth is not None and depth != 0:
                     # Modify the station object directly
                     station.water_depth = round(abs(depth))  # Convert to positive depth
-                    stations_with_depths_added.add(station_name)
+                    stations_with_depths_added.add(station.name)
 
         return stations_with_depths_added
 
@@ -2107,7 +2336,7 @@ class CruiseInstance:
         station_defaults_added = 0
 
         # Process each station in the point registry
-        for station_name, station in self.point_registry.items():
+        for _, station in self.point_registry.items():
             # Check for mooring operations without duration
             if (
                 hasattr(station, "operation_type")
@@ -2203,7 +2432,7 @@ class CruiseInstance:
         coord_changes_made = 0
 
         # Add coordinate displays for points that have coordinates but lack display fields
-        for point_name, point in self.point_registry.items():
+        for _, point in self.point_registry.items():
             if (
                 hasattr(point, "latitude")
                 and hasattr(point, "longitude")

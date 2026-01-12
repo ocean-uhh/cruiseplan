@@ -1,7 +1,5 @@
 cruise_name: "TC3_Clusters_Test"
 default_vessel_speed: 10.0
-calculate_transfer_between_sections: false
-calculate_depth_via_bathymetry: true
 
 points:
   - name: STN_001

@@ -6,7 +6,6 @@ with operation_type="CTD" and action="section" into individual station definitio
 with proper interpolation, duplicate name checking, and reference updates.
 """
 
-
 import pytest
 from pydantic import ValidationError
 
