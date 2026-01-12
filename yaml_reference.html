@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>YAML Configuration Reference &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>YAML Configuration Reference &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=45320adf"></script>
+      <script src="_static/documentation_options.js?v=72ca80b5"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -77,12 +77,12 @@
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="#global-catalog-definitions">Global Catalog Definitions</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#station-definition">Station Definition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#point-definition">Point Definition</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#fields-operations-actions">Fields, Operations &amp; Actions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#duration-calculation">Duration Calculation</a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#transect-definition">Transect Definition</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#line-definition">Line Definition</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#transit-fields">Fields, Operations &amp; Actions</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ctd-section-special-case">CTD Section Special Case</a></li>
 <li class="toctree-l4"><a class="reference internal" href="#id11">Duration Calculation</a></li>
@@ -162,87 +162,87 @@
 <nav class="contents local" id="table-of-contents">
 <p class="topic-title">Table of Contents</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="#overview" id="id33">Overview</a></p>
+<li><p><a class="reference internal" href="#overview" id="id32">Overview</a></p>
 <ul>
-<li><p><a class="reference internal" href="#configuration-structure" id="id34">Configuration Structure</a></p></li>
-<li><p><a class="reference internal" href="#formats-and-data-conventions" id="id35">Formats and data conventions</a></p></li>
-<li><p><a class="reference internal" href="#simplified-leg-creation" id="id36">Simplified Leg Creation</a></p></li>
+<li><p><a class="reference internal" href="#configuration-structure" id="id33">Configuration Structure</a></p></li>
+<li><p><a class="reference internal" href="#formats-and-data-conventions" id="id34">Formats and data conventions</a></p></li>
+<li><p><a class="reference internal" href="#simplified-leg-creation" id="id35">Simplified Leg Creation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#cruise-wide-metadata" id="id37">Cruise-wide metadata</a></p>
+<li><p><a class="reference internal" href="#cruise-wide-metadata" id="id36">Cruise-wide metadata</a></p>
 <ul>
-<li><p><a class="reference internal" href="#ports-and-routing-waypoints" id="id38">Ports and Routing Waypoints</a></p></li>
+<li><p><a class="reference internal" href="#ports-and-routing-waypoints" id="id37">Ports and Routing Waypoints</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#global-catalog-definitions" id="id39">Global Catalog Definitions</a></p>
+<li><p><a class="reference internal" href="#global-catalog-definitions" id="id38">Global Catalog Definitions</a></p>
 <ul>
-<li><p><a class="reference internal" href="#station-definition" id="id40">Station Definition</a></p>
+<li><p><a class="reference internal" href="#point-definition" id="id39">Point Definition</a></p>
 <ul>
-<li><p><a class="reference internal" href="#fields-operations-actions" id="id41">Fields, Operations &amp; Actions</a></p></li>
-<li><p><a class="reference internal" href="#duration-calculation" id="id42">Duration Calculation</a></p></li>
+<li><p><a class="reference internal" href="#fields-operations-actions" id="id40">Fields, Operations &amp; Actions</a></p></li>
+<li><p><a class="reference internal" href="#duration-calculation" id="id41">Duration Calculation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#transect-definition" id="id43">Transect Definition</a></p>
+<li><p><a class="reference internal" href="#line-definition" id="id42">Line Definition</a></p>
 <ul>
-<li><p><a class="reference internal" href="#transit-fields" id="id44">Fields, Operations &amp; Actions</a></p></li>
-<li><p><a class="reference internal" href="#ctd-section-special-case" id="id45">CTD Section Special Case</a></p></li>
-<li><p><a class="reference internal" href="#id11" id="id46">Duration Calculation</a></p></li>
+<li><p><a class="reference internal" href="#transit-fields" id="id43">Fields, Operations &amp; Actions</a></p></li>
+<li><p><a class="reference internal" href="#ctd-section-special-case" id="id44">CTD Section Special Case</a></p></li>
+<li><p><a class="reference internal" href="#id11" id="id45">Duration Calculation</a></p></li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#area-definition" id="id47">Area Definition</a></p>
+<li><p><a class="reference internal" href="#area-definition" id="id46">Area Definition</a></p>
 <ul>
-<li><p><a class="reference internal" href="#area-entry-and-exit-points" id="id48">Area Entry and Exit Points</a></p></li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p><a class="reference internal" href="#schedule-organization" id="id49">Schedule Organization</a></p>
-<ul>
-<li><p><a class="reference internal" href="#leg-cluster-definitions" id="id50">Leg &amp; Cluster Definitions</a></p>
-<ul>
-<li><p><a class="reference internal" href="#leg-cluster-fields" id="id51">Leg &amp; Cluster Fields</a></p></li>
-<li><p><a class="reference internal" href="#processing-priority" id="id52">Processing Priority</a></p></li>
-<li><p><a class="reference internal" href="#routing-anchor-behavior-first-activity-last-activity" id="id53">Routing Anchor Behavior (first_activity &amp; last_activity)</a></p></li>
-<li><p><a class="reference internal" href="#activity-types" id="id54">Activity Types</a></p></li>
-<li><p><a class="reference internal" href="#optimization-strategy-and-un-ordered" id="id55">Optimization <strong>Strategy</strong> and (Un-)Ordered</a></p></li>
+<li><p><a class="reference internal" href="#area-entry-and-exit-points" id="id47">Area Entry and Exit Points</a></p></li>
 </ul>
 </li>
 </ul>
 </li>
-<li><p><a class="reference internal" href="#validation-notes" id="id56">Validation Notes</a></p>
+<li><p><a class="reference internal" href="#schedule-organization" id="id48">Schedule Organization</a></p>
 <ul>
-<li><p><a class="reference internal" href="#multiple-definitions" id="id57">Multiple Definitions</a></p></li>
-<li><p><a class="reference internal" href="#validation-behavior" id="id58">Validation Behavior</a></p></li>
-<li><p><a class="reference internal" href="#cross-references" id="id59">Cross-References</a></p></li>
+<li><p><a class="reference internal" href="#leg-cluster-definitions" id="id49">Leg &amp; Cluster Definitions</a></p>
+<ul>
+<li><p><a class="reference internal" href="#leg-cluster-fields" id="id50">Leg &amp; Cluster Fields</a></p></li>
+<li><p><a class="reference internal" href="#processing-priority" id="id51">Processing Priority</a></p></li>
+<li><p><a class="reference internal" href="#routing-anchor-behavior-first-activity-last-activity" id="id52">Routing Anchor Behavior (first_activity &amp; last_activity)</a></p></li>
+<li><p><a class="reference internal" href="#activity-types" id="id53">Activity Types</a></p></li>
+<li><p><a class="reference internal" href="#optimization-strategy-and-un-ordered" id="id54">Optimization <strong>Strategy</strong> and (Un-)Ordered</a></p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#validation-notes" id="id55">Validation Notes</a></p>
+<ul>
+<li><p><a class="reference internal" href="#multiple-definitions" id="id56">Multiple Definitions</a></p></li>
+<li><p><a class="reference internal" href="#validation-behavior" id="id57">Validation Behavior</a></p></li>
+<li><p><a class="reference internal" href="#cross-references" id="id58">Cross-References</a></p></li>
 </ul>
 </li>
 </ul>
 </nav>
 <section id="overview">
-<h2><a class="toc-backref" href="#id33" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
+<h2><a class="toc-backref" href="#id32" role="doc-backlink">Overview</a><a class="headerlink" href="#overview" title="Link to this heading"></a></h2>
 <p>CruisePlan uses YAML configuration files to define oceanographic cruises. The configuration consists of three main parts:</p>
 <ol class="arabic simple">
 <li><p><strong>:ref:`Cruise-wide metadata and settings &lt;cruise-wide-metadata&gt;`</strong>: Cruise-level fields defining defaults and settings</p></li>
-<li><p><strong>Global Catalog</strong>: Definitions of stations, transects and areas (reusable components)</p></li>
+<li><p><strong>Global Catalog</strong>: Definitions of activities: points, lines and areas (reusable components)</p></li>
 <li><p><strong>Schedule Organization</strong>: Legs and clusters that organize catalog items into execution order (see <a class="reference internal" href="#simplified-leg-creation"><span class="std std-ref">Simplified Leg Creation</span></a> for default leg behavior)</p></li>
 </ol>
 <div class="admonition tip">
 <p class="admonition-title">Tip</p>
-<p><strong>Comments in YAML are preserved</strong>: CruisePlan uses <code class="docutils literal notranslate"><span class="pre">ruamel.yaml</span></code> which maintains comments when reading and writing files. You can rely on comments remaining in your YAML through the <cite>cruiseplan enrich</cite> command.</p>
+<p><strong>Comments in yamls:</strong> While CruisePlan supports some comments (at the top of the file), it is recommended to avoid comments within YAML files as they may not be preserved during processing.  Instead, use the <cite>comment</cite> fields for documentation purposes.</p>
 </div>
 <section id="configuration-structure">
-<span id="id1"></span><h3><a class="toc-backref" href="#id34" role="doc-backlink">Configuration Structure</a><a class="headerlink" href="#configuration-structure" title="Link to this heading"></a></h3>
+<span id="id1"></span><h3><a class="toc-backref" href="#id33" role="doc-backlink">Configuration Structure</a><a class="headerlink" href="#configuration-structure" title="Link to this heading"></a></h3>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cruise-wide Metadata and Settings</span>
 <span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Example</span><span class="nv"> </span><span class="s">Cruise</span><span class="nv"> </span><span class="s">2025&quot;</span>
 <span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Oceanographic</span><span class="nv"> </span><span class="s">survey</span><span class="nv"> </span><span class="s">of</span><span class="nv"> </span><span class="s">the</span><span class="nv"> </span><span class="s">North</span><span class="nv"> </span><span class="s">Atlantic&quot;</span>
 
 <span class="c1"># Global Catalog (Reusable Definitions)</span>
-<span class="nt">points</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">        </span><span class="c1"># Point definitions → converted to PointOperation objects for scheduling</span>
-<span class="nt">lines</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Line operation definitions → converted to LineOperation objects for scheduling</span>
-<span class="nt">areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Area operation definitions</span>
+<span class="nt">points</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">        </span><span class="c1"># Point definitions for station operations</span>
+<span class="nt">lines</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Line operation definitions for transects and sections</span>
+<span class="nt">areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Area operation definitions for survey regions</span>
 
 <span class="c1"># Schedule Organization</span>
-<span class="nt">legs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">          </span><span class="c1"># Execution phases with clusters/stations/sequences</span>
+<span class="nt">legs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">          </span><span class="c1"># Execution phases with clusters/activities/sequences</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -251,7 +251,7 @@
 </div>
 </section>
 <section id="formats-and-data-conventions">
-<span id="coordinate-conventions"></span><h3><a class="toc-backref" href="#id35" role="doc-backlink">Formats and data conventions</a><a class="headerlink" href="#formats-and-data-conventions" title="Link to this heading"></a></h3>
+<span id="coordinate-conventions"></span><h3><a class="toc-backref" href="#id34" role="doc-backlink">Formats and data conventions</a><a class="headerlink" href="#formats-and-data-conventions" title="Link to this heading"></a></h3>
 <ul class="simple">
 <li><p><strong>Depth Convention</strong>: Positive values represent depth below sea surface (meters)</p></li>
 <li><p><strong>Bathymetry Precision</strong>: Depths from bathymetry will be rounded to <strong>nearest whole meter</strong> (though 1 decimal place is acceptable)</p></li>
@@ -267,7 +267,7 @@
 <p>See also <a class="reference internal" href="units_and_defaults.html"><span class="doc">Units and Defaults</span></a> for detailed conventions on units and default values used throughout CruisePlan.</p>
 </section>
 <section id="simplified-leg-creation">
-<span id="id2"></span><h3><a class="toc-backref" href="#id36" role="doc-backlink">Simplified Leg Creation</a><a class="headerlink" href="#simplified-leg-creation" title="Link to this heading"></a></h3>
+<span id="id2"></span><h3><a class="toc-backref" href="#id35" role="doc-backlink">Simplified Leg Creation</a><a class="headerlink" href="#simplified-leg-creation" title="Link to this heading"></a></h3>
 <p>For simple single-leg cruises, you can omit the <code class="docutils literal notranslate"><span class="pre">legs</span></code> section entirely.  In this case, <strong>departure_port</strong> and <strong>arrival_port</strong> are required at a cruise level.  During the enrichment process, a default leg will be created and the ports will be moved to the leg section.</p>
 <p><strong>Automatic Default Leg Creation</strong>:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Simple configuration - no legs required!</span>
@@ -316,7 +316,7 @@
 </section>
 </section>
 <section id="cruise-wide-metadata">
-<span id="id3"></span><h2><a class="toc-backref" href="#id37" role="doc-backlink">Cruise-wide metadata</a><a class="headerlink" href="#cruise-wide-metadata" title="Link to this heading"></a></h2>
+<span id="id3"></span><h2><a class="toc-backref" href="#id36" role="doc-backlink">Cruise-wide metadata</a><a class="headerlink" href="#cruise-wide-metadata" title="Link to this heading"></a></h2>
 <span id="cruise-metadata"></span><table class="docutils align-default" id="id18">
 <caption><span class="caption-text">Basic Cruise Information</span><a class="headerlink" href="#id18" title="Link to this table"></a></caption>
 <colgroup>
@@ -396,16 +396,6 @@
 <td><p>1.0</p></td>
 <td><p>CTD ascent rate in m/s (0.5-2.0)</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_transfer_between_sections</span></code></p></td>
-<td><p>bool</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Whether to calculate transit times between sections</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">calculate_depth_via_bathymetry</span></code></p></td>
-<td><p>bool</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Whether to calculate depths using bathymetry data</p></td>
-</tr>
 </tbody>
 </table>
 <table class="docutils align-default" id="id20">
@@ -434,20 +424,10 @@
 <td><p>20</p></td>
 <td><p>End hour for daytime operations (0-23, must be &gt; day_start_hour)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">station_label_format</span></code></p></td>
-<td><p>str</p></td>
-<td><p>“C{:03d}”</p></td>
-<td><p>Python format string for station labels</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mooring_label_format</span></code></p></td>
-<td><p>str</p></td>
-<td><p>“M{:02d}”</p></td>
-<td><p>Python format string for mooring labels</p></td>
-</tr>
 </tbody>
 </table>
 <section id="ports-and-routing-waypoints">
-<span id="ports-transfers"></span><h3><a class="toc-backref" href="#id38" role="doc-backlink">Ports and Routing Waypoints</a><a class="headerlink" href="#ports-and-routing-waypoints" title="Link to this heading"></a></h3>
+<span id="ports-transfers"></span><h3><a class="toc-backref" href="#id37" role="doc-backlink">Ports and Routing Waypoints</a><a class="headerlink" href="#ports-and-routing-waypoints" title="Link to this heading"></a></h3>
 <p><strong>Port Definition</strong>: Ports are defined within legs and reference either global port definitions (see <a class="reference internal" href="global_ports.html#global-ports-reference"><span class="std std-ref">Global Ports Reference</span></a>) or inline port specifications.</p>
 <table class="docutils align-default" id="id21">
 <caption><span class="caption-text">Port Fields</span><a class="headerlink" href="#id21" title="Link to this table"></a></caption>
@@ -505,27 +485,22 @@
 </section>
 </section>
 <section id="global-catalog-definitions">
-<span id="global-catalog"></span><h2><a class="toc-backref" href="#id39" role="doc-backlink">Global Catalog Definitions</a><a class="headerlink" href="#global-catalog-definitions" title="Link to this heading"></a></h2>
+<span id="global-catalog"></span><h2><a class="toc-backref" href="#id38" role="doc-backlink">Global Catalog Definitions</a><a class="headerlink" href="#global-catalog-definitions" title="Link to this heading"></a></h2>
 <p>The global catalog contains reusable definitions that can be referenced by legs and clusters.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>YAML ↔ Operations Architecture</strong></p>
-<p>CruisePlan uses a two-layer architecture:</p>
+<p><strong>Configuration Architecture</strong></p>
+<p>CruisePlan uses a unified architecture centered on the <cite>CruiseInstance</cite> class:</p>
 <ol class="arabic simple">
-<li><p><strong>YAML Layer</strong>: Pydantic validation models (<cite>StationDefinition</cite>, <cite>TransectDefinition</cite>, <cite>AreaDefinition</cite>) validate and parse YAML configuration according to <cite>cruiseplan/validation/catalog_definitions.py</cite></p></li>
-<li><p><strong>Operations Layer</strong>: Operational classes (<cite>PointOperation</cite>, <cite>LineOperation</cite>, <cite>AreaOperation</cite>) handle scheduling calculations and duration estimation in <cite>cruiseplan/scheduling/operations.py</cite></p></li>
+<li><p><strong>YAML Configuration</strong>: Validated and parsed using Pydantic models (<cite>PointDefinition</cite>, <cite>LineDefinition</cite>, <cite>AreaDefinition</cite>)</p></li>
+<li><p><strong>CruiseInstance</strong>: Single source of truth containing the complete cruise configuration</p></li>
+<li><p><strong>Direct Processing</strong>: Timeline generation and output creation work directly with the configuration objects</p></li>
 </ol>
-<p>During planning, definitions are converted:</p>
-<ul class="simple">
-<li><p><cite>StationDefinition</cite> → <cite>PointOperation</cite> (via <cite>from_pydantic()</cite>)</p></li>
-<li><p><cite>TransectDefinition</cite> → <cite>LineOperation</cite> (via <cite>from_pydantic()</cite>)</p></li>
-<li><p><cite>AreaDefinition</cite> → <cite>AreaOperation</cite> (via <cite>from_pydantic()</cite>)</p></li>
-</ul>
-<p>This separation allows complex validation rules in YAML while maintaining efficient calculation objects for scheduling.</p>
+<p>This streamlined approach eliminates the need for conversion layers and maintains consistency between configuration and execution.</p>
 </div>
-<section id="station-definition">
-<span id="id4"></span><h3><a class="toc-backref" href="#id40" role="doc-backlink">Station Definition</a><a class="headerlink" href="#station-definition" title="Link to this heading"></a></h3>
-<p>Station definitions specify point operations at fixed locations. During scheduling, they are converted to <cite>PointOperation</cite> objects for duration calculations. Covers CTD casts, water sampling, mooring operations, and calibration activities.</p>
+<section id="point-definition">
+<span id="id4"></span><h3><a class="toc-backref" href="#id39" role="doc-backlink">Point Definition</a><a class="headerlink" href="#point-definition" title="Link to this heading"></a></h3>
+<p>Point definitions specify point operations at fixed locations. They handle CTD casts, water sampling, mooring operations, and calibration activities with built-in duration calculations.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
 <span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD&quot;</span>
@@ -539,80 +514,7 @@
 </pre></div>
 </div>
 <section id="fields-operations-actions">
-<span id="station-fields"></span><h4><a class="toc-backref" href="#id41" role="doc-backlink">Fields, Operations &amp; Actions</a><a class="headerlink" href="#fields-operations-actions" title="Link to this heading"></a></h4>
-<table class="docutils align-default" id="id22">
-<caption><span class="caption-text">Station Definition Fields</span><a class="headerlink" href="#id22" title="Link to this table"></a></caption>
-<colgroup>
-<col style="width: 20.0%" />
-<col style="width: 15.0%" />
-<col style="width: 15.0%" />
-<col style="width: 50.0%" />
-</colgroup>
-<thead>
-<tr class="row-odd"><th class="head"><p>Field</p></th>
-<th class="head"><p>Type</p></th>
-<th class="head"><p>Default</p></th>
-<th class="head"><p>Description</p></th>
-</tr>
-</thead>
-<tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
-<td><p>str</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Unique identifier for the station</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">operation_type</span></code></p></td>
-<td><p>OperationTypeEnum</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Type of scientific operation (see <a class="reference internal" href="#operation-types"><span class="std std-ref">Operation Types</span></a>)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">action</span></code></p></td>
-<td><p>ActionEnum</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Specific action for the operation (see <a class="reference internal" href="#action-types"><span class="std std-ref">Action Types</span></a>)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">latitude</span></code></p></td>
-<td><p>GeoPoint</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Geographic coordinates (see <a class="reference internal" href="#coordinate-conventions"><span class="std std-ref">Formats and data conventions</span></a>)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">longitude</span></code></p></td>
-<td><p>GeoPoint</p></td>
-<td><p><em>required</em></p></td>
-<td><p>Geographic coordinates (see <a class="reference internal" href="#coordinate-conventions"><span class="std std-ref">Formats and data conventions</span></a>)</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">operation_depth</span></code></p></td>
-<td><p>float</p></td>
-<td><p>None</p></td>
-<td><p>Target operation depth (e.g., CTD cast depth) in meters (≥0). Used for duration calculations.</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">water_depth</span></code></p></td>
-<td><p>float</p></td>
-<td><p>None</p></td>
-<td><p>Water depth at location (seafloor depth) in meters (≥0). Used for bathymetry validation and routing.</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">duration</span></code></p></td>
-<td><p>float</p></td>
-<td><p>None</p></td>
-<td><p>Manual duration override in minutes (≥0)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">comment</span></code></p></td>
-<td><p>str</p></td>
-<td><p>None</p></td>
-<td><p>Human-readable comment or description</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">delay_start</span></code></p></td>
-<td><p>float</p></td>
-<td><p>None</p></td>
-<td><p>Time to wait before operation begins in minutes (≥0)</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">delay_end</span></code></p></td>
-<td><p>float</p></td>
-<td><p>None</p></td>
-<td><p>Time to wait after operation ends in minutes (≥0)</p></td>
-</tr>
-</tbody>
-</table>
+<span id="point-fields"></span><h4><a class="toc-backref" href="#id40" role="doc-backlink">Fields, Operations &amp; Actions</a><a class="headerlink" href="#fields-operations-actions" title="Link to this heading"></a></h4>
 <p><strong>Depth Field Semantics:</strong></p>
 <p>The distinction between <code class="docutils literal notranslate"><span class="pre">operation_depth</span></code> and <code class="docutils literal notranslate"><span class="pre">water_depth</span></code> meaningfully impacts duration calculations in the scheduler:</p>
 <ul class="simple">
@@ -634,8 +536,8 @@
 <p><strong>Note:</strong> that the <cite>operation_depth</cite> only affects timing for the CTD profile calculation.  Mooring timing must be specified manually via the <cite>duration</cite> field.</p>
 <section id="operation-types">
 <span id="id5"></span><h5>Operation Types<a class="headerlink" href="#operation-types" title="Link to this heading"></a></h5>
-<table class="docutils align-default" id="id23">
-<caption><span class="caption-text">Valid Operation Types</span><a class="headerlink" href="#id23" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id22">
+<caption><span class="caption-text">Valid Operation Types</span><a class="headerlink" href="#id22" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 75.0%" />
@@ -663,8 +565,8 @@
 </section>
 <section id="action-types">
 <span id="id6"></span><h5>Action Types<a class="headerlink" href="#action-types" title="Link to this heading"></a></h5>
-<table class="docutils align-default" id="id24">
-<caption><span class="caption-text">Valid Actions by Operation Type</span><a class="headerlink" href="#id24" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id23">
+<caption><span class="caption-text">Valid Actions by Operation Type</span><a class="headerlink" href="#id23" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 25.0%" />
@@ -698,7 +600,7 @@
 </section>
 </section>
 <section id="duration-calculation">
-<span id="id7"></span><h4><a class="toc-backref" href="#id42" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#duration-calculation" title="Link to this heading"></a></h4>
+<span id="id7"></span><h4><a class="toc-backref" href="#id41" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#duration-calculation" title="Link to this heading"></a></h4>
 <p>The duration calculation depends on operation type and manual overrides:</p>
 <ol class="arabic simple">
 <li><p><strong>Manual Duration</strong>: If <code class="docutils literal notranslate"><span class="pre">duration</span></code> field is specified, this value is used directly</p></li>
@@ -742,9 +644,9 @@
 </section>
 </section>
 </section>
-<section id="transect-definition">
-<span id="id8"></span><h3><a class="toc-backref" href="#id43" role="doc-backlink">Transect Definition</a><a class="headerlink" href="#transect-definition" title="Link to this heading"></a></h3>
-<p>Transect definitions specify movement routes with waypoints. During scheduling, they are converted to <cite>LineOperation</cite> objects for distance and timing calculations. When <cite>operation_type</cite> and <cite>action</cite> are specified, they become scientific line operations (ADCP, bathymetry, etc.). Without these fields, transects remain user-defined scientific operations but with timing calculated purely from route distance and vessel speed.</p>
+<section id="line-definition">
+<span id="id8"></span><h3><a class="toc-backref" href="#id42" role="doc-backlink">Line Definition</a><a class="headerlink" href="#line-definition" title="Link to this heading"></a></h3>
+<p>Line definitions specify movement routes with waypoints, handling distance and timing calculations directly. When <cite>operation_type</cite> and <cite>action</cite> are specified, they become scientific line operations (ADCP, bathymetry, etc.). Without these fields, lines remain user-defined operations with timing calculated purely from route distance and vessel speed.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lines</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;ADCP_Line_A&quot;</span>
 <span class="w">    </span><span class="nt">route</span><span class="p">:</span>
@@ -761,9 +663,9 @@
 </pre></div>
 </div>
 <section id="transit-fields">
-<span id="id9"></span><h4><a class="toc-backref" href="#id44" role="doc-backlink">Fields, Operations &amp; Actions</a><a class="headerlink" href="#transit-fields" title="Link to this heading"></a></h4>
-<table class="docutils align-default" id="id25">
-<caption><span class="caption-text">Transect Definition Fields</span><a class="headerlink" href="#id25" title="Link to this table"></a></caption>
+<span id="id9"></span><h4><a class="toc-backref" href="#id43" role="doc-backlink">Fields, Operations &amp; Actions</a><a class="headerlink" href="#transit-fields" title="Link to this heading"></a></h4>
+<table class="docutils align-default" id="id24">
+<caption><span class="caption-text">Transect Definition Fields</span><a class="headerlink" href="#id24" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 15.0%" />
@@ -812,8 +714,8 @@
 </table>
 <section id="line-operation-types">
 <span id="id10"></span><h5>Line Operation Types<a class="headerlink" href="#line-operation-types" title="Link to this heading"></a></h5>
-<table class="docutils align-default" id="id26">
-<caption><span class="caption-text">Valid Line Operations</span><a class="headerlink" href="#id26" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id25">
+<caption><span class="caption-text">Valid Line Operations</span><a class="headerlink" href="#id25" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 25.0%" />
@@ -839,7 +741,7 @@
 </section>
 </section>
 <section id="ctd-section-special-case">
-<span id="section-definition"></span><span id="ctd-sections"></span><h4><a class="toc-backref" href="#id45" role="doc-backlink">CTD Section Special Case</a><a class="headerlink" href="#ctd-section-special-case" title="Link to this heading"></a></h4>
+<span id="section-definition"></span><span id="ctd-sections"></span><h4><a class="toc-backref" href="#id44" role="doc-backlink">CTD Section Special Case</a><a class="headerlink" href="#ctd-section-special-case" title="Link to this heading"></a></h4>
 <p>CTD sections are a special type of transect (line operation) that can be expanded into individual stations (point operations):</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lines</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;53N_Section&quot;</span>
@@ -855,8 +757,8 @@
 <span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
 </pre></div>
 </div>
-<table class="docutils align-default" id="id27">
-<caption><span class="caption-text">Section Definition Fields</span><a class="headerlink" href="#id27" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id26">
+<caption><span class="caption-text">Section Definition Fields</span><a class="headerlink" href="#id26" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 15.0%" />
@@ -901,11 +803,6 @@
 <td><p>True</p></td>
 <td><p>Whether section can be traversed in reverse (<strong>not yet implemented</strong>)</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">stations</span></code></p></td>
-<td><p>List[str]</p></td>
-<td><p>[]</p></td>
-<td><p>Station names (populated during expansion)</p></td>
-</tr>
 </tbody>
 </table>
 <p><strong>Expansion Behavior</strong>:</p>
@@ -921,7 +818,7 @@
 </div>
 </section>
 <section id="id11">
-<h4><a class="toc-backref" href="#id46" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
+<h4><a class="toc-backref" href="#id45" role="doc-backlink">Duration Calculation</a><a class="headerlink" href="#id11" title="Link to this heading"></a></h4>
 <p>Transit operations (scientific transits and vessel movements) calculate duration based on route distance and vessel speed using the <cite>LineOperation.calculate_duration()</cite> method:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transit duration calculation (in LineOperation.calculate_duration())</span>
 <span class="n">total_route_distance_km</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
@@ -945,7 +842,7 @@
 </section>
 </section>
 <section id="area-definition">
-<span id="id12"></span><h3><a class="toc-backref" href="#id47" role="doc-backlink">Area Definition</a><a class="headerlink" href="#area-definition" title="Link to this heading"></a></h3>
+<span id="id12"></span><h3><a class="toc-backref" href="#id46" role="doc-backlink">Area Definition</a><a class="headerlink" href="#area-definition" title="Link to this heading"></a></h3>
 <p>Areas represent operations covering defined geographic regions. Areas can also serve as routing anchors in legs using <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> and <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> fields, where the area entry point is used for <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> routing and the exit point for <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> routing.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">areas</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Survey_Grid_A&quot;</span>
@@ -964,8 +861,8 @@
 <span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Multibeam</span><span class="nv"> </span><span class="s">survey</span><span class="nv"> </span><span class="s">grid&quot;</span>
 </pre></div>
 </div>
-<table class="docutils align-default" id="id28">
-<caption><span class="caption-text">Area Definition Fields</span><a class="headerlink" href="#id28" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id27">
+<caption><span class="caption-text">Area Definition Fields</span><a class="headerlink" href="#id27" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 15.0%" />
@@ -1013,7 +910,7 @@
 </tbody>
 </table>
 <section id="area-entry-and-exit-points">
-<span id="area-routing-anchors"></span><h4><a class="toc-backref" href="#id48" role="doc-backlink">Area Entry and Exit Points</a><a class="headerlink" href="#area-entry-and-exit-points" title="Link to this heading"></a></h4>
+<span id="area-routing-anchors"></span><h4><a class="toc-backref" href="#id47" role="doc-backlink">Area Entry and Exit Points</a><a class="headerlink" href="#area-entry-and-exit-points" title="Link to this heading"></a></h4>
 <p>When areas are used as routing anchors (<code class="docutils literal notranslate"><span class="pre">first_activity</span></code> or <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> in legs), CruisePlan uses entry and exit points for navigation:</p>
 <ul class="simple">
 <li><p><strong>Entry Point</strong>: First corner coordinate (used for <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> routing)</p></li>
@@ -1058,30 +955,25 @@
 </section>
 </section>
 <section id="schedule-organization">
-<span id="id13"></span><h2><a class="toc-backref" href="#id49" role="doc-backlink">Schedule Organization</a><a class="headerlink" href="#schedule-organization" title="Link to this heading"></a></h2>
+<span id="id13"></span><h2><a class="toc-backref" href="#id48" role="doc-backlink">Schedule Organization</a><a class="headerlink" href="#schedule-organization" title="Link to this heading"></a></h2>
 <p>The schedule organization defines how catalog items are executed through legs and clusters using a unified <strong>activities-based architecture</strong>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p><strong>YAML ↔ Scheduling Architecture</strong></p>
-<p>CruisePlan uses a two-layer architecture for legs and clusters:</p>
+<p><strong>Scheduling Architecture</strong></p>
+<p>CruisePlan uses a streamlined architecture for legs and clusters:</p>
 <ol class="arabic simple">
-<li><p><strong>YAML Layer</strong>: Pydantic validation models (<cite>LegDefinition</cite>, <cite>ClusterDefinition</cite>) validate and parse YAML configuration</p></li>
-<li><p><strong>Scheduling Layer</strong>: Runtime classes (<cite>Leg</cite>, <cite>Cluster</cite>) handle execution with parameter inheritance</p></li>
+<li><p><strong>Configuration</strong>: Pydantic validation models (<cite>LegDefinition</cite>, <cite>ClusterDefinition</cite>) validate and parse YAML configuration</p></li>
+<li><p><strong>Execution</strong>: The scheduler works directly with configuration objects, applying parameter inheritance and strategy-specific logic</p></li>
 </ol>
-<p>During scheduling, definitions are converted:</p>
-<ul class="simple">
-<li><p><cite>LegDefinition</cite> → <cite>Leg</cite> (via <cite>from_definition()</cite> with inheritance of cruise-level parameters like <code class="docutils literal notranslate"><span class="pre">vessel_speed</span></code>)</p></li>
-<li><p><cite>ClusterDefinition</cite> → <cite>Cluster</cite> (via <cite>from_definition()</cite> with strategy-specific ordering logic)</p></li>
-</ul>
-<p>This separation allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies.</p>
+<p>This unified approach allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies without additional conversion layers.</p>
 </div>
 <section id="leg-cluster-definitions">
-<span id="leg-definition"></span><h3><a class="toc-backref" href="#id50" role="doc-backlink">Leg &amp; Cluster Definitions</a><a class="headerlink" href="#leg-cluster-definitions" title="Link to this heading"></a></h3>
+<span id="leg-definition"></span><h3><a class="toc-backref" href="#id49" role="doc-backlink">Leg &amp; Cluster Definitions</a><a class="headerlink" href="#leg-cluster-definitions" title="Link to this heading"></a></h3>
 <p>We have two organisational structures within a cruise.  The “Leg” is the highest level structure, representing a phase of the cruise with distinct operational or geographic characteristics.  Each leg contains a list of <strong>activities</strong> (references to items in the global catalog) that can be executed either in order or as an unordered set.  It can be useful, for instance, if a cruise is separated by two port calls.</p>
 <p>A cluster is a sub-division within a leg that groups related operations with specific scheduling strategies.  Like legs, clusters use an <strong>activities list</strong> to reference catalog items.  Clusters are useful for grouping operations that share common characteristics or sub-regions of the cruise area.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Western_Survey&quot;</span>
-<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">stations</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">western</span><span class="nv"> </span><span class="s">region&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">activities</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">western</span><span class="nv"> </span><span class="s">region&quot;</span>
 <span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;sequential&quot;</span>
 <span class="w">    </span><span class="nt">ordered</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
 <span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_A&quot;</span><span class="p p-Indicator">]</span>
@@ -1104,7 +996,6 @@
 <span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;MOOR_Deploy&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;Trilateration_Survey&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;MOOR_Release&quot;</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
-<p><strong>Advanced Cluster Features</strong></p>
 <p><strong>Duplicate Activity Support</strong></p>
 <p>Clusters support intentional duplication of activities for repeated operations:</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clusters</span><span class="p">:</span>
@@ -1139,9 +1030,9 @@
 </pre></div>
 </div>
 <section id="leg-cluster-fields">
-<span id="leg-fields"></span><h4><a class="toc-backref" href="#id51" role="doc-backlink">Leg &amp; Cluster Fields</a><a class="headerlink" href="#leg-cluster-fields" title="Link to this heading"></a></h4>
-<table class="docutils align-default" id="id29">
-<caption><span class="caption-text">Leg Definition Fields</span><a class="headerlink" href="#id29" title="Link to this table"></a></caption>
+<span id="leg-fields"></span><h4><a class="toc-backref" href="#id50" role="doc-backlink">Leg &amp; Cluster Fields</a><a class="headerlink" href="#leg-cluster-fields" title="Link to this heading"></a></h4>
+<table class="docutils align-default" id="id28">
+<caption><span class="caption-text">Leg Definition Fields</span><a class="headerlink" href="#id28" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 14.7%" />
 <col style="width: 14.7%" />
@@ -1246,7 +1137,7 @@
 </table>
 </section>
 <section id="processing-priority">
-<span id="id14"></span><h4><a class="toc-backref" href="#id52" role="doc-backlink">Processing Priority</a><a class="headerlink" href="#processing-priority" title="Link to this heading"></a></h4>
+<span id="id14"></span><h4><a class="toc-backref" href="#id51" role="doc-backlink">Processing Priority</a><a class="headerlink" href="#processing-priority" title="Link to this heading"></a></h4>
 <p>The scheduler processes leg components in this simplified order:</p>
 <ol class="arabic simple">
 <li><p><strong>activities</strong>: If defined and non-empty, process these activities (respecting <code class="docutils literal notranslate"><span class="pre">ordered</span></code> flag)</p></li>
@@ -1255,8 +1146,8 @@
 <p><strong>Note</strong>: Legs must specify either <code class="docutils literal notranslate"><span class="pre">activities</span></code> or <code class="docutils literal notranslate"><span class="pre">clusters</span></code> (or both). Empty legs are not permitted.</p>
 </section>
 <section id="routing-anchor-behavior-first-activity-last-activity">
-<span id="routing-anchor-behavior"></span><h4><a class="toc-backref" href="#id53" role="doc-backlink">Routing Anchor Behavior (first_activity &amp; last_activity)</a><a class="headerlink" href="#routing-anchor-behavior-first-activity-last-activity" title="Link to this heading"></a></h4>
-<p>The <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> and <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> fields serve as <strong>routing anchors only</strong>. These fields can reference any catalog item (stations, areas, or line endpoints) but are used exclusively for geographic positioning and route calculations.</p>
+<span id="routing-anchor-behavior"></span><h4><a class="toc-backref" href="#id52" role="doc-backlink">Routing Anchor Behavior (first_activity &amp; last_activity)</a><a class="headerlink" href="#routing-anchor-behavior-first-activity-last-activity" title="Link to this heading"></a></h4>
+<p>The <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> and <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> fields serve as <strong>routing anchors only</strong>. These fields can reference any catalog item (points, areas, or line endpoints) but are used exclusively for geographic positioning and route calculations.</p>
 <p><strong>Navigation Only - No Execution</strong>:</p>
 <p>By default, <code class="docutils literal notranslate"><span class="pre">first_activity</span></code> and <code class="docutils literal notranslate"><span class="pre">last_activity</span></code> do <strong>not execute operations</strong>. They provide entry and exit points for routing calculations within the leg. To execute an operation at a waypoint location, you must explicitly include it in the <code class="docutils literal notranslate"><span class="pre">activities</span></code> list.</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
@@ -1304,10 +1195,10 @@
 </ul>
 </section>
 <section id="activity-types">
-<span id="id15"></span><h4><a class="toc-backref" href="#id54" role="doc-backlink">Activity Types</a><a class="headerlink" href="#activity-types" title="Link to this heading"></a></h4>
+<span id="id15"></span><h4><a class="toc-backref" href="#id53" role="doc-backlink">Activity Types</a><a class="headerlink" href="#activity-types" title="Link to this heading"></a></h4>
 <p>Activities in <code class="docutils literal notranslate"><span class="pre">legs</span></code> and <code class="docutils literal notranslate"><span class="pre">clusters</span></code> reference items from the global catalog by name. Any catalog item can be referenced as an activity:</p>
-<table class="docutils align-default" id="id30">
-<caption><span class="caption-text">Supported Activity Types</span><a class="headerlink" href="#id30" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id29">
+<caption><span class="caption-text">Supported Activity Types</span><a class="headerlink" href="#id29" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 75.0%" />
@@ -1319,16 +1210,16 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>Station Operations</strong></p></td>
-<td><p>CTD casts, water sampling, instrument deployments (<code class="docutils literal notranslate"><span class="pre">stations</span></code> catalog with various <code class="docutils literal notranslate"><span class="pre">operation_type</span></code> including <code class="docutils literal notranslate"><span class="pre">CTD</span></code>, <code class="docutils literal notranslate"><span class="pre">water_sampling</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration</span></code>)</p></td>
+<td><p>CTD casts, water sampling, instrument deployments (<code class="docutils literal notranslate"><span class="pre">points</span></code> catalog with various <code class="docutils literal notranslate"><span class="pre">operation_type</span></code> including <code class="docutils literal notranslate"><span class="pre">CTD</span></code>, <code class="docutils literal notranslate"><span class="pre">water_sampling</span></code>, <code class="docutils literal notranslate"><span class="pre">calibration</span></code>)</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Mooring Operations</strong></p></td>
-<td><p>Mooring deployments, releases, surveys (<code class="docutils literal notranslate"><span class="pre">stations</span></code> catalog with <code class="docutils literal notranslate"><span class="pre">operation_type:</span> <span class="pre">mooring</span></code>)</p></td>
+<td><p>Mooring deployments, releases, surveys (<code class="docutils literal notranslate"><span class="pre">points</span></code> catalog with <code class="docutils literal notranslate"><span class="pre">operation_type:</span> <span class="pre">mooring</span></code>)</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Area Surveys</strong></p></td>
 <td><p>Gridded sampling, multibeam mapping (<code class="docutils literal notranslate"><span class="pre">areas</span></code> catalog)</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Line Transects</strong></p></td>
-<td><p>ADCP transects, towed instrument lines (<code class="docutils literal notranslate"><span class="pre">transects</span></code> catalog with <code class="docutils literal notranslate"><span class="pre">operation_type</span></code>)</p></td>
+<td><p>ADCP transects, towed instrument lines (<code class="docutils literal notranslate"><span class="pre">lines</span></code> catalog with <code class="docutils literal notranslate"><span class="pre">operation_type</span></code>)</p></td>
 </tr>
 </tbody>
 </table>
@@ -1346,10 +1237,10 @@
 </div>
 </section>
 <section id="optimization-strategy-and-un-ordered">
-<span id="strategy-types"></span><h4><a class="toc-backref" href="#id55" role="doc-backlink">Optimization <strong>Strategy</strong> and (Un-)Ordered</a><a class="headerlink" href="#optimization-strategy-and-un-ordered" title="Link to this heading"></a></h4>
+<span id="strategy-types"></span><h4><a class="toc-backref" href="#id54" role="doc-backlink">Optimization <strong>Strategy</strong> and (Un-)Ordered</a><a class="headerlink" href="#optimization-strategy-and-un-ordered" title="Link to this heading"></a></h4>
 <p>The <code class="docutils literal notranslate"><span class="pre">ordered</span></code> flag specifies whether a list of activities should be treated as an exact sequence (<code class="docutils literal notranslate"><span class="pre">ordered:</span> <span class="pre">true</span></code>) or an unordered set (<code class="docutils literal notranslate"><span class="pre">ordered:</span> <span class="pre">false</span></code>).  Generally, if the flag is set to True, the scheduler will respect the specified order, whereas if set to False, the scheduler may optimize the execution order based on the selected <code class="docutils literal notranslate"><span class="pre">strategy</span></code>.</p>
-<table class="docutils align-default" id="id31">
-<caption><span class="caption-text">Available Scheduling Strategies</span><a class="headerlink" href="#id31" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id30">
+<caption><span class="caption-text">Available Scheduling Strategies</span><a class="headerlink" href="#id30" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 25.0%" />
 <col style="width: 75.0%" />
@@ -1372,8 +1263,8 @@
 </tbody>
 </table>
 <p id="ordering-behavior">The interaction between <code class="docutils literal notranslate"><span class="pre">strategy</span></code> and <code class="docutils literal notranslate"><span class="pre">ordered</span></code> determines execution order:</p>
-<table class="docutils align-default" id="id32">
-<caption><span class="caption-text">Strategy vs Ordering Behavior</span><a class="headerlink" href="#id32" title="Link to this table"></a></caption>
+<table class="docutils align-default" id="id31">
+<caption><span class="caption-text">Strategy vs Ordering Behavior</span><a class="headerlink" href="#id31" title="Link to this table"></a></caption>
 <colgroup>
 <col style="width: 20.0%" />
 <col style="width: 20.0%" />
@@ -1412,9 +1303,9 @@
 </section>
 </section>
 <section id="validation-notes">
-<span id="yaml-structure-notes"></span><h2><a class="toc-backref" href="#id56" role="doc-backlink">Validation Notes</a><a class="headerlink" href="#validation-notes" title="Link to this heading"></a></h2>
+<span id="yaml-structure-notes"></span><h2><a class="toc-backref" href="#id55" role="doc-backlink">Validation Notes</a><a class="headerlink" href="#validation-notes" title="Link to this heading"></a></h2>
 <section id="multiple-definitions">
-<h3><a class="toc-backref" href="#id57" role="doc-backlink">Multiple Definitions</a><a class="headerlink" href="#multiple-definitions" title="Link to this heading"></a></h3>
+<h3><a class="toc-backref" href="#id56" role="doc-backlink">Multiple Definitions</a><a class="headerlink" href="#multiple-definitions" title="Link to this heading"></a></h3>
 <p><strong>Correct</strong>: Single list with multiple items</p>
 <div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">clusters</span><span class="p">:</span>
 <span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Cluster_A&quot;</span>
@@ -1435,7 +1326,7 @@
 </div>
 </section>
 <section id="validation-behavior">
-<span id="id16"></span><h3><a class="toc-backref" href="#id58" role="doc-backlink">Validation Behavior</a><a class="headerlink" href="#validation-behavior" title="Link to this heading"></a></h3>
+<span id="id16"></span><h3><a class="toc-backref" href="#id57" role="doc-backlink">Validation Behavior</a><a class="headerlink" href="#validation-behavior" title="Link to this heading"></a></h3>
 <p>The validation system provides three levels of feedback:</p>
 <dl class="simple">
 <dt><strong>Errors</strong>: Configuration issues that prevent processing</dt><dd><ul class="simple">
@@ -1459,7 +1350,7 @@
 </dl>
 </section>
 <section id="cross-references">
-<span id="id17"></span><h3><a class="toc-backref" href="#id59" role="doc-backlink">Cross-References</a><a class="headerlink" href="#cross-references" title="Link to this heading"></a></h3>
+<span id="id17"></span><h3><a class="toc-backref" href="#id58" role="doc-backlink">Cross-References</a><a class="headerlink" href="#cross-references" title="Link to this heading"></a></h3>
 <p>For workflow information, see:</p>
 <ul class="simple">
 <li><p><a class="reference internal" href="workflow/path1.html#user-workflow-path-1"><span class="std std-ref">Basic Planning Workflow</span></a> in <a class="reference internal" href="user_workflows.html"><span class="doc">Overview</span></a></p></li>

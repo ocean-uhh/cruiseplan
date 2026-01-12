@@ -16,11 +16,11 @@ Overview
 CruisePlan uses YAML configuration files to define oceanographic cruises. The configuration consists of three main parts:
 
 1. **:ref:`Cruise-wide metadata and settings <cruise-wide-metadata>`**: Cruise-level fields defining defaults and settings
-2. **Global Catalog**: Definitions of stations, transects and areas (reusable components)
+2. **Global Catalog**: Definitions of activities: points, lines and areas (reusable components)
 3. **Schedule Organization**: Legs and clusters that organize catalog items into execution order (see :ref:`simplified-leg-creation` for default leg behavior)
 
 .. tip::
-  **Comments in YAML are preserved**: CruisePlan uses ``ruamel.yaml`` which maintains comments when reading and writing files. You can rely on comments remaining in your YAML through the `cruiseplan enrich` command.
+  **Comments in yamls:** While CruisePlan supports some comments (at the top of the file), it is recommended to avoid comments within YAML files as they may not be preserved during processing.  Instead, use the `comment` fields for documentation purposes.
   
 .. _configuration-structure:
 
@@ -34,12 +34,12 @@ Configuration Structure
    description: "Oceanographic survey of the North Atlantic"
    
    # Global Catalog (Reusable Definitions)
-   points: [...]        # Point definitions → converted to PointOperation objects for scheduling
-   lines: [...]         # Line operation definitions → converted to LineOperation objects for scheduling
-   areas: [...]         # Area operation definitions
+   points: [...]        # Point definitions for station operations
+   lines: [...]         # Line operation definitions for transects and sections
+   areas: [...]         # Area operation definitions for survey regions
    
    # Schedule Organization
-   legs: [...]          # Execution phases with clusters/stations/sequences
+   legs: [...]          # Execution phases with clusters/activities/sequences
 
 .. warning::
    **YAML Duplicate Key Limitation**: You cannot have multiple yaml sections with the same name (e.g., multiple ``clusters:`` keys) in a single YAML file as they will overwrite each other. Instead, define multiple clusters as individual items within a single ``clusters:`` list.
@@ -183,14 +183,6 @@ Cruise-wide metadata
      - float
      - 1.0
      - CTD ascent rate in m/s (0.5-2.0)
-   * - ``calculate_transfer_between_sections``
-     - bool
-     - *required*
-     - Whether to calculate transit times between sections
-   * - ``calculate_depth_via_bathymetry``
-     - bool
-     - *required*
-     - Whether to calculate depths using bathymetry data
 
 
 .. list-table:: Operational choices
@@ -209,14 +201,6 @@ Cruise-wide metadata
      - int
      - 20
      - End hour for daytime operations (0-23, must be > day_start_hour)
-   * - ``station_label_format``
-     - str
-     - "C{:03d}"
-     - Python format string for station labels
-   * - ``mooring_label_format``
-     - str
-     - "M{:02d}"
-     - Python format string for mooring labels
 
 .. _ports-transfers:
 
@@ -277,27 +261,22 @@ Global Catalog Definitions
 The global catalog contains reusable definitions that can be referenced by legs and clusters.
 
 .. note::
-   **YAML ↔ Operations Architecture**
+   **Configuration Architecture**
    
-   CruisePlan uses a two-layer architecture:
+   CruisePlan uses a unified architecture centered on the `CruiseInstance` class:
    
-   1. **YAML Layer**: Pydantic validation models (`StationDefinition`, `TransectDefinition`, `AreaDefinition`) validate and parse YAML configuration according to `cruiseplan/validation/catalog_definitions.py`
-   2. **Operations Layer**: Operational classes (`PointOperation`, `LineOperation`, `AreaOperation`) handle scheduling calculations and duration estimation in `cruiseplan/scheduling/operations.py`
+   1. **YAML Configuration**: Validated and parsed using Pydantic models (`PointDefinition`, `LineDefinition`, `AreaDefinition`)
+   2. **CruiseInstance**: Single source of truth containing the complete cruise configuration
+   3. **Direct Processing**: Timeline generation and output creation work directly with the configuration objects
    
-   During planning, definitions are converted:
+   This streamlined approach eliminates the need for conversion layers and maintains consistency between configuration and execution.
 
-   - `StationDefinition` → `PointOperation` (via `from_pydantic()`)
-   - `TransectDefinition` → `LineOperation` (via `from_pydantic()`)
-   - `AreaDefinition` → `AreaOperation` (via `from_pydantic()`)
-   
-   This separation allows complex validation rules in YAML while maintaining efficient calculation objects for scheduling.
+.. _point-definition:
 
-.. _station-definition:
-
-Station Definition
+Point Definition
 -------------------
 
-Station definitions specify point operations at fixed locations. During scheduling, they are converted to `PointOperation` objects for duration calculations. Covers CTD casts, water sampling, mooring operations, and calibration activities.
+Point definitions specify point operations at fixed locations. They handle CTD casts, water sampling, mooring operations, and calibration activities with built-in duration calculations.
 
 .. code-block:: yaml
 
@@ -312,12 +291,12 @@ Station definitions specify point operations at fixed locations. During scheduli
        duration: 120.0         # Optional: manual override in minutes
        comment: "Deep water station"
 
-.. _station-fields:
+.. _point-fields:
 
 Fields, Operations & Actions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. list-table:: Station Definition Fields
+.. list-table:: Point Definition Fields
    :widths: 20 15 15 50
    :header-rows: 1
 
@@ -361,6 +340,10 @@ Fields, Operations & Actions
      - str
      - None
      - Human-readable comment or description
+   * - ``history``
+      - List[str]
+      - []
+      - List of historical notes or changes
    * - ``delay_start``
      - float
      - None
@@ -485,12 +468,12 @@ The buffer time system provides multiple levels of buffer time control for reali
 - **delay_end**: Time to wait after operation ends (e.g., equipment settling, safety checks)  
 - **buffer_time**: Leg-level contingency time applied at leg completion (e.g., weather delays)
 
-.. _transect-definition:
+.. _line-definition:
 
-Transect Definition
+Line Definition
 -------------------
 
-Transect definitions specify movement routes with waypoints. During scheduling, they are converted to `LineOperation` objects for distance and timing calculations. When `operation_type` and `action` are specified, they become scientific line operations (ADCP, bathymetry, etc.). Without these fields, transects remain user-defined scientific operations but with timing calculated purely from route distance and vessel speed.
+Line definitions specify movement routes with waypoints, handling distance and timing calculations directly. When `operation_type` and `action` are specified, they become scientific line operations (ADCP, bathymetry, etc.). Without these fields, lines remain user-defined operations with timing calculated purely from route distance and vessel speed.
 
 .. code-block:: yaml
 
@@ -621,10 +604,6 @@ CTD sections are a special type of transect (line operation) that can be expande
      - bool
      - True
      - Whether section can be traversed in reverse (**not yet implemented**)
-   * - ``stations``
-     - List[str]
-     - []
-     - Station names (populated during expansion)
 
 
 
@@ -783,19 +762,14 @@ Schedule Organization
 The schedule organization defines how catalog items are executed through legs and clusters using a unified **activities-based architecture**.
 
 .. note::
-   **YAML ↔ Scheduling Architecture**
+   **Scheduling Architecture**
    
-   CruisePlan uses a two-layer architecture for legs and clusters:
+   CruisePlan uses a streamlined architecture for legs and clusters:
    
-   1. **YAML Layer**: Pydantic validation models (`LegDefinition`, `ClusterDefinition`) validate and parse YAML configuration
-   2. **Scheduling Layer**: Runtime classes (`Leg`, `Cluster`) handle execution with parameter inheritance
+   1. **Configuration**: Pydantic validation models (`LegDefinition`, `ClusterDefinition`) validate and parse YAML configuration
+   2. **Execution**: The scheduler works directly with configuration objects, applying parameter inheritance and strategy-specific logic
    
-   During scheduling, definitions are converted:
-
-   - `LegDefinition` → `Leg` (via `from_definition()` with inheritance of cruise-level parameters like ``vessel_speed``)
-   - `ClusterDefinition` → `Cluster` (via `from_definition()` with strategy-specific ordering logic)
-   
-   This separation allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies.
+   This unified approach allows flexible YAML configuration while enabling runtime parameter inheritance and complex scheduling strategies without additional conversion layers.
 
 .. _leg-definition:
 
@@ -810,7 +784,7 @@ A cluster is a sub-division within a leg that groups related operations with spe
 
    legs:
      - name: "Western_Survey"
-       description: "Deep water stations in western region"
+       description: "Deep water activities in western region"
        strategy: "sequential"
        ordered: true
        activities: ["STN_001", "STN_002", "MOOR_A"]
@@ -833,7 +807,6 @@ A cluster is a sub-division within a leg that groups related operations with spe
        ordered: true  # Ordered sequence - maintain exact order
        activities: ["MOOR_Deploy", "Trilateration_Survey", "MOOR_Release"]
 
-**Advanced Cluster Features**
 
 **Duplicate Activity Support**
 
@@ -982,7 +955,7 @@ The scheduler processes leg components in this simplified order:
 Routing Anchor Behavior (first_activity & last_activity)
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The ``first_activity`` and ``last_activity`` fields serve as **routing anchors only**. These fields can reference any catalog item (stations, areas, or line endpoints) but are used exclusively for geographic positioning and route calculations.
+The ``first_activity`` and ``last_activity`` fields serve as **routing anchors only**. These fields can reference any catalog item (points, areas, or line endpoints) but are used exclusively for geographic positioning and route calculations.
 
 **Navigation Only - No Execution**:
 
@@ -1049,13 +1022,13 @@ Activities in ``legs`` and ``clusters`` reference items from the global catalog 
    * - Activity Type
      - Description  
    * - **Station Operations**
-     - CTD casts, water sampling, instrument deployments (``stations`` catalog with various ``operation_type`` including ``CTD``, ``water_sampling``, ``calibration``)
+     - CTD casts, water sampling, instrument deployments (``points`` catalog with various ``operation_type`` including ``CTD``, ``water_sampling``, ``calibration``)
    * - **Mooring Operations**
-     - Mooring deployments, releases, surveys (``stations`` catalog with ``operation_type: mooring``)
+     - Mooring deployments, releases, surveys (``points`` catalog with ``operation_type: mooring``)
    * - **Area Surveys**
      - Gridded sampling, multibeam mapping (``areas`` catalog)
    * - **Line Transects**
-     - ADCP transects, towed instrument lines (``transects`` catalog with ``operation_type``)
+     - ADCP transects, towed instrument lines (``lines`` catalog with ``operation_type``)
 
 **Examples**:
 

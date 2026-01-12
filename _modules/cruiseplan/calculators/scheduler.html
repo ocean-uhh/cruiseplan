@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>cruiseplan.calculators.scheduler &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=45320adf"></script>
+      <script src="../../../_static/documentation_options.js?v=72ca80b5"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -141,9 +141,12 @@
 <span class="c1"># Core Data Structures</span>
 <span class="c1"># =============================================================================</span>
 
+<span class="c1"># Type alias for cruise schedule (timeline) - list of activity dictionaries</span>
+<span class="n">CruiseSchedule</span> <span class="o">=</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+
 
 <div class="viewcode-block" id="OperationCoordinates">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.OperationCoordinates">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.OperationCoordinates">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">OperationCoordinates</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Unified coordinate representation for all operations.&quot;&quot;&quot;</span>
@@ -152,7 +155,7 @@
     <span class="n">exit</span><span class="p">:</span> <span class="n">GeoPoint</span>
 
 <div class="viewcode-block" id="OperationCoordinates.__post_init__">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.OperationCoordinates.__post_init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.OperationCoordinates.__post_init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">__post_init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate coordinates.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">entry</span><span class="p">,</span> <span class="n">GeoPoint</span><span class="p">):</span>
@@ -164,7 +167,7 @@
 
 
 <div class="viewcode-block" id="ActivityRecord">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.ActivityRecord">[docs]</a>
 <span class="nd">@dataclass</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">ActivityRecord</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Standardized activity record for timeline output.&quot;&quot;&quot;</span>
@@ -188,7 +191,7 @@
     <span class="n">water_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># Water depth at location</span>
 
 <div class="viewcode-block" id="ActivityRecord.__init__">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.__init__">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.ActivityRecord.__init__">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Initialize from dictionary for compatibility with old system.&quot;&quot;&quot;</span>
         <span class="c1"># Initialize all fields to None first</span>
@@ -202,7 +205,7 @@
 
 
 <div class="viewcode-block" id="ActivityRecord.to_dict">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.ActivityRecord.to_dict">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.ActivityRecord.to_dict">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">to_dict</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to dictionary for output compatibility.&quot;&quot;&quot;</span>
         <span class="n">result</span> <span class="o">=</span> <span class="p">{</span>
@@ -232,7 +235,7 @@
 
 
 <div class="viewcode-block" id="NavigationalTransit">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NavigationalTransit</span><span class="p">(</span><span class="n">BaseOperation</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Pure navigational connection between operations.&quot;&quot;&quot;</span>
 
@@ -255,7 +258,7 @@
         <span class="p">)</span>
 
 <div class="viewcode-block" id="NavigationalTransit.calculate_duration">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.calculate_duration">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.calculate_duration">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">calculate_duration</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rules</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate based on transit distance and vessel speed.&quot;&quot;&quot;</span>
         <span class="n">exit_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_op</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span>
@@ -266,28 +269,28 @@
 
 
 <div class="viewcode-block" id="NavigationalTransit.get_entry_point">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.get_entry_point">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.get_entry_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_entry_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Transit starts where previous operation ended.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_op</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="NavigationalTransit.get_exit_point">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.get_exit_point">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.get_exit_point">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_exit_point</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Transit ends where next operation begins.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">to_op</span><span class="o">.</span><span class="n">get_entry_point</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="NavigationalTransit.get_operation_type">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.get_operation_type">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.get_operation_type">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_operation_type</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Override default to return specific transit type.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="s2">&quot;Transit&quot;</span></div>
 
 
 <div class="viewcode-block" id="NavigationalTransit.get_operation_distance_nm">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.get_operation_distance_nm">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.get_operation_distance_nm">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_operation_distance_nm</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate straight-line distance between operations.&quot;&quot;&quot;</span>
         <span class="n">exit_pt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">from_op</span><span class="o">.</span><span class="n">get_exit_point</span><span class="p">()</span>
@@ -297,7 +300,7 @@
 
 
 <div class="viewcode-block" id="NavigationalTransit.get_vessel_speed">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.NavigationalTransit.get_vessel_speed">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.NavigationalTransit.get_vessel_speed">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_vessel_speed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Get vessel speed (leg-specific or default).&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">vessel_speed</span></div>
@@ -311,7 +314,7 @@
 
 
 <div class="viewcode-block" id="OperationFactory">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.OperationFactory">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.OperationFactory">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">OperationFactory</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Factory for creating operation objects from configuration data.&quot;&quot;&quot;</span>
 
@@ -319,7 +322,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">config</span> <span class="o">=</span> <span class="n">config</span>
 
 <div class="viewcode-block" id="OperationFactory.create_operation">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.OperationFactory.create_operation">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.OperationFactory.create_operation">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">create_operation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">leg_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">BaseOperation</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create operation from configuration using catalog-based type detection.&quot;&quot;&quot;</span>
         <span class="c1"># Check each catalog to find the operation</span>
@@ -371,7 +374,7 @@
 
 
 <div class="viewcode-block" id="calculate_timeline_statistics">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.calculate_timeline_statistics">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.calculate_timeline_statistics">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">calculate_timeline_statistics</span><span class="p">(</span><span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Calculate summary statistics for cruise timeline activities.</span>
@@ -686,7 +689,7 @@
 
 
 <div class="viewcode-block" id="TimelineGenerator">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.TimelineGenerator">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.TimelineGenerator">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">TimelineGenerator</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Generates cruise timeline from operations and legs.&quot;&quot;&quot;</span>
 
@@ -696,10 +699,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">current_time</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_parse_start_datetime</span><span class="p">()</span>
 
 <div class="viewcode-block" id="TimelineGenerator.generate_timeline">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.TimelineGenerator.generate_timeline">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.TimelineGenerator.generate_timeline">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Generate complete cruise timeline.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="n">legs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">legs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_create_runtime_legs</span><span class="p">()</span>
@@ -716,7 +717,7 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_create_runtime_legs</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create runtime legs from config.&quot;&quot;&quot;</span>
         <span class="c1"># Import here to avoid circular imports</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.leg</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Leg</span>
 
         <span class="n">runtime_legs</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">leg_def</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span> <span class="ow">or</span> <span class="p">[]:</span>
@@ -792,26 +793,31 @@
                         <span class="n">PointDefinition</span><span class="p">,</span>
                     <span class="p">)</span>
 
-                    <span class="k">if</span> <span class="p">(</span>
-                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">)</span>
-                        <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
-                        <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">operation_type</span>
-                        <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span>
-                    <span class="p">):</span>
-                        <span class="c1"># Port waypoint - create as port</span>
-                        <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_port</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
-                    <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">):</span>
-                        <span class="c1"># Non-port waypoint - create as scientific operation</span>
-                        <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                    <span class="c1"># Handle Pydantic objects directly (no dictionary handling needed)</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">):</span>
+                        <span class="k">if</span> <span class="p">(</span>
+                            <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+                            <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">operation_type</span>
+                            <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="o">==</span> <span class="s2">&quot;port&quot;</span>
+                        <span class="p">):</span>
+                            <span class="c1"># Port waypoint - create as port</span>
+                            <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_port</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="c1"># Non-port waypoint - create as scientific operation</span>
+                            <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">LineDefinition</span><span class="p">):</span>
                         <span class="c1"># Transect - create as line operation</span>
-                        <span class="n">operation</span> <span class="o">=</span> <span class="n">LineOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                        <span class="n">operation</span> <span class="o">=</span> <span class="n">LineOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span>
+                            <span class="n">activity</span><span class="p">,</span> <span class="n">leg</span><span class="o">.</span><span class="n">vessel_speed</span>
+                        <span class="p">)</span>
                     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">):</span>
                         <span class="c1"># Area - create as area operation</span>
                         <span class="n">operation</span> <span class="o">=</span> <span class="n">AreaOperation</span><span class="o">.</span><span class="n">from_pydantic</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
-                        <span class="c1"># Legacy port object - create as port</span>
-                        <span class="n">operation</span> <span class="o">=</span> <span class="n">PointOperation</span><span class="o">.</span><span class="n">from_port</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+                        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
+                            <span class="sa">f</span><span class="s2">&quot;Unknown activity type: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span><span class="si">}</span><span class="s2">. &quot;</span>
+                            <span class="sa">f</span><span class="s2">&quot;Expected PointDefinition, LineDefinition, or AreaDefinition, got </span><span class="si">{</span><span class="n">activity</span><span class="si">}</span><span class="s2">&quot;</span>
+                        <span class="p">)</span>
 
                 <span class="c1"># Add navigational transit between all operations</span>
                 <span class="c1"># Zero-duration transits will be filtered out in presentation layer</span>
@@ -1012,20 +1018,18 @@
 
 
 <div class="viewcode-block" id="generate_timeline">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_timeline">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span>
-    <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.generate_timeline">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">,</span> <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CruiseSchedule</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Generate cruise timeline using the new unified operations model.</span>
+<span class="sd">    Generate cruise timeline directly from CruiseInstance object.</span>
 
-<span class="sd">    This is the main entry point that maintains backward compatibility</span>
-<span class="sd">    with the old scheduler interface.</span>
+<span class="sd">    This function eliminates the need for YAML serialization/deserialization</span>
+<span class="sd">    by working directly with the CruiseInstance object&#39;s validated configuration.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
-<span class="sd">    config : CruiseConfig</span>
-<span class="sd">        Cruise configuration object</span>
+<span class="sd">    cruise : cruiseplan.core.cruise.CruiseInstance</span>
+<span class="sd">        CruiseInstance object with enhanced data</span>
 <span class="sd">    legs : Optional[List[Any]]</span>
 <span class="sd">        Runtime legs (if None, will be created from config)</span>
 
@@ -1034,13 +1038,19 @@
 <span class="sd">    List[Dict[str, Any]]</span>
 <span class="sd">        Timeline activities as dictionaries</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># The CruiseInstance object already contains a validated CruiseConfig object</span>
+    <span class="c1"># This avoids the YAML serialization/deserialization that causes</span>
+    <span class="c1"># objects to become dictionaries</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">config</span>
+
+    <span class="c1"># Use existing timeline generation</span>
     <span class="n">generator</span> <span class="o">=</span> <span class="n">TimelineGenerator</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">generator</span><span class="o">.</span><span class="n">generate_timeline</span><span class="p">(</span><span class="n">legs</span><span class="p">)</span></div>
 
 
 
 <div class="viewcode-block" id="generate_cruise_schedule">
-<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.scheduler.generate_cruise_schedule">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.calculators.html#cruiseplan.calculators.generate_cruise_schedule">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">generate_cruise_schedule</span><span class="p">(</span>
     <span class="n">config_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
@@ -1087,10 +1097,10 @@
 <span class="sd">    Dict[str, Any]</span>
 <span class="sd">        Schedule data with timeline and summary information</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">Cruise</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
 
     <span class="c1"># Load cruise configuration</span>
-    <span class="n">cruise</span> <span class="o">=</span> <span class="n">Cruise</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+    <span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
 
     <span class="c1"># Validate depths if requested</span>
     <span class="n">validation_warnings</span> <span class="o">=</span> <span class="p">[]</span>

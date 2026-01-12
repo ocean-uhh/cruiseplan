@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Output formats &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>Output formats &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=45320adf"></script>
+      <script src="../_static/documentation_options.js?v=72ca80b5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -526,7 +526,7 @@ and the geographic extent of the map.</p>
 <dd><p>Extract area features (survey areas, polygons) from cruise configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with config containing areas</p>
+<dd class="field-odd"><p><strong>cruise</strong> (<em>Cruise</em>) – Cruise object with config containing areas</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of area dictionaries with keys: name, corners, entity_type, operation_type, action</p>
@@ -560,7 +560,7 @@ and the geographic extent of the map.</p>
 <dd><p>Extract line features (scientific transits, cruise tracks) from cruise configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with config containing transits</p>
+<dd class="field-odd"><p><strong>cruise</strong> (<em>Cruise</em>) – Cruise object with config containing transits</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>List of line dictionaries with keys: name, waypoints, entity_type, operation_type, action</p>
@@ -595,7 +595,7 @@ and the geographic extent of the map.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_source</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a><em> or </em><em>list</em>) – Either a Cruise object or timeline list</p></li>
+<li><p><strong>data_source</strong> (<em>Cruise</em><em> or </em><em>list</em>) – Either a Cruise object or timeline list</p></li>
 <li><p><strong>source_type</strong> (<em>str</em><em>, </em><em>optional</em>) – “cruise” for Cruise object, “timeline” for timeline list</p></li>
 <li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports (default True)</p></li>
 </ul>
@@ -616,7 +616,7 @@ and the geographic extent of the map.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with station registry and configuration</p></li>
+<li><p><strong>cruise</strong> (<em>Cruise</em>) – Cruise object with station registry and configuration</p></li>
 <li><p><strong>include_ports</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether to include departure/arrival ports (default True)</p></li>
 </ul>
 </dd>
@@ -679,7 +679,7 @@ and timeline data from the scheduler.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>data_source</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a><em> or </em><em>list</em>) – Either a Cruise object or timeline data</p></li>
+<li><p><strong>data_source</strong> (<em>Cruise</em><em> or </em><em>list</em>) – Either a Cruise object or timeline data</p></li>
 <li><p><strong>source_type</strong> (<em>str</em><em>, </em><em>optional</em>) – “cruise” for Cruise object, “timeline” for timeline data (default: “cruise”)</p></li>
 <li><p><strong>output_file</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path or string for the output PNG file. Default is “cruise_map.png”.</p></li>
 <li><p><strong>bathy_source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry dataset to use (“etopo2022” or “gebco2025”). Default is “gebco2025”.</p></li>
@@ -733,7 +733,7 @@ with cruise tracks between stations.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with station registry and configuration</p></li>
+<li><p><strong>cruise</strong> (<em>Cruise</em>) – Cruise object with station registry and configuration</p></li>
 <li><p><strong>output_file</strong> (<em>str</em><em> or </em><em>Path</em><em>, </em><em>optional</em>) – Path or string for the output PNG file. Default is “cruise_map.png”.</p></li>
 <li><p><strong>bathy_source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry dataset to use (“etopo2022” or “gebco2025”). Default is “gebco2025”.</p></li>
 <li><p><strong>bathy_stride</strong> (<em>int</em><em>, </em><em>optional</em>) – Downsampling factor for bathymetry (higher = faster but less detailed). Default is 5.</p></li>

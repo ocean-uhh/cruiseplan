@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Core Classes &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>Core Classes &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=45320adf"></script>
+      <script src="../_static/documentation_options.js?v=72ca80b5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -80,14 +80,14 @@
 <li class="toctree-l2 current"><a class="current reference internal" href="#">Core Classes</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.core.cruise">cruiseplan.core.cruise module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.Cruise"><code class="docutils literal notranslate"><span class="pre">Cruise</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.BaseOrganizationUnit"><code class="docutils literal notranslate"><span class="pre">BaseOrganizationUnit</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.Cluster"><code class="docutils literal notranslate"><span class="pre">Cluster</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.CruiseInstance"><code class="docutils literal notranslate"><span class="pre">CruiseInstance</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.Leg"><code class="docutils literal notranslate"><span class="pre">Leg</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.cruise.ReferenceError"><code class="docutils literal notranslate"><span class="pre">ReferenceError</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.core.leg">cruiseplan.core.leg module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.leg.Leg"><code class="docutils literal notranslate"><span class="pre">Leg</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-core-leg-module">cruiseplan.core.leg module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.core.operations">cruiseplan.core.operations module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.operations.AreaOperation"><code class="docutils literal notranslate"><span class="pre">AreaOperation</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation"><code class="docutils literal notranslate"><span class="pre">BaseOperation</span></code></a></li>
@@ -158,20 +158,384 @@ operational sequences.</p>
 </section>
 <section id="module-cruiseplan.core.cruise">
 <span id="cruiseplan-core-cruise-module"></span><h2>cruiseplan.core.cruise module<a class="headerlink" href="#module-cruiseplan.core.cruise" title="Link to this heading"></a></h2>
-<p>Core cruise management and configuration loading.</p>
-<p>This module provides the Cruise class for loading, validating, and managing
-cruise configurations from YAML files.</p>
+<p>Core cruise management and organizational runtime classes.</p>
+<p>This module provides the main CruiseInstance class for loading, validating, and managing
+cruise configurations from YAML files, along with the organizational runtime
+classes (Leg, Cluster) that form the hierarchical structure for cruise execution.
+The BaseOrganizationUnit abstract base class provides the common interface for
+all organizational units in the cruise planning hierarchy.</p>
 <dl class="py class">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">Cruise</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cruise"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cruise" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">BaseOrganizationUnit</span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Abstract base class for organizational units in cruise planning.</p>
+<p>Provides common interface for hierarchical organization units (Leg, Cluster)
+that can contain operations and support parameter inheritance, boundary
+management, and geographic routing.</p>
+<p>All organizational units share common capabilities:
+- Entry/exit point management for routing
+- Operation counting and duration calculation
+- Parameter inheritance from parent units
+- Reordering policies for scheduling flexibility</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit.allows_reordering">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">allows_reordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit.allows_reordering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit.allows_reordering" title="Link to this definition"></a></dt>
+<dd><p>Check if this unit allows operation reordering.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit.get_all_operations">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_all_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit.get_all_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit.get_all_operations" title="Link to this definition"></a></dt>
+<dd><p>Get all operations within this organizational unit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit.get_entry_point">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_entry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit.get_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit.get_entry_point" title="Link to this definition"></a></dt>
+<dd><p>Get geographic entry point for this unit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit.get_exit_point">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_exit_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit.get_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit.get_exit_point" title="Link to this definition"></a></dt>
+<dd><p>Get geographic exit point for this unit.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.BaseOrganizationUnit.get_operation_count">
+<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_operation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#BaseOrganizationUnit.get_operation_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.BaseOrganizationUnit.get_operation_count" title="Link to this definition"></a></dt>
+<dd><p>Get total number of operations in this unit.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">Cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cruiseplan.core.cruise.BaseOrganizationUnit" title="cruiseplan.core.cruise.BaseOrganizationUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOrganizationUnit</span></code></a></p>
+<p>Runtime container for operation boundary management during scheduling.</p>
+<p>Clusters define boundaries for operation shuffling/reordering. Operations within
+a cluster can be reordered according to the cluster’s strategy, but cannot be
+mixed with operations from other clusters or the parent leg.</p>
+<p>This provides scientific flexibility (weather-dependent reordering) while
+maintaining operational safety (critical sequences protected).</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.name" title="Link to this definition"></a></dt>
+<dd><p>Unique identifier for this cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.description" title="Link to this definition"></a></dt>
+<dd><p>Human-readable description of the cluster’s purpose.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.strategy">
+<span class="sig-name descname"><span class="pre">strategy</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.strategy" title="Link to this definition"></a></dt>
+<dd><p>Scheduling strategy for operations within this cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>StrategyEnum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.ordered">
+<span class="sig-name descname"><span class="pre">ordered</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.ordered" title="Link to this definition"></a></dt>
+<dd><p>Whether operations should maintain their defined order.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.operations" title="Link to this definition"></a></dt>
+<dd><p>List of operations contained within this cluster boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation">BaseOperation</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Weather-flexible CTD cluster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ctd_cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CTD_Survey&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;CTD operations that can be reordered for weather&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">strategy</span><span class="o">=</span><span class="n">StrategyEnum</span><span class="o">.</span><span class="n">SEQUENTIAL</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ordered</span><span class="o">=</span><span class="kc">False</span>  <span class="c1"># Allow weather-based reordering</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="c1"># Critical mooring sequence cluster</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">mooring_cluster</span> <span class="o">=</span> <span class="n">Cluster</span><span class="p">(</span>
+<span class="gp">... </span>    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Mooring_Deployment&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Critical mooring sequence - strict order required&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">strategy</span><span class="o">=</span><span class="n">StrategyEnum</span><span class="o">.</span><span class="n">SEQUENTIAL</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="n">ordered</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Maintain deployment order for safety</span>
+<span class="gp">... </span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a Cluster with the specified parameters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>name</strong> (<em>str</em>) – Unique identifier for this cluster.</p></li>
+<li><p><strong>description</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em><em>, </em><em>optional</em>) – Human-readable description of the cluster’s purpose.</p></li>
+<li><p><strong>strategy</strong> (<em>StrategyEnum</em><em>, </em><em>optional</em>) – Scheduling strategy for operations within cluster (default: SEQUENTIAL).</p></li>
+<li><p><strong>ordered</strong> (<em>bool</em><em>, </em><em>optional</em>) – Whether operations should maintain their defined order (default: True).</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.__repr__" title="Link to this definition"></a></dt>
+<dd><p>String representation of the cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>String representation showing cluster name and operation count.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.__str__" title="Link to this definition"></a></dt>
+<dd><p>Human-readable string representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Human-readable description of the cluster.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.add_operation">
+<span class="sig-name descname"><span class="pre">add_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.add_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.add_operation" title="Link to this definition"></a></dt>
+<dd><p>Add an operation to this cluster boundary.</p>
+<p>Operations added to a cluster can be reordered with other operations
+in the same cluster (subject to the cluster’s ordering constraints)
+but will not be mixed with operations from other clusters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>operation</strong> (<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><em>BaseOperation</em></a>) – The operation to add to this cluster boundary.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.allows_reordering">
+<span class="sig-name descname"><span class="pre">allows_reordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.allows_reordering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.allows_reordering" title="Link to this definition"></a></dt>
+<dd><p>Check if this cluster allows operation reordering.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if operations can be reordered within cluster, False if strict order required.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.calculate_total_duration">
+<span class="sig-name descname"><span class="pre">calculate_total_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.calculate_total_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.calculate_total_duration" title="Link to this definition"></a></dt>
+<dd><p>Calculate total duration for all operations within this cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>rules</strong> (<em>Any</em>) – Duration calculation rules/parameters.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Total duration in appropriate units (typically minutes).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.from_definition">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">ClusterDefinition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster"><span class="pre">Cluster</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.from_definition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.from_definition" title="Link to this definition"></a></dt>
+<dd><p>Create a Cluster runtime instance from a ClusterDefinition.</p>
+<p>This factory method converts a validated ClusterDefinition into a runtime
+Cluster with proper boundary management configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>cluster_def</strong> (<em>ClusterDefinition</em>) – Validated cluster definition from YAML configuration.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New Cluster runtime instance with boundary management settings.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster">Cluster</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_all_operations">
+<span class="sig-name descname"><span class="pre">get_all_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_all_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_all_operations" title="Link to this definition"></a></dt>
+<dd><p>Get all operations within this cluster boundary.</p>
+<p>Returns a copy of the operations list to prevent external modification
+of the cluster boundary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Copy of all operations within this cluster.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation">BaseOperation</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_entry_point">
+<span class="sig-name descname"><span class="pre">get_entry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_entry_point" title="Link to this definition"></a></dt>
+<dd><p>Get the geographic entry point for this cluster (first operation location).</p>
+<p>This provides a standardized interface regardless of internal field names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(latitude, longitude) of the cluster’s entry point, or None if no operations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[float, float] or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_exit_point">
+<span class="sig-name descname"><span class="pre">get_exit_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_exit_point" title="Link to this definition"></a></dt>
+<dd><p>Get the geographic exit point for this cluster (last operation location).</p>
+<p>This provides a standardized interface regardless of internal field names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(latitude, longitude) of the cluster’s exit point, or None if no operations.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>tuple[float, float] or None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_operation">
+<span class="sig-name descname"><span class="pre">get_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_operation" title="Link to this definition"></a></dt>
+<dd><p>Get an operation from this cluster by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>operation_name</strong> (<em>str</em>) – Name of the operation to retrieve.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The operation if found, None otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation">BaseOperation</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_operation_count">
+<span class="sig-name descname"><span class="pre">get_operation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_operation_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_operation_count" title="Link to this definition"></a></dt>
+<dd><p>Get the number of operations in this cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of operations within the cluster boundary.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.get_operation_names">
+<span class="sig-name descname"><span class="pre">get_operation_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.get_operation_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.get_operation_names" title="Link to this definition"></a></dt>
+<dd><p>Get names of all operations within this cluster.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List of operation names within the cluster.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.is_empty">
+<span class="sig-name descname"><span class="pre">is_empty</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.is_empty"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.is_empty" title="Link to this definition"></a></dt>
+<dd><p>Check if this cluster contains no operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if cluster is empty, False otherwise.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cluster.remove_operation">
+<span class="sig-name descname"><span class="pre">remove_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cluster.remove_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cluster.remove_operation" title="Link to this definition"></a></dt>
+<dd><p>Remove an operation from this cluster by name.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>operation_name</strong> (<em>str</em>) – Name of the operation to remove.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if operation was found and removed, False otherwise.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">CruiseInstance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>The main container object for cruise planning.</p>
 <p>Responsible for parsing YAML configuration files, validating the schema
 using Pydantic models, and resolving string references to full objects
 from the catalog registries.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.config_path">
-<span class="sig-name descname"><span class="pre">config_path</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.config_path" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.config_path">
+<span class="sig-name descname"><span class="pre">config_path</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.config_path" title="Link to this definition"></a></dt>
 <dd><p>Absolute path to the configuration file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -181,8 +545,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.raw_data">
-<span class="sig-name descname"><span class="pre">raw_data</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.raw_data" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.raw_data">
+<span class="sig-name descname"><span class="pre">raw_data</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.raw_data" title="Link to this definition"></a></dt>
 <dd><p>Raw dictionary data loaded from the YAML file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -192,8 +556,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.config">
-<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.config" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.config">
+<span class="sig-name descname"><span class="pre">config</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.config" title="Link to this definition"></a></dt>
 <dd><p>Validated Pydantic configuration object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -203,8 +567,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.point_registry">
-<span class="sig-name descname"><span class="pre">point_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.point_registry" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.point_registry">
+<span class="sig-name descname"><span class="pre">point_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.point_registry" title="Link to this definition"></a></dt>
 <dd><p>Dictionary mapping point names to PointDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -214,8 +578,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.line_registry">
-<span class="sig-name descname"><span class="pre">line_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.line_registry" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.line_registry">
+<span class="sig-name descname"><span class="pre">line_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.line_registry" title="Link to this definition"></a></dt>
 <dd><p>Dictionary mapping line names to LineDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -225,8 +589,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.port_registry">
-<span class="sig-name descname"><span class="pre">port_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.port_registry" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.port_registry">
+<span class="sig-name descname"><span class="pre">port_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.port_registry" title="Link to this definition"></a></dt>
 <dd><p>Dictionary mapping port names to PointDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -236,8 +600,8 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.area_registry">
-<span class="sig-name descname"><span class="pre">area_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.area_registry" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.area_registry">
+<span class="sig-name descname"><span class="pre">area_registry</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.area_registry" title="Link to this definition"></a></dt>
 <dd><p>Dictionary mapping area names to AreaDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -247,20 +611,20 @@ from the catalog registries.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.runtime_legs">
-<span class="sig-name descname"><span class="pre">runtime_legs</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.runtime_legs" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.runtime_legs">
+<span class="sig-name descname"><span class="pre">runtime_legs</span></span><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.runtime_legs" title="Link to this definition"></a></dt>
 <dd><p>List of runtime Leg objects converted from LegDefinition objects.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[<a class="reference internal" href="#cruiseplan.core.leg.Leg" title="cruiseplan.core.leg.Leg">Leg</a>]</p>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#cruiseplan.core.cruise.Leg" title="cruiseplan.core.cruise.Leg">Leg</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.Cruise.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Cruise.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Cruise.__init__" title="Link to this definition"></a></dt>
-<dd><p>Initialize a Cruise object from a YAML configuration file.</p>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.__init__" title="Link to this definition"></a></dt>
+<dd><p>Initialize a CruiseInstance object from a YAML configuration file.</p>
 <p>Performs three main operations:
 1. Loads and validates the YAML configuration using Pydantic
 2. Builds registries for points and lines
@@ -280,28 +644,206 @@ from the catalog registries.</p>
 </dl>
 </dd></dl>
 
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.add_coordinate_displays">
+<span class="sig-name descname"><span class="pre">add_coordinate_displays</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_format</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ddm'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.add_coordinate_displays"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.add_coordinate_displays" title="Link to this definition"></a></dt>
+<dd><p>Add human-readable coordinate display fields for final YAML output.</p>
+<p>This method adds formatted coordinate annotations that will appear in
+the YAML output but don’t affect the core cruise data. This is for
+display enhancement only.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>coord_format</strong> (<em>str</em><em>, </em><em>optional</em>) – Coordinate format to use for display. Default is “ddm”.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Number of coordinate display fields added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
-<dl class="py exception">
-<dt class="sig sig-object py" id="cruiseplan.core.cruise.ReferenceError">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">ReferenceError</span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#ReferenceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.ReferenceError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Exception raised when a referenced item is not found in the catalog.</p>
-<p>This exception is raised during the reference resolution phase when
-string identifiers in the cruise configuration cannot be matched to
-their corresponding definitions in the station or transit registries.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.add_station_defaults">
+<span class="sig-name descname"><span class="pre">add_station_defaults</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.add_station_defaults"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.add_station_defaults" title="Link to this definition"></a></dt>
+<dd><p>Add missing defaults to station definitions.</p>
+<p>This method adds default duration to mooring operations and other stations
+that lack required default values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Number of station defaults added.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
 </dd></dl>
 
-</section>
-<section id="module-cruiseplan.core.leg">
-<span id="cruiseplan-core-leg-module"></span><h2>cruiseplan.core.leg module<a class="headerlink" href="#module-cruiseplan.core.leg" title="Link to this heading"></a></h2>
-<p>Cruise leg management and operation sequencing.</p>
-<p>This module provides the Leg class for managing sequences of operations
-within cruise legs and parameter inheritance.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.enrich_depths">
+<span class="sig-name descname"><span class="pre">enrich_depths</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bathymetry_source</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'etopo2022'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bathymetry_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'data'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.enrich_depths"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.enrich_depths" title="Link to this definition"></a></dt>
+<dd><p>Add bathymetry depths to stations that are missing water_depth values.</p>
+<p>This method modifies the point_registry directly by adding water depth
+information from bathymetry datasets to stations that don’t have depth
+values or have placeholder values.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bathymetry_source</strong> (<em>str</em><em>, </em><em>optional</em>) – Bathymetry dataset to use. Default is “etopo2022”.</p></li>
+<li><p><strong>bathymetry_dir</strong> (<em>str</em><em>, </em><em>optional</em>) – Directory containing bathymetry data. Default is “data”.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Set of station names that had depths added.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>set[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.expand_ports">
+<span class="sig-name descname"><span class="pre">expand_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.expand_ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.expand_ports" title="Link to this definition"></a></dt>
+<dd><p>Expand global port references into full PortDefinition objects.</p>
+<p>This method finds string port references and expands them into full
+PortDefinition objects with coordinates and other metadata from the
+global ports database.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with expansion summary:
+- ports_expanded: Number of global ports expanded
+- leg_ports_expanded: Number of leg ports expanded</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.expand_sections">
+<span class="sig-name descname"><span class="pre">expand_sections</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_depth</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">-9999.0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.expand_sections"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.expand_sections" title="Link to this definition"></a></dt>
+<dd><p>Expand CTD sections into individual station definitions.</p>
+<p>This method finds CTD sections in lines catalog and expands them into
+individual stations, adding them to the point_registry. This is structural
+enrichment that modifies the cruise configuration.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_depth</strong> (<em>float</em><em>, </em><em>optional</em>) – Default depth value for expanded stations. Default is -9999.0.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dictionary with expansion summary:
+- sections_expanded: Number of sections expanded
+- stations_from_expansion: Number of stations created</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.from_dict">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.core.cruise.CruiseInstance" title="cruiseplan.core.cruise.CruiseInstance"><span class="pre">CruiseInstance</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.from_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.from_dict" title="Link to this definition"></a></dt>
+<dd><p>Create a CruiseInstance from a dictionary without file I/O.</p>
+<p>This class method provides single source of truth functionality by creating
+a CruiseInstance object directly from a configuration dictionary, eliminating the
+need for temporary file creation during enrichment operations.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>config_dict</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Dictionary containing cruise configuration data (e.g., from YAML parsing).</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>New CruiseInstance with all registries built and references resolved.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.core.cruise.CruiseInstance" title="cruiseplan.core.cruise.CruiseInstance">CruiseInstance</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><strong>ValidationError</strong> – If the configuration does not match the expected schema.</p></li>
+<li><p><a class="reference internal" href="#cruiseplan.core.cruise.ReferenceError" title="cruiseplan.core.cruise.ReferenceError"><strong>ReferenceError</strong></a> – If referenced points or lines are not found in the catalog.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="p">{</span>
+<span class="gp">... </span>    <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="s2">&quot;Test Cruise&quot;</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;default_vessel_speed&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+<span class="gp">... </span>    <span class="s2">&quot;points&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;P1&quot;</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="mf">60.0</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">}],</span>
+<span class="gp">... </span>    <span class="s2">&quot;legs&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Leg1&quot;</span><span class="p">,</span> <span class="s2">&quot;departure_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Bergen&quot;</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">:</span> <span class="s2">&quot;Tromsø&quot;</span><span class="p">}]</span>
+<span class="gp">... </span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">config</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span>
+<span class="go">&#39;Test Cruise&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.to_commented_dict">
+<span class="sig-name descname"><span class="pre">to_commented_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.to_commented_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.to_commented_dict" title="Link to this definition"></a></dt>
+<dd><p>Export CruiseInstance configuration to a structured dictionary with comment preservation.</p>
+<p>This method provides the foundation for YAML output with canonical field
+ordering and comment preservation capabilities. Returns a dictionary that
+can be processed by ruamel.yaml for structured output with comments.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dictionary with canonical field ordering suitable for YAML export
+with comment preservation.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>Dict[str, Any]</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>The output dictionary follows canonical ordering:
+1. Cruise Metadata (cruise_name, description, start_date, start_time)
+2. Vessel Parameters (default_vessel_speed, turnaround_time, etc.)
+3. Calculation Settings (calculate_*, day_start_hour, etc.)
+4. Catalog Definitions (points, lines, areas, ports)
+5. Schedule Organization (legs)</p>
+<p>Comment preservation is handled at the YAML layer using ruamel.yaml
+with end-of-line and section header comment support.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.CruiseInstance.to_yaml">
+<span class="sig-name descname"><span class="pre">to_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">enrichment_command</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#CruiseInstance.to_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.CruiseInstance.to_yaml" title="Link to this definition"></a></dt>
+<dd><p>Export CruiseInstance configuration to YAML file with canonical ordering.</p>
+<p>This method provides direct YAML export capability with standardized
+field ordering and basic comment preservation. Uses ruamel.yaml for
+structured output that maintains readability.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>output_path</strong> (<em>Union</em><em>[</em><em>str</em><em>, </em><em>Path</em><em>]</em>) – Path where the YAML file should be written.</p></li>
+<li><p><strong>enrichment_command</strong> (<em>Optional</em><em>[</em><em>str</em><em>]</em>) – The enrichment command that was used to create this file, for documentation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>IOError</strong> – If the output file cannot be written.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">cruise</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="s2">&quot;enhanced_cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="rubric">Notes</p>
+<p>The exported YAML follows canonical field ordering and includes
+section comments for improved readability. This replaces the need
+for dual state management during enrichment operations.</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg">
-<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.leg.</span></span><span class="sig-name descname"><span class="pre">Leg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">departure_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrival_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">Leg</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">departure_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrival_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="#cruiseplan.core.cruise.BaseOrganizationUnit" title="cruiseplan.core.cruise.BaseOrganizationUnit"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseOrganizationUnit</span></code></a></p>
 <p>Port-to-port maritime leg container following nautical terminology.</p>
 <p>A Leg represents a discrete maritime journey between two ports, containing
 all scientific operations and clusters executed during that voyage segment.
@@ -310,8 +852,8 @@ arrival ports, providing clear operational boundaries.</p>
 <p>The Leg manages parameter inheritance (from parent Cruise), cluster boundaries,
 and port-to-port routing for realistic maritime scheduling.</p>
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.name">
-<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.name" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.name">
+<span class="sig-name descname"><span class="pre">name</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.name" title="Link to this definition"></a></dt>
 <dd><p>Unique identifier for this leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -321,8 +863,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.description">
-<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.description" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.description" title="Link to this definition"></a></dt>
 <dd><p>Optional human-readable description of the leg’s purpose.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -332,8 +874,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.departure_port">
-<span class="sig-name descname"><span class="pre">departure_port</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.departure_port" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.departure_port">
+<span class="sig-name descname"><span class="pre">departure_port</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.departure_port" title="Link to this definition"></a></dt>
 <dd><p>Required departure port for this maritime leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -343,8 +885,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.arrival_port">
-<span class="sig-name descname"><span class="pre">arrival_port</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.arrival_port" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.arrival_port">
+<span class="sig-name descname"><span class="pre">arrival_port</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.arrival_port" title="Link to this definition"></a></dt>
 <dd><p>Required arrival port for this maritime leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -354,8 +896,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.strategy">
-<span class="sig-name descname"><span class="pre">strategy</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.strategy" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.strategy">
+<span class="sig-name descname"><span class="pre">strategy</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.strategy" title="Link to this definition"></a></dt>
 <dd><p>Execution strategy for operations (default: SEQUENTIAL).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -365,8 +907,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.ordered">
-<span class="sig-name descname"><span class="pre">ordered</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.ordered" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.ordered">
+<span class="sig-name descname"><span class="pre">ordered</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.ordered" title="Link to this definition"></a></dt>
 <dd><p>Whether operations should maintain their specified order (default: True).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -376,8 +918,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.operations">
-<span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.operations" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.operations">
+<span class="sig-name descname"><span class="pre">operations</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.operations" title="Link to this definition"></a></dt>
 <dd><p>List of standalone operations (e.g., single CTD, single Transit).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -387,19 +929,19 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.clusters">
-<span class="sig-name descname"><span class="pre">clusters</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.clusters" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.clusters">
+<span class="sig-name descname"><span class="pre">clusters</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.clusters" title="Link to this definition"></a></dt>
 <dd><p>List of cluster boundaries for operation shuffling control.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>List[Cluster]</p>
+<dd class="field-odd"><p>List[<a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster">Cluster</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.first_activity">
-<span class="sig-name descname"><span class="pre">first_activity</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.first_activity" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.first_activity">
+<span class="sig-name descname"><span class="pre">first_activity</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.first_activity" title="Link to this definition"></a></dt>
 <dd><p>First waypoint/navigation marker for routing (not executed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -409,8 +951,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.last_activity">
-<span class="sig-name descname"><span class="pre">last_activity</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.last_activity" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.last_activity">
+<span class="sig-name descname"><span class="pre">last_activity</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.last_activity" title="Link to this definition"></a></dt>
 <dd><p>Last waypoint/navigation marker for routing (not executed).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -420,8 +962,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.vessel_speed">
-<span class="sig-name descname"><span class="pre">vessel_speed</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.vessel_speed" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.vessel_speed">
+<span class="sig-name descname"><span class="pre">vessel_speed</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.vessel_speed" title="Link to this definition"></a></dt>
 <dd><p>Leg-specific vessel speed override (None uses cruise default).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -431,8 +973,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.turnaround_time">
-<span class="sig-name descname"><span class="pre">turnaround_time</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.turnaround_time" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.turnaround_time">
+<span class="sig-name descname"><span class="pre">turnaround_time</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.turnaround_time" title="Link to this definition"></a></dt>
 <dd><p>Leg-specific turnaround time override in minutes (None uses cruise default).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -442,8 +984,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.distance_between_stations">
-<span class="sig-name descname"><span class="pre">distance_between_stations</span></span><a class="headerlink" href="#cruiseplan.core.leg.Leg.distance_between_stations" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.distance_between_stations">
+<span class="sig-name descname"><span class="pre">distance_between_stations</span></span><a class="headerlink" href="#cruiseplan.core.cruise.Leg.distance_between_stations" title="Link to this definition"></a></dt>
 <dd><p>Leg-specific station spacing override (None uses cruise default).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Type<span class="colon">:</span></dt>
@@ -464,8 +1006,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </pre></div>
 </div>
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.__init__">
-<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">departure_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrival_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.__init__" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.__init__">
+<span class="sig-name descname"><span class="pre">__init__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">departure_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">arrival_port</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">PointDefinition</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">StrategyEnum</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">StrategyEnum.SEQUENTIAL</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">first_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">last_activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.__init__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.__init__" title="Link to this definition"></a></dt>
 <dd><p>Initialize a maritime Leg with port-to-port structure.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -484,8 +1026,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.__repr__">
-<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.__repr__" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.__repr__">
+<span class="sig-name descname"><span class="pre">__repr__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.__repr__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.__repr__" title="Link to this definition"></a></dt>
 <dd><p>String representation of the leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -498,8 +1040,8 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.__str__">
-<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.__str__" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.__str__">
+<span class="sig-name descname"><span class="pre">__str__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.__str__"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.__str__" title="Link to this definition"></a></dt>
 <dd><p>Human-readable string representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -512,30 +1054,30 @@ and port-to-port routing for realistic maritime scheduling.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.add_cluster">
-<span class="sig-name descname"><span class="pre">add_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Cluster</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.add_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.add_cluster" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.add_cluster">
+<span class="sig-name descname"><span class="pre">add_cluster</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cluster</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster"><span class="pre">Cluster</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.add_cluster"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.add_cluster" title="Link to this definition"></a></dt>
 <dd><p>Add a cluster boundary to this leg for operation shuffling control.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cluster</strong> (<em>Cluster</em>) – The cluster boundary to add for operation reordering management.</p>
+<dd class="field-odd"><p><strong>cluster</strong> (<a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster"><em>Cluster</em></a>) – The cluster boundary to add for operation reordering management.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.add_operation">
-<span class="sig-name descname"><span class="pre">add_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.add_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.add_operation" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.add_operation">
+<span class="sig-name descname"><span class="pre">add_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.add_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.add_operation" title="Link to this definition"></a></dt>
 <dd><p>Add a single, standalone operation to this leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>operation</strong> (<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><em>BaseOperation</em></a>) – The operation to add (e.g., a single CTD cast or transit).</p>
+<dd class="field-odd"><p><strong>operation</strong> (<a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><em>BaseOperation</em></a>) – The operation to add (e.g., a single CTD cast or section).</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.allows_reordering">
-<span class="sig-name descname"><span class="pre">allows_reordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.allows_reordering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.allows_reordering" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.allows_reordering">
+<span class="sig-name descname"><span class="pre">allows_reordering</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.allows_reordering"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.allows_reordering" title="Link to this definition"></a></dt>
 <dd><p>Check if this leg allows operation reordering.</p>
 <p>A leg allows reordering if it’s not strictly ordered or if any of its
 clusters allow reordering.</p>
@@ -550,17 +1092,17 @@ clusters allow reordering.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.calculate_total_duration">
-<span class="sig-name descname"><span class="pre">calculate_total_duration</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.calculate_total_duration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.calculate_total_duration" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.calculate_total_duration_legacy">
+<span class="sig-name descname"><span class="pre">calculate_total_duration_legacy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">rules</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.calculate_total_duration_legacy"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.calculate_total_duration_legacy" title="Link to this definition"></a></dt>
 <dd><p>Calculate total duration for all operations in this leg.</p>
-<p>Includes port-to-port transit time, standalone operations, and cluster
+<p>Includes port transit time, standalone operations, and cluster
 operations with proper boundary management.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>rules</strong> (<em>Any</em>) – Duration calculation rules/parameters containing config.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Total duration in minutes including all operations and transits.</p>
+<dd class="field-even"><p>Total duration in minutes including all operations and port transits.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>float</p>
@@ -569,8 +1111,8 @@ operations with proper boundary management.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.from_definition">
-<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leg_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LegDefinition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.core.leg.Leg" title="cruiseplan.core.leg.Leg"><span class="pre">Leg</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.from_definition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.from_definition" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.from_definition">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_definition</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">leg_def</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">LegDefinition</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#cruiseplan.core.cruise.Leg" title="cruiseplan.core.cruise.Leg"><span class="pre">Leg</span></a></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.from_definition"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.from_definition" title="Link to this definition"></a></dt>
 <dd><p>Create a Leg runtime instance from a LegDefinition.</p>
 <p>This factory method converts a validated LegDefinition into a runtime Leg
 with proper port-to-port structure and default cluster creation.</p>
@@ -582,28 +1124,28 @@ with proper port-to-port structure and default cluster creation.</p>
 <dd class="field-even"><p>New Leg runtime instance with resolved ports and clusters.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.core.leg.Leg" title="cruiseplan.core.leg.Leg">Leg</a></p>
+<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.core.cruise.Leg" title="cruiseplan.core.cruise.Leg">Leg</a></p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_all_clusters">
-<span class="sig-name descname"><span class="pre">get_all_clusters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Cluster</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_all_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_all_clusters" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_all_clusters">
+<span class="sig-name descname"><span class="pre">get_all_clusters</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster"><span class="pre">Cluster</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_all_clusters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_all_clusters" title="Link to this definition"></a></dt>
 <dd><p>Get all clusters within this leg for boundary management.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>List of all cluster boundaries within this leg.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>List[Cluster]</p>
+<dd class="field-even"><p>List[<a class="reference internal" href="#cruiseplan.core.cruise.Cluster" title="cruiseplan.core.cruise.Cluster">Cluster</a>]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_all_operations">
-<span class="sig-name descname"><span class="pre">get_all_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_all_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_all_operations" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_all_operations">
+<span class="sig-name descname"><span class="pre">get_all_operations</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.core.operations.BaseOperation" title="cruiseplan.core.operations.BaseOperation"><span class="pre">BaseOperation</span></a><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_all_operations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_all_operations" title="Link to this definition"></a></dt>
 <dd><p>Flatten all operations including those within cluster boundaries.</p>
 <p>This provides a unified list of atomic operations for route optimization
 that respects the Leg’s port-to-port boundaries.</p>
@@ -619,8 +1161,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_boundary_waypoints">
-<span class="sig-name descname"><span class="pre">get_boundary_waypoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_boundary_waypoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_boundary_waypoints" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_boundary_waypoints">
+<span class="sig-name descname"><span class="pre">get_boundary_waypoints</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_boundary_waypoints"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_boundary_waypoints" title="Link to this definition"></a></dt>
 <dd><p>Get the first and last waypoint boundaries for this leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -633,59 +1175,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_effective_spacing">
-<span class="sig-name descname"><span class="pre">get_effective_spacing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_effective_spacing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_effective_spacing" title="Link to this definition"></a></dt>
-<dd><p>Get leg-specific station spacing or fallback to the parent cruise’s default.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>default_spacing</strong> (<em>float</em>) – The default spacing from the parent cruise configuration.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The effective station spacing for this leg.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_effective_speed">
-<span class="sig-name descname"><span class="pre">get_effective_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_speed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_effective_speed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_effective_speed" title="Link to this definition"></a></dt>
-<dd><p>Get leg-specific vessel speed or fallback to the parent cruise’s default.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>default_speed</strong> (<em>float</em>) – The default speed from the parent cruise configuration.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The effective vessel speed for this leg.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_effective_turnaround_time">
-<span class="sig-name descname"><span class="pre">get_effective_turnaround_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_turnaround</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_effective_turnaround_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_effective_turnaround_time" title="Link to this definition"></a></dt>
-<dd><p>Get leg-specific turnaround time or fallback to the parent cruise’s default.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>default_turnaround</strong> (<em>float</em>) – The default turnaround time from the parent cruise configuration.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The effective turnaround time for this leg in minutes.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_entry_point">
-<span class="sig-name descname"><span class="pre">get_entry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_entry_point" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_entry_point">
+<span class="sig-name descname"><span class="pre">get_entry_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_entry_point" title="Link to this definition"></a></dt>
 <dd><p>Get the geographic entry point for this leg (departure port).</p>
 <p>This provides a standardized interface regardless of internal field names.</p>
 <dl class="field-list simple">
@@ -699,8 +1190,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_exit_point">
-<span class="sig-name descname"><span class="pre">get_exit_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_exit_point" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_exit_point">
+<span class="sig-name descname"><span class="pre">get_exit_point</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_exit_point" title="Link to this definition"></a></dt>
 <dd><p>Get the geographic exit point for this leg (arrival port).</p>
 <p>This provides a standardized interface regardless of internal field names.</p>
 <dl class="field-list simple">
@@ -714,8 +1205,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_operation_count">
-<span class="sig-name descname"><span class="pre">get_operation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_operation_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_operation_count" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_operation_count">
+<span class="sig-name descname"><span class="pre">get_operation_count</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_operation_count"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_operation_count" title="Link to this definition"></a></dt>
 <dd><p>Get the total number of operations in this leg.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -728,8 +1219,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_operational_entry_point">
-<span class="sig-name descname"><span class="pre">get_operational_entry_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_operational_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_operational_entry_point" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_operational_entry_point">
+<span class="sig-name descname"><span class="pre">get_operational_entry_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_operational_entry_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_operational_entry_point" title="Link to this definition"></a></dt>
 <dd><p>Get the geographic entry point for operations within this leg.</p>
 <p>Uses first_activity if available, otherwise first activity.</p>
 <dl class="field-list simple">
@@ -746,8 +1237,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_operational_exit_point">
-<span class="sig-name descname"><span class="pre">get_operational_exit_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_operational_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_operational_exit_point" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_operational_exit_point">
+<span class="sig-name descname"><span class="pre">get_operational_exit_point</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_operational_exit_point"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_operational_exit_point" title="Link to this definition"></a></dt>
 <dd><p>Get the geographic exit point for operations within this leg.</p>
 <p>Uses last_activity if available, otherwise last activity.</p>
 <dl class="field-list simple">
@@ -764,8 +1255,8 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.get_port_positions">
-<span class="sig-name descname"><span class="pre">get_port_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.get_port_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.get_port_positions" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_port_positions">
+<span class="sig-name descname"><span class="pre">get_port_positions</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_port_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_port_positions" title="Link to this definition"></a></dt>
 <dd><p>Get the geographic positions of departure and arrival ports.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -778,8 +1269,59 @@ from within cluster boundaries.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="cruiseplan.core.leg.Leg.is_same_port_leg">
-<span class="sig-name descname"><span class="pre">is_same_port_leg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/leg.html#Leg.is_same_port_leg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.leg.Leg.is_same_port_leg" title="Link to this definition"></a></dt>
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_station_spacing">
+<span class="sig-name descname"><span class="pre">get_station_spacing</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_spacing</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_station_spacing"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_station_spacing" title="Link to this definition"></a></dt>
+<dd><p>Get station spacing for this leg (leg-specific override or cruise default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_spacing</strong> (<em>float</em>) – The default spacing from the parent cruise configuration.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The effective station spacing for this leg.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_turnaround_time">
+<span class="sig-name descname"><span class="pre">get_turnaround_time</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_turnaround</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_turnaround_time"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_turnaround_time" title="Link to this definition"></a></dt>
+<dd><p>Get turnaround time for this leg (leg-specific override or cruise default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_turnaround</strong> (<em>float</em>) – The default turnaround time from the parent cruise configuration.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The effective turnaround time for this leg in minutes.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.get_vessel_speed">
+<span class="sig-name descname"><span class="pre">get_vessel_speed</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">default_speed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.get_vessel_speed"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.get_vessel_speed" title="Link to this definition"></a></dt>
+<dd><p>Get vessel speed for this leg (leg-specific override or cruise default).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>default_speed</strong> (<em>float</em>) – The default speed from the parent cruise configuration.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The effective vessel speed for this leg.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.Leg.is_same_port_leg">
+<span class="sig-name descname"><span class="pre">is_same_port_leg</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#Leg.is_same_port_leg"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.Leg.is_same_port_leg" title="Link to this definition"></a></dt>
 <dd><p>Check if this leg departs and arrives at the same port.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -793,6 +1335,19 @@ from within cluster boundaries.</p>
 
 </dd></dl>
 
+<dl class="py exception">
+<dt class="sig sig-object py" id="cruiseplan.core.cruise.ReferenceError">
+<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.core.cruise.</span></span><span class="sig-name descname"><span class="pre">ReferenceError</span></span><a class="reference internal" href="../_modules/cruiseplan/core/cruise.html#ReferenceError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.core.cruise.ReferenceError" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
+<p>Exception raised when a referenced item is not found in the catalog.</p>
+<p>This exception is raised during the reference resolution phase when
+string identifiers in the cruise configuration cannot be matched to
+their corresponding definitions in the station or transit registries.</p>
+</dd></dl>
+
+</section>
+<section id="cruiseplan-core-leg-module">
+<h2>cruiseplan.core.leg module<a class="headerlink" href="#cruiseplan-core-leg-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-cruiseplan.core.operations">
 <span id="cruiseplan-core-operations-module"></span><h2>cruiseplan.core.operations module<a class="headerlink" href="#module-cruiseplan.core.operations" title="Link to this heading"></a></h2>

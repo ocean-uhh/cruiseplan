@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=45320adf"></script>
+      <script src="_static/documentation_options.js?v=72ca80b5"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [01:10, 6.97MB/s]
+Downloading ETOPO: 469MB [01:40, 4.88MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -655,9 +655,36 @@ port_update_arrival: Hamburg (ARRIVAL PLACEHOLDER)
 <div class="highlight"><pre>
 INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
-WARNING: ⚠️ Added missing field: default_distance_between_stations = 15.0 km
-INFO: Saved configuration to: /tmp/tmpua5yq7e1.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
+WARNING: PointDefinition &#39;STN_001&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;STN_002&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;STN_003&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;STN_004&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;MOOR_001&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;STN_005&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+WARNING: PointDefinition &#39;STN_006&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
+/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=LineDefinition(name=&#39;Demo...ns=None, max_depth=None), input_type=LineDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=LineDefinition(name=&#39;Demo...ns=None, max_depth=None), input_type=LineDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
+  return self.__pydantic_serializer__.to_python(
+INFO: Saved configuration to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Validating cruise configuration...
+INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -675,10 +702,6 @@ Is callable: True
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-INFO: Saved configuration to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-INFO: ✅ Validating cruise configuration...
-INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 INFO: ✅ Validation passed
 INFO: 🗺️ Generating cruise maps...
@@ -767,17 +790,13 @@ INFO: ✅ Processing workflow completed successfully!
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
 INFO: 📅 Generating schedule from /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-ERROR: Failed to process activity &#39;Demo_ADCP_Survey&#39;
-Traceback (most recent call last):
-  File &#34;/home/runner/work/cruiseplan/cruiseplan/cruiseplan/calculators/scheduler.py&#34;, line 648, in _process_leg
-    operation = LineOperation.from_pydantic(activity)
-TypeError: LineOperation.from_pydantic() missing 1 required positional argument: &#39;default_speed&#39;
 INFO: 🌐 HTML Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html
-INFO:    Timeline contains 17 activities
+INFO:    Timeline contains 19 activities
 INFO:    Adding to ports: St. John&#39;s (activity=Port, op_class=PointOperation, op_type=port)
 INFO:    Adding to stations: STN_001 (activity=Station, op_class=PointOperation, op_type=CTD)
 INFO:    Adding to stations: STN_002 (activity=Station, op_class=PointOperation, op_type=CTD)
 INFO:    Adding to stations: STN_003 (activity=Station, op_class=PointOperation, op_type=CTD)
+INFO:    Adding to scientific_transits: Demo_ADCP_Survey (activity=Line, op_class=LineOperation, op_type=underway)
 INFO:    Adding to stations (other): STN_004 (activity=Station, op_class=PointOperation, op_type=water_sampling)
 INFO:    Adding to moorings: MOOR_001 (activity=Mooring, op_class=PointOperation, op_type=mooring)
 INFO:    Adding to stations: STN_005 (activity=Station, op_class=PointOperation, op_type=CTD)
@@ -786,24 +805,24 @@ INFO:    Adding to ports: St. John&#39;s (activity=Port, op_class=PointOperation
 INFO: 🔍 Cruise-level operation counts:
 INFO:    Stations: 6
 INFO:    Moorings: 1
-INFO:    Scientific transits (surveys): 0
+INFO:    Scientific transits (surveys): 1
 INFO:    Area operations: 0
-INFO:    Total scientific operations: 7
+INFO:    Total scientific operations: 8
 INFO:    Port activities: 2
-INFO:    Within-area transits: 6
+INFO:    Within-area transits: 7
 INFO: 🔍 Leg &#39;Demo_Survey&#39; operation counts:
 INFO:    Stations: 5
 INFO:    Moorings: 1
-INFO:    Surveys: 0
+INFO:    Surveys: 1
 INFO:    Areas: 0
-INFO:    Total scientific operations: 7
-INFO:    Total activities in leg: 17
+INFO:    Total scientific operations: 8
+INFO:    Total activities in leg: 19
 INFO: ✅ Generated HTML schedule: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html
 INFO: 📊 CSV Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.csv
-INFO:    Timeline contains 17 activities
+INFO:    Timeline contains 19 activities
 INFO: ✅ Generated CSV schedule: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.csv
 INFO: 📄 NetCDF Generator: Starting generation of /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.nc
-INFO:    Timeline contains 17 activities
+INFO:    Timeline contains 19 activities
 INFO: Generating ship schedule NetCDF: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.nc
 INFO: Ship schedule NetCDF written to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.nc
 INFO: ✅ Generated NetCDF schedule: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.nc
@@ -817,7 +836,7 @@ INFO: 📅 Schedule generation complete! Generated 3 files
 <div class="highlight"><pre>
 📅 Generating cruise schedule...
 ✅ Schedule generated successfully!
-   Timeline object created with 17 activities
+   Timeline object created with 19 activities
    Output files in: ../tests_output/demo/
    Generated formats: HTML, CSV, NetCDF
    - /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_schedule.html

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev1</title>
+  <title>General Utilities &mdash; CruisePlan v0.3.3 v0.3.3.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=45320adf"></script>
+      <script src="../_static/documentation_options.js?v=72ca80b5"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -329,7 +329,10 @@ CruiseConfig objects.</p>
 <dd class="field-even"><p>Dict[str, Any]</p>
 </dd>
 <dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>CruiseConfigurationError</strong> – If the file cannot be found, read, or is not valid YAML.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>FileNotFoundError</strong> – If the file cannot be found.</p></li>
+<li><p><strong>ValueError</strong> – If the file cannot be read or is not valid YAML.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
@@ -349,7 +352,7 @@ CruiseConfig objects.</p>
 <dd class="field-odd"><p>CruiseConfig</p>
 </dd>
 <dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>CruiseConfigurationError</strong> – If Pydantic validation fails, wraps the error for user clarity.</p>
+<dd class="field-even"><p><strong>ValueError</strong> – If Pydantic validation fails, wraps the error for user clarity.</p>
 </dd>
 </dl>
 </dd></dl>
@@ -680,7 +683,7 @@ semantic meaning while avoiding the overhead of full objects.</p>
 <dd><p>Extract coordinates from cruise configuration.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>cruise</strong> (<a class="reference internal" href="cruiseplan.core.html#cruiseplan.core.cruise.Cruise" title="cruiseplan.core.cruise.Cruise"><em>Cruise</em></a>) – Cruise object with station registry and configuration</p>
+<dd class="field-odd"><p><strong>cruise</strong> (<em>Cruise</em>) – Cruise object with station registry and configuration</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p>(all_lats, all_lons, station_names, departure_port, arrival_port)
