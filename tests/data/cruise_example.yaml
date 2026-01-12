@@ -6,8 +6,6 @@ description: "Validation cruise south of Iceland"
 start_date: "2025-06-01T08:00:00"  # ISO8601 Required
 default_vessel_speed: 10.0         # knots
 default_distance_between_stations: 20.0
-calculate_transfer_between_sections: true
-calculate_depth_via_bathymetry: true
 
 # --- ANCHORS (MOVED TO LEG LEVEL) ---
 # departure_port, arrival_port, first_station, last_station

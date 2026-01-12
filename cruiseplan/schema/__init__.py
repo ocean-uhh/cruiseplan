@@ -22,28 +22,14 @@ from .activities import (
 )
 
 # Main cruise configuration
-from .cruise import CruiseConfig
-from .enums import (
+# Schedule definitions (YAML layer)
+from .cruise_config import ClusterDefinition, CruiseConfig, LegDefinition
+from .options import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
-    OperationTypeEnum,
+    OperationTypeEnum,  # TODO Why is this not a PointOperationTypeEnum?
     StrategyEnum,
-)
-from .exceptions import CruiseConfigurationError
-
-# Generation utilities
-from .generation_models import GenerateSection, GenerateTransect, SectionDefinition
-
-# Schedule definitions (YAML layer)
-from .organization import ClusterDefinition, LegDefinition
-
-# Validation utilities
-from .validators import (
-    show_deprecation_warning,
-    validate_non_negative_number,
-    validate_positive_number,
-    validate_unique_names,
 )
 from .vocabulary import *
 
@@ -70,8 +56,6 @@ __all__ = [
     "POINT_REGISTRY",
     "LINE_REGISTRY",
     "AREA_REGISTRY",
-    # Exceptions
-    "CruiseConfigurationError",
     # Enums
     "ActionEnum",
     "AreaOperationTypeEnum",
@@ -88,15 +72,6 @@ __all__ = [
     # Schedule Definitions (YAML layer)
     "ClusterDefinition",
     "LegDefinition",
-    # Generation Utilities
-    "GenerateSection",
-    "GenerateTransect",
-    "SectionDefinition",
     # Main Configuration
     "CruiseConfig",
-    # Validation Utilities
-    "show_deprecation_warning",
-    "validate_non_negative_number",
-    "validate_positive_number",
-    "validate_unique_names",
 ]

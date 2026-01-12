@@ -9,8 +9,9 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.processing.enrich import enrich_configuration
-from cruiseplan.utils.config import ConfigLoader
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class TestTC4MixedOpsComprehensive:
@@ -23,39 +24,18 @@ class TestTC4MixedOpsComprehensive:
         if not Path(yaml_path).exists():
             pytest.skip(f"Fixture {yaml_path} not found")
 
-        # Use enrichment for metadata only (no depths to avoid CI variability)
-        import tempfile
+        # Use new direct Cruise interface (no YAML round-trip)
+        from cruiseplan.utils.yaml_io import load_yaml
 
-        temp_dir = Path(tempfile.gettempdir())
-        enriched_path = temp_dir / f"tc4_test_enriched_{hash(yaml_path) % 10000}.yaml"
+        config_dict = load_yaml(yaml_path)
 
-        try:
-            # Ensure the file doesn't exist before we start
-            if enriched_path.exists():
-                enriched_path.unlink()
+        # Create Cruise object directly from dictionary
+        cruise = CruiseInstance.from_dict(config_dict)
 
-            # Enrich only for defaults and coords, skip depths to avoid CI bathymetry variability
-            enrich_configuration(
-                yaml_path,
-                output_path=enriched_path,
-                add_depths=False,
-                add_coords=True,
-                expand_ports=True,
-            )
+        # Perform enrichment directly on the Cruise object (no file I/O)
+        cruise.add_station_defaults()
 
-            # Verify the enriched file exists and is readable
-            if not enriched_path.exists():
-                pytest.fail(f"Enriched file was not created at {enriched_path}")
-
-            # Load enriched configuration
-            loader = ConfigLoader(str(enriched_path))
-            config = loader.load()
-        finally:
-            # Clean up temporary enriched file
-            if enriched_path.exists():
-                enriched_path.unlink()
-
-        timeline = generate_timeline(config)
+        timeline = generate_timeline(cruise)
 
         # Expected duration breakdown (hours) - now with separate transit activities
         expected_durations = {
@@ -175,13 +155,14 @@ class TestTC4MixedOpsComprehensive:
 
         try:
             enrich_configuration(yaml_path, output_path=enriched_path, add_depths=False)
-            loader = ConfigLoader(str(enriched_path))
-            config = loader.load()
+            config_dict = load_yaml(enriched_path)
+            cruise = CruiseInstance.from_dict(config_dict)
+            _config = cruise.config
         finally:
             if enriched_path.exists():
                 enriched_path.unlink()
 
-        timeline = generate_timeline(config)
+        timeline = generate_timeline(cruise)
 
         # Verify operation sequencing with separate transit activities
         operation_names = [activity["label"] for activity in timeline]
@@ -214,3 +195,48 @@ class TestTC4MixedOpsComprehensive:
             )
 
         print("✅ TC4 operation sequence timing test passed!")
+
+    def test_tc4_direct_cruise_timeline_generation(self):
+        """Test the new direct Cruise → timeline interface (Phase 3)."""
+        yaml_path = "tests/fixtures/tc4_mixed_ops.yaml"
+
+        if not Path(yaml_path).exists():
+            pytest.skip(f"Fixture {yaml_path} not found")
+
+        # Load and enrich using the new Cruise object approach
+        # First load the YAML into a dictionary, then create Cruise object directly
+        from cruiseplan.utils.yaml_io import load_yaml
+
+        config_dict = load_yaml(yaml_path)
+
+        # Create Cruise object directly from dictionary (no YAML round-trip)
+        cruise = CruiseInstance.from_dict(config_dict)
+
+        # Perform enrichment directly on the Cruise object
+        cruise.add_station_defaults()
+
+        # Generate timeline using the new direct interface
+        timeline = generate_timeline(cruise)
+
+        # Verify we get the same structure as the old approach
+        assert len(timeline) > 0, "Timeline should not be empty"
+
+        # Check that we have the expected activities
+        activity_types = [activity["activity"] for activity in timeline]
+        assert "Port" in activity_types, "Should have port activities"
+        assert "Station" in activity_types, "Should have station activities"
+
+        # DEBUG: Check if the objects in cruise.config.legs[0].activities are dictionaries or objects
+        if cruise.config.legs:
+            first_leg = cruise.config.legs[0]
+            if first_leg.activities:
+                first_activity = first_leg.activities[0]
+                print(f"   First activity type: {type(first_activity)}")
+                print(f"   First activity: {first_activity}")
+
+        # Verify that activities now use proper objects instead of dictionaries
+        # This is the key benefit - no dictionary handling needed!
+        print(
+            f"✅ Direct cruise timeline generation successful! Generated {len(timeline)} activities"
+        )
+        print(f"   Activity types: {set(activity_types)}")

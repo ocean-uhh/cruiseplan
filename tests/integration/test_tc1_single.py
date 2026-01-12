@@ -12,19 +12,17 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import Cruise
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.csv_generator import generate_csv_schedule
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.map_generator import generate_map
 from cruiseplan.processing.enrich import enrich_configuration
-from cruiseplan.utils.config import ConfigLoader
 from cruiseplan.utils.defaults import (
-    DEFAULT_CALC_DEPTH,
-    DEFAULT_CALC_TRANSFER,
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,
     DEFAULT_VESSEL_SPEED_KT,
 )
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class TestTC1SingleIntegration:
@@ -44,8 +42,9 @@ class TestTC1SingleIntegration:
     def test_yaml_loading_and_validation(self, yaml_path):
         """Test basic YAML loading and validation of tc1_single.yaml."""
         # Load configuration
-        loader = ConfigLoader(yaml_path)
-        config = loader.load()
+        config_dict = load_yaml(yaml_path)
+        cruise = CruiseInstance.from_dict(config_dict)
+        config = cruise.config
 
         # Validate basic structure
         assert config.cruise_name == "TC1_Single_Test"
@@ -53,8 +52,8 @@ class TestTC1SingleIntegration:
         # Validate legs structure (new architecture)
         assert len(config.legs) == 1
         leg = config.legs[0]
-        assert leg.departure_port == "port_halifax"  # String reference
-        assert leg.arrival_port == "port_cadiz"  # String reference
+        assert leg.departure_port.name == "Halifax"  # Now a PointDefinition object
+        assert leg.arrival_port.name == "Cadiz"  # Now a PointDefinition object
 
         # Validate stations
         assert len(config.points) == 1
@@ -69,13 +68,13 @@ class TestTC1SingleIntegration:
         assert len(config.legs) == 1
         leg = config.legs[0]
         assert leg.name == "Leg_Single"
-        assert leg.departure_port == "port_halifax"
-        assert leg.arrival_port == "port_cadiz"
-        assert leg.activities == ["STN_001"]
+        assert leg.departure_port.name == "Halifax"
+        assert leg.arrival_port.name == "Cadiz"
+        assert len(leg.activities) == 1 and leg.activities[0].name == "STN_001"
 
     def test_cruise_object_creation_and_port_resolution(self, yaml_path):
         """Test Cruise object creation with port resolution."""
-        cruise = Cruise(yaml_path)
+        cruise = CruiseInstance(yaml_path)
 
         # Check station registry
         assert len(cruise.point_registry) == 1
@@ -114,13 +113,11 @@ class TestTC1SingleIntegration:
         # Since tc1_single.yaml already has defaults, defaults_added might be 0
 
         # Load enriched config and validate exact values from constants.py
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         config = enriched_cruise.config
 
         # Verify values match constants exactly
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.calculate_transfer_between_sections == DEFAULT_CALC_TRANSFER
-        assert config.calculate_depth_via_bathymetry == DEFAULT_CALC_DEPTH
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 
@@ -139,7 +136,7 @@ class TestTC1SingleIntegration:
         )
 
         # Load and validate depth enrichment
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
@@ -162,7 +159,7 @@ class TestTC1SingleIntegration:
         )
 
         # Load and validate coordinate enrichment
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check coordinate enrichment with precise DMM format
@@ -189,7 +186,7 @@ class TestTC1SingleIntegration:
         )
 
         # Load and validate GEBCO2025 depth
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         enriched_station = enriched_cruise.point_registry["STN_001"]
 
         # Check depth value (already present in fixture, so no enrichment needed)
@@ -220,14 +217,12 @@ class TestTC1SingleIntegration:
         assert output_path.exists(), "Enriched YAML file should be created"
 
         # Load and validate complete enrichment
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         enriched_station = enriched_cruise.point_registry["STN_001"]
         config = enriched_cruise.config
 
         # Validate all default values match constants
         assert config.default_vessel_speed == DEFAULT_VESSEL_SPEED_KT
-        assert config.calculate_transfer_between_sections == DEFAULT_CALC_TRANSFER
-        assert config.calculate_depth_via_bathymetry == DEFAULT_CALC_DEPTH
         assert config.default_distance_between_stations == DEFAULT_STATION_SPACING_KM
         assert config.start_date == DEFAULT_START_DATE
 
@@ -265,7 +260,7 @@ class TestTC1SingleIntegration:
         ), "Should add mooring duration default"
 
         # Load enriched config and check the duration was added
-        enriched_cruise = Cruise(output_path)
+        enriched_cruise = CruiseInstance(output_path)
         mooring_station = enriched_cruise.point_registry["MOORING_001"]
 
         # Check that duration was added with correct value
@@ -281,8 +276,8 @@ class TestTC1SingleIntegration:
 
     def test_csv_output_generation(self, yaml_path, temp_dir):
         """Test CSV schedule generation with proper transit data."""
-        cruise = Cruise(yaml_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        cruise = CruiseInstance(yaml_path)
+        timeline = generate_timeline(cruise)
 
         # Generate CSV
         csv_path = temp_dir / "test_schedule.csv"
@@ -336,8 +331,8 @@ class TestTC1SingleIntegration:
 
     def test_html_output_generation(self, yaml_path, temp_dir):
         """Test HTML schedule generation without duplicate transits."""
-        cruise = Cruise(yaml_path)
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        cruise = CruiseInstance(yaml_path)
+        timeline = generate_timeline(cruise)
 
         # Generate HTML
         html_path = temp_dir / "test_schedule.html"
@@ -366,7 +361,7 @@ class TestTC1SingleIntegration:
 
     def test_map_generation(self, yaml_path, temp_dir):
         """Test map generation with proper bounds and colorbar sizing."""
-        cruise = Cruise(yaml_path)
+        cruise = CruiseInstance(yaml_path)
 
         # Generate map
         map_path = temp_dir / "test_map.png"
@@ -396,10 +391,10 @@ class TestTC1SingleIntegration:
         # Since tc1_single.yaml already has defaults, defaults_added might be 0
 
         # 2. Create cruise object with enriched config
-        cruise = Cruise(enriched_path)
+        cruise = CruiseInstance(enriched_path)
 
         # 3. Generate timeline
-        timeline = generate_timeline(cruise.config, cruise.runtime_legs)
+        timeline = generate_timeline(cruise)
         # Timeline includes: mob/demob in ports (2) + user operations (1) + transits (2) = 5 activities
         assert (
             len(timeline) == 5

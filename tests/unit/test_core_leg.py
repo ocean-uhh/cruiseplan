@@ -1,11 +1,10 @@
 """Tests for cruiseplan.core.leg module - Maritime Leg architecture."""
 
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.core.cluster import Cluster
-from cruiseplan.core.leg import Leg
+from cruiseplan.core.cruise import Cluster, Leg
 from cruiseplan.schema import StrategyEnum
 
 
@@ -71,7 +70,7 @@ class TestLeg:
         assert len(leg.clusters) == 1
         assert leg.clusters[0] == cluster
 
-    def test_leg_get_effective_speed_inheritance(self):
+    def test_leg_get_vessel_speed_inheritance(self):
         """Test speed parameter inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -82,11 +81,11 @@ class TestLeg:
             departure_port=departure_port,
             arrival_port=arrival_port,
         )
-        assert leg.get_effective_speed(12.0) == 12.0
+        assert leg.get_vessel_speed(12.0) == 12.0
 
         # Test with leg-specific override
         leg.vessel_speed = 15.0
-        assert leg.get_effective_speed(12.0) == 15.0
+        assert leg.get_vessel_speed(12.0) == 15.0
 
     def test_leg_string_representation(self):
         """Test string representation methods."""
@@ -139,7 +138,7 @@ class TestLeg:
 class TestLegParameterInheritance:
     """Test parameter inheritance functionality."""
 
-    def test_get_effective_turnaround_time(self):
+    def test_get_turnaround_time(self):
         """Test turnaround time inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -151,13 +150,13 @@ class TestLegParameterInheritance:
         )
 
         # Test default value
-        assert leg.get_effective_turnaround_time(30.0) == 30.0
+        assert leg.get_turnaround_time(30.0) == 30.0
 
         # Test override
         leg.turnaround_time = 45.0
-        assert leg.get_effective_turnaround_time(30.0) == 45.0
+        assert leg.get_turnaround_time(30.0) == 45.0
 
-    def test_get_effective_distance_between_stations(self):
+    def test_get_station_spacing(self):
         """Test station spacing inheritance."""
         departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
         arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
@@ -169,11 +168,11 @@ class TestLegParameterInheritance:
         )
 
         # Test default value
-        assert leg.get_effective_spacing(10.0) == 10.0
+        assert leg.get_station_spacing(10.0) == 10.0
 
         # Test override
         leg.distance_between_stations = 15.0
-        assert leg.get_effective_spacing(10.0) == 15.0
+        assert leg.get_station_spacing(10.0) == 15.0
 
 
 class TestLegOperationsManagement:
@@ -487,173 +486,6 @@ class TestLegOperationalActivities:
         # These should return None since _resolve_station_details is from scheduler
         assert entry_point is None
         assert exit_point is None
-
-
-class TestLegDurationCalculations:
-    """Test duration calculation methods."""
-
-    @patch("cruiseplan.calculators.distance.haversine_distance")
-    def test_calculate_port_to_port_transit_with_rules(self, mock_distance):
-        """Test _calculate_port_to_port_transit with rules object."""
-        # Setup mocks
-        mock_distance.return_value = 100.0  # km
-
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
-
-        leg = Leg(
-            name="Test_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-        )
-
-        # Mock rules object
-        class MockRules:
-            def __init__(self):
-                self.config = MagicMock()
-                self.config.default_vessel_speed = 10.0
-
-        rules = MockRules()
-
-        # Test the calculation
-        duration = leg._calculate_port_to_port_transit(rules)
-
-        # Verify calls
-        mock_distance.assert_called_once()
-
-        # 100 km * 0.539957 nm/km = 53.9957 nm
-        # 53.9957 nm / 10 knots = 5.39957 hours = 323.97 minutes
-        expected_duration = pytest.approx(323.97, abs=1.0)
-        assert duration == expected_duration
-
-    @patch("cruiseplan.calculators.distance.haversine_distance")
-    def test_calculate_port_to_port_transit_no_rules_config(self, mock_distance):
-        """Test _calculate_port_to_port_transit with no rules config."""
-        # Setup mocks
-        mock_distance.return_value = 50.0
-
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
-
-        leg = Leg(
-            name="Empty_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-        )
-
-        # Mock rules object without config
-        class MockRules:
-            pass
-
-        rules = MockRules()
-
-        # Should still calculate transit time using default speed
-        duration = leg._calculate_port_to_port_transit(rules)
-        assert duration > 0
-
-    @patch("cruiseplan.calculators.distance.haversine_distance")
-    def test_calculate_total_duration_with_operations(self, mock_distance):
-        """Test calculate_total_duration with operations."""
-        # Setup mocks
-        mock_distance.return_value = 100.0
-
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
-
-        leg = Leg(
-            name="Test_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-        )
-
-        # Add operations with known durations
-        mock_op1 = MagicMock()
-        mock_op1.calculate_duration.return_value = 60.0
-        mock_op2 = MagicMock()
-        mock_op2.calculate_duration.return_value = 90.0
-
-        leg.add_operation(mock_op1)
-        leg.add_operation(mock_op2)
-
-        class MockRules:
-            def __init__(self):
-                self.config = MagicMock()
-                self.config.default_vessel_speed = 10.0
-
-        rules = MockRules()
-
-        # Calculate total duration
-        total_duration = leg.calculate_total_duration(rules)
-
-        # Should include transit time + operation durations
-        assert total_duration > 150.0  # At least the operation durations
-
-        # Verify operation durations were calculated
-        mock_op1.calculate_duration.assert_called_once_with(rules)
-        mock_op2.calculate_duration.assert_called_once_with(rules)
-
-    @patch("cruiseplan.calculators.distance.haversine_distance")
-    def test_calculate_total_duration_empty_leg(self, mock_distance):
-        """Test calculate_total_duration for leg with no operations."""
-        # Setup mocks
-        mock_distance.return_value = 50.0
-
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
-
-        leg = Leg(
-            name="Empty_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-        )
-
-        class MockRules:
-            def __init__(self):
-                self.config = MagicMock()
-                self.config.default_vessel_speed = 10.0
-
-        rules = MockRules()
-
-        # Total duration should just be transit time
-        total_duration = leg.calculate_total_duration(rules)
-        assert total_duration > 0
-
-    @patch("cruiseplan.calculators.distance.haversine_distance")
-    def test_calculate_total_duration_with_clusters(self, mock_distance):
-        """Test calculate_total_duration with cluster operations."""
-        # Setup mocks
-        mock_distance.return_value = 100.0
-
-        departure_port = {"name": "Port_A", "latitude": 60.0, "longitude": -20.0}
-        arrival_port = {"name": "Port_B", "latitude": 64.0, "longitude": -22.0}
-
-        leg = Leg(
-            name="Test_Leg",
-            departure_port=departure_port,
-            arrival_port=arrival_port,
-        )
-
-        # Add cluster with operations
-        cluster = Cluster(name="TestCluster")
-        mock_cluster_duration = 120.0
-
-        with patch.object(
-            cluster, "calculate_total_duration", return_value=mock_cluster_duration
-        ):
-            leg.add_cluster(cluster)
-
-            class MockRules:
-                def __init__(self):
-                    self.config = MagicMock()
-                    self.config.default_vessel_speed = 10.0
-
-            rules = MockRules()
-
-            # Calculate total duration
-            total_duration = leg.calculate_total_duration(rules)
-
-            # Should include transit time + cluster duration
-            assert total_duration > mock_cluster_duration
 
 
 class TestLegFactoryMethod:

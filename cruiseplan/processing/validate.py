@@ -98,10 +98,10 @@ def validate_configuration(
 
     try:
         # Import here to avoid circular dependencies
-        from cruiseplan.core.cruise import Cruise
+        from cruiseplan.core.cruise import CruiseInstance
 
         # Load and validate configuration
-        cruise = Cruise(config_path)
+        cruise = CruiseInstance(config_path)
 
         # Basic validation passed if we get here
         logger.debug("✓ YAML structure and schema validation passed")

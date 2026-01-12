@@ -24,7 +24,7 @@ from cruiseplan.utils.coordinates import (
     format_ddm_comment,
 )
 
-from .enums import (
+from .options import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
@@ -251,6 +251,8 @@ class LineDefinition(BaseModel):
     # Optional fields for scientific transects
     operation_type: Optional[LineOperationTypeEnum] = None
     action: Optional[ActionEnum] = None
+    distance_between_stations: Optional[float] = None
+    max_depth: Optional[float] = None  # Override default depth for CTD sections
 
     @field_validator("route", mode="before")
     def parse_route_strings(cls, v):

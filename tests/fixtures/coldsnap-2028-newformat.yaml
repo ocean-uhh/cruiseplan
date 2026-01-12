@@ -20,8 +20,6 @@ default_distance_between_stations: 10.0  # km
 turnaround_time: 30.0  # minutes
 ctd_descent_rate: 1.0  # m/s
 ctd_ascent_rate: 1.0  # m/s
-calculate_transfer_between_sections: false
-calculate_depth_via_bathymetry: true
 
 
 # Custom port definitions (not in global registry)

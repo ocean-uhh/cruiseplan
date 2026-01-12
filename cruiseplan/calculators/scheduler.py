@@ -31,6 +31,9 @@ logger = logging.getLogger(__name__)
 # Core Data Structures
 # =============================================================================
 
+# Type alias for cruise schedule (timeline) - list of activity dictionaries
+CruiseSchedule = list[dict[str, Any]]
+
 
 @dataclass
 class OperationCoordinates:
@@ -538,9 +541,7 @@ class TimelineGenerator:
         self.factory = OperationFactory(config)
         self.current_time = self._parse_start_datetime()
 
-    def generate_timeline(
-        self, legs: Optional[list[Any]] = None
-    ) -> list[dict[str, Any]]:
+    def generate_timeline(self, legs: Optional[list[Any]] = None) -> CruiseSchedule:
         """Generate complete cruise timeline."""
         if legs is None:
             legs = self._create_runtime_legs()
@@ -556,7 +557,7 @@ class TimelineGenerator:
     def _create_runtime_legs(self) -> list[Any]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
-        from cruiseplan.core.leg import Leg
+        from cruiseplan.core.cruise import Leg
 
         runtime_legs = []
         for leg_def in self.config.legs or []:
@@ -632,26 +633,31 @@ class TimelineGenerator:
                         PointDefinition,
                     )
 
-                    if (
-                        isinstance(activity, PointDefinition)
-                        and hasattr(activity, "operation_type")
-                        and activity.operation_type
-                        and activity.operation_type.value == "port"
-                    ):
-                        # Port waypoint - create as port
-                        operation = PointOperation.from_port(activity)
-                    elif isinstance(activity, PointDefinition):
-                        # Non-port waypoint - create as scientific operation
-                        operation = PointOperation.from_pydantic(activity)
+                    # Handle Pydantic objects directly (no dictionary handling needed)
+                    if isinstance(activity, PointDefinition):
+                        if (
+                            hasattr(activity, "operation_type")
+                            and activity.operation_type
+                            and activity.operation_type.value == "port"
+                        ):
+                            # Port waypoint - create as port
+                            operation = PointOperation.from_port(activity)
+                        else:
+                            # Non-port waypoint - create as scientific operation
+                            operation = PointOperation.from_pydantic(activity)
                     elif isinstance(activity, LineDefinition):
                         # Transect - create as line operation
-                        operation = LineOperation.from_pydantic(activity)
+                        operation = LineOperation.from_pydantic(
+                            activity, leg.vessel_speed
+                        )
                     elif isinstance(activity, AreaDefinition):
                         # Area - create as area operation
                         operation = AreaOperation.from_pydantic(activity)
                     else:
-                        # Legacy port object - create as port
-                        operation = PointOperation.from_port(activity)
+                        raise TypeError(
+                            f"Unknown activity type: {type(activity)}. "
+                            f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
+                        )
 
                 # Add navigational transit between all operations
                 # Zero-duration transits will be filtered out in presentation layer
@@ -850,19 +856,17 @@ class TimelineGenerator:
 # =============================================================================
 
 
-def generate_timeline(
-    config: CruiseConfig, legs: Optional[list[Any]] = None
-) -> list[dict[str, Any]]:
+def generate_timeline(cruise, legs: Optional[list[Any]] = None) -> CruiseSchedule:
     """
-    Generate cruise timeline using the new unified operations model.
+    Generate cruise timeline directly from CruiseInstance object.
 
-    This is the main entry point that maintains backward compatibility
-    with the old scheduler interface.
+    This function eliminates the need for YAML serialization/deserialization
+    by working directly with the CruiseInstance object's validated configuration.
 
     Parameters
     ----------
-    config : CruiseConfig
-        Cruise configuration object
+    cruise : cruiseplan.core.cruise.CruiseInstance
+        CruiseInstance object with enhanced data
     legs : Optional[List[Any]]
         Runtime legs (if None, will be created from config)
 
@@ -871,6 +875,12 @@ def generate_timeline(
     List[Dict[str, Any]]
         Timeline activities as dictionaries
     """
+    # The CruiseInstance object already contains a validated CruiseConfig object
+    # This avoids the YAML serialization/deserialization that causes
+    # objects to become dictionaries
+    config = cruise.config
+
+    # Use existing timeline generation
     generator = TimelineGenerator(config)
     return generator.generate_timeline(legs)
 
@@ -921,10 +931,10 @@ def generate_cruise_schedule(
     Dict[str, Any]
         Schedule data with timeline and summary information
     """
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
 
     # Load cruise configuration
-    cruise = Cruise(config_path)
+    cruise = CruiseInstance(config_path)
 
     # Validate depths if requested
     validation_warnings = []

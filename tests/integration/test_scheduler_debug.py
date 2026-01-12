@@ -9,8 +9,9 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.processing.enrich import enrich_configuration
-from cruiseplan.utils.config import ConfigLoader
+from cruiseplan.utils.yaml_io import load_yaml
 
 
 class TestSchedulerDebug:
@@ -40,8 +41,9 @@ class TestSchedulerDebug:
                 enrich_configuration(yaml_path, output_path=enriched_path)
 
                 # Load enriched configuration
-                loader = ConfigLoader(str(enriched_path))
-                config = loader.load()
+                config_dict = load_yaml(enriched_path)
+                cruise = CruiseInstance.from_dict(config_dict)
+                config = cruise.config
             finally:
                 # Clean up temporary enriched file
                 if enriched_path.exists():
@@ -110,7 +112,7 @@ class TestSchedulerDebug:
 
             # Generate timeline with debug info
             print("\n🔍 Generating timeline...")
-            timeline = generate_timeline(config)
+            timeline = generate_timeline(cruise)
 
             print(f"📊 Timeline result: {len(timeline)} activities")
             if timeline:

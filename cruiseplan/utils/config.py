@@ -9,8 +9,6 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from pydantic import ValidationError
-
 # Centralized imports for configuration models and the custom error
 from cruiseplan.schema import (
     ACTION_FIELD,
@@ -24,7 +22,6 @@ from cruiseplan.schema import (
     OP_TYPE_FIELD,
     START_DATE_FIELD,
     CruiseConfig,
-    CruiseConfigurationError,
 )
 from cruiseplan.utils.defaults import (
     DEFAULT_AREA_ACTION,
@@ -402,24 +399,24 @@ class ConfigLoader:
 
         Raises
         ------
-        CruiseConfigurationError
-            If the file cannot be found, read, or is not valid YAML.
+        FileNotFoundError
+            If the file cannot be found.
+        ValueError
+            If the file cannot be read or is not valid YAML.
         """
         if not self.config_path.exists():
-            raise CruiseConfigurationError(
-                f"Configuration file not found: {self.config_path}"
-            )
+            raise FileNotFoundError(f"Configuration file not found: {self.config_path}")
 
         try:
             raw_data = load_yaml(self.config_path)
         except YAMLIOError as e:
             # Catch YAML I/O and parsing errors (not validation errors)
-            raise CruiseConfigurationError(
+            raise ValueError(
                 f"Failed to load or parse YAML file {self.config_path}: {e}"
             ) from e
 
         if not isinstance(raw_data, dict):
-            raise CruiseConfigurationError(
+            raise ValueError(
                 f"YAML content in {self.config_path} is not a valid dictionary (Root structure error)."
             )
 
@@ -444,7 +441,7 @@ class ConfigLoader:
 
         Raises
         ------
-        CruiseConfigurationError
+        ValueError
             If Pydantic validation fails, wraps the error for user clarity.
         """
         if raw_data is None:
@@ -459,18 +456,23 @@ class ConfigLoader:
             config = CruiseConfig(**raw_data)
             self.cruise_config = config
             return config
-        except ValidationError as e:
-            # Catch Pydantic's ValidationError and re-raise it with a user-friendly message
-            error_details = "\n".join(
-                [
-                    f"  -> {'.'.join(str(loc_item) for loc_item in err['loc'])}: {err['msg']}"
-                    for err in e.errors()
-                ]
-            )
-            raise CruiseConfigurationError(
-                f"Configuration Validation Failed in {self.config_path} "
-                f"({len(e.errors())} errors):\n{error_details}"
-            ) from e
+        except Exception as e:
+            # Check if this is a ValidationError or mock with errors() method
+            if hasattr(e, "errors"):
+                # Catch Pydantic's ValidationError and re-raise it with a user-friendly message
+                error_details = "\n".join(
+                    [
+                        f"  -> {'.'.join(str(loc_item) for loc_item in err['loc'])}: {err['msg']}"
+                        for err in e.errors()
+                    ]
+                )
+                raise ValueError(
+                    f"Configuration Validation Failed in {self.config_path} "
+                    f"({len(e.errors())} errors):\n{error_details}"
+                ) from e
+            else:
+                # Re-raise other exceptions as-is
+                raise
 
     def load(self) -> CruiseConfig:
         """

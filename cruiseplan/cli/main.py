@@ -315,9 +315,6 @@ Examples:
         action="store_true",
         help="Expand CTD sections into individual station definitions",
     )
-    enrich_parser.add_argument(
-        "--expand-ports", action="store_true", help="Expand global port references"
-    )
 
     # Output control
     enrich_parser.add_argument(

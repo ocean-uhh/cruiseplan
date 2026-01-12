@@ -30,7 +30,6 @@ class TestProcessThinCLI:
             add_depths=True,
             add_coords=True,
             expand_sections=True,
-            expand_ports=True,
             run_validation=True,
             run_map_generation=True,
             depth_check=True,
@@ -75,7 +74,6 @@ class TestProcessThinCLI:
                 add_depths=True,
                 add_coords=True,
                 expand_sections=True,
-                expand_ports=True,
                 run_validation=True,
                 run_map_generation=True,
                 depth_check=True,
@@ -98,7 +96,6 @@ class TestProcessThinCLI:
             add_depths=False,
             add_coords=False,
             expand_sections=False,
-            expand_ports=False,
             run_validation=False,
             run_map_generation=False,
             depth_check=False,
@@ -134,7 +131,6 @@ class TestProcessThinCLI:
                 add_depths=False,
                 add_coords=False,
                 expand_sections=False,
-                expand_ports=False,
                 run_validation=False,
                 run_map_generation=False,
                 depth_check=False,
@@ -290,7 +286,6 @@ class TestProcessThinCLI:
                 add_depths=True,  # default
                 add_coords=True,  # default
                 expand_sections=True,  # default
-                expand_ports=True,  # default
                 run_validation=True,  # default
                 run_map_generation=True,  # default
                 depth_check=True,  # default

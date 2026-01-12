@@ -11,3 +11,7 @@ This package contains calculation modules for cruise planning computations:
 These calculators provide the mathematical and algorithmic foundation for determining
 distances, durations, optimal routes, and scheduling sequences in oceanographic cruises.
 """
+
+from .scheduler import CruiseSchedule, generate_timeline
+
+__all__ = ["CruiseSchedule", "generate_timeline"]

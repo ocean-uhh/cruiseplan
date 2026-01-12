@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.core.cruise import Cruise, ReferenceError
+from cruiseplan.core.cruise import CruiseInstance, ReferenceError
 from cruiseplan.schema import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -27,7 +27,7 @@ def test_load_and_validate_cruise():
     """
     assert SAMPLE_YAML.exists(), "Please create the YAML file first!"
 
-    cruise = Cruise(SAMPLE_YAML)
+    cruise = CruiseInstance(SAMPLE_YAML)
 
     # 1. Check Global Headers
     assert cruise.config.cruise_name == "NE_Atlantic_Test_2025"
@@ -96,7 +96,7 @@ calculate_depth_via_bathymetry: false
     )
 
     with pytest.raises(ReferenceError) as exc:
-        Cruise(bad_yaml)
+        CruiseInstance(bad_yaml)
 
     assert "GHOST_STATION" in str(exc.value)
     assert "not found in any Catalog" in str(exc.value)

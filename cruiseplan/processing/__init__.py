@@ -13,18 +13,10 @@ cruiseplan.process() -> enrichment -> validation -> map generation
 """
 
 # Re-export main functions for convenience and backward compatibility
-from .enrich import (
-    add_missing_required_fields,
-    add_missing_station_defaults,
-    enrich_configuration,
-    expand_ctd_sections,
-)
+from .enrich import enrich_configuration
 from .validate import validate_configuration
 
 __all__ = [
-    "add_missing_required_fields",
-    "add_missing_station_defaults",
     "enrich_configuration",
-    "expand_ctd_sections",
     "validate_configuration",
 ]

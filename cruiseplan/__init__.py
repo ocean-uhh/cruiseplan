@@ -30,7 +30,7 @@ that mirror the CLI commands:
 For more advanced usage, import the underlying classes directly:
 
     from cruiseplan.data.bathymetry import download_bathymetry
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.calculators.scheduler import generate_timeline
 """
 
@@ -38,6 +38,7 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
+from cruiseplan.calculators import CruiseSchedule
 from cruiseplan.data.bathymetry import download_bathymetry
 
 logger = logging.getLogger(__name__)
@@ -110,7 +111,7 @@ class ScheduleResult:
 
     def __init__(
         self,
-        timeline: Optional[list[dict[str, Any]]],
+        timeline: Optional[CruiseSchedule],
         files_created: list[Path],
         summary: dict[str, Any],
     ):
@@ -516,7 +517,6 @@ def enrich(
     bathy_dir: str = "data/bathymetry",
     coord_format: str = "ddm",
     expand_sections: bool = True,
-    expand_ports: bool = True,
     verbose: bool = False,
 ) -> EnrichResult:
     """
@@ -539,8 +539,6 @@ def enrich(
         Add formatted coordinate fields (default: True)
     expand_sections : bool
         Expand CTD sections into individual station definitions (default: True)
-    expand_ports : bool
-        Expand global port references (default: True)
     bathy_source : str
         Bathymetry dataset (default: "etopo2022")
     bathy_dir : str
@@ -626,7 +624,7 @@ def enrich(
             logger.info(f"📁 Output directory: {output_dir_path}")
             logger.info(f"📄 Output file: {output_path}")
             logger.info(
-                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}, ports={expand_ports}"
+                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}"
             )
 
         # Perform the actual enrichment
@@ -639,7 +637,6 @@ def enrich(
                 add_depths=add_depths,
                 add_coords=add_coords,
                 expand_sections=expand_sections,
-                expand_ports=expand_ports,
                 bathymetry_source=bathy_source,
                 bathymetry_dir=bathy_dir,
                 coord_format=coord_format,
@@ -684,7 +681,6 @@ def enrich(
                 "add_depths": add_depths,
                 "add_coords": add_coords,
                 "expand_sections": expand_sections,
-                "expand_ports": expand_ports,
             },
             "output_size_bytes": output_path.stat().st_size,
         }
@@ -910,7 +906,7 @@ def schedule(
     >>> ds = xr.open_dataset(netcdf_file)
     """
     from cruiseplan.calculators.scheduler import generate_timeline
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_schedule_formats, _setup_verbose_logging
 
     _setup_verbose_logging(verbose)
@@ -930,7 +926,7 @@ def schedule(
 
     try:
         # Load and validate cruise configuration
-        cruise = Cruise(config_path)
+        cruise = CruiseInstance(config_path)
 
         # Handle specific leg processing if requested
         target_legs = cruise.runtime_legs
@@ -950,7 +946,7 @@ def schedule(
             raise ValidationError("No legs found in cruise configuration")
 
         # Generate timeline for specified legs
-        timeline = generate_timeline(cruise.config, target_legs)
+        timeline = generate_timeline(cruise)
 
         if not timeline:
             logger.error("Failed to generate timeline")
@@ -1079,7 +1075,6 @@ def process(
     add_depths: bool = True,
     add_coords: bool = True,
     expand_sections: bool = True,
-    expand_ports: bool = True,
     run_validation: bool = True,
     run_map_generation: bool = True,
     depth_check: bool = True,
@@ -1113,8 +1108,6 @@ def process(
         Add formatted coordinate fields (default: True)
     expand_sections : bool
         Expand CTD sections into individual station definitions (default: True)
-    expand_ports : bool
-        Expand global port references (default: True)
     run_validation : bool
         Run validation step (default: True)
     run_map_generation : bool
@@ -1160,7 +1153,7 @@ def process(
         generated_files = []
 
         # Step 1: Enrichment (optional - runs if any enrichment options are enabled)
-        if add_depths or add_coords or expand_sections or expand_ports:
+        if add_depths or add_coords or expand_sections:
             logger.info("🔧 Enriching cruise configuration...")
             try:
                 enrich_result = enrich(
@@ -1172,7 +1165,6 @@ def process(
                     bathy_source=bathy_source,
                     bathy_dir=bathy_dir,
                     expand_sections=expand_sections,
-                    expand_ports=expand_ports,
                     verbose=verbose,
                 )
                 enriched_config_path = enrich_result.output_file
@@ -1217,9 +1209,9 @@ def process(
                 generated_files.extend(map_result.map_files)
 
         # Load the final config object for return
-        from cruiseplan.core.cruise import Cruise
+        from cruiseplan.core.cruise import CruiseInstance
 
-        cruise = Cruise(enriched_config_path)
+        cruise = CruiseInstance(enriched_config_path)
 
         logger.info("✅ Processing workflow completed successfully!")
 
@@ -1297,7 +1289,7 @@ def map(
     >>> # Generate KML map with custom size
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
-    from cruiseplan.core.cruise import Cruise
+    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_map_formats, _setup_verbose_logging
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
@@ -1309,7 +1301,7 @@ def map(
 
     try:
         # Load cruise configuration - direct core call
-        cruise = Cruise(Path(config_file))
+        cruise = CruiseInstance(Path(config_file))
 
         # Setup output paths using helper function
         from cruiseplan.utils.config import setup_output_paths

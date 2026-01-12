@@ -279,7 +279,6 @@ def _resolve_cli_to_api_params(args: Any, command: str) -> dict:
                 "add_depths": getattr(args, "add_depths", True),
                 "add_coords": getattr(args, "add_coords", True),
                 "expand_sections": getattr(args, "expand_sections", True),
-                "expand_ports": getattr(args, "expand_ports", True),
             }
         )
 
