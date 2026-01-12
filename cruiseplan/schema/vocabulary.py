@@ -61,78 +61,117 @@ YAML_FIELD_ORDER = [
     ("display_name", "display_name"),
     (COMMENT_FIELD, "comment"),
     (DESCRIPTION_FIELD, "description"),
-
     # Port and routing fields
     (DEPARTURE_PORT_FIELD, "departure_port"),
     (ARRIVAL_PORT_FIELD, "arrival_port"),
     (FIRST_ACTIVITY_FIELD, "first_activity"),
     (LAST_ACTIVITY_FIELD, "last_activity"),
-
     # Operation fields
     (OP_TYPE_FIELD, "operation_type"),
     (ACTION_FIELD, "action"),
-
     # Depth and measurement fields
     (OP_DEPTH_FIELD, "operation_depth"),
     (MAX_DEPTH_FIELD, "max_depth"),
     (WATER_DEPTH_FIELD, "water_depth"),
-
     # Timing and spacing fields
     (DURATION_FIELD, "duration"),
     (VESSEL_SPEED_FIELD, "vessel_speed"),
     (STATION_SPACING_FIELD, "distance_between_stations"),
     (REVERSIBLE_FIELD, "reversible"),
     (TURNAROUND_TIME_FIELD, "turnaround_time"),
-
     # Timing fields
     (DELAY_START_FIELD, "delay_start"),
     (DELAY_END_FIELD, "delay_end"),
     (BUFFER_TIME_FIELD, "buffer_time"),
-
     # Geographic fields
     (LATITUDE_FIELD, "latitude"),
     (LONGITUDE_FIELD, "longitude"),
     (LINE_VERTEX_FIELD, "route"),
     (AREA_VERTEX_FIELD, "corners"),
-
+    ("position_string", "position_string"),
     # Organization fields
     (STRATEGY_FIELD, "strategy"),
     ("ordered", "ordered"),
     (ACTIVITIES_FIELD, "activities"),
     (CLUSTERS_FIELD, "clusters"),
-
     # Provenance fields
     (HISTORY_FIELD, "history"),
 ]
 
 # Allowed fields for each definition type
 POINT_ALLOWED_FIELDS = {
-    "name", "display_name", "comment", "description", "operation_type", "action",
-    "latitude", "longitude", "water_depth", "operation_depth",
-    "duration", "delay_start", "delay_end", "history"
+    "name",
+    "display_name",
+    "comment",
+    "description",
+    "operation_type",
+    "action",
+    "latitude",
+    "longitude",
+    "water_depth",
+    "operation_depth",
+    "duration",
+    "delay_start",
+    "delay_end",
+    "history",
 }
 
 LINE_ALLOWED_FIELDS = {
-    "name", "comment", "description", "operation_type", "action",
-    "distance_between_stations", "max_depth", "vessel_speed",
-    "duration", "route", "reversible", "history", "delay_start", "delay_end"
+    "name",
+    "comment",
+    "description",
+    "operation_type",
+    "action",
+    "distance_between_stations",
+    "max_depth",
+    "vessel_speed",
+    "duration",
+    "route",
+    "reversible",
+    "history",
+    "delay_start",
+    "delay_end",
 }
 
 AREA_ALLOWED_FIELDS = {
-    "name", "comment", "description", "operation_type", "action",
-    "duration", "corners", "history", "delay_start", "delay_end"
+    "name",
+    "comment",
+    "description",
+    "operation_type",
+    "action",
+    "duration",
+    "corners",
+    "history",
+    "delay_start",
+    "delay_end",
 }
 
 CLUSTER_ALLOWED_FIELDS = {
-    "name", "comment", "description", "strategy",
-    "ordered", "activities", "history", "buffer_time"
+    "name",
+    "comment",
+    "description",
+    "strategy",
+    "ordered",
+    "activities",
+    "history",
+    "buffer_time",
 }
 
 LEG_ALLOWED_FIELDS = {
-    "name", "description", "comment", "departure_port",
-    "arrival_port", "first_activity", "last_activity",
-    "vessel_speed", "activities", "clusters", "buffer_time",
-    "distance_between_stations", "turnaround_time", "history"
+    "name",
+    "description",
+    "comment",
+    "departure_port",
+    "arrival_port",
+    "first_activity",
+    "last_activity",
+    "vessel_speed",
+    "activities",
+    "clusters",
+    "buffer_time",
+    "distance_between_stations",
+    "turnaround_time",
+    "history",
 }
 
 # Export all constants for star import

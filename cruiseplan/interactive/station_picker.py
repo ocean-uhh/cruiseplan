@@ -903,7 +903,7 @@ class StationPicker:
 
         # Get defaults from CruiseConfig instead of hardcoded constants
         default_config = CruiseConfig(cruise_name="temp")
-        
+
         # Add minimal defaults for required cruise configuration fields
         # This allows the output to be used directly with 'cruiseplan enrich'
         output_data = {

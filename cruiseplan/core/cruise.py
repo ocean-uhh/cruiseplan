@@ -1679,7 +1679,9 @@ class CruiseInstance:
 
         return output
 
-    def _serialize_definition(self, obj: Any, allowed_fields: set[str]) -> dict[str, Any]:
+    def _serialize_definition(
+        self, obj: Any, allowed_fields: set[str]
+    ) -> dict[str, Any]:
         """Serialize any definition using master field ordering and allowed fields."""
         data = obj.model_dump(exclude_none=True, mode="json")
         ordered_dict = {}
@@ -1688,20 +1690,22 @@ class CruiseInstance:
         filtered_fields = set(data.keys()) - allowed_fields
         if filtered_fields:
             obj_type = type(obj).__name__
-            obj_name = getattr(obj, 'name', 'unnamed')
+            obj_name = getattr(obj, "name", "unnamed")
             warning_msg = (
                 f"{obj_type} '{obj_name}' has fields not in allowed set: {sorted(filtered_fields)}. "
                 f"These fields will not be included in YAML output. "
                 f"To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py"
             )
-            
+
             logger.warning(warning_msg)
 
         # Apply master field ordering, filtering by allowed fields
         for yaml_field, pydantic_field in YAML_FIELD_ORDER:
             if pydantic_field in allowed_fields and pydantic_field in data:
                 # Handle special field processing
-                processed_value = self._process_field_value(obj, pydantic_field, data[pydantic_field])
+                processed_value = self._process_field_value(
+                    obj, pydantic_field, data[pydantic_field]
+                )
                 ordered_dict[yaml_field] = processed_value
 
         # Add remaining fields alphabetically
@@ -1767,7 +1771,9 @@ class CruiseInstance:
         """Serialize an AreaDefinition to dictionary format with canonical field ordering."""
         return self._serialize_definition(area, AREA_ALLOWED_FIELDS)
 
-    def _serialize_cluster_definition(self, cluster: ClusterDefinition) -> dict[str, Any]:
+    def _serialize_cluster_definition(
+        self, cluster: ClusterDefinition
+    ) -> dict[str, Any]:
         """Serialize a ClusterDefinition to dictionary format with canonical field ordering."""
         return self._serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
 
@@ -1775,7 +1781,9 @@ class CruiseInstance:
         """Serialize a LegDefinition to dictionary format."""
         return self._serialize_definition(leg, LEG_ALLOWED_FIELDS)
 
-    def to_yaml(self, output_path: Union[str, Path], enrichment_command: Optional[str] = None) -> None:
+    def to_yaml(
+        self, output_path: Union[str, Path], enrichment_command: Optional[str] = None
+    ) -> None:
         """
         Export CruiseInstance configuration to YAML file with canonical ordering.
 
