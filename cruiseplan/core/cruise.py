@@ -8,9 +8,12 @@ The BaseOrganizationUnit abstract base class provides the common interface for
 all organizational units in the cruise planning hierarchy.
 """
 
+import logging
 from abc import ABC, abstractmethod
 from pathlib import Path
 from typing import Any, Optional, Union
+
+logger = logging.getLogger(__name__)
 
 from cruiseplan.core.operations import BaseOperation
 from cruiseplan.schema import (
@@ -24,12 +27,11 @@ from cruiseplan.schema import (
 )
 from cruiseplan.schema.vocabulary import (
     ACTION_FIELD,
-    ACTIVITIES_FIELD,
+    AREA_ALLOWED_FIELDS,
     AREA_VERTEX_FIELD,
     AREAS_FIELD,
     ARRIVAL_PORT_FIELD,
-    CLUSTERS_FIELD,
-    COMMENT_FIELD,
+    CLUSTER_ALLOWED_FIELDS,
     CTD_ASCENT_RATE_FIELD,
     CTD_DESCENT_RATE_FIELD,
     DAY_END_HOUR_FIELD,
@@ -37,26 +39,20 @@ from cruiseplan.schema.vocabulary import (
     DEFAULT_STATION_SPACING_FIELD,
     DEFAULT_VESSEL_SPEED_FIELD,
     DEPARTURE_PORT_FIELD,
-    DESCRIPTION_FIELD,
     DURATION_FIELD,
-    FIRST_ACTIVITY_FIELD,
-    LAST_ACTIVITY_FIELD,
-    LATITUDE_FIELD,
+    LEG_ALLOWED_FIELDS,
     LEGS_FIELD,
-    LONGITUDE_FIELD,
-    MAX_DEPTH_FIELD,
+    LINE_ALLOWED_FIELDS,
     LINE_VERTEX_FIELD,
     LINES_FIELD,
-    OP_DEPTH_FIELD,
     OP_TYPE_FIELD,
+    POINT_ALLOWED_FIELDS,
     POINTS_FIELD,
     START_DATE_FIELD,
     START_TIME_FIELD,
-    STATION_SPACING_FIELD,
-    STRATEGY_FIELD,
     TURNAROUND_TIME_FIELD,
-    VESSEL_SPEED_FIELD,
     WATER_DEPTH_FIELD,
+    YAML_FIELD_ORDER,
 )
 from cruiseplan.utils.global_ports import resolve_port_reference
 from cruiseplan.utils.units import NM_PER_KM
@@ -1195,7 +1191,6 @@ class CruiseInstance:
             If the definition type cannot be determined or validation fails.
         """
         # Import vocabulary constants
-        from cruiseplan.schema.vocabulary import AREA_VERTEX_FIELD, LINE_VERTEX_FIELD
 
         # Determine definition type based on key fields (check most specific first)
         if LINE_VERTEX_FIELD in definition_dict:  # "route"
@@ -1684,218 +1679,101 @@ class CruiseInstance:
 
         return output
 
-    def _serialize_point_definition(self, point: PointDefinition) -> dict[str, Any]:
-        """Serialize a PointDefinition to dictionary format with canonical field ordering."""
-        data = point.model_dump(exclude_none=True, mode="json")
-
-        # Canonical field ordering for point definitions
+    def _serialize_definition(self, obj: Any, allowed_fields: set[str]) -> dict[str, Any]:
+        """Serialize any definition using master field ordering and allowed fields."""
+        data = obj.model_dump(exclude_none=True, mode="json")
         ordered_dict = {}
 
-        # 1. Identifier
-        if "name" in data:
-            ordered_dict["name"] = data["name"]
-        if "comment" in data:
-            ordered_dict[COMMENT_FIELD] = data["comment"]
-        if "operation_type" in data:
-            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
-        if "action" in data:
-            ordered_dict[ACTION_FIELD] = data["action"]
-
-        # 2. Coordinates
-        if "latitude" in data:
-            ordered_dict[LATITUDE_FIELD] = data["latitude"]
-        if "longitude" in data:
-            ordered_dict[LONGITUDE_FIELD] = data["longitude"]
-        if "water_depth" in data:
-            ordered_dict[WATER_DEPTH_FIELD] = data["water_depth"]
+        # Check for fields that would be filtered out and warn about them
+        filtered_fields = set(data.keys()) - allowed_fields
+        if filtered_fields:
+            obj_type = type(obj).__name__
+            obj_name = getattr(obj, 'name', 'unnamed')
+            warning_msg = (
+                f"{obj_type} '{obj_name}' has fields not in allowed set: {sorted(filtered_fields)}. "
+                f"These fields will not be included in YAML output. "
+                f"To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py"
+            )
             
-        if "operation_depth" in data:
-            ordered_dict[OP_DEPTH_FIELD] = data["operation_depth"]
-        if "duration" in data:
-            ordered_dict[DURATION_FIELD] = data["duration"]
+            logger.warning(warning_msg)
 
-        # 3. Optional fields in alphabetical order
-        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
+        # Apply master field ordering, filtering by allowed fields
+        for yaml_field, pydantic_field in YAML_FIELD_ORDER:
+            if pydantic_field in allowed_fields and pydantic_field in data:
+                # Handle special field processing
+                processed_value = self._process_field_value(obj, pydantic_field, data[pydantic_field])
+                ordered_dict[yaml_field] = processed_value
+
+        # Add remaining fields alphabetically
+        processed_fields = {pf for _, pf in YAML_FIELD_ORDER}
+        remaining_fields = sorted(set(data.keys()) - processed_fields)
         for field in remaining_fields:
-            ordered_dict[field] = data[field]
+            if field in allowed_fields:
+                ordered_dict[field] = data[field]
 
         return ordered_dict
+
+    def _process_field_value(self, obj: Any, pydantic_field: str, value: Any) -> Any:
+        """Process special field values during serialization."""
+        # Handle activities field - convert objects to name strings
+        if pydantic_field == "activities" and hasattr(obj, "activities") and value:
+            activity_names = []
+            activities = getattr(obj, "activities", [])
+            for activity in activities:
+                if hasattr(activity, "name"):
+                    activity_names.append(activity.name)
+                else:
+                    # Fallback if it's already a string
+                    activity_names.append(str(activity))
+            return activity_names
+
+        # Handle first_activity and last_activity - convert to name strings
+        elif pydantic_field in ("first_activity", "last_activity"):
+            activity = getattr(obj, pydantic_field, None)
+            if activity:
+                if hasattr(activity, "name"):
+                    return activity.name
+                else:
+                    return str(activity)
+            return value
+
+        # Handle port fields - re-serialize through unified system for proper ordering
+        elif pydantic_field in ("departure_port", "arrival_port"):
+            port_obj = getattr(obj, pydantic_field, None)
+            if port_obj and hasattr(port_obj, "model_dump"):
+                # Re-serialize the port object through our unified system
+                return self._serialize_definition(port_obj, POINT_ALLOWED_FIELDS)
+            return value
+
+        # Handle clusters - recursive serialization
+        elif pydantic_field == "clusters" and hasattr(obj, "clusters") and value:
+            return [
+                self._serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
+                for cluster in getattr(obj, "clusters", [])
+            ]
+
+        # Default: return value as-is
+        return value
+
+    def _serialize_point_definition(self, point: PointDefinition) -> dict[str, Any]:
+        """Serialize a PointDefinition to dictionary format with canonical field ordering."""
+        return self._serialize_definition(point, POINT_ALLOWED_FIELDS)
 
     def _serialize_line_definition(self, line: LineDefinition) -> dict[str, Any]:
         """Serialize a LineDefinition to dictionary format with canonical field ordering."""
-        data = line.model_dump(exclude_none=True, mode="json")
-
-        # Canonical field ordering for line definitions
-        ordered_dict = {}
-
-        # 1. Identifier
-        if "name" in data:
-            ordered_dict["name"] = data["name"]
-        if "comment" in data:
-            ordered_dict[COMMENT_FIELD] = data["comment"]
-        if "operation_type" in data:
-            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
-        if "action" in data:
-            ordered_dict[ACTION_FIELD] = data["action"]
-
-        # 2. Geographic route
-        if "distance_between_stations" in data:
-            ordered_dict[STATION_SPACING_FIELD] = data["distance_between_stations"]
-        if "max_depth" in data:
-            ordered_dict[MAX_DEPTH_FIELD] = data["max_depth"]
-        if "vessel_speed" in data:
-            ordered_dict[VESSEL_SPEED_FIELD] = data["vessel_speed"]
-        if "duration" in data:
-            ordered_dict[DURATION_FIELD] = data["duration"]
-        if "route" in data:
-            ordered_dict[LINE_VERTEX_FIELD] = data["route"]
-
-        # 3. Optional fields in alphabetical order
-        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
-        for field in remaining_fields:
-            ordered_dict[field] = data[field]
-
-        return ordered_dict
+        return self._serialize_definition(line, LINE_ALLOWED_FIELDS)
 
     def _serialize_area_definition(self, area: AreaDefinition) -> dict[str, Any]:
         """Serialize an AreaDefinition to dictionary format with canonical field ordering."""
-        data = area.model_dump(exclude_none=True, mode="json")
-
-        # Canonical field ordering for area definitions
-        ordered_dict = {}
-
-        # 1. Identifier
-        if "name" in data:
-            ordered_dict["name"] = data["name"]
-        if "operation_type" in data:
-            ordered_dict[OP_TYPE_FIELD] = data["operation_type"]
-        if "action" in data:
-            ordered_dict[ACTION_FIELD] = data["action"]
-
-        # 2. Geographic boundary
-        if "duration" in data:
-            ordered_dict[DURATION_FIELD] = data["duration"]
-        if "corners" in data:
-            ordered_dict[AREA_VERTEX_FIELD] = data["corners"]
-
-        # 3. Optional fields in alphabetical order
-        remaining_fields = sorted(set(data.keys()) - set(ordered_dict.keys()))
-        for field in remaining_fields:
-            ordered_dict[field] = data[field]
-
-        return ordered_dict
+        return self._serialize_definition(area, AREA_ALLOWED_FIELDS)
 
     def _serialize_cluster_definition(self, cluster: ClusterDefinition) -> dict[str, Any]:
         """Serialize a ClusterDefinition to dictionary format with canonical field ordering."""
-        data = cluster.model_dump(exclude_none=True, mode="json")
-
-        # Canonical field ordering for cluster definitions
-        ordered_dict = {}
-
-        # 1. Identifier
-        if "name" in data:
-            ordered_dict["name"] = data["name"]
-
-        # 2. Description/comment
-        if "description" in data:
-            ordered_dict[DESCRIPTION_FIELD] = data["description"]
-        if "comment" in data:
-            ordered_dict[COMMENT_FIELD] = data["comment"]
-
-        # 3. Strategy and ordering
-        if "strategy" in data:
-            ordered_dict[STRATEGY_FIELD] = data["strategy"]
-        if "ordered" in data:
-            ordered_dict["ordered"] = data["ordered"]
-
-        # 4. Activity list (last)
-        if hasattr(cluster, "activities") and cluster.activities:
-            activity_names = []
-            for activity in cluster.activities:
-                if hasattr(activity, "name"):
-                    activity_names.append(activity.name)
-                else:
-                    # Fallback if it's already a string
-                    activity_names.append(str(activity))
-            ordered_dict[ACTIVITIES_FIELD] = activity_names
-
-        # 5. Optional fields in alphabetical order
-        processed_pydantic_fields = {"name", "description", "comment", "strategy", "ordered", "activities"}
-        remaining_fields = sorted(set(data.keys()) - processed_pydantic_fields)
-        for field in remaining_fields:
-            ordered_dict[field] = data[field]
-
-        return ordered_dict
+        return self._serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
 
     def _serialize_leg_definition(self, leg: LegDefinition) -> dict[str, Any]:
         """Serialize a LegDefinition to dictionary format."""
-        data = leg.model_dump(
-            exclude_none=True,
-            mode="json",
-            exclude={ACTIVITIES_FIELD, FIRST_ACTIVITY_FIELD, LAST_ACTIVITY_FIELD},
-        )
-
-        # Canonical field ordering for leg definitions
-        ordered_dict = {}
-
-        # 1. Identifier
-        if "name" in data:
-            ordered_dict["name"] = data["name"]
-        if "description" in data:
-            ordered_dict[DESCRIPTION_FIELD] = data["description"]
-        if "comment" in data:
-            ordered_dict[COMMENT_FIELD] = data["comment"]
-
-        # 2. Routing information
-        if "departure_port" in data:
-            ordered_dict[DEPARTURE_PORT_FIELD] = data["departure_port"]
-        if "arrival_port" in data:
-            ordered_dict[ARRIVAL_PORT_FIELD] = data["arrival_port"]
-
-        # 3. Activity boundaries
-        if hasattr(leg, "first_activity") and getattr(leg, "first_activity"):
-            first_activity = getattr(leg, "first_activity")
-            if hasattr(first_activity, "name"):
-                ordered_dict[FIRST_ACTIVITY_FIELD] = first_activity.name
-            else:
-                ordered_dict[FIRST_ACTIVITY_FIELD] = str(first_activity)
-        if hasattr(leg, "last_activity") and getattr(leg, "last_activity"):
-            last_activity = getattr(leg, "last_activity")
-            if hasattr(last_activity, "name"):
-                ordered_dict[LAST_ACTIVITY_FIELD] = last_activity.name
-            else:
-                ordered_dict[LAST_ACTIVITY_FIELD] = str(last_activity)
-
-        # 4. Vessel configuration (before activities/clusters)
-        if "vessel_speed" in data:
-            ordered_dict[VESSEL_SPEED_FIELD] = data["vessel_speed"]
-
-        # 5. Activity list
-        if leg.activities:
-            activity_names = []
-            for activity in leg.activities:
-                if hasattr(activity, "name"):
-                    activity_names.append(activity.name)
-                else:
-                    # Fallback if it's already a string
-                    activity_names.append(str(activity))
-            ordered_dict[ACTIVITIES_FIELD] = activity_names
-
-        # 7. Sub-organization
-        if hasattr(leg, "clusters") and leg.clusters:
-            ordered_dict[CLUSTERS_FIELD] = [
-                self._serialize_cluster_definition(cluster) 
-                for cluster in leg.clusters
-            ]
-
-        # 8. Optional fields in alphabetical order
-        # Track which pydantic fields we've already processed
-        processed_pydantic_fields = {"name", "departure_port", "arrival_port", "first_activity", "last_activity", "description", "comment", "vessel_speed", "clusters"}
-        remaining_fields = sorted(set(data.keys()) - processed_pydantic_fields)
-        for field in remaining_fields:
-            ordered_dict[field] = data[field]
-
-        return ordered_dict
+        return self._serialize_definition(leg, LEG_ALLOWED_FIELDS)
 
     def to_yaml(self, output_path: Union[str, Path], enrichment_command: Optional[str] = None) -> None:
         """
@@ -1944,7 +1822,7 @@ class CruiseInstance:
                 if enrichment_command:
                     f.write(f"# Enriched with command: {enrichment_command}\n")
                 f.write("\n")
-                
+
                 yaml.dump(output_dict, f, default_flow_style=False, sort_keys=False)
             return
 
@@ -1996,8 +1874,6 @@ class CruiseInstance:
             - sections_expanded: Number of sections expanded
             - stations_from_expansion: Number of stations created
         """
-        from cruiseplan.schema.vocabulary import DURATION_FIELD
-
         sections_expanded = 0
         total_stations_created = 0
 
@@ -2132,12 +2008,6 @@ class CruiseInstance:
             List of station definitions along the section.
         """
         from cruiseplan.calculators.distance import haversine_distance
-        from cruiseplan.schema.vocabulary import (
-            ACTION_FIELD,
-            DURATION_FIELD,
-            OP_TYPE_FIELD,
-            WATER_DEPTH_FIELD,
-        )
         from cruiseplan.utils.plot_config import interpolate_great_circle_position
 
         if not section.get("route") or len(section["route"]) < 2:
