@@ -157,7 +157,7 @@ class TestTC4MixedOpsComprehensive:
             enrich_configuration(yaml_path, output_path=enriched_path, add_depths=False)
             config_dict = load_yaml(enriched_path)
             cruise = CruiseInstance.from_dict(config_dict)
-            config = cruise.config
+            _config = cruise.config
         finally:
             if enriched_path.exists():
                 enriched_path.unlink()

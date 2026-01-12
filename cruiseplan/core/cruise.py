@@ -2396,6 +2396,7 @@ class CruiseInstance:
                     leg.departure_port = port_obj
                     leg_ports_expanded += 1
                 except ValueError:
+                    # If global port resolution fails, keep as string reference
                     pass
 
             if hasattr(leg, "arrival_port") and isinstance(leg.arrival_port, str):
@@ -2404,6 +2405,7 @@ class CruiseInstance:
                     leg.arrival_port = port_obj
                     leg_ports_expanded += 1
                 except ValueError:
+                    # If global port resolution fails, keep as string reference
                     pass
 
         return {

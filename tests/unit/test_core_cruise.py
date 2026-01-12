@@ -139,7 +139,7 @@ class TestCruise:
         mock_load_yaml.return_value = self.test_yaml_data
 
         with patch("cruiseplan.core.cruise.resolve_port_reference"):
-            cruise = CruiseInstance("test_config.yaml")
+            _cruise = CruiseInstance("test_config.yaml")
 
             mock_load_yaml.assert_called_once_with(Path("test_config.yaml"))
 
