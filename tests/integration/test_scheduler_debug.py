@@ -10,7 +10,7 @@ import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.processing.enrich import enrich_configuration
+from cruiseplan.api.enrich import enrich_configuration
 from cruiseplan.utils.yaml_io import load_yaml
 
 

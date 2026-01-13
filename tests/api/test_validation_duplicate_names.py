@@ -9,7 +9,7 @@ by auto-numbering with suffixes.
 from unittest.mock import MagicMock
 
 from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.processing.validate import (
+from cruiseplan.api.validate import (
     check_complete_duplicates,
     check_duplicate_names,
 )

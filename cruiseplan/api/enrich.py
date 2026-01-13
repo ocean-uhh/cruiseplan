@@ -1,29 +1,22 @@
 """
-Cruise configuration enrichment operations.
+Cruise configuration enrichment API.
 
-This module implements cruiseplan.enrich() business logic including:
-- CTD section expansion into individual stations
-- Coordinate addition and formatting
-- Depth enrichment via bathymetry
-- Port expansion and defaults
-- Configuration structure validation and completion
-
-All enrichment operations that transform and expand cruise configuration
-data are centralized here to support the main API functions.
+This module provides the main enrich() function that handles all validation, 
+file operations, and error handling for enriching cruise configurations.
 """
 
 import logging
 import warnings as python_warnings
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Optional
+from typing import Any, Optional, Union
 
+from cruiseplan.exceptions import BathymetryError, FileError, ValidationError
 from cruiseplan.schema.vocabulary import (
     ARRIVAL_PORT_FIELD,
     DEPARTURE_PORT_FIELD,
 )
-
-# Core cruiseplan imports that don't cause circular imports
+from cruiseplan.types import EnrichResult
 from cruiseplan.utils.defaults import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
@@ -149,7 +142,7 @@ def _process_warnings(captured_warnings: list[str]) -> None:
         logger.warning("")  # Add spacing between warning groups
 
 
-def enrich_configuration(
+def _enrich_configuration(
     config_path: Path,
     add_depths: bool = False,
     add_coords: bool = False,
@@ -250,3 +243,198 @@ def enrich_configuration(
     _save_config(output_config, output_path)
 
     return final_summary
+
+
+def enrich(
+    config_file: Union[str, Path],
+    output_dir: str = "data",
+    output: Optional[str] = None,
+    add_depths: bool = True,
+    add_coords: bool = True,
+    bathy_source: str = "etopo2022",
+    bathy_dir: str = "data/bathymetry",
+    coord_format: str = "ddm",
+    expand_sections: bool = True,
+    verbose: bool = False,
+) -> EnrichResult:
+    """
+    Enrich a cruise configuration file (mirrors: cruiseplan enrich).
+
+    This function now handles all validation, file operations, and error handling
+    that was previously in the CLI layer.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    output_dir : str
+        Output directory for enriched file (default: "data")
+    output : str, optional
+        Base filename for output (default: use input filename)
+    add_depths : bool
+        Add missing depth values to stations using bathymetry data (default: True)
+    add_coords : bool
+        Add formatted coordinate fields (default: True)
+    expand_sections : bool
+        Expand CTD sections into individual station definitions (default: True)
+    bathy_source : str
+        Bathymetry dataset (default: "etopo2022")
+    bathy_dir : str
+        Directory containing bathymetry data (default: "data")
+    coord_format : str
+        Coordinate format (default: "ddm")
+    verbose : bool
+        Enable verbose logging (default: False)
+
+    Returns
+    -------
+    EnrichResult
+        Structured result with output file, files created, and summary
+
+    Raises
+    ------
+    ValidationError
+        If configuration validation fails
+    FileError
+        If file operations fail (reading, writing, permissions)
+    BathymetryError
+        If bathymetry operations fail
+
+    Examples
+    --------
+    >>> import cruiseplan
+    >>> result = cruiseplan.enrich(config_file="cruise.yaml", add_depths=True)
+    >>> print(f"Enriched file: {result.output_file}")
+    >>> print(f"Summary: {result.summary}")
+    """
+    try:
+        # Setup verbose logging if requested
+        if verbose:
+            logging.basicConfig(level=logging.DEBUG)
+            logger.debug("Verbose logging enabled")
+
+        # Validate input file path using centralized utility
+        from cruiseplan.utils.io import validate_input_file
+
+        try:
+            config_path = validate_input_file(config_file)
+        except ValueError as e:
+            raise FileError(str(e))
+
+        # Validate config file format
+        try:
+            config_data = load_yaml(config_path)
+            cruise_name = config_data.get("cruise_name")
+        except Exception as e:
+            raise ValidationError(f"Invalid YAML configuration: {e}")
+
+        # Setup and validate output paths
+        try:
+            from cruiseplan.utils.config import setup_output_paths
+
+            output_dir_path, base_name = setup_output_paths(
+                config_file, output_dir, output
+            )
+
+            # Create output directory if needed
+            output_dir_path.mkdir(parents=True, exist_ok=True)
+
+            # Test directory writability
+            test_file = output_dir_path / ".tmp_write_test"
+            try:
+                test_file.touch()
+                test_file.unlink()
+            except Exception:
+                raise FileError(f"Output directory is not writable: {output_dir_path}")
+
+        except Exception as e:
+            if isinstance(e, FileError):
+                raise
+            raise FileError(f"Output directory setup failed: {e}")
+
+        # Determine final output file path
+        output_path = output_dir_path / f"{base_name}_enriched.yaml"
+
+        logger.info(f"🔧 Enriching {config_path}")
+        if verbose:
+            logger.info(f"📁 Output directory: {output_dir_path}")
+            logger.info(f"📄 Output file: {output_path}")
+            logger.info(
+                f"⚙️  Operations: depths={add_depths}, coords={add_coords}, sections={expand_sections}"
+            )
+
+        # Perform the actual enrichment
+        try:
+            summary = _enrich_configuration(
+                config_path,
+                output_path=output_path,
+                add_depths=add_depths,
+                add_coords=add_coords,
+                expand_sections=expand_sections,
+                bathymetry_source=bathy_source,
+                bathymetry_dir=bathy_dir,
+                coord_format=coord_format,
+            )
+
+        except Exception as e:
+            # Convert low-level errors to appropriate high-level exceptions
+            error_msg = str(e).lower()
+            if (
+                "validation" in error_msg
+                or "invalid" in error_msg
+                or "missing" in error_msg
+            ):
+                raise ValidationError(f"Configuration validation failed: {e}")
+            elif (
+                "bathymetry" in error_msg
+                or "etopo" in error_msg
+                or "gebco" in error_msg
+            ):
+                raise BathymetryError(f"Bathymetry processing failed: {e}")
+            elif (
+                "file" in error_msg
+                or "directory" in error_msg
+                or "permission" in error_msg
+            ):
+                raise FileError(f"File operation failed: {e}")
+            else:
+                # Re-raise as generic error for now
+                raise
+
+        # Verify output was created successfully
+        if not output_path.exists():
+            raise FileError(
+                f"Enrichment completed but output file was not created: {output_path}"
+            )
+
+        # Generate extended summary information
+        extended_summary = {
+            "config_file": str(config_path),
+            "cruise_name": cruise_name,
+            "operations_performed": {
+                "add_depths": add_depths,
+                "add_coords": add_coords,
+                "expand_sections": expand_sections,
+            },
+            "output_size_bytes": output_path.stat().st_size,
+            **summary,  # Include detailed summary from _enrich_configuration
+        }
+
+        logger.info(f"✅ Configuration enriched successfully: {output_path}")
+
+        return EnrichResult(
+            output_file=output_path, files_created=[output_path], summary=extended_summary
+        )
+
+    except (ValidationError, FileError, BathymetryError):
+        # Re-raise our custom exceptions as-is
+        raise
+    except KeyboardInterrupt:
+        raise  # Let CLI handle this
+    except Exception as e:
+        # Wrap unexpected errors
+        raise FileError(f"Unexpected error during enrichment: {e}") from e
+
+
+# For backward compatibility, expose the internal function with the old name
+enrich_configuration = _enrich_configuration

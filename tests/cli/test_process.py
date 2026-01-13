@@ -314,7 +314,8 @@ class TestProcessResultType:
         assert result.config == config
         assert bool(result) is True
         assert len(result.files_created) == 3
-        assert "✅ Processing complete: 3 files generated" in str(result)
+        assert "✅ Processing complete" in str(result)
+        assert "(3 files)" in str(result)
 
     def test_process_result_failure(self):
         """Test ProcessResult with failed processing."""

@@ -1,14 +1,8 @@
 """
-Cruise configuration validation operations.
+Cruise configuration validation API.
 
-This module implements cruiseplan.validate() business logic including:
-- Schema validation integration
-- Depth accuracy verification
-- Configuration completeness checks
-- Cross-reference validation
-
-Pure validation logic that verifies cruise configuration correctness
-without modifying the data (unlike enrichment operations).
+This module provides the main validate() function that performs comprehensive 
+validation including schema checks, logical consistency, and depth verification.
 """
 
 import logging
@@ -19,6 +13,7 @@ from typing import Any, Union
 from pydantic import ValidationError
 
 from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.exceptions import FileError
 from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.schema.vocabulary import (
     ACTION_FIELD,
@@ -31,6 +26,7 @@ from cruiseplan.schema.vocabulary import (
     POINT_REGISTRY,
     START_DATE_FIELD,
 )
+from cruiseplan.types import ValidationResult
 from cruiseplan.utils.defaults import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
@@ -42,13 +38,7 @@ from cruiseplan.utils.yaml_io import load_yaml_safe
 logger = logging.getLogger(__name__)
 
 
-# --- Warning Handling Utilities ---
-
-
-# --- Main Validation Function ---
-
-
-def validate_configuration(
+def _validate_configuration(
     config_path: Path,
     check_depths: bool = False,
     tolerance: float = 10.0,
@@ -107,11 +97,11 @@ def validate_configuration(
         logger.debug("✓ YAML structure and schema validation passed")
 
         # Duplicate detection (always run)
-        duplicate_errors, duplicate_warnings = check_duplicate_names(cruise)
+        duplicate_errors, duplicate_warnings = _check_duplicate_names(cruise)
         errors.extend(duplicate_errors)
         warnings.extend(duplicate_warnings)
 
-        complete_dup_errors, complete_dup_warnings = check_complete_duplicates(cruise)
+        complete_dup_errors, complete_dup_warnings = _check_complete_duplicates(cruise)
         errors.extend(complete_dup_errors)
         warnings.extend(complete_dup_warnings)
 
@@ -129,7 +119,7 @@ def validate_configuration(
             bathymetry = BathymetryManager(
                 source=bathymetry_source, data_dir=bathymetry_dir
             )
-            stations_checked, depth_warnings = validate_depth_accuracy(
+            stations_checked, depth_warnings = _validate_depth_accuracy(
                 cruise, bathymetry, tolerance
             )
             warnings.extend(depth_warnings)
@@ -200,7 +190,7 @@ def validate_configuration(
 # --- Duplicate Detection Functions ---
 
 
-def check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
+def _check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
     """
     Check for duplicate names across different configuration sections.
 
@@ -263,7 +253,7 @@ def check_duplicate_names(cruise) -> tuple[list[str], list[str]]:
     return errors, warnings
 
 
-def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
+def _check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
     """
     Check for completely identical entries (same name, coordinates, operation, etc.).
 
@@ -315,7 +305,7 @@ def check_complete_duplicates(cruise) -> tuple[list[str], list[str]]:
 # --- Depth Validation Functions ---
 
 
-def validate_depth_accuracy(
+def _validate_depth_accuracy(
     cruise, bathymetry_manager, tolerance: float
 ) -> tuple[int, list[str]]:
     """
@@ -785,3 +775,143 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
                 current_config = None
 
     return " -> ".join(formatted_parts)
+
+
+def validate(
+    config_file: Union[str, Path],
+    bathy_source: str = "etopo2022",
+    bathy_dir: str = "data/bathymetry",
+    check_depths: bool = True,
+    tolerance: float = 10.0,
+    strict: bool = False,
+    warnings_only: bool = False,
+    verbose: bool = False,
+) -> ValidationResult:
+    """
+    Validate a cruise configuration file (mirrors: cruiseplan validate).
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    bathy_source : str
+        Bathymetry dataset (default: "etopo2022")
+    bathy_dir : str
+        Directory containing bathymetry data (default: "data")
+    check_depths : bool
+        Compare existing depths with bathymetry data (default: True)
+    tolerance : float
+        Depth difference tolerance in percent (default: 10.0)
+    strict : bool
+        Enable strict validation mode (default: False)
+    warnings_only : bool
+        Show warnings without failing - warnings don't affect return value (default: False)
+    verbose : bool
+        Enable verbose logging (default: False)
+
+    Returns
+    -------
+    ValidationResult
+        Structured validation result with success status, errors, warnings, and summary.
+
+    Examples
+    --------
+    >>> import cruiseplan
+    >>> # Validate cruise configuration with depth checking
+    >>> is_valid = cruiseplan.validate(config_file="cruise.yaml", check_depths=True)
+    >>> # Strict validation with custom tolerance
+    >>> is_valid = cruiseplan.validate(config_file="cruise.yaml", strict=True, tolerance=5.0)
+    >>> if is_valid:
+    ...     print("✅ Configuration is valid")
+    """
+    if verbose:
+        logging.basicConfig(level=logging.DEBUG)
+
+    # Validate input file path using centralized utility
+    from cruiseplan.utils.io import validate_input_file
+
+    try:
+        config_path = validate_input_file(config_file)
+    except ValueError as e:
+        raise FileError(str(e))
+    logger.info(f"🔍 Validating {config_path}")
+
+    try:
+        success, errors, warnings = _validate_configuration(
+            config_path=config_path,
+            check_depths=check_depths,
+            tolerance=tolerance,
+            bathymetry_source=bathy_source,
+            bathymetry_dir=bathy_dir,
+            strict=strict,
+        )
+
+        # Create summary information
+        summary = {
+            "config_file": str(config_path),
+            "error_count": len(errors),
+            "warning_count": len(warnings),
+            "depth_checking_enabled": check_depths,
+            "strict_mode": strict,
+        }
+
+        # Try to add cruise name to summary if available
+        try:
+            config_dict = load_yaml_safe(config_path)
+            if "cruise_name" in config_dict:
+                summary["cruise_name"] = config_dict["cruise_name"]
+        except Exception:
+            # Best-effort enrichment: failure to read cruise_name should not break validation
+            pass
+
+        # Report results (UI layer responsibility)
+        if errors:
+            logger.error("❌ Validation Errors:")
+            for error in errors:
+                logger.error(f"  • {error}")
+
+        if warnings:
+            logger.warning("⚠️ Validation Warnings:")
+            for warning in warnings:
+                logger.warning(f"  • {warning}")
+
+        # Handle warnings_only mode
+        final_success = success if not warnings_only else (success or len(errors) == 0)
+
+        if final_success:
+            logger.info("✅ Validation passed")
+        else:
+            logger.error("❌ Validation failed")
+
+        return ValidationResult(
+            success=final_success,
+            errors=errors,
+            warnings=warnings,
+            summary=summary,
+        )
+
+    except Exception as e:
+        logger.exception("💥 Validation failed")
+        return ValidationResult(
+            success=False,
+            errors=[f"Validation failed: {e}"],
+            warnings=[],
+            summary={
+                "config_file": str(config_path),
+                "error_count": 1,
+                "warning_count": 0,
+            },
+        )
+
+
+# For backward compatibility, expose the internal functions with their old names
+validate_configuration = _validate_configuration
+check_duplicate_names = _check_duplicate_names
+check_complete_duplicates = _check_complete_duplicates
+validate_depth_accuracy = _validate_depth_accuracy
+
+# Adding backward compatibility aliases for private functions used in tests
+_check_cruise_metadata_raw = _check_cruise_metadata_raw
+_clean_warning_message = _clean_warning_message
+_format_validation_warnings = _format_validation_warnings
+_warning_relates_to_entity = _warning_relates_to_entity

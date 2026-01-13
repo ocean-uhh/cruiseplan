@@ -267,7 +267,8 @@ class TestPangaeaResultType:
         assert result.stations_data == stations_data
         assert bool(result) is True
         assert len(result.files_created) == 2
-        assert "1 stations found, 2 files generated" in str(result)
+        assert "✅ PANGAEA processing (1 stations) complete" in str(result)
+        assert "(2 files)" in str(result)
 
     def test_pangaea_result_failure(self):
         """Test PangaeaResult with failed processing."""
