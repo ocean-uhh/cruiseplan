@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.api.process import enrich_configuration
+from cruiseplan.api.process_cruise import enrich_configuration
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.utils.yaml_io import load_yaml

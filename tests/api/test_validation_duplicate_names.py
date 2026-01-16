@@ -8,7 +8,7 @@ by auto-numbering with suffixes.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.api.process import (
+from cruiseplan.api.process_cruise import (
     check_complete_duplicates,
     check_duplicate_names,
 )

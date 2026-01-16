@@ -42,7 +42,7 @@ class TestBathymetryAPI:
 class TestValidateAPI:
     """Test the cruiseplan.validate() API function."""
 
-    @patch("cruiseplan.api.process._validate_configuration")
+    @patch("cruiseplan.api.process_cruise._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_success(self, mock_file_validate, mock_validate):
         """Test successful validation."""
@@ -56,7 +56,7 @@ class TestValidateAPI:
         assert bool(result) is True
         assert result.success is True
 
-    @patch("cruiseplan.api.process._validate_configuration")
+    @patch("cruiseplan.api.process_cruise._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_failure(self, mock_file_validate, mock_validate):
         """Test failed validation."""
@@ -69,7 +69,7 @@ class TestValidateAPI:
         assert bool(result) is False
         assert result.success is False
 
-    @patch("cruiseplan.api.process._validate_configuration")
+    @patch("cruiseplan.api.process_cruise._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_custom_parameters(self, mock_file_validate, mock_validate):
         """Test validation with custom parameters."""
@@ -96,7 +96,7 @@ class TestValidateAPI:
 class TestEnrichAPI:
     """Test the cruiseplan.enrich() API function."""
 
-    @patch("cruiseplan.api.process._enrich_configuration")
+    @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_enrich_success(self, mock_validate_input, mock_enrich):
         """Test successful enrichment."""
@@ -121,7 +121,7 @@ class TestEnrichAPI:
             patch("pathlib.Path.touch"),
             patch("pathlib.Path.unlink"),
             patch(
-                "cruiseplan.api.process.load_yaml",
+                "cruiseplan.api.process_cruise.load_yaml",
                 return_value={"cruise_name": "test"},
             ),
         ):
@@ -139,7 +139,7 @@ class TestEnrichAPI:
         assert isinstance(result.files_created, list)
         assert isinstance(result.summary, dict)
 
-    @patch("cruiseplan.api.process._enrich_configuration")
+    @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_enrich_custom_output(self, mock_validate_input, mock_enrich):
         """Test enrichment with custom output."""
@@ -164,7 +164,7 @@ class TestEnrichAPI:
             patch("pathlib.Path.touch"),
             patch("pathlib.Path.unlink"),
             patch(
-                "cruiseplan.api.process.load_yaml",
+                "cruiseplan.api.process_cruise.load_yaml",
                 return_value={"cruise_name": "test"},
             ),
         ):

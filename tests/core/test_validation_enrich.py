@@ -7,7 +7,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.api.process import (
+from cruiseplan.api.process_cruise import (
     enrich_configuration,
     validate_configuration,
     validate_depth_accuracy,
@@ -18,11 +18,11 @@ from cruiseplan.schema import POINTS_FIELD
 class TestEnrichConfiguration:
     """Test the enrich_configuration core function."""
 
-    @patch("cruiseplan.api.process.save_yaml")
+    @patch("cruiseplan.api.process_cruise.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.process.load_yaml")
+    @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_depths_only(
         self,
         mock_yaml_load,
@@ -84,11 +84,11 @@ class TestEnrichConfiguration:
         # save_yaml is called once: only for output (no more temp files)
         assert mock_save_yaml.call_count == 1
 
-    @patch("cruiseplan.api.process.save_yaml")
+    @patch("cruiseplan.api.process_cruise.save_yaml")
     @patch("cruiseplan.utils.coordinates.format_ddm_comment")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.process.load_yaml")
+    @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_coords_only(
         self,
         mock_yaml_load,
@@ -153,7 +153,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.process.load_yaml")
+    @patch("cruiseplan.api.process_cruise.load_yaml")
     def test_enrich_no_changes_needed(
         self, mock_yaml_load, mock_open, mock_cruise_class
     ):
@@ -197,13 +197,13 @@ class TestEnrichConfiguration:
 class TestValidateConfigurationFile:
     """Test the validate_configuration core function."""
 
-    @patch("cruiseplan.api.process.format_validation_warnings")
-    @patch("cruiseplan.api.process.check_unexpanded_ctd_sections")
-    @patch("cruiseplan.api.process.check_cruise_metadata")
-    @patch("cruiseplan.api.process._check_cruise_metadata_raw")
-    @patch("cruiseplan.api.process.check_complete_duplicates")
-    @patch("cruiseplan.api.process.check_duplicate_names")
-    @patch("cruiseplan.api.process.validate_depth_accuracy")
+    @patch("cruiseplan.api.process_cruise.format_validation_warnings")
+    @patch("cruiseplan.api.process_cruise.check_unexpanded_ctd_sections")
+    @patch("cruiseplan.api.process_cruise.check_cruise_metadata")
+    @patch("cruiseplan.api.process_cruise._check_cruise_metadata_raw")
+    @patch("cruiseplan.api.process_cruise.check_complete_duplicates")
+    @patch("cruiseplan.api.process_cruise.check_duplicate_names")
+    @patch("cruiseplan.api.process_cruise.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_no_depth_check(
@@ -242,13 +242,13 @@ class TestValidateConfigurationFile:
         assert warnings == []
         mock_validate_depth.assert_not_called()
 
-    @patch("cruiseplan.api.process.format_validation_warnings")
-    @patch("cruiseplan.api.process.check_unexpanded_ctd_sections")
-    @patch("cruiseplan.api.process.check_cruise_metadata")
-    @patch("cruiseplan.api.process._check_cruise_metadata_raw")
-    @patch("cruiseplan.api.process.check_complete_duplicates")
-    @patch("cruiseplan.api.process.check_duplicate_names")
-    @patch("cruiseplan.api.process.validate_depth_accuracy")
+    @patch("cruiseplan.api.process_cruise.format_validation_warnings")
+    @patch("cruiseplan.api.process_cruise.check_unexpanded_ctd_sections")
+    @patch("cruiseplan.api.process_cruise.check_cruise_metadata")
+    @patch("cruiseplan.api.process_cruise._check_cruise_metadata_raw")
+    @patch("cruiseplan.api.process_cruise.check_complete_duplicates")
+    @patch("cruiseplan.api.process_cruise.check_duplicate_names")
+    @patch("cruiseplan.api.process_cruise.validate_depth_accuracy")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_with_depth_check(

@@ -113,7 +113,7 @@ that have large uncovered line ranges.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.api.process import _check_cruise_metadata_raw
+from cruiseplan.api.process_cruise import _check_cruise_metadata_raw
 from cruiseplan.core.validation import (
     clean_warning_message as _clean_warning_message,
 )

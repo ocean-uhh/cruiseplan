@@ -11,7 +11,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.api.process import enrich_configuration
+from cruiseplan.api.process_cruise import enrich_configuration
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.csv_generator import generate_csv_schedule
