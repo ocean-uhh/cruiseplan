@@ -1,6 +1,6 @@
 """Tests for cruiseplan.core.cluster module - Maritime Cluster architecture."""
 
-from cruiseplan.core.cruise import Cluster
+from cruiseplan.core.organizational import Cluster
 from cruiseplan.schema import StrategyEnum
 
 
@@ -36,7 +36,11 @@ class TestCluster:
         cluster = Cluster(name="Test_Cluster")
 
         # Mock operation object
-        operation = {"name": "STN_001", "operation_type": "CTD"}
+        from unittest.mock import MagicMock
+
+        operation = MagicMock(name="STN_001")
+        operation.name = "STN_001"
+        operation.operation_type = "CTD"
         cluster.add_operation(operation)
 
         assert len(cluster.operations) == 1
@@ -50,10 +54,20 @@ class TestCluster:
             ordered=False,  # Allow reordering within cluster
         )
 
-        # Add multiple operations
-        op1 = {"name": "STN_001", "operation_type": "CTD"}
-        op2 = {"name": "STN_002", "operation_type": "mooring"}
-        op3 = {"name": "STN_003", "operation_type": "CTD"}
+        # Add multiple operations (create mock BaseOperation objects)
+        from unittest.mock import MagicMock
+
+        op1 = MagicMock(name="STN_001")
+        op1.name = "STN_001"
+        op1.operation_type = "CTD"
+
+        op2 = MagicMock(name="STN_002")
+        op2.name = "STN_002"
+        op2.operation_type = "mooring"
+
+        op3 = MagicMock(name="STN_003")
+        op3.name = "STN_003"
+        op3.operation_type = "CTD"
 
         cluster.add_operation(op1)
         cluster.add_operation(op2)
@@ -107,19 +121,33 @@ class TestClusterBoundaryLogic:
             ordered=True,  # Strict ordering
         )
 
-        operations = [
-            {"name": "STN_001", "priority": 3},
-            {"name": "STN_002", "priority": 1},
-            {"name": "STN_003", "priority": 2},
-        ]
+        # Create mock operation objects
+        from unittest.mock import MagicMock
+
+        operations = []
+
+        op1 = MagicMock(name="STN_001")
+        op1.name = "STN_001"
+        op1.priority = 3
+        operations.append(op1)
+
+        op2 = MagicMock(name="STN_002")
+        op2.name = "STN_002"
+        op2.priority = 1
+        operations.append(op2)
+
+        op3 = MagicMock(name="STN_003")
+        op3.name = "STN_003"
+        op3.priority = 2
+        operations.append(op3)
 
         for op in operations:
             cluster.add_operation(op)
 
         # Should preserve addition order regardless of priority
-        assert cluster.operations[0]["name"] == "STN_001"
-        assert cluster.operations[1]["name"] == "STN_002"
-        assert cluster.operations[2]["name"] == "STN_003"
+        assert cluster.operations[0].name == "STN_001"
+        assert cluster.operations[1].name == "STN_002"
+        assert cluster.operations[2].name == "STN_003"
         assert cluster.ordered is True
 
     def test_unordered_cluster_allows_reordering(self):
@@ -130,11 +158,25 @@ class TestClusterBoundaryLogic:
             ordered=False,  # Allow reordering
         )
 
-        operations = [
-            {"name": "STN_001", "operation_type": "CTD"},
-            {"name": "STN_002", "operation_type": "mooring"},
-            {"name": "STN_003", "operation_type": "water_sampling"},
-        ]
+        # Create mock operation objects
+        from unittest.mock import MagicMock
+
+        operations = []
+
+        op1 = MagicMock(name="STN_001")
+        op1.name = "STN_001"
+        op1.operation_type = "CTD"
+        operations.append(op1)
+
+        op2 = MagicMock(name="STN_002")
+        op2.name = "STN_002"
+        op2.operation_type = "mooring"
+        operations.append(op2)
+
+        op3 = MagicMock(name="STN_003")
+        op3.name = "STN_003"
+        op3.operation_type = "water_sampling"
+        operations.append(op3)
 
         for op in operations:
             cluster.add_operation(op)
@@ -171,7 +213,11 @@ class TestClusterBoundaryLogic:
         assert cluster.operations == []
 
         # Adding operations should work normally
-        operation = {"name": "STN_001", "operation_type": "CTD"}
+        from unittest.mock import MagicMock
+
+        operation = MagicMock(name="STN_001")
+        operation.name = "STN_001"
+        operation.operation_type = "CTD"
         cluster.add_operation(operation)
 
         assert len(cluster.operations) == 1

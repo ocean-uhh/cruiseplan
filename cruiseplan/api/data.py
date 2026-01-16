@@ -1,7 +1,7 @@
 """
 Data acquisition API functions.
 
-This module provides functions for downloading bathymetry data and searching 
+This module provides functions for downloading bathymetry data and searching
 PANGAEA oceanographic databases.
 """
 
@@ -51,7 +51,9 @@ def bathymetry(
     # Use default path relative to project root if none provided
     if output_dir is None:
         # Find project root (directory containing cruiseplan package)
-        package_dir = Path(__file__).parent.parent.parent  # Go up from cruiseplan/api/data.py
+        package_dir = Path(
+            __file__
+        ).parent.parent.parent  # Go up from cruiseplan/api/data.py
         data_dir = package_dir / "data" / "bathymetry"
     else:
         data_dir = Path(output_dir)

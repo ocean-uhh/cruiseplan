@@ -42,7 +42,7 @@ class TestBathymetryAPI:
 class TestValidateAPI:
     """Test the cruiseplan.validate() API function."""
 
-    @patch("cruiseplan.api.validate._validate_configuration")
+    @patch("cruiseplan.api.process._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_success(self, mock_file_validate, mock_validate):
         """Test successful validation."""
@@ -56,7 +56,7 @@ class TestValidateAPI:
         assert bool(result) is True
         assert result.success is True
 
-    @patch("cruiseplan.api.validate._validate_configuration")
+    @patch("cruiseplan.api.process._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_failure(self, mock_file_validate, mock_validate):
         """Test failed validation."""
@@ -69,7 +69,7 @@ class TestValidateAPI:
         assert bool(result) is False
         assert result.success is False
 
-    @patch("cruiseplan.api.validate._validate_configuration")
+    @patch("cruiseplan.api.process._validate_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_validate_custom_parameters(self, mock_file_validate, mock_validate):
         """Test validation with custom parameters."""
@@ -96,13 +96,13 @@ class TestValidateAPI:
 class TestEnrichAPI:
     """Test the cruiseplan.enrich() API function."""
 
-    @patch("cruiseplan.api.enrich._enrich_configuration")
+    @patch("cruiseplan.api.process._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_enrich_success(self, mock_validate_input, mock_enrich):
         """Test successful enrichment."""
         # Mock input file validation
         mock_validate_input.return_value = Path("test.yaml")
-        
+
         # Mock enrichment function with proper return
         mock_enrich.return_value = {
             "stations_with_depths_added": 2,
@@ -121,7 +121,7 @@ class TestEnrichAPI:
             patch("pathlib.Path.touch"),
             patch("pathlib.Path.unlink"),
             patch(
-                "cruiseplan.api.enrich.load_yaml",
+                "cruiseplan.api.process.load_yaml",
                 return_value={"cruise_name": "test"},
             ),
         ):
@@ -139,13 +139,13 @@ class TestEnrichAPI:
         assert isinstance(result.files_created, list)
         assert isinstance(result.summary, dict)
 
-    @patch("cruiseplan.api.enrich._enrich_configuration")
+    @patch("cruiseplan.api.process._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     def test_enrich_custom_output(self, mock_validate_input, mock_enrich):
         """Test enrichment with custom output."""
         # Mock input file validation
         mock_validate_input.return_value = Path("custom.yaml")
-        
+
         # Mock enrichment function
         mock_enrich.return_value = {
             "stations_with_depths_added": 0,
@@ -164,7 +164,7 @@ class TestEnrichAPI:
             patch("pathlib.Path.touch"),
             patch("pathlib.Path.unlink"),
             patch(
-                "cruiseplan.api.enrich.load_yaml",
+                "cruiseplan.api.process.load_yaml",
                 return_value={"cruise_name": "test"},
             ),
         ):
@@ -192,7 +192,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_default(self, mock_mkdir):
         """Test output path setup with defaults."""
         from cruiseplan.utils.config import setup_output_paths
-        
+
         output_dir, base_name = setup_output_paths("test.yaml")
 
         assert output_dir == Path("data").resolve()
@@ -203,7 +203,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_custom(self, mock_mkdir):
         """Test output path setup with custom values."""
         from cruiseplan.utils.config import setup_output_paths
-        
+
         output_dir, base_name = setup_output_paths(
             "cruise.yaml", output_dir="/custom/path", output="custom_name"
         )
@@ -216,7 +216,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_pathlib_input(self, mock_mkdir):
         """Test output path setup with pathlib.Path input."""
         from cruiseplan.utils.config import setup_output_paths
-        
+
         output_dir, base_name = setup_output_paths(Path("test.yaml"))
 
         assert output_dir == Path("data").resolve()

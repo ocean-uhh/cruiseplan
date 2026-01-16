@@ -45,6 +45,15 @@ logger = logging.getLogger(__name__)
 
 
 # Import exception classes and result types from separate modules
+from cruiseplan.api import (
+    bathymetry,
+    enrich,
+    map,
+    pangaea,
+    process,
+    schedule,
+    validate,
+)
 from cruiseplan.exceptions import BathymetryError, FileError, ValidationError
 from cruiseplan.types import (
     BathymetryResult,
@@ -56,20 +65,10 @@ from cruiseplan.types import (
     ValidationResult,
 )
 
-from cruiseplan.api import (
-    bathymetry,
-    enrich,
-    map,
-    pangaea,
-    process,
-    schedule,
-    validate,
-)
-
 # Export the core classes for advanced users
 __all__ = [
     "bathymetry",
-    "enrich", 
+    "enrich",
     "map",
     "pangaea",
     "process",
@@ -77,26 +76,16 @@ __all__ = [
     "validate",
     # Exception classes
     "ValidationError",
-    "FileError", 
+    "FileError",
     "BathymetryError",
     # Result classes
     "EnrichResult",
     "ValidationResult",
     "ScheduleResult",
-    "PangaeaResult", 
+    "PangaeaResult",
     "ProcessResult",
     "MapResult",
     "BathymetryResult",
     # Legacy compatibility
     "CruiseSchedule",
 ]
-
-from cruiseplan.api import (
-    bathymetry,
-    enrich,
-    map,
-    pangaea,
-    process,
-    schedule,
-    validate,
-)

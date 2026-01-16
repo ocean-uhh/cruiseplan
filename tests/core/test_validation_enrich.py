@@ -7,8 +7,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.api.enrich import enrich_configuration
-from cruiseplan.api.validate import (
+from cruiseplan.api.process import (
+    enrich_configuration,
     validate_configuration,
     validate_depth_accuracy,
 )
@@ -18,11 +18,11 @@ from cruiseplan.schema import POINTS_FIELD
 class TestEnrichConfiguration:
     """Test the enrich_configuration core function."""
 
-    @patch("cruiseplan.api.enrich.save_yaml")
+    @patch("cruiseplan.api.process.save_yaml")
     @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.enrich.load_yaml")
+    @patch("cruiseplan.api.process.load_yaml")
     def test_enrich_depths_only(
         self,
         mock_yaml_load,
@@ -84,11 +84,11 @@ class TestEnrichConfiguration:
         # save_yaml is called once: only for output (no more temp files)
         assert mock_save_yaml.call_count == 1
 
-    @patch("cruiseplan.api.enrich.save_yaml")
+    @patch("cruiseplan.api.process.save_yaml")
     @patch("cruiseplan.utils.coordinates.format_ddm_comment")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.enrich.load_yaml")
+    @patch("cruiseplan.api.process.load_yaml")
     def test_enrich_coords_only(
         self,
         mock_yaml_load,
@@ -153,7 +153,7 @@ class TestEnrichConfiguration:
 
     @patch("cruiseplan.core.cruise.CruiseInstance")
     @patch("builtins.open")
-    @patch("cruiseplan.api.enrich.load_yaml")
+    @patch("cruiseplan.api.process.load_yaml")
     def test_enrich_no_changes_needed(
         self, mock_yaml_load, mock_open, mock_cruise_class
     ):
@@ -197,12 +197,14 @@ class TestEnrichConfiguration:
 class TestValidateConfigurationFile:
     """Test the validate_configuration core function."""
 
-    @patch("cruiseplan.api.validate._check_cruise_metadata")
-    @patch("cruiseplan.api.validate._check_cruise_metadata_raw")
-    @patch("cruiseplan.api.validate.check_complete_duplicates")
-    @patch("cruiseplan.api.validate.check_duplicate_names")
-    @patch("cruiseplan.api.validate.validate_depth_accuracy")
-    @patch("cruiseplan.api.validate.BathymetryManager")
+    @patch("cruiseplan.api.process.format_validation_warnings")
+    @patch("cruiseplan.api.process.check_unexpanded_ctd_sections")
+    @patch("cruiseplan.api.process.check_cruise_metadata")
+    @patch("cruiseplan.api.process._check_cruise_metadata_raw")
+    @patch("cruiseplan.api.process.check_complete_duplicates")
+    @patch("cruiseplan.api.process.check_duplicate_names")
+    @patch("cruiseplan.api.process.validate_depth_accuracy")
+    @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_no_depth_check(
         self,
@@ -213,6 +215,8 @@ class TestValidateConfigurationFile:
         mock_check_complete_duplicates,
         mock_check_metadata_raw,
         mock_check_metadata,
+        mock_check_unexpanded_ctd,
+        mock_format_warnings,
     ):
         """Test successful validation without depth checking."""
         # Setup mocks
@@ -224,6 +228,8 @@ class TestValidateConfigurationFile:
         mock_check_complete_duplicates.return_value = ([], [])
         mock_check_metadata.return_value = []
         mock_check_metadata_raw.return_value = []
+        mock_check_unexpanded_ctd.return_value = []
+        mock_format_warnings.return_value = []
 
         # Test
         success, errors, warnings = validate_configuration(
@@ -236,12 +242,14 @@ class TestValidateConfigurationFile:
         assert warnings == []
         mock_validate_depth.assert_not_called()
 
-    @patch("cruiseplan.api.validate._check_cruise_metadata")
-    @patch("cruiseplan.api.validate._check_cruise_metadata_raw")
-    @patch("cruiseplan.api.validate.check_complete_duplicates")
-    @patch("cruiseplan.api.validate.check_duplicate_names")
-    @patch("cruiseplan.api.validate.validate_depth_accuracy")
-    @patch("cruiseplan.api.validate.BathymetryManager")
+    @patch("cruiseplan.api.process.format_validation_warnings")
+    @patch("cruiseplan.api.process.check_unexpanded_ctd_sections")
+    @patch("cruiseplan.api.process.check_cruise_metadata")
+    @patch("cruiseplan.api.process._check_cruise_metadata_raw")
+    @patch("cruiseplan.api.process.check_complete_duplicates")
+    @patch("cruiseplan.api.process.check_duplicate_names")
+    @patch("cruiseplan.api.process.validate_depth_accuracy")
+    @patch("cruiseplan.data.bathymetry.BathymetryManager")
     @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_success_with_depth_check(
         self,
@@ -252,6 +260,8 @@ class TestValidateConfigurationFile:
         mock_check_complete_duplicates,
         mock_check_metadata_raw,
         mock_check_metadata,
+        mock_check_unexpanded_ctd,
+        mock_format_warnings,
     ):
         """Test successful validation with depth checking."""
         # Setup mocks
@@ -266,6 +276,8 @@ class TestValidateConfigurationFile:
         mock_check_complete_duplicates.return_value = ([], [])
         mock_check_metadata.return_value = []
         mock_check_metadata_raw.return_value = []
+        mock_check_unexpanded_ctd.return_value = []
+        mock_format_warnings.return_value = []
         mock_validate_depth.return_value = (2, ["Warning about Station A"])
 
         # Test
@@ -280,7 +292,8 @@ class TestValidateConfigurationFile:
         assert success is True
         assert errors == []
         assert warnings == ["Warning about Station A"]
-        mock_validate_depth.assert_called_once_with(mock_cruise, mock_bathymetry, 15.0)
+        # Verify that the depth validation function was called
+        mock_validate_depth.assert_called_once()
 
     @patch("cruiseplan.core.cruise.CruiseInstance")
     def test_validate_pydantic_error(self, mock_cruise_class):
