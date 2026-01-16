@@ -9,6 +9,7 @@ from .data import bathymetry, pangaea
 from .map_cruise import map
 from .process_cruise import enrich, process, validate
 from .schedule_cruise import schedule
+from .stations_api import stations
 
 __all__ = [
     "bathymetry",
@@ -17,5 +18,6 @@ __all__ = [
     "pangaea",
     "process",
     "schedule",
+    "stations",
     "validate",
 ]

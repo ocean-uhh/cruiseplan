@@ -6,98 +6,13 @@ This module defines valid values that can appear in YAML configuration fields
 cruiseplan.schema.fields which defines field names (left-hand side of YAML).
 
 Contains:
-- Enumeration classes for valid field values
 - Default value constants for YAML fields
 - Placeholder values for user guidance
+- Enumeration classes for valid field values
 """
 
 from datetime import datetime, timezone
 from enum import Enum
-
-# =============================================================================
-# Enumeration Types for Valid Field Values
-# =============================================================================
-
-
-class StrategyEnum(str, Enum):
-    """
-    Enumeration of scheduling strategies for cruise operations.
-
-    Defines how operations within a cluster or composite should be executed.
-    """
-
-    SEQUENTIAL = "sequential"
-    SPATIAL_INTERLEAVED = "spatial_interleaved"
-    DAY_NIGHT_SPLIT = "day_night_split"
-
-
-class OperationTypeEnum(str, Enum):
-    """
-    Enumeration of point operation types.
-
-    Defines the type of scientific operation to be performed at a station.
-    """
-
-    # Existing scientific operations
-    CTD = "CTD"
-    WATER_SAMPLING = "water_sampling"
-    MOORING = "mooring"
-    CALIBRATION = "calibration"
-
-    # v0.3.1 Unified operations - ports and waypoints become point operations
-    PORT = "port"  # Departure/arrival ports
-    WAYPOINT = "waypoint"  # Navigation waypoints
-
-
-class ActionEnum(str, Enum):
-    """
-    Enumeration of specific actions for operations.
-
-    Defines the specific scientific action to be taken for each operation type.
-    """
-
-    # Point operation actions
-    PROFILE = "profile"
-    SAMPLING = "sampling"
-    DEPLOYMENT = "deployment"
-    RECOVERY = "recovery"
-    CALIBRATION = "calibration"
-
-    # v0.3.1 Port operation actions
-    MOB = "mob"  # Port departure (mobilization)
-    DEMOB = "demob"  # Port arrival (demobilization)
-
-    # Line operation actions
-    ADCP = "ADCP"
-    BATHYMETRY = "bathymetry"
-    THERMOSALINOGRAPH = "thermosalinograph"
-    TOW_YO = "tow_yo"
-    SEISMIC = "seismic"
-    MICROSTRUCTURE = "microstructure"
-    SECTION = "section"  # For CTD sections that can be expanded
-
-
-class LineOperationTypeEnum(str, Enum):
-    """
-    Enumeration of line operation types.
-
-    Defines the type of operation performed along a route or transect.
-    """
-
-    UNDERWAY = "underway"
-    TOWING = "towing"
-    CTD = "CTD"  # Support for CTD sections that can be expanded
-
-
-class AreaOperationTypeEnum(str, Enum):
-    """
-    Enumeration of area operation types.
-
-    Defines operations that cover defined geographic areas.
-    """
-
-    SURVEY = "survey"
-
 
 # =============================================================================
 # Default Values for YAML Fields
@@ -155,12 +70,111 @@ DEFAULT_AREA_ACTION = "UPDATE-bathymetry-survey-etc"
 
 # Default operation type values for interactive operations
 DEFAULT_POINT_OPTYPE = "UPDATE-CTD-mooring-etc"
-DEFAULT_LINE_OPTYPE = "underway"
-DEFAULT_AREA_OPTYPE = "survey"
+DEFAULT_LINE_OPTYPE = "UPDATE-underway-etc"
+DEFAULT_AREA_OPTYPE = "UPDATE-survey-etc"
 
 # Default first_waypoint
 DEFAULT_FIRST_ACTIVITY = "UPDATE-first-station-name"
 DEFAULT_LAST_ACTIVITY = "UPDATE-last-station-name"
+
+
+# =============================================================================
+# Enumeration Types for Valid Field Values
+# =============================================================================
+
+
+class StrategyEnum(str, Enum):
+    """
+    Enumeration of scheduling strategies for cruise operations.
+
+    Defines how operations within a cluster or composite should be executed.
+    """
+
+    SEQUENTIAL = "sequential"
+    SPATIAL_INTERLEAVED = "spatial_interleaved"
+    DAY_NIGHT_SPLIT = "day_night_split"
+
+
+class OperationTypeEnum(str, Enum):
+    """
+    Enumeration of point operation types.
+
+    Defines the type of scientific operation to be performed at a station.
+    """
+
+    # Existing scientific operations
+    CTD = "CTD"
+    WATER_SAMPLING = "water_sampling"
+    MOORING = "mooring"
+    CALIBRATION = "calibration"
+
+    # v0.3.1 Unified operations - ports and waypoints become point operations
+    PORT = "port"  # Departure/arrival ports
+    WAYPOINT = "waypoint"  # Navigation waypoints
+
+    # Default placeholder for interactive operations
+    DEFAULT = DEFAULT_POINT_OPTYPE
+
+
+class ActionEnum(str, Enum):
+    """
+    Enumeration of specific actions for operations.
+
+    Defines the specific scientific action to be taken for each operation type.
+    """
+
+    # Point operation actions
+    PROFILE = "profile"
+    SAMPLING = "sampling"
+    DEPLOYMENT = "deployment"
+    RECOVERY = "recovery"
+    CALIBRATION = "calibration"
+
+    # v0.3.1 Port operation actions
+    MOB = "mob"  # Port departure (mobilization)
+    DEMOB = "demob"  # Port arrival (demobilization)
+
+    # Line operation actions
+    ADCP = "ADCP"
+    BATHYMETRY = "bathymetry"
+    THERMOSALINOGRAPH = "thermosalinograph"
+    TOW_YO = "tow_yo"
+    SEISMIC = "seismic"
+    MICROSTRUCTURE = "microstructure"
+    SECTION = "section"  # For CTD sections that can be expanded
+
+    # Default placeholder for interactive operations
+    DEFAULT_POINT = DEFAULT_POINT_ACTION
+    DEFAULT_LINE = DEFAULT_LINE_ACTION
+    DEFAULT_AREA = DEFAULT_AREA_ACTION
+
+
+class LineOperationTypeEnum(str, Enum):
+    """
+    Enumeration of line operation types.
+
+    Defines the type of operation performed along a route or transect.
+    """
+
+    UNDERWAY = "underway"
+    TOWING = "towing"
+    CTD = "CTD"  # Support for CTD sections that can be expanded
+
+    # Default placeholder for interactive operations
+    DEFAULT = DEFAULT_LINE_OPTYPE
+
+
+class AreaOperationTypeEnum(str, Enum):
+    """
+    Enumeration of area operation types.
+
+    Defines operations that cover defined geographic areas.
+    """
+
+    SURVEY = "survey"
+
+    # Default placeholder for interactive operations
+    DEFAULT = DEFAULT_AREA_OPTYPE
 
 
 # =============================================================================

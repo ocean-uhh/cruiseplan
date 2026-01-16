@@ -11,6 +11,8 @@ from typing import ClassVar, Optional
 
 import matplotlib.pyplot as plt
 
+from cruiseplan.core.cruise import CruiseInstance
+
 # Local Integrations
 from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
 from cruiseplan.data.pangaea import merge_campaign_tracks
@@ -19,34 +21,21 @@ from cruiseplan.interactive.campaign_selector import CampaignSelector
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
 from cruiseplan.schema import CruiseConfig
-from cruiseplan.schema.fields import (
-    ACTIVITIES_FIELD,
-    AREAS_FIELD,
-    ARRIVAL_PORT_FIELD,
-    DEFAULT_STATION_SPACING_FIELD,
-    DEFAULT_VESSEL_SPEED_FIELD,
-    DEPARTURE_PORT_FIELD,
-    FIRST_ACTIVITY_FIELD,
-    LAST_ACTIVITY_FIELD,
-    LEGS_FIELD,
-    LINES_FIELD,
-    POINTS_FIELD,
-    START_DATE_FIELD,
-    STRATEGY_FIELD,
-)
+from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
+from cruiseplan.schema.cruise_config import LegDefinition
 from cruiseplan.schema.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_FIRST_ACTIVITY,
     DEFAULT_LAST_ACTIVITY,
     DEFAULT_STRATEGY,
+    ActionEnum,
+    AreaOperationTypeEnum,
+    LineOperationTypeEnum,
+    OperationTypeEnum,
 )
-from cruiseplan.utils.config import (
-    format_area_for_yaml,
-    format_station_for_yaml,
-    format_transect_for_yaml,
-    save_cruise_config,
-)
+
+# Legacy format functions removed - now using Pydantic models directly
 from cruiseplan.utils.plot_config import get_colormap
 
 
@@ -881,74 +870,135 @@ class StationPicker:
 
         self.fig.canvas.draw_idle()
 
+    # --- Helper Functions for Pydantic Model Creation ---
+    def _create_point_definition(self, point_data: dict, index: int) -> PointDefinition:
+        """Create a PointDefinition from raw station picker data."""
+        # Calculate water depth from bathymetry if available
+        water_depth = point_data.get("depth")
+        if water_depth is not None and water_depth != -9999:
+            water_depth = round(abs(float(water_depth)), 1)
+        else:
+            water_depth = None
+
+        return PointDefinition(
+            name=f"STN_{index:03d}",
+            latitude=round(float(point_data["lat"]), 5),
+            longitude=round(float(point_data["lon"]), 5),
+            comment="Interactive selection - Review coordinates and update operation details",
+            operation_type=OperationTypeEnum.DEFAULT,  # Uses placeholder value
+            action=ActionEnum.DEFAULT_POINT,  # Uses placeholder value
+            water_depth=water_depth,
+        )
+
+    def _create_line_definition(self, line_data: dict, index: int) -> LineDefinition:
+        """Create a LineDefinition from raw station picker data."""
+        from cruiseplan.schema.activities import GeoPoint
+
+        return LineDefinition(
+            name=f"Transit_{index:02d}",
+            comment="Interactive transect - Review route and update operation details",
+            operation_type=LineOperationTypeEnum.DEFAULT,  # Uses placeholder value
+            action=ActionEnum.DEFAULT_LINE,  # Uses placeholder value
+            vessel_speed=10.0,
+            route=[
+                GeoPoint(
+                    latitude=round(float(line_data["start"]["lat"]), 5),
+                    longitude=round(float(line_data["start"]["lon"]), 5),
+                ),
+                GeoPoint(
+                    latitude=round(float(line_data["end"]["lat"]), 5),
+                    longitude=round(float(line_data["end"]["lon"]), 5),
+                ),
+            ],
+        )
+
+    def _create_area_definition(self, area_data: dict, index: int) -> AreaDefinition:
+        """Create an AreaDefinition from raw station picker data."""
+        from cruiseplan.schema.activities import GeoPoint
+
+        return AreaDefinition(
+            name=f"Area_{index:02d}",
+            comment="Interactive area survey - Review polygon and update operation details",
+            operation_type=AreaOperationTypeEnum.DEFAULT,  # Uses placeholder value
+            action=ActionEnum.DEFAULT_AREA,  # Uses placeholder value
+            duration=9999.0,  # Placeholder duration in minutes
+            corners=[
+                GeoPoint(
+                    latitude=round(float(lat), 5),
+                    longitude=round(float(lon), 5),
+                )
+                for lon, lat in area_data["points"]
+            ],
+        )
+
     # --- File Operations ---
-    # TODO Use Station picker to make a cruise config and then use cruise config to write YAML
     def _save_to_yaml(self):
-        """Save current cruise plan to YAML format."""
-        if not self.points and not self.lines:
+        """Save current cruise plan to YAML format using Pydantic models and CruiseInstance."""
+        if not self.points and not self.lines and not self.areas:
             return
 
-        # Format data for YAML export
-        yaml_stations = [
-            format_station_for_yaml(stn, i) for i, stn in enumerate(self.points, 1)
-        ]
-
-        yaml_sections = [
-            format_transect_for_yaml(tr, i) for i, tr in enumerate(self.lines, 1)
-        ]
-
-        yaml_areas = [format_area_for_yaml(ar, i) for i, ar in enumerate(self.areas, 1)]
-
-        current_name = getattr(self, "cruise_name", "Interactive_Session")
-
-        # Get defaults from CruiseConfig instead of hardcoded constants
-        default_config = CruiseConfig(cruise_name="temp")
-
-        # Add minimal defaults for required cruise configuration fields
-        # This allows the output to be used directly with 'cruiseplan enrich'
-        output_data = {
-            "cruise_name": current_name,
-            "description": "Cruise plan created with interactive station picker",
-            DEFAULT_VESSEL_SPEED_FIELD: default_config.default_vessel_speed,
-            DEFAULT_STATION_SPACING_FIELD: default_config.default_distance_between_stations,
-            START_DATE_FIELD: default_config.start_date,
-            # Global catalog sections (points, lines, areas) come BEFORE legs
-            POINTS_FIELD: yaml_stations,
-            LINES_FIELD: yaml_sections,  # Schema expects 'lines' not 'sections'
-            AREAS_FIELD: yaml_areas,
-            # Scheduling/sequencing logic comes after catalog
-            # IMPORTANT: No global departure_port, arrival_port, first_station, last_station
-            # These fields are now defined at leg level to avoid validation conflicts
-            LEGS_FIELD: (
-                [
-                    {
-                        "name": "Interactive_Survey",
-                        DEPARTURE_PORT_FIELD: DEFAULT_DEPARTURE_PORT,  # Move from global to leg level
-                        ARRIVAL_PORT_FIELD: DEFAULT_ARRIVAL_PORT,  # Move from global to leg level
-                        FIRST_ACTIVITY_FIELD: (  # Renamed from first_station
-                            yaml_stations[0]["name"]
-                            if yaml_stations
-                            else DEFAULT_FIRST_ACTIVITY
-                        ),
-                        LAST_ACTIVITY_FIELD: (  # Renamed from last_station
-                            yaml_stations[-1]["name"]
-                            if yaml_stations
-                            else DEFAULT_LAST_ACTIVITY
-                        ),
-                        STRATEGY_FIELD: DEFAULT_STRATEGY,
-                        ACTIVITIES_FIELD: (  # Use activities instead of sequence
-                            [station["name"] for station in yaml_stations]
-                            + [section["name"] for section in yaml_sections]
-                            + [area["name"] for area in yaml_areas]
-                        ),
-                    }
-                ]
-                if (yaml_stations or yaml_sections or yaml_areas)
-                else []
-            ),
-        }
-
         try:
+            # Create Pydantic definitions from raw data
+            point_definitions = [
+                self._create_point_definition(point, i)
+                for i, point in enumerate(self.points, 1)
+            ]
+
+            line_definitions = [
+                self._create_line_definition(line, i)
+                for i, line in enumerate(self.lines, 1)
+            ]
+
+            area_definitions = [
+                self._create_area_definition(area, i)
+                for i, area in enumerate(self.areas, 1)
+            ]
+
+            current_name = getattr(self, "cruise_name", "Interactive_Session")
+
+            # Get defaults from CruiseConfig (preserving current station picker behavior)
+            default_config = CruiseConfig(cruise_name="temp")
+
+            # Create activities list (names only for leg reference)
+            activity_names = (
+                [point.name for point in point_definitions]
+                + [line.name for line in line_definitions]
+                + [area.name for area in area_definitions]
+            )
+
+            # Create leg definition
+            leg_definition = None
+            if activity_names:
+                leg_definition = LegDefinition(
+                    name="Interactive_Survey",
+                    departure_port=DEFAULT_DEPARTURE_PORT,
+                    arrival_port=DEFAULT_ARRIVAL_PORT,
+                    first_activity=(
+                        activity_names[0] if activity_names else DEFAULT_FIRST_ACTIVITY
+                    ),
+                    last_activity=(
+                        activity_names[-1] if activity_names else DEFAULT_LAST_ACTIVITY
+                    ),
+                    strategy=DEFAULT_STRATEGY,
+                    activities=activity_names,
+                )
+
+            # Create CruiseConfig from definitions
+            cruise_config = CruiseConfig(
+                cruise_name=current_name,
+                description="Cruise plan created with interactive station picker",
+                default_vessel_speed=default_config.default_vessel_speed,
+                default_distance_between_stations=default_config.default_distance_between_stations,
+                start_date=default_config.start_date,
+                points=point_definitions,
+                lines=line_definitions,
+                areas=area_definitions,
+                legs=[leg_definition] if leg_definition else [],
+            )
+
+            # Convert to CruiseInstance via dict
+            cruise_instance = CruiseInstance.from_dict(cruise_config.model_dump())
+
             # Check if file exists and handle overwrite
             output_path = Path(self.output_file)
             if output_path.exists() and not self.overwrite:
@@ -963,15 +1013,18 @@ class StationPicker:
                     new_name = f"{stem}_backup_{timestamp}{suffix}"
                     backup_path = output_path.parent / new_name
                     self.output_file = str(backup_path)
+                    output_path = backup_path
                     print(f"📁 Saving to new file: {backup_path}")
                 elif response == "cancel":
                     print("💾 Save cancelled by user.")
                     return
                 # If response is "overwrite", proceed with original filename
 
-            save_cruise_config(output_data, self.output_file)
+            # Use CruiseInstance to generate validated YAML
+            cruise_instance.to_yaml(output_path)
+
             print(
-                f"✅ Saved {len(yaml_stations)} stations, {len(yaml_sections)} transects, {len(yaml_areas)} areas."
+                f"✅ Saved {len(point_definitions)} stations, {len(line_definitions)} transects, {len(area_definitions)} areas."
             )
         except Exception as e:
             print(f"❌ Save Error: {e}")

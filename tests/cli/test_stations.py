@@ -8,11 +8,11 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.cli.cli_utils import CLIError, load_pangaea_campaign_data
-from cruiseplan.cli.stations import (
+from cruiseplan.api.stations_api import (
     determine_coordinate_bounds,
-    main,
+    load_pangaea_campaign_data,
 )
+from cruiseplan.cli.stations import main
 
 
 class TestPangaeaDataLoading:
@@ -41,7 +41,7 @@ class TestPangaeaDataLoading:
         """Test loading empty PANGAEA data."""
         mock_load.return_value = []
 
-        with pytest.raises(CLIError, match="No campaign data found"):
+        with pytest.raises(ValueError, match="No campaign data found"):
             load_pangaea_campaign_data(Path("empty.pkl"))
 
     @patch("cruiseplan.data.pangaea.load_campaign_data")
@@ -49,7 +49,7 @@ class TestPangaeaDataLoading:
         """Test handling of import errors."""
         mock_load.side_effect = ImportError("Module not found")
 
-        with pytest.raises(CLIError, match="PANGAEA functionality not available"):
+        with pytest.raises(ValueError, match="PANGAEA functionality not available"):
             load_pangaea_campaign_data(Path("test.pkl"))
 
 
@@ -58,22 +58,23 @@ class TestCoordinateBounds:
 
     def test_determine_bounds_explicit(self):
         """Test using explicit coordinate bounds."""
-        args = Namespace(lat=[50.0, 60.0], lon=[-20.0, -10.0])
-
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=(50.0, 60.0), lon_bounds=(-20.0, -10.0)
+        )
 
         assert lat_bounds == (50.0, 60.0)
         assert lon_bounds == (-20.0, -10.0)
 
     def test_determine_bounds_from_pangaea(self):
         """Test deriving bounds from PANGAEA data."""
-        args = Namespace(lat=None, lon=None)
         campaign_data = [
             {"latitude": [50.0, 55.0], "longitude": [-20.0, -15.0]},
             {"latitude": [52.0], "longitude": [-18.0]},
         ]
 
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=None, lon_bounds=None, campaign_data=campaign_data
+        )
 
         # Should have padding around data bounds
         assert lat_bounds[0] < 50.0  # Min with padding
@@ -83,19 +84,18 @@ class TestCoordinateBounds:
 
     def test_determine_bounds_defaults(self):
         """Test falling back to default bounds."""
-        args = Namespace(lat=None, lon=None)
-        campaign_data = None
-
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=None, lon_bounds=None, campaign_data=None
+        )
 
         assert lat_bounds == (45.0, 70.0)
         assert lon_bounds == (-65.0, -5.0)
 
     def test_determine_bounds_partial_args(self):
         """Test with only lat or lon specified."""
-        args = Namespace(lat=[50.0, 60.0], lon=None)
-
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=(50.0, 60.0), lon_bounds=None
+        )
 
         # Should use default for missing coordinate
         assert lat_bounds == (50.0, 60.0)
@@ -107,9 +107,9 @@ class TestMainCommand:
 
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.cli.stations.load_pangaea_campaign_data")
-    @patch("cruiseplan.cli.stations.validate_input_file")
-    @patch("cruiseplan.utils.io.validate_output_directory")
+    @patch("cruiseplan.api.stations_api.load_pangaea_campaign_data")
+    @patch("cruiseplan.api.stations_api.validate_input_file")
+    @patch("cruiseplan.api.stations_api.validate_output_directory")
     def test_main_with_pangaea(
         self,
         mock_validate_output,
@@ -156,7 +156,7 @@ class TestMainCommand:
 
     @patch("cruiseplan.interactive.station_picker.StationPicker")
     @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.utils.io.validate_output_directory")
+    @patch("cruiseplan.api.stations_api.validate_output_directory")
     def test_main_without_pangaea(
         self, mock_validate_output, mock_show, mock_picker_class
     ):
@@ -226,10 +226,10 @@ class TestMainCommand:
         with pytest.raises(SystemExit):
             main(args)
 
-    @patch("cruiseplan.cli.stations.validate_input_file")
+    @patch("cruiseplan.api.stations_api.validate_input_file")
     def test_main_pangaea_file_error(self, mock_validate_input):
         """Test main command with PANGAEA file error."""
-        mock_validate_input.side_effect = CLIError("File not found")
+        mock_validate_input.side_effect = ValueError("File not found")
 
         args = Namespace(
             pangaea_file=Path("nonexistent.pkl"),
@@ -270,13 +270,14 @@ class TestEdgeCases:
 
     def test_determine_bounds_empty_pangaea_data(self):
         """Test coordinate bounds with empty PANGAEA data lists."""
-        args = Namespace(lat=None, lon=None)
         campaign_data = [
             {"latitude": [], "longitude": []},  # Empty lists
             {"latitude": [50.0], "longitude": []},  # Mismatched lengths
         ]
 
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=None, lon_bounds=None, campaign_data=campaign_data
+        )
 
         # Should fall back to defaults
         assert lat_bounds == (45.0, 70.0)
@@ -284,67 +285,18 @@ class TestEdgeCases:
 
     def test_determine_bounds_missing_coordinate_keys(self):
         """Test coordinate bounds with missing keys in PANGAEA data."""
-        args = Namespace(lat=None, lon=None)
         campaign_data = [
             {"label": "Campaign1"},  # Missing lat/lon keys
             {"latitude": [50.0]},  # Missing longitude key
         ]
 
-        lat_bounds, lon_bounds = determine_coordinate_bounds(args, campaign_data)
+        lat_bounds, lon_bounds = determine_coordinate_bounds(
+            lat_bounds=None, lon_bounds=None, campaign_data=campaign_data
+        )
 
         # Should fall back to defaults
         assert lat_bounds == (45.0, 70.0)
         assert lon_bounds == (-65.0, -5.0)
-
-
-class TestLegacyParameterSupport:
-    """Test legacy parameter support and deprecation warnings."""
-
-    @patch("cruiseplan.interactive.station_picker.StationPicker")
-    @patch("matplotlib.pyplot.show")
-    @patch("cruiseplan.utils.io.validate_output_directory")
-    @patch("cruiseplan.cli.cli_utils.logger")
-    def test_no_warnings_when_no_deprecated_params_configured(
-        self, mock_logger, mock_validate_output, mock_show, mock_picker_class
-    ):
-        """Test that no deprecation warnings are issued when no deprecated params are configured."""
-        mock_validate_output.return_value = Path("/test/stations.yaml")
-        mock_picker = MagicMock()
-        mock_picker_class.return_value = mock_picker
-
-        # Test with standard parameters - no legacy params
-        args = Namespace(
-            pangaea_file=None,
-            lat=[50.0, 60.0],
-            lon=[-20.0, -10.0],
-            output_dir=Path("tests_output"),
-            output_file=None,
-            bathy_source="etopo2022",  # New param set
-            bathy_dir=Path("data"),  # New param set
-            high_resolution=False,
-            overwrite=False,
-            verbose=False,
-            quiet=False,
-        )
-
-        main(args)
-
-        # Verify no deprecation warnings were logged since no deprecated parameters are configured
-        # Check that warning method was not called with any deprecation messages
-        warning_calls = [
-            call
-            for call in mock_logger.warning.call_args_list
-            if call and len(call[0]) > 0 and "deprecated" in str(call[0][0]).lower()
-        ]
-        assert (
-            len(warning_calls) == 0
-        ), f"Unexpected deprecation warnings: {warning_calls}"
-
-        # Verify the picker was created with standard values
-        mock_picker_class.assert_called_once()
-        call_kwargs = mock_picker_class.call_args[1]
-        assert call_kwargs["bathymetry_source"] == "etopo2022"
-        assert str(call_kwargs["bathymetry_dir"]) == "data"
 
 
 class TestModuleStructure:
@@ -355,4 +307,3 @@ class TestModuleStructure:
         from cruiseplan.cli import stations
 
         assert hasattr(stations, "main")
-        assert hasattr(stations, "determine_coordinate_bounds")

@@ -227,3 +227,6 @@ class BathymetryResult(BaseResult):
     @property
     def _operation_name(self) -> str:
         return f"Bathymetry download ({self.source})"
+
+
+# Import the StationPickerResult from the API module to re-export it

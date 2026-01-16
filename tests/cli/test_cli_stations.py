@@ -12,25 +12,17 @@ from cruiseplan.cli.stations import main
 
 @pytest.fixture
 def mock_external_deps():
-    """Patches all external components imported by cli/stations.py."""
-    # Mocking the interactive and data components that don't exist yet
-    # We patch the entire module path to control the import behavior
+    """Patches the stations API function that the CLI now calls."""
     with (
-        patch("cruiseplan.interactive.station_picker.StationPicker") as MockPicker,
-        patch("cruiseplan.data.pangaea.load_campaign_data") as MockLoadCampaign,
+        patch("cruiseplan.cli.stations.stations") as MockStationsAPI,
         patch("sys.exit") as MockExit,
     ):
+        # Configure the mock API function to return a successful result
+        mock_result = MagicMock()
+        mock_result.__str__ = lambda self: "Interactive station picker completed"
+        MockStationsAPI.return_value = mock_result
 
-        # Configure the mock dependencies
-        MockPicker.return_value = MagicMock()
-        MockPicker.return_value.ax_map = MagicMock()
-        MockPicker.return_value._update_aspect_ratio = MagicMock()
-        MockLoadCampaign.return_value = [
-            {"name": "C1", "data": []},
-            {"name": "C2", "data": []},
-        ]
-
-        yield MockPicker, MockLoadCampaign, MockExit
+        yield MockStationsAPI, MockExit
 
 
 @pytest.fixture
@@ -57,44 +49,35 @@ def mock_args(tmp_path):
 
 
 def test_main_success_with_pangaea(mock_args, mock_external_deps):
-    """Tests the standard success path with valid PANGAEA file provided."""
-    MockPicker, MockLoadCampaign, MockExit = mock_external_deps
+    """Tests that the CLI correctly calls the stations API function."""
+    MockStationsAPI, MockExit = mock_external_deps
 
-    # Ensure the output directory doesn't exist yet so mkdir is covered
+    # Ensure the output directory exists
     mock_args.output_dir.mkdir(parents=True, exist_ok=True)
 
     main(mock_args)
 
-    # 1. Assert PANGAEA loading was attempted
-    MockLoadCampaign.assert_called_once_with(mock_args.pangaea_file)
-
-    # 2. Assert StationPicker was initialized correctly
-    output_file = str(mock_args.output_dir / "campaigns_stations.yaml")
-    MockPicker.assert_called_once_with(
-        campaign_data=[{"name": "C1", "data": []}, {"name": "C2", "data": []}],
-        output_file=output_file,
-        bathymetry_stride=10,  # Default stride since high_resolution=False
-        bathymetry_source="etopo2022",  # Default bathymetry source
-        bathymetry_dir=str(mock_args.bathy_dir_legacy),
-        overwrite=False,  # Default overwrite behavior
+    # Assert the stations API was called with correct parameters
+    MockStationsAPI.assert_called_once_with(
+        lat_bounds=(50.0, 60.0),
+        lon_bounds=(-30.0, -20.0),
+        output_dir=str(mock_args.output_dir),
+        output=None,
+        pangaea_file=str(mock_args.pangaea_file),
+        bathy_source="etopo2022",
+        bathy_dir="data",  # Default value used by API
+        high_resolution=False,
+        overwrite=False,
+        verbose=False,
     )
 
-    # 3. Assert map bounds were set
-    MockPicker.return_value.ax_map.set_xlim.assert_called_once_with(
-        (-30.0, -20.0)
-    )  # lon bounds from mock_args
-    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with((50.0, 60.0))
-
-    # 4. Assert picker was shown
-    MockPicker.return_value.show.assert_called_once()
-
-    # 5. Assert program did NOT exit
+    # Assert program did NOT exit
     MockExit.assert_not_called()
 
 
 def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps):
-    """Tests that default bounds are used if args are None."""
-    MockPicker, _, _ = mock_external_deps
+    """Tests that CLI passes None bounds to API when not provided (API handles defaults)."""
+    MockStationsAPI, MockExit = mock_external_deps
 
     # Simulate args missing the bounds
     mock_args.lat = None
@@ -102,23 +85,31 @@ def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps)
 
     main(mock_args)
 
-    # Assert default bounds are used: lat [45, 70], lon [-65, -5]
-    MockPicker.return_value.ax_map.set_xlim.assert_called_once_with((-65.0, -5.0))
-    MockPicker.return_value.ax_map.set_ylim.assert_called_once_with((45.0, 70.0))
+    # Assert the stations API was called with None bounds (API handles defaults internally)
+    MockStationsAPI.assert_called_once()
+    call_args = MockStationsAPI.call_args[1]  # Get keyword arguments
+    assert call_args["lat_bounds"] is None
+    assert call_args["lon_bounds"] is None
 
 
 def test_main_handles_missing_pangaea_file(mock_args, mock_external_deps):
-    """Tests that main exits gracefully when the PANGAEA file path is invalid/missing."""
-    _, MockLoadCampaign, MockExit = mock_external_deps
+    """Tests that CLI passes file path to API (API handles file validation and errors)."""
+    MockStationsAPI, MockExit = mock_external_deps
 
     # Simulate non-existent file path
     mock_args.pangaea_file = Path("non_existent_path.pkl")
 
+    # Configure API to raise FileNotFoundError to simulate file validation failure
+    MockStationsAPI.side_effect = FileNotFoundError("PANGAEA file not found")
+
     main(mock_args)
 
-    # Function should exit due to validation error, so load_campaign_data should not be called
-    MockLoadCampaign.assert_not_called()
-    # Should exit with error code 1
+    # CLI should call API and handle API's FileNotFoundError by exiting
+    MockStationsAPI.assert_called_once()
+    call_args = MockStationsAPI.call_args[1]
+    assert call_args["pangaea_file"] == "non_existent_path.pkl"
+
+    # Should exit with error code 1 due to the FileNotFoundError
     MockExit.assert_called_once_with(1)
 
 

@@ -4,7 +4,6 @@ from unittest.mock import MagicMock, Mock, patch
 import pytest
 
 from cruiseplan.interactive.station_picker import StationPicker
-from cruiseplan.schema import POINTS_FIELD
 
 # The string must match the full path to the module where 'bathymetry' is USED
 BATHY_MOCK_PATH = "cruiseplan.interactive.station_picker.bathymetry.get_depth_at_point"
@@ -270,47 +269,8 @@ def test_remove_specific_station_by_click(picker):
     assert picker.points[0]["lon"] == -52.0
 
 
-def test_save_to_yaml_triggers_io(picker):
-    """Test that _save_to_yaml correctly formats data and calls the save function."""
-    # 1. Setup Data
-    picker.points = [{"lat": 10.0, "lon": -10.0, "depth": -500.0}]
-    picker.lines = []  # Keep it simple
-    picker.output_file = "test_cruise.yaml"
-
-    # 2. Mock the external helpers
-    # We mock 'format_station_for_yaml' to return a predictable dict
-    # We mock 'save_cruise_config' to ensure it gets called
-
-    # Note: Adjust path to where these are imported in station_picker.py
-    with (
-        patch(
-            "cruiseplan.interactive.station_picker.format_station_for_yaml"
-        ) as mock_fmt,
-        patch("cruiseplan.interactive.station_picker.save_cruise_config") as mock_save,
-    ):
-
-        mock_fmt.return_value = {
-            "name": "STN_01",
-            "lat": 10.0,
-        }  # Include required 'name' field
-
-        # 3. Action
-        picker._save_to_yaml()
-
-        # 4. Assertions
-        # Did it format the station?
-        mock_fmt.assert_called_once()
-
-        # Did it try to save?
-        mock_save.assert_called_once()
-
-        # specific check: Did it pass the right data structure?
-        saved_data = mock_save.call_args[0][0]  # First arg of the call
-        assert saved_data[POINTS_FIELD][0]["name"] == "STN_01"  # Use 'name' not 'id'
-        assert saved_data["cruise_name"] == "Interactive_Session"  # or whatever default
-
-        # Check filename
-        assert mock_save.call_args[0][1] == "test_cruise.yaml"
+# test_save_to_yaml_triggers_io removed - _save_to_yaml now uses
+# CruiseInstance/Pydantic architecture and is tested in integration tests
 
 
 def test_handle_line_click_workflow(picker):

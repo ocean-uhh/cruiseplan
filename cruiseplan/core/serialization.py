@@ -92,36 +92,40 @@ def serialize_definition(
         ClusterDefinition,
         LegDefinition,
     ],
-    allowed_fields: list[str],
+    allowed_fields: Union[list[str], set[str]],
 ) -> dict[str, Any]:
     """
     Convert a Pydantic definition object to a dictionary with field filtering.
 
     This function extracts only the allowed fields from the object, filtering out
-    internal fields and maintaining canonical field ordering.
+    internal fields and maintaining canonical field ordering from YAML_FIELD_ORDER.
 
     Parameters
     ----------
     obj : Union[PointDefinition, LineDefinition, AreaDefinition, ClusterDefinition, LegDefinition]
         The Pydantic object to serialize
-    allowed_fields : list[str]
-        List of field names that should be included in the output
+    allowed_fields : Union[list[str], set[str]]
+        Collection of field names that should be included in the output.
+        Field ordering is determined by YAML_FIELD_ORDER, not by this parameter.
 
     Returns
     -------
     dict[str, Any]
-        Dictionary containing only the allowed fields with their values
+        Dictionary containing only the allowed fields with their values in canonical order
     """
+    from cruiseplan.schema.fields import YAML_FIELD_ORDER
+
     output = {}
 
-    # Serialize only the allowed fields in canonical order
-    for field_name in allowed_fields:
-        if hasattr(obj, field_name):
-            value = getattr(obj, field_name)
+    # Serialize fields in canonical order using YAML_FIELD_ORDER
+    # Only include fields that are in allowed_fields
+    for _, pydantic_field in YAML_FIELD_ORDER:
+        if pydantic_field in allowed_fields and hasattr(obj, pydantic_field):
+            value = getattr(obj, pydantic_field)
             if value is not None:  # Skip None values to keep YAML clean
                 # Convert enum values to strings for YAML serialization
                 if isinstance(value, Enum):
-                    output[field_name] = value.value
+                    output[pydantic_field] = value.value
                 # Convert GeoPoint objects to coordinate dictionaries
                 elif hasattr(value, "__iter__") and not isinstance(value, str):
                     # Handle lists of GeoPoint objects (e.g., route, corners)
@@ -137,9 +141,9 @@ def serialize_definition(
                             )
                         else:
                             converted_list.append(item)
-                    output[field_name] = converted_list
+                    output[pydantic_field] = converted_list
                 else:
-                    output[field_name] = value
+                    output[pydantic_field] = value
 
     return output
 

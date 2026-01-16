@@ -5,6 +5,7 @@ import pytest
 
 from cruiseplan.schema.values import (
     DEFAULT_LINE_ACTION,
+    DEFAULT_LINE_OPTYPE,
     DEFAULT_POINT_ACTION,
     DEFAULT_POINT_OPTYPE,
 )
@@ -68,8 +69,8 @@ def test_format_transect_standard():
     expected_structure = {
         "name": "Transit_02",  # Updated naming from Section to Transit
         "comment": "Interactive transect - Review route and update operation details",  # Enhanced comment
-        "operation_type": "underway",
-        "action": DEFAULT_LINE_ACTION,  # Reverted placeholder
+        "operation_type": DEFAULT_LINE_OPTYPE,  # Use actual constant
+        "action": DEFAULT_LINE_ACTION,  # Use actual constant
         "vessel_speed": 10.0,  # Number not string
         "route": [
             {
