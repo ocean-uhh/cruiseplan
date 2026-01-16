@@ -88,6 +88,7 @@ class TestOutputGenerationValidation:
                     "\\begin{tabular}" in content
                 ), f"LaTeX file missing table content for {config_path}"
 
+    @pytest.mark.slow
     def test_png_output_generation(self, sample_configs):
         """Test that PNG maps generate successfully for all configurations."""
         for config_path in sample_configs:
@@ -244,6 +245,7 @@ class TestSpecificOutputFormats:
                 "Activity" in content or "Station" in content or "Operation" in content
             ), "Missing table headers"
 
+    @pytest.mark.slow
     def test_png_map_properties(self):
         """Test that PNG maps have proper dimensions and content."""
         # Use absolute path from project root to data directory

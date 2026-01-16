@@ -278,7 +278,8 @@ class TestBathymetryResultType:
             assert result.data_file == data_file
             assert bool(result) is True
             assert result.source == "etopo2022"
-            assert "✅ Bathymetry data downloaded: etopo2022 (850.5 MB)" in str(result)
+            assert "✅ Bathymetry download (etopo2022) complete" in str(result)
+            assert "(1 files)" in str(result)
 
     def test_bathymetry_result_failure(self):
         """Test BathymetryResult with failed download."""
@@ -290,4 +291,4 @@ class TestBathymetryResultType:
 
         assert result.data_file is None
         assert bool(result) is False
-        assert "❌ Bathymetry download failed" in str(result)
+        assert "❌ Bathymetry download (etopo2022) failed" in str(result)

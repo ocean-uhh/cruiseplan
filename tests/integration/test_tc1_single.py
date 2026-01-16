@@ -11,12 +11,12 @@ from pathlib import Path
 
 import pytest
 
+from cruiseplan.api.process_cruise import enrich_configuration
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.csv_generator import generate_csv_schedule
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.map_generator import generate_map
-from cruiseplan.processing.enrich import enrich_configuration
 from cruiseplan.utils.defaults import (
     DEFAULT_START_DATE,
     DEFAULT_STATION_SPACING_KM,

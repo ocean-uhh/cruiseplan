@@ -311,7 +311,8 @@ class TestScheduleResultType:
         assert result.timeline == timeline
         assert bool(result) is True
         assert len(result.files_created) == 2
-        assert "3.5 hours total" in str(result)
+        assert "✅ Schedule (2 activities) complete" in str(result)
+        assert "(2 files)" in str(result)
 
     def test_schedule_result_failure(self):
         """Test ScheduleResult with failed schedule generation."""
@@ -324,7 +325,7 @@ class TestScheduleResultType:
         assert result.timeline is None
         assert bool(result) is False
         assert len(result.files_created) == 0
-        assert "❌ Schedule generation failed" in str(result)
+        assert "❌ Schedule failed" in str(result)
 
     def test_schedule_result_empty_timeline(self):
         """Test ScheduleResult with empty timeline."""
@@ -336,4 +337,4 @@ class TestScheduleResultType:
 
         assert result.timeline == []
         assert bool(result) is False  # Empty timeline evaluates to False
-        assert "0.0 hours total" in str(result)
+        assert "❌ Schedule failed" in str(result)

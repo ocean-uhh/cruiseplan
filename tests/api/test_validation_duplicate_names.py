@@ -8,11 +8,11 @@ by auto-numbering with suffixes.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.processing.validate import (
+from cruiseplan.api.process_cruise import (
     check_complete_duplicates,
     check_duplicate_names,
 )
+from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.schema.vocabulary import (
     ACTION_FIELD,
     ACTIVITIES_FIELD,

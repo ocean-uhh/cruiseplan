@@ -315,7 +315,8 @@ class TestValidationResultType:
         assert bool(result) is True
         assert len(result.errors) == 0
         assert len(result.warnings) == 2
-        assert "✅ Validation passed (2 warnings)" in str(result)
+        assert "✅ Validation complete" in str(result)
+        assert "(2 warnings)" in str(result)
 
     def test_validation_result_failure(self):
         """Test ValidationResult with failed validation."""

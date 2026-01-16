@@ -290,7 +290,8 @@ class TestMapResultType:
         assert result.map_files == map_files
         assert bool(result) is True
         assert len(result.map_files) == 2
-        assert "✅ Map generation complete: 2 files generated (all)" in str(result)
+        assert "✅ Map generation (all) complete" in str(result)
+        assert "(2 files)" in str(result)
 
     def test_map_result_failure(self):
         """Test MapResult with failed map generation."""
@@ -303,4 +304,4 @@ class TestMapResultType:
         assert result.map_files == []
         assert bool(result) is False
         assert len(result.map_files) == 0
-        assert "❌ Map generation failed" in str(result)
+        assert "❌ Map generation (all) failed" in str(result)

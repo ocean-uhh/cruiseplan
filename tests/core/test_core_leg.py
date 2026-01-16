@@ -4,7 +4,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.core.cruise import Cluster, Leg
+from cruiseplan.core.organizational import Cluster, Leg
 from cruiseplan.schema import StrategyEnum
 
 

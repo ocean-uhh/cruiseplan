@@ -557,7 +557,7 @@ class TimelineGenerator:
     def _create_runtime_legs(self) -> list[Any]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
-        from cruiseplan.core.cruise import Leg
+        from cruiseplan.core.organizational import Leg
 
         runtime_legs = []
         for leg_def in self.config.legs or []:
@@ -939,7 +939,9 @@ def generate_cruise_schedule(
     # Validate depths if requested
     validation_warnings = []
     if validate_depths:
-        from cruiseplan.processing.validate import validate_configuration
+        from cruiseplan.api.validate import (
+            _validate_configuration as validate_configuration,
+        )
 
         is_valid, errors, warnings = validate_configuration(
             config_path, check_depths=True, tolerance=10.0

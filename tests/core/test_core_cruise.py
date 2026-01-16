@@ -5,7 +5,8 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.core.cruise import CruiseInstance, ReferenceError
+from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.core.organizational import ReferenceError
 
 
 class TestReferenceError:

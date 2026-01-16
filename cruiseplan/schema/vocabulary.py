@@ -33,6 +33,7 @@ DELAY_END_FIELD = "delay_end"
 BUFFER_TIME_FIELD = "buffer_time"
 HISTORY_FIELD = "history"
 LEGS_FIELD = "legs"
+PORTS_FIELD = "port"
 CLUSTERS_FIELD = "clusters"
 ACTIVITIES_FIELD = "activities"
 STRATEGY_FIELD = "strategy"
@@ -57,6 +58,7 @@ AREA_REGISTRY = "area_registry"
 # Format: (yaml_field_name, pydantic_field_name)
 YAML_FIELD_ORDER = [
     # Identity fields
+    ("cruise_name", "cruise_name"),  # For top-level cruise name
     ("name", "name"),
     ("display_name", "display_name"),
     (COMMENT_FIELD, "comment"),

@@ -3,7 +3,8 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.core.cruise import CruiseInstance, ReferenceError
+from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.core.organizational import ReferenceError
 from cruiseplan.schema import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -112,12 +113,18 @@ that have large uncovered line ranges.
 
 from unittest.mock import MagicMock
 
-from cruiseplan.processing.validate import (
-    _check_cruise_metadata_raw,
-    _clean_warning_message,
-    _format_validation_warnings,
-    _warning_relates_to_entity,
+from cruiseplan.api.process_cruise import _check_cruise_metadata_raw
+from cruiseplan.core.validation import (
+    clean_warning_message as _clean_warning_message,
+)
+from cruiseplan.core.validation import (
+    format_validation_warnings as _format_validation_warnings,
+)
+from cruiseplan.core.validation import (
     validate_depth_accuracy,
+)
+from cruiseplan.core.validation import (
+    warning_relates_to_entity as _warning_relates_to_entity,
 )
 from cruiseplan.utils.defaults import (
     DEFAULT_ARRIVAL_PORT,

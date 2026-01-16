@@ -270,4 +270,5 @@ class TestEnrichResultType:
         assert result.output_file == Path("test.yaml")
         assert len(result.files_created) == 2
         assert result.summary["stations"] == 5
-        assert str(result) == "test.yaml"
+        assert "✅ Enrichment complete" in str(result)
+        assert "(2 files)" in str(result)
