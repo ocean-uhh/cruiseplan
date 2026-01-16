@@ -9,7 +9,7 @@ import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.vocabulary import (
+from cruiseplan.schema.fields import (
     ACTION_FIELD,
     DURATION_FIELD,
     OP_DEPTH_FIELD,

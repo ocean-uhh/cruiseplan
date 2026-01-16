@@ -3,18 +3,18 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
+from cruiseplan.schema.values import (
+    DEFAULT_LINE_ACTION,
+    DEFAULT_POINT_ACTION,
+    DEFAULT_POINT_OPTYPE,
+)
+from cruiseplan.schema.yaml_io import YAMLIOError
 from cruiseplan.utils.config import (
     ConfigLoader,
     format_station_for_yaml,
     format_transect_for_yaml,
     save_cruise_config,
 )
-from cruiseplan.utils.defaults import (
-    DEFAULT_LINE_ACTION,
-    DEFAULT_POINT_ACTION,
-    DEFAULT_POINT_OPTYPE,
-)
-from cruiseplan.utils.yaml_io import YAMLIOError
 
 # Mock the external dependencies (CruiseConfig, ValidationError)
 # Assuming DEFAULT_DEPTH is -9999.0 for testing the formatters.

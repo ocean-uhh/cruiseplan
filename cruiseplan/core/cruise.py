@@ -28,8 +28,8 @@ from cruiseplan.schema import (
     PointDefinition,
     StrategyEnum,
 )
-from cruiseplan.utils.global_ports import resolve_port_reference
-from cruiseplan.utils.yaml_io import load_yaml
+from cruiseplan.schema.ports import resolve_port_reference
+from cruiseplan.schema.yaml_io import load_yaml
 
 
 # TODO Question - why do we not also have a "leg_registry" and maybe a "cluster_registry"?

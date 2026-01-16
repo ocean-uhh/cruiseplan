@@ -6,7 +6,7 @@ import pytest
 
 from cruiseplan.calculators.scheduler import generate_timeline
 from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.utils.yaml_io import load_yaml
+from cruiseplan.schema.yaml_io import load_yaml
 
 
 class TestTC3ClustersIntegration:

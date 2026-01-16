@@ -328,7 +328,7 @@ def add_station_defaults(cruise_instance: "CruiseInstance") -> int:
             and (not hasattr(station, "duration") or station.duration is None)
         ):
             # Default mooring deployment/recovery duration: 999 hours (59940 minutes)
-            from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
+            from cruiseplan.schema.values import DEFAULT_MOORING_DURATION_MIN
 
             station.__dict__["duration"] = DEFAULT_MOORING_DURATION_MIN
             defaults_added += 1

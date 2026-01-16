@@ -12,8 +12,8 @@ from typing import Any, Optional, Union
 from cruiseplan.core.operations import BaseOperation
 from cruiseplan.schema.activities import PointDefinition
 from cruiseplan.schema.cruise_config import ClusterDefinition, LegDefinition
-from cruiseplan.schema.options import StrategyEnum
-from cruiseplan.utils.global_ports import resolve_port_reference
+from cruiseplan.schema.ports import resolve_port_reference
+from cruiseplan.schema.values import StrategyEnum
 from cruiseplan.utils.units import NM_PER_KM
 
 logger = logging.getLogger(__name__)

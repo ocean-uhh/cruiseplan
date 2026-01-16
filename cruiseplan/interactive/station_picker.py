@@ -19,7 +19,7 @@ from cruiseplan.interactive.campaign_selector import CampaignSelector
 # --- NEW WIDGET IMPORTS (Instruction 1) ---
 from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
 from cruiseplan.schema import CruiseConfig
-from cruiseplan.schema.vocabulary import (
+from cruiseplan.schema.fields import (
     ACTIVITIES_FIELD,
     AREAS_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -34,18 +34,18 @@ from cruiseplan.schema.vocabulary import (
     START_DATE_FIELD,
     STRATEGY_FIELD,
 )
-from cruiseplan.utils.config import (
-    format_area_for_yaml,
-    format_station_for_yaml,
-    format_transect_for_yaml,
-    save_cruise_config,
-)
-from cruiseplan.utils.defaults import (
+from cruiseplan.schema.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_FIRST_ACTIVITY,
     DEFAULT_LAST_ACTIVITY,
     DEFAULT_STRATEGY,
+)
+from cruiseplan.utils.config import (
+    format_area_for_yaml,
+    format_station_for_yaml,
+    format_transect_for_yaml,
+    save_cruise_config,
 )
 from cruiseplan.utils.plot_config import get_colormap
 

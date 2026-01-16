@@ -24,7 +24,7 @@ from cruiseplan.core.validation import (
 from cruiseplan.data.bathymetry import BathymetryManager
 from cruiseplan.exceptions import BathymetryError, FileError
 from cruiseplan.exceptions import ValidationError as CruisePlanValidationError
-from cruiseplan.schema.vocabulary import (
+from cruiseplan.schema.fields import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
     DEPARTURE_PORT_FIELD,
@@ -32,15 +32,15 @@ from cruiseplan.schema.vocabulary import (
     OP_TYPE_FIELD,
     START_DATE_FIELD,
 )
-from cruiseplan.types import EnrichResult, ProcessResult, ValidationResult
-from cruiseplan.utils.defaults import (
+from cruiseplan.schema.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_LEG_NAME,
     DEFAULT_START_DATE,
     DEFAULT_UPDATE_PREFIX,
 )
-from cruiseplan.utils.yaml_io import load_yaml, load_yaml_safe, save_yaml
+from cruiseplan.schema.yaml_io import load_yaml, load_yaml_safe, save_yaml
+from cruiseplan.types import EnrichResult, ProcessResult, ValidationResult
 
 logger = logging.getLogger(__name__)
 
@@ -1117,15 +1117,6 @@ enrich_configuration = _enrich_configuration
 validate_configuration = _validate_configuration
 
 # Import core validation functions for backward compatibility
-from cruiseplan.core.validation import (
-    check_complete_duplicates,
-    check_cruise_metadata,
-    check_duplicate_names,
-    check_unexpanded_ctd_sections,
-    format_validation_warnings,
-    validate_depth_accuracy,
-)
-from cruiseplan.utils.yaml_io import load_yaml, save_yaml
 
 # Adding backward compatibility aliases for private functions used in tests
 _format_validation_warnings = format_validation_warnings

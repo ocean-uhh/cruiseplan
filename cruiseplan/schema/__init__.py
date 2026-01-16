@@ -24,14 +24,14 @@ from .activities import (
 # Main cruise configuration
 # Schedule definitions (YAML layer)
 from .cruise_config import ClusterDefinition, CruiseConfig, LegDefinition
-from .options import (
+from .fields import *
+from .values import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,
     OperationTypeEnum,  # TODO Why is this not a PointOperationTypeEnum?
     StrategyEnum,
 )
-from .vocabulary import *
 
 __all__ = [
     # Field name constants

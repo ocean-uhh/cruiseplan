@@ -21,8 +21,8 @@ import logging
 from pathlib import Path
 
 from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.output.output_utils import is_line_operation, is_scientific_operation
 from cruiseplan.schema import CruiseConfig
-from cruiseplan.utils.activity_utils import is_line_operation, is_scientific_operation
 
 logger = logging.getLogger(__name__)
 

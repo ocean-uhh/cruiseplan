@@ -13,7 +13,7 @@ from cruiseplan.api.process_cruise import (
     check_duplicate_names,
 )
 from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.vocabulary import (
+from cruiseplan.schema.fields import (
     ACTION_FIELD,
     ACTIVITIES_FIELD,
     ARRIVAL_PORT_FIELD,

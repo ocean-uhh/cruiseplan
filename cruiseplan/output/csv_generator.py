@@ -9,9 +9,12 @@ import logging
 from pathlib import Path
 
 from cruiseplan.calculators.scheduler import ActivityRecord
-from cruiseplan.output.output_utils import get_activity_depth, round_time_to_minute
+from cruiseplan.output.output_utils import (
+    format_operation_action,
+    get_activity_depth,
+    round_time_to_minute,
+)
 from cruiseplan.schema import CruiseConfig
-from cruiseplan.utils.activity_utils import format_operation_action
 from cruiseplan.utils.coordinates import CoordConverter
 
 logger = logging.getLogger(__name__)
