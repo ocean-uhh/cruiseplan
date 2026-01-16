@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev1</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=039e0e34"></script>
+      <script src="_static/documentation_options.js?v=3466845e"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -138,12 +138,12 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.ports</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_custom_port</span><span class="p">,</span>
     <span class="n">get_available_ports</span><span class="p">,</span>
     <span class="n">list_ports_in_region</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml</span>
 
 <span class="c1"># Set up output directory</span>
 <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../tests_output/demo&#39;</span><span class="p">)</span>
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [00:37, 13.0MB/s]
+Downloading ETOPO: 469MB [01:35, 5.15MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -497,7 +497,7 @@ INFO: Saved configuration to: ../tests_output/demo/demo_cruise.yaml
 <div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[5]:
 </pre></div>
 </div>
-<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using cruiseplan.utils.global_ports with get_available_ports() and list_ports_in_region()</span>
+<div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Using cruiseplan.schema.ports with get_available_ports() and list_ports_in_region()</span>
 
 <span class="n">ports</span> <span class="o">=</span> <span class="n">get_available_ports</span><span class="p">()</span>
 

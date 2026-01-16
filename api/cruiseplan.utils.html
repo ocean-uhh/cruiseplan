@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>General Utilities &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev1</title>
+  <title>General Utilities &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=039e0e34"></script>
+      <script src="../_static/documentation_options.js?v=3466845e"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -83,12 +83,7 @@
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.calculators.html">Calculators &amp; Scheduling</a></li>
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.output.html">Output formats</a></li>
 <li class="toctree-l2 current"><a class="current reference internal" href="#">General Utilities</a><ul>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.activity_utils">cruiseplan.utils.activity_utils module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.activity_utils.format_operation_action"><code class="docutils literal notranslate"><span class="pre">format_operation_action()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.activity_utils.is_line_operation"><code class="docutils literal notranslate"><span class="pre">is_line_operation()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.activity_utils.is_scientific_operation"><code class="docutils literal notranslate"><span class="pre">is_scientific_operation()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-utils-activity-utils-module">cruiseplan.utils.activity_utils module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.config">cruiseplan.utils.config module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.ConfigLoader"><code class="docutils literal notranslate"><span class="pre">ConfigLoader</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.config.format_area_for_yaml"><code class="docutils literal notranslate"><span class="pre">format_area_for_yaml()</span></code></a></li>
@@ -112,13 +107,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.coordinates.parse_ddm_format"><code class="docutils literal notranslate"><span class="pre">parse_ddm_format()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.global_ports">cruiseplan.utils.global_ports module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.add_custom_port"><code class="docutils literal notranslate"><span class="pre">add_custom_port()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.get_available_ports"><code class="docutils literal notranslate"><span class="pre">get_available_ports()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.list_ports_in_region"><code class="docutils literal notranslate"><span class="pre">list_ports_in_region()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.global_ports.resolve_port_reference"><code class="docutils literal notranslate"><span class="pre">resolve_port_reference()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-utils-global-ports-module">cruiseplan.utils.global_ports module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.plot_config">cruiseplan.utils.plot_config module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.create_bathymetry_colormap"><code class="docutils literal notranslate"><span class="pre">create_bathymetry_colormap()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.get_colormap"><code class="docutils literal notranslate"><span class="pre">get_colormap()</span></code></a></li>
@@ -127,14 +116,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.plot_config.interpolate_great_circle_position"><code class="docutils literal notranslate"><span class="pre">interpolate_great_circle_position()</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.utils.yaml_io">cruiseplan.utils.yaml_io module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError"><code class="docutils literal notranslate"><span class="pre">YAMLIOError</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.dump_yaml_simple"><code class="docutils literal notranslate"><span class="pre">dump_yaml_simple()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.load_yaml"><code class="docutils literal notranslate"><span class="pre">load_yaml()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.load_yaml_safe"><code class="docutils literal notranslate"><span class="pre">load_yaml_safe()</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.utils.yaml_io.save_yaml"><code class="docutils literal notranslate"><span class="pre">save_yaml()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-utils-yaml-io-module">cruiseplan.utils.yaml_io module</a></li>
 </ul>
 </li>
 </ul>
@@ -178,73 +160,14 @@
 <p>cruiseplan.utils package.</p>
 <p>This package contains utility modules and helper functions for cruise planning:</p>
 <ul class="simple">
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">activity_utils</span></code>: Functions for processing cruise activities and scheduling</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">config</span></code>: Utilities for loading, saving, and managing cruise configuration files</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">constants</span></code>: Default values and constants used throughout the application</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">coordinates</span></code>: Coordinate formatting and conversion utilities for maritime applications</p></li>
 </ul>
 <p>These utilities provide shared functionality across different parts of the cruiseplan
 system, including data processing, configuration management, and coordinate handling.</p>
-<section id="module-cruiseplan.utils.activity_utils">
-<span id="cruiseplan-utils-activity-utils-module"></span><h2>cruiseplan.utils.activity_utils module<a class="headerlink" href="#module-cruiseplan.utils.activity_utils" title="Link to this heading"></a></h2>
-<p>Activity and scheduling utility functions.</p>
-<p>Shared utilities for processing cruise activities across different output generators.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.activity_utils.format_operation_action">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.activity_utils.</span></span><span class="sig-name descname"><span class="pre">format_operation_action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">operation_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">action</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/activity_utils.html#format_operation_action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.activity_utils.format_operation_action" title="Link to this definition"></a></dt>
-<dd><p>Format operation type and action into combined description.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>operation_type</strong> (<em>str</em>) – Type of operation (e.g., “ctd”, “mooring”, “transit”)</p></li>
-<li><p><strong>action</strong> (<em>str</em>) – Action being performed (e.g., “profile”, “deployment”, “recovery”)</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Formatted operation description</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>str</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.activity_utils.is_line_operation">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.activity_utils.</span></span><span class="sig-name descname"><span class="pre">is_line_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/activity_utils.html#is_line_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.activity_utils.is_line_operation" title="Link to this definition"></a></dt>
-<dd><p>Check if activity is a line operation (scientific transit with start/end coordinates).</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>activity</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Activity record from timeline</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if this is a line operation</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.activity_utils.is_scientific_operation">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.activity_utils.</span></span><span class="sig-name descname"><span class="pre">is_scientific_operation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">activity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/activity_utils.html#is_scientific_operation"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.activity_utils.is_scientific_operation" title="Link to this definition"></a></dt>
-<dd><p>Determine if an activity should be included as a scientific operation.</p>
-<p>Include: PointOperation, LineOperation, AreaOperation.
-Exclude: PortOperation and NavigationalTransit.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>activity</strong> (<em>Dict</em><em>[</em><em>str</em><em>, </em><em>Any</em><em>]</em>) – Activity record from timeline</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>True if this is a scientific operation</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>bool</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="cruiseplan-utils-activity-utils-module">
+<h2>cruiseplan.utils.activity_utils module<a class="headerlink" href="#cruiseplan-utils-activity-utils-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-cruiseplan.utils.config">
 <span id="cruiseplan-utils-config-module"></span><h2>cruiseplan.utils.config module<a class="headerlink" href="#module-cruiseplan.utils.config" title="Link to this heading"></a></h2>
@@ -841,109 +764,8 @@ Default is ‘ddm’.</p></li>
 </dd></dl>
 
 </section>
-<section id="module-cruiseplan.utils.global_ports">
-<span id="cruiseplan-utils-global-ports-module"></span><h2>cruiseplan.utils.global_ports module<a class="headerlink" href="#module-cruiseplan.utils.global_ports" title="Link to this heading"></a></h2>
-<p>Global port configuration system for maritime cruise planning.</p>
-<p>This module provides a registry of common maritime ports with their coordinates,
-timezones, and metadata. Users can reference these ports by standard identifiers
-(e.g., ‘port_reykjavik’) or override them with custom definitions in their YAML.</p>
-<p>Features:
-- Standard port registry with common research cruise destinations
-- Timezone information for port operations
-- Extensible system allowing user-defined port overrides
-- Support for both string references and PointDefinition objects</p>
-<dl>
-<dt>Usage:</dt><dd><p># In YAML configuration
-departure_port: “port_reykjavik”  # Reference to global port</p>
-<p># Or override with custom definition
-departure_port:</p>
-<blockquote>
-<div><p>name: “Reykjavik_Custom”
-latitude: 64.1466
-longitude: -21.9426
-timezone: “GMT+0”
-comment: “Custom port definition”</p>
-</div></blockquote>
-</dd>
-</dl>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.add_custom_port">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">add_custom_port</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">port_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#add_custom_port"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.add_custom_port" title="Link to this definition"></a></dt>
-<dd><p>Add a custom port to the global registry at runtime.</p>
-<p>Useful for adding project-specific ports that aren’t in the default registry.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>port_id</strong> (<em>str</em>) – Port identifier (should start with ‘<a href="#id2"><span class="problematic" id="id3">port_</span></a>’).</p></li>
-<li><p><strong>port_data</strong> (<em>dict</em>) – Port data dictionary with required fields (name, latitude, longitude).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If port_id doesn’t follow naming convention or required fields are missing.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.get_available_ports">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">get_available_ports</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#get_available_ports"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.get_available_ports" title="Link to this definition"></a></dt>
-<dd><p>Get a dictionary of available global ports with comments.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Mapping of port identifiers to comments.</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>Dict[str, str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.list_ports_in_region">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">list_ports_in_region</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">min_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lat</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">min_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_lon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#list_ports_in_region"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.list_ports_in_region" title="Link to this definition"></a></dt>
-<dd><p>List ports within a geographic bounding box.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>min_lat</strong> (<em>float</em>) – Latitude bounds in degrees.</p></li>
-<li><p><strong>max_lat</strong> (<em>float</em>) – Latitude bounds in degrees.</p></li>
-<li><p><strong>min_lon</strong> (<em>float</em>) – Longitude bounds in degrees.</p></li>
-<li><p><strong>max_lon</strong> (<em>float</em>) – Longitude bounds in degrees.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Mapping of port identifiers to names for ports in the region.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Dict[str, str]</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.global_ports.resolve_port_reference">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.global_ports.</span></span><span class="sig-name descname"><span class="pre">resolve_port_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">port_ref</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/utils/global_ports.html#resolve_port_reference"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.global_ports.resolve_port_reference" title="Link to this definition"></a></dt>
-<dd><p>Resolve a port reference to a complete PointDefinition object.</p>
-<p>Handles three types of input:
-1. String reference to global port registry (e.g., ‘port_reykjavik’)
-2. Dictionary with port data (user-defined override)
-3. Already instantiated PointDefinition object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>port_ref</strong> – Port reference to resolve.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Complete port definition object.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>PointDefinition</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><strong>ValueError</strong> – If string reference is not found in global registry.</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="cruiseplan-utils-global-ports-module">
+<h2>cruiseplan.utils.global_ports module<a class="headerlink" href="#cruiseplan-utils-global-ports-module" title="Link to this heading"></a></h2>
 </section>
 <section id="module-cruiseplan.utils.plot_config">
 <span id="cruiseplan-utils-plot-config-module"></span><h2>cruiseplan.utils.plot_config module<a class="headerlink" href="#module-cruiseplan.utils.plot_config" title="Link to this heading"></a></h2>
@@ -1049,95 +871,8 @@ which provides more accurate geographic representation than straight line interp
 </dd></dl>
 
 </section>
-<section id="module-cruiseplan.utils.yaml_io">
-<span id="cruiseplan-utils-yaml-io-module"></span><h2>cruiseplan.utils.yaml_io module<a class="headerlink" href="#module-cruiseplan.utils.yaml_io" title="Link to this heading"></a></h2>
-<p>Centralized YAML I/O utilities with comment preservation.</p>
-<p>This module provides all YAML reading and writing functionality for the
-cruiseplan package, using ruamel.yaml to preserve comments, formatting,
-and whitespace during configuration enrichment operations.</p>
-<dl class="py exception">
-<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.YAMLIOError">
-<em class="property"><span class="k"><span class="pre">exception</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">YAMLIOError</span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#YAMLIOError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="Link to this definition"></a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></p>
-<p>Custom exception for YAML I/O operations.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.dump_yaml_simple">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">dump_yaml_simple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_handle</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#dump_yaml_simple"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.dump_yaml_simple" title="Link to this definition"></a></dt>
-<dd><p>Dump YAML data to file handle without comment preservation.</p>
-<p>This function provides basic YAML dumping for cases like temp files
-where comment preservation is not needed.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>data: Dictionary to dump
-file_handle: Open file handle to write to</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If dumping fails:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.load_yaml">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">load_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#load_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.load_yaml" title="Link to this definition"></a></dt>
-<dd><p>Load YAML configuration file with comment preservation.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>file_path: Path to YAML file
-encoding: File encoding</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Parsed YAML content as dictionary</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be loaded or parsed:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.load_yaml_safe">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">load_yaml_safe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#load_yaml_safe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.load_yaml_safe" title="Link to this definition"></a></dt>
-<dd><p>Load YAML file using ruamel.yaml safe loading (returns plain dict).</p>
-<p>This function provides basic dictionary loading without comment preservation.
-Returns a plain Python dictionary instead of ruamel.yaml’s CommentedMap.
-Use load_yaml() for comment-preserving operations.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>file_path: Path to YAML file</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Parsed YAML content as basic dictionary</p>
-</dd>
-<dt class="field-even">Raises<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be loaded or parsed:</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.utils.yaml_io.save_yaml">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.utils.yaml_io.</span></span><span class="sig-name descname"><span class="pre">save_yaml</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">backup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">encoding</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'utf-8'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/utils/yaml_io.html#save_yaml"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.utils.yaml_io.save_yaml" title="Link to this definition"></a></dt>
-<dd><p>Save configuration to YAML file with comment preservation.</p>
-<dl class="simple">
-<dt>Args:</dt><dd><p>config: Configuration dictionary to save
-file_path: Output file path
-backup: Whether to create backup of existing file
-encoding: File encoding</p>
-</dd>
-</dl>
-<dl class="field-list simple">
-<dt class="field-odd">Raises<span class="colon">:</span></dt>
-<dd class="field-odd"><p><a class="reference internal" href="#cruiseplan.utils.yaml_io.YAMLIOError" title="cruiseplan.utils.yaml_io.YAMLIOError"><strong>YAMLIOError</strong></a> – If file cannot be written:</p>
-</dd>
-</dl>
-</dd></dl>
-
+<section id="cruiseplan-utils-yaml-io-module">
+<h2>cruiseplan.utils.yaml_io module<a class="headerlink" href="#cruiseplan-utils-yaml-io-module" title="Link to this heading"></a></h2>
 </section>
 </section>
 
