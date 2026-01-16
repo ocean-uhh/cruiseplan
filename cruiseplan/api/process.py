@@ -1117,6 +1117,15 @@ enrich_configuration = _enrich_configuration
 validate_configuration = _validate_configuration
 
 # Import core validation functions for backward compatibility
+from cruiseplan.core.validation import (
+    check_complete_duplicates,
+    check_cruise_metadata,
+    check_duplicate_names,
+    check_unexpanded_ctd_sections,
+    format_validation_warnings,
+    validate_depth_accuracy,
+)
+from cruiseplan.utils.yaml_io import load_yaml, save_yaml
 
 # Adding backward compatibility aliases for private functions used in tests
 _format_validation_warnings = format_validation_warnings
