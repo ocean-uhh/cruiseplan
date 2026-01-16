@@ -1051,7 +1051,7 @@ def process(
             logger.info("🗺️ Generating cruise maps...")
 
             # Import here to avoid circular import
-            from cruiseplan.api.map import map
+            from cruiseplan.api.map_cruise import map
 
             map_result = map(
                 config_file=enriched_config_path,  # Use enriched config if available
