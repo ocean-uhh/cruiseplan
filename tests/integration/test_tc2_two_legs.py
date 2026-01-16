@@ -19,8 +19,8 @@ from cruiseplan.core.cruise import CruiseInstance
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
 from cruiseplan.schema import POINTS_FIELD
-from cruiseplan.utils.defaults import DEFAULT_MOORING_DURATION_MIN
-from cruiseplan.utils.yaml_io import load_yaml
+from cruiseplan.schema.values import DEFAULT_MOORING_DURATION_MIN
+from cruiseplan.schema.yaml_io import load_yaml
 
 
 class TestTC2TwoLegsIntegration:

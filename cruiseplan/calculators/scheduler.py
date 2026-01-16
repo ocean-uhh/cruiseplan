@@ -206,7 +206,7 @@ class OperationFactory:
 
         # Fallback: Try to resolve from global ports registry
         try:
-            from cruiseplan.utils.global_ports import resolve_port_reference
+            from cruiseplan.schema.ports import resolve_port_reference
 
             port_def = resolve_port_reference(name)
             return PointOperation.from_port(port_def)

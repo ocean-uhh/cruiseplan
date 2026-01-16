@@ -23,7 +23,7 @@ from cruiseplan.schema import (
     START_DATE_FIELD,
     CruiseConfig,
 )
-from cruiseplan.utils.defaults import (
+from cruiseplan.schema.values import (
     DEFAULT_AREA_ACTION,
     DEFAULT_AREA_OPTYPE,
     DEFAULT_LINE_ACTION,
@@ -31,7 +31,7 @@ from cruiseplan.utils.defaults import (
     DEFAULT_POINT_ACTION,
     DEFAULT_POINT_OPTYPE,
 )
-from cruiseplan.utils.yaml_io import YAMLIOError, load_yaml, save_yaml
+from cruiseplan.schema.yaml_io import YAMLIOError, load_yaml, save_yaml
 
 logger = logging.getLogger(__name__)
 

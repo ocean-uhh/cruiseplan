@@ -24,7 +24,7 @@ from cruiseplan.utils.coordinates import (
     format_ddm_comment,
 )
 
-from .options import (
+from .values import (
     ActionEnum,
     AreaOperationTypeEnum,
     LineOperationTypeEnum,

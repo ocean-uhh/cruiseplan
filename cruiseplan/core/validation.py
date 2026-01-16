@@ -10,7 +10,7 @@ from typing import TYPE_CHECKING, Union
 
 from cruiseplan.data.bathymetry import BathymetryManager
 from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
-from cruiseplan.schema.vocabulary import (
+from cruiseplan.schema.fields import (
     AREA_REGISTRY,
     LINE_REGISTRY,
     POINT_REGISTRY,

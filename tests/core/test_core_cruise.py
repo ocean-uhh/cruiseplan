@@ -467,7 +467,7 @@ class TestCruise:
     @patch("cruiseplan.core.cruise.load_yaml")
     def test_yaml_parsing_error(self, mock_load_yaml):
         """Test handling of YAML parsing errors."""
-        from cruiseplan.utils.yaml_io import YAMLIOError
+        from cruiseplan.schema.yaml_io import YAMLIOError
 
         mock_load_yaml.side_effect = YAMLIOError("Invalid YAML")
 

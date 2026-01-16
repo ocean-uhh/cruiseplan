@@ -126,7 +126,7 @@ from cruiseplan.core.validation import (
 from cruiseplan.core.validation import (
     warning_relates_to_entity as _warning_relates_to_entity,
 )
-from cruiseplan.utils.defaults import (
+from cruiseplan.schema.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_START_DATE,

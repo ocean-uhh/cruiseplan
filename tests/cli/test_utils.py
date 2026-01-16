@@ -17,8 +17,8 @@ from cruiseplan.cli.cli_utils import (
 )
 from cruiseplan.data.pangaea import read_doi_list
 from cruiseplan.schema import POINTS_FIELD
+from cruiseplan.schema.yaml_io import load_yaml, save_yaml
 from cruiseplan.utils.io import _setup_output_paths
-from cruiseplan.utils.yaml_io import load_yaml, save_yaml
 
 
 class TestYamlOperations:
@@ -40,7 +40,7 @@ class TestYamlOperations:
         yaml_file = tmp_path / "invalid.yaml"
         yaml_file.write_text("invalid: yaml: content: [")
 
-        from cruiseplan.utils.yaml_io import YAMLIOError
+        from cruiseplan.schema.yaml_io import YAMLIOError
 
         with pytest.raises(YAMLIOError, match="Invalid YAML syntax"):
             load_yaml(yaml_file)
@@ -50,7 +50,7 @@ class TestYamlOperations:
         yaml_file = tmp_path / "empty.yaml"
         yaml_file.write_text("")
 
-        from cruiseplan.utils.yaml_io import YAMLIOError
+        from cruiseplan.schema.yaml_io import YAMLIOError
 
         with pytest.raises(YAMLIOError, match="YAML file is empty"):
             load_yaml(yaml_file)

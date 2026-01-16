@@ -1,8 +1,11 @@
 """
-Field name vocabulary for YAML configuration.
+YAML field name constants for cruise configuration schema.
 
-Centralized vocabulary for field names to enable easy renaming across the codebase.
-Note: the field needs to be added above and in the __all__ list at the bottom.
+Centralized field name constants to enable easy renaming across the codebase.
+This module focuses on the structural field names (left-hand side of YAML),
+while cruiseplan.schema.values focuses on field values (right-hand side of YAML).
+
+Note: New field constants need to be added above and in the __all__ list at the bottom.
 """
 
 # YAML field name constants - centralized for easy renaming
