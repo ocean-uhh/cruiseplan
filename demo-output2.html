@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.4 v0.3.4</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=1e28cc32"></script>
+      <script src="_static/documentation_options.js?v=039e0e34"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -190,7 +190,7 @@ Demo outputs will be saved to: /home/runner/work/cruiseplan/cruiseplan/notebooks
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-INFO: =� Downloading etopo2022 bathymetry data to /home/runner/work/cruiseplan/cruiseplan/data/bathymetry
+INFO: 🌊 Downloading etopo2022 bathymetry data to /home/runner/work/cruiseplan/cruiseplan/data/bathymetry
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -208,7 +208,7 @@ Attempting download from: https://www.ngdc.noaa.gov/thredds/fileServer/global/ET
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-Downloading ETOPO: 469MB [01:41, 4.84MB/s]
+Downloading ETOPO: 469MB [00:37, 13.0MB/s]
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -653,35 +653,16 @@ port_update_arrival: Hamburg (ARRIVAL PLACEHOLDER)
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
+INFO: 🚀 Processing cruise configuration: ../tests_output/demo/demo_cruise.yaml
 INFO: 🔧 Enriching cruise configuration...
 INFO: 🔧 Enriching /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise.yaml
+INFO: Section expansion complete: 0 sections → 0 stations
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
-WARNING: PointDefinition &#39;STN_001&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;STN_002&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;STN_003&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;STN_004&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;MOOR_001&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;STN_005&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-WARNING: PointDefinition &#39;STN_006&#39; has fields not in allowed set: [&#39;position_string&#39;]. These fields will not be included in YAML output. To include them, add to the appropriate ALLOWED_FIELDS set in vocabulary.py
-/home/runner/micromamba/envs/cruiseplan/lib/python3.13/site-packages/pydantic/main.py:464: UserWarning: Pydantic serializer warnings:
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=LineDefinition(name=&#39;Demo...ns=None, max_depth=None), input_type=LineDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=LineDefinition(name=&#39;Demo...ns=None, max_depth=None), input_type=LineDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `str` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  PydanticSerializationUnexpectedValue(Expected `dict[any, any]` - serialized value may not be as expected [field_name=&#39;activities&#39;, input_value=PointDefinition(latitude=...ame=None, timezone=None), input_type=PointDefinition])
-  return self.__pydantic_serializer__.to_python(
+INFO: Added depths to 7 stations using etopo2022
 INFO: Saved configuration to: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
+INFO: ✅ Validating cruise configuration...
+INFO: 🔍 Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 </pre></div></div>
 </div>
 <div class="nboutput docutils container">
@@ -699,9 +680,6 @@ Is callable: True
 </div>
 <div class="output_area stderr docutils container">
 <div class="highlight"><pre>
-INFO: ✅ Configuration enriched successfully: /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
-INFO: ✅ Validating cruise configuration...
-INFO:  Validating /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_enriched.yaml
 INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/bathymetry/ETOPO_2022_v1_60s_N90W180_bed.nc
 INFO: ✅ Validation passed
 INFO: 🗺️ Generating cruise maps...
@@ -711,7 +689,7 @@ INFO: ✅ Loaded bathymetry from /home/runner/work/cruiseplan/cruiseplan/data/ba
 INFO: Added bathymetry contours covering full region
 INFO: Map displayed with 7 points, 1 lines, 0 areas
 INFO: Map saved to /home/runner/work/cruiseplan/cruiseplan/tests_output/demo/demo_cruise_map.png
-INFO: ✅ Processing workflow completed successfully!
+INFO: ✅ Processing complete! Generated 2 files
 </pre></div></div>
 </div>
 <div class="nboutput nblast docutils container">
