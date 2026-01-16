@@ -172,12 +172,19 @@ class ProcessResult(BaseResult):
     """Structured result from process operation."""
 
     def __init__(
-        self, config: Optional[Any], files_created: list[Path], summary: dict[str, Any]
+        self,
+        config: Optional[Any],
+        files_created: list[Path],
+        summary: dict[str, Any],
+        errors: list[str] = None,
+        warnings: list[str] = None,
     ):
         super().__init__(
             summary=summary,
             success_indicator=config is not None,
             files_created=files_created,
+            errors=errors,
+            warnings=warnings,
         )
         self.config = config
 

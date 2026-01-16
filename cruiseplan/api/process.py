@@ -1006,7 +1006,6 @@ def process(
         raise FileError(str(e))
 
     generated_files = []
-    enriched_config_path = config_path
     validation_result = None
 
     try:
@@ -1063,7 +1062,7 @@ def process(
                 bathy_dir=bathy_dir,
                 bathy_stride=bathy_stride,
                 figsize=figsize,
-                no_port_map=no_port_map,
+                no_ports=no_port_map,
                 verbose=verbose,
             )
             generated_files.extend(map_result.map_files)
@@ -1086,6 +1085,7 @@ def process(
                 "map_generation": run_map_generation,
             },
             "total_files_created": len(generated_files),
+            "files_generated": len(generated_files),  # Add for CLI compatibility
             "validation_summary": (
                 validation_result.summary if validation_result else None
             ),
@@ -1093,10 +1093,16 @@ def process(
 
         logger.info(f"✅ Processing complete! Generated {len(generated_files)} files")
 
+        # Extract validation errors/warnings for cleaner API
+        validation_errors = validation_result.errors if validation_result else []
+        validation_warnings = validation_result.warnings if validation_result else []
+
         return ProcessResult(
+            config=enriched_config_path,
             files_created=generated_files,
-            validation_result=validation_result,
             summary=summary,
+            errors=validation_errors,
+            warnings=validation_warnings,
         )
 
     except Exception:
@@ -1113,5 +1119,4 @@ validate_configuration = _validate_configuration
 # Import core validation functions for backward compatibility
 
 # Adding backward compatibility aliases for private functions used in tests
-_check_cruise_metadata_raw = _check_cruise_metadata_raw
 _format_validation_warnings = format_validation_warnings

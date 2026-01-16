@@ -209,7 +209,31 @@ def serialize_cluster_definition(cluster: ClusterDefinition) -> dict[str, Any]:
     dict[str, Any]
         Serialized cluster definition dictionary
     """
-    return serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
+    # Handle activities separately BEFORE calling serialize_definition
+    # to avoid PointDefinition objects being converted to coordinate dictionaries
+    activities_backup = None
+    if hasattr(cluster, "activities") and cluster.activities:
+        activities_backup = cluster.activities
+        # Convert PointDefinition objects to string references
+        activities_list = []
+        for activity in cluster.activities:
+            if hasattr(activity, "name"):
+                # This is a PointDefinition object, use its name
+                activities_list.append(activity.name)
+            else:
+                # This is already a string reference
+                activities_list.append(activity)
+        # Temporarily replace activities for serialization
+        cluster.activities = activities_list
+
+    # Now serialize with the string references
+    output = serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
+
+    # Restore original activities
+    if activities_backup is not None:
+        cluster.activities = activities_backup
+
+    return output
 
 
 def serialize_leg_definition(leg: LegDefinition) -> dict[str, Any]:
@@ -248,8 +272,7 @@ def serialize_leg_definition(leg: LegDefinition) -> dict[str, Any]:
     # Handle clusters within legs
     if hasattr(leg, "clusters") and leg.clusters:
         output["clusters"] = [
-            serialize_definition(cluster, CLUSTER_ALLOWED_FIELDS)
-            for cluster in leg.clusters
+            serialize_cluster_definition(cluster) for cluster in leg.clusters
         ]
 
     # Handle activities - convert PointDefinition objects back to string references
@@ -422,7 +445,7 @@ def to_yaml(
     if output_file is not None:
         # Save to file
         output_path = Path(output_file)
-        save_yaml(output_dict, output_path, backup=backup, add_comments=add_comments)
+        save_yaml(output_dict, output_path, backup=backup)
         logger.info(f"Saved cruise configuration to {output_path}")
         return None
     else:
