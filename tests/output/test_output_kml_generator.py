@@ -9,8 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.kml_generator import KMLGenerator
-from cruiseplan.schema import CruiseConfig
 
 
 class TestKMLGenerator:

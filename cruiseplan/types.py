@@ -7,8 +7,8 @@ Provides structured return types for all main API operations.
 from pathlib import Path
 from typing import Any, Optional
 
-# Import the CruiseSchedule type from calculators
-from cruiseplan.calculators import CruiseSchedule
+# Import the CruiseSchedule type from timeline
+from cruiseplan.timeline import CruiseSchedule
 
 
 class BaseResult:

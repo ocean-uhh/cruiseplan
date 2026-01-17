@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.core.operations import (
+from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
     LineOperation,
@@ -95,7 +95,7 @@ class TestPointOperation:
         # The duration calculator is imported inside the method
         # So we'll mock it at the import source
         with patch(
-            "cruiseplan.calculators.duration.DurationCalculator"
+            "cruiseplan.timeline.duration.DurationCalculator"
         ) as mock_calc_class:
             mock_calc = MagicMock()
             mock_calc.calculate_ctd_time.return_value = 180.0
@@ -243,9 +243,7 @@ class TestLineOperation:
         route = [(60.0, -20.0), (61.0, -20.0)]  # ~111 km apart
         op = LineOperation(name="TRANS_001", route=route, speed=10.0)
 
-        with patch(
-            "cruiseplan.calculators.distance.haversine_distance"
-        ) as mock_distance:
+        with patch("cruiseplan.timeline.distance.haversine_distance") as mock_distance:
             mock_distance.return_value = 111.0  # km
 
             duration = op.calculate_duration(None)
@@ -279,9 +277,7 @@ class TestLineOperation:
         mock_rules = MagicMock()
         mock_rules.config = mock_config
 
-        with patch(
-            "cruiseplan.calculators.distance.haversine_distance"
-        ) as mock_distance:
+        with patch("cruiseplan.timeline.distance.haversine_distance") as mock_distance:
             mock_distance.return_value = 80.0  # km
 
             duration = op.calculate_duration(mock_rules)
@@ -292,9 +288,7 @@ class TestLineOperation:
         route = [(60.0, -20.0), (61.0, -20.0)]
         op = LineOperation(name="TRANS_001", route=route, speed=0.0)
 
-        with patch(
-            "cruiseplan.calculators.distance.haversine_distance"
-        ) as mock_distance:
+        with patch("cruiseplan.timeline.distance.haversine_distance") as mock_distance:
             mock_distance.return_value = 100.0  # km
 
             duration = op.calculate_duration(None)  # No rules

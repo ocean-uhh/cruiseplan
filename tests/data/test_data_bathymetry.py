@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 import requests
 
+from cruiseplan.config.values import DEFAULT_DEPTH
 from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
-from cruiseplan.schema.values import DEFAULT_DEPTH
 
 
 @pytest.fixture
@@ -364,7 +364,7 @@ class TestBathymetrySimpleCoverage:
             result = manager.get_depth_at_point(45.0, -60.0)
 
             # Should return fallback depth
-            from cruiseplan.schema.values import DEFAULT_DEPTH
+            from cruiseplan.config.values import DEFAULT_DEPTH
 
             assert result == DEFAULT_DEPTH
 

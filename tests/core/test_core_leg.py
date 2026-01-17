@@ -4,8 +4,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.core.organizational import Cluster, Leg
-from cruiseplan.schema import StrategyEnum
+from cruiseplan.config import StrategyEnum
+from cruiseplan.runtime.organizational import Cluster, Leg
 
 
 class TestLeg:
@@ -493,7 +493,7 @@ class TestLegFactoryMethod:
 
     def test_from_definition_basic_leg(self):
         """Test creating leg from basic definition."""
-        from cruiseplan.schema import LegDefinition
+        from cruiseplan.config import LegDefinition
 
         # Create mock definition using actual global ports
         leg_def = LegDefinition(
@@ -516,7 +516,7 @@ class TestLegFactoryMethod:
 
     def test_from_definition_with_activities(self):
         """Test creating leg with activities."""
-        from cruiseplan.schema import LegDefinition
+        from cruiseplan.config import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",
@@ -538,7 +538,7 @@ class TestLegFactoryMethod:
 
     def test_from_definition_with_parameter_overrides(self):
         """Test creating leg with parameter overrides."""
-        from cruiseplan.schema import LegDefinition
+        from cruiseplan.config import LegDefinition
 
         leg_def = LegDefinition(
             name="Test_Leg",

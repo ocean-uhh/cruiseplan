@@ -88,9 +88,9 @@ def schedule(
     >>> import xarray as xr
     >>> ds = xr.open_dataset(netcdf_file)
     """
-    from cruiseplan.calculators.scheduler import generate_timeline
-    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_schedule_formats, _setup_verbose_logging
+    from cruiseplan.runtime.cruise import CruiseInstance
+    from cruiseplan.timeline.scheduler import generate_timeline
 
     _setup_verbose_logging(verbose)
 

@@ -4,9 +4,9 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.yaml_io import load_yaml
+from cruiseplan.config.yaml_io import load_yaml
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
 
 
 class TestTC3ClustersIntegration:

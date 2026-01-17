@@ -54,7 +54,7 @@ class TestProcessIntegration:
 
             # Save config file
             config_file = temp_path / "test_cruise.yaml"
-            from cruiseplan.schema.yaml_io import save_yaml
+            from cruiseplan.config.yaml_io import save_yaml
 
             save_yaml(cruise_config, config_file)
 
@@ -94,7 +94,7 @@ class TestProcessIntegration:
             temp_path = Path(temp_dir)
 
             config_file = temp_path / "test_cruise.yaml"
-            from cruiseplan.schema.yaml_io import save_yaml
+            from cruiseplan.config.yaml_io import save_yaml
 
             save_yaml(cruise_config, config_file)
 

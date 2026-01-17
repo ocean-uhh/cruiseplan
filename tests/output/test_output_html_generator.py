@@ -9,13 +9,13 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.calculators.scheduler import calculate_timeline_statistics
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.html_generator import (
     HTMLGenerator,
     _convert_decimal_to_deg_min_html,
     generate_html_schedule,
 )
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.timeline.scheduler import calculate_timeline_statistics
 
 
 class TestConversionFunctions:

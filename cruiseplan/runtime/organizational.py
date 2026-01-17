@@ -9,11 +9,11 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
-from cruiseplan.runtime.operations import BaseOperation
 from cruiseplan.config.activities import PointDefinition
 from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
 from cruiseplan.config.ports import resolve_port_reference
 from cruiseplan.config.values import StrategyEnum
+from cruiseplan.runtime.operations import BaseOperation
 from cruiseplan.utils.units import NM_PER_KM
 
 logger = logging.getLogger(__name__)

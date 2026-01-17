@@ -17,7 +17,7 @@ for stations, moorings, areas, and transects.
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from cruiseplan.schema import (
+from cruiseplan.config import (
     ACTION_FIELD,
     AreaDefinition,
     GeoPoint,

@@ -12,8 +12,7 @@ from cruiseplan.api.process_cruise import (
     check_complete_duplicates,
     check_duplicate_names,
 )
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.fields import (
+from cruiseplan.config.fields import (
     ACTION_FIELD,
     ACTIVITIES_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -24,6 +23,7 @@ from cruiseplan.schema.fields import (
     POINTS_FIELD,
     STATION_SPACING_FIELD,
 )
+from cruiseplan.runtime.cruise import CruiseInstance
 
 
 def create_test_cruise_with_ctd_expansion(config_dict, default_depth=-9999.0):

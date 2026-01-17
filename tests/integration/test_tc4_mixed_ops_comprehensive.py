@@ -9,9 +9,9 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.api.process_cruise import enrich_configuration
-from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.yaml_io import load_yaml
+from cruiseplan.config.yaml_io import load_yaml
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
 
 
 class TestTC4MixedOpsComprehensive:
@@ -25,7 +25,7 @@ class TestTC4MixedOpsComprehensive:
             pytest.skip(f"Fixture {yaml_path} not found")
 
         # Use new direct Cruise interface (no YAML round-trip)
-        from cruiseplan.schema.yaml_io import load_yaml
+        from cruiseplan.config.yaml_io import load_yaml
 
         config_dict = load_yaml(yaml_path)
 
@@ -205,7 +205,7 @@ class TestTC4MixedOpsComprehensive:
 
         # Load and enrich using the new Cruise object approach
         # First load the YAML into a dictionary, then create Cruise object directly
-        from cruiseplan.schema.yaml_io import load_yaml
+        from cruiseplan.config.yaml_io import load_yaml
 
         config_dict = load_yaml(yaml_path)
 

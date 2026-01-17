@@ -3,9 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.core.organizational import ReferenceError
-from cruiseplan.schema import (
+from cruiseplan.config import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
     DEPARTURE_PORT_FIELD,
@@ -16,6 +14,8 @@ from cruiseplan.schema import (
     POINTS_FIELD,
     START_DATE_FIELD,
 )
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.runtime.organizational import ReferenceError
 
 # Path to the sample file
 SAMPLE_YAML = Path("tests/data/cruise_example.yaml")
@@ -114,22 +114,22 @@ that have large uncovered line ranges.
 from unittest.mock import MagicMock
 
 from cruiseplan.api.process_cruise import _check_cruise_metadata_raw
-from cruiseplan.core.validation import (
-    clean_warning_message as _clean_warning_message,
-)
-from cruiseplan.core.validation import (
-    format_validation_warnings as _format_validation_warnings,
-)
-from cruiseplan.core.validation import (
-    validate_depth_accuracy,
-)
-from cruiseplan.core.validation import (
-    warning_relates_to_entity as _warning_relates_to_entity,
-)
-from cruiseplan.schema.values import (
+from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_START_DATE,
+)
+from cruiseplan.runtime.validation import (
+    clean_warning_message as _clean_warning_message,
+)
+from cruiseplan.runtime.validation import (
+    format_validation_warnings as _format_validation_warnings,
+)
+from cruiseplan.runtime.validation import (
+    validate_depth_accuracy,
+)
+from cruiseplan.runtime.validation import (
+    warning_relates_to_entity as _warning_relates_to_entity,
 )
 
 

@@ -7,15 +7,15 @@ consistently, ensuring no double-counting of transit times or other operations.
 
 import pytest
 
-from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.fields import (
+from cruiseplan.config.fields import (
     ACTION_FIELD,
     DURATION_FIELD,
     OP_DEPTH_FIELD,
     OP_TYPE_FIELD,
     POINTS_FIELD,
 )
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
 
 
 class TestDurationConsistency:

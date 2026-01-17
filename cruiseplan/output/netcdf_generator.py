@@ -13,13 +13,13 @@ from typing import Optional
 import numpy as np
 import xarray as xr
 
-from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.netcdf_metadata import (
     create_coordinate_variables,
     create_global_attributes,
     create_operation_variables,
 )
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.timeline.scheduler import ActivityRecord
 
 logger = logging.getLogger(__name__)
 

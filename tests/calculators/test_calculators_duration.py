@@ -2,15 +2,15 @@ from datetime import datetime
 
 import pytest
 
-from cruiseplan.calculators.distance import haversine_distance
-from cruiseplan.calculators.duration import DurationCalculator
-from cruiseplan.schema import CruiseConfig, PointDefinition
+from cruiseplan.config import CruiseConfig, PointDefinition
+from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.timeline.duration import DurationCalculator
 
 
 # Mock Config
 @pytest.fixture
 def mock_config():
-    from cruiseplan.schema import LegDefinition
+    from cruiseplan.config import LegDefinition
 
     return CruiseConfig(
         cruise_name="Test",
@@ -91,7 +91,7 @@ def test_ctd_duration_custom_rates(slow_winch_config):
 def test_custom_day_window_wait():
     """Verify wait time respects custom daylight hours (e.g., High Latitude Summer)."""
     # Create config with LONG days (04:00 to 22:00)
-    from cruiseplan.schema import LegDefinition
+    from cruiseplan.config import LegDefinition
 
     cfg = CruiseConfig(
         cruise_name="Summer Sun",

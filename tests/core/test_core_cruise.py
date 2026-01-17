@@ -1,12 +1,12 @@
-"""Tests for cruiseplan.core.cruise module."""
+"""Tests for cruiseplan.runtime.cruise module."""
 
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
 import pytest
 
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.core.organizational import ReferenceError
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.runtime.organizational import ReferenceError
 
 
 class TestReferenceError:
@@ -98,7 +98,7 @@ class TestCruise:
             ],
         }
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_cruise_initialization_success(self, mock_load_yaml):
         """Test successful cruise initialization."""
         mock_load_yaml.return_value = self.test_yaml_data
@@ -110,7 +110,7 @@ class TestCruise:
         mock_port.longitude = -21.9426
         mock_port.display_name = "Reykjavik, Iceland"
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference") as mock_resolve:
             mock_resolve.return_value = mock_port
 
             cruise = CruiseInstance("test_config.yaml")
@@ -134,17 +134,17 @@ class TestCruise:
             assert len(cruise.port_registry) == 1
             assert "REYKJAVIK" in cruise.port_registry
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_load_yaml_called(self, mock_load_yaml):
         """Test that _load_yaml method is called during initialization."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             _cruise = CruiseInstance("test_config.yaml")
 
             mock_load_yaml.assert_called_once_with(Path("test_config.yaml"))
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_cruise_with_minimal_config(self, mock_load_yaml):
         """Test cruise with minimal configuration."""
         minimal_config = {
@@ -173,7 +173,7 @@ class TestCruise:
         }
         mock_load_yaml.return_value = minimal_config
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("minimal_config.yaml")
 
             assert cruise.config.cruise_name == "Minimal Test"
@@ -182,7 +182,7 @@ class TestCruise:
             assert len(cruise.area_registry) == 0
             assert len(cruise.port_registry) == 1  # TEST_PORT is defined
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_cruise_empty_registries(self, mock_load_yaml):
         """Test cruise with None values for optional lists."""
         config_with_nones = {
@@ -205,7 +205,7 @@ class TestCruise:
         }
         mock_load_yaml.return_value = config_with_nones
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("empty_config.yaml")
 
             # Should handle None gracefully
@@ -214,12 +214,12 @@ class TestCruise:
             assert len(cruise.area_registry) == 0
             assert len(cruise.port_registry) == 1  # EMPTY_PORT is defined
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_references_success(self, mock_load_yaml):
         """Test successful reference resolution."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             # References should have been resolved
@@ -229,7 +229,7 @@ class TestCruise:
             assert hasattr(leg.activities[0], "name")
             assert hasattr(leg.activities[1], "name")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_references_invalid_station(self, mock_load_yaml):
         """Test reference resolution with invalid station reference."""
         invalid_config = self.test_yaml_data.copy()
@@ -243,16 +243,16 @@ class TestCruise:
         ]
         mock_load_yaml.return_value = invalid_config
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             with pytest.raises(ReferenceError):
                 CruiseInstance("invalid_config.yaml")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_mixed_list_stations(self, mock_load_yaml):
         """Test resolving mixed list with stations."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             # Test the _resolve_mixed_list method
@@ -265,12 +265,12 @@ class TestCruise:
             assert hasattr(resolved[1], "name")  # TransitDefinition
             assert hasattr(resolved[2], "name")  # AreaDefinition
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_mixed_list_invalid_reference(self, mock_load_yaml):
         """Test resolving mixed list with invalid reference."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             # Test with invalid reference
@@ -278,7 +278,7 @@ class TestCruise:
             with pytest.raises(ReferenceError):
                 cruise._resolve_mixed_list(mixed_items)
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_config_ports_success(self, mock_load_yaml):
         """Test successful port resolution within leg definitions."""
         config_with_ports = self.test_yaml_data.copy()
@@ -292,7 +292,7 @@ class TestCruise:
         mock_port.longitude = -21.9426
         mock_port.display_name = "Reykjavik, Iceland"
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference") as mock_resolve:
             mock_resolve.return_value = mock_port
 
             cruise = CruiseInstance("config_with_ports.yaml")
@@ -302,7 +302,7 @@ class TestCruise:
             assert "REYKJAVIK" in cruise.port_registry
             assert len(cruise.runtime_legs) == 1
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_config_ports_global_lookup(self, mock_load_yaml):
         """Test port resolution with global port lookup for leg ports."""
         config_with_global_port = self.test_yaml_data.copy()
@@ -315,7 +315,7 @@ class TestCruise:
         mock_global_port.latitude = 64.1466
         mock_global_port.longitude = -21.9426
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference") as mock_resolve:
             mock_resolve.return_value = mock_global_port
 
             cruise = CruiseInstance("config_with_global_port.yaml")
@@ -323,7 +323,7 @@ class TestCruise:
             # Should have added the global port to registry
             assert "REYKJAVIK" in cruise.port_registry
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_config_ports_not_found(self, mock_load_yaml):
         """Test port resolution when port is not found in legs."""
         config_with_missing_port = self.test_yaml_data.copy()
@@ -331,7 +331,7 @@ class TestCruise:
         config_with_missing_port["legs"][0]["departure_port"] = "DEFINITELY_NOT_A_PORT"
         mock_load_yaml.return_value = config_with_missing_port
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference") as mock_resolve:
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference") as mock_resolve:
             mock_resolve.side_effect = ValueError(
                 "Port reference 'DEFINITELY_NOT_A_PORT' not found"
             )
@@ -339,12 +339,12 @@ class TestCruise:
             with pytest.raises((ValueError, ReferenceError)):
                 CruiseInstance("config_with_missing_port.yaml")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_convert_leg_definitions_to_legs(self, mock_load_yaml):
         """Test conversion of LegDefinition to runtime Leg objects."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             assert len(cruise.runtime_legs) == 1
@@ -355,43 +355,43 @@ class TestCruise:
             )  # Runtime legs have 'operations', not 'stations'
             assert hasattr(leg, "clusters")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_anchor_exists_in_catalog_station(self, mock_load_yaml):
         """Test anchor existence check for stations."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             assert cruise._anchor_exists_in_catalog("STN_001") is True
             assert cruise._anchor_exists_in_catalog("NONEXISTENT") is False
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_anchor_exists_in_catalog_area(self, mock_load_yaml):
         """Test anchor existence check for areas."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             assert cruise._anchor_exists_in_catalog("SURVEY_001") is True
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_anchor_exists_in_catalog_transect(self, mock_load_yaml):
         """Test anchor existence check for lines."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             assert cruise._anchor_exists_in_catalog("TRANS_001") is True
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_list_with_objects(self, mock_load_yaml):
         """Test resolving list that contains objects instead of strings."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             # Test with a list containing actual objects (not strings)
@@ -404,12 +404,12 @@ class TestCruise:
             assert len(resolved) == 2
             assert resolved[1] == station_obj  # Object should be kept as-is
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_resolve_list_invalid_reference(self, mock_load_yaml):
         """Test resolving list with invalid reference."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("test_config.yaml")
 
             # Test with invalid station reference
@@ -418,7 +418,7 @@ class TestCruise:
             with pytest.raises(ReferenceError):
                 cruise._resolve_list(invalid_list, cruise.point_registry, "Station")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_cluster_modern_activities_field(self, mock_load_yaml):
         """Test handling of modern 'activities' field in clusters."""
         config_with_modern = self.test_yaml_data.copy()
@@ -437,26 +437,26 @@ class TestCruise:
         ]
         mock_load_yaml.return_value = config_with_modern
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             cruise = CruiseInstance("config_with_modern.yaml")
 
             # Should work with modern field
             cluster = cruise.config.legs[0].clusters[0]
             assert len(cluster.activities) == 2
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_cruise_pathlib_path_input(self, mock_load_yaml):
         """Test cruise initialization with pathlib.Path input."""
         mock_load_yaml.return_value = self.test_yaml_data
 
-        with patch("cruiseplan.core.cruise.resolve_port_reference"):
+        with patch("cruiseplan.runtime.cruise.resolve_port_reference"):
             path_input = Path("test_path_config.yaml")
             cruise = CruiseInstance(path_input)
 
             assert cruise.config_path == path_input
             assert isinstance(cruise.config_path, Path)
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_file_not_found_error(self, mock_load_yaml):
         """Test handling of FileNotFoundError during YAML loading."""
         mock_load_yaml.side_effect = FileNotFoundError("File not found")
@@ -464,17 +464,17 @@ class TestCruise:
         with pytest.raises(FileNotFoundError):
             CruiseInstance("nonexistent.yaml")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_yaml_parsing_error(self, mock_load_yaml):
         """Test handling of YAML parsing errors."""
-        from cruiseplan.schema.yaml_io import YAMLIOError
+        from cruiseplan.config.yaml_io import YAMLIOError
 
         mock_load_yaml.side_effect = YAMLIOError("Invalid YAML")
 
         with pytest.raises(YAMLIOError):
             CruiseInstance("invalid.yaml")
 
-    @patch("cruiseplan.core.cruise.load_yaml")
+    @patch("cruiseplan.runtime.cruise.load_yaml")
     def test_validation_error(self, mock_load_yaml):
         """Test handling of Pydantic validation errors."""
         from pydantic import ValidationError

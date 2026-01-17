@@ -8,13 +8,13 @@ These functions perform the actual validation checks without file I/O or API con
 import logging
 from typing import TYPE_CHECKING, Union
 
-from cruiseplan.data.bathymetry import BathymetryManager
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.fields import (
     AREA_REGISTRY,
     LINE_REGISTRY,
     POINT_REGISTRY,
 )
+from cruiseplan.data.bathymetry import BathymetryManager
 
 if TYPE_CHECKING:
     from cruiseplan.runtime.cruise import CruiseInstance

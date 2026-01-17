@@ -10,7 +10,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.calculators.duration import DurationCalculator
+from cruiseplan.timeline.duration import DurationCalculator
 
 
 class TestDurationCoverageBoost:
@@ -76,9 +76,7 @@ class TestDurationCoverageBoost:
 
         # Mock km_to_nm conversion (assume 1 km = 0.539957 nm roughly)
         with pytest.MonkeyPatch.context() as m:
-            m.setattr(
-                "cruiseplan.calculators.duration.km_to_nm", lambda x: x * 0.539957
-            )
+            m.setattr("cruiseplan.timeline.duration.km_to_nm", lambda x: x * 0.539957)
 
             result = self.calculator.calculate_transit_time(100.0, speed_knots=None)
 

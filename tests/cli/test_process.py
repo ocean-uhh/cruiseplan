@@ -13,7 +13,7 @@ import pytest
 
 import cruiseplan
 from cruiseplan.cli.process import main
-from cruiseplan.schema import POINTS_FIELD
+from cruiseplan.config import POINTS_FIELD
 
 
 class TestProcessThinCLI:

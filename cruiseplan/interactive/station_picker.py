@@ -11,19 +11,10 @@ from typing import ClassVar, Optional
 
 import matplotlib.pyplot as plt
 
-from cruiseplan.core.cruise import CruiseInstance
-
-# Local Integrations
-from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
-from cruiseplan.data.pangaea import merge_campaign_tracks
-from cruiseplan.interactive.campaign_selector import CampaignSelector
-
-# --- NEW WIDGET IMPORTS (Instruction 1) ---
-from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
-from cruiseplan.schema import CruiseConfig
-from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
-from cruiseplan.schema.cruise_config import LegDefinition
-from cruiseplan.schema.values import (
+from cruiseplan.config import CruiseConfig
+from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
+from cruiseplan.config.cruise_config import LegDefinition
+from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_FIRST_ACTIVITY,
@@ -34,6 +25,15 @@ from cruiseplan.schema.values import (
     LineOperationTypeEnum,
     OperationTypeEnum,
 )
+
+# Local Integrations
+from cruiseplan.data.bathymetry import DEPTH_CONTOURS, BathymetryManager
+from cruiseplan.data.pangaea import merge_campaign_tracks
+from cruiseplan.interactive.campaign_selector import CampaignSelector
+
+# --- NEW WIDGET IMPORTS (Instruction 1) ---
+from cruiseplan.interactive.widgets import ModeIndicator, StatusDisplay
+from cruiseplan.runtime.cruise import CruiseInstance
 
 # Legacy format functions removed - now using Pydantic models directly
 from cruiseplan.utils.plot_config import get_colormap
@@ -892,7 +892,7 @@ class StationPicker:
 
     def _create_line_definition(self, line_data: dict, index: int) -> LineDefinition:
         """Create a LineDefinition from raw station picker data."""
-        from cruiseplan.schema.activities import GeoPoint
+        from cruiseplan.config.activities import GeoPoint
 
         return LineDefinition(
             name=f"Transit_{index:02d}",
@@ -914,7 +914,7 @@ class StationPicker:
 
     def _create_area_definition(self, area_data: dict, index: int) -> AreaDefinition:
         """Create an AreaDefinition from raw station picker data."""
-        from cruiseplan.schema.activities import GeoPoint
+        from cruiseplan.config.activities import GeoPoint
 
         return AreaDefinition(
             name=f"Area_{index:02d}",

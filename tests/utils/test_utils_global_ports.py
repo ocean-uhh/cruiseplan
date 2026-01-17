@@ -4,8 +4,8 @@ import warnings
 
 import pytest
 
-from cruiseplan.schema import PointDefinition
-from cruiseplan.schema.ports import (
+from cruiseplan.config import PointDefinition
+from cruiseplan.config.ports import (
     GLOBAL_PORTS,
     get_available_ports,
     resolve_port_reference,
@@ -222,7 +222,7 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_add_custom_port_success(self):
         """Test successfully adding a custom port."""
-        from cruiseplan.schema.ports import (
+        from cruiseplan.config.ports import (
             add_custom_port,
             resolve_port_reference,
         )
@@ -245,7 +245,7 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_add_custom_port_invalid_id(self):
         """Test adding port with invalid ID format."""
-        from cruiseplan.schema.ports import add_custom_port
+        from cruiseplan.config.ports import add_custom_port
 
         port_data = {"name": "Test", "latitude": 45.0, "longitude": -125.0}
 
@@ -255,7 +255,7 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_add_custom_port_missing_fields(self):
         """Test adding port with missing required fields."""
-        from cruiseplan.schema.ports import add_custom_port
+        from cruiseplan.config.ports import add_custom_port
 
         # Missing latitude
         port_data = {"name": "Test", "longitude": -125.0}
@@ -265,7 +265,7 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_list_ports_in_region(self):
         """Test listing ports within a geographic region."""
-        from cruiseplan.schema.ports import list_ports_in_region
+        from cruiseplan.config.ports import list_ports_in_region
 
         # Test with a region that should contain some ports
         # Using a large area that likely contains ports
@@ -281,7 +281,7 @@ class TestGlobalPortsAdditionalFunctions:
 
     def test_list_ports_in_empty_region(self):
         """Test listing ports in a region with no ports."""
-        from cruiseplan.schema.ports import list_ports_in_region
+        from cruiseplan.config.ports import list_ports_in_region
 
         # Test with a very small region in the middle of the ocean
         regional_ports = list_ports_in_region(

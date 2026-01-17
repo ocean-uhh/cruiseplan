@@ -12,13 +12,6 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from cruiseplan.runtime import enrichment, serialization
-from cruiseplan.runtime.organizational import (
-    Cluster,
-    Leg,
-    ReferenceError,
-)
-from cruiseplan.runtime.serialization import deserialize_inline_definition
 from cruiseplan.config import (
     AreaDefinition,
     CruiseConfig,
@@ -28,6 +21,13 @@ from cruiseplan.config import (
 )
 from cruiseplan.config.ports import resolve_port_reference
 from cruiseplan.config.yaml_io import load_yaml
+from cruiseplan.runtime import enrichment, serialization
+from cruiseplan.runtime.organizational import (
+    Cluster,
+    Leg,
+    ReferenceError,
+)
+from cruiseplan.runtime.serialization import deserialize_inline_definition
 
 logger = logging.getLogger(__name__)
 

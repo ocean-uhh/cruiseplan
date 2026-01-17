@@ -10,10 +10,10 @@ import netCDF4 as nc
 import pytest
 
 from cruiseplan.api.process_cruise import enrich_configuration
-from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.config.yaml_io import load_yaml
 from cruiseplan.output.netcdf_generator import generate_netcdf_outputs
-from cruiseplan.schema.yaml_io import load_yaml
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
 
 # Available test fixtures
 TEST_FIXTURES = [
@@ -122,7 +122,7 @@ class TestNetCDFIntegration:
     def test_empty_configuration_handling(self):
         """Test NetCDF generation with minimal/empty configuration."""
         # Create a minimal config with no stations
-        from cruiseplan.schema import (
+        from cruiseplan.config import (
             CruiseConfig,
             LegDefinition,
             PointDefinition,

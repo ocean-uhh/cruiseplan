@@ -11,8 +11,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from cruiseplan.calculators.scheduler import ActivityRecord
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
+from cruiseplan.timeline.scheduler import ActivityRecord
 
 
 class TestNetCDFCoverageBoost:

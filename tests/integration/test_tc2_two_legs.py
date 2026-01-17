@@ -14,13 +14,13 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.api.process_cruise import enrich_configuration
-from cruiseplan.calculators.scheduler import generate_timeline
-from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.config import POINTS_FIELD
+from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
+from cruiseplan.config.yaml_io import load_yaml
 from cruiseplan.output.html_generator import generate_html_schedule
 from cruiseplan.output.netcdf_generator import NetCDFGenerator
-from cruiseplan.schema import POINTS_FIELD
-from cruiseplan.schema.values import DEFAULT_MOORING_DURATION_MIN
-from cruiseplan.schema.yaml_io import load_yaml
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
 
 
 class TestTC2TwoLegsIntegration:

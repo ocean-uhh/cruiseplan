@@ -10,7 +10,7 @@ to CF conventions.
 from datetime import datetime
 from typing import Any
 
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.config import CruiseConfig
 
 
 # Global attributes factory functions

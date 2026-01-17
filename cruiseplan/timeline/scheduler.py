@@ -14,14 +14,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.config import CruiseConfig, GeoPoint
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
     LineOperation,
     PointOperation,
 )
-from cruiseplan.config import CruiseConfig, GeoPoint
+from cruiseplan.timeline.distance import haversine_distance
 from cruiseplan.utils.units import km_to_nm
 
 logger = logging.getLogger(__name__)
@@ -622,15 +622,15 @@ class TimelineGenerator:
                     operation = self.factory.create_operation(activity, leg.name)
                 else:
                     # Definition object (PointDefinition, LineDefinition, AreaDefinition) - create directly
-                    from cruiseplan.runtime.operations import (
-                        AreaOperation,
-                        LineOperation,
-                        PointOperation,
-                    )
                     from cruiseplan.config.activities import (
                         AreaDefinition,
                         LineDefinition,
                         PointDefinition,
+                    )
+                    from cruiseplan.runtime.operations import (
+                        AreaOperation,
+                        LineOperation,
+                        PointOperation,
                     )
 
                     # Handle Pydantic objects directly (no dictionary handling needed)

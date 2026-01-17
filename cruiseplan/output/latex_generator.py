@@ -18,9 +18,9 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
-from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.output_utils import is_scientific_operation
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.timeline.scheduler import ActivityRecord
 from cruiseplan.utils.coordinates import format_position_latex
 from cruiseplan.utils.units import hours_to_days
 
@@ -253,7 +253,7 @@ class LaTeXGenerator:
         template = self.env.get_template("work_days_table.tex.j2")
 
         # Use scheduler statistics instead of manual calculations
-        from cruiseplan.calculators.scheduler import calculate_timeline_statistics
+        from cruiseplan.timeline.scheduler import calculate_timeline_statistics
 
         stats = calculate_timeline_statistics(timeline)
 
@@ -415,7 +415,7 @@ class LaTeXGenerator:
         summary_rows = []
 
         # Use scheduler statistics instead of manual calculations
-        from cruiseplan.calculators.scheduler import calculate_timeline_statistics
+        from cruiseplan.timeline.scheduler import calculate_timeline_statistics
 
         stats = calculate_timeline_statistics(timeline)
 

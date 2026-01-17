@@ -9,8 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.calculators import scheduler
-from cruiseplan.core.cruise import CruiseInstance
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline import scheduler
 
 
 class TestOperationCountConsistency:

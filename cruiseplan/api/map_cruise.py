@@ -68,10 +68,10 @@ def map(
     >>> # Generate KML map with custom size
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
-    from cruiseplan.core.cruise import CruiseInstance
     from cruiseplan.init_utils import _parse_map_formats, _setup_verbose_logging
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
+    from cruiseplan.runtime.cruise import CruiseInstance
 
     _setup_verbose_logging(verbose)
 

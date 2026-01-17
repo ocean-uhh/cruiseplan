@@ -2,7 +2,7 @@
 
 from unittest.mock import Mock
 
-from cruiseplan.calculators.routing import (
+from cruiseplan.timeline.routing import (
     calculate_route_distance,
     optimize_composite_route,
 )

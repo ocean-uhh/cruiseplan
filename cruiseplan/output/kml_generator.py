@@ -20,9 +20,9 @@ location once regardless of visitation frequency.
 import logging
 from pathlib import Path
 
-from cruiseplan.calculators.scheduler import ActivityRecord
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.output_utils import is_line_operation, is_scientific_operation
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.timeline.scheduler import ActivityRecord
 
 logger = logging.getLogger(__name__)
 

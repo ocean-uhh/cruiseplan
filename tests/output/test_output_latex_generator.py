@@ -8,8 +8,8 @@ from datetime import datetime
 from pathlib import Path
 from unittest.mock import MagicMock
 
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.latex_generator import generate_latex_tables
-from cruiseplan.schema import CruiseConfig
 
 
 def test_latex_generation_basic():

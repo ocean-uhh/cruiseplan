@@ -9,8 +9,7 @@ with proper interpolation, duplicate name checking, and reference updates.
 import pytest
 from pydantic import ValidationError
 
-from cruiseplan.core.cruise import CruiseInstance
-from cruiseplan.schema.fields import (
+from cruiseplan.config.fields import (
     ACTION_FIELD,
     ACTIVITIES_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -24,6 +23,7 @@ from cruiseplan.schema.fields import (
     POINTS_FIELD,
     STATION_SPACING_FIELD,
 )
+from cruiseplan.runtime.cruise import CruiseInstance
 
 
 class TestCTDSectionExpansion:

@@ -16,16 +16,16 @@ tables for each operation type.
 import logging
 from pathlib import Path
 
-from cruiseplan.calculators.scheduler import (
-    ActivityRecord,
-    calculate_timeline_statistics,
-)
+from cruiseplan.config import CruiseConfig
 from cruiseplan.output.output_utils import (
     format_activity_type,
     get_activity_depth,
     get_activity_position,
 )
-from cruiseplan.schema import CruiseConfig
+from cruiseplan.timeline.scheduler import (
+    ActivityRecord,
+    calculate_timeline_statistics,
+)
 from cruiseplan.utils.units import NM_PER_KM, hours_to_days
 
 logger = logging.getLogger(__name__)
@@ -602,7 +602,7 @@ class HTMLGenerator:
         config : CruiseConfig
             Cruise configuration
         """
-        from cruiseplan.calculators.distance import haversine_distance
+        from cruiseplan.timeline.distance import haversine_distance
 
         def calculate_transit_duration(
             start_pos: str, end_pos: str, vessel_speed_knots: float = 8.0

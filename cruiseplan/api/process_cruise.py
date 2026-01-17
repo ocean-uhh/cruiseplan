@@ -13,18 +13,7 @@ from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
-from cruiseplan.core.validation import (
-    check_complete_duplicates,
-    check_cruise_metadata,
-    check_duplicate_names,
-    check_unexpanded_ctd_sections,
-    format_validation_warnings,
-    validate_depth_accuracy,
-)
-from cruiseplan.data.bathymetry import BathymetryManager
-from cruiseplan.exceptions import BathymetryError, FileError
-from cruiseplan.exceptions import ValidationError as CruisePlanValidationError
-from cruiseplan.schema.fields import (
+from cruiseplan.config.fields import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
     DEPARTURE_PORT_FIELD,
@@ -32,14 +21,25 @@ from cruiseplan.schema.fields import (
     OP_TYPE_FIELD,
     START_DATE_FIELD,
 )
-from cruiseplan.schema.values import (
+from cruiseplan.config.values import (
     DEFAULT_ARRIVAL_PORT,
     DEFAULT_DEPARTURE_PORT,
     DEFAULT_LEG_NAME,
     DEFAULT_START_DATE,
     DEFAULT_UPDATE_PREFIX,
 )
-from cruiseplan.schema.yaml_io import load_yaml, load_yaml_safe, save_yaml
+from cruiseplan.config.yaml_io import load_yaml, load_yaml_safe, save_yaml
+from cruiseplan.data.bathymetry import BathymetryManager
+from cruiseplan.exceptions import BathymetryError, FileError
+from cruiseplan.exceptions import ValidationError as CruisePlanValidationError
+from cruiseplan.runtime.validation import (
+    check_complete_duplicates,
+    check_cruise_metadata,
+    check_duplicate_names,
+    check_unexpanded_ctd_sections,
+    format_validation_warnings,
+    validate_depth_accuracy,
+)
 from cruiseplan.types import EnrichResult, ProcessResult, ValidationResult
 from cruiseplan.utils.logging import configure_logging
 
@@ -214,7 +214,7 @@ def _enrich_configuration(
     processed_config = _minimal_preprocess_config(config_dict)
 
     # 3. Create Cruise object
-    from cruiseplan.core.cruise import CruiseInstance
+    from cruiseplan.runtime.cruise import CruiseInstance
 
     with _validation_warning_capture() as captured_warnings:
         cruise = CruiseInstance.from_dict(processed_config)
@@ -510,7 +510,7 @@ def _validate_configuration(
 
     try:
         # Import here to avoid circular dependencies
-        from cruiseplan.core.cruise import CruiseInstance
+        from cruiseplan.runtime.cruise import CruiseInstance
 
         # Load and validate configuration
         cruise = CruiseInstance(config_path)

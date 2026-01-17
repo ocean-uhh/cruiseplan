@@ -30,11 +30,20 @@ that mirror the CLI commands:
     # Generate schedule (mirrors: cruiseplan schedule)
     timeline, files = cruiseplan.schedule(config_file="cruise.yaml", format="html")
 
+Architecture Overview
+====================
+
+CruisePlan follows a modular architecture with three main components:
+
+- **cruiseplan.config**: Configuration schemas and validation (CruiseConfig, activities, ports)
+- **cruiseplan.runtime**: Business logic and data processing (CruiseInstance, enrichment, validation)
+- **cruiseplan.timeline**: Scheduling algorithms and timeline generation
+
 For more advanced usage, import the underlying classes directly:
 
     from cruiseplan.data.bathymetry import download_bathymetry
-    from cruiseplan.core.cruise import CruiseInstance
-    from cruiseplan.calculators.scheduler import generate_timeline
+    from cruiseplan.runtime.cruise import CruiseInstance
+    from cruiseplan.timeline.scheduler import generate_timeline
 """
 
 import logging
@@ -49,9 +58,9 @@ from cruiseplan.api import (
     stations,
     validate,
 )
-from cruiseplan.calculators import CruiseSchedule
 from cruiseplan.data.bathymetry import download_bathymetry
 from cruiseplan.exceptions import BathymetryError, FileError, ValidationError
+from cruiseplan.timeline import CruiseSchedule
 from cruiseplan.types import (
     BathymetryResult,
     EnrichResult,

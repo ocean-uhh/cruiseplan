@@ -5,7 +5,7 @@ Tests for CLI utilities that are still in use.
 from pathlib import Path
 
 from cruiseplan.api.stations_api import generate_output_filename
-from cruiseplan.schema.yaml_io import load_yaml, save_yaml
+from cruiseplan.config.yaml_io import load_yaml, save_yaml
 
 
 class TestYamlOperations:
