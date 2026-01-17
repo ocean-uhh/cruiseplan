@@ -186,7 +186,7 @@ class TestCoordinateParsingIntegration:
             # All formatting functions should work without errors
             ddm_comment = format_ddm_comment(orig_lat, orig_lon)
             latex_formatted = format_position_latex(orig_lat, orig_lon)
-            
+
             # Should contain proper directional indicators
             lat_dir = "N" if orig_lat >= 0 else "S"
             lon_dir = "E" if orig_lon >= 0 else "W"

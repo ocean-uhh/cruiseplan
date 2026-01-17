@@ -6,7 +6,7 @@ used by API functions to ensure consistent error handling across the package.
 
 **I/O Module Architecture:**
 - **cruiseplan.utils.io** (this module): File system validation, path handling, directory creation
-- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation  
+- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation
 - **cruiseplan.core.serialization**: High-level CruiseInstance object serialization to YAML
 - **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)
 

@@ -99,7 +99,9 @@ class TestEnrichAPI:
     @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     @patch("cruiseplan.utils.io.validate_output_directory")
-    def test_enrich_success(self, mock_validate_output, mock_validate_input, mock_enrich):
+    def test_enrich_success(
+        self, mock_validate_output, mock_validate_input, mock_enrich
+    ):
         """Test successful enrichment."""
         # Mock input file validation
         mock_validate_input.return_value = Path("test.yaml")
@@ -145,7 +147,9 @@ class TestEnrichAPI:
     @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
     @patch("cruiseplan.utils.io.validate_output_directory")
-    def test_enrich_custom_output(self, mock_validate_output, mock_validate_input, mock_enrich):
+    def test_enrich_custom_output(
+        self, mock_validate_output, mock_validate_input, mock_enrich
+    ):
         """Test enrichment with custom output."""
         # Mock input file validation
         mock_validate_input.return_value = Path("custom.yaml")
@@ -198,7 +202,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_default(self, mock_validate):
         """Test output path setup with defaults."""
         from cruiseplan.utils.io import setup_output_paths
-        
+
         # Mock the validate function to return the expected path
         expected_path = Path("data").resolve()
         mock_validate.return_value = expected_path
@@ -213,7 +217,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_custom(self, mock_validate):
         """Test output path setup with custom values."""
         from cruiseplan.utils.io import setup_output_paths
-        
+
         # Mock the validate function to return the expected path
         expected_path = Path("/custom/path").resolve()
         mock_validate.return_value = expected_path
@@ -230,7 +234,7 @@ class TestSetupOutputPaths:
     def test_setup_output_paths_pathlib_input(self, mock_validate):
         """Test output path setup with pathlib.Path input."""
         from cruiseplan.utils.io import setup_output_paths
-        
+
         # Mock the validate function to return the expected path
         expected_path = Path("data").resolve()
         mock_validate.return_value = expected_path

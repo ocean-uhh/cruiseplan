@@ -1,7 +1,5 @@
 from pathlib import Path
 
-import pytest
-
 
 class TestSetupOutputPaths:
     """Test the setup_output_paths function."""
@@ -124,7 +122,9 @@ class TestSetupOutputPaths:
             )
 
             assert output_dir == Path("tests_output/demo").resolve()
-            assert base_name == "Test-Cruise_With-Slashes"  # Spaces and slashes replaced
+            assert (
+                base_name == "Test-Cruise_With-Slashes"
+            )  # Spaces and slashes replaced
             assert output_dir.exists()
         finally:
             # Cleanup

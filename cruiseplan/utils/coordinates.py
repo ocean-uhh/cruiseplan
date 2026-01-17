@@ -14,10 +14,7 @@ The CoordConverter class provides static methods for coordinate conversions.
 """
 
 import math
-import re
-from typing import Any, NamedTuple, Optional
-
-
+from typing import Any, Optional
 
 
 class CoordConverter:
@@ -95,7 +92,6 @@ def format_ddm_comment(lat: float, lon: float) -> str:
     return f"{lat_str}, {lon_str}"
 
 
-
 def format_position_latex(lat: float, lon: float) -> str:
     r"""
     Format coordinates for LaTeX output with proper symbols.
@@ -130,8 +126,6 @@ def format_position_latex(lat: float, lon: float) -> str:
     lon_str = f"{abs(int(lon_deg)):03d}$^\\circ${lon_min:05.2f}'{lon_dir}"
 
     return f"{lat_str}, {lon_str}"
-
-
 
 
 def _extract_port_info(port: Any) -> Optional[tuple[float, float, str]]:
