@@ -351,10 +351,11 @@ def stations(
         )
 
     except ImportError as e:
-        raise ImportError(f"matplotlib dependency error: {e}")
-    except Exception as e:
-        # Convert generic exceptions to more specific ones
-        if "bathymetry" in str(e).lower():
-            raise FileNotFoundError(f"Bathymetry data error: {e}")
-        else:
-            raise RuntimeError(f"Station picker error: {e}")
+        raise ImportError(f"matplotlib dependency error: {e}") from e
+    except FileNotFoundError as e:
+        # Provide clearer context for missing bathymetry or related data files
+        raise FileNotFoundError(f"Bathymetry data error: {e}") from e
+    except Exception:
+        # Log unexpected errors without changing their type
+        logger.exception("Station picker error")
+        raise

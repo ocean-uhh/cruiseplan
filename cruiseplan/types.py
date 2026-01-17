@@ -229,4 +229,16 @@ class BathymetryResult(BaseResult):
         return f"Bathymetry download ({self.source})"
 
 
-# Import the StationPickerResult from the API module to re-export it
+# Import the StationPickerResult at the end to avoid circular imports
+from cruiseplan.api.stations_api import StationPickerResult
+
+__all__ = [
+    "BaseResult",
+    "BathymetryResult",
+    "EnrichResult",
+    "MapResult",
+    "ProcessResult",
+    "ScheduleResult",
+    "StationPickerResult",
+    "ValidationResult",
+]

@@ -38,16 +38,7 @@ For more advanced usage, import the underlying classes directly:
 """
 
 import logging
-from pathlib import Path
-from typing import Any, Optional, Union
 
-from cruiseplan.calculators import CruiseSchedule
-from cruiseplan.data.bathymetry import download_bathymetry
-
-logger = logging.getLogger(__name__)
-
-
-# Import exception classes and result types from separate modules
 from cruiseplan.api import (
     bathymetry,
     enrich,
@@ -58,6 +49,8 @@ from cruiseplan.api import (
     stations,
     validate,
 )
+from cruiseplan.calculators import CruiseSchedule
+from cruiseplan.data.bathymetry import download_bathymetry
 from cruiseplan.exceptions import BathymetryError, FileError, ValidationError
 from cruiseplan.types import (
     BathymetryResult,
@@ -66,8 +59,11 @@ from cruiseplan.types import (
     PangaeaResult,
     ProcessResult,
     ScheduleResult,
+    StationPickerResult,
     ValidationResult,
 )
+
+logger = logging.getLogger(__name__)
 
 # Export the core classes for advanced users
 __all__ = [
@@ -94,4 +90,6 @@ __all__ = [
     "StationPickerResult",
     # Legacy compatibility
     "CruiseSchedule",
+    # Advanced usage functions
+    "download_bathymetry",
 ]

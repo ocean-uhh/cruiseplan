@@ -12,8 +12,6 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
-logger = logging.getLogger(__name__)
-
 from cruiseplan.core import enrichment, serialization
 from cruiseplan.core.organizational import (
     Cluster,
@@ -30,6 +28,8 @@ from cruiseplan.schema import (
 )
 from cruiseplan.schema.ports import resolve_port_reference
 from cruiseplan.schema.yaml_io import load_yaml
+
+logger = logging.getLogger(__name__)
 
 
 # TODO Question - why do we not also have a "leg_registry" and maybe a "cluster_registry"?
