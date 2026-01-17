@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
+  <title>Command-line-interface (CLI) &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=3466845e"></script>
+      <script src="../_static/documentation_options.js?v=901e0047"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -97,7 +97,6 @@
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-cruiseplan.cli.stations">cruiseplan.cli.stations module</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.determine_coordinate_bounds"><code class="docutils literal notranslate"><span class="pre">determine_coordinate_bounds()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.stations.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
@@ -124,10 +123,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-cli-download-module-deprecated-will-be-removed-in-v0-3-0">cruiseplan.cli.download module [DEPRECATED, will be removed in v0.3.0]</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#cruiseplan-cli-pandoi-module-deprecated-will-be-removed-in-v0-3-0">cruiseplan.cli.pandoi module [DEPRECATED, will be removed in v0.3.0]</a></li>
-<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-cli-demo-module-not-up-to-date">cruiseplan.cli.demo module (not up to date)</a><ul>
-<li class="toctree-l4"><a class="reference internal" href="#cruiseplan.cli.demo.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
-</ul>
-</li>
+<li class="toctree-l3"><a class="reference internal" href="#cruiseplan-cli-demo-module-not-up-to-date">cruiseplan.cli.demo module (not up to date)</a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="cruiseplan.core.html">Core Classes</a></li>
@@ -184,7 +180,6 @@
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">enrich</span></code>: Commands for enriching cruise data with additional information</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">pangaea</span></code>: Commands for interacting with Pangaea data repository</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">validate</span></code>: Commands for validating cruise configuration files</p></li>
-<li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">demo</span></code>: Interactive demonstration and tutorial commands</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">utils</span></code>: Shared utility functions for CLI operations</p></li>
 </ul>
 <p>These modules provide the user interface for interacting with cruiseplan functionality
@@ -302,32 +297,14 @@ bathymetry data assets required for cruise planning.</p>
 <section id="module-cruiseplan.cli.stations">
 <span id="cruiseplan-cli-stations-module"></span><h2>cruiseplan.cli.stations module<a class="headerlink" href="#module-cruiseplan.cli.stations" title="Link to this heading"></a></h2>
 <p>Interactive station placement command.</p>
-<p>This module implements the ‘cruiseplan stations’ command for interactive
-station placement with PANGAEA background data and bathymetry visualization.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.stations.determine_coordinate_bounds">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">determine_coordinate_bounds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">campaign_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#determine_coordinate_bounds"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.determine_coordinate_bounds" title="Link to this definition"></a></dt>
-<dd><p>Determine coordinate bounds from arguments or PANGAEA data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>args</strong> (<em>argparse.Namespace</em>) – Command line arguments</p></li>
-<li><p><strong>campaign_data</strong> (<em>list</em><em>, </em><em>optional</em>) – Loaded PANGAEA campaign data</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>Tuple of (lat_bounds, lon_bounds) as (min, max) tuples</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[Tuple[float, float], Tuple[float, float]]</p>
-</dd>
-</dl>
-</dd></dl>
-
+<p>Thin CLI wrapper that calls the cruiseplan.stations() API function.
+This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.cli.stations.main">
 <span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.stations.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Namespace</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="../_modules/cruiseplan/cli/stations.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.stations.main" title="Link to this definition"></a></dt>
-<dd><p>Main entry point for interactive station placement using API-first architecture.</p>
+<dd><p>Main entry point for interactive station placement.</p>
+<p>Thin CLI wrapper that calls the cruiseplan.stations() API function.
+This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>args</strong> (<em>argparse.Namespace</em>) – Parsed command line arguments</p>
@@ -417,20 +394,6 @@ cruise track visualizations (PNG maps and KML files).</p>
 </section>
 <section id="cruiseplan-cli-demo-module-not-up-to-date">
 <h2>cruiseplan.cli.demo module (not up to date)<a class="headerlink" href="#cruiseplan-cli-demo-module-not-up-to-date" title="Link to this heading"></a></h2>
-<p id="module-cruiseplan.cli.demo">Demonstration script for CruisePlan functionality.</p>
-<p>This module provides example usage of bathymetry, PANGAEA data, and interactive station picker.</p>
-<dl class="py function">
-<dt class="sig sig-object py" id="cruiseplan.cli.demo.main">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.cli.demo.</span></span><span class="sig-name descname"><span class="pre">main</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/cruiseplan/cli/demo.html#main"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.cli.demo.main" title="Link to this definition"></a></dt>
-<dd><p>Interactive demonstration of CruisePlan functionality.</p>
-<p>Provides a guided demo that:
-1. Tests bathymetry data access
-2. Demonstrates PANGAEA data fetching
-3. Launches the interactive station picker UI</p>
-<p>This function is primarily for testing and demonstration purposes,
-showing how the main components of CruisePlan work together.</p>
-</dd></dl>
-
 </section>
 </section>
 

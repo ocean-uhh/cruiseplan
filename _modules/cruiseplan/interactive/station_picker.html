@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
+  <title>cruiseplan.interactive.station_picker &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3466845e"></script>
+      <script src="../../../_static/documentation_options.js?v=901e0047"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -121,6 +121,8 @@
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.core.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
 <span class="c1"># Local Integrations</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEPTH_CONTOURS</span><span class="p">,</span> <span class="n">BathymetryManager</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">merge_campaign_tracks</span>
@@ -129,34 +131,21 @@
 <span class="c1"># --- NEW WIDGET IMPORTS (Instruction 1) ---</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.widgets</span><span class="w"> </span><span class="kn">import</span> <span class="n">ModeIndicator</span><span class="p">,</span> <span class="n">StatusDisplay</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ACTIVITIES_FIELD</span><span class="p">,</span>
-    <span class="n">AREAS_FIELD</span><span class="p">,</span>
-    <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span>
-    <span class="n">DEFAULT_STATION_SPACING_FIELD</span><span class="p">,</span>
-    <span class="n">DEFAULT_VESSEL_SPEED_FIELD</span><span class="p">,</span>
-    <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span>
-    <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">,</span>
-    <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">,</span>
-    <span class="n">LEGS_FIELD</span><span class="p">,</span>
-    <span class="n">LINES_FIELD</span><span class="p">,</span>
-    <span class="n">POINTS_FIELD</span><span class="p">,</span>
-    <span class="n">START_DATE_FIELD</span><span class="p">,</span>
-    <span class="n">STRATEGY_FIELD</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AreaDefinition</span><span class="p">,</span> <span class="n">LineDefinition</span><span class="p">,</span> <span class="n">PointDefinition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.cruise_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">LegDefinition</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.values</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>
     <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>
     <span class="n">DEFAULT_FIRST_ACTIVITY</span><span class="p">,</span>
     <span class="n">DEFAULT_LAST_ACTIVITY</span><span class="p">,</span>
     <span class="n">DEFAULT_STRATEGY</span><span class="p">,</span>
+    <span class="n">ActionEnum</span><span class="p">,</span>
+    <span class="n">AreaOperationTypeEnum</span><span class="p">,</span>
+    <span class="n">LineOperationTypeEnum</span><span class="p">,</span>
+    <span class="n">OperationTypeEnum</span><span class="p">,</span>
 <span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.config</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">format_area_for_yaml</span><span class="p">,</span>
-    <span class="n">format_station_for_yaml</span><span class="p">,</span>
-    <span class="n">format_transect_for_yaml</span><span class="p">,</span>
-    <span class="n">save_cruise_config</span><span class="p">,</span>
-<span class="p">)</span>
+
+<span class="c1"># Legacy format functions removed - now using Pydantic models directly</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_colormap</span>
 
 
@@ -999,74 +988,135 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">fig</span><span class="o">.</span><span class="n">canvas</span><span class="o">.</span><span class="n">draw_idle</span><span class="p">()</span>
 
+    <span class="c1"># --- Helper Functions for Pydantic Model Creation ---</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_point_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">point_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PointDefinition</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a PointDefinition from raw station picker data.&quot;&quot;&quot;</span>
+        <span class="c1"># Calculate water depth from bathymetry if available</span>
+        <span class="n">water_depth</span> <span class="o">=</span> <span class="n">point_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;depth&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">water_depth</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">9999</span><span class="p">:</span>
+            <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="nb">abs</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">water_depth</span><span class="p">)),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">water_depth</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;STN_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">latitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="n">longitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">point_data</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+            <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Interactive selection - Review coordinates and update operation details&quot;</span><span class="p">,</span>
+            <span class="n">operation_type</span><span class="o">=</span><span class="n">OperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_POINT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">water_depth</span><span class="o">=</span><span class="n">water_depth</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_line_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">line_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">LineDefinition</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a LineDefinition from raw station picker data.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPoint</span>
+
+        <span class="k">return</span> <span class="n">LineDefinition</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Transit_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Interactive transect - Review route and update operation details&quot;</span><span class="p">,</span>
+            <span class="n">operation_type</span><span class="o">=</span><span class="n">LineOperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_LINE</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">vessel_speed</span><span class="o">=</span><span class="mf">10.0</span><span class="p">,</span>
+            <span class="n">route</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="n">longitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;start&quot;</span><span class="p">][</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="p">),</span>
+                <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">][</span><span class="s2">&quot;lat&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="n">longitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">line_data</span><span class="p">[</span><span class="s2">&quot;end&quot;</span><span class="p">][</span><span class="s2">&quot;lon&quot;</span><span class="p">]),</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_create_area_definition</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">area_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">index</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">AreaDefinition</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an AreaDefinition from raw station picker data.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.schema.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">GeoPoint</span>
+
+        <span class="k">return</span> <span class="n">AreaDefinition</span><span class="p">(</span>
+            <span class="n">name</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Area_</span><span class="si">{</span><span class="n">index</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">comment</span><span class="o">=</span><span class="s2">&quot;Interactive area survey - Review polygon and update operation details&quot;</span><span class="p">,</span>
+            <span class="n">operation_type</span><span class="o">=</span><span class="n">AreaOperationTypeEnum</span><span class="o">.</span><span class="n">DEFAULT</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">action</span><span class="o">=</span><span class="n">ActionEnum</span><span class="o">.</span><span class="n">DEFAULT_AREA</span><span class="p">,</span>  <span class="c1"># Uses placeholder value</span>
+            <span class="n">duration</span><span class="o">=</span><span class="mf">9999.0</span><span class="p">,</span>  <span class="c1"># Placeholder duration in minutes</span>
+            <span class="n">corners</span><span class="o">=</span><span class="p">[</span>
+                <span class="n">GeoPoint</span><span class="p">(</span>
+                    <span class="n">latitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lat</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span>
+                    <span class="n">longitude</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">lon</span><span class="p">),</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">lon</span><span class="p">,</span> <span class="n">lat</span> <span class="ow">in</span> <span class="n">area_data</span><span class="p">[</span><span class="s2">&quot;points&quot;</span><span class="p">]</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+
     <span class="c1"># --- File Operations ---</span>
-    <span class="c1"># TODO Use Station picker to make a cruise config and then use cruise config to write YAML</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">_save_to_yaml</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save current cruise plan to YAML format.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Save current cruise plan to YAML format using Pydantic models and CruiseInstance.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">points</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">lines</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="c1"># Format data for YAML export</span>
-        <span class="n">yaml_stations</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">format_station_for_yaml</span><span class="p">(</span><span class="n">stn</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">stn</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">]</span>
-
-        <span class="n">yaml_sections</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="n">format_transect_for_yaml</span><span class="p">(</span><span class="n">tr</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">tr</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
-        <span class="p">]</span>
-
-        <span class="n">yaml_areas</span> <span class="o">=</span> <span class="p">[</span><span class="n">format_area_for_yaml</span><span class="p">(</span><span class="n">ar</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">ar</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">,</span> <span class="mi">1</span><span class="p">)]</span>
-
-        <span class="n">current_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Interactive_Session&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Get defaults from CruiseConfig instead of hardcoded constants</span>
-        <span class="n">default_config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span><span class="n">cruise_name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Add minimal defaults for required cruise configuration fields</span>
-        <span class="c1"># This allows the output to be used directly with &#39;cruiseplan enrich&#39;</span>
-        <span class="n">output_data</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">current_name</span><span class="p">,</span>
-            <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Cruise plan created with interactive station picker&quot;</span><span class="p">,</span>
-            <span class="n">DEFAULT_VESSEL_SPEED_FIELD</span><span class="p">:</span> <span class="n">default_config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
-            <span class="n">DEFAULT_STATION_SPACING_FIELD</span><span class="p">:</span> <span class="n">default_config</span><span class="o">.</span><span class="n">default_distance_between_stations</span><span class="p">,</span>
-            <span class="n">START_DATE_FIELD</span><span class="p">:</span> <span class="n">default_config</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
-            <span class="c1"># Global catalog sections (points, lines, areas) come BEFORE legs</span>
-            <span class="n">POINTS_FIELD</span><span class="p">:</span> <span class="n">yaml_stations</span><span class="p">,</span>
-            <span class="n">LINES_FIELD</span><span class="p">:</span> <span class="n">yaml_sections</span><span class="p">,</span>  <span class="c1"># Schema expects &#39;lines&#39; not &#39;sections&#39;</span>
-            <span class="n">AREAS_FIELD</span><span class="p">:</span> <span class="n">yaml_areas</span><span class="p">,</span>
-            <span class="c1"># Scheduling/sequencing logic comes after catalog</span>
-            <span class="c1"># IMPORTANT: No global departure_port, arrival_port, first_station, last_station</span>
-            <span class="c1"># These fields are now defined at leg level to avoid validation conflicts</span>
-            <span class="n">LEGS_FIELD</span><span class="p">:</span> <span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="p">{</span>
-                        <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;Interactive_Survey&quot;</span><span class="p">,</span>
-                        <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
-                        <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>  <span class="c1"># Move from global to leg level</span>
-                        <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from first_station</span>
-                            <span class="n">yaml_stations</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">yaml_stations</span>
-                            <span class="k">else</span> <span class="n">DEFAULT_FIRST_ACTIVITY</span>
-                        <span class="p">),</span>
-                        <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Renamed from last_station</span>
-                            <span class="n">yaml_stations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
-                            <span class="k">if</span> <span class="n">yaml_stations</span>
-                            <span class="k">else</span> <span class="n">DEFAULT_LAST_ACTIVITY</span>
-                        <span class="p">),</span>
-                        <span class="n">STRATEGY_FIELD</span><span class="p">:</span> <span class="n">DEFAULT_STRATEGY</span><span class="p">,</span>
-                        <span class="n">ACTIVITIES_FIELD</span><span class="p">:</span> <span class="p">(</span>  <span class="c1"># Use activities instead of sequence</span>
-                            <span class="p">[</span><span class="n">station</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">yaml_stations</span><span class="p">]</span>
-                            <span class="o">+</span> <span class="p">[</span><span class="n">section</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">yaml_sections</span><span class="p">]</span>
-                            <span class="o">+</span> <span class="p">[</span><span class="n">area</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">yaml_areas</span><span class="p">]</span>
-                        <span class="p">),</span>
-                    <span class="p">}</span>
-                <span class="p">]</span>
-                <span class="k">if</span> <span class="p">(</span><span class="n">yaml_stations</span> <span class="ow">or</span> <span class="n">yaml_sections</span> <span class="ow">or</span> <span class="n">yaml_areas</span><span class="p">)</span>
-                <span class="k">else</span> <span class="p">[]</span>
-            <span class="p">),</span>
-        <span class="p">}</span>
-
         <span class="k">try</span><span class="p">:</span>
+            <span class="c1"># Create Pydantic definitions from raw data</span>
+            <span class="n">point_definitions</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_point_definition</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">point</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">points</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">line_definitions</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_line_definition</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">line</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">lines</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">area_definitions</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_create_area_definition</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">area</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">areas</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+            <span class="p">]</span>
+
+            <span class="n">current_name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Interactive_Session&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Get defaults from CruiseConfig (preserving current station picker behavior)</span>
+            <span class="n">default_config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span><span class="n">cruise_name</span><span class="o">=</span><span class="s2">&quot;temp&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Create activities list (names only for leg reference)</span>
+            <span class="n">activity_names</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="p">[</span><span class="n">point</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">point_definitions</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span><span class="n">line</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">line_definitions</span><span class="p">]</span>
+                <span class="o">+</span> <span class="p">[</span><span class="n">area</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">area</span> <span class="ow">in</span> <span class="n">area_definitions</span><span class="p">]</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Create leg definition</span>
+            <span class="n">leg_definition</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">if</span> <span class="n">activity_names</span><span class="p">:</span>
+                <span class="n">leg_definition</span> <span class="o">=</span> <span class="n">LegDefinition</span><span class="p">(</span>
+                    <span class="n">name</span><span class="o">=</span><span class="s2">&quot;Interactive_Survey&quot;</span><span class="p">,</span>
+                    <span class="n">departure_port</span><span class="o">=</span><span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>
+                    <span class="n">arrival_port</span><span class="o">=</span><span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>
+                    <span class="n">first_activity</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">activity_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">activity_names</span> <span class="k">else</span> <span class="n">DEFAULT_FIRST_ACTIVITY</span>
+                    <span class="p">),</span>
+                    <span class="n">last_activity</span><span class="o">=</span><span class="p">(</span>
+                        <span class="n">activity_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">activity_names</span> <span class="k">else</span> <span class="n">DEFAULT_LAST_ACTIVITY</span>
+                    <span class="p">),</span>
+                    <span class="n">strategy</span><span class="o">=</span><span class="n">DEFAULT_STRATEGY</span><span class="p">,</span>
+                    <span class="n">activities</span><span class="o">=</span><span class="n">activity_names</span><span class="p">,</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Create CruiseConfig from definitions</span>
+            <span class="n">cruise_config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span>
+                <span class="n">cruise_name</span><span class="o">=</span><span class="n">current_name</span><span class="p">,</span>
+                <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Cruise plan created with interactive station picker&quot;</span><span class="p">,</span>
+                <span class="n">default_vessel_speed</span><span class="o">=</span><span class="n">default_config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">,</span>
+                <span class="n">default_distance_between_stations</span><span class="o">=</span><span class="n">default_config</span><span class="o">.</span><span class="n">default_distance_between_stations</span><span class="p">,</span>
+                <span class="n">start_date</span><span class="o">=</span><span class="n">default_config</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span>
+                <span class="n">points</span><span class="o">=</span><span class="n">point_definitions</span><span class="p">,</span>
+                <span class="n">lines</span><span class="o">=</span><span class="n">line_definitions</span><span class="p">,</span>
+                <span class="n">areas</span><span class="o">=</span><span class="n">area_definitions</span><span class="p">,</span>
+                <span class="n">legs</span><span class="o">=</span><span class="p">[</span><span class="n">leg_definition</span><span class="p">]</span> <span class="k">if</span> <span class="n">leg_definition</span> <span class="k">else</span> <span class="p">[],</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Convert to CruiseInstance via dict</span>
+            <span class="n">cruise_instance</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">cruise_config</span><span class="o">.</span><span class="n">model_dump</span><span class="p">())</span>
+
             <span class="c1"># Check if file exists and handle overwrite</span>
             <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">overwrite</span><span class="p">:</span>
@@ -1081,15 +1131,18 @@
                     <span class="n">new_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">stem</span><span class="si">}</span><span class="s2">_backup_</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}{</span><span class="n">suffix</span><span class="si">}</span><span class="s2">&quot;</span>
                     <span class="n">backup_path</span> <span class="o">=</span> <span class="n">output_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="n">new_name</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">backup_path</span><span class="p">)</span>
+                    <span class="n">output_path</span> <span class="o">=</span> <span class="n">backup_path</span>
                     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Saving to new file: </span><span class="si">{</span><span class="n">backup_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">response</span> <span class="o">==</span> <span class="s2">&quot;cancel&quot;</span><span class="p">:</span>
                     <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;💾 Save cancelled by user.&quot;</span><span class="p">)</span>
                     <span class="k">return</span>
                 <span class="c1"># If response is &quot;overwrite&quot;, proceed with original filename</span>
 
-            <span class="n">save_cruise_config</span><span class="p">(</span><span class="n">output_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_file</span><span class="p">)</span>
+            <span class="c1"># Use CruiseInstance to generate validated YAML</span>
+            <span class="n">cruise_instance</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="n">output_path</span><span class="p">)</span>
+
             <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;✅ Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">yaml_stations</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">yaml_sections</span><span class="p">)</span><span class="si">}</span><span class="s2"> transects, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">yaml_areas</span><span class="p">)</span><span class="si">}</span><span class="s2"> areas.&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;✅ Saved </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">point_definitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">line_definitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> transects, </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">area_definitions</span><span class="p">)</span><span class="si">}</span><span class="s2"> areas.&quot;</span>
             <span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;❌ Save Error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>

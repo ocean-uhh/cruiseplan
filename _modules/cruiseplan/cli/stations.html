@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
+  <title>cruiseplan.cli.stations &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3466845e"></script>
+      <script src="../../../_static/documentation_options.js?v=901e0047"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -111,105 +111,28 @@
 <span></span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Interactive station placement command.</span>
 
-<span class="sd">This module implements the &#39;cruiseplan stations&#39; command for interactive</span>
-<span class="sd">station placement with PANGAEA background data and bathymetry visualization.</span>
+<span class="sd">Thin CLI wrapper that calls the cruiseplan.stations() API function.</span>
+<span class="sd">This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</span>
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.cli.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">CLIError</span><span class="p">,</span>
-    <span class="n">_apply_cli_defaults</span><span class="p">,</span>
-    <span class="n">_handle_deprecated_params</span><span class="p">,</span>
-    <span class="n">_initialize_cli_command</span><span class="p">,</span>
-    <span class="n">format_coordinate_bounds</span><span class="p">,</span>
-    <span class="n">generate_output_filename</span><span class="p">,</span>
-    <span class="n">load_pangaea_campaign_data</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_coordinate_bounds</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span><span class="p">,</span> <span class="n">validate_output_directory</span>
-
-<span class="c1"># TODO: Remove these error formatters when stations.py is refactored to use API-first approach</span>
-<span class="c1"># These are legacy CLI formatting functions that won&#39;t be needed after refactor</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.output_formatting</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">_format_cli_error</span><span class="p">,</span>
-    <span class="n">_format_dependency_error</span><span class="p">,</span>
-<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.stations_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">stations</span>
 
 <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="determine_coordinate_bounds">
-<a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.stations.determine_coordinate_bounds">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">determine_coordinate_bounds</span><span class="p">(</span>
-    <span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">,</span> <span class="n">campaign_data</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Determine coordinate bounds from arguments or PANGAEA data.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    args : argparse.Namespace</span>
-<span class="sd">        Command line arguments</span>
-<span class="sd">    campaign_data : list, optional</span>
-<span class="sd">        Loaded PANGAEA campaign data</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    Tuple[Tuple[float, float], Tuple[float, float]]</span>
-<span class="sd">        Tuple of (lat_bounds, lon_bounds) as (min, max) tuples</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Use explicit bounds if provided</span>
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lat</span> <span class="ow">and</span> <span class="n">args</span><span class="o">.</span><span class="n">lon</span><span class="p">:</span>
-        <span class="n">lat_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span>
-        <span class="n">lon_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lon</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;Using explicit bounds: </span><span class="si">{</span><span class="n">format_coordinate_bounds</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span><span class="w"> </span><span class="n">lon_bounds</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-        <span class="p">)</span>
-        <span class="k">return</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span>
-
-    <span class="c1"># Try to derive bounds from PANGAEA data</span>
-    <span class="k">if</span> <span class="n">campaign_data</span><span class="p">:</span>
-        <span class="n">all_lats</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="n">all_lons</span> <span class="o">=</span> <span class="p">[]</span>
-
-        <span class="k">for</span> <span class="n">campaign</span> <span class="ow">in</span> <span class="n">campaign_data</span><span class="p">:</span>
-            <span class="n">all_lats</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">campaign</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="p">[]))</span>
-            <span class="n">all_lons</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">campaign</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">,</span> <span class="p">[]))</span>
-
-        <span class="k">if</span> <span class="n">all_lats</span> <span class="ow">and</span> <span class="n">all_lons</span><span class="p">:</span>
-            <span class="c1"># Add some padding</span>
-            <span class="n">lat_padding</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.1</span>
-            <span class="n">lon_padding</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">-</span> <span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">))</span> <span class="o">*</span> <span class="mf">0.1</span>
-
-            <span class="n">lat_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">-</span> <span class="n">lat_padding</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lats</span><span class="p">)</span> <span class="o">+</span> <span class="n">lat_padding</span><span class="p">)</span>
-            <span class="n">lon_bounds</span> <span class="o">=</span> <span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">-</span> <span class="n">lon_padding</span><span class="p">,</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_lons</span><span class="p">)</span> <span class="o">+</span> <span class="n">lon_padding</span><span class="p">)</span>
-
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Using bounds from PANGAEA data: </span><span class="si">{</span><span class="n">format_coordinate_bounds</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span><span class="w"> </span><span class="n">lon_bounds</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span>
-
-    <span class="c1"># Fall back to defaults</span>
-    <span class="n">lat_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lat</span> <span class="k">else</span> <span class="p">(</span><span class="mf">45.0</span><span class="p">,</span> <span class="mf">70.0</span><span class="p">)</span>
-    <span class="n">lon_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lon</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lon</span> <span class="k">else</span> <span class="p">(</span><span class="o">-</span><span class="mf">65.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">5.0</span><span class="p">)</span>
-
-    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Using default bounds: </span><span class="si">{</span><span class="n">format_coordinate_bounds</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span><span class="w"> </span><span class="n">lon_bounds</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span></div>
-
 
 
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../../api/cruiseplan.cli.html#cruiseplan.cli.stations.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Main entry point for interactive station placement using API-first architecture.</span>
+<span class="sd">    Main entry point for interactive station placement.</span>
+
+<span class="sd">    Thin CLI wrapper that calls the cruiseplan.stations() API function.</span>
+<span class="sd">    This follows the established pattern used by process.py, validate.py, map.py, and schedule.py.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -217,170 +140,40 @@
 <span class="sd">        Parsed command line arguments</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Handle deprecated parameters</span>
-        <span class="n">deprecated_params</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;bathy_source_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;bathy_dir_legacy&quot;</span><span class="p">:</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span>
-        <span class="p">}</span>
-        <span class="n">_handle_deprecated_params</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">deprecated_params</span><span class="p">)</span>
+        <span class="c1"># Convert CLI args to API parameters</span>
+        <span class="n">lat_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lat</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lat</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="n">lon_bounds</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">lon</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">lon</span> <span class="k">else</span> <span class="kc">None</span>
 
-        <span class="c1"># Apply standard CLI defaults</span>
-        <span class="n">_apply_cli_defaults</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
-
-        <span class="c1"># Standardized CLI initialization</span>
-        <span class="n">_initialize_cli_command</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">requires_config_file</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-
-        <span class="c1"># Check for optional dependencies</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span>  <span class="c1"># noqa: F401</span>
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span>
-                <span class="s2">&quot;Interactive station picker requires matplotlib. &quot;</span>
-                <span class="s2">&quot;Install with: pip install matplotlib&quot;</span>
-            <span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Interactive Station Picker&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;=&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
-
-        <span class="c1"># Load PANGAEA campaign data if provided</span>
-        <span class="n">campaign_data</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">:</span>
-            <span class="n">pangaea_file</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loading PANGAEA data from: </span><span class="si">{</span><span class="n">pangaea_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">campaign_data</span> <span class="o">=</span> <span class="n">load_pangaea_campaign_data</span><span class="p">(</span><span class="n">pangaea_file</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;No PANGAEA data provided - using bathymetry only&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Use the requested bathymetry source (or default)</span>
-        <span class="c1"># The BathymetryManager will handle fallback to mock mode if files aren&#39;t available</span>
-        <span class="n">optimal_bathymetry_source</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;etopo2022&quot;</span>
-
-        <span class="c1"># Determine coordinate bounds</span>
-        <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span> <span class="o">=</span> <span class="n">determine_coordinate_bounds</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="n">campaign_data</span><span class="p">)</span>
-
-        <span class="c1"># Validate coordinate bounds using new utility</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="n">_validate_coordinate_bounds</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">),</span> <span class="nb">list</span><span class="p">(</span><span class="n">lon_bounds</span><span class="p">))</span>
-        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">CLIError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinate bounds: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Determine output file (output_file parameter was deprecated)</span>
-        <span class="n">output_dir</span> <span class="o">=</span> <span class="n">validate_output_directory</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">)</span>
-        <span class="n">output_filename</span> <span class="o">=</span> <span class="s2">&quot;stations.yaml&quot;</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">:</span>
-            <span class="c1"># Generate filename based on PANGAEA file</span>
-            <span class="n">output_filename</span> <span class="o">=</span> <span class="n">generate_output_filename</span><span class="p">(</span>
-                <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">,</span> <span class="s2">&quot;_stations&quot;</span><span class="p">,</span> <span class="s2">&quot;.yaml&quot;</span>
-            <span class="p">)</span>
-        <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir</span> <span class="o">/</span> <span class="n">output_filename</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry source: </span><span class="si">{</span><span class="n">optimal_bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-        <span class="n">resolution_msg</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;high resolution (no downsampling)&quot;</span>
-            <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
-            <span class="k">else</span> <span class="s2">&quot;standard resolution (10x downsampled)&quot;</span>
+        <span class="c1"># Call the API function</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">stations</span><span class="p">(</span>
+            <span class="n">lat_bounds</span><span class="o">=</span><span class="n">lat_bounds</span><span class="p">,</span>
+            <span class="n">lon_bounds</span><span class="o">=</span><span class="n">lon_bounds</span><span class="p">,</span>
+            <span class="n">output_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_dir</span><span class="p">),</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;output&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+            <span class="n">pangaea_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">pangaea_file</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+            <span class="n">bathy_source</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_source&quot;</span><span class="p">,</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">),</span>
+            <span class="n">bathy_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span> <span class="s2">&quot;data&quot;</span><span class="p">)),</span>
+            <span class="n">high_resolution</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">overwrite</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry resolution: </span><span class="si">{</span><span class="n">resolution_msg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Performance warning for GEBCO + high-resolution combination</span>
-        <span class="k">if</span> <span class="n">optimal_bathymetry_source</span> <span class="o">==</span> <span class="s2">&quot;gebco2025&quot;</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span>
-            <span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span>
-        <span class="p">):</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️  PERFORMANCE WARNING:&quot;</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;   GEBCO 2025 with high resolution can be very slow for interactive use!&quot;</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;   Consider using --bathymetry-source etopo2022 for faster interaction.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;   Reserve GEBCO high-resolution for final detailed planning only.&quot;</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="c1"># The API function handles all logging and user interaction</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-        <span class="c1"># Display usage instructions</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Interactive Controls:&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;p&#39; or &#39;w&#39; - Place point stations (waypoints)&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;l&#39; or &#39;s&#39; - Draw line transects (survey lines)&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;a&#39;        - Define area operations&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;n&#39;        - Navigation mode (pan/zoom)&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;u&#39;        - Undo last operation&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;r&#39;        - Remove operation (click to select)&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;y&#39;        - Save to YAML file&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;  &#39;Escape&#39;   - Exit without saving&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;🎯 Launching interactive station picker...&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Import and initialize the interactive picker</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.interactive.station_picker</span><span class="w"> </span><span class="kn">import</span> <span class="n">StationPicker</span>
-
-            <span class="c1"># Initialize the picker</span>
-            <span class="n">bathymetry_stride</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;high_resolution&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span> <span class="k">else</span> <span class="mi">10</span>
-
-            <span class="n">picker</span> <span class="o">=</span> <span class="n">StationPicker</span><span class="p">(</span>
-                <span class="n">campaign_data</span><span class="o">=</span><span class="n">campaign_data</span><span class="p">,</span>
-                <span class="n">output_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">output_path</span><span class="p">),</span>
-                <span class="n">bathymetry_stride</span><span class="o">=</span><span class="n">bathymetry_stride</span><span class="p">,</span>
-                <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">optimal_bathymetry_source</span><span class="p">,</span>
-                <span class="n">bathymetry_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;bathy_dir&quot;</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;data&quot;</span><span class="p">))),</span>
-                <span class="n">overwrite</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;overwrite&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
-            <span class="p">)</span>
-
-            <span class="c1"># Set coordinate bounds</span>
-            <span class="n">picker</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_xlim</span><span class="p">(</span><span class="n">lon_bounds</span><span class="p">)</span>
-            <span class="n">picker</span><span class="o">.</span><span class="n">ax_map</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">)</span>
-            <span class="n">picker</span><span class="o">.</span><span class="n">_update_aspect_ratio</span><span class="p">()</span>
-
-            <span class="c1"># Re-plot bathymetry with correct bounds</span>
-            <span class="n">picker</span><span class="o">.</span><span class="n">_plot_bathymetry</span><span class="p">()</span>
-
-            <span class="c1"># Show the interactive interface (blocking call)</span>
-            <span class="n">picker</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
-
-        <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_dependency_error</span><span class="p">(</span>
-                <span class="s2">&quot;matplotlib&quot;</span><span class="p">,</span> <span class="s2">&quot;Interactive station picker&quot;</span><span class="p">,</span> <span class="s2">&quot;pip install matplotlib&quot;</span>
-            <span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-            <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="n">CLIError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
-            <span class="s2">&quot;Interactive station placement&quot;</span><span class="p">,</span>
-            <span class="n">e</span><span class="p">,</span>
-            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;Check coordinate bounds are valid&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Verify PANGAEA file format if provided&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Ensure matplotlib is installed&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ImportError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="ne">RuntimeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Inline simple error formatting</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;❌ Interactive station placement failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="se">\n</span><span class="s2">Suggestions:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_msg</span> <span class="o">+=</span> <span class="s2">&quot;  • Check coordinate bounds are valid</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_msg</span> <span class="o">+=</span> <span class="s2">&quot;  • Verify PANGAEA file format if provided</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_msg</span> <span class="o">+=</span> <span class="s2">&quot;  • Ensure matplotlib is installed</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_msg</span> <span class="o">+=</span> <span class="s2">&quot;  • Check bathymetry data availability</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">error_msg</span> <span class="o">+=</span> <span class="s2">&quot;  • Run with --verbose for more details&quot;</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
         <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">⚠️ Operation cancelled by user.&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="n">_format_cli_error</span><span class="p">(</span>
-            <span class="s2">&quot;Interactive station placement&quot;</span><span class="p">,</span>
-            <span class="n">e</span><span class="p">,</span>
-            <span class="n">suggestions</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;Check matplotlib installation&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Verify bathymetry data availability&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Check PANGAEA file format&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;Run with --verbose for more details&quot;</span><span class="p">,</span>
-            <span class="p">],</span>
-        <span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="n">error_msg</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;verbose&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
-
-            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span></div>
 
 

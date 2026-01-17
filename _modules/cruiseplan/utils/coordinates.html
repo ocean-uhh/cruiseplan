@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev2</title>
+  <title>cruiseplan.utils.coordinates &mdash; CruisePlan v0.3.4 v0.3.4.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=3466845e"></script>
+      <script src="../../../_static/documentation_options.js?v=901e0047"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -124,112 +124,7 @@
 <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">NamedTuple</span><span class="p">,</span> <span class="n">Optional</span>
-
-
-<div class="viewcode-block" id="Position">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.Position">[docs]</a>
-<span class="k">class</span><span class="w"> </span><span class="nc">Position</span><span class="p">(</span><span class="n">NamedTuple</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Lightweight position representation with named coordinates.</span>
-
-<span class="sd">    This provides a simple, immutable way to pass around coordinates with</span>
-<span class="sd">    semantic meaning while avoiding the overhead of full objects.</span>
-
-<span class="sd">    Attributes</span>
-<span class="sd">    ----------</span>
-<span class="sd">    latitude : float</span>
-<span class="sd">        Latitude in decimal degrees.</span>
-<span class="sd">    longitude : float</span>
-<span class="sd">        Longitude in decimal degrees.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; pos = Position(65.5, -24.3)</span>
-<span class="sd">    &gt;&gt;&gt; pos.latitude</span>
-<span class="sd">    65.5</span>
-<span class="sd">    &gt;&gt;&gt; pos.longitude</span>
-<span class="sd">    -24.3</span>
-<span class="sd">    &gt;&gt;&gt; lat, lon = pos  # Tuple unpacking works</span>
-<span class="sd">    &gt;&gt;&gt; pos.to_tuple()</span>
-<span class="sd">    (65.5, -24.3)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="n">latitude</span><span class="p">:</span> <span class="nb">float</span>
-    <span class="n">longitude</span><span class="p">:</span> <span class="nb">float</span>
-
-<div class="viewcode-block" id="Position.to_tuple">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.Position.to_tuple">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">to_tuple</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Convert to tuple for functions expecting (lat, lon).&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Position.from_object">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.Position.from_object">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_object</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">obj</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Position&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create Position from an object with latitude/longitude attributes.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        obj : Any</span>
-<span class="sd">            Object with latitude and longitude attributes.</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Position</span>
-<span class="sd">            New Position instance.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; class Station:</span>
-<span class="sd">        ...     def __init__(self):</span>
-<span class="sd">        ...         self.latitude = 60.0</span>
-<span class="sd">        ...         self.longitude = -20.0</span>
-<span class="sd">        &gt;&gt;&gt; station = Station()</span>
-<span class="sd">        &gt;&gt;&gt; pos = Position.from_object(station)</span>
-<span class="sd">        &gt;&gt;&gt; pos</span>
-<span class="sd">        Position(latitude=60.0, longitude=-20.0)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="Position.from_dict">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.Position.from_dict">[docs]</a>
-    <span class="nd">@classmethod</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">from_dict</span><span class="p">(</span>
-        <span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">lat_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lat&quot;</span><span class="p">,</span> <span class="n">lon_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;lon&quot;</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;Position&quot;</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Create Position from a dictionary.</span>
-
-<span class="sd">        Parameters</span>
-<span class="sd">        ----------</span>
-<span class="sd">        data : dict</span>
-<span class="sd">            Dictionary containing coordinate data.</span>
-<span class="sd">        lat_key : str, optional</span>
-<span class="sd">            Key for latitude value (default &quot;lat&quot;).</span>
-<span class="sd">        lon_key : str, optional</span>
-<span class="sd">            Key for longitude value (default &quot;lon&quot;).</span>
-
-<span class="sd">        Returns</span>
-<span class="sd">        -------</span>
-<span class="sd">        Position</span>
-<span class="sd">            New Position instance.</span>
-
-<span class="sd">        Examples</span>
-<span class="sd">        --------</span>
-<span class="sd">        &gt;&gt;&gt; data = {&quot;lat&quot;: 65.0, &quot;lon&quot;: -25.0}</span>
-<span class="sd">        &gt;&gt;&gt; pos = Position.from_dict(data)</span>
-<span class="sd">        &gt;&gt;&gt; pos</span>
-<span class="sd">        Position(latitude=65.0, longitude=-25.0)</span>
-<span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="n">lat_key</span><span class="p">],</span> <span class="n">data</span><span class="p">[</span><span class="n">lon_key</span><span class="p">])</span></div>
-</div>
-
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 
 <div class="viewcode-block" id="CoordConverter">
@@ -316,45 +211,6 @@
 
 
 
-<div class="viewcode-block" id="format_position_string">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.format_position_string">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">format_position_string</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">format_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ddm&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Format coordinate pair as a position string.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    lat : float</span>
-<span class="sd">        Latitude in decimal degrees.</span>
-<span class="sd">    lon : float</span>
-<span class="sd">        Longitude in decimal degrees.</span>
-<span class="sd">    format_type : str, optional</span>
-<span class="sd">        Format type - &#39;ddm&#39; for degrees/decimal minutes, &#39;decimal&#39; for decimal degrees.</span>
-<span class="sd">        Default is &#39;ddm&#39;.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        Formatted position string.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; format_position_string(65.7458, -24.4792, &quot;ddm&quot;)</span>
-<span class="sd">    &quot;65 44.75&#39;N, 024 28.75&#39;W&quot;</span>
-<span class="sd">    &gt;&gt;&gt; format_position_string(65.7458, -24.4792, &quot;decimal&quot;)</span>
-<span class="sd">    &quot;65.7458°N, 24.4792°W&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;ddm&quot;</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">format_ddm_comment</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="n">lon</span><span class="p">)</span>
-    <span class="k">elif</span> <span class="n">format_type</span> <span class="o">==</span> <span class="s2">&quot;decimal&quot;</span><span class="p">:</span>
-        <span class="n">lat_dir</span> <span class="o">=</span> <span class="s2">&quot;N&quot;</span> <span class="k">if</span> <span class="n">lat</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;S&quot;</span>
-        <span class="n">lon_dir</span> <span class="o">=</span> <span class="s2">&quot;E&quot;</span> <span class="k">if</span> <span class="n">lon</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="s2">&quot;W&quot;</span>
-        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">lat</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">°</span><span class="si">{</span><span class="n">lat_dir</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="n">lon</span><span class="p">)</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">°</span><span class="si">{</span><span class="n">lon_dir</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported format_type: </span><span class="si">{</span><span class="n">format_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
-
-
-
 <div class="viewcode-block" id="format_position_latex">
 <a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.format_position_latex">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">format_position_latex</span><span class="p">(</span><span class="n">lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
@@ -391,129 +247,6 @@
     <span class="n">lon_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">abs</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">lon_deg</span><span class="p">))</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">$^</span><span class="se">\\</span><span class="s2">circ$</span><span class="si">{</span><span class="n">lon_min</span><span class="si">:</span><span class="s2">05.2f</span><span class="si">}</span><span class="s2">&#39;</span><span class="si">{</span><span class="n">lon_dir</span><span class="si">}</span><span class="s2">&quot;</span>
 
     <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_str</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_str</span><span class="si">}</span><span class="s2">&quot;</span></div>
-
-
-
-<div class="viewcode-block" id="parse_ddm_format">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.parse_ddm_format">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">parse_ddm_format</span><span class="p">(</span><span class="n">coords_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Parse degrees/decimal minutes format with direction indicators.</span>
-
-<span class="sd">    A simpler version that handles common coordinate string formats.</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    coords_str : str</span>
-<span class="sd">        Coordinate string in DDM format.</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    tuple of float</span>
-<span class="sd">        Tuple of (latitude, longitude) in decimal degrees.</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; parse_ddm_format(&quot;52° 49.99&#39; N, 51° 32.81&#39; W&quot;)</span>
-<span class="sd">    (52.83316666666667, -51.54683333333333)</span>
-<span class="sd">    &gt;&gt;&gt; parse_ddm_format(&quot;52°49.99&#39;N,51°32.81&#39;W&quot;)</span>
-<span class="sd">    (52.83316666666667, -51.54683333333333)</span>
-<span class="sd">    &gt;&gt;&gt; parse_ddm_format(&quot;56° 34,50&#39; N, 52° 40,33&#39; W&quot;)  # European comma</span>
-<span class="sd">    (56.575, -52.6721666666667)</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Handle different quote characters and European decimal comma</span>
-    <span class="n">coords_str</span> <span class="o">=</span> <span class="n">coords_str</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;′&quot;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">,</span> <span class="s2">&quot;&#39;&quot;</span><span class="p">)</span>
-
-    <span class="c1"># Replace European decimal comma with dot in decimal numbers</span>
-    <span class="n">coords_str</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(\d+),(\d+)&quot;</span><span class="p">,</span> <span class="sa">r</span><span class="s2">&quot;\1.\2&quot;</span><span class="p">,</span> <span class="n">coords_str</span><span class="p">)</span>
-
-    <span class="c1"># Pattern for degrees and decimal minutes with direction</span>
-    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;(\d+)°\s*(\d+(?:\.\d+)?)[\&#39;′]?\s*([NS]),?\s*(\d+)°\s*(\d+(?:\.\d+)?)[\&#39;′]?\s*([EW])&quot;</span>
-
-    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">coords_str</span><span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;DDM format not recognized: &#39;</span><span class="si">{</span><span class="n">coords_str</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-
-    <span class="n">lat_deg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span>
-    <span class="n">lat_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
-    <span class="n">lat_dir</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
-    <span class="n">lon_deg</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">4</span><span class="p">))</span>
-    <span class="n">lon_min</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">5</span><span class="p">))</span>
-    <span class="n">lon_dir</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">6</span><span class="p">)</span>
-
-    <span class="c1"># Convert to decimal degrees</span>
-    <span class="n">lat</span> <span class="o">=</span> <span class="n">lat_deg</span> <span class="o">+</span> <span class="n">lat_min</span> <span class="o">/</span> <span class="mf">60.0</span>
-    <span class="k">if</span> <span class="n">lat_dir</span> <span class="o">==</span> <span class="s2">&quot;S&quot;</span><span class="p">:</span>
-        <span class="n">lat</span> <span class="o">=</span> <span class="o">-</span><span class="n">lat</span>
-
-    <span class="n">lon</span> <span class="o">=</span> <span class="n">lon_deg</span> <span class="o">+</span> <span class="n">lon_min</span> <span class="o">/</span> <span class="mf">60.0</span>
-    <span class="k">if</span> <span class="n">lon_dir</span> <span class="o">==</span> <span class="s2">&quot;W&quot;</span><span class="p">:</span>
-        <span class="n">lon</span> <span class="o">=</span> <span class="o">-</span><span class="n">lon</span>
-
-    <span class="k">return</span> <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span></div>
-
-
-
-<div class="viewcode-block" id="format_geographic_bounds">
-<a class="viewcode-back" href="../../../api/cruiseplan.utils.html#cruiseplan.utils.coordinates.format_geographic_bounds">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">format_geographic_bounds</span><span class="p">(</span>
-    <span class="n">min_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">min_lat</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_lon</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">max_lat</span><span class="p">:</span> <span class="nb">float</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Format geographic bounding box coordinates with proper hemisphere indicators.</span>
-
-<span class="sd">    Uses hemisphere indicators for non-zero coordinates:</span>
-<span class="sd">    - W for negative longitude, E for positive longitude (nothing for 0° or 180°)</span>
-<span class="sd">    - S for negative latitude, N for positive latitude (nothing for 0°)</span>
-
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    min_lon : float</span>
-<span class="sd">        Minimum longitude in decimal degrees</span>
-<span class="sd">    min_lat : float</span>
-<span class="sd">        Minimum latitude in decimal degrees</span>
-<span class="sd">    max_lon : float</span>
-<span class="sd">        Maximum longitude in decimal degrees</span>
-<span class="sd">    max_lat : float</span>
-<span class="sd">        Maximum latitude in decimal degrees</span>
-
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-<span class="sd">    str</span>
-<span class="sd">        Formatted bounds string with hemisphere indicators</span>
-
-<span class="sd">    Examples</span>
-<span class="sd">    --------</span>
-<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(-90, 50, -30, 60)</span>
-<span class="sd">    &quot;50.00°N to 60.00°N, 90.00°W to 30.00°W&quot;</span>
-<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(270, 50, 330, 60)</span>
-<span class="sd">    &quot;50.00°N to 60.00°N, 270.00°E to 330.00°E&quot;</span>
-<span class="sd">    &gt;&gt;&gt; format_geographic_bounds(-180, -45, 180, 45)</span>
-<span class="sd">    &quot;45.00°S to 45.00°N, 180.00° to 180.00°&quot;</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">format_coord</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">coord_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Format single coordinate with hemisphere indicator.&quot;&quot;&quot;</span>
-        <span class="n">abs_val</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">coord_type</span> <span class="o">==</span> <span class="s2">&quot;lat&quot;</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°N&quot;</span>
-            <span class="k">elif</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°S&quot;</span>
-            <span class="k">else</span><span class="p">:</span>  <span class="c1"># value == 0</span>
-                <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°&quot;</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="mi">180</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°E&quot;</span>
-        <span class="k">elif</span> <span class="n">value</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">value</span> <span class="o">!=</span> <span class="o">-</span><span class="mi">180</span><span class="p">:</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°W&quot;</span>
-        <span class="k">else</span><span class="p">:</span>  <span class="c1"># value == 0, 180, or -180</span>
-            <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">abs_val</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2">°&quot;</span>
-
-    <span class="n">lat_bounds</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">min_lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lat&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">max_lat</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lat&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-    <span class="n">lon_bounds</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">min_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> to </span><span class="si">{</span><span class="n">format_coord</span><span class="p">(</span><span class="n">max_lon</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lon&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-
-    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="s2">&quot;</span></div>
 
 
 
