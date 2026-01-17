@@ -83,7 +83,7 @@ def map(
         cruise = CruiseInstance(Path(config_file))
 
         # Setup output paths using helper function
-        from cruiseplan.utils.config import setup_output_paths
+        from cruiseplan.utils.io import setup_output_paths
 
         output_path, base_name = setup_output_paths(config_file, output_dir, output)
 

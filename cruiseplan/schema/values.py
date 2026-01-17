@@ -52,6 +52,11 @@ DEFAULT_LEG_NAME = "CRUISE"
 # Default strategy
 DEFAULT_STRATEGY = "sequential"
 
+# Sentinel value indicating that depth data is missing, the station is outside
+# the bathymetry grid boundaries, or a calculation failed.
+# This value is defined in the specs as the default depth if ETOPO data is not found.
+DEFAULT_DEPTH = -9999.0
+
 # =============================================================================
 # Placeholder Values for User Guidance
 # =============================================================================

@@ -98,10 +98,13 @@ class TestEnrichAPI:
 
     @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
-    def test_enrich_success(self, mock_validate_input, mock_enrich):
+    @patch("cruiseplan.utils.io.validate_output_directory")
+    def test_enrich_success(self, mock_validate_output, mock_validate_input, mock_enrich):
         """Test successful enrichment."""
         # Mock input file validation
         mock_validate_input.return_value = Path("test.yaml")
+        # Mock output directory validation
+        mock_validate_output.return_value = Path("data").resolve()
 
         # Mock enrichment function with proper return
         mock_enrich.return_value = {
@@ -141,10 +144,13 @@ class TestEnrichAPI:
 
     @patch("cruiseplan.api.process_cruise._enrich_configuration")
     @patch("cruiseplan.utils.io.validate_input_file")
-    def test_enrich_custom_output(self, mock_validate_input, mock_enrich):
+    @patch("cruiseplan.utils.io.validate_output_directory")
+    def test_enrich_custom_output(self, mock_validate_output, mock_validate_input, mock_enrich):
         """Test enrichment with custom output."""
         # Mock input file validation
         mock_validate_input.return_value = Path("custom.yaml")
+        # Mock output directory validation
+        mock_validate_output.return_value = Path("/custom/path").resolve()
 
         # Mock enrichment function
         mock_enrich.return_value = {
@@ -188,40 +194,52 @@ class TestEnrichAPI:
 class TestSetupOutputPaths:
     """Test the internal setup_output_paths helper function."""
 
-    @patch("pathlib.Path.mkdir")
-    def test_setup_output_paths_default(self, mock_mkdir):
+    @patch("cruiseplan.utils.io.validate_output_directory")
+    def test_setup_output_paths_default(self, mock_validate):
         """Test output path setup with defaults."""
-        from cruiseplan.utils.config import setup_output_paths
+        from cruiseplan.utils.io import setup_output_paths
+        
+        # Mock the validate function to return the expected path
+        expected_path = Path("data").resolve()
+        mock_validate.return_value = expected_path
 
         output_dir, base_name = setup_output_paths("test.yaml")
 
-        assert output_dir == Path("data").resolve()
+        assert output_dir == expected_path
         assert base_name == "test"
-        mock_mkdir.assert_called_once()
+        mock_validate.assert_called_once_with("data")
 
-    @patch("pathlib.Path.mkdir")
-    def test_setup_output_paths_custom(self, mock_mkdir):
+    @patch("cruiseplan.utils.io.validate_output_directory")
+    def test_setup_output_paths_custom(self, mock_validate):
         """Test output path setup with custom values."""
-        from cruiseplan.utils.config import setup_output_paths
+        from cruiseplan.utils.io import setup_output_paths
+        
+        # Mock the validate function to return the expected path
+        expected_path = Path("/custom/path").resolve()
+        mock_validate.return_value = expected_path
 
         output_dir, base_name = setup_output_paths(
             "cruise.yaml", output_dir="/custom/path", output="custom_name"
         )
 
-        assert output_dir == Path("/custom/path").resolve()
+        assert output_dir == expected_path
         assert base_name == "custom_name"
-        mock_mkdir.assert_called_once()
+        mock_validate.assert_called_once_with("/custom/path")
 
-    @patch("pathlib.Path.mkdir")
-    def test_setup_output_paths_pathlib_input(self, mock_mkdir):
+    @patch("cruiseplan.utils.io.validate_output_directory")
+    def test_setup_output_paths_pathlib_input(self, mock_validate):
         """Test output path setup with pathlib.Path input."""
-        from cruiseplan.utils.config import setup_output_paths
+        from cruiseplan.utils.io import setup_output_paths
+        
+        # Mock the validate function to return the expected path
+        expected_path = Path("data").resolve()
+        mock_validate.return_value = expected_path
 
         output_dir, base_name = setup_output_paths(Path("test.yaml"))
 
-        assert output_dir == Path("data").resolve()
+        assert output_dir == expected_path
         assert base_name == "test"
-        mock_mkdir.assert_called_once()
+        mock_validate.assert_called_once_with("data")
 
 
 # Note: Some API functions like schedule(), process(), pangaea(), map()

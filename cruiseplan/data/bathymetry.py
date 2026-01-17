@@ -15,7 +15,7 @@ import numpy as np
 import requests
 from tqdm import tqdm
 
-from cruiseplan.utils.defaults import DEFAULT_DEPTH
+from cruiseplan.schema.values import DEFAULT_DEPTH
 
 logger = logging.getLogger(__name__)
 

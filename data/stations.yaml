@@ -1,28 +1,6 @@
 cruise_name: Interactive_Session
 description: Cruise plan created with interactive station picker
 turnaround_time: 30.0
-points:
-  - name: STN_001
-    comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth: 3265.1
-    latitude: 60.20687
-    longitude: -52.36839
-  - name: STN_002
-    comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth: 3342.3
-    latitude: 57.76263
-    longitude: -54.55434
-  - name: STN_003
-    comment: Interactive selection - Review coordinates and update operation details
-    operation_type: UPDATE-CTD-mooring-etc
-    action: UPDATE-profile-sampling-etc
-    water_depth: 3556.2
-    latitude: 58.03245
-    longitude: -50.03474
 lines:
   - name: Transit_01
     comment: Interactive transect - Review route and update operation details
@@ -30,10 +8,10 @@ lines:
     action: UPDATE-ADCP-bathymetry-etc
     vessel_speed: 10.0
     route:
-      - latitude: 60.84177
-        longitude: -56.00179
-      - latitude: 57.08015
-        longitude: -49.00085
+      - latitude: 60.11164
+        longitude: -56.20857
+      - latitude: 57.41345
+        longitude: -51.39357
 areas:
   - name: Area_01
     comment: Interactive area survey - Review polygon and update operation details
@@ -41,12 +19,12 @@ areas:
     action: UPDATE-bathymetry-survey-etc
     duration: 9999.0
     corners:
-      - latitude: 61.47661
-        longitude: -36.29873
       - latitude: 59.20696
-        longitude: -39.25271
-      - latitude: 59.41329
-        longitude: -33.93554
+        longitude: -49.05993
+      - latitude: 61.34964
+        longitude: -54.17032
+      - latitude: 57.0484
+        longitude: -55.02697
 legs:
   - name: Interactive_Survey
     departure_port:
@@ -63,12 +41,9 @@ legs:
       action: demob
       latitude: 53.5349
       longitude: 9.97992
-    first_activity: STN_001
+    first_activity: Transit_01
     last_activity: Area_01
     activities:
-      - STN_001
-      - STN_002
-      - STN_003
       - Transit_01
       - Area_01
     clusters: []

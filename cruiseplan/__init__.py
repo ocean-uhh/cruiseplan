@@ -66,7 +66,6 @@ from cruiseplan.types import (
     PangaeaResult,
     ProcessResult,
     ScheduleResult,
-    StationPickerResult,
     ValidationResult,
 )
 

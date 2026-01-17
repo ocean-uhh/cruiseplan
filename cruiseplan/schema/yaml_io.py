@@ -1,9 +1,22 @@
 """
 Centralized YAML I/O utilities with comment preservation.
 
-This module provides all YAML reading and writing functionality for the
-cruiseplan package, using ruamel.yaml to preserve comments, formatting,
-and whitespace during configuration enrichment operations.
+This module provides middle-layer YAML file format handling for the cruiseplan package,
+using ruamel.yaml to preserve comments, formatting, and whitespace during configuration 
+enrichment operations.
+
+**I/O Module Architecture:**
+- **cruiseplan.utils.io**: File system validation, path handling, directory creation (used by this module)
+- **cruiseplan.schema.yaml_io** (this module): YAML file format reading/writing with comment preservation  
+- **cruiseplan.core.serialization**: High-level CruiseInstance object serialization to YAML (uses this module)
+- **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)
+
+**Dependencies**: Uses `cruiseplan.utils.io` for file validation. Used by `cruiseplan.core.serialization`.
+
+**See Also**:
+- For file system operations: `cruiseplan.utils.io`
+- For converting CruiseInstance objects to YAML: `cruiseplan.core.serialization`
+- For generating specific output formats: `cruiseplan.output.html_generator`, `cruiseplan.output.latex_generator`, etc.
 """
 
 import logging

@@ -8,11 +8,17 @@ with no changes to core functionality.
 
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from cruiseplan.types import BaseResult
 from cruiseplan.utils.coordinates import _validate_coordinate_bounds
-from cruiseplan.utils.io import validate_input_file, validate_output_directory
+from cruiseplan.utils.io import (
+    generate_output_filename,
+    validate_input_file,
+    validate_output_directory,
+)
+from cruiseplan.utils.logging import configure_logging
+from cruiseplan.utils.plot_config import check_matplotlib_available
 
 logger = logging.getLogger(__name__)
 
@@ -23,8 +29,8 @@ class StationPickerResult(BaseResult):
     def __init__(
         self,
         output_file: Path,
-        summary: Dict[str, Any],
-        pangaea_data: Optional[List[Dict]] = None,
+        summary: dict[str, Any],
+        pangaea_data: Optional[list[dict]] = None,
     ):
         """Initialize station picker result."""
         super().__init__(
@@ -40,10 +46,10 @@ class StationPickerResult(BaseResult):
 
 
 def determine_coordinate_bounds(
-    lat_bounds: Optional[Tuple[float, float]] = None,
-    lon_bounds: Optional[Tuple[float, float]] = None,
-    campaign_data: Optional[List[Dict]] = None,
-) -> Tuple[Tuple[float, float], Tuple[float, float]]:
+    lat_bounds: Optional[tuple[float, float]] = None,
+    lon_bounds: Optional[tuple[float, float]] = None,
+    campaign_data: Optional[list[dict]] = None,
+) -> tuple[tuple[float, float], tuple[float, float]]:
     """
     Determine coordinate bounds from parameters or PANGAEA data.
 
@@ -102,7 +108,7 @@ def determine_coordinate_bounds(
     return default_lat, default_lon
 
 
-def load_pangaea_campaign_data(pangaea_file: Path) -> List[Dict]:
+def load_pangaea_campaign_data(pangaea_file: Path) -> list[dict]:
     """
     Load PANGAEA campaign data from pickle file with validation and summary.
 
@@ -151,33 +157,72 @@ def load_pangaea_campaign_data(pangaea_file: Path) -> List[Dict]:
         raise ValueError(f"Error loading PANGAEA data: {e}")
 
 
-def generate_output_filename(
-    input_path: Path, suffix: str, extension: Optional[str] = None
-) -> str:
-    """
-    Generate output filename by adding suffix to input filename.
+def _determine_output_path(
+    output_dir: str, output: Optional[str], pangaea_file: Optional[str]
+) -> tuple[Path, str]:
+    """Determine output directory and filename for station picker."""
+    output_dir_path = validate_output_directory(output_dir)
 
-    Moved from cli_utils.py with no changes to logic.
+    if output:
+        output_filename = output
+    elif pangaea_file:
+        # Generate filename based on PANGAEA file using centralized utility
+        output_filename = generate_output_filename(pangaea_file, "_stations", ".yaml")
+    else:
+        output_filename = "stations.yaml"
 
-    Args:
-        input_path: Input file path
-        suffix: Suffix to add (e.g., "_stations")
-        extension: New extension (defaults to input extension)
+    return output_dir_path, output_filename
 
-    Returns
-    -------
-        Generated filename
-    """
-    if extension is None:
-        extension = input_path.suffix
 
-    stem = input_path.stem
-    return f"{stem}{suffix}{extension}"
+def _log_configuration_info(
+    output_path: Path, bathy_source: str, high_resolution: bool
+) -> None:
+    """Log configuration information for the station picker."""
+    logger.info("=" * 50)
+    logger.info("Interactive Station Picker")
+    logger.info("=" * 50)
+
+    logger.info(f"Output file: {output_path}")
+    logger.info(f"Bathymetry source: {bathy_source}")
+    resolution_msg = (
+        "high resolution (no downsampling)"
+        if high_resolution
+        else "standard resolution (10x downsampled)"
+    )
+    logger.info(f"Bathymetry resolution: {resolution_msg}")
+
+    # Performance warning for GEBCO + high-resolution combination
+    if bathy_source == "gebco2025" and high_resolution:
+        logger.warning("⚠️  PERFORMANCE WARNING:")
+        logger.warning(
+            "   GEBCO 2025 with high resolution can be very slow for interactive use!"
+        )
+        logger.warning("   Consider using etopo2022 for faster interaction.")
+        logger.warning(
+            "   Reserve GEBCO high-resolution for final detailed planning only."
+        )
+        logger.warning("")
+    logger.info("")
+
+
+def _display_usage_instructions() -> None:
+    """Display interactive controls and usage instructions."""
+    logger.info("Interactive Controls:")
+    logger.info("  'p' or 'w' - Place point stations (waypoints)")
+    logger.info("  'l' or 's' - Draw line transects (survey lines)")
+    logger.info("  'a'        - Define area operations")
+    logger.info("  'n'        - Navigation mode (pan/zoom)")
+    logger.info("  'u'        - Undo last operation")
+    logger.info("  'r'        - Remove operation (click to select)")
+    logger.info("  'y'        - Save to YAML file")
+    logger.info("  'Escape'   - Exit without saving")
+    logger.info("")
+    logger.info("🎯 Launching interactive station picker...")
 
 
 def stations(
-    lat_bounds: Optional[Tuple[float, float]] = None,
-    lon_bounds: Optional[Tuple[float, float]] = None,
+    lat_bounds: Optional[tuple[float, float]] = None,
+    lon_bounds: Optional[tuple[float, float]] = None,
     output_dir: str = "data",
     output: Optional[str] = None,
     pangaea_file: Optional[str] = None,
@@ -230,28 +275,9 @@ def stations(
     FileNotFoundError
         If PANGAEA file or bathymetry data not found
     """
-    # Configure logging level
-    if verbose:
-        logging.basicConfig(
-            level=logging.DEBUG, format="%(levelname)s: %(message)s", force=True
-        )
-    else:
-        logging.basicConfig(
-            level=logging.INFO, format="%(levelname)s: %(message)s", force=True
-        )
-
-    # Check for matplotlib dependency
-    try:
-        import matplotlib.pyplot  # noqa: F401
-    except ImportError:
-        raise ImportError(
-            "Interactive station picker requires matplotlib. "
-            "Install with: pip install matplotlib"
-        )
-
-    logger.info("=" * 50)
-    logger.info("Interactive Station Picker")
-    logger.info("=" * 50)
+    # Configure logging and check dependencies
+    configure_logging(verbose)
+    check_matplotlib_available()
 
     # Load PANGAEA campaign data if provided
     campaign_data = None
@@ -262,66 +288,24 @@ def stations(
     else:
         logger.info("No PANGAEA data provided - using bathymetry only")
 
-    # Determine coordinate bounds
+    # Determine and validate coordinate bounds
     final_lat_bounds, final_lon_bounds = determine_coordinate_bounds(
         lat_bounds, lon_bounds, campaign_data
     )
-
-    # Validate coordinate bounds
     try:
         _validate_coordinate_bounds(list(final_lat_bounds), list(final_lon_bounds))
     except ValueError as e:
         raise ValueError(f"Invalid coordinate bounds: {e}")
 
-    # Set up output file
-    output_dir_path = validate_output_directory(output_dir)
-
-    if output:
-        output_filename = output
-    elif pangaea_file:
-        # Generate filename based on PANGAEA file
-        output_filename = generate_output_filename(
-            Path(pangaea_file), "_stations", ".yaml"
-        )
-    else:
-        output_filename = "stations.yaml"
-
+    # Set up output paths
+    output_dir_path, output_filename = _determine_output_path(
+        output_dir, output, pangaea_file
+    )
     output_path = output_dir_path / output_filename
 
-    logger.info(f"Output file: {output_path}")
-    logger.info(f"Bathymetry source: {bathy_source}")
-    resolution_msg = (
-        "high resolution (no downsampling)"
-        if high_resolution
-        else "standard resolution (10x downsampled)"
-    )
-    logger.info(f"Bathymetry resolution: {resolution_msg}")
-
-    # Performance warning for GEBCO + high-resolution combination
-    if bathy_source == "gebco2025" and high_resolution:
-        logger.warning("⚠️  PERFORMANCE WARNING:")
-        logger.warning(
-            "   GEBCO 2025 with high resolution can be very slow for interactive use!"
-        )
-        logger.warning("   Consider using etopo2022 for faster interaction.")
-        logger.warning(
-            "   Reserve GEBCO high-resolution for final detailed planning only."
-        )
-        logger.warning("")
-    logger.info("")
-
-    # Display usage instructions
-    logger.info("Interactive Controls:")
-    logger.info("  'p' or 'w' - Place point stations (waypoints)")
-    logger.info("  'l' or 's' - Draw line transects (survey lines)")
-    logger.info("  'a'        - Define area operations")
-    logger.info("  'n'        - Navigation mode (pan/zoom)")
-    logger.info("  'u'        - Undo last operation")
-    logger.info("  'r'        - Remove operation (click to select)")
-    logger.info("  'y'        - Save to YAML file")
-    logger.info("  'Escape'   - Exit without saving")
-    logger.info("")
-    logger.info("🎯 Launching interactive station picker...")
+    # Log configuration and display instructions
+    _log_configuration_info(output_path, bathy_source, high_resolution)
+    _display_usage_instructions()
 
     # Import and initialize the interactive picker (unchanged from cli/stations.py)
     try:

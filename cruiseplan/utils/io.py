@@ -1,13 +1,26 @@
 """
 General file I/O utilities for the cruiseplan package.
 
-This module provides centralized file validation and I/O utilities used
-by API functions to ensure consistent error handling across the package.
+This module provides low-level file system validation and path handling utilities
+used by API functions to ensure consistent error handling across the package.
+
+**I/O Module Architecture:**
+- **cruiseplan.utils.io** (this module): File system validation, path handling, directory creation
+- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation  
+- **cruiseplan.core.serialization**: High-level CruiseInstance object serialization to YAML
+- **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)
+
+**Dependencies**: This is the lowest layer - other I/O modules may use these utilities.
+
+**See Also**:
+- For YAML file operations: `cruiseplan.schema.yaml_io`
+- For converting CruiseInstance objects to YAML: `cruiseplan.core.serialization`
+- For generating specific output formats: `cruiseplan.output.html_generator`, `cruiseplan.output.latex_generator`, etc.
 """
 
 import logging
 from pathlib import Path
-from typing import Union
+from typing import Optional, Union
 
 logger = logging.getLogger(__name__)
 
@@ -103,12 +116,12 @@ def validate_output_directory(
 
 
 def generate_output_filename(
-    input_path: Union[str, Path], suffix: str, extension: str = None
+    input_path: Union[str, Path], suffix: str, extension: Optional[str] = None
 ) -> str:
     """
     Generate output filename by adding suffix to input filename.
 
-    # TODO: Refactor stations.py to use this centralized function instead of CLI utils
+    # NOTE: Used by stations_api.py and other API modules for consistent filename generation
 
     This utility creates output filenames by taking an input path,
     extracting its stem, and adding a suffix and optional new extension.
@@ -144,63 +157,67 @@ def generate_output_filename(
     return f"{stem}{suffix}{extension}"
 
 
-def _setup_output_paths(
-    config_file: Union[str, Path] = None,
+def setup_output_paths(
+    config_file: Union[str, Path],
     output_dir: str = "data",
-    output_base: str = None,
-    default_base: str = "output",
+    output: Optional[str] = None,
 ) -> tuple[Path, str]:
     """
-    Setup output directory and determine base filename for API operations.
+    Helper function to set up output directory and base filename from config file and parameters.
 
-    # TODO: This consolidates functionality from:
-    # - utils/config.py:setup_output_paths
-    # - cli/cli_utils.py:determine_output_path - deleted
-    # - utils/output_formatting.py:_determine_output_*
-    # Once API functions are updated to use this, remove the duplicates.
-
-    This is a centralized utility for API functions to determine where
-    to write output files and what base filename to use.
+    This is the consolidated output path utility, migrated from utils/config.py.
+    It handles both explicit output naming and automatic name derivation from
+    config files with YAML cruise_name extraction.
 
     Parameters
     ----------
-    config_file : Union[str, Path], optional
-        Input configuration file to base naming on
+    config_file : Union[str, Path]
+        Input YAML configuration file
     output_dir : str, optional
-        Output directory path (default: "data")
-    output_base : str, optional
-        Explicit base filename to use. If provided, overrides config-based naming.
-    default_base : str, optional
-        Fallback base filename if neither output_base nor config_file provide a name
+        Output directory (default: "data")
+    output : str, optional
+        Base filename for outputs (default: use cruise name from YAML)
 
     Returns
     -------
     tuple[Path, str]
-        (resolved_output_directory, base_filename_stem)
+        (output_dir_path, base_name) where output_dir_path is resolved Path
+        and base_name is the filename stem to use for outputs
 
     Examples
     --------
     >>> setup_output_paths("cruise.yaml", "results")
-    (Path("/path/to/results"), "cruise")
-    >>> setup_output_paths(output_base="expedition_2024")
-    (Path("/path/to/data"), "expedition_2024")
+    (Path("/path/to/results"), "cruise_name_from_yaml")
+    >>> setup_output_paths("cruise.yaml", output="custom_name")
+    (Path("/path/to/data"), "custom_name")
     """
-    # Setup output directory
+    # Setup output directory with validation
     try:
         output_dir_path = validate_output_directory(output_dir)
     except ValueError as e:
         raise ValueError(f"Output directory setup failed: {e}")
 
     # Determine base filename
-    if output_base:
-        # Explicit base name provided
-        base_name = output_base.replace(" ", "_")
-    elif config_file:
-        # Use config file stem as base name
-        config_path = Path(config_file)
-        base_name = config_path.stem.replace(" ", "_")
+    if output:
+        base_name = output
     else:
-        # Use default fallback
-        base_name = default_base.replace(" ", "_")
+        # Try to get cruise name from YAML content, fallback to filename
+        try:
+            import yaml
+
+            with open(config_file) as f:
+                config_data = yaml.safe_load(f)
+                cruise_name = config_data.get("cruise_name")
+                if cruise_name:
+                    # Use cruise name with safe character replacement
+                    base_name = str(cruise_name).replace(" ", "_").replace("/", "-")
+                else:
+                    # Fallback to config file stem
+                    base_name = (
+                        Path(config_file).stem.replace(" ", "_").replace("/", "-")
+                    )
+        except (FileNotFoundError, yaml.YAMLError, KeyError):
+            # Fallback to config file stem if YAML reading fails
+            base_name = Path(config_file).stem.replace(" ", "_").replace("/", "-")
 
     return output_dir_path, base_name

@@ -11,7 +11,6 @@ import sys
 from pathlib import Path
 
 from cruiseplan.api.stations_api import stations
-from cruiseplan.utils.output_formatting import _format_cli_error
 
 logger = logging.getLogger(__name__)
 
@@ -51,18 +50,14 @@ def main(args: argparse.Namespace) -> None:
         logger.info(f"✅ {result}")
 
     except (ImportError, ValueError, FileNotFoundError, RuntimeError) as e:
-        error_msg = _format_cli_error(
-            "Interactive station placement",
-            e,
-            suggestions=[
-                "Check coordinate bounds are valid",
-                "Verify PANGAEA file format if provided",
-                "Ensure matplotlib is installed",
-                "Check bathymetry data availability",
-                "Run with --verbose for more details",
-            ],
-        )
-        logger.error(error_msg)
+        # Inline simple error formatting
+        error_msg = f"❌ Interactive station placement failed: {e}\nSuggestions:\n"
+        error_msg += "  • Check coordinate bounds are valid\n"
+        error_msg += "  • Verify PANGAEA file format if provided\n"
+        error_msg += "  • Ensure matplotlib is installed\n"
+        error_msg += "  • Check bathymetry data availability\n"
+        error_msg += "  • Run with --verbose for more details"
+        logger.exception(error_msg)
         sys.exit(1)
 
     except KeyboardInterrupt:

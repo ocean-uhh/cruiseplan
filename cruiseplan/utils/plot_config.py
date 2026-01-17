@@ -7,12 +7,35 @@ This module provides:
 3. Symbol definitions for consistent plotting across PNG, KML, and interactive maps
 """
 
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import matplotlib.colors as mcolors
 import matplotlib.pyplot as plt
 
 # Note: Colormap constants defined after function definitions to avoid forward references
+
+# ============================================================================
+# MATPLOTLIB DEPENDENCY MANAGEMENT
+# ============================================================================
+
+
+def check_matplotlib_available() -> None:
+    """
+    Check that matplotlib is available for interactive plotting.
+
+    Raises
+    ------
+    ImportError
+        If matplotlib is not available with installation instructions
+    """
+    try:
+        import matplotlib.pyplot  # noqa: F401
+    except ImportError:
+        raise ImportError(
+            "Interactive plotting requires matplotlib. "
+            "Install with: pip install matplotlib"
+        )
+
 
 # ============================================================================
 # COLORMAPS
@@ -226,7 +249,7 @@ PLOT_STYLES = {
 
 def get_plot_style(
     entity_type: str, operation_type: Optional[str] = None, action: Optional[str] = None
-) -> Dict[str, Any]:
+) -> dict[str, Any]:
     """
     Get plot styling for a specific entity type.
 

@@ -41,6 +41,7 @@ from cruiseplan.schema.values import (
 )
 from cruiseplan.schema.yaml_io import load_yaml, load_yaml_safe, save_yaml
 from cruiseplan.types import EnrichResult, ProcessResult, ValidationResult
+from cruiseplan.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
 
@@ -327,8 +328,8 @@ def enrich(
     """
     try:
         # Setup verbose logging if requested
+        configure_logging(verbose)
         if verbose:
-            logging.basicConfig(level=logging.DEBUG)
             logger.debug("Verbose logging enabled")
 
         # Validate input file path using centralized utility
@@ -348,7 +349,7 @@ def enrich(
 
         # Setup and validate output paths
         try:
-            from cruiseplan.utils.config import setup_output_paths
+            from cruiseplan.utils.io import setup_output_paths
 
             output_dir_path, base_name = setup_output_paths(
                 config_file, output_dir, output
@@ -834,8 +835,7 @@ def validate(
     >>> if is_valid:
     ...     print("✅ Configuration is valid")
     """
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
+    configure_logging(verbose)
 
     # Validate input file path using centralized utility
     from cruiseplan.utils.io import validate_input_file
@@ -992,8 +992,7 @@ def process(
     >>> # Custom processing workflow
     >>> result = cruiseplan.process("cruise.yaml", run_map_generation=False, depth_check=False)
     """
-    if verbose:
-        logging.basicConfig(level=logging.DEBUG)
+    configure_logging(verbose)
 
     logger.info(f"🚀 Processing cruise configuration: {config_file}")
 

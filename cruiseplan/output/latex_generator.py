@@ -576,7 +576,7 @@ def generate_latex_tables(
     output_dir.mkdir(exist_ok=True, parents=True)
 
     # Use standardized base name generation
-    from cruiseplan.utils.config import setup_output_paths
+    from cruiseplan.utils.io import setup_output_paths
 
     _, base_name = setup_output_paths(
         config_file="dummy", output_dir=str(output_dir), output=None
