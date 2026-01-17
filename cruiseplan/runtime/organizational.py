@@ -9,11 +9,11 @@ import logging
 from abc import ABC, abstractmethod
 from typing import Any, Optional, Union
 
-from cruiseplan.core.operations import BaseOperation
-from cruiseplan.schema.activities import PointDefinition
-from cruiseplan.schema.cruise_config import ClusterDefinition, LegDefinition
-from cruiseplan.schema.ports import resolve_port_reference
-from cruiseplan.schema.values import StrategyEnum
+from cruiseplan.runtime.operations import BaseOperation
+from cruiseplan.config.activities import PointDefinition
+from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
+from cruiseplan.config.ports import resolve_port_reference
+from cruiseplan.config.values import StrategyEnum
 from cruiseplan.utils.units import NM_PER_KM
 
 logger = logging.getLogger(__name__)
@@ -578,7 +578,7 @@ class Leg(BaseOrganizationUnit):
         float
             Transit duration in minutes.
         """
-        from cruiseplan.calculators.distance import haversine_distance
+        from cruiseplan.timeline.distance import haversine_distance
 
         # Calculate distance between ports
         departure_pos = (self.departure_port.latitude, self.departure_port.longitude)

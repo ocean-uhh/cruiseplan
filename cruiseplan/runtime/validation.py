@@ -9,15 +9,15 @@ import logging
 from typing import TYPE_CHECKING, Union
 
 from cruiseplan.data.bathymetry import BathymetryManager
-from cruiseplan.schema.activities import AreaDefinition, LineDefinition, PointDefinition
-from cruiseplan.schema.fields import (
+from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
+from cruiseplan.config.fields import (
     AREA_REGISTRY,
     LINE_REGISTRY,
     POINT_REGISTRY,
 )
 
 if TYPE_CHECKING:
-    from cruiseplan.core.cruise import CruiseInstance
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 

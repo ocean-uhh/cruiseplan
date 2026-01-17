@@ -8,7 +8,7 @@ will eventually solve constrained Traveling Salesman Problems (TSP).
 
 from typing import Any
 
-from cruiseplan.core.operations import BaseOperation
+from cruiseplan.runtime.operations import BaseOperation
 
 
 def optimize_composite_route(children: list[BaseOperation], rules: Any) -> float:

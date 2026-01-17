@@ -14,14 +14,14 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from cruiseplan.calculators.distance import haversine_distance
-from cruiseplan.core.operations import (
+from cruiseplan.timeline.distance import haversine_distance
+from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
     LineOperation,
     PointOperation,
 )
-from cruiseplan.schema import CruiseConfig, GeoPoint
+from cruiseplan.config import CruiseConfig, GeoPoint
 from cruiseplan.utils.units import km_to_nm
 
 logger = logging.getLogger(__name__)
@@ -206,7 +206,7 @@ class OperationFactory:
 
         # Fallback: Try to resolve from global ports registry
         try:
-            from cruiseplan.schema.ports import resolve_port_reference
+            from cruiseplan.config.ports import resolve_port_reference
 
             port_def = resolve_port_reference(name)
             return PointOperation.from_port(port_def)
@@ -557,7 +557,7 @@ class TimelineGenerator:
     def _create_runtime_legs(self) -> list[Any]:
         """Create runtime legs from config."""
         # Import here to avoid circular imports
-        from cruiseplan.core.organizational import Leg
+        from cruiseplan.runtime.organizational import Leg
 
         runtime_legs = []
         for leg_def in self.config.legs or []:
@@ -622,12 +622,12 @@ class TimelineGenerator:
                     operation = self.factory.create_operation(activity, leg.name)
                 else:
                     # Definition object (PointDefinition, LineDefinition, AreaDefinition) - create directly
-                    from cruiseplan.core.operations import (
+                    from cruiseplan.runtime.operations import (
                         AreaOperation,
                         LineOperation,
                         PointOperation,
                     )
-                    from cruiseplan.schema.activities import (
+                    from cruiseplan.config.activities import (
                         AreaDefinition,
                         LineDefinition,
                         PointDefinition,
@@ -931,7 +931,7 @@ def generate_cruise_schedule(
     Dict[str, Any]
         Schedule data with timeline and summary information
     """
-    from cruiseplan.core.cruise import CruiseInstance
+    from cruiseplan.runtime.cruise import CruiseInstance
 
     # Load cruise configuration
     cruise = CruiseInstance(config_path)

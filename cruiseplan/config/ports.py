@@ -449,7 +449,7 @@ def resolve_port_reference(
         If string reference is not found in global registry.
     """
     # Import locally to avoid circular dependency
-    from cruiseplan.schema import PointDefinition
+    from cruiseplan.config import PointDefinition
 
     # If already a PointDefinition object, return as-is
     if isinstance(port_ref, PointDefinition):
@@ -574,7 +574,7 @@ def add_custom_port(port_id: str, port_data: dict) -> None:
 
     # Validate the port data by creating a PointDefinition
     try:
-        from cruiseplan.schema import PointDefinition
+        from cruiseplan.config import PointDefinition
 
         PointDefinition(**port_data)
     except Exception as e:

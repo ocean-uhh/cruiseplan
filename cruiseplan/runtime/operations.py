@@ -260,7 +260,7 @@ class PointOperation(BaseOperation):
             return self.manual_duration
 
         # Import calculator
-        from cruiseplan.calculators.duration import DurationCalculator
+        from cruiseplan.timeline.duration import DurationCalculator
 
         if not hasattr(rules, "config"):
             return 0.0
@@ -488,8 +488,8 @@ class LineOperation(BaseOperation):
             return 0.0
 
         # Use centralized calculators
-        from cruiseplan.calculators.distance import route_distance
-        from cruiseplan.calculators.duration import DurationCalculator
+        from cruiseplan.timeline.distance import route_distance
+        from cruiseplan.timeline.duration import DurationCalculator
 
         # Calculate route distance using centralized function
         route_distance_km = route_distance(self.route)
@@ -556,7 +556,7 @@ class LineOperation(BaseOperation):
             return 0.0
 
         # Use centralized calculators
-        from cruiseplan.calculators.distance import route_distance
+        from cruiseplan.timeline.distance import route_distance
         from cruiseplan.utils.units import km_to_nm
 
         # Calculate route distance and convert to nautical miles

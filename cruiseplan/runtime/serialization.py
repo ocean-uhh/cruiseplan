@@ -24,13 +24,13 @@ from enum import Enum
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Optional, Union
 
-from cruiseplan.schema.activities import (
+from cruiseplan.config.activities import (
     AreaDefinition,
     LineDefinition,
     PointDefinition,
 )
-from cruiseplan.schema.cruise_config import ClusterDefinition, LegDefinition
-from cruiseplan.schema.fields import (
+from cruiseplan.config.cruise_config import ClusterDefinition, LegDefinition
+from cruiseplan.config.fields import (
     ACTIVITIES_FIELD,
     AREA_ALLOWED_FIELDS,
     AREA_VERTEX_FIELD,
@@ -46,10 +46,10 @@ from cruiseplan.schema.fields import (
     LONGITUDE_FIELD,
     POINT_ALLOWED_FIELDS,
 )
-from cruiseplan.schema.yaml_io import save_yaml
+from cruiseplan.config.yaml_io import save_yaml
 
 if TYPE_CHECKING:
-    from cruiseplan.core.cruise import CruiseInstance
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +127,7 @@ def serialize_definition(
     dict[str, Any]
         Dictionary containing only the allowed fields with their values in canonical order
     """
-    from cruiseplan.schema.fields import YAML_FIELD_ORDER
+    from cruiseplan.config.fields import YAML_FIELD_ORDER
 
     output = {}
 
@@ -349,7 +349,7 @@ def to_commented_dict(cruise_instance: "CruiseInstance") -> dict[str, Any]:
     Comment preservation is handled at the YAML layer using ruamel.yaml
     with end-of-line and section header comment support.
     """
-    from cruiseplan.schema.fields import (
+    from cruiseplan.config.fields import (
         AREAS_FIELD,
         LEGS_FIELD,
         LINES_FIELD,
@@ -461,6 +461,6 @@ def to_yaml(
         return None
     else:
         # Return as string
-        from cruiseplan.schema.yaml_io import dict_to_yaml_string
+        from cruiseplan.config.yaml_io import dict_to_yaml_string
 
         return dict_to_yaml_string(output_dict, add_comments=add_comments)

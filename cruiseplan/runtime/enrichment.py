@@ -12,7 +12,7 @@ from typing import TYPE_CHECKING
 from cruiseplan.data.bathymetry import BathymetryManager
 
 if TYPE_CHECKING:
-    from cruiseplan.core.cruise import CruiseInstance
+    from cruiseplan.runtime.cruise import CruiseInstance
 
 logger = logging.getLogger(__name__)
 
@@ -204,7 +204,7 @@ def expand_sections(
         base_name = _sanitize_name_for_stations(section_name)
 
         # Calculate stations along the route using original inline logic
-        from cruiseplan.calculators.distance import haversine_distance
+        from cruiseplan.timeline.distance import haversine_distance
         from cruiseplan.utils.plot_config import interpolate_great_circle_position
 
         if not route or len(route) < 2:
@@ -246,7 +246,7 @@ def expand_sections(
             )
 
             # Create PointDefinition
-            from cruiseplan.schema.activities import PointDefinition
+            from cruiseplan.config.activities import PointDefinition
 
             station_attrs = {
                 "name": station_name,
@@ -328,7 +328,7 @@ def add_station_defaults(cruise_instance: "CruiseInstance") -> int:
             and (not hasattr(station, "duration") or station.duration is None)
         ):
             # Default mooring deployment/recovery duration: 999 hours (59940 minutes)
-            from cruiseplan.schema.values import DEFAULT_MOORING_DURATION_MIN
+            from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 
             station.__dict__["duration"] = DEFAULT_MOORING_DURATION_MIN
             defaults_added += 1

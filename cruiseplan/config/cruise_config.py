@@ -11,7 +11,7 @@ from typing import Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
-from cruiseplan.schema.values import (
+from cruiseplan.config.values import (
     DEFAULT_CTD_RATE_M_S,
     DEFAULT_DAY_END_HR,
     DEFAULT_DAY_START_HR,
