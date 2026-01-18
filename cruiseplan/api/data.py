@@ -106,8 +106,8 @@ def pangaea(
         Latitude bounds [min_lat, max_lat]
     lon_bounds : List[float], optional
         Longitude bounds [min_lon, max_lon]
-    max_results : int
-        Maximum number of results to process (default: 100)
+    limit : int
+        Maximum number of results to process (default: 10)
     rate_limit : float
         API request rate limit in requests per second (default: 1.0)
     merge_campaigns : bool
@@ -198,8 +198,11 @@ def pangaea(
             clean_dois = [clean_doi]
             logger.info(f"✅ Validated DOI: {clean_doi}")
 
-            # Save single DOI to file for consistency
+            # Save single DOI to file for consistency with header
             with open(dois_file, "w") as f:
+                f.write("# Single DOI Processing\n")
+                f.write(f"# DOI: {query_terms}\n")
+                f.write("#\n")
                 f.write(f"{clean_doi}\n")
             generated_files.append(dois_file)
             logger.info(f"📂 DOI file: {dois_file}")
@@ -214,7 +217,7 @@ def pangaea(
             try:
                 from pangaeapy.panquery import PanQuery
 
-                pq = PanQuery(query_terms, bbox=bbox, limit=max_results)
+                pq = PanQuery(query_terms, bbox=bbox, limit=limit)
                 if pq.error:
                     logger.error(f"PANGAEA Query Error: {pq.error}")
                     return None, None
@@ -234,8 +237,21 @@ def pangaea(
 
                 logger.info(f"✅ Found {len(clean_dois)} datasets")
 
-                # Save DOI list (intermediate file)
+                # Save DOI list (intermediate file) with query header
                 with open(dois_file, "w") as f:
+                    # Add header comment with search information
+                    f.write("# PANGAEA Search Results\n")
+                    f.write(f"# Query: {query_terms}\n")
+                    if bbox and lat_bounds and lon_bounds:
+                        f.write(
+                            f"# Geographic bounds: lat {lat_bounds}, lon {lon_bounds}\n"
+                        )
+                    f.write(f"# Results limit: {limit}\n")
+                    f.write(
+                        f"# Generated: {pq.totalcount} total matches, showing first {len(clean_dois)}\n"
+                    )
+                    f.write("#\n")
+                    # Write DOI list
                     for doi in clean_dois:
                         f.write(f"{doi}\n")
                 generated_files.append(dois_file)
@@ -283,7 +299,7 @@ def pangaea(
                 "files_generated": len(generated_files),
                 "lat_bounds": lat_bounds,
                 "lon_bounds": lon_bounds,
-                "max_results": max_results,
+                "limit": limit,
             },
         )
 

@@ -68,7 +68,7 @@ class TestPangaeaThinCLI:
                 output=None,
                 lat_bounds=None,
                 lon_bounds=None,
-                max_results=5,
+                limit=5,
                 rate_limit=1.0,
                 merge_campaigns=True,
                 verbose=False,
@@ -77,12 +77,12 @@ class TestPangaeaThinCLI:
     def test_pangaea_with_geographic_bounds(self):
         """Test pangaea command with geographic bounds."""
         args = argparse.Namespace(
-            query="temperature",
+            query_or_file="temperature",
             output_dir="/custom/output",
             output="arctic_data",
             lat=[70.0, 80.0],
             lon=[-20.0, 10.0],
-            max_results=50,
+            limit=50,
             rate_limit=0.5,
             merge_campaigns=False,
             verbose=True,
@@ -107,7 +107,11 @@ class TestPangaeaThinCLI:
                 },
             )
 
-            main(args)
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            # Should exit with code 0 (success)
+            assert exc_info.value.code == 0
 
             mock_pangaea.assert_called_once_with(
                 query_terms="temperature",
@@ -115,7 +119,7 @@ class TestPangaeaThinCLI:
                 output="arctic_data",
                 lat_bounds=[70.0, 80.0],
                 lon_bounds=[-20.0, 10.0],
-                max_results=50,
+                limit=50,
                 rate_limit=0.5,
                 merge_campaigns=False,
                 verbose=True,
@@ -181,8 +185,8 @@ class TestPangaeaThinCLI:
         """Test that missing arguments get proper defaults."""
         # Minimal args - missing optional attributes
         args = argparse.Namespace(
-            query="salinity"
-            # Missing: output_dir, output, lat, lon, max_results, etc.
+            query_or_file="salinity"
+            # Missing: output_dir, output, lat, lon, limit, etc.
         )
 
         with patch("cruiseplan.pangaea") as mock_pangaea:
@@ -192,7 +196,11 @@ class TestPangaeaThinCLI:
                 summary={"query_terms": "salinity", "campaigns_found": 1},
             )
 
-            main(args)
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            # Should exit with code 0 (success)
+            assert exc_info.value.code == 0
 
             # Should use defaults for missing arguments
             mock_pangaea.assert_called_once_with(
@@ -201,7 +209,7 @@ class TestPangaeaThinCLI:
                 output=None,  # default
                 lat_bounds=None,  # default
                 lon_bounds=None,  # default
-                limit=100,  # default
+                limit=10,  # default
                 rate_limit=1.0,  # default
                 merge_campaigns=True,  # default
                 verbose=False,  # default

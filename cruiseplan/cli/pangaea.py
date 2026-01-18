@@ -80,7 +80,7 @@ def main(args: argparse.Namespace) -> None:
             output=getattr(args, "output", None),
             lat_bounds=lat_bounds,
             lon_bounds=lon_bounds,
-            max_results=getattr(args, "limit", 10),
+            limit=getattr(args, "limit", 10),
             rate_limit=getattr(args, "rate_limit", 1.0),
             merge_campaigns=getattr(args, "merge_campaigns", True),
             verbose=getattr(args, "verbose", False),
