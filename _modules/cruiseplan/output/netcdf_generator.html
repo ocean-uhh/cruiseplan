@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
+  <title>cruiseplan.output.netcdf_generator &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
+      <script src="../../../_static/documentation_options.js?v=cf37dbc9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -99,7 +99,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
@@ -194,7 +194,7 @@
 <div class="viewcode-block" id="NetCDFGenerator.generate_point_operations">
 <a class="viewcode-back" href="../../../api/cruiseplan.output.html#cruiseplan.output.netcdf_generator.NetCDFGenerator.generate_point_operations">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">generate_point_operations</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ActivityRecord</span><span class="p">],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">config</span><span class="p">:</span> <span class="n">CruiseConfig</span><span class="p">,</span> <span class="n">timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="n">output_path</span><span class="p">:</span> <span class="n">Path</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Generate point operations NetCDF from stations and moorings.</span>
@@ -412,14 +412,12 @@
                 <span class="n">epoch_days</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_obj</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">86400.0</span>
                 <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch_days</span><span class="p">)</span>
 
-                <span class="n">lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
-                <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                <span class="n">lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lat&quot;</span><span class="p">])</span>
+                <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lon&quot;</span><span class="p">])</span>
                 <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
-                <span class="n">leg_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="n">leg_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;leg_name&quot;</span><span class="p">])</span>
                 <span class="n">durations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span>  <span class="c1"># Convert to hours</span>
-                <span class="n">vessel_speeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">vessel_speeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">])</span>
 
                 <span class="c1"># Determine waterdepth and operation_depth: real depths for point operations, NaN for others</span>
                 <span class="n">activity</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span>
@@ -477,7 +475,7 @@
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># Fallback to activity type</span>
                         <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
-                        <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                        <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
 
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Area&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;area_operation&quot;</span><span class="p">)</span>
@@ -508,7 +506,7 @@
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;line_operation&quot;</span><span class="p">)</span>
                     <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">))</span>
-                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;transit&quot;</span><span class="p">)</span>
                     <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;navigation&quot;</span><span class="p">)</span>
@@ -540,8 +538,8 @@
                 <span class="c1"># Extract start/end coordinates for line operations</span>
                 <span class="k">if</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
                     <span class="c1"># This is a line operation - use provided start coordinates</span>
-                    <span class="n">start_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]))</span>
-                    <span class="n">start_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]))</span>
+                    <span class="n">start_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lat&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lat&quot;</span><span class="p">]))</span>
+                    <span class="n">start_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;start_lon&quot;</span><span class="p">,</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lon&quot;</span><span class="p">]))</span>
                     <span class="c1"># For end coordinates, use route end point from transit definition if available</span>
                     <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
                     <span class="n">line_def</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
@@ -556,8 +554,8 @@
                         <span class="n">end_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">end_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
                     <span class="k">else</span><span class="p">:</span>
                         <span class="c1"># Fallback: use event position as end point</span>
-                        <span class="n">end_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
-                        <span class="n">end_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                        <span class="n">end_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lat&quot;</span><span class="p">])</span>
+                        <span class="n">end_lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lon&quot;</span><span class="p">])</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Not a line operation - fill with NaN</span>
                     <span class="n">start_lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nan</span><span class="p">)</span>
@@ -1176,25 +1174,23 @@
                 <span class="n">epoch_days</span> <span class="o">=</span> <span class="p">(</span><span class="n">time_obj</span> <span class="o">-</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">total_seconds</span><span class="p">()</span> <span class="o">/</span> <span class="mf">86400.0</span>
                 <span class="n">times</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">epoch_days</span><span class="p">)</span>
 
-                <span class="n">lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">])</span>
-                <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">])</span>
+                <span class="n">lats</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lat&quot;</span><span class="p">])</span>
+                <span class="n">lons</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lon&quot;</span><span class="p">])</span>
                 <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">])</span>
-                <span class="n">leg_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;leg_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="n">leg_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;leg_name&quot;</span><span class="p">])</span>
                 <span class="n">durations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;duration_minutes&quot;</span><span class="p">]</span> <span class="o">/</span> <span class="mf">60.0</span><span class="p">)</span>  <span class="c1"># Convert to hours</span>
-                <span class="n">vessel_speeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                    <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">,</span> <span class="n">config</span><span class="o">.</span><span class="n">default_vessel_speed</span><span class="p">)</span>
-                <span class="p">)</span>
+                <span class="n">vessel_speeds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">[</span><span class="s2">&quot;vessel_speed_kt&quot;</span><span class="p">])</span>
 
                 <span class="c1"># Map activity details to standardized fields</span>
                 <span class="n">activity</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span>
                 <span class="k">if</span> <span class="n">activity</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;Station&quot;</span><span class="p">,</span> <span class="s2">&quot;Mooring&quot;</span><span class="p">]:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;point_operation&quot;</span><span class="p">)</span>
                     <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>  <span class="c1"># &#39;station&#39; or &#39;mooring&#39;</span>
-                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;line_operation&quot;</span><span class="p">)</span>
                     <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">))</span>
-                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">))</span>
+                    <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">)</span>
                 <span class="k">elif</span> <span class="n">activity</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span><span class="p">:</span>
                     <span class="n">categories</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;transit&quot;</span><span class="p">)</span>
                     <span class="n">types</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;navigation&quot;</span><span class="p">)</span>
@@ -1368,7 +1364,7 @@
         <span class="k">for</span> <span class="n">event</span> <span class="ow">in</span> <span class="n">timeline</span><span class="p">:</span>
             <span class="k">if</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;activity&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;Transit&quot;</span> <span class="ow">and</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">):</span>
                 <span class="c1"># This is a scientific transit with action (ADCP, bathymetry, etc.)</span>
-                <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">]</span>
+                <span class="n">transit_name</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">label</span>
                 <span class="n">line_def</span> <span class="o">=</span> <span class="n">line_lookup</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">transit_name</span><span class="p">)</span>
 
                 <span class="k">if</span> <span class="n">line_def</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">:</span>
@@ -1381,7 +1377,7 @@
                             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
                             <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;line_operation&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">),</span>
-                            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">start_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
                             <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">start_point</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
                             <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">end_point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
@@ -1396,8 +1392,8 @@
                     <span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="c1"># Fallback: use event position with small offset (previous behavior)</span>
-                    <span class="n">start_lat</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;lat&quot;</span><span class="p">]</span>
-                    <span class="n">start_lon</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;lon&quot;</span><span class="p">]</span>
+                    <span class="n">start_lat</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lat&quot;</span><span class="p">]</span>
+                    <span class="n">start_lon</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;entry_lon&quot;</span><span class="p">]</span>
                     <span class="n">operation_dist</span> <span class="o">=</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dist_nm&quot;</span><span class="p">,</span> <span class="mf">10.0</span><span class="p">)</span>
                     <span class="n">lat_offset</span> <span class="o">=</span> <span class="n">operation_dist</span> <span class="o">/</span> <span class="mf">60.0</span>
 
@@ -1406,7 +1402,7 @@
                             <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">event</span><span class="p">[</span><span class="s2">&quot;label&quot;</span><span class="p">],</span>
                             <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;line_operation&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;operation_type&quot;</span><span class="p">,</span> <span class="s2">&quot;underway&quot;</span><span class="p">),</span>
-                            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">,</span> <span class="s2">&quot;unknown&quot;</span><span class="p">),</span>
+                            <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="n">event</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;action&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;unknown&quot;</span><span class="p">,</span>
                             <span class="s2">&quot;start_lat&quot;</span><span class="p">:</span> <span class="n">start_lat</span><span class="p">,</span>
                             <span class="s2">&quot;start_lon&quot;</span><span class="p">:</span> <span class="n">start_lon</span><span class="p">,</span>
                             <span class="s2">&quot;end_lat&quot;</span><span class="p">:</span> <span class="n">start_lat</span> <span class="o">+</span> <span class="n">lat_offset</span><span class="p">,</span>

@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.data &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
+  <title>cruiseplan.api.data &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
+      <script src="../../../_static/documentation_options.js?v=cf37dbc9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -174,6 +174,324 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_prepare_pangaea_config</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate inputs and prepare file paths configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query_terms : str</span>
+<span class="sd">        Search terms or DOI</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Output directory path</span>
+<span class="sd">    output : Optional[str]</span>
+<span class="sd">        Custom base filename</span>
+<span class="sd">    lat_bounds, lon_bounds : Optional[list[float]]</span>
+<span class="sd">        Geographic bounds for search</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict</span>
+<span class="sd">        Configuration with validated bbox, paths, and filenames</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_lat_lon_bounds</span>
+
+    <span class="c1"># Validate lat/lon bounds if provided</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">_validate_lat_lon_bounds</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">lat_bounds</span> <span class="ow">or</span> <span class="n">lon_bounds</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Invalid latitude/longitude bounds provided&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Setup output paths</span>
+    <span class="n">output_dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+    <span class="n">output_dir_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Generate base filename if not provided (similar to CLI logic)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="p">:</span>
+        <span class="n">safe_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;_&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query_terms</span><span class="p">)</span>
+        <span class="n">safe_query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">safe_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">safe_query</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">output</span>
+
+    <span class="c1"># Define output files</span>
+    <span class="n">dois_file</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_dois.txt&quot;</span>
+    <span class="n">stations_file</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;bbox&quot;</span><span class="p">:</span> <span class="n">bbox</span><span class="p">,</span>
+        <span class="s2">&quot;output_dir_path&quot;</span><span class="p">:</span> <span class="n">output_dir_path</span><span class="p">,</span>
+        <span class="s2">&quot;base_name&quot;</span><span class="p">:</span> <span class="n">base_name</span><span class="p">,</span>
+        <span class="s2">&quot;dois_file&quot;</span><span class="p">:</span> <span class="n">dois_file</span><span class="p">,</span>
+        <span class="s2">&quot;stations_file&quot;</span><span class="p">:</span> <span class="n">stations_file</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_doi_file</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">:</span> <span class="n">Path</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process DOI file input mode.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_doi_list</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Processing DOI file: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="n">clean_dois</span> <span class="o">=</span> <span class="n">read_doi_list</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs from file&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Copy the input file as dois_file for consistency</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">)</span>
+    <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">dois_file</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clean_dois</span><span class="p">,</span> <span class="n">generated_files</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_single_doi</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">manager</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process single DOI input mode.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Processing single DOI: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Validate DOI format and clean it</span>
+    <span class="n">clean_doi</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
+    <span class="n">clean_dois</span> <span class="o">=</span> <span class="p">[</span><span class="n">clean_doi</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Validated DOI: </span><span class="si">{</span><span class="n">clean_doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save single DOI to file for consistency with header</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dois_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Single DOI Processing</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# DOI: </span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_doi</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">dois_file</span><span class="p">]</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">clean_dois</span><span class="p">,</span> <span class="n">generated_files</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_search_query</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">dois_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">manager</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Process search query input mode.&quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 Searching PANGAEA for: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">bbox</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📍 Geographic bounds: lat </span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, lon </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">pangaeapy.panquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">PanQuery</span>
+
+        <span class="n">pq</span> <span class="o">=</span> <span class="n">PanQuery</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PANGAEA Query Error: </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+
+        <span class="n">raw_dois</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get_dois</span><span class="p">()</span>
+        <span class="n">clean_dois</span> <span class="o">=</span> <span class="p">[</span><span class="n">manager</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span> <span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">raw_dois</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Search found </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">totalcount</span><span class="si">}</span><span class="s2"> total matches. Retrieving first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2">...&quot;</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_dois</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;❌ No DOIs found. Try broadening your search criteria.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No DOIs found for the given search criteria&quot;</span><span class="p">)</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Save DOI list (intermediate file) with query header</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dois_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="c1"># Add header comment with search information</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# PANGAEA Search Results</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Query: </span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">bbox</span> <span class="ow">and</span> <span class="n">lat_bounds</span> <span class="ow">and</span> <span class="n">lon_bounds</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Geographic bounds: lat </span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, lon </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Results limit: </span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;# Generated: </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">totalcount</span><span class="si">}</span><span class="s2"> total matches, showing first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Write DOI list</span>
+            <span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">clean_dois</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">dois_file</span><span class="p">]</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">clean_dois</span><span class="p">,</span> <span class="n">generated_files</span>
+
+    <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
+            <span class="s2">&quot;❌ pangaeapy not available. Please install with: pip install pangaeapy&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+            <span class="s2">&quot;pangaeapy package not available - please install with: pip install pangaeapy&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_doi_list</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">manager</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Determine input type and get clean DOI list.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query_terms : str</span>
+<span class="sd">        Input query terms, DOI, or file path</span>
+<span class="sd">    config : dict</span>
+<span class="sd">        Configuration from _prepare_pangaea_config</span>
+<span class="sd">    limit : int</span>
+<span class="sd">        Maximum number of results for search mode</span>
+<span class="sd">    manager : PangaeaManager</span>
+<span class="sd">        PANGAEA manager instance</span>
+<span class="sd">    lat_bounds, lon_bounds : Optional[list[float]]</span>
+<span class="sd">        Geographic bounds for search mode</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    tuple[list[str], list[Path]]</span>
+<span class="sd">        Clean DOI list and generated files list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">bbox</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;bbox&quot;</span><span class="p">]</span>
+    <span class="n">dois_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;dois_file&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Detect query_terms type and get DOI list accordingly</span>
+    <span class="n">query_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">query_terms</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.txt&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">query_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="c1"># DOI file mode: read DOIs from existing file</span>
+        <span class="k">return</span> <span class="n">_process_doi_file</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">)</span>
+
+    <span class="k">elif</span> <span class="n">query_terms</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;10.&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">query_terms</span><span class="p">:</span>
+        <span class="c1"># Single DOI mode: validate and process single DOI</span>
+        <span class="k">return</span> <span class="n">_process_single_doi</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">,</span> <span class="n">manager</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Search mode: search PANGAEA database</span>
+        <span class="k">return</span> <span class="n">_process_search_query</span><span class="p">(</span>
+            <span class="n">query_terms</span><span class="p">,</span> <span class="n">bbox</span><span class="p">,</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">,</span> <span class="n">manager</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fetch_and_save_datasets</span><span class="p">(</span>
+    <span class="n">clean_dois</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">stations_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">generated_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">rate_limit</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
+    <span class="n">merge_campaigns</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Fetch detailed PANGAEA datasets and save to file.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    clean_dois : list[str]</span>
+<span class="sd">        List of clean DOI strings</span>
+<span class="sd">    stations_file : Path</span>
+<span class="sd">        Path where to save stations data</span>
+<span class="sd">    generated_files : list</span>
+<span class="sd">        List to append the stations file to</span>
+<span class="sd">    rate_limit : float</span>
+<span class="sd">        API request rate limit</span>
+<span class="sd">    merge_campaigns : bool</span>
+<span class="sd">        Whether to merge campaigns with same name</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    list</span>
+<span class="sd">        Retrieved PANGAEA datasets</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">PangaeaManager</span><span class="p">,</span> <span class="n">save_campaign_data</span>
+
+    <span class="c1"># Common processing for all modes - fetch detailed data</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 Stations file: </span><span class="si">{</span><span class="n">stations_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Now fetch detailed PANGAEA data with proper rate limiting</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚙️ Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs...&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🕐 Rate limit: </span><span class="si">{</span><span class="n">rate_limit</span><span class="si">}</span><span class="s2"> requests/second&quot;</span><span class="p">)</span>
+
+    <span class="n">manager</span> <span class="o">=</span> <span class="n">PangaeaManager</span><span class="p">()</span>
+    <span class="n">detailed_datasets</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">fetch_datasets</span><span class="p">(</span>
+        <span class="n">clean_dois</span><span class="p">,</span> <span class="n">rate_limit</span><span class="o">=</span><span class="n">rate_limit</span><span class="p">,</span> <span class="n">merge_campaigns</span><span class="o">=</span><span class="n">merge_campaigns</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed_datasets</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;⚠️ No datasets retrieved. Check DOI list and network connection.&quot;</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No datasets could be retrieved from PANGAEA&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Save results using data function</span>
+    <span class="n">save_campaign_data</span><span class="p">(</span><span class="n">detailed_datasets</span><span class="p">,</span> <span class="n">stations_file</span><span class="p">)</span>
+    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stations_file</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">detailed_datasets</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_pangaea_result</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">detailed_datasets</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">generated_files</span><span class="p">:</span> <span class="nb">list</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">lon_bounds</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]],</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">stations_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PangaeaResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct the final PangaeaResult object with summary information.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    query_terms : str</span>
+<span class="sd">        Original search query terms</span>
+<span class="sd">    detailed_datasets : list</span>
+<span class="sd">        Retrieved PANGAEA datasets</span>
+<span class="sd">    generated_files : list</span>
+<span class="sd">        List of generated file paths</span>
+<span class="sd">    lat_bounds, lon_bounds : Optional[list[float]]</span>
+<span class="sd">        Geographic bounds used in search</span>
+<span class="sd">    limit : int</span>
+<span class="sd">        Maximum number of results processed</span>
+<span class="sd">    stations_file : Path</span>
+<span class="sd">        Path to the stations pickle file</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    PangaeaResult</span>
+<span class="sd">        Structured result with data, files, and summary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ PANGAEA processing completed successfully!&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Next step: cruiseplan stations -p </span><span class="si">{</span><span class="n">stations_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">PangaeaResult</span><span class="p">(</span>
+        <span class="n">stations_data</span><span class="o">=</span><span class="n">detailed_datasets</span><span class="p">,</span>
+        <span class="n">files_created</span><span class="o">=</span><span class="n">generated_files</span><span class="p">,</span>
+        <span class="n">summary</span><span class="o">=</span><span class="p">{</span>
+            <span class="s2">&quot;query_terms&quot;</span><span class="p">:</span> <span class="n">query_terms</span><span class="p">,</span>
+            <span class="s2">&quot;campaigns_found&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">detailed_datasets</span><span class="p">)</span> <span class="k">if</span> <span class="n">detailed_datasets</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;files_generated&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">),</span>
+            <span class="s2">&quot;lat_bounds&quot;</span><span class="p">:</span> <span class="n">lat_bounds</span><span class="p">,</span>
+            <span class="s2">&quot;lon_bounds&quot;</span><span class="p">:</span> <span class="n">lon_bounds</span><span class="p">,</span>
+            <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
+        <span class="p">},</span>
+    <span class="p">)</span>
+
+
 <div class="viewcode-block" id="pangaea">
 <a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.pangaea">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">pangaea</span><span class="p">(</span>
@@ -234,169 +552,40 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">_handle_error_with_logging</span><span class="p">,</span>
         <span class="n">_setup_verbose_logging</span><span class="p">,</span>
-        <span class="n">_validate_lat_lon_bounds</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">PangaeaManager</span><span class="p">,</span>
-        <span class="n">save_campaign_data</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">_setup_verbose_logging</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
 
     <span class="k">try</span><span class="p">:</span>
-        <span class="c1"># Validate lat/lon bounds if provided</span>
-        <span class="n">bbox</span> <span class="o">=</span> <span class="n">_validate_lat_lon_bounds</span><span class="p">(</span><span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span><span class="p">)</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">lat_bounds</span> <span class="ow">or</span> <span class="n">lon_bounds</span><span class="p">)</span> <span class="ow">and</span> <span class="n">bbox</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;Invalid latitude/longitude bounds provided&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Setup output paths</span>
-        <span class="n">output_dir_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_dir</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
-        <span class="n">output_dir_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-
-        <span class="c1"># Generate base filename if not provided (similar to CLI logic)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">output</span><span class="p">:</span>
-            <span class="n">safe_query</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">isalnum</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;_&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">query_terms</span><span class="p">)</span>
-            <span class="n">safe_query</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">safe_query</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="n">safe_query</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">base_name</span> <span class="o">=</span> <span class="n">output</span>
-
-        <span class="c1"># Define output files</span>
-        <span class="n">dois_file</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_dois.txt&quot;</span>
-        <span class="n">stations_file</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">.pkl&quot;</span>
-        <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># Validate inputs and prepare paths</span>
+        <span class="n">config</span> <span class="o">=</span> <span class="n">_prepare_pangaea_config</span><span class="p">(</span>
+            <span class="n">query_terms</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">output</span><span class="p">,</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span>
+        <span class="p">)</span>
+        <span class="n">stations_file</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;stations_file&quot;</span><span class="p">]</span>
 
         <span class="n">manager</span> <span class="o">=</span> <span class="n">PangaeaManager</span><span class="p">()</span>
 
-        <span class="c1"># Detect query_terms type and get DOI list accordingly</span>
-        <span class="n">query_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">query_terms</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.txt&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">query_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
-            <span class="c1"># DOI file mode: read DOIs from existing file</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Processing DOI file: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_doi_list</span>
-
-            <span class="n">clean_dois</span> <span class="o">=</span> <span class="n">read_doi_list</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs from file&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Copy the input file as dois_file for consistency</span>
-            <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
-
-            <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">dois_file</span><span class="p">)</span>
-            <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dois_file</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">elif</span> <span class="n">query_terms</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;10.&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">query_terms</span><span class="p">:</span>
-            <span class="c1"># Single DOI mode: validate and process single DOI</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Processing single DOI: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Validate DOI format and clean it</span>
-            <span class="n">clean_doi</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">query_terms</span><span class="p">)</span>
-            <span class="n">clean_dois</span> <span class="o">=</span> <span class="p">[</span><span class="n">clean_doi</span><span class="p">]</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Validated DOI: </span><span class="si">{</span><span class="n">clean_doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Save single DOI to file for consistency with header</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dois_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# Single DOI Processing</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# DOI: </span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">clean_doi</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dois_file</span><span class="p">)</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="c1"># Search mode: search PANGAEA database</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 Searching PANGAEA for: &#39;</span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="s2">&#39;&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">bbox</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📍 Geographic bounds: lat </span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, lon </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="c1"># Search mode: perform PANGAEA search</span>
-            <span class="k">try</span><span class="p">:</span>
-                <span class="kn">from</span><span class="w"> </span><span class="nn">pangaeapy.panquery</span><span class="w"> </span><span class="kn">import</span> <span class="n">PanQuery</span>
-
-                <span class="n">pq</span> <span class="o">=</span> <span class="n">PanQuery</span><span class="p">(</span><span class="n">query_terms</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="n">bbox</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="n">limit</span><span class="p">)</span>
-                <span class="k">if</span> <span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;PANGAEA Query Error: </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">return</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
-
-                <span class="n">raw_dois</span> <span class="o">=</span> <span class="n">pq</span><span class="o">.</span><span class="n">get_dois</span><span class="p">()</span>
-                <span class="n">clean_dois</span> <span class="o">=</span> <span class="p">[</span><span class="n">manager</span><span class="o">.</span><span class="n">_clean_doi</span><span class="p">(</span><span class="n">doi</span><span class="p">)</span> <span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">raw_dois</span><span class="p">]</span>
-
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;Search found </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">totalcount</span><span class="si">}</span><span class="s2"> total matches. Retrieving first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2">...&quot;</span>
-                <span class="p">)</span>
-
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">clean_dois</span><span class="p">:</span>
-                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                        <span class="s2">&quot;❌ No DOIs found. Try broadening your search criteria.&quot;</span>
-                    <span class="p">)</span>
-                    <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No DOIs found for the given search criteria&quot;</span><span class="p">)</span>
-
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> datasets&quot;</span><span class="p">)</span>
-
-                <span class="c1"># Save DOI list (intermediate file) with query header</span>
-                <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">dois_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                    <span class="c1"># Add header comment with search information</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;# PANGAEA Search Results</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Query: </span><span class="si">{</span><span class="n">query_terms</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="k">if</span> <span class="n">bbox</span> <span class="ow">and</span> <span class="n">lat_bounds</span> <span class="ow">and</span> <span class="n">lon_bounds</span><span class="p">:</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                            <span class="sa">f</span><span class="s2">&quot;# Geographic bounds: lat </span><span class="si">{</span><span class="n">lat_bounds</span><span class="si">}</span><span class="s2">, lon </span><span class="si">{</span><span class="n">lon_bounds</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Results limit: </span><span class="si">{</span><span class="n">limit</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;# Generated: </span><span class="si">{</span><span class="n">pq</span><span class="o">.</span><span class="n">totalcount</span><span class="si">}</span><span class="s2"> total matches, showing first </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-                    <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;#</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                    <span class="c1"># Write DOI list</span>
-                    <span class="k">for</span> <span class="n">doi</span> <span class="ow">in</span> <span class="n">clean_dois</span><span class="p">:</span>
-                        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dois_file</span><span class="p">)</span>
-
-                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 DOI file: </span><span class="si">{</span><span class="n">dois_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-            <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
-                <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span>
-                    <span class="s2">&quot;❌ pangaeapy not available. Please install with: pip install pangaeapy&quot;</span>
-                <span class="p">)</span>
-                <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
-                    <span class="s2">&quot;pangaeapy package not available - please install with: pip install pangaeapy&quot;</span>
-                <span class="p">)</span>
-
-        <span class="c1"># Common processing for all modes - fetch detailed data</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📂 Stations file: </span><span class="si">{</span><span class="n">stations_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="c1"># Now fetch detailed PANGAEA data with proper rate limiting</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;⚙️ Processing </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">clean_dois</span><span class="p">)</span><span class="si">}</span><span class="s2"> DOIs...&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🕐 Rate limit: </span><span class="si">{</span><span class="n">rate_limit</span><span class="si">}</span><span class="s2"> requests/second&quot;</span><span class="p">)</span>
-
-        <span class="n">detailed_datasets</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">fetch_datasets</span><span class="p">(</span>
-            <span class="n">clean_dois</span><span class="p">,</span> <span class="n">rate_limit</span><span class="o">=</span><span class="n">rate_limit</span><span class="p">,</span> <span class="n">merge_campaigns</span><span class="o">=</span><span class="n">merge_campaigns</span>
+        <span class="c1"># Get DOI list based on input type</span>
+        <span class="n">clean_dois</span><span class="p">,</span> <span class="n">generated_files</span> <span class="o">=</span> <span class="n">_resolve_doi_list</span><span class="p">(</span>
+            <span class="n">query_terms</span><span class="p">,</span> <span class="n">config</span><span class="p">,</span> <span class="n">limit</span><span class="p">,</span> <span class="n">manager</span><span class="p">,</span> <span class="n">lat_bounds</span><span class="p">,</span> <span class="n">lon_bounds</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">detailed_datasets</span><span class="p">:</span>
-            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
-                <span class="s2">&quot;⚠️ No datasets retrieved. Check DOI list and network connection.&quot;</span>
-            <span class="p">)</span>
-            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;No datasets could be retrieved from PANGAEA&quot;</span><span class="p">)</span>
+        <span class="c1"># Fetch and save detailed datasets</span>
+        <span class="n">detailed_datasets</span> <span class="o">=</span> <span class="n">_fetch_and_save_datasets</span><span class="p">(</span>
+            <span class="n">clean_dois</span><span class="p">,</span> <span class="n">stations_file</span><span class="p">,</span> <span class="n">generated_files</span><span class="p">,</span> <span class="n">rate_limit</span><span class="p">,</span> <span class="n">merge_campaigns</span>
+        <span class="p">)</span>
 
-        <span class="c1"># Save results using data function</span>
-        <span class="n">save_campaign_data</span><span class="p">(</span><span class="n">detailed_datasets</span><span class="p">,</span> <span class="n">stations_file</span><span class="p">)</span>
-        <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stations_file</span><span class="p">)</span>
-
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ PANGAEA processing completed successfully!&quot;</span><span class="p">)</span>
-        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Next step: cruiseplan stations -p </span><span class="si">{</span><span class="n">stations_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">PangaeaResult</span><span class="p">(</span>
-            <span class="n">stations_data</span><span class="o">=</span><span class="n">detailed_datasets</span><span class="p">,</span>
-            <span class="n">files_created</span><span class="o">=</span><span class="n">generated_files</span><span class="p">,</span>
-            <span class="n">summary</span><span class="o">=</span><span class="p">{</span>
-                <span class="s2">&quot;query_terms&quot;</span><span class="p">:</span> <span class="n">query_terms</span><span class="p">,</span>
-                <span class="s2">&quot;campaigns_found&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">detailed_datasets</span><span class="p">)</span> <span class="k">if</span> <span class="n">detailed_datasets</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
-                <span class="s2">&quot;files_generated&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">),</span>
-                <span class="s2">&quot;lat_bounds&quot;</span><span class="p">:</span> <span class="n">lat_bounds</span><span class="p">,</span>
-                <span class="s2">&quot;lon_bounds&quot;</span><span class="p">:</span> <span class="n">lon_bounds</span><span class="p">,</span>
-                <span class="s2">&quot;limit&quot;</span><span class="p">:</span> <span class="n">limit</span><span class="p">,</span>
-            <span class="p">},</span>
+        <span class="k">return</span> <span class="n">_build_pangaea_result</span><span class="p">(</span>
+            <span class="n">query_terms</span><span class="p">,</span>
+            <span class="n">detailed_datasets</span><span class="p">,</span>
+            <span class="n">generated_files</span><span class="p">,</span>
+            <span class="n">lat_bounds</span><span class="p">,</span>
+            <span class="n">lon_bounds</span><span class="p">,</span>
+            <span class="n">limit</span><span class="p">,</span>
+            <span class="n">stations_file</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>

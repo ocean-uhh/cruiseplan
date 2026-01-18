@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Timeline &amp; Scheduling &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
+  <title>Timeline &amp; Scheduling &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=6b4f5fd0"></script>
+      <script src="../_static/documentation_options.js?v=cf37dbc9"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -134,15 +134,15 @@
   <section id="timeline-scheduling">
 <h1>Timeline &amp; Scheduling<a class="headerlink" href="#timeline-scheduling" title="Link to this heading"></a></h1>
 <p>Scheduling algorithms and timeline generation for cruise planning.</p>
-<p id="module-cruiseplan.timeline">cruiseplan.calculators package.</p>
-<p>This package contains calculation modules for cruise planning computations:</p>
+<p id="module-cruiseplan.timeline">cruiseplan.timeline package.</p>
+<p>This package contains scheduling and timeline generation modules for cruise planning:</p>
 <ul class="simple">
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">distance</span></code>: Geographic distance calculations using Haversine formula</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">duration</span></code>: Time duration calculations for cruise operations and activities</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">routing</span></code>: Route optimization and spatial planning algorithms</p></li>
 <li><p><code class="xref py py-mod docutils literal notranslate"><span class="pre">scheduler</span></code>: Core scheduling logic for generating cruise timelines</p></li>
 </ul>
-<p>These calculators provide the mathematical and algorithmic foundation for determining
+<p>These modules provide the mathematical and algorithmic foundation for determining
 distances, durations, optimal routes, and scheduling sequences in oceanographic cruises.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.timeline.generate_timeline">
@@ -461,32 +461,10 @@ with a focus on:
 <span class="sig-name descname"><span class="pre">label</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.label" title="Link to this definition"></a></dt>
 <dd></dd></dl>
 
-<dl class="py property">
-<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.lat">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lat</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.lat" title="Link to this definition"></a></dt>
-<dd><p>return entry_lat as lat.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Backward compatibility</p>
-</dd>
-</dl>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.leg_name">
 <span class="sig-name descname"><span class="pre">leg_name</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.leg_name" title="Link to this definition"></a></dt>
 <dd></dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.lon">
-<em class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">lon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.lon" title="Link to this definition"></a></dt>
-<dd><p>return entry_lon as lon.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Backward compatibility</p>
-</dd>
-</dl>
-</dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.op_type">
@@ -512,6 +490,7 @@ with a focus on:
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.ActivityRecord.to_dict">
 <span class="sig-name descname"><span class="pre">to_dict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#ActivityRecord.to_dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.ActivityRecord.to_dict" title="Link to this definition"></a></dt>
 <dd><p>Convert to dictionary for output compatibility.</p>
+<p>Maps ActivityRecord fields to legacy dictionary format expected by output generators.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -620,7 +599,7 @@ with a focus on:
 
 <dl class="py function">
 <dt class="sig sig-object py" id="cruiseplan.timeline.scheduler.calculate_timeline_statistics">
-<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">calculate_timeline_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#calculate_timeline_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.calculate_timeline_statistics" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">cruiseplan.timeline.scheduler.</span></span><span class="sig-name descname"><span class="pre">calculate_timeline_statistics</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeline</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#cruiseplan.timeline.scheduler.ActivityRecord" title="cruiseplan.timeline.scheduler.ActivityRecord"><span class="pre">ActivityRecord</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="../_modules/cruiseplan/timeline/scheduler.html#calculate_timeline_statistics"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#cruiseplan.timeline.scheduler.calculate_timeline_statistics" title="Link to this definition"></a></dt>
 <dd><p>Calculate summary statistics for cruise timeline activities.</p>
 <p>Categorizes activities into scientific operations (stations, surveys, areas)
 and supporting operations (transits, ports) for summary reporting.</p>

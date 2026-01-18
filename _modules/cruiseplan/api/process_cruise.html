@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.api.process_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
+  <title>cruiseplan.api.process_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
+      <script src="../../../_static/documentation_options.js?v=cf37dbc9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -241,12 +241,12 @@
             <span class="n">key</span> <span class="ow">in</span> <span class="n">config_dict</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;start_date&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
         <span class="p">):</span>
             <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="n">config_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;Cruise metadata&quot;</span>
+                <span class="nb">next</span><span class="p">(</span><span class="nb">iter</span><span class="p">(</span><span class="n">config_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())),</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;Cruise metadata&quot;</span>
             <span class="p">)</span>
 
         <span class="c1"># Add spacing and comments for main sections</span>
         <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;points&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;areas&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;points&quot;</span><span class="p">,</span> <span class="s2">&quot;lines&quot;</span><span class="p">,</span> <span class="s2">&quot;areas&quot;</span><span class="p">}:</span>
                 <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
                     <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Global catalog - define your operations&quot;</span>
                 <span class="p">)</span>

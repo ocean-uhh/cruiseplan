@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.runtime.operations &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
+  <title>cruiseplan.runtime.operations &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev3</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
+      <script src="../../../_static/documentation_options.js?v=cf37dbc9"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -305,7 +305,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">position</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span>
+        <span class="n">position</span><span class="p">:</span> <span class="n">GeoPoint</span><span class="p">,</span>
         <span class="n">operation_depth</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">water_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
         <span class="n">duration</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span><span class="p">,</span>
@@ -335,7 +335,7 @@
 <span class="sd">            Specific action for moorings (deploy/recover).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>  <span class="c1"># (lat, lon)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">position</span> <span class="o">=</span> <span class="n">position</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">operation_depth</span> <span class="o">=</span> <span class="n">operation_depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">water_depth</span> <span class="o">=</span> <span class="n">water_depth</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">manual_duration</span> <span class="o">=</span> <span class="n">duration</span>
@@ -436,7 +436,7 @@
 <span class="sd">        tuple[float, float]</span>
 <span class="sd">            (latitude, longitude) of the operation location.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="PointOperation.get_exit_point">
@@ -452,7 +452,7 @@
 <span class="sd">        tuple[float, float]</span>
 <span class="sd">            (latitude, longitude) of the operation location.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">position</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
 
 
     <span class="c1"># What is this used for? probably belongs in vocabulary.py if it&#39;s just a lookup.</span>
@@ -500,7 +500,7 @@
 <span class="sd">            New PointOperation instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># 1. Extract Position (Guaranteed by validation.py to exist)</span>
-        <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 
         <span class="c1"># 2. Map operation types to legacy internal types</span>
         <span class="c1"># Use the original operation_type from YAML for display</span>
@@ -552,7 +552,7 @@
 <span class="sd">        PointOperation</span>
 <span class="sd">            New PointOperation instance representing a port.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">pos</span> <span class="o">=</span> <span class="p">(</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">GeoPoint</span><span class="p">(</span><span class="n">latitude</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">longitude</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
@@ -593,7 +593,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">route</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">],</span>
+        <span class="n">route</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">],</span>
         <span class="n">speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
         <span class="n">comment</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">display_name</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -615,7 +615,7 @@
 <span class="sd">            Human-readable comment or description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="o">=</span> <span class="n">route</span>  <span class="c1"># List of (lat, lon)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">route</span> <span class="o">=</span> <span class="n">route</span>  <span class="c1"># List of GeoPoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">speed</span> <span class="o">=</span> <span class="n">speed</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span> <span class="o">=</span> <span class="n">op_type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">action</span> <span class="o">=</span> <span class="n">action</span></div>
@@ -682,7 +682,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Fallback for empty routes</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LineOperation.get_exit_point">
@@ -700,7 +700,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># Fallback for empty routes</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="LineOperation.get_operation_distance_nm">
@@ -748,7 +748,8 @@
 <span class="sd">            New LineOperation instance.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Convert List[GeoPoint] -&gt; List[tuple]</span>
-        <span class="n">route_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">route</span><span class="p">]</span>
+        <span class="c1"># Use GeoPoints directly instead of converting to tuples</span>
+        <span class="n">route_geopoints</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">route</span>
 
         <span class="c1"># Use the original operation_type from YAML for display</span>
         <span class="n">display_op_type</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span><span class="o">.</span><span class="n">value</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">operation_type</span> <span class="k">else</span> <span class="s2">&quot;line&quot;</span>
@@ -756,7 +757,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">route</span><span class="o">=</span><span class="n">route_tuples</span><span class="p">,</span>
+            <span class="n">route</span><span class="o">=</span><span class="n">route_geopoints</span><span class="p">,</span>
             <span class="n">speed</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="k">if</span> <span class="n">obj</span><span class="o">.</span><span class="n">vessel_speed</span> <span class="k">else</span> <span class="n">default_speed</span><span class="p">,</span>
             <span class="n">comment</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">comment</span><span class="p">,</span>
             <span class="n">display_name</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;display_name&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
@@ -797,7 +798,7 @@
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-        <span class="n">boundary_polygon</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]],</span>
+        <span class="n">boundary_polygon</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">GeoPoint</span><span class="p">],</span>
         <span class="n">area_km2</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span>
         <span class="n">duration</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">start_point</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">float</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
@@ -831,7 +832,7 @@
 <span class="sd">            Human-readable comment or description.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">comment</span><span class="p">,</span> <span class="n">display_name</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span> <span class="o">=</span> <span class="n">boundary_polygon</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span> <span class="o">=</span> <span class="n">boundary_polygon</span>  <span class="c1"># List of GeoPoint</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">area_km2</span> <span class="o">=</span> <span class="n">area_km2</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">duration</span> <span class="o">=</span> <span class="n">duration</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">sampling_density</span> <span class="o">=</span> <span class="n">sampling_density</span>
@@ -840,10 +841,14 @@
 
         <span class="c1"># Set start/end points, defaulting to first/last corners if not specified</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">start_point</span> <span class="o">=</span> <span class="n">start_point</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="n">boundary_polygon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="n">boundary_polygon</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span>
+            <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">end_point</span> <span class="o">=</span> <span class="n">end_point</span> <span class="ow">or</span> <span class="p">(</span>
-            <span class="n">boundary_polygon</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="k">if</span> <span class="n">boundary_polygon</span> <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+            <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">boundary_polygon</span>
+            <span class="k">else</span> <span class="p">(</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
         <span class="p">)</span></div>
 
 
@@ -941,9 +946,11 @@
             <span class="p">)</span>
 
         <span class="c1"># Convert List[GeoPoint] -&gt; List[tuple]</span>
-        <span class="n">boundary_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">obj</span><span class="o">.</span><span class="n">corners</span><span class="p">]</span>
+        <span class="c1"># Use GeoPoints directly instead of converting to tuples</span>
+        <span class="n">boundary_geopoints</span> <span class="o">=</span> <span class="n">obj</span><span class="o">.</span><span class="n">corners</span>
 
-        <span class="c1"># Calculate approximate area using shoelace formula</span>
+        <span class="c1"># Calculate approximate area using shoelace formula (convert GeoPoints to tuples for calculation)</span>
+        <span class="n">boundary_tuples</span> <span class="o">=</span> <span class="p">[(</span><span class="n">p</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">boundary_geopoints</span><span class="p">]</span>
         <span class="n">area_km2</span> <span class="o">=</span> <span class="bp">cls</span><span class="o">.</span><span class="n">_calculate_polygon_area</span><span class="p">(</span><span class="n">boundary_tuples</span><span class="p">)</span>
 
         <span class="c1"># Use first and last corners as start/end points</span>
@@ -956,7 +963,7 @@
 
         <span class="k">return</span> <span class="bp">cls</span><span class="p">(</span>
             <span class="n">name</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
-            <span class="n">boundary_polygon</span><span class="o">=</span><span class="n">boundary_tuples</span><span class="p">,</span>
+            <span class="n">boundary_polygon</span><span class="o">=</span><span class="n">boundary_geopoints</span><span class="p">,</span>
             <span class="n">area_km2</span><span class="o">=</span><span class="n">area_km2</span><span class="p">,</span>
             <span class="n">duration</span><span class="o">=</span><span class="n">obj</span><span class="o">.</span><span class="n">duration</span><span class="p">,</span>
             <span class="n">start_point</span><span class="o">=</span><span class="n">start_point</span><span class="p">,</span>
