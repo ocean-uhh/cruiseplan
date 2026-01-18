@@ -18,7 +18,7 @@ class TestSchedulerDebug:
     """Debug tests that provide detailed timeline analysis."""
 
     @pytest.mark.parametrize("fixture_name", ["tc4_mixed_ops.yaml"])
-    def test_scheduler_debug_output(self, fixture_name, capsys):
+    def test_scheduler_debug_output(self, fixture_name, capsys):  # noqa: C901, PLR0915
         """Generate detailed debug output for scheduler timeline generation."""
         yaml_path = f"tests/fixtures/{fixture_name}"
 

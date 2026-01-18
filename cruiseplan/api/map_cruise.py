@@ -9,7 +9,7 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
-from cruiseplan.types import MapResult
+from cruiseplan.api.types import MapResult
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +68,7 @@ def map(
     >>> # Generate KML map with custom size
     >>> cruiseplan.map(config_file="cruise.yaml", format="kml", figsize=[16, 10])
     """
-    from cruiseplan.init_utils import _parse_map_formats, _setup_verbose_logging
+    from cruiseplan.api.init_utils import _parse_map_formats, _setup_verbose_logging
     from cruiseplan.output.kml_generator import generate_kml_catalog
     from cruiseplan.output.map_generator import generate_map
     from cruiseplan.runtime.cruise import CruiseInstance
@@ -125,7 +125,7 @@ def map(
         return MapResult(map_files=generated_files, format=format, summary=summary)
 
     except Exception as e:
-        from cruiseplan.init_utils import _handle_error_with_logging
+        from cruiseplan.api.init_utils import _handle_error_with_logging
 
         _handle_error_with_logging(e, "Map generation failed", verbose)
 

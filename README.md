@@ -36,6 +36,11 @@ CruisePlan transforms complex cruise planning from a weeks-long manual process i
 
 **⚠️ Breaking Changes in v0.3.3:** YAML configuration now uses `transects:` instead of `transits:` for scientific line operations and `waypoints:` instead of `stations:` for point operations.
 
+**⚠️ Breaking Changes in v0.3.6:** Major architecture refactoring - module renaming for improved clarity:
+- `cruiseplan.schema` → `cruiseplan.config` (Configuration schemas and validation)
+- `cruiseplan.core` → `cruiseplan.runtime` (Business logic and data processing) 
+- `cruiseplan.calculators` → `cruiseplan.timeline` (Scheduling algorithms and timeline generation)
+
 **Disclaimer:** This software is provided "as is" without warranty of any kind. Users are responsible for validating all calculations, timing estimates, and operational feasibility for their specific cruise requirements. Always consult with marine operations staff and verify all outputs before finalizing cruise plans.
 
 📘 Full documentation available at:  
@@ -56,46 +61,61 @@ CruisePlan transforms complex cruise planning from a weeks-long manual process i
 
 ---
 
-## Project structure
+## Architecture Overview
 
-For a detailed breakdown of the package architecture and module descriptions, see the [Project Structure Documentation](https://ocean-uhh.github.io/cruiseplan/project_structure.html).
+CruisePlan follows a **modular architecture** with clear separation of concerns:
+
+### 🏗️ Core Module Structure
+- **`cruiseplan.config`**: Configuration schemas and validation (CruiseConfig, activities, ports)
+- **`cruiseplan.runtime`**: Business logic and data processing (CruiseInstance, enrichment, validation)  
+- **`cruiseplan.timeline`**: Scheduling algorithms and timeline generation
+
+### 🔄 API-First Design
+CruisePlan provides both **programmatic API** and **command-line interface**:
+
+```python
+import cruiseplan
+
+# Notebook-friendly API
+timeline, files = cruiseplan.schedule(config_file="cruise.yaml", format="html")
+
+# Advanced usage
+from cruiseplan.runtime.cruise import CruiseInstance
+from cruiseplan.timeline.scheduler import generate_timeline
+```
+
+### 📁 Project Structure
 
 ```text
 cruiseplan/
-├── .github/
-│   └── workflows/              # GitHub Actions for tests, docs, PyPI
-├── docs/                       # Sphinx-based documentation
-│   ├── source/                 # reStructuredText + MyST Markdown + _static
-│   └── Makefile                # for building HTML docs
+├── .github/workflows/          # CI/CD: tests, docs, PyPI publishing
+├── docs/                       # Sphinx documentation (when available)
 ├── notebooks/                  # Example notebooks and demos
 ├── cruiseplan/                 # Main Python package
-│   ├── calculators/            # Distance, duration, routing calculators
-│   ├── cli/                    # Command-line interface modules
-│   ├── core/                   # Core cruise planning logic
+│   ├── api/                    # High-level API functions
+│   ├── cli/                    # Command-line interface modules  
+│   ├── config/                 # 🆕 Configuration schemas and validation
+│   │   └── exceptions.py       # Custom exception classes
+│   ├── runtime/                # 🆕 Business logic and data processing
+│   ├── timeline/               # 🆕 Scheduling and timeline generation
 │   ├── data/                   # Bathymetry and PANGAEA data handling
 │   ├── interactive/            # Interactive station picking tools
 │   ├── output/                 # Multi-format output generators
-│   ├── processing/             # Configuration processing and enrichment
-│   ├── utils/                  # Utilities and coordinate handling
-│   └── validation/             # Schema validation and configuration models
+│   └── utils/                  # Utilities and coordinate handling
 ├── tests/                      # Comprehensive pytest test suite
-│   ├── cli/                    # CLI command tests
-│   ├── core/                   # Core logic tests
+│   ├── api/, cli/, core/       # Organized test modules
 │   ├── fixtures/               # Test data and configurations
-│   ├── integration/            # Integration and workflow tests
-│   └── unit/                   # Unit tests by module
-├── data/                       # Bathymetry datasets
-├── .gitignore
-├── .pre-commit-config.yaml
-├── CITATION.cff                # Citation file for academic use
-├── CONTRIBUTING.md             # Contribution guidelines
-├── LICENSE                     # MIT license
-├── README.md
-├── pyproject.toml              # Modern packaging config
-├── requirements.txt            # Core package dependencies
-├── requirements-dev.txt        # Development and testing tools
-└── environment.yml             # Conda environment specification
+│   ├── integration/            # End-to-end workflow tests
+│   └── unit/                   # Fast unit tests
+├── data/                       # Sample bathymetry datasets
+└── Configuration files...      # .gitignore, pyproject.toml, etc.
 ```
+
+**Key Improvements in v0.3.6:**
+- ✅ **Clear module boundaries**: Config → Runtime → Timeline data flow
+- ✅ **Better discoverability**: Module names match main data types (CruiseConfig, CruiseInstance, CruiseSchedule)
+- ✅ **Hierarchical organization**: Cruise → Leg → Cluster → Operations
+- ✅ **Pydantic validation**: Type-safe configuration throughout
 
 ---
 

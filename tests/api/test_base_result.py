@@ -8,7 +8,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.types import (
+from cruiseplan.api.types import (
     BaseResult,
     BathymetryResult,
     EnrichResult,

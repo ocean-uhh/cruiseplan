@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2">
+    <Document>
+        <name>Interactive_Session - Catalog</name>
+        <description>Cruise configuration catalog including all stations, moorings, transits, ports, and areas</description>
+
+        <!-- Styles for different entity types -->
+        <Style id="stationStyle">
+            <IconStyle>
+                <color>ff0000ff</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_circle.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+
+        <Style id="mooringStyle">
+            <IconStyle>
+                <color>ff00ff00</color>
+                <scale>1.2</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/placemark_square.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+
+        <Style id="portStyle">
+            <IconStyle>
+                <color>ff0080ff</color>
+                <scale>1.5</scale>
+                <Icon>
+                    <href>http://maps.google.com/mapfiles/kml/shapes/marina.png</href>
+                </Icon>
+            </IconStyle>
+        </Style>
+
+        <Style id="transitStyle">
+            <LineStyle>
+                <color>800066FF</color>
+                <width>3</width>
+            </LineStyle>
+        </Style>
+
+        <Style id="areaStyle">
+            <LineStyle>
+                <color>ff00ffff</color>
+                <width>2</width>
+            </LineStyle>
+            <PolyStyle>
+                <color>4000ffff</color>
+                <fill>1</fill>
+            </PolyStyle>
+        </Style>
+
+        <!-- Ports -->
+
+        <!-- Stations -->
+
+        <!-- Moorings -->
+
+        <!-- Transits -->
+        <Placemark>
+            <name>Transit_01</name>
+            <description>
+                Type: UPDATE-underway-etc
+                Start: 60.111640°N, -56.208570°W
+                End: 57.413450°N, -51.393570°W
+                Distance: 220.6 nm
+            </description>
+            <styleUrl>#transitStyle</styleUrl>
+            <LineString>
+                <coordinates>
+                    -56.20857,60.11164,0
+                    -51.39357,57.41345,0
+                </coordinates>
+            </LineString>
+        </Placemark>
+
+        <!-- Areas -->
+        <Placemark>
+            <name>Area_01</name>
+            <description>
+                Type: Area
+                Corners: 3
+                Operation: UPDATE-survey-etc
+            </description>
+            <styleUrl>#areaStyle</styleUrl>
+            <Polygon>
+                <outerBoundaryIs>
+                    <LinearRing>
+                        <coordinates>-49.05993,59.20696,0 -54.17032,61.34964,0 -55.02697,57.0484,0 -49.05993,59.20696,0</coordinates>
+                    </LinearRing>
+                </outerBoundaryIs>
+            </Polygon>
+        </Placemark>
+    </Document>
+</kml>

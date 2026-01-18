@@ -10,8 +10,8 @@ import re
 from pathlib import Path
 from typing import Optional
 
-from cruiseplan.exceptions import ValidationError
-from cruiseplan.types import BathymetryResult, PangaeaResult
+from cruiseplan.api.types import BathymetryResult, PangaeaResult
+from cruiseplan.config.exceptions import ValidationError
 
 logger = logging.getLogger(__name__)
 
@@ -135,14 +135,14 @@ def pangaea(
     >>> for campaign in result.stations_data:
     ...     print(f"Campaign: {campaign['Campaign']}, Stations: {len(campaign['Stations'])}")
     """
-    from cruiseplan.data.pangaea import (
-        PangaeaManager,
-        save_campaign_data,
-    )
-    from cruiseplan.init_utils import (
+    from cruiseplan.api.init_utils import (
         _handle_error_with_logging,
         _setup_verbose_logging,
         _validate_lat_lon_bounds,
+    )
+    from cruiseplan.data.pangaea import (
+        PangaeaManager,
+        save_campaign_data,
     )
 
     _setup_verbose_logging(verbose)
@@ -167,7 +167,7 @@ def pangaea(
 
         # Define output files
         dois_file = output_dir_path / f"{base_name}_dois.txt"
-        stations_file = output_dir_path / f"{base_name}_stations.pkl"
+        stations_file = output_dir_path / f"{base_name}.pkl"
         generated_files = []
 
         # Search PANGAEA database using PangaeaManager with separate search/fetch
@@ -227,7 +227,7 @@ def pangaea(
             generated_files.append(stations_file)
 
         except ImportError:
-            logger.error(
+            logger.exception(
                 "❌ pangaeapy not available. Please install with: pip install pangaeapy"
             )
             raise RuntimeError(

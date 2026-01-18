@@ -1,56 +1,38 @@
-.. CruisePlan documentation master file.
-
 =======================================
 CruisePlan: Oceanographic Planning Hub
 =======================================
 
-Welcome to the official documentation for **CruisePlan** — the comprehensive software tool designed for planning and documenting oceanographic research cruises.
+**CruisePlan** is a comprehensive tool for planning oceanographic research cruises. Design optimal station layouts, calculate operational timings, and generate professional outputs in minutes.
 
-CruisePlan assists researchers in designing optimal station layouts, calculating precise operational timings, and generating professional proposal outputs adhering to scientific standards like CF conventions.
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Getting Started
-
-   installation.rst
-   usage.rst
+**Quick Start**: :doc:`user-guide/quick-start` | **GitHub** `<https://github.com/ocean-uhh/cruiseplan>`_
 
 .. toctree::
    :maxdepth: 2
-   :caption: CLI Workflows
-   
-   user_workflows.rst
+   :caption: User Guide
+
+   user-guide/quick-start
+   user-guide/workflows
+   user-guide/yaml-basics
 
 .. toctree::
    :maxdepth: 2
-   :caption: Notebook Demo
-   
+   :caption: Reference
+
+   reference/cli-commands
+   reference/yaml-full
+   reference/output-formats
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Advanced
+
+   advanced/api-examples
    demo-output.ipynb
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Project Specifications
-
-   Cruise Specifications <cruise_architecture.md>
-   CLI Command Reference <cli_reference.rst>
-   YAML Configuration Reference <yaml_reference.rst>
-   Operation Types Reference <operation_types.rst>
-   Calculation Methods <calculations.rst>
-   Units and defaults <units_and_defaults.rst>
-   Port list <global_ports.rst>
-   Output formats <output_formats.rst>
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Help and Reference
-
-   GitHub Repository <https://github.com/ocean-uhh/cruiseplan>
+   advanced/developer_guide.md
+   advanced/manual_testing.rst
    API Reference <api/modules.rst>
-   Contributing Guidelines <https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md>
-   Project Structure <project_structure.md>
-   Developer Guide <developer_guide.md>
-   Manual Testing <manual_testing.rst>
-   Development Roadmap <roadmap/index.rst>
+
+**Legacy Documentation**: For detailed technical documentation from previous versions, see :doc:`legacy/index`.
 
 Indices and tables
 ==================

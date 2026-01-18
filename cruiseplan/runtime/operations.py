@@ -19,11 +19,15 @@ from typing import Any, Optional
 
 from cruiseplan.config import (
     ACTION_FIELD,
+    ActionEnum,
     AreaDefinition,
     GeoPoint,
     LineDefinition,
     PointDefinition,
 )
+
+# Port actions that identify mobilization/demobilization operations
+PORT_ACTIONS = [ActionEnum.MOB.value, ActionEnum.DEMOB.value]
 
 
 class BaseOperation(ABC):

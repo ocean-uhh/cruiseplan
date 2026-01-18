@@ -1,0 +1,438 @@
+================================================
+CruisePlan v0.3.1: Unified Operations Model
+================================================
+
+.. note::
+   This roadmap document describes planned features for v0.3.1. Implementation will begin after v0.3.0 is thoroughly tested and released to PyPI.
+
+Overview
+========
+
+This version unifies the operations model to handle all point-based activities (stations, moorings, ports, waypoints) consistently through the existing PointOperation infrastructure. This eliminates special-case handling and provides a cleaner, more extensible architecture.
+
+Current State Analysis
+======================
+
+Before v0.3.1
+-------------
+
+- **Stations**: PointOperation with ``op_type='station'``
+- **Moorings**: PointOperation with ``op_type='mooring'``, ``action='deployment'/'recovery'``
+- **Ports**: Separate PortDefinition class, referenced in leg.departure_port/arrival_port
+- **Waypoints**: String references in leg.first_waypoint/last_waypoint
+
+Problems with Current Approach
+------------------------------
+
+1. Inconsistent handling of point-based operations
+2. Special-case code for ports and waypoints
+3. Limited functionality for ports/waypoints (no duration calculation, etc.)
+4. Complex mapping in station picker and converters
+
+Unified Operations Model
+========================
+
+Extended Operation Types inspired by PlanCampanha 
+---------------------------------------------------
+
+Based on PlanCampanha's multiple operation types, we need an extensible system that supports:
+
+**Core CruisePlan Operations:**
+
+- CTD, MOORING, CALIBRATION (existing)
+- PORT, WAYPOINT (new unified operations)
+
+**Extended Scientific Operations (examples from PlanCampanha):**
+
+- WP2_NET, BONGO_NET, AVANI_NET (plankton/microplastics sampling)
+- BOX_CORE, GRAVITY_CORE (sediment coring)
+- ROV_OPERATION (remotely operated vehicle)
+- LANDER (autonomous seafloor equipment)
+
+**Operation Parameters & Duration Calculation:**
+
+Each operation type needs configurable parameters for duration calculation:
+
+- Depth-dependent operations: CTD, nets, cores, ROV, lander
+- Fixed-duration operations: moorings, ports
+- Waiting operations: delays, equipment prep
+
+Proposed Enum Extensions
+------------------------
+
+.. code-block:: python
+
+   # In cruiseplan/core/validation.py
+
+   class OperationTypeEnum(str, Enum):
+       """Enumeration of point operation types."""
+       # Existing operations
+       CTD = "CTD"
+       WATER_SAMPLING = "water_sampling"
+       MOORING = "mooring"
+       CALIBRATION = "calibration"
+       
+       # v0.3.1 Unified operations
+       PORT = "port"                    # Departure/arrival ports
+       WAYPOINT = "waypoint"            # Navigation waypoints
+       WP2_NET = "wp2_net"             # WP2 zooplankton net
+       BONGO_NET = "bongo_net"         # Bongo ichthyoplankton net  
+       AVANI_NET = "avani_net"         # Avani microplastics net
+       BOX_CORE = "box_core"           # Box sediment coring
+       GRAVITY_CORE = "gravity_core"   # Gravity sediment coring
+       ROV_OPERATION = "rov_operation" # ROV deployment
+       LANDER = "lander"               # Seafloor lander operations
+       
+       # Custom/user-defined operations
+       CUSTOM = "custom"               # User-defined operation types
+       UPDATE_PLACEHOLDER = "UPDATE-CTD-mooring-etc"
+
+   class ActionEnum(str, Enum):
+       """Enumeration of specific actions for operations."""
+       PROFILE = "profile"
+       SAMPLING = "sampling" 
+       DEPLOYMENT = "deployment"
+       RECOVERY = "recovery"
+       CALIBRATION = "calibration"
+       DEPARTURE = "departure"          # NEW for ports
+       ARRIVAL = "arrival"              # NEW for ports
+       # Line operation actions
+       ADCP = "ADCP"
+       BATHYMETRY = "bathymetry"
+       # ... existing line actions
+
+Extensible Operation Parameters System
+======================================
+
+To support operation-specific duration calculations and user-defined operation types, we need a registry-based system for operation parameters.
+
+Key Features:
+
+- **Fixed Duration Operations**: Simple time-based operations (nets, moorings)
+- **Depth-Dependent Operations**: CTD, cores, landers, ROV with velocity-based calculations
+- **Custom Duration Formulas**: User-defined calculation methods
+- **Operation Limits**: Maximum depth constraints, equipment limitations
+- **PlanCampanha Compatibility**: Default parameters can be based on PlanCampanha values
+
+OperationParameters Class:
+
+.. note::
+   **Time Unit Consistency**: Need to verify internal time units - duration may be in hours while delays are in minutes. This needs to be standardized.
+
+.. code-block:: python
+
+   class OperationParameters(BaseModel):
+       """
+       Parameters for operation duration and behavior calculation.
+       Uses YAML-compatible field names to match existing configuration.
+       """
+       
+       # Fixed duration operations (hours) - matches YAML duration field
+       duration: Optional[float] = Field(None, description="Fixed duration in hours")
+       
+       # Depth-dependent parameters (matches existing calculations)
+       velocity_m_per_sec: Optional[float] = Field(None, description="Deployment/recovery velocity in m/s")
+       max_depth: Optional[float] = Field(None, description="Maximum operational depth in meters")
+       
+       # Time delay parameters (matches existing YAML fields)
+       delay_start: Optional[float] = Field(None, description="Delay before operation starts in minutes")
+       delay_end: Optional[float] = Field(None, description="Delay after operation ends in minutes")
+       
+       # Custom duration calculation
+       duration_formula: Optional[str] = Field(None, description="Python formula for duration calculation")
+       
+       # Description for documentation
+       description: Optional[str] = Field(None, description="Operation description")
+
+Example operation parameters:
+
+.. code-block:: python
+
+   DEFAULT_PARAMETERS = {
+       OperationTypeEnum.CTD: OperationParameters(
+           velocity_m_per_sec=1.0,     # Op.VelocityCTD (60 m/min = 1 m/s)
+           delay_end=30.0,              # Op.TStation (delay after operation in minutes)
+           description="Conductivity-Temperature-Depth profile"
+       ),
+       
+       OperationTypeEnum.WP2_NET: OperationParameters(
+           duration=0.5,               # Op.TWP2 (fixed duration)
+           description="WP2 net deployment for zooplankton sampling"
+       ),
+       
+       OperationTypeEnum.MOORING: OperationParameters(
+           velocity_m_per_sec=0.92,    # Op.VelocityMooring (55 m/min ≈ 0.92 m/s)
+           delay_end=30.0,              # Op.TMooring (delay after operation in minutes)
+           description="Mooring deployment or recovery"
+       ),
+       
+       OperationTypeEnum.PORT: OperationParameters(
+           duration=0.0,                # Ports have no operation duration
+           description="Vessel departure or arrival at port"
+       ),
+       
+       OperationTypeEnum.WAYPOINT: OperationParameters(
+           duration=0.0,                # Default no waiting time (use delay_start for waiting)
+           description="Navigation waypoint or waiting position"
+       )
+   }
+
+Unified Operation Types
+=======================
+
+All point-based operations now use PointOperation with consistent patterns:
+
+====================== ==================== =================== ==========================================
+Activity               operation_type       action              Notes
+====================== ==================== =================== ==========================================
+CTD Station            ``CTD``              ``profile``         Standard oceanographic station
+Water Sampling         ``water_sampling``   ``sampling``        Discrete water collection
+Mooring Deploy         ``mooring``          ``deployment``      Deploy mooring equipment
+Mooring Recover        ``mooring``          ``recovery``        Recover mooring equipment
+**Departure Port**     ``port``             ``departure``       **NEW - vessel departure point**
+**Arrival Port**       ``port``             ``arrival``         **NEW - vessel arrival point**
+**Waypoint**           ``waypoint``         None                **NEW - navigation waypoint**
+**Waiting Point**      ``waypoint``         None                **NEW - with delay_start for waiting**
+====================== ==================== =================== ==========================================
+
+Global Port Handling Decision
+==============================
+
+**Open Design Question**: For single-leg cruises that currently use global ``departure_port`` and ``arrival_port``, we need to decide:
+
+1. **Convert to stations**: Add ports as regular stations in the stations list with ``operation_type='port'``
+2. **Keep separate**: Maintain ports as separate entities but implement using PointOperation internally
+
+**Current Behavior**: Global ports are allowed for single-leg cruises, required at leg-level for multi-leg cruises.
+
+**Considerations**:
+- Converting to stations provides complete consistency
+- But changes the YAML structure for existing single-leg cruises
+- Global ports might be conceptually different from "stations" to users
+
+**Recommendation**: This needs further discussion - perhaps maintain both approaches during v0.3.1 for compatibility.
+
+**Implementation Note**: Regardless of YAML representation, departure_port and arrival_port will internally use PointOperation or derive from it. A new ``display_name`` field should be added to PointOperation to support user-friendly port names.
+
+Migration Strategy
+==================
+
+Backward Compatibility (v0.3.1)
+--------------------------------
+
+The system supports both old and new formats during v0.3.1 with deprecation warnings:
+
+Old Format (Deprecated):
+
+.. code-block:: yaml
+
+   cruise:
+     legs:
+       - name: "Leg_01"
+         departure_port: "port_halifax"    # String reference
+         arrival_port: "port_cadiz"        # String reference
+         first_waypoint: "STN_001"         # String reference
+         last_waypoint: "STN_005"          # String reference
+         stations:
+           - name: STN_001
+             # ... station definition
+
+New Format (Recommended):
+
+.. code-block:: yaml
+
+   cruise:
+     legs:
+       - name: "Leg_01"
+         stations:
+           # Departure port as unified station
+           - name: port_halifax
+             latitude: 44.6488
+             longitude: -63.5752
+             operation_type: port
+             action: departure
+             
+           # Regular stations
+           - name: STN_001
+             latitude: 45.0
+             longitude: -60.0
+             operation_type: CTD
+             action: profile
+             
+           # Waypoint with waiting time
+           - name: WAIT_001
+             latitude: 44.5
+             longitude: -61.0
+             operation_type: waypoint
+             delay_start: 12.0  # Wait 12 hours before next operation
+             comment: "Wait for weather window"
+             
+           # Arrival port as unified station  
+           - name: port_cadiz
+             latitude: 36.5271
+             longitude: -6.2886
+             operation_type: port
+             action: arrival
+
+Marine Facilities Planning Output Format
+=========================================
+
+Overview
+--------
+
+Marine Facilities Planning (https://www.marinefacilitiesplanning.com) requires a specific CSV format for cruise planning integration. This format uses semicolon-delimited fields with simplified operation type categories.
+
+MFP Format Specification
+------------------------
+
+.. code-block:: text
+
+   Station Type;Name;Latitude;Longitude
+   Waypoint;Waypoint;28.49610;-16.11910
+   Sampling Station;24-Pies433;29.16670;-18.48630
+   Sampling Station;24-Zoo;29.16670;-18.49630
+   Mooring;EBC7;28.67890;-13.08620
+
+**Field Definitions:**
+
+- **Station Type**: Simplified operation category (see mapping below)
+- **Name**: Station/operation identifier  
+- **Latitude**: Decimal degrees latitude
+- **Longitude**: Decimal degrees longitude
+
+Operation Type Mapping
+----------------------
+
+CruisePlan's unified operations map to MFP station types as follows:
+
+=============================== =================== =======================================
+CruisePlan Operation            MFP Station Type    Notes
+=============================== =================== =======================================
+``PORT`` (departure/arrival)   Port                Vessel departure/arrival points
+``WAYPOINT``                    Waypoint            Navigation waypoints
+``CTD``                         Sampling Station    Standard CTD profiles
+``WATER_SAMPLING``              Sampling Station    Water collection
+``WP2_NET``                     Sampling Station    Zooplankton sampling
+``BONGO_NET``                   Sampling Station    Ichthyoplankton sampling
+``AVANI_NET``                   Sampling Station    Microplastics sampling
+``BOX_CORE``                    Sampling Station    Sediment coring
+``GRAVITY_CORE``                Sampling Station    Deep sediment coring
+``ROV_OPERATION``               Sampling Station    ROV deployments
+``MOORING`` (deployment)        Mooring             Mooring deployments
+``MOORING`` (recovery)          Mooring             Mooring recoveries
+``LANDER`` (deployment)         Mooring             Lander deployments
+``LANDER`` (recovery)           Mooring             Lander recoveries
+``CALIBRATION``                 Sampling Station    Calibration activities
+=============================== =================== =======================================
+
+CLI Design Pattern
+==================
+
+Following the established pattern, CLI commands should be thin wrappers around underlying API:
+
+.. code-block:: python
+
+   # cruiseplan/cli/stations.py - Example wrapper pattern
+   # Should delegate to underlying API classes
+
+   def interactive_station_picker(config_file, **kwargs):
+       """CLI wrapper for interactive station picker."""
+       
+       # Import the API class
+       from cruiseplan.interactive.station_picker_api import StationPickerAPI
+       
+       # Create API instance
+       api = StationPickerAPI(config_file)
+       
+       # Delegate to API method
+       return api.run_interactive_mode(**kwargs)
+
+   # The actual implementation should be in:
+   # cruiseplan/interactive/station_picker_api.py (new)
+
+
+
+Benefits of Unified Model
+=========================
+
+1. **Consistent Architecture**
+   
+   - All point operations use PointOperation infrastructure
+   - Consistent validation, serialization, and processing
+   - Eliminates special-case handling in converters and UI
+
+2. **Enhanced Functionality**
+   
+   - Ports and waypoints now support all PointOperation features:
+     
+     - Duration calculation
+     - Position validation
+     - Depth assignment
+     - Comment/metadata support
+     - Timeline integration
+
+3. **Simplified Converters**
+   
+   - PlanCampanha converter maps directly to unified operations
+   - Station picker handles all types consistently
+   - No special port/waypoint handling needed
+
+4. **Future Extensibility**
+   
+   - Easy to add new operation types (e.g., ``CALIBRATION``, ``SURVEY_MARKER``)
+   - Consistent pattern for actions (e.g., ``ANCHOR``, ``DRIFT``)
+   - Metadata fields can be added uniformly
+
+5. **Better User Experience**
+   
+   - Ports and waypoints appear in normal station lists
+   - Consistent editing and visualization
+   - Timeline includes all activities in proper sequence
+
+Implementation Timeline
+=======================
+
+Phase 1: Core Infrastructure  
+--------------------------------------------
+
+- [ ] Add PORT and WAYPOINT to OperationTypeEnum
+- [ ] Add DEPARTURE and ARRIVAL to ActionEnum  
+- [ ] Create OperationParameters and OperationTypeRegistry
+- [ ] Update StationDefinition validation with new fields
+- [ ] Create migration helper functions
+
+Phase 2: Scheduler Integration  
+--------------------------------------------
+
+- [ ] Update scheduler to handle unified operations
+- [ ] Integrate OperationTypeRegistry for duration calculation
+- [ ] Add deprecation warnings for old format
+- [ ] Test with existing YAML files
+- [ ] Verify backward compatibility
+
+Phase 3: Extended Operations  
+-------------------------------------
+
+- [ ] Add extended operation types (WP2_NET, BONGO_NET, etc.)
+- [ ] Implement custom operation registration
+- [ ] Update duration calculation with configurable parameters
+- [ ] Add PlanCampanha-compatible defaults
+
+Phase 4: Marine Facilities Planning Output Format  
+----------------------------------------------------------
+
+- [ ] Add Marine Facilities Planning CSV output format
+- [ ] Implement operation type mapping for MFP format
+- [ ] Update timeline generators to support MFP export
+- [ ] Add MFP format to CLI output options
+
+Phase 5: Documentation & Examples (v0.3.1)
+-------------------------------------------
+
+- [ ] Update YAML examples to show new format
+- [ ] Document migration path and extended operations
+- [ ] Update API documentation with new output formats
+- [ ] Add migration guide and custom operation examples
+
+
+This unified approach provides a solid foundation for the enhanced station picker while maintaining backward compatibility and supporting extensibility for custom operation types and parameters.

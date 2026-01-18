@@ -77,7 +77,7 @@ All enrichment operations are enabled by default. Use these flags to disable spe
 
 .. option:: --no-sections
 
-   Skip expanding CTD sections into individual stations.
+   Skip expanding CTD sections into individual points.
 
 .. option:: --no-ports
 

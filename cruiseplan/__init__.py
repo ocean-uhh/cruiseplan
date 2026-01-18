@@ -58,10 +58,7 @@ from cruiseplan.api import (
     stations,
     validate,
 )
-from cruiseplan.data.bathymetry import download_bathymetry
-from cruiseplan.exceptions import BathymetryError, FileError, ValidationError
-from cruiseplan.timeline import CruiseSchedule
-from cruiseplan.types import (
+from cruiseplan.api.types import (
     BathymetryResult,
     EnrichResult,
     MapResult,
@@ -71,12 +68,28 @@ from cruiseplan.types import (
     StationPickerResult,
     ValidationResult,
 )
+from cruiseplan.config.exceptions import BathymetryError, FileError, ValidationError
+from cruiseplan.data.bathymetry import download_bathymetry
+from cruiseplan.timeline import CruiseSchedule
 
 logger = logging.getLogger(__name__)
 
 # Export the core classes for advanced users
 __all__ = [
+    "BathymetryError",
+    "BathymetryResult",
+    "CruiseSchedule",
+    "EnrichResult",
+    "FileError",
+    "MapResult",
+    "PangaeaResult",
+    "ProcessResult",
+    "ScheduleResult",
+    "StationPickerResult",
+    "ValidationError",
+    "ValidationResult",
     "bathymetry",
+    "download_bathymetry",
     "enrich",
     "map",
     "pangaea",
@@ -84,21 +97,4 @@ __all__ = [
     "schedule",
     "stations",
     "validate",
-    # Exception classes
-    "ValidationError",
-    "FileError",
-    "BathymetryError",
-    # Result classes
-    "EnrichResult",
-    "ValidationResult",
-    "ScheduleResult",
-    "PangaeaResult",
-    "ProcessResult",
-    "MapResult",
-    "BathymetryResult",
-    "StationPickerResult",
-    # Legacy compatibility
-    "CruiseSchedule",
-    # Advanced usage functions
-    "download_bathymetry",
 ]

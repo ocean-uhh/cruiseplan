@@ -471,7 +471,7 @@ def add_coordinate_displays(
     coord_changes_made = 0
 
     # Add coordinate displays for points that have coordinates but lack display fields
-    for _, point in cruise_instance.point_registry.items():
+    for point in cruise_instance.point_registry.values():
         if (
             hasattr(point, "latitude")
             and hasattr(point, "longitude")

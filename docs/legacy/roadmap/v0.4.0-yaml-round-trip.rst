@@ -1,0 +1,344 @@
+============================================================
+Station Picker v0.4.1: YAML Loading and Round-Trip Editing
+============================================================
+
+.. note::
+   This roadmap document describes the YAML integration features planned for v0.4.1, building on the v0.4.0 architecture foundation.
+
+Phase 3: YAML Integration Challenges and Solutions
+===================================================
+
+The Core Challenge
+------------------
+
+YAML loading presents unique complexities that go beyond simple data import:
+
+1. **Semantic Mismatch**: A single YAML transit with ``operation_type="CTD"`` and ``action="section"`` can expand into many PointOperations
+2. **Order Preservation**: YAML has specific ordering that must be maintained (name is before lat/lon, etc., and the order of stations/transits MIGHT matter if specified by user)
+3. **Name Preservation**: YAML uses meaningful names vs auto-generated STN_XXX
+4. **Round-Trip Fidelity**: Loading and saving should preserve structure
+5. **Mixed State**: Some elements may be expanded (by ``cruiseplan process``) while others aren't
+
+Conceptual Approach
+-------------------
+
+We need a **dual-representation system** that maintains both:
+
+- **Logical representation**: What the YAML defines (e.g., a CTD section)
+- **Visual representation**: What gets displayed (e.g., expanded stations or a line)
+
+Division of Responsibilities
+============================
+
+What ``yaml_io.py`` Provides (Already Exists)
+----------------------------------------------
+
+- **YAML Loading**: ``load_yaml()`` - Loads YAML with comment preservation using ruamel.yaml
+- **YAML Saving**: ``save_yaml()`` - Saves YAML with comments preserved and optional backup
+- **Safe Loading**: ``load_yaml_safe()`` - Returns plain dict without comments
+- **Processor Configuration**: Proper indentation, quote preservation, no unwanted wrapping
+- **Backup Management**: Incremental backup file creation - MAYBE this can be deleted
+- **Error Handling**: Proper exceptions for I/O errors
+
+What We Need to Add
+-------------------
+
+- **Dual-Representation Tracking**: Track both YAML elements and their visual representations
+- **Expansion Status Tracking**: Know which elements have been processed/expanded
+- **Order Preservation**: Maintain YAML ordering during editing
+- **Round-Trip Logic**: Convert between representations while preserving structure
+
+YAMLContext: The Bridge Layer
+=============================
+
+Core Concept
+------------
+
+The ``YAMLContext`` class manages the relationship between YAML structure and interactive operations:
+
+.. code-block:: python
+
+   class YAMLContext:
+       """
+       Manages the bridge between YAML structure and interactive operations.
+       
+       Handles the dual-representation system where YAML elements can be:
+       1. Unexpanded (show as lines/areas in UI)
+       2. Expanded (show as individual stations)
+       """
+       
+       def __init__(self, file_path: str):
+           self.file_path = file_path
+           self.yaml_data = None
+           self.element_sources = {}  # Track origin of each visual element
+           self.expansion_status = {}  # Track what's been expanded
+           
+       def load_yaml(self) -> Dict:
+           """Load YAML using existing yaml_io functionality."""
+           
+       def save_yaml(self, backup: bool = True) -> bool:
+           """Save YAML using existing yaml_io functionality."""
+           
+       def get_visual_elements(self) -> List[Operation]:
+           """Convert YAML elements to visual operations for display."""
+           
+       def update_yaml_from_visuals(self) -> bool:
+           """Update YAML structure based on visual element changes."""
+
+Element Source Tracking
+------------------------
+
+Track the relationship between visual elements and their YAML origins:
+
+.. code-block:: python
+
+   class ElementSource(Enum):
+       """Track the origin of visual elements."""
+       YAML_ORIGINAL = "yaml_original"      # Direct from YAML
+       YAML_EXPANDED = "yaml_expanded"      # Expanded from YAML element
+       USER_ADDED = "user_added"            # Added by user interaction
+
+   # Example tracking:
+   element_sources = {
+       "STN_001": ElementSource.YAML_ORIGINAL,
+       "CTD_LINE_001_point_1": ElementSource.YAML_EXPANDED,  
+       "CTD_LINE_001_point_2": ElementSource.YAML_EXPANDED,
+       "NEW_STN_001": ElementSource.USER_ADDED
+   }
+
+YAML Integration Workflow
+==========================
+
+Loading Existing YAML
+----------------------
+
+1. **Load YAML Structure**: Use existing ``yaml_io.load_yaml()``
+2. **Identify Elements**: Catalog all stations, transits, areas  
+3. **Check Expansion Status**: Determine if elements have been processed
+4. **Create Visual Representations**: 
+   
+   - Unexpanded sections → LineOperation or AreaOperation
+   - Individual stations → PointOperation
+   - Mixed state → Combination of both
+
+5. **Track Sources**: Record which visual elements came from which YAML elements
+
+Example YAML States:
+
+**Unexpanded YAML (original)**:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Leg_01"  
+       activities:
+         - name: PORT_START
+           latitude: 44.6488
+           longitude: -63.5752
+           operation_type: port
+           action: departure
+           
+       lines:
+         - name: "CTD_LINE_001"
+           operation_type: "CTD"
+           action: "section"
+           start_position: [45.0, -60.0]
+           end_position: [46.0, -58.0]
+           spacing_km: 25
+
+**Partially Expanded YAML (after processing)**:
+
+.. code-block:: yaml
+
+   legs:
+     - name: "Leg_01"
+       stations:
+         - name: PORT_START
+           latitude: 44.6488
+           longitude: -63.5752
+           operation_type: port
+           action: departure
+           
+         # Expanded from CTD_LINE_001
+         - name: CTD_LINE_001_001
+           latitude: 45.0
+           longitude: -60.0
+           operation_type: CTD
+           action: profile
+           
+         - name: CTD_LINE_001_002
+           latitude: 45.5
+           longitude: -59.0
+           operation_type: CTD  
+           action: profile
+
+Visual Representation Logic
+---------------------------
+
+.. code-block:: python
+
+   def create_visual_elements(self, yaml_data: Dict) -> List[Operation]:
+       """Convert YAML to visual operations."""
+       visual_elements = []
+       
+       for leg in yaml_data['cruise']['legs']:
+           # Process individual stations
+           for station in leg.get('stations', []):
+               if self._is_expanded_station(station['name']):
+                   # This is an expanded station - show as point
+                   point_op = self._create_point_from_station(station)
+                   self.element_sources[point_op.name] = ElementSource.YAML_EXPANDED
+               else:
+                   # Original station - show as point
+                   point_op = self._create_point_from_station(station)  
+                   self.element_sources[point_op.name] = ElementSource.YAML_ORIGINAL
+               visual_elements.append(point_op)
+               
+           # Process transits/areas
+           for transit in leg.get('transits', []):
+               if self._has_been_expanded(transit['name']):
+                   # Skip - stations already created above
+                   continue
+               else:
+                   # Show as line operation
+                   line_op = self._create_line_from_transit(transit)
+                   self.element_sources[line_op.name] = ElementSource.YAML_ORIGINAL
+                   visual_elements.append(line_op)
+       
+       return visual_elements
+
+Round-Trip Editing Workflow
+============================
+
+User Makes Changes
+------------------
+
+When a user modifies visual elements:
+
+1. **Detect Change Type**:
+   
+   - Modified existing element → Update corresponding YAML
+   - Added new element → Insert into appropriate YAML section
+   - Removed element → Remove from YAML (with warnings if expanded)
+
+2. **Preserve Structure**:
+   
+   - Keep comments and formatting
+   - Maintain element ordering
+   - Preserve unexpanded sections
+
+3. **Update YAML**:
+   
+   - Use ``yaml_io.save_yaml()`` for atomic writes
+   - Create backup before changes
+   - Validate structure after updates
+
+Expansion Handling
+------------------
+
+Special handling for sections that can be expanded:
+
+.. code-block:: python
+
+   def handle_section_expansion(self, section_name: str) -> List[PointOperation]:
+       """Handle user request to expand a section into individual stations."""
+       
+       # Find the YAML transit/area
+       yaml_element = self._find_yaml_element(section_name)
+       
+       # Use existing expansion logic (from cruiseplan process)
+       expanded_stations = self._expand_to_stations(yaml_element)
+       
+       # Remove original section from YAML
+       self._remove_yaml_element(section_name)
+       
+       # Add expanded stations to YAML
+       for station in expanded_stations:
+           self._add_station_to_yaml(station)
+           self.element_sources[station.name] = ElementSource.YAML_EXPANDED
+       
+       # Update visual representation
+       self._remove_visual_element(section_name)
+       visual_stations = [self._create_point_from_station(s) for s in expanded_stations]
+       
+       return visual_stations
+
+Integration with v0.4.0 Architecture
+====================================
+
+YAMLInputHandler
+----------------
+
+The YAML functionality integrates with the v0.4.0 architecture through a specialized input handler:
+
+.. code-block:: python
+
+   class YAMLInputHandler(InputHandler):
+       """Handle YAML loading and round-trip editing."""
+       
+       def __init__(self, data_manager: InteractiveDataManager):
+           super().__init__(data_manager)
+           self.yaml_context = None
+           
+       def load_file(self, file_path: str) -> bool:
+           """Load YAML file and populate data manager."""
+           self.yaml_context = YAMLContext(file_path)
+           
+           # Load and convert to visual elements
+           visual_elements = self.yaml_context.get_visual_elements()
+           
+           # Clear current data and load new
+           self.data_manager.clear_all()
+           for element in visual_elements:
+               self.data_manager.add_operation(element)
+           
+           # Set up auto-sync
+           self.data_manager.add_listener("operation_changed", self._on_change)
+           
+           return True
+           
+       def _on_change(self, event_data):
+           """Handle changes to sync back to YAML."""
+           if self.yaml_context:
+               self.yaml_context.update_yaml_from_visuals()
+               self.yaml_context.save_yaml()
+
+Benefits of This Approach
+=========================
+
+1. **Structure Preservation**
+   
+   - Comments, ordering, and formatting maintained
+   - Unexpanded sections remain intact
+   - Mixed expanded/unexpanded state supported
+
+2. **User Flexibility**
+   
+   - Edit individual stations or whole sections
+   - Expand sections when detailed editing needed
+   - Add new elements alongside existing YAML structure
+
+3. **Robustness**
+   
+   - Automatic backups before changes
+   - Validation after updates
+   - Error recovery for malformed edits
+
+4. **Integration**
+   
+   - Uses existing ``yaml_io.py`` functionality
+   - Fits cleanly into v0.4.0 architecture
+   - No duplication of YAML handling logic
+
+File Structure
+==============
+
+New files needed:
+
+::
+
+   cruiseplan/interactive/
+   ├── yaml_context.py          # YAMLContext class
+   └── yaml_input_handler.py    # YAMLInputHandler class
+
+This approach provides powerful YAML round-trip editing capabilities while preserving the structure and integrity of existing cruise configuration files.

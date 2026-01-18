@@ -1,0 +1,56 @@
+# Cruise metadata
+cruise_name: Interactive_Session
+description: Cruise plan created with interactive station picker
+turnaround_time: 30.0
+
+# Global catalog - define your operations
+lines:
+  - name: Transit_01
+    comment: Interactive transect - Review route and update operation details
+    operation_type: UPDATE-underway-etc
+    action: UPDATE-ADCP-bathymetry-etc
+    vessel_speed: 10.0
+    route:
+      - latitude: 60.11164
+        longitude: -56.20857
+      - latitude: 57.41345
+        longitude: -51.39357
+
+# Global catalog - define your operations
+areas:
+  - name: Area_01
+    comment: Interactive area survey - Review polygon and update operation details
+    operation_type: UPDATE-survey-etc
+    action: UPDATE-bathymetry-survey-etc
+    duration: 9999.0
+    corners:
+      - latitude: 59.20696
+        longitude: -49.05993
+      - latitude: 61.34964
+        longitude: -54.17032
+      - latitude: 57.0484
+        longitude: -55.02697
+
+# Schedule organization
+legs:
+  - name: Interactive_Survey
+    departure_port:
+      name: Hamburg (DEPARTURE PLACEHOLDER)
+      display_name: Hamburg, Germany - UPDATE DEPARTURE PORT
+      operation_type: port
+      action: mob
+      latitude: 53.5349
+      longitude: 9.97992
+    arrival_port:
+      name: Hamburg (ARRIVAL PLACEHOLDER)
+      display_name: Hamburg, Germany - UPDATE ARRIVAL PORT
+      operation_type: port
+      action: demob
+      latitude: 53.5349
+      longitude: 9.97992
+    first_activity: Transit_01
+    last_activity: Area_01
+    activities:
+      - Transit_01
+      - Area_01
+    clusters: []

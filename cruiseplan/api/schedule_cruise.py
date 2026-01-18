@@ -9,13 +9,13 @@ import logging
 from pathlib import Path
 from typing import Optional, Union
 
-from cruiseplan.exceptions import FileError, ValidationError
-from cruiseplan.types import ScheduleResult
+from cruiseplan.api.types import ScheduleResult
+from cruiseplan.config.exceptions import FileError, ValidationError
 
 logger = logging.getLogger(__name__)
 
 
-def schedule(
+def schedule(  # noqa: C901, PLR0915
     config_file: Union[str, Path],
     output_dir: str = "data",
     output: Optional[str] = None,
@@ -88,7 +88,10 @@ def schedule(
     >>> import xarray as xr
     >>> ds = xr.open_dataset(netcdf_file)
     """
-    from cruiseplan.init_utils import _parse_schedule_formats, _setup_verbose_logging
+    from cruiseplan.api.init_utils import (
+        _parse_schedule_formats,
+        _setup_verbose_logging,
+    )
     from cruiseplan.runtime.cruise import CruiseInstance
     from cruiseplan.timeline.scheduler import generate_timeline
 
@@ -153,7 +156,7 @@ def schedule(
         formats = _parse_schedule_formats(format, derive_netcdf)
 
         # Import generator helpers
-        from cruiseplan.init_utils import (
+        from cruiseplan.api.init_utils import (
             generate_csv_format,
             generate_html_format,
             generate_latex_format,

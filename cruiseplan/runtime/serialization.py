@@ -454,6 +454,37 @@ def to_yaml(
     output_dict = to_commented_dict(cruise_instance)
 
     if output_file is not None:
+        # Add comments to the dictionary if requested
+        if add_comments:
+            from ruamel.yaml.comments import CommentedMap
+
+            from cruiseplan.config.yaml_io import dict_to_yaml_string
+
+            # Convert to CommentedMap with section comments
+            commented_data = CommentedMap(output_dict)
+
+            # Add section comments based on field presence
+            if any(
+                key in output_dict
+                for key in ["cruise_name", "start_date", "description"]
+            ):
+                commented_data.yaml_set_comment_before_after_key(
+                    list(output_dict.keys())[0], before="Cruise metadata"
+                )
+
+            # Add spacing and comments for main sections
+            for key in output_dict.keys():
+                if key == "points":
+                    commented_data.yaml_set_comment_before_after_key(
+                        key, before="\nGlobal catalog - define your operations"
+                    )
+                elif key == "legs":
+                    commented_data.yaml_set_comment_before_after_key(
+                        key, before="\nSchedule organization"
+                    )
+
+            output_dict = commented_data
+
         # Save to file
         output_path = Path(output_file)
         save_yaml(output_dict, output_path, backup=backup)

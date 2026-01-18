@@ -9,8 +9,6 @@ with existing imports.
 """
 
 # Core exceptions and enums
-# Basic data models
-
 # Field name constants for yaml - centralized for easy renaming
 # Activity definitions (new terminology)
 from .activities import (
@@ -24,7 +22,30 @@ from .activities import (
 # Main cruise configuration
 # Schedule definitions (YAML layer)
 from .cruise_config import ClusterDefinition, CruiseConfig, LegDefinition
-from .fields import *
+from .exceptions import BathymetryError, FileError, ValidationError
+from .fields import (
+    ACTION_FIELD,
+    ACTIVITIES_FIELD,
+    AREA_REGISTRY,
+    AREAS_FIELD,
+    ARRIVAL_PORT_FIELD,
+    CLUSTERS_FIELD,
+    DEFAULT_VESSEL_SPEED_FIELD,
+    DEPARTURE_PORT_FIELD,
+    DURATION_FIELD,
+    FIRST_ACTIVITY_FIELD,
+    LAST_ACTIVITY_FIELD,
+    LEGS_FIELD,
+    LINE_REGISTRY,
+    LINES_FIELD,
+    OP_DEPTH_FIELD,
+    OP_TYPE_FIELD,
+    POINT_REGISTRY,
+    POINTS_FIELD,
+    START_DATE_FIELD,
+    START_TIME_FIELD,
+    WATER_DEPTH_FIELD,
+)
 from .values import (
     ActionEnum,
     AreaOperationTypeEnum,
@@ -34,44 +55,41 @@ from .values import (
 )
 
 __all__ = [
-    # Field name constants
-    "POINTS_FIELD",
-    "LINES_FIELD",
-    "AREAS_FIELD",
-    "FIRST_ACTIVITY_FIELD",
-    "LAST_ACTIVITY_FIELD",
-    "OP_TYPE_FIELD",
     "ACTION_FIELD",
     "ACTIVITIES_FIELD",
+    "AREAS_FIELD",
+    "AREA_REGISTRY",
     "ARRIVAL_PORT_FIELD",
     "CLUSTERS_FIELD",
+    "DEFAULT_VESSEL_SPEED_FIELD",
     "DEPARTURE_PORT_FIELD",
     "DURATION_FIELD",
+    "FIRST_ACTIVITY_FIELD",
+    "LAST_ACTIVITY_FIELD",
     "LEGS_FIELD",
+    "LINES_FIELD",
+    "LINE_REGISTRY",
     "OP_DEPTH_FIELD",
+    "OP_TYPE_FIELD",
+    "POINTS_FIELD",
+    "POINT_REGISTRY",
     "START_DATE_FIELD",
     "START_TIME_FIELD",
-    "DEFAULT_VESSEL_SPEED_FIELD",
     "WATER_DEPTH_FIELD",
-    "POINT_REGISTRY",
-    "LINE_REGISTRY",
-    "AREA_REGISTRY",
-    # Enums
     "ActionEnum",
+    "AreaDefinition",
     "AreaOperationTypeEnum",
-    "LineOperationTypeEnum",
-    "OperationTypeEnum",
-    "StrategyEnum",
-    # Models
+    "BathymetryError",
+    "ClusterDefinition",
+    "CruiseConfig",
+    "FileError",
     "FlexibleLocationModel",
     "GeoPoint",
-    # Activity Definitions (new terminology)
-    "AreaDefinition",
-    "LineDefinition",
-    "PointDefinition",
-    # Schedule Definitions (YAML layer)
-    "ClusterDefinition",
     "LegDefinition",
-    # Main Configuration
-    "CruiseConfig",
+    "LineDefinition",
+    "LineOperationTypeEnum",
+    "OperationTypeEnum",
+    "PointDefinition",
+    "StrategyEnum",
+    "ValidationError",
 ]

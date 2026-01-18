@@ -228,3 +228,57 @@ def load_yaml_safe(file_path: Union[str, Path]) -> dict[str, Any]:
         raise YAMLIOError(f"Invalid YAML syntax in {file_path}: {e}") from e
     except Exception as e:
         raise YAMLIOError(f"Error reading {file_path}: {e}") from e
+
+
+def dict_to_yaml_string(data: dict[str, Any], add_comments: bool = True) -> str:
+    """
+    Convert dictionary to YAML string with optional section comments.
+
+    Parameters
+    ----------
+    data : dict[str, Any]
+        Dictionary to convert to YAML
+    add_comments : bool, optional
+        Whether to add section comments (default: True)
+
+    Returns
+    -------
+    str
+        YAML string with optional comments and spacing
+    """
+    if add_comments:
+        # Create CommentedMap with section comments
+        from ruamel.yaml.comments import CommentedMap
+
+        commented_data = CommentedMap(data)
+
+        # Add section comments based on field presence
+        field_index = 0
+
+        # Add cruise metadata comment before first field
+        if any(key in data for key in ["cruise_name", "start_date", "description"]):
+            commented_data.yaml_set_comment_before_after_key(
+                list(data.keys())[0], before="Cruise metadata"
+            )
+
+        # Add spacing and comments for main sections
+        for key in data:
+            if key == "points" and field_index > 0:
+                commented_data.yaml_set_comment_before_after_key(
+                    key, before="\nGlobal catalog - define your operations"
+                )
+            elif key == "legs" and field_index > 0:
+                commented_data.yaml_set_comment_before_after_key(
+                    key, before="\nSchedule organization"
+                )
+            field_index += 1
+
+        data = commented_data
+
+    # Convert to YAML string
+    from io import StringIO
+
+    stream = StringIO()
+    yaml = _get_yaml_processor()
+    yaml.dump(data, stream)
+    return stream.getvalue()

@@ -3,7 +3,7 @@
 import logging
 from unittest.mock import patch
 
-from cruiseplan.init_utils import (
+from cruiseplan.api.init_utils import (
     _handle_error_with_logging,
     _parse_map_formats,
     _parse_schedule_formats,
@@ -31,7 +31,7 @@ class TestSetupVerboseLogging:
 class TestHandleErrorWithLogging:
     """Test the _handle_error_with_logging function."""
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     @patch("traceback.print_exc")
     def test_with_verbose(self, mock_traceback, mock_logger):
         """Test error handling with verbose mode."""
@@ -41,7 +41,7 @@ class TestHandleErrorWithLogging:
         mock_logger.error.assert_called_once_with("❌ Operation failed: Test error")
         mock_traceback.assert_called_once()
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     @patch("traceback.print_exc")
     def test_without_verbose(self, mock_traceback, mock_logger):
         """Test error handling without verbose mode."""
@@ -65,7 +65,7 @@ class TestValidateLatLonBounds:
         result = _validate_lat_lon_bounds(None, None)
         assert result is None
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     def test_missing_lon_bounds(self, mock_logger):
         """Test with lat bounds but no lon bounds."""
         result = _validate_lat_lon_bounds([45.0, 50.0], None)
@@ -74,7 +74,7 @@ class TestValidateLatLonBounds:
             "Both lat_bounds and lon_bounds must be provided for geographic search"
         )
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     def test_missing_lat_bounds(self, mock_logger):
         """Test with lon bounds but no lat bounds."""
         result = _validate_lat_lon_bounds(None, [-10.0, 10.0])
@@ -83,7 +83,7 @@ class TestValidateLatLonBounds:
             "Both lat_bounds and lon_bounds must be provided for geographic search"
         )
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     def test_invalid_lat_bounds_length(self, mock_logger):
         """Test with invalid lat bounds length."""
         result = _validate_lat_lon_bounds([45.0], [-10.0, 10.0])
@@ -92,7 +92,7 @@ class TestValidateLatLonBounds:
             "lat_bounds and lon_bounds must each contain exactly 2 values [min, max]"
         )
 
-    @patch("cruiseplan.init_utils.logger")
+    @patch("cruiseplan.api.init_utils.logger")
     def test_invalid_lon_bounds_length(self, mock_logger):
         """Test with invalid lon bounds length."""
         result = _validate_lat_lon_bounds([45.0, 50.0], [-10.0, 10.0, 20.0])

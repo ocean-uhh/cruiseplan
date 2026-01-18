@@ -39,10 +39,6 @@ Options
 
    Output directory for bathymetry files (default: ``data/bathymetry``)
 
-.. option:: --verbose, -v
-
-   Enable verbose logging output
-
 .. option:: --help, -h
 
    Show help message and exit

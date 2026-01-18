@@ -83,7 +83,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 **TC1_Single_Test_schedule.html**
 ..................................
 
-4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute "turnaround_time" (the default from constants.py) and a 2850m CTD (using mocked bathymetry) from `DEFAULT_CTD_RATE_M_S` in `constants.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
+4. |uncheck| Verify that the CTD takes **2.1 hours**, based on a 30 minute "turnaround_time" (the default from `cruiseplan/config/values.py`) and a 2850m CTD (using mocked bathymetry) from `DEFAULT_CTD_RATE_M_S` in `cruiseplan/config/values.py`, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.
 
 5. |uncheck| Verify that the total cruise duration is **262.4 hours / 10.9 days**.
 

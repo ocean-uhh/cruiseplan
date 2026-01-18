@@ -229,7 +229,7 @@ class PointOperation(BaseOperation):
 For details on the CTD duration calculation, see  [calculations](calculations.rst).
 
 ### Line Operations (LineOperation)
-- **Types**: Scientific transects, navigation transits
+- **Types**: Scientific transects, navigation routes
 - **Duration**: Route distance ÷ vessel speed
 - **Entry/Exit**: First/last waypoints of route
 

@@ -494,24 +494,26 @@ Examples:
         "process",
         help="Unified configuration processing (enrich + validate + map)",
         description="Unified interface for complete configuration processing pipeline",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-This command provides a unified interface for the complete configuration processing pipeline,
-combining enrichment (adding missing data), validation (checking configuration integrity),
-and map generation into a single command with smart defaults and flexible control.
+This command provides a unified interface for the complete configuration 
+processing pipeline, combining enrichment (adding missing data), validation 
+(checking configuration integrity), and map generation into a single command 
+with smart defaults and flexible control.
 
 Key Features:
 - Smart defaults: All enrichment options enabled by default
 - Flexible execution: Control which steps run with --only-* and --no-* flags
-- Consistent output naming: Use --output for base filename across all generated files
+- Consistent output naming: Use --output for base filename across all files
 - Modern parameter names: Shorter --bathy-* parameters for reduced typing
 
 Examples:
-  cruiseplan process -c cruise.yaml                                    # Full processing with smart defaults
-  cruiseplan process -c cruise.yaml --output expedition_2024          # With custom base filename
-  cruiseplan process -c cruise.yaml --only-enrich --no-sections       # Only enrichment, skip CTD sections
-  cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0   # Only validation with custom tolerance
-  cruiseplan process -c cruise.yaml --only-map --format png           # Only map generation, PNG only
-  cruiseplan process -c cruise.yaml --no-map --strict                 # Skip maps, strict validation
+  cruiseplan process -c cruise.yaml                             # Full processing
+  cruiseplan process -c cruise.yaml --output expedition_2024   # Custom filename  
+  cruiseplan process -c cruise.yaml --only-enrich --no-sections # Only enrichment
+  cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0 # Validation
+  cruiseplan process -c cruise.yaml --only-map --format png    # Only map generation
+  cruiseplan process -c cruise.yaml --no-map --strict          # Skip maps, strict
         """,
     )
     # Required arguments
@@ -625,6 +627,7 @@ Examples:
         "--figsize",
         nargs=2,
         type=float,
+        metavar=("WIDTH", "HEIGHT"),
         default=[12, 8],
         help="Figure size for PNG maps (width height, default: 12 8)",
     )

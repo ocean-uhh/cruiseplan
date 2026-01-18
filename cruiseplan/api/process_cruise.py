@@ -13,6 +13,9 @@ from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
+from cruiseplan.api.types import EnrichResult, ProcessResult, ValidationResult
+from cruiseplan.config.exceptions import BathymetryError, FileError
+from cruiseplan.config.exceptions import ValidationError as CruisePlanValidationError
 from cruiseplan.config.fields import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -30,8 +33,6 @@ from cruiseplan.config.values import (
 )
 from cruiseplan.config.yaml_io import load_yaml, load_yaml_safe, save_yaml
 from cruiseplan.data.bathymetry import BathymetryManager
-from cruiseplan.exceptions import BathymetryError, FileError
-from cruiseplan.exceptions import ValidationError as CruisePlanValidationError
 from cruiseplan.runtime.validation import (
     check_complete_duplicates,
     check_cruise_metadata,
@@ -40,7 +41,6 @@ from cruiseplan.runtime.validation import (
     format_validation_warnings,
     validate_depth_accuracy,
 )
-from cruiseplan.types import EnrichResult, ProcessResult, ValidationResult
 from cruiseplan.utils.logging import configure_logging
 
 logger = logging.getLogger(__name__)
@@ -130,7 +130,7 @@ def _save_config(
     output_path: Optional[Path],
 ) -> None:
     """
-    Save configuration to file.
+    Save configuration to file with section comments.
 
     Parameters
     ----------
@@ -140,7 +140,31 @@ def _save_config(
         Path for output file (if None, no save).
     """
     if output_path:
-        save_yaml(config_dict, output_path, backup=False)
+        # Add section comments to the config before saving
+        from ruamel.yaml.comments import CommentedMap
+
+        commented_data = CommentedMap(config_dict)
+
+        # Add cruise metadata comment before first field
+        if any(
+            key in config_dict for key in ["cruise_name", "start_date", "description"]
+        ):
+            commented_data.yaml_set_comment_before_after_key(
+                list(config_dict.keys())[0], before="Cruise metadata"
+            )
+
+        # Add spacing and comments for main sections
+        for key in config_dict:
+            if key == "points" or key == "lines" or key == "areas":
+                commented_data.yaml_set_comment_before_after_key(
+                    key, before="\nGlobal catalog - define your operations"
+                )
+            elif key == "legs":
+                commented_data.yaml_set_comment_before_after_key(
+                    key, before="\nSchedule organization"
+                )
+
+        save_yaml(commented_data, output_path, backup=False)
 
 
 def _process_warnings(captured_warnings: list[str]) -> None:
@@ -264,7 +288,7 @@ def _enrich_configuration(
     return final_summary
 
 
-def enrich(
+def enrich(  # noqa: C901
     config_file: Union[str, Path],
     output_dir: str = "data",
     output: Optional[str] = None,
@@ -640,7 +664,7 @@ def _check_unexpanded_ctd_sections_raw(config_dict: dict[str, Any]) -> list[str]
     return warnings
 
 
-def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:
+def _check_cruise_metadata_raw(raw_config: dict) -> list[str]:  # noqa: C901
     """
     Check cruise metadata for placeholder values and default coordinates from raw YAML.
 

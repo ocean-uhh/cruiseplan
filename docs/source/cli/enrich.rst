@@ -4,7 +4,7 @@
 enrich
 ======
 
-Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual station definitions.
+Adds missing or computed data (like depth or formatted coordinates) to a configuration file. Can also expand CTD sections into individual point definitions.
 
 Usage
 -----
@@ -22,11 +22,11 @@ Options
    * - ``-c CONFIG_FILE, --config-file CONFIG_FILE``
      - **Required.** Input YAML configuration file.
    * - ``--add-depths``
-     - Add missing ``water_depth`` values to stations using bathymetry data. Only adds depths to stations that lack depth information - does not overwrite existing depth values. Skipping this flag (``add_depths=False``) is unnecessary if your configuration already contains depth information.
+     - Add missing ``water_depth`` values to points using bathymetry data. Only adds depths to points that lack depth information - does not overwrite existing depth values. Skipping this flag (``add_depths=False``) is unnecessary if your configuration already contains depth information.
    * - ``--add-coords``
      - Add formatted coordinate fields (currently DMM; DMS not yet implemented).
    * - ``--expand-sections``
-     - Expand CTD sections defined in ``transits`` into individual station definitions with spherical interpolation.
+     - Expand CTD sections defined in ``lines`` into individual point definitions with spherical interpolation.
    * - ``--expand-ports``
      - Expand global port references into inline port definitions within legs.
    * - ``-o OUTPUT_DIR, --output-dir OUTPUT_DIR``
@@ -43,7 +43,7 @@ Options
 CTD Section Expansion
 ---------------------
 
-The ``--expand-sections`` option processes CTD section transits and converts them into individual station definitions:
+The ``--expand-sections`` option processes CTD section lines and converts them into individual point definitions:
 
 .. code-block:: yaml
 

@@ -221,7 +221,9 @@ class OperationFactory:
 # =============================================================================
 
 
-def calculate_timeline_statistics(timeline: list[dict[str, Any]]) -> dict[str, Any]:
+def calculate_timeline_statistics(
+    timeline: list[dict[str, Any]],
+) -> dict[str, Any]:
     """
     Calculate summary statistics for cruise timeline activities.
 
@@ -584,7 +586,7 @@ class TimelineGenerator:
 
         return runtime_legs
 
-    def _process_leg(self, leg: Any) -> list[ActivityRecord]:
+    def _process_leg(self, leg: Any) -> list[ActivityRecord]:  # noqa: C901
         """Process a single leg and generate activities."""
         # Initialize current_time if not set
         if self.current_time is None:
@@ -782,7 +784,7 @@ class TimelineGenerator:
         self.current_time = activity.end_time
         return activity
 
-    def _extract_activities_from_leg(self, leg: Any) -> list[str]:
+    def _extract_activities_from_leg(self, leg: Any) -> list[str]:  # noqa: C901
         """Extract activity names from leg definition."""
         activities = []
 

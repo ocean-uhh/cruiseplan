@@ -10,7 +10,7 @@ import logging
 from pathlib import Path
 from typing import Any, Optional
 
-from cruiseplan.types import BaseResult
+from cruiseplan.api.types import BaseResult
 from cruiseplan.utils.coordinates import _validate_coordinate_bounds
 from cruiseplan.utils.io import (
     generate_output_filename,

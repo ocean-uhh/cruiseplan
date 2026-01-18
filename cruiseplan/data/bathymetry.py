@@ -567,9 +567,9 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
 
     Returns
     -------
-    bool or None
-        For GEBCO 2025: True if download/file check was successful, False if failed or cancelled.
-        For ETOPO 2022: Returns None (legacy behavior).
+    str, bool, or None
+        Returns file path (str) if successful or file exists, False if explicitly cancelled,
+        None if download failed completely.
     """
     if source == "gebco2025":
         # Handle GEBCO 2025 download
@@ -583,7 +583,7 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
             file_size_gb = gebco_path.stat().st_size / (1024**3)
             if file_size_gb >= 6.9:  # 6.9GB threshold for ~7.5GB file
                 print(f"File already exists at {gebco_path} ({file_size_gb:.1f} GB)")
-                return True
+                return str(gebco_path)
             else:
                 print(
                     f"Existing file at {gebco_path} is incomplete ({file_size_gb:.1f} GB)"
@@ -612,7 +612,9 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
         success = manager.ensure_gebco_2025(silent_if_exists=True)
         if not success:
             print("❌ GEBCO 2025 download failed.")
-        return success
+            return False
+        # Return file path on success
+        return str(gebco_path)
 
     # Handle ETOPO 2022 download (existing logic)
     output_dir = Path(target_dir).resolve()
@@ -625,7 +627,7 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
         file_size_mb = local_path.stat().st_size / (1024 * 1024)
         if file_size_mb >= 450:
             print(f"File already exists at {local_path} ({file_size_mb:.1f} MB)")
-            return
+            return str(local_path)
         else:
             print(
                 f"Existing file at {local_path} is incomplete ({file_size_mb:.1f} MB)"
@@ -641,10 +643,10 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
                     print("Deleted incomplete file. Starting download...")
                 else:
                     print("Keeping incomplete file. Download cancelled.")
-                    return
+                    return str(local_path)  # Return path even if incomplete
             except (EOFError, KeyboardInterrupt):
                 print("Non-interactive environment. Keeping incomplete file.")
-                return
+                return str(local_path)  # Return path even if incomplete
 
     print(f"Downloading ETOPO dataset to {local_path}...")
 
@@ -673,7 +675,7 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
                     bar.update(len(chunk))
 
             print("\nDownload complete!")
-            return  # Success, exit function
+            return str(local_path)  # Success, return file path
         except Exception as e:
             print(f"Failed to download from {url}")
             print(f"   Error: {e}")
@@ -688,6 +690,7 @@ def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etop
     print(f"URL: {ETOPO_URLS[0]}")
     print(f"Save to: {local_path}")
     print("=" * 60 + "\n")
+    return None  # Download failed
 
 
 def check_bathymetry_availability(source: str) -> bool:

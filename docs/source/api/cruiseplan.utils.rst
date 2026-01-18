@@ -5,26 +5,10 @@ General Utilities
    :members:
 
 
-cruiseplan.utils.activity_utils module
------------------------------------------
-
-.. automodule:: cruiseplan.utils.activity_utils
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cruiseplan.utils.config module
+cruiseplan.utils.cache module
 ------------------------------
 
-.. automodule:: cruiseplan.utils.config
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
-cruiseplan.utils.constants module
----------------------------------
-
-.. automodule:: cruiseplan.utils.constants
+.. automodule:: cruiseplan.utils.cache
    :members:
    :undoc-members:
    :show-inheritance:
@@ -37,10 +21,18 @@ cruiseplan.utils.coordinates module
    :undoc-members:
    :show-inheritance:
 
-cruiseplan.utils.global_ports module
-------------------------------------
+cruiseplan.utils.io module
+---------------------------
 
-.. automodule:: cruiseplan.utils.global_ports
+.. automodule:: cruiseplan.utils.io
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+cruiseplan.utils.logging module
+--------------------------------
+
+.. automodule:: cruiseplan.utils.logging
    :members:
    :undoc-members:
    :show-inheritance:
@@ -53,10 +45,10 @@ cruiseplan.utils.plot_config module
    :undoc-members:
    :show-inheritance:
 
-cruiseplan.utils.yaml_io module
--------------------------------
+cruiseplan.utils.units module
+-----------------------------
 
-.. automodule:: cruiseplan.utils.yaml_io
+.. automodule:: cruiseplan.utils.units
    :members:
    :undoc-members:
    :show-inheritance:

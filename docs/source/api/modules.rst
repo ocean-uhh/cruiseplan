@@ -4,10 +4,12 @@ CruisePlan API
 .. toctree::
    :maxdepth: 2
 
+   cruiseplan.api
    cruiseplan.cli
-   cruiseplan.core
-   cruiseplan.interactive
+   cruiseplan.config
    cruiseplan.data
-   cruiseplan.calculators
+   cruiseplan.interactive
    cruiseplan.output
+   cruiseplan.runtime
+   cruiseplan.timeline
    cruiseplan.utils

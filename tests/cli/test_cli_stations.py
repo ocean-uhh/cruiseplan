@@ -77,7 +77,7 @@ def test_main_success_with_pangaea(mock_args, mock_external_deps):
 
 def test_main_uses_default_bounds_if_not_provided(mock_args, mock_external_deps):
     """Tests that CLI passes None bounds to API when not provided (API handles defaults)."""
-    MockStationsAPI, MockExit = mock_external_deps
+    MockStationsAPI, _MockExit = mock_external_deps
 
     # Simulate args missing the bounds
     mock_args.lat = None

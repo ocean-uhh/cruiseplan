@@ -46,7 +46,7 @@ def main(args: argparse.Namespace) -> None:
 
         if result.warnings:
             if getattr(args, "warnings_only", False):
-                print("ℹ️ Validation Warnings (informational only):")
+                print("i Validation Warnings (informational only):")
                 for warning in result.warnings:
                     print(f"  • {warning}")
             else:
@@ -58,7 +58,7 @@ def main(args: argparse.Namespace) -> None:
         if result.success:
             print(f"✅ Validation passed ({len(result.warnings)} warnings)")
             if result.warnings and getattr(args, "warnings_only", False):
-                print("ℹ️ Treating warnings as informational only")
+                print("i Treating warnings as informational only")
             sys.exit(0)
         else:
             print(
