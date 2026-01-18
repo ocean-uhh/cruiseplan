@@ -18,7 +18,7 @@ except ImportError:
 
 # Define placeholder main functions for dynamic imports
 # (These will be overwritten when the modules are implemented)
-def schedule_main(args: argparse.Namespace):
+def schedule_main(args: argparse.Namespace) -> None:
     """
     Placeholder for schedule subcommand logic.
 
@@ -32,7 +32,7 @@ def schedule_main(args: argparse.Namespace):
     )
 
 
-def stations_main(args: argparse.Namespace):
+def stations_main(args: argparse.Namespace) -> None:
     """
     Placeholder for stations subcommand logic.
 
@@ -44,7 +44,7 @@ def stations_main(args: argparse.Namespace):
     print(f"Stations logic will process bounds: {args.lat}, {args.lon}")
 
 
-def enrich_main(args: argparse.Namespace):
+def enrich_main(args: argparse.Namespace) -> None:
     """
     Placeholder for enrich logic.
 
@@ -56,7 +56,7 @@ def enrich_main(args: argparse.Namespace):
     print(f"Enrich logic for config: {args.config_file}")
 
 
-def validate_main(args: argparse.Namespace):
+def validate_main(args: argparse.Namespace) -> None:
     """
     Placeholder for validate logic.
 
@@ -68,7 +68,7 @@ def validate_main(args: argparse.Namespace):
     print(f"Validate logic for config: {args.config_file}")
 
 
-def pangaea_main(args: argparse.Namespace):
+def pangaea_main(args: argparse.Namespace) -> None:
     """
     Placeholder for PANGAEA data processing logic.
 
@@ -491,9 +491,9 @@ Examples:
         description="Unified interface for complete configuration processing pipeline",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="""
-This command provides a unified interface for the complete configuration 
-processing pipeline, combining enrichment (adding missing data), validation 
-(checking configuration integrity), and map generation into a single command 
+This command provides a unified interface for the complete configuration
+processing pipeline, combining enrichment (adding missing data), validation
+(checking configuration integrity), and map generation into a single command
 with smart defaults and flexible control.
 
 Key Features:
@@ -504,7 +504,7 @@ Key Features:
 
 Examples:
   cruiseplan process -c cruise.yaml                             # Full processing
-  cruiseplan process -c cruise.yaml --output expedition_2024   # Custom filename  
+  cruiseplan process -c cruise.yaml --output expedition_2024   # Custom filename
   cruiseplan process -c cruise.yaml --only-enrich --no-sections # Only enrichment
   cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0 # Validation
   cruiseplan process -c cruise.yaml --only-map --format png    # Only map generation

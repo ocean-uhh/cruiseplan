@@ -155,7 +155,13 @@ def _extract_port_info(port: Any) -> Optional[tuple[float, float, str]]:
 
 def extract_coordinates_from_cruise(
     cruise: Any,
-) -> tuple[list[float], list[float], list[str], Optional[tuple], Optional[tuple]]:
+) -> tuple[
+    list[float],
+    list[float],
+    list[str],
+    Optional[tuple[float, ...]],
+    Optional[tuple[float, ...]],
+]:
     """
     Extract coordinates from cruise configuration.
 

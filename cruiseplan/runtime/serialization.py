@@ -469,11 +469,11 @@ def to_yaml(
                 for key in ["cruise_name", "start_date", "description"]
             ):
                 commented_data.yaml_set_comment_before_after_key(
-                    list(output_dict.keys())[0], before="Cruise metadata"
+                    next(iter(output_dict.keys())), before="Cruise metadata"
                 )
 
             # Add spacing and comments for main sections
-            for key in output_dict.keys():
+            for key in output_dict:
                 if key == "points":
                     commented_data.yaml_set_comment_before_after_key(
                         key, before="\nGlobal catalog - define your operations"

@@ -57,7 +57,7 @@ def main(args: argparse.Namespace) -> None:
     """
     try:
         # Determine workflow mode (CLI-specific logic)
-        mode = determine_workflow_mode(args)
+        _ = determine_workflow_mode(args)
 
         # Note: DOI file mode is now handled automatically by the API
         # based on query_or_file parameter detection

@@ -10,7 +10,7 @@ from datetime import datetime
 from typing import Any
 
 
-def get_activity_depth(activity: dict) -> float:
+def get_activity_depth(activity: dict[str, Any]) -> float:
     """
     Get depth for an activity using the same logic as Operation.get_depth().
 
@@ -42,7 +42,7 @@ def get_activity_depth(activity: dict) -> float:
     return 0.0
 
 
-def get_activity_position(activity: dict) -> tuple[float, float]:
+def get_activity_position(activity: dict[str, Any]) -> tuple[float, float]:
     """
     Get latitude and longitude for an activity using modern field names with legacy fallback.
 
@@ -62,7 +62,7 @@ def get_activity_position(activity: dict) -> tuple[float, float]:
     return float(lat), float(lon)
 
 
-def format_activity_type(activity: dict) -> str:
+def format_activity_type(activity: dict[str, Any]) -> str:
     """
     Format activity type using op_type and action fields.
 

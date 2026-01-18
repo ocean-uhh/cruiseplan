@@ -150,12 +150,12 @@ def _save_config(
             key in config_dict for key in ["cruise_name", "start_date", "description"]
         ):
             commented_data.yaml_set_comment_before_after_key(
-                list(config_dict.keys())[0], before="Cruise metadata"
+                next(iter(config_dict.keys())), before="Cruise metadata"
             )
 
         # Add spacing and comments for main sections
         for key in config_dict:
-            if key == "points" or key == "lines" or key == "areas":
+            if key in {"points", "lines", "areas"}:
                 commented_data.yaml_set_comment_before_after_key(
                     key, before="\nGlobal catalog - define your operations"
                 )
