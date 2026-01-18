@@ -122,11 +122,8 @@ class TestNetCDFIntegration:
     def test_empty_configuration_handling(self):
         """Test NetCDF generation with minimal/empty configuration."""
         # Create a minimal config with no stations
-        from cruiseplan.config import (
-            CruiseConfig,
-            LegDefinition,
-            PointDefinition,
-        )
+        from cruiseplan.config.cruise_config import CruiseConfig, LegDefinition
+        from cruiseplan.config.activities import PointDefinition
 
         minimal_config = CruiseConfig(
             cruise_name="Empty_Test_Cruise",

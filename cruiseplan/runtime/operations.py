@@ -17,14 +17,14 @@ for stations, moorings, areas, and transects.
 from abc import ABC, abstractmethod
 from typing import Any, Optional
 
-from cruiseplan.config import (
-    ACTION_FIELD,
-    ActionEnum,
+from cruiseplan.config.activities import (
     AreaDefinition,
     GeoPoint,
     LineDefinition,
     PointDefinition,
 )
+from cruiseplan.config.fields import ACTION_FIELD
+from cruiseplan.config.values import ActionEnum
 
 # Port actions that identify mobilization/demobilization operations
 PORT_ACTIONS = [ActionEnum.MOB.value, ActionEnum.DEMOB.value]

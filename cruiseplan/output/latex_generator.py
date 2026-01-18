@@ -18,7 +18,7 @@ from typing import Any
 
 from jinja2 import Environment, FileSystemLoader
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import is_scientific_operation
 from cruiseplan.timeline.scheduler import ActivityRecord
 from cruiseplan.utils.coordinates import format_position_latex

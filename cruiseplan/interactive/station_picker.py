@@ -11,7 +11,7 @@ from typing import ClassVar, Optional
 
 import matplotlib.pyplot as plt
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.cruise_config import LegDefinition
 from cruiseplan.config.values import (

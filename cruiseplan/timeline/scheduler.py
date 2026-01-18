@@ -14,7 +14,8 @@ from dataclasses import dataclass
 from datetime import datetime, timedelta
 from typing import Any, Optional
 
-from cruiseplan.config import CruiseConfig, GeoPoint
+from cruiseplan.config.cruise_config import CruiseConfig
+from cruiseplan.config.activities import GeoPoint
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,

@@ -3,7 +3,7 @@ from pathlib import Path
 
 import pytest
 
-from cruiseplan.config import (
+from cruiseplan.config.fields import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
     DEPARTURE_PORT_FIELD,

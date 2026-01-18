@@ -14,7 +14,7 @@ from pathlib import Path
 import pytest
 
 from cruiseplan.api.process_cruise import enrich_configuration
-from cruiseplan.config import POINTS_FIELD
+from cruiseplan.config.fields import POINTS_FIELD
 from cruiseplan.config.values import DEFAULT_MOORING_DURATION_MIN
 from cruiseplan.config.yaml_io import load_yaml
 from cruiseplan.output.html_generator import generate_html_schedule

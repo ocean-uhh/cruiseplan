@@ -9,7 +9,7 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.html_generator import (
     HTMLGenerator,
     _convert_decimal_to_deg_min_html,

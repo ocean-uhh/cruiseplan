@@ -13,7 +13,7 @@ from typing import Optional
 import numpy as np
 import xarray as xr
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.netcdf_metadata import (
     create_coordinate_variables,
     create_global_attributes,
