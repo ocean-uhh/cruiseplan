@@ -89,9 +89,6 @@ All enrichment operations are enabled by default. Use these flags to disable spe
 
    Skip depth accuracy checking against bathymetry data.
 
-.. option:: --strict
-
-   Enable strict validation mode (treat warnings as errors).
 
 .. option:: --tolerance FLOAT
 
@@ -247,8 +244,8 @@ Examples
    # Custom validation tolerance and KML only
    cruiseplan process -c cruise.yaml --tolerance 15.0 --format kml
    
-   # No map generation, strict validation
-   cruiseplan process -c cruise.yaml --no-map --strict
+   # No map generation only
+   cruiseplan process -c cruise.yaml --no-map
 
 **Output Examples**
 

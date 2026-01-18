@@ -82,7 +82,7 @@ Process and enrich cruise configuration.
                       [--no-depth-check] [--tolerance TOLERANCE] [-o OUTPUT_DIR] 
                       [--output OUTPUT] [--format FORMAT] [--bathy-source {etopo2022,gebco2025}] 
                       [--bathy-dir BATHY_DIR] [--bathy-stride BATHY_STRIDE] 
-                      [--figsize WIDTH HEIGHT] [--no-port-map] [--strict] [--verbose] [--quiet]
+                      [--figsize WIDTH HEIGHT] [--no-port-map] [--verbose] [--quiet]
 
 **Options:**
 
@@ -190,7 +190,7 @@ Add bathymetry depths to stations.
 
    cruiseplan enrich [-h] -c CONFIG_FILE [--add-depths] [--add-coords] 
                   [--expand-sections] [-o OUTPUT_DIR] [--output OUTPUT] 
-                  [--bathy-source {etopo2022,gebco2025}] [--bathy-dir BATHY_DIR]
+                  [--bathy-source {etopo2022,gebco2025}] [--bathy-dir BATHY_DIR] [--verbose]
 
 cruiseplan validate
 -------------------
@@ -199,7 +199,7 @@ Validate cruise configuration.
 
 .. code-block:: bash
 
-   cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--tolerance TOLERANCE] [--strict]
+   cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--tolerance TOLERANCE]
 
 cruiseplan map
 --------------
@@ -219,15 +219,19 @@ Global Options
 All commands support:
 
 - ``-h, --help``: Show help message
-- ``--verbose``: Enable detailed logging
 - ``--version``: Show version information
+
+Commands with verbose logging:
+
+- ``cruiseplan process --verbose``: Enable detailed logging
+- ``cruiseplan pangaea --verbose``: Enable detailed logging  
+- ``cruiseplan enrich --verbose``: Enable detailed logging
+- ``cruiseplan map --verbose``: Enable detailed logging
 
 Exit Codes
 ==========
 
 - **0**: Success
-- **1**: Configuration or validation error  
-- **2**: File I/O error
-- **3**: Network or data download error
+- **1**: Error (configuration, validation, file I/O, network, etc.)
 
 For examples and workflows, see :doc:`../user-guide/workflows`.

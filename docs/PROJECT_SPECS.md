@@ -189,7 +189,7 @@ for event in timeline:
 ```bash
 # CLI processing operations
 cruiseplan enrich -c config.yaml --add-depths --expand-sections
-cruiseplan validate -c config.yaml --strict
+cruiseplan validate -c config.yaml
 ```
 
 #### Section Expansion

@@ -386,11 +386,6 @@ Examples:
 
     # General options
     validate_parser.add_argument(
-        "--strict",
-        action="store_true",
-        help="Enable strict validation mode",
-    )
-    validate_parser.add_argument(
         "--warnings-only",
         action="store_true",
         help="Show warnings without failing",
@@ -513,7 +508,7 @@ Examples:
   cruiseplan process -c cruise.yaml --only-enrich --no-sections # Only enrichment
   cruiseplan process -c cruise.yaml --only-validate --tolerance 5.0 # Validation
   cruiseplan process -c cruise.yaml --only-map --format png    # Only map generation
-  cruiseplan process -c cruise.yaml --no-map --strict          # Skip maps, strict
+  cruiseplan process -c cruise.yaml --no-map                   # Skip maps only
         """,
     )
     # Required arguments
@@ -638,9 +633,6 @@ Examples:
     )
 
     # General options
-    process_parser.add_argument(
-        "--strict", action="store_true", help="Enable strict validation mode"
-    )
     process_parser.add_argument(
         "--verbose", "-v", action="store_true", help="Enable verbose logging"
     )

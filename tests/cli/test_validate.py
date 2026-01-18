@@ -26,7 +26,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -57,7 +56,6 @@ class TestValidateThinCLI:
                 bathy_dir="data/bathymetry",
                 check_depths=True,
                 tolerance=10.0,
-                strict=False,
                 warnings_only=False,
                 verbose=False,
             )
@@ -70,7 +68,6 @@ class TestValidateThinCLI:
             bathy_dir="/custom/bathy",
             check_depths=False,
             tolerance=5.0,
-            strict=True,
             warnings_only=True,
             verbose=True,
         )
@@ -97,7 +94,6 @@ class TestValidateThinCLI:
                 bathy_dir="/custom/bathy",
                 check_depths=False,
                 tolerance=5.0,
-                strict=True,
                 warnings_only=True,
                 verbose=True,
             )
@@ -110,7 +106,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -140,7 +135,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -163,7 +157,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -186,7 +179,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -209,7 +201,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -230,7 +221,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=False,
         )
@@ -251,7 +241,6 @@ class TestValidateThinCLI:
             bathy_dir="data/bathymetry",
             check_depths=True,
             tolerance=10.0,
-            strict=False,
             warnings_only=False,
             verbose=True,  # Should trigger traceback printing
         )
@@ -292,7 +281,7 @@ class TestValidateThinCLI:
                 bathy_dir="data/bathymetry",  # default
                 check_depths=True,  # default
                 tolerance=10.0,  # default
-                strict=False,  # default
+                # default
                 warnings_only=False,  # default
                 verbose=False,  # default
             )

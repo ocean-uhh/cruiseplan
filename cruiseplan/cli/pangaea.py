@@ -59,10 +59,8 @@ def main(args: argparse.Namespace) -> None:
         # Determine workflow mode (CLI-specific logic)
         mode = determine_workflow_mode(args)
 
-        # Handle DOI file mode (not yet implemented in API - would need enhancement)
-        if mode == "doi_file":
-            print("❌ DOI file mode not yet implemented in thin CLI", file=sys.stderr)
-            sys.exit(1)
+        # Note: DOI file mode is now handled automatically by the API
+        # based on query_or_file parameter detection
 
         # Validate lat/lon bounds if provided (CLI-specific validation)
         lat_bounds = getattr(args, "lat", None)

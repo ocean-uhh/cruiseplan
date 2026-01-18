@@ -25,11 +25,11 @@ class TestPangaeaThinCLI:
     def test_minimal_pangaea_command(self):
         """Test minimal pangaea command with required arguments."""
         args = argparse.Namespace(
-            query="CTD",
+            query_or_file="CTD",
             output_dir="data",
             lat=None,
             lon=None,
-            max_results=100,
+            limit=5,
             rate_limit=1.0,
             merge_campaigns=True,
             verbose=False,
@@ -55,7 +55,11 @@ class TestPangaeaThinCLI:
                 },
             )
 
-            main(args)
+            with pytest.raises(SystemExit) as exc_info:
+                main(args)
+
+            # Should exit with code 0 (success)
+            assert exc_info.value.code == 0
 
             # Verify API was called with correct arguments
             mock_pangaea.assert_called_once_with(
@@ -64,7 +68,7 @@ class TestPangaeaThinCLI:
                 output=None,
                 lat_bounds=None,
                 lon_bounds=None,
-                max_results=100,
+                max_results=5,
                 rate_limit=1.0,
                 merge_campaigns=True,
                 verbose=False,
@@ -120,7 +124,7 @@ class TestPangaeaThinCLI:
     def test_pangaea_invalid_lat_bounds(self):
         """Test pangaea command with invalid latitude bounds."""
         args = argparse.Namespace(
-            query="CTD",
+            query_or_file="CTD",
             lat=[95.0, 100.0],  # Invalid latitudes
             lon=[-10.0, 10.0],
             verbose=False,
@@ -197,7 +201,7 @@ class TestPangaeaThinCLI:
                 output=None,  # default
                 lat_bounds=None,  # default
                 lon_bounds=None,  # default
-                max_results=100,  # default
+                limit=100,  # default
                 rate_limit=1.0,  # default
                 merge_campaigns=True,  # default
                 verbose=False,  # default

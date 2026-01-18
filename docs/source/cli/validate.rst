@@ -11,7 +11,7 @@ Usage
 
 .. code-block:: bash
 
-    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--strict] [--warnings-only] [--tolerance TOLERANCE] [--bathy-source {etopo2022,gebco2025}] [--output-format {text,json}] [-v]
+    usage: cruiseplan validate [-h] -c CONFIG_FILE [--check-depths] [--warnings-only] [--tolerance TOLERANCE] [--bathy-source {etopo2022,gebco2025}] [--output-format {text,json}]
 
 Options
 -------
@@ -23,8 +23,6 @@ Options
      - **Required.** Input YAML configuration file.
    * - ``--check-depths``
      - Compare existing depths with bathymetry data.
-   * - ``--strict``
-     - Enable strict validation mode (fail on warnings).
    * - ``--warnings-only``
      - Show warnings but do not fail the exit code.
    * - ``--tolerance TOLERANCE``
@@ -33,8 +31,6 @@ Options
      - Bathymetry dataset (default: ``etopo2022``).
    * - ``--output-format {text,json}``
      - Output format for validation results (default: ``text``).
-   * - ``-v, --verbose``
-     - Enable verbose logging with detailed validation progress.
 
 Validation Checks
 -----------------

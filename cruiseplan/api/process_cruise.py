@@ -490,7 +490,6 @@ def _validate_configuration(
     tolerance: float = 10.0,
     bathymetry_source: str = "etopo2022",
     bathymetry_dir: str = "data",
-    strict: bool = False,
 ) -> tuple[bool, list[str], list[str]]:
     """
     Comprehensive validation of YAML configuration file.
@@ -508,8 +507,6 @@ def _validate_configuration(
         Depth difference tolerance percentage (default: 10.0).
     bathymetry_source : str, optional
         Bathymetry dataset to use (default: "etopo2022").
-    strict : bool, optional
-        Whether to use strict validation mode (default: False).
 
     Returns
     -------
@@ -818,7 +815,6 @@ def validate(
     bathy_dir: str = "data/bathymetry",
     check_depths: bool = True,
     tolerance: float = 10.0,
-    strict: bool = False,
     warnings_only: bool = False,
     verbose: bool = False,
 ) -> ValidationResult:
@@ -837,8 +833,6 @@ def validate(
         Compare existing depths with bathymetry data (default: True)
     tolerance : float
         Depth difference tolerance in percent (default: 10.0)
-    strict : bool
-        Enable strict validation mode (default: False)
     warnings_only : bool
         Show warnings without failing - warnings don't affect return value (default: False)
     verbose : bool
@@ -854,8 +848,8 @@ def validate(
     >>> import cruiseplan
     >>> # Validate cruise configuration with depth checking
     >>> is_valid = cruiseplan.validate(config_file="cruise.yaml", check_depths=True)
-    >>> # Strict validation with custom tolerance
-    >>> is_valid = cruiseplan.validate(config_file="cruise.yaml", strict=True, tolerance=5.0)
+    >>> # Custom tolerance validation
+    >>> is_valid = cruiseplan.validate(config_file="cruise.yaml", tolerance=5.0)
     >>> if is_valid:
     ...     print("✅ Configuration is valid")
     """
@@ -877,7 +871,6 @@ def validate(
             tolerance=tolerance,
             bathymetry_source=bathy_source,
             bathymetry_dir=bathy_dir,
-            strict=strict,
         )
 
         # Create summary information
@@ -886,7 +879,6 @@ def validate(
             "error_count": len(errors),
             "warning_count": len(warnings),
             "depth_checking_enabled": check_depths,
-            "strict_mode": strict,
         }
 
         # Try to add cruise name to summary if available
