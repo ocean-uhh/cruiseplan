@@ -226,7 +226,7 @@ class PointOperation(BaseOperation):
         return duration_calc.calculate_ctd_time(self.depth, self.op_type)
 ```
 
-For details on the CTD duration calculation, see  [calculations](calculations.rst).
+CTD duration calculations use configurable descent/ascent rates plus turnaround time.
 
 ### Line Operations (LineOperation)
 - **Types**: Scientific transects, navigation routes
@@ -261,7 +261,7 @@ class LineOperation(BaseOperation):
         return duration_hours * 60.0  # Convert to minutes
 ```
 
-For details on the haversine distance calculation, see  [calculations](calculations.rst).
+Distance calculations use the haversine formula for great circle distances.
 
 
 ### Area Operations (AreaOperation)
@@ -406,7 +406,7 @@ CruisePlan uses great circle distance calculations for accurate routing at ocean
 - **Type-agnostic interface**: Works with any objects having `get_entry_point()`/`get_exit_point()` methods
 - **Automatic transit insertion**: Distance calculations between operations trigger transit generation
 
-**For detailed calculation formulas and parameters, see [calculations](calculations.rst).**
+**Calculation formulas use standard oceanographic parameters with configurable rates.**
 
 
 ### Duration Calculations
@@ -427,7 +427,7 @@ class DurationCalculator:
 
 Architecture: Operations call calculate_duration(rules) which dispatches to appropriate calculator methods based on operation type.
 
-**For detailed formulas, rates, and parameters, see [calculations](calculations.rst).**
+**Formulas use operation-specific rates and configurable vessel parameters.**
 
 
 ## Validation Architecture
@@ -578,7 +578,7 @@ See files such as:
 - `cruiseplan/interactive/`: Station picker and GUI components
 - `cruiseplan/utils/`: Coordinate conversion, common utilities
 
-See the complete structure in [project_structure](project_structure.md)
+The codebase follows a modular structure with clear separation of concerns
 
 ### Dependencies
 

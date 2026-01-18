@@ -94,7 +94,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 7. |uncheck| Verify that the first row, second to last entry is **-34.51** (Longitude minutes for -63.5752 degrees)
 
-.. code-block:: csv
+.. code-block:: text
    
    activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
    Port,port_halifax,Port mob,1970-01-01T00:00:00,1970-01-01T00:00:00,0.0,0,0.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single

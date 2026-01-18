@@ -67,7 +67,7 @@ CruisePlan uses YAML files as the central configuration format. These files cont
 
 The catalog acts as a "library" of all possible operations, while the schedule determines which ones to execute and in what order. This separation allows flexible reuse of point definitions across different cruise scenarios.
 
-For complete YAML syntax and options, see the :doc:`yaml_reference`.
+For complete YAML syntax and options, see the :doc:`../reference/yaml-full`.
 
 How to Get Started
 ------------------
@@ -84,7 +84,7 @@ Or choose your preferred approach and follow the guides:
 
 **Command Line Workflows**
 
-Follow the comprehensive :doc:`User Workflows (CLI) <user_workflows>` guide for three different planning scenarios:
+Follow the comprehensive :doc:`User Workflows (CLI) <../user-guide/workflows>` guide for three different planning scenarios:
   
   * **Basic Planning**: Simple workflow without historical data
   * **PANGAEA-Enhanced**: Incorporating historical oceanographic data
@@ -99,7 +99,7 @@ Follow the comprehensive :doc:`User Workflows (CLI) <user_workflows>` guide for 
   * Custom visualization examples
 
 **Configuration Reference**
-  Consult the :doc:`yaml_reference` for:
+  Consult the :doc:`../reference/yaml-full` for:
   
   * Complete field documentation
   * Validation rules and constraints  
