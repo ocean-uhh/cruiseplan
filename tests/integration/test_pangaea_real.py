@@ -246,12 +246,12 @@ def test_pangaea_merge_campaigns():
 def test_api_pangaea_search_mode_integration(tmp_path):
     """
     Integration test for cruiseplan.pangaea() API in search mode.
-    
+
     Tests the complete search workflow including query execution,
     file generation, and result structure validation.
     """
     import cruiseplan
-    
+
     # Test search mode with geographic bounds
     result = cruiseplan.pangaea(
         query_terms="CTD",
@@ -261,21 +261,21 @@ def test_api_pangaea_search_mode_integration(tmp_path):
         lon_bounds=[-10.0, 5.0],
         limit=3,  # Small limit for speed
         rate_limit=0.5,
-        verbose=False
+        verbose=False,
     )
-    
+
     # Validate result structure
     assert isinstance(result, cruiseplan.PangaeaResult)
     assert result.stations_data is not None
     assert len(result.stations_data) > 0
     assert len(result.files_created) == 2  # DOI file + stations file
-    
+
     # Validate generated files exist
     doi_file = tmp_path / "test_search_dois.txt"
     stations_file = tmp_path / "test_search.pkl"
     assert doi_file.exists()
     assert stations_file.exists()
-    
+
     # Validate DOI file has search header
     with open(doi_file) as f:
         content = f.read()
@@ -283,7 +283,7 @@ def test_api_pangaea_search_mode_integration(tmp_path):
         assert "# Query: CTD" in content
         assert "# Geographic bounds: lat [70.0, 75.0], lon [-10.0, 5.0]" in content
         assert "# Results limit: 3" in content
-    
+
     # Validate stations data structure
     for dataset in result.stations_data:
         assert "latitude" in dataset
@@ -294,53 +294,53 @@ def test_api_pangaea_search_mode_integration(tmp_path):
         assert len(dataset["longitude"]) > 0
 
 
-@pytest.mark.slow  
+@pytest.mark.slow
 def test_api_pangaea_file_mode_integration(tmp_path):
     """
     Integration test for cruiseplan.pangaea() API in DOI file mode.
-    
+
     Tests processing of existing DOI file including file copying,
     header preservation, and data fetching.
     """
     import cruiseplan
-    
+
     # Create test DOI file
     test_doi_file = tmp_path / "input_dois.txt"
     test_doi = "10.1594/PANGAEA.859930"  # Known working DOI
-    
+
     with open(test_doi_file, "w") as f:
         f.write("# Test DOI file\n")
         f.write("# Created for testing\n")
         f.write("#\n")
         f.write(f"{test_doi}\n")
-    
+
     # Test file mode processing
     result = cruiseplan.pangaea(
         query_terms=str(test_doi_file),  # File path as query
         output_dir=str(tmp_path),
         output="test_file_mode",
         rate_limit=0.5,
-        verbose=False
+        verbose=False,
     )
-    
+
     # Validate result structure
     assert isinstance(result, cruiseplan.PangaeaResult)
     assert result.stations_data is not None
     assert len(result.stations_data) == 1  # One DOI = one dataset
     assert len(result.files_created) == 2  # DOI file + stations file
-    
+
     # Validate generated files exist
     doi_file = tmp_path / "test_file_mode_dois.txt"
     stations_file = tmp_path / "test_file_mode.pkl"
     assert doi_file.exists()
     assert stations_file.exists()
-    
+
     # Validate DOI file was copied and contains original content
     with open(doi_file) as f:
         content = f.read()
         assert "# Test DOI file" in content
         assert test_doi in content
-    
+
     # Validate dataset structure
     dataset = result.stations_data[0]
     assert test_doi in dataset["dois"]  # DOIs are stored as a list
@@ -352,35 +352,35 @@ def test_api_pangaea_file_mode_integration(tmp_path):
 def test_api_pangaea_single_doi_mode_integration(tmp_path):
     """
     Integration test for cruiseplan.pangaea() API in single DOI mode.
-    
+
     Tests processing of single DOI string including validation,
     file generation, and data structure.
     """
     import cruiseplan
-    
+
     test_doi = "10.1594/PANGAEA.859930"  # Known working DOI
-    
-    # Test single DOI mode processing  
+
+    # Test single DOI mode processing
     result = cruiseplan.pangaea(
         query_terms=test_doi,
         output_dir=str(tmp_path),
         output="test_single_doi",
         rate_limit=0.5,
-        verbose=False
+        verbose=False,
     )
-    
+
     # Validate result structure
     assert isinstance(result, cruiseplan.PangaeaResult)
     assert result.stations_data is not None
     assert len(result.stations_data) == 1  # One DOI = one dataset
     assert len(result.files_created) == 2  # DOI file + stations file
-    
+
     # Validate generated files exist
     doi_file = tmp_path / "test_single_doi_dois.txt"
     stations_file = tmp_path / "test_single_doi.pkl"
     assert doi_file.exists()
     assert stations_file.exists()
-    
+
     # Validate DOI file has single DOI header
     with open(doi_file) as f:
         content = f.read()
@@ -388,11 +388,14 @@ def test_api_pangaea_single_doi_mode_integration(tmp_path):
         assert f"# DOI: {test_doi}" in content
         assert test_doi in content
         # Should only have one line with actual DOI (excluding comments)
-        doi_lines = [line.strip() for line in content.split('\n') 
-                    if line.strip() and not line.startswith('#')]
+        doi_lines = [
+            line.strip()
+            for line in content.split("\n")
+            if line.strip() and not line.startswith("#")
+        ]
         assert len(doi_lines) == 1
         assert doi_lines[0] == test_doi
-    
+
     # Validate dataset structure
     dataset = result.stations_data[0]
     assert test_doi in dataset["dois"]  # DOIs are stored as a list
@@ -405,40 +408,47 @@ def test_api_pangaea_single_doi_mode_integration(tmp_path):
 def test_api_pangaea_error_handling_integration(tmp_path):
     """
     Integration test for error handling in cruiseplan.pangaea() API.
-    
+
     Tests various error conditions including invalid bounds,
     empty results, and malformed inputs.
     """
-    import cruiseplan
     import pytest
-    
+
+    import cruiseplan
+
     # Test invalid latitude bounds
-    with pytest.raises(cruiseplan.ValidationError, match="Invalid latitude/longitude bounds"):
+    with pytest.raises(
+        cruiseplan.ValidationError, match="Invalid latitude/longitude bounds"
+    ):
         cruiseplan.pangaea(
             query_terms="CTD",
             output_dir=str(tmp_path),
             lat_bounds=[95.0, 100.0],  # Invalid latitudes > 90
             lon_bounds=[-10.0, 10.0],
-            limit=1
+            limit=1,
         )
-    
+
     # Test search that should return no results (very specific impossible query)
-    with pytest.raises(RuntimeError, match="No DOIs found for the given search criteria"):
+    with pytest.raises(
+        RuntimeError, match="No DOIs found for the given search criteria"
+    ):
         cruiseplan.pangaea(
             query_terms="zzzzz_impossible_query_12345",
-            output_dir=str(tmp_path), 
+            output_dir=str(tmp_path),
             limit=1,
-            rate_limit=0.5
+            rate_limit=0.5,
         )
-    
+
     # Test nonexistent DOI file
     nonexistent_file = tmp_path / "nonexistent.txt"
     # This should trigger search mode instead of file mode since file doesn't exist
     # and "nonexistent.txt" doesn't look like a DOI
-    with pytest.raises(RuntimeError, match="No DOIs found for the given search criteria"):
+    with pytest.raises(
+        RuntimeError, match="No DOIs found for the given search criteria"
+    ):
         cruiseplan.pangaea(
             query_terms=str(nonexistent_file),
             output_dir=str(tmp_path),
             limit=1,
-            rate_limit=0.5
+            rate_limit=0.5,
         )
