@@ -7,13 +7,10 @@ to ensure proper parameter handling, error conditions, and result structures.
 
 import re
 from pathlib import Path
-from unittest.mock import MagicMock, mock_open, patch
-
-import pytest
+from unittest.mock import patch
 
 import cruiseplan
 from cruiseplan.api.data import bathymetry, pangaea
-from cruiseplan.config.exceptions import ValidationError
 
 
 class TestBathymetryAPI:

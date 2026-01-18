@@ -175,4 +175,15 @@ Example for ``cruise_name: "North Atlantic Survey 2025"``:
 - ``North_Atlantic_Survey_2025.nc``
 - ``North_Atlantic_Survey_2025_map.png``
 
-For detailed format specifications, see the individual format pages in the legacy documentation.
+For detailed format specifications, see the individual format pages below:
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Detailed Format Specifications
+   
+   ../output/html
+   ../output/netcdf
+   ../output/csv
+   ../output/png
+   ../output/kml
+   ../output/latex

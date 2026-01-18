@@ -20,7 +20,7 @@ Command Comparison: Schedule vs Map
 
 CruisePlan generates PNG maps through two commands with distinct characteristics:
 
-.. figure:: ../_static/screenshots/png_output_comparison.png
+.. figure:: _static/screenshots/png_output_comparison.png
    :alt: Comparison of PNG outputs from map command vs schedule command
    :width: 100%
    
@@ -86,7 +86,7 @@ Generated via: ``cruiseplan schedule -c cruise.yaml --format png``
 
 **Output File**: ``{cruise_name}_schedule.png``
 
-.. figure:: ../_static/screenshots/schedule_png_detailed.png
+.. figure:: _static/screenshots/schedule_png_detailed.png
    :alt: Map generated from cruiseplan schedule for tc1_mooring.yaml
    :width: 100%
    
@@ -124,7 +124,7 @@ Generated via: ``cruiseplan map -c cruise.yaml --format png``
 **Output File**: ``{cruise_name}_map.png``
 
 
-.. figure:: ../_static/screenshots/map_png_detailed.png
+.. figure:: _static/screenshots/map_png_detailed.png
    :alt: Map generated from cruiseplan map for tc5_sections.yaml
    :width: 70%
    

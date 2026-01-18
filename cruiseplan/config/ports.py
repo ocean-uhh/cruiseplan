@@ -423,8 +423,8 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
 
 
 def resolve_port_reference(
-    port_ref,
-):
+    port_ref: Union[str, dict, object],
+) -> object:
     """
     Resolve a port reference to a complete PointDefinition object.
 

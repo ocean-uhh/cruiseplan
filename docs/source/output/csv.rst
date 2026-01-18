@@ -124,7 +124,7 @@ Excel Integration
 Example Excel Display
 ---------------------
 
-.. figure:: ../_static/screenshots/csv_output_excel.png
+.. figure:: _static/screenshots/csv_output_excel.png
    :alt: CSV output displayed in Excel showing cruise schedule data
    :align: center
    :width: 90%

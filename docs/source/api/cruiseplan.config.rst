@@ -5,6 +5,7 @@ Configuration schemas and validation for cruise planning YAML files.
 
 .. automodule:: cruiseplan.config
    :members:
+   :no-index:
 
 
 cruiseplan.config.activities module
