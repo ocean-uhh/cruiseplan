@@ -98,7 +98,7 @@ class ModeIndicator(Widget):
 
         self.ax.figure.canvas.draw_idle()
 
-    def set_mode(self, mode: str):
+    def set_mode(self, mode: str) -> None:
         """
         Change the current mode.
 
@@ -116,7 +116,7 @@ class ModeIndicator(Widget):
             if mode in self.callbacks:
                 self.callbacks[mode](old_mode, mode)
 
-    def on_mode_change(self, mode: str, callback: Callable):
+    def on_mode_change(self, mode: str, callback: Callable[[], None]) -> None:
         """
         Register callback for mode changes.
 
@@ -200,7 +200,7 @@ class StatusDisplay(Widget):
             ),
         ]
 
-    def update_coordinates(self, lat: Optional[float], lon: Optional[float]):
+    def update_coordinates(self, lat: Optional[float], lon: Optional[float]) -> None:
         """
         Update coordinate display, using Degrees Decimal Minutes format.
 
@@ -230,7 +230,7 @@ class StatusDisplay(Widget):
         else:
             self.status_lines[0].set_text("Coordinates: --")
 
-    def update_depth(self, depth: Optional[float]):
+    def update_depth(self, depth: Optional[float]) -> None:
         """
         Update depth display, handling positive elevation and negative depth.
 
@@ -247,7 +247,7 @@ class StatusDisplay(Widget):
         else:
             self.status_lines[1].set_text("Depth: --")
 
-    def update_counts(self, stations: int, transects: int, areas: int):
+    def update_counts(self, stations: int, transects: int, areas: int) -> None:
         """
         Update operation counters.
 

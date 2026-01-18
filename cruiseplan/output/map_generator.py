@@ -656,7 +656,7 @@ def plot_bathymetry(
 
 def plot_cruise_elements(
     ax, map_data: dict[str, Any], display_bounds: tuple[float, float, float, float]
-):
+) -> None:
     """
     Plot stations, ports, transit lines, and areas on a matplotlib axis using structured map data.
 

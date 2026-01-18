@@ -591,7 +591,7 @@ class HTMLGenerator:
 
         return entry_position, exit_position, distance_str
 
-    def _add_leg_transits(self, legs_data: dict, config: CruiseConfig):
+    def _add_leg_transits(self, legs_data: dict, config: CruiseConfig) -> None:
         """
         Add transit connections between legs.
 

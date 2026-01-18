@@ -46,10 +46,10 @@ class CSVGenerator:
         str
             Display label for the activity
         """
-        label = activity.get("label", "")
+        label = activity["label"]
 
         # For port activities, prefer display_name over label
-        if activity.get("activity", "").lower() == "port":
+        if activity["activity"].lower() == "port":
             display_name = activity.get("display_name", "")
             if display_name:
                 # Extract just the city name (before comma) for cleaner display
@@ -126,13 +126,14 @@ class CSVGenerator:
                 end_time = round_time_to_minute(activity["end_time"])
 
                 # Convert duration to hours and round to nearest 0.1 hour
-                duration_hours = round(activity["duration_minutes"] / 60.0, 1)
+                duration_hours = round(activity.get("duration_minutes", 0) / 60.0, 1)
 
                 # Round distance to nearest 0.1 nm using unified dist_nm field
-                transit_dist_nm = round(activity.get("dist_nm", 0.0), 1)
+                dist_nm = activity.get("dist_nm", 0.0)
+                transit_dist_nm = round(dist_nm, 1) if dist_nm != 0 else 0.0
 
                 # Vessel speed - 0 for station operations, actual speed for transits
-                activity_type = activity.get("activity", "").lower()
+                activity_type = activity["activity"].lower()
                 if activity_type in {"transit", "port_departure", "port_arrival"}:
                     vessel_speed = activity.get("vessel_speed_kt", 0)
                     # For scientific transits with 0 speed, try to calculate from distance/time

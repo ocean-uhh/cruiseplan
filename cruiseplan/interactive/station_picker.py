@@ -503,7 +503,7 @@ class StationPicker:
 
     # --- Mode and State Management ---
 
-    def set_mode(self, new_mode: str):
+    def set_mode(self, new_mode: str) -> None:
         """
         Change the current interaction mode and update the display.
 

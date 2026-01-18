@@ -118,7 +118,7 @@ class TestSchedulerDebug:
             if timeline:
                 for i, activity in enumerate(timeline):
                     transit_dist = activity.get("dist_nm", 0)
-                    lat, lon = activity["lat"], activity["lon"]
+                    lat, lon = activity["entry_lat"], activity["entry_lon"]
                     print(
                         f"   {i+1}. {activity['activity']}: {activity['label']} at ({lat:.3f}, {lon:.3f})"
                     )

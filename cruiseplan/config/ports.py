@@ -25,7 +25,7 @@ Usage:
 """
 
 import warnings
-from typing import Union
+from typing import Any, Union
 
 from pydantic import ValidationError
 
@@ -423,7 +423,7 @@ GLOBAL_PORTS: dict[str, dict[str, Union[str, float]]] = {
 
 
 def resolve_port_reference(
-    port_ref: Union[str, dict, object],
+    port_ref: Union[str, dict[str, Any], object],
 ) -> object:
     """
     Resolve a port reference to a complete PointDefinition object.
@@ -546,7 +546,7 @@ def get_available_ports() -> dict[str, str]:
     }
 
 
-def add_custom_port(port_id: str, port_data: dict) -> None:
+def add_custom_port(port_id: str, port_data: dict[str, Any]) -> None:
     """
     Add a custom port to the global registry at runtime.
 

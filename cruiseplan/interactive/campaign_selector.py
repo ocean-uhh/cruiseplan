@@ -36,7 +36,7 @@ class CampaignSelector:
         Reference to the main map axes for updating campaign display.
     """
 
-    def __init__(self, campaign_data: Optional[list[dict]] = None):
+    def __init__(self, campaign_data: Optional[list[dict[str, Any]]] = None):
         """
         Initialize the campaign selector.
 

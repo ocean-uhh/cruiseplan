@@ -32,7 +32,7 @@ logger = logging.getLogger(__name__)
 # Core Data Structures
 # =============================================================================
 
-# Type alias for cruise schedule (timeline) - list of activity dictionaries
+# Type alias for cruise schedule (timeline) - list of ActivityRecord objects
 CruiseSchedule = list[dict[str, Any]]
 
 
@@ -85,24 +85,23 @@ class ActivityRecord:
                 setattr(self, key, value)
 
     def to_dict(self) -> dict[str, Any]:
-        """Convert to dictionary for output compatibility."""
+        """Convert to dictionary for output compatibility.
+
+        Maps ActivityRecord fields to legacy dictionary format expected by output generators.
+        """
         result = {
             field: getattr(self, field, None) for field in self.__dataclass_fields__
         }
-        # Add backward compatibility fields for legacy output generators
-        result["lat"] = self.entry_lat
-        result["lon"] = self.entry_lon
+
+        # Legacy field mappings for output generator compatibility
+        result["time"] = self.start_time  # NetCDF generator expects "time" field
+        result["operation_type"] = (
+            self.op_type
+        )  # Some generators expect "operation_type"
+        result["lat"] = self.entry_lat  # KML generator expects "lat" field
+        result["lon"] = self.entry_lon  # KML generator expects "lon" field
+
         return result
-
-    @property
-    def lat(self) -> float:
-        """Backward compatibility: return entry_lat as lat."""
-        return self.entry_lat
-
-    @property
-    def lon(self) -> float:
-        """Backward compatibility: return entry_lon as lon."""
-        return self.entry_lon
 
 
 # =============================================================================
@@ -222,29 +221,15 @@ class OperationFactory:
 # =============================================================================
 
 
-def calculate_timeline_statistics(
-    timeline: list[dict[str, Any]],
-) -> dict[str, Any]:
+def _categorize_activities(timeline: list[dict[str, Any]]) -> dict[str, list]:
     """
-    Calculate summary statistics for cruise timeline activities.
-
-    Categorizes activities into scientific operations (stations, surveys, areas)
-    and supporting operations (transits, ports) for summary reporting.
-
-    Parameters
-    ----------
-    timeline : List[Dict[str, Any]]
-        List of activity records from the scheduler.
+    Categorize activities into different types based on operation class and type.
 
     Returns
     -------
-    Dict[str, Any]
-        Dictionary containing statistics for each activity type with keys:
-        'stations', 'surveys', 'areas', 'moorings', 'within_area_transits',
-        'port_transits', and raw activity lists.
+    dict
+        Dictionary with categorized activity lists.
     """
-    from cruiseplan.utils.units import hours_to_days
-
     # Initialize categorized activity lists
     station_activities = []
     mooring_activities = []
@@ -254,8 +239,6 @@ def calculate_timeline_statistics(
     port_transits_to_area = []  # Transits from port to working area
     port_transits_from_area = []  # Transits from working area to port
     within_area_transits = []  # Transits between scientific operations
-
-    # Categorize every activity in the timeline using operation_class and op_type
 
     for i, activity in enumerate(timeline):
         # Use new operation_class and op_type fields for categorization
@@ -299,26 +282,7 @@ def calculate_timeline_statistics(
             )
         elif operation_class == "NavigationalTransit":
             # Check if this transit connects to/from a port and categorize direction
-            is_from_port = False
-            is_to_port = False
-
-            # Check previous activity (if exists)
-            if i > 0:
-                prev_activity = timeline[i - 1]
-                if (
-                    prev_activity.get("operation_class") == "PointOperation"
-                    and prev_activity.get("op_type") == "port"
-                ):
-                    is_from_port = True
-
-            # Check next activity (if exists)
-            if i < len(timeline) - 1:
-                next_activity = timeline[i + 1]
-                if (
-                    next_activity.get("operation_class") == "PointOperation"
-                    and next_activity.get("op_type") == "port"
-                ):
-                    is_to_port = True
+            is_from_port, is_to_port = _check_transit_direction(timeline, i)
 
             # Categorize based on direction
             if is_from_port:
@@ -331,76 +295,66 @@ def calculate_timeline_statistics(
             # Any unrecognized activities also go to within-area as a fallback
             within_area_transits.append(activity)
 
-    # Calculate statistics for each category
-    def calc_stats(activities, include_distance=False, include_depth=False):
-        if not activities:
-            stats = {
-                "count": 0,
-                "avg_duration_h": 0,
-                "total_duration_h": 0,
-                "total_duration_days": 0,
-            }
-            if include_distance:
-                stats.update({"avg_distance_nm": 0, "total_distance_nm": 0})
-            if include_depth:
-                stats.update({"avg_depth_m": 0})
-            return stats
+    return {
+        "station_activities": station_activities,
+        "mooring_activities": mooring_activities,
+        "area_activities": area_activities,
+        "scientific_transits": scientific_transits,
+        "port_activities": port_activities,
+        "port_transits_to_area": port_transits_to_area,
+        "port_transits_from_area": port_transits_from_area,
+        "within_area_transits": within_area_transits,
+    }
 
-        total_duration_h = sum(a["duration_minutes"] for a in activities) / 60.0
-        avg_duration_h = total_duration_h / len(activities)
 
-        stats = {
-            "count": len(activities),
-            "avg_duration_h": avg_duration_h,
-            "total_duration_h": total_duration_h,
-            "total_duration_days": hours_to_days(total_duration_h),
-        }
+def _check_transit_direction(
+    timeline: list["ActivityRecord"], index: int
+) -> tuple[bool, bool]:
+    """
+    Check if a transit is from/to a port by examining adjacent activities.
 
-        if include_distance:
-            total_distance_nm = sum(a.get("dist_nm", 0) for a in activities)
-            stats.update(
-                {
-                    "avg_distance_nm": (
-                        total_distance_nm / len(activities) if activities else 0
-                    ),
-                    "total_distance_nm": total_distance_nm,
-                }
-            )
+    Returns
+    -------
+    tuple[bool, bool]
+        (is_from_port, is_to_port)
+    """
+    is_from_port = False
+    is_to_port = False
 
-        if include_depth:
-            # Use operation_depth if available, otherwise fall back to water_depth
-            depths = []
-            for a in activities:
-                depth = a.get("operation_depth")
-                if depth is None:
-                    depth = a.get("water_depth")
-                if depth is not None:
-                    depths.append(depth)
-            avg_depth = sum(depths) / len(depths) if depths else 0.0
-            stats.update({"avg_depth_m": avg_depth})
+    # Check previous activity (if exists)
+    if index > 0:
+        prev_activity = timeline[index - 1]
+        if (
+            prev_activity.get("operation_class") == "PointOperation"
+            and prev_activity.get("op_type") == "port"
+        ):
+            is_from_port = True
 
-        return stats
+    # Check next activity (if exists)
+    if index < len(timeline) - 1:
+        next_activity = timeline[index + 1]
+        if (
+            next_activity.get("operation_class") == "PointOperation"
+            and next_activity.get("op_type") == "port"
+        ):
+            is_to_port = True
 
-    # Calculate transit statistics (special handling for distance)
-    transit_stats = {}
-    if within_area_transits:
-        total_duration_h = (
-            sum(a["duration_minutes"] for a in within_area_transits) / 60.0
-        )
-        total_distance_nm = sum(a.get("dist_nm", 0) for a in within_area_transits)
-        avg_speed_kt = (
-            total_distance_nm / total_duration_h if total_duration_h > 0 else 0
-        )
+    return is_from_port, is_to_port
 
-        transit_stats = {
-            "count": len(within_area_transits),
-            "total_duration_h": total_duration_h,
-            "total_duration_days": hours_to_days(total_duration_h),
-            "total_distance_nm": total_distance_nm,
-            "avg_speed_kt": avg_speed_kt,
-        }
-    else:
-        transit_stats = {
+
+def _calculate_transit_stats(transits: list["ActivityRecord"]) -> dict[str, float]:
+    """
+    Calculate statistics for transit activities.
+
+    Returns
+    -------
+    dict
+        Dictionary with transit statistics.
+    """
+    from cruiseplan.utils.units import hours_to_days
+
+    if not transits:
+        return {
             "count": 0,
             "total_duration_h": 0,
             "total_duration_days": 0,
@@ -408,33 +362,70 @@ def calculate_timeline_statistics(
             "avg_speed_kt": 0,
         }
 
-    # Calculate separate port transit statistics (to area and from area)
-    def calc_port_transit_stats(transits):
-        if not transits:
-            return {
-                "count": 0,
-                "total_duration_h": 0,
-                "total_duration_days": 0,
-                "total_distance_nm": 0,
-                "avg_speed_kt": 0,
-            }
-        total_duration_h = sum(a["duration_minutes"] for a in transits) / 60.0
-        total_distance_nm = sum(a.get("dist_nm", 0) for a in transits)
-        avg_speed_kt = (
-            total_distance_nm / total_duration_h if total_duration_h > 0 else 0
-        )
-        return {
-            "count": len(transits),
-            "total_duration_h": total_duration_h,
-            "total_duration_days": hours_to_days(total_duration_h),
-            "total_distance_nm": total_distance_nm,
-            "avg_speed_kt": avg_speed_kt,
-        }
+    total_duration_h = sum(a.get("duration_minutes", 0) for a in transits) / 60.0
+    total_distance_nm = sum(a.get("dist_nm", 0) for a in transits)
+    avg_speed_kt = total_distance_nm / total_duration_h if total_duration_h > 0 else 0
 
-    port_transit_to_area_stats = calc_port_transit_stats(port_transits_to_area)
-    port_transit_from_area_stats = calc_port_transit_stats(port_transits_from_area)
+    return {
+        "count": len(transits),
+        "total_duration_h": total_duration_h,
+        "total_duration_days": hours_to_days(total_duration_h),
+        "total_distance_nm": total_distance_nm,
+        "avg_speed_kt": avg_speed_kt,
+    }
 
-    # Calculate leg-specific operation counts
+
+def _log_debug_counts(
+    categorized: dict[str, list], leg_stats: dict[str, dict[str, int]]
+) -> None:
+    """
+    Log debug information about operation counts.
+    """
+    station_activities = categorized["station_activities"]
+    mooring_activities = categorized["mooring_activities"]
+    scientific_transits = categorized["scientific_transits"]
+    area_activities = categorized["area_activities"]
+    port_activities = categorized["port_activities"]
+    within_area_transits = categorized["within_area_transits"]
+
+    total_scientific_operations = (
+        len(station_activities)
+        + len(mooring_activities)
+        + len(scientific_transits)
+        + len(area_activities)
+    )
+
+    logger.info("🔍 Cruise-level operation counts:")
+    logger.info(f"   Stations: {len(station_activities)}")
+    logger.info(f"   Moorings: {len(mooring_activities)}")
+    logger.info(f"   Scientific transits (surveys): {len(scientific_transits)}")
+    logger.info(f"   Area operations: {len(area_activities)}")
+    logger.info(f"   Total scientific operations: {total_scientific_operations}")
+    logger.info(f"   Port activities: {len(port_activities)}")
+    logger.info(f"   Within-area transits: {len(within_area_transits)}")
+
+    # Debug output for leg-specific counts
+    for leg_name, stats in leg_stats.items():
+        logger.info(f"🔍 Leg '{leg_name}' operation counts:")
+        logger.info(f"   Stations: {stats['stations']}")
+        logger.info(f"   Moorings: {stats['moorings']}")
+        logger.info(f"   Surveys: {stats['surveys']}")
+        logger.info(f"   Areas: {stats['areas']}")
+        logger.info(f"   Total scientific operations: {stats['total_scientific']}")
+        logger.info(f"   Total activities in leg: {stats['total_activities']}")
+
+
+def _calculate_leg_statistics(
+    timeline: list[dict[str, Any]],
+) -> dict[str, dict[str, int]]:
+    """
+    Calculate operation counts for each leg.
+
+    Returns
+    -------
+    dict
+        Nested dictionary with leg names as keys and operation counts as values.
+    """
     leg_stats = {}
     for activity in timeline:
         leg_name = activity.get("leg_name", "Unknown")
@@ -475,31 +466,105 @@ def calculate_timeline_statistics(
             elif operation_class == "AreaOperation":
                 leg_stats[leg_name]["areas"] += 1
 
-    # Debug output for operation counts
-    total_scientific_operations = (
-        len(station_activities)
-        + len(mooring_activities)
-        + len(scientific_transits)
-        + len(area_activities)
-    )
-    logger.info("🔍 Cruise-level operation counts:")
-    logger.info(f"   Stations: {len(station_activities)}")
-    logger.info(f"   Moorings: {len(mooring_activities)}")
-    logger.info(f"   Scientific transits (surveys): {len(scientific_transits)}")
-    logger.info(f"   Area operations: {len(area_activities)}")
-    logger.info(f"   Total scientific operations: {total_scientific_operations}")
-    logger.info(f"   Port activities: {len(port_activities)}")
-    logger.info(f"   Within-area transits: {len(within_area_transits)}")
+    return leg_stats
 
-    # Debug output for leg-specific counts
-    for leg_name, stats in leg_stats.items():
-        logger.info(f"🔍 Leg '{leg_name}' operation counts:")
-        logger.info(f"   Stations: {stats['stations']}")
-        logger.info(f"   Moorings: {stats['moorings']}")
-        logger.info(f"   Surveys: {stats['surveys']}")
-        logger.info(f"   Areas: {stats['areas']}")
-        logger.info(f"   Total scientific operations: {stats['total_scientific']}")
-        logger.info(f"   Total activities in leg: {stats['total_activities']}")
+
+def calculate_timeline_statistics(
+    timeline: list["ActivityRecord"],
+) -> dict[str, Any]:
+    """
+    Calculate summary statistics for cruise timeline activities.
+
+    Categorizes activities into scientific operations (stations, surveys, areas)
+    and supporting operations (transits, ports) for summary reporting.
+
+    Parameters
+    ----------
+    timeline : List[Dict[str, Any]]
+        List of activity records from the scheduler.
+
+    Returns
+    -------
+    Dict[str, Any]
+        Dictionary containing statistics for each activity type with keys:
+        'stations', 'surveys', 'areas', 'moorings', 'within_area_transits',
+        'port_transits', and raw activity lists.
+    """
+    from cruiseplan.utils.units import hours_to_days
+
+    # Categorize activities into types
+    categorized = _categorize_activities(timeline)
+
+    # Calculate statistics for each category
+    def calc_stats(activities, include_distance=False, include_depth=False):
+        if not activities:
+            stats = {
+                "count": 0,
+                "avg_duration_h": 0,
+                "total_duration_h": 0,
+                "total_duration_days": 0,
+            }
+            if include_distance:
+                stats.update({"avg_distance_nm": 0, "total_distance_nm": 0})
+            if include_depth:
+                stats.update({"avg_depth_m": 0})
+            return stats
+
+        total_duration_h = sum(a.get("duration_minutes", 0) for a in activities) / 60.0
+        avg_duration_h = total_duration_h / len(activities)
+
+        stats = {
+            "count": len(activities),
+            "avg_duration_h": avg_duration_h,
+            "total_duration_h": total_duration_h,
+            "total_duration_days": hours_to_days(total_duration_h),
+        }
+
+        if include_distance:
+            total_distance_nm = sum(a.get("dist_nm", 0) for a in activities)
+            stats.update(
+                {
+                    "avg_distance_nm": (
+                        total_distance_nm / len(activities) if activities else 0
+                    ),
+                    "total_distance_nm": total_distance_nm,
+                }
+            )
+
+        if include_depth:
+            # Use operation_depth if available, otherwise fall back to water_depth
+            depths = []
+            for a in activities:
+                depth = a.get("operation_depth")
+                if depth is None:
+                    depth = a.get("water_depth")
+                if depth is not None:
+                    depths.append(depth)
+            avg_depth = sum(depths) / len(depths) if depths else 0.0
+            stats.update({"avg_depth_m": avg_depth})
+
+        return stats
+
+    # Extract categorized activities
+    station_activities = categorized["station_activities"]
+    mooring_activities = categorized["mooring_activities"]
+    area_activities = categorized["area_activities"]
+    scientific_transits = categorized["scientific_transits"]
+    port_activities = categorized["port_activities"]
+    port_transits_to_area = categorized["port_transits_to_area"]
+    port_transits_from_area = categorized["port_transits_from_area"]
+    within_area_transits = categorized["within_area_transits"]
+
+    # Calculate transit statistics (special handling for distance)
+    transit_stats = _calculate_transit_stats(within_area_transits)
+    port_transit_to_area_stats = _calculate_transit_stats(port_transits_to_area)
+    port_transit_from_area_stats = _calculate_transit_stats(port_transits_from_area)
+
+    # Calculate leg-specific operation counts
+    leg_stats = _calculate_leg_statistics(timeline)
+
+    # Debug output for operation counts
+    _log_debug_counts(categorized, leg_stats)
 
     # Calculate total scientific operations from leg totals for consistency
     total_scientific_operations_from_legs = sum(
@@ -555,6 +620,7 @@ class TimelineGenerator:
             leg_activities = self._process_leg(leg)
             timeline.extend(leg_activities)
 
+        # Convert ActivityRecord objects to dictionaries for output compatibility
         return [activity.to_dict() for activity in timeline]
 
     def _create_runtime_legs(self) -> list[Any]:
@@ -587,7 +653,7 @@ class TimelineGenerator:
 
         return runtime_legs
 
-    def _process_leg(self, leg: Any) -> list[ActivityRecord]:  # noqa: C901
+    def _process_leg(self, leg: Any) -> list[ActivityRecord]:
         """Process a single leg and generate activities."""
         # Initialize current_time if not set
         if self.current_time is None:
@@ -619,72 +685,74 @@ class TimelineGenerator:
         # Process complete activities sequence (ports are treated as regular operations)
         for activity in complete_activities:
             try:
-                # Handle both activity names (strings) and definition objects
-                if isinstance(activity, str):
-                    # Regular activity name - use factory
-                    operation = self.factory.create_operation(activity, leg.name)
-                else:
-                    # Definition object (PointDefinition, LineDefinition, AreaDefinition) - create directly
-                    from cruiseplan.config.activities import (
-                        AreaDefinition,
-                        LineDefinition,
-                        PointDefinition,
-                    )
-                    from cruiseplan.runtime.operations import (
-                        AreaOperation,
-                        LineOperation,
-                        PointOperation,
-                    )
-
-                    # Handle Pydantic objects directly (no dictionary handling needed)
-                    if isinstance(activity, PointDefinition):
-                        if (
-                            hasattr(activity, "operation_type")
-                            and activity.operation_type
-                            and activity.operation_type.value == "port"
-                        ):
-                            # Port waypoint - create as port
-                            operation = PointOperation.from_port(activity)
-                        else:
-                            # Non-port waypoint - create as scientific operation
-                            operation = PointOperation.from_pydantic(activity)
-                    elif isinstance(activity, LineDefinition):
-                        # Transect - create as line operation
-                        operation = LineOperation.from_pydantic(
-                            activity, leg.vessel_speed
-                        )
-                    elif isinstance(activity, AreaDefinition):
-                        # Area - create as area operation
-                        operation = AreaOperation.from_pydantic(activity)
-                    else:
-                        raise TypeError(
-                            f"Unknown activity type: {type(activity)}. "
-                            f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
-                        )
-
-                # Add navigational transit between all operations
-                # Zero-duration transits will be filtered out in presentation layer
-                if previous_operation is not None:
-                    transit = self._create_navigational_transit(
-                        previous_operation, operation, leg.name, leg
-                    )
-                    if transit:
-                        activities.append(transit)
-
-                # Add the operation activity
-                operation_activity = self._create_operation_activity(
-                    operation, leg.name
+                operation = self._create_operation_from_activity(activity, leg)
+                self._add_transit_and_operation(
+                    operation, activities, leg, previous_operation
                 )
-                activities.append(operation_activity)
-
                 previous_operation = operation
-
             except Exception:
                 activity_name = getattr(activity, "name", str(activity))
                 logger.exception(f"Failed to process activity '{activity_name}'")
                 continue
 
         return activities
+
+    def _create_operation_from_activity(self, activity, leg: Any):
+        """Create operation object from activity definition."""
+        if isinstance(activity, str):
+            # Regular activity name - use factory
+            return self.factory.create_operation(activity, leg.name)
+        else:
+            # Definition object - create directly
+            return self._create_operation_from_definition(activity, leg)
+
+    def _create_operation_from_definition(self, activity, leg: Any):
+        """Create operation from Pydantic definition object."""
+        from cruiseplan.config.activities import (
+            AreaDefinition,
+            LineDefinition,
+            PointDefinition,
+        )
+        from cruiseplan.runtime.operations import (
+            AreaOperation,
+            LineOperation,
+            PointOperation,
+        )
+
+        if isinstance(activity, PointDefinition):
+            if (
+                hasattr(activity, "operation_type")
+                and activity.operation_type
+                and activity.operation_type.value == "port"
+            ):
+                return PointOperation.from_port(activity)
+            else:
+                return PointOperation.from_pydantic(activity)
+        elif isinstance(activity, LineDefinition):
+            return LineOperation.from_pydantic(activity, leg.vessel_speed)
+        elif isinstance(activity, AreaDefinition):
+            return AreaOperation.from_pydantic(activity)
+        else:
+            raise TypeError(
+                f"Unknown activity type: {type(activity)}. "
+                f"Expected PointDefinition, LineDefinition, or AreaDefinition, got {activity}"
+            )
+
+    def _add_transit_and_operation(
+        self, operation, activities, leg: Any, previous_operation
+    ):
+        """Add navigational transit and operation to activities list."""
+        # Add navigational transit between all operations
+        if previous_operation is not None:
+            transit = self._create_navigational_transit(
+                previous_operation, operation, leg.name, leg
+            )
+            if transit:
+                activities.append(transit)
+
+        # Add the operation activity
+        operation_activity = self._create_operation_activity(operation, leg.name)
+        activities.append(operation_activity)
 
     def _create_navigational_transit(
         self,
@@ -785,11 +853,9 @@ class TimelineGenerator:
         self.current_time = activity.end_time
         return activity
 
-    def _extract_activities_from_leg(self, leg: Any) -> list[str]:  # noqa: C901
-        """Extract activity names from leg definition."""
+    def _extract_activities_from_operations(self, leg: Any) -> list[str]:
+        """Extract activities from leg operations."""
         activities = []
-
-        # Check runtime leg structure first
         if hasattr(leg, "operations") and leg.operations:
             for operation in leg.operations:
                 if hasattr(operation, "name"):
@@ -798,41 +864,49 @@ class TimelineGenerator:
                     operation.station, "name"
                 ):
                     activities.append(operation.station.name)
+        return activities
 
-        # Check clusters if no direct operations
-        elif hasattr(leg, "clusters") and leg.clusters:
-            for cluster in leg.clusters:
-                if hasattr(cluster, "activities") and cluster.activities:
-                    # Clusters may have StationDefinition objects or string names
-                    for activity in cluster.activities:
-                        if hasattr(activity, "name"):
-                            # StationDefinition object
-                            activities.append(activity.name)
-                        else:
-                            # String name
-                            activities.append(str(activity))
+    def _extract_activities_from_clusters(self, clusters) -> list[str]:
+        """Extract activities from cluster definitions."""
+        activities = []
+        for cluster in clusters:
+            if hasattr(cluster, "activities") and cluster.activities:
+                for activity in cluster.activities:
+                    if hasattr(activity, "name"):
+                        activities.append(activity.name)
+                    else:
+                        activities.append(str(activity))
+        return activities
 
-        # If no activities found from runtime leg, check config leg
-        if not activities and hasattr(self.config, "legs"):
+    def _extract_activities_from_config_leg(self, leg: Any) -> list[str]:
+        """Extract activities from matching config leg."""
+        activities = []
+        if hasattr(self.config, "legs"):
             for config_leg in self.config.legs:
                 if config_leg.name == leg.name:
-                    # Check config leg clusters
                     if hasattr(config_leg, "clusters") and config_leg.clusters:
-                        for cluster in config_leg.clusters:
-                            if hasattr(cluster, "activities") and cluster.activities:
-                                for activity in cluster.activities:
-                                    if hasattr(activity, "name"):
-                                        # StationDefinition object
-                                        activities.append(activity.name)
-                                    else:
-                                        # String name
-                                        activities.append(str(activity))
-                    # Check config leg activities (for backwards compatibility)
+                        activities.extend(
+                            self._extract_activities_from_clusters(config_leg.clusters)
+                        )
                     elif hasattr(config_leg, "activities") and config_leg.activities:
                         activities.extend(config_leg.activities)
                     break
+        return activities
 
-        # Fallback: Get activities from leg definition (for backwards compatibility)
+    def _extract_activities_from_leg(self, leg: Any) -> list[str]:
+        """Extract activity names from leg definition."""
+        # Try runtime leg operations first
+        activities = self._extract_activities_from_operations(leg)
+
+        # Try runtime leg clusters
+        if not activities and hasattr(leg, "clusters") and leg.clusters:
+            activities = self._extract_activities_from_clusters(leg.clusters)
+
+        # Try config leg as fallback
+        if not activities:
+            activities = self._extract_activities_from_config_leg(leg)
+
+        # Final fallback: direct activities attribute
         if not activities and hasattr(leg, "activities") and leg.activities:
             activities.extend(leg.activities)
 

@@ -21,7 +21,7 @@ enrichment operations.
 
 import logging
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, TextIO, Union
 
 from ruamel.yaml import YAML
 from ruamel.yaml.error import YAMLError
@@ -51,7 +51,7 @@ def _get_yaml_processor(preserve_quotes: bool = True, width: int = 4096) -> YAML
     yaml.preserve_quotes = preserve_quotes
     yaml.width = width  # Prevent unwanted line wrapping
     yaml.indent(mapping=2, sequence=4, offset=2)  # Match existing formatting
-    yaml.sort_keys = (
+    yaml.sort_keys = (  # type: ignore[attr-defined]
         False  # Preserve insertion order (equivalent to PyYAML sort_keys=False)
     )
     yaml.map_indent = 2  # Control mapping indentation
@@ -100,7 +100,7 @@ def load_yaml(file_path: Union[str, Path], encoding: str = "utf-8") -> dict[str,
         raise YAMLIOError(f"Error reading {file_path}: {e}") from e
 
 
-def dump_yaml_simple(data: dict[str, Any], file_handle) -> None:
+def dump_yaml_simple(data: dict[str, Any], file_handle: TextIO) -> None:
     """
     Dump YAML data to file handle without comment preservation.
 
@@ -121,7 +121,7 @@ def dump_yaml_simple(data: dict[str, Any], file_handle) -> None:
         # Use regular YAML instead of safe mode to handle CommentedMap objects
         yaml = YAML()
         yaml.default_flow_style = False
-        yaml.sort_keys = False  # Preserve insertion order
+        yaml.sort_keys = False  # type: ignore[attr-defined] # Preserve insertion order
         yaml.dump(data, file_handle)
     except Exception as e:
         raise YAMLIOError(f"Error dumping YAML: {e}") from e
@@ -215,7 +215,7 @@ def load_yaml_safe(file_path: Union[str, Path]) -> dict[str, Any]:
 
     try:
         yaml = YAML(typ="safe")  # Use safe mode, returns plain Python objects
-        yaml.sort_keys = False  # Preserve insertion order
+        yaml.sort_keys = False  # type: ignore[attr-defined] # Preserve insertion order
         with open(file_path, encoding="utf-8") as f:
             config = yaml.load(f)
 

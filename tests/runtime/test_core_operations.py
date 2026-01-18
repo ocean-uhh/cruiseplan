@@ -4,6 +4,7 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
+from cruiseplan.config.activities import GeoPoint
 from cruiseplan.runtime.operations import (
     AreaOperation,
     BaseOperation,
@@ -58,7 +59,9 @@ class TestPointOperation:
 
     def test_point_operation_defaults(self):
         """Test PointOperation with default values."""
-        op = PointOperation(name="STN_001", position=(60.0, -20.0))
+        op = PointOperation(
+            name="STN_001", position=GeoPoint(latitude=60.0, longitude=-20.0)
+        )
 
         assert op.water_depth == 0.0
         assert op.manual_duration == 0.0
@@ -124,7 +127,11 @@ class TestPointOperation:
 
     def test_calculate_duration_mooring_no_default(self):
         """Test duration calculation for moorings without default."""
-        op = PointOperation(name="MOOR_001", position=(60.0, -20.0), op_type="mooring")
+        op = PointOperation(
+            name="MOOR_001",
+            position=GeoPoint(latitude=60.0, longitude=-20.0),
+            op_type="mooring",
+        )
 
         mock_config = MagicMock()
         # No default_mooring_duration attribute
@@ -137,7 +144,9 @@ class TestPointOperation:
 
     def test_calculate_duration_no_rules(self):
         """Test duration calculation with invalid rules."""
-        op = PointOperation(name="STN_001", position=(60.0, -20.0))
+        op = PointOperation(
+            name="STN_001", position=GeoPoint(latitude=60.0, longitude=-20.0)
+        )
 
         # Rules without config attribute
         mock_rules = MagicMock()
@@ -148,14 +157,18 @@ class TestPointOperation:
 
     def test_get_entry_point(self):
         """Test getting entry point for point operation."""
-        op = PointOperation(name="STN_001", position=(60.0, -20.0))
+        op = PointOperation(
+            name="STN_001", position=GeoPoint(latitude=60.0, longitude=-20.0)
+        )
 
         entry_point = op.get_entry_point()
         assert entry_point == (60.0, -20.0)
 
     def test_get_exit_point(self):
         """Test getting exit point for point operation."""
-        op = PointOperation(name="STN_001", position=(60.0, -20.0))
+        op = PointOperation(
+            name="STN_001", position=GeoPoint(latitude=60.0, longitude=-20.0)
+        )
 
         exit_point = op.get_exit_point()
         assert exit_point == (60.0, -20.0)
@@ -180,7 +193,8 @@ class TestPointOperation:
         op = PointOperation.from_pydantic(mock_station)
 
         assert op.name == "STN_002"
-        assert op.position == (65.0, -25.0)
+        assert op.position.latitude == 65.0
+        assert op.position.longitude == -25.0
         assert op.operation_depth == 800.0  # Uses operation_depth
         assert op.comment == "Deep CTD cast"
         assert op.op_type == "CTD"
@@ -208,7 +222,8 @@ class TestPointOperation:
         op = PointOperation.from_pydantic(mock_mooring)
 
         assert op.name == "MOOR_001"
-        assert op.position == (70.0, -30.0)
+        assert op.position.latitude == 70.0
+        assert op.position.longitude == -30.0
         assert op.operation_depth == 2000.0  # Falls back to water_depth
         assert op.manual_duration == 180.0
         assert op.op_type == "mooring"
@@ -220,7 +235,11 @@ class TestLineOperation:
 
     def test_line_operation_initialization(self):
         """Test basic LineOperation initialization."""
-        route = [(60.0, -20.0), (61.0, -21.0), (62.0, -22.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+            GeoPoint(latitude=62.0, longitude=-22.0),
+        ]
         op = LineOperation(
             name="TRANS_001", route=route, speed=12.0, comment="Transit to station area"
         )
@@ -232,7 +251,10 @@ class TestLineOperation:
 
     def test_line_operation_defaults(self):
         """Test LineOperation with default values."""
-        route = [(60.0, -20.0), (61.0, -21.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         op = LineOperation(name="TRANS_001", route=route)
 
         assert op.speed == 10.0
@@ -240,7 +262,10 @@ class TestLineOperation:
 
     def test_calculate_duration_valid_route(self):
         """Test duration calculation for valid route."""
-        route = [(60.0, -20.0), (61.0, -20.0)]  # ~111 km apart
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-20.0),
+        ]  # ~111 km apart
         op = LineOperation(name="TRANS_001", route=route, speed=10.0)
 
         with patch("cruiseplan.timeline.distance.haversine_distance") as mock_distance:
@@ -261,7 +286,7 @@ class TestLineOperation:
 
     def test_calculate_duration_single_point_route(self):
         """Test duration calculation for single point route."""
-        route = [(60.0, -20.0)]
+        route = [GeoPoint(latitude=60.0, longitude=-20.0)]
         op = LineOperation(name="TRANS_001", route=route)
 
         duration = op.calculate_duration(None)
@@ -269,7 +294,10 @@ class TestLineOperation:
 
     def test_calculate_duration_with_rules_config(self):
         """Test duration calculation using rules config for speed."""
-        route = [(60.0, -20.0), (61.0, -20.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-20.0),
+        ]
         op = LineOperation(name="TRANS_001", route=route, speed=0.0)  # No speed set
 
         mock_config = MagicMock()
@@ -285,7 +313,10 @@ class TestLineOperation:
 
     def test_calculate_duration_fallback_speed(self):
         """Test duration calculation with fallback speed."""
-        route = [(60.0, -20.0), (61.0, -20.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-20.0),
+        ]
         op = LineOperation(name="TRANS_001", route=route, speed=0.0)
 
         with patch("cruiseplan.timeline.distance.haversine_distance") as mock_distance:
@@ -296,7 +327,11 @@ class TestLineOperation:
 
     def test_get_entry_point(self):
         """Test getting entry point for line operation."""
-        route = [(60.0, -20.0), (61.0, -21.0), (62.0, -22.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+            GeoPoint(latitude=62.0, longitude=-22.0),
+        ]
         op = LineOperation(name="TRANS_001", route=route)
 
         entry_point = op.get_entry_point()
@@ -311,7 +346,11 @@ class TestLineOperation:
 
     def test_get_exit_point(self):
         """Test getting exit point for line operation."""
-        route = [(60.0, -20.0), (61.0, -21.0), (62.0, -22.0)]
+        route = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+            GeoPoint(latitude=62.0, longitude=-22.0),
+        ]
         op = LineOperation(name="TRANS_001", route=route)
 
         exit_point = op.get_exit_point()
@@ -344,7 +383,9 @@ class TestLineOperation:
         op = LineOperation.from_pydantic(mock_transit, default_speed=10.0)
 
         assert op.name == "TRANS_002"
-        assert op.route == [(55.0, -15.0), (56.0, -16.0)]
+        assert len(op.route) == 2
+        assert op.route[0].latitude == 55.0 and op.route[0].longitude == -15.0
+        assert op.route[1].latitude == 56.0 and op.route[1].longitude == -16.0
         assert op.speed == 14.0
         assert op.comment == "Transit between areas"
 
@@ -370,7 +411,12 @@ class TestAreaOperation:
 
     def test_area_operation_initialization(self):
         """Test basic AreaOperation initialization."""
-        boundary = [(60.0, -20.0), (61.0, -20.0), (61.0, -21.0), (60.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+            GeoPoint(latitude=60.0, longitude=-21.0),
+        ]
         start_point = (60.0, -20.0)
         end_point = (61.0, -21.0)
 
@@ -386,7 +432,10 @@ class TestAreaOperation:
         )
 
         assert op.name == "AREA_001"
-        assert op.boundary_polygon == boundary
+        assert len(op.boundary_polygon) == len(boundary)
+        for i, point in enumerate(boundary):
+            assert op.boundary_polygon[i].latitude == point.latitude
+            assert op.boundary_polygon[i].longitude == point.longitude
         assert op.area_km2 == 12345.0
         assert op.duration == 480.0
         assert op.start_point == start_point
@@ -396,7 +445,10 @@ class TestAreaOperation:
 
     def test_area_operation_defaults(self):
         """Test AreaOperation with default values."""
-        boundary = [(60.0, -20.0), (61.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         op = AreaOperation(name="AREA_001", boundary_polygon=boundary, area_km2=100.0)
 
         assert op.duration is None
@@ -414,7 +466,10 @@ class TestAreaOperation:
 
     def test_calculate_duration_with_duration(self):
         """Test duration calculation with specified duration."""
-        boundary = [(60.0, -20.0), (61.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         op = AreaOperation(
             name="AREA_001", boundary_polygon=boundary, area_km2=100.0, duration=360.0
         )
@@ -424,7 +479,10 @@ class TestAreaOperation:
 
     def test_calculate_duration_no_duration(self):
         """Test duration calculation without specified duration raises error."""
-        boundary = [(60.0, -20.0), (61.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         op = AreaOperation(name="AREA_001", boundary_polygon=boundary, area_km2=100.0)
 
         with pytest.raises(ValueError) as exc_info:
@@ -435,7 +493,10 @@ class TestAreaOperation:
 
     def test_get_entry_point(self):
         """Test getting entry point for area operation."""
-        boundary = [(60.0, -20.0), (61.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         start_point = (59.0, -19.0)
         op = AreaOperation(
             name="AREA_001",
@@ -449,7 +510,10 @@ class TestAreaOperation:
 
     def test_get_exit_point(self):
         """Test getting exit point for area operation."""
-        boundary = [(60.0, -20.0), (61.0, -21.0)]
+        boundary = [
+            GeoPoint(latitude=60.0, longitude=-20.0),
+            GeoPoint(latitude=61.0, longitude=-21.0),
+        ]
         end_point = (62.0, -22.0)
         op = AreaOperation(
             name="AREA_001",
@@ -506,7 +570,11 @@ class TestAreaOperation:
         op = AreaOperation.from_pydantic(mock_area)
 
         assert op.name == "GRID_SURVEY"
-        assert op.boundary_polygon == [(60.0, -20.0), (61.0, -20.0), (61.0, -21.0)]
+        expected_coords = [(60.0, -20.0), (61.0, -20.0), (61.0, -21.0)]
+        assert len(op.boundary_polygon) == len(expected_coords)
+        for i, (lat, lon) in enumerate(expected_coords):
+            assert op.boundary_polygon[i].latitude == lat
+            assert op.boundary_polygon[i].longitude == lon
         assert op.duration == 240.0
         assert op.start_point == (60.0, -20.0)  # First corner
         assert op.end_point == (61.0, -21.0)  # Last corner
@@ -542,7 +610,7 @@ class TestAreaOperation:
         op = AreaOperation.from_pydantic(mock_area)
 
         assert op.name == "EMPTY_AREA"
-        assert op.boundary_polygon == []
+        assert len(op.boundary_polygon) == 0
         assert op.start_point == (0.0, 0.0)
         assert op.end_point == (0.0, 0.0)
         assert op.area_km2 == 0.0

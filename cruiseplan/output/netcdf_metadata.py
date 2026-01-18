@@ -199,7 +199,7 @@ def get_variable_attributes(variable_name: str) -> dict[str, Any]:
 
 def create_coordinate_variables(
     times, lats, lons, depths=None, operation_depths=None
-) -> dict[str, tuple]:
+) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized coordinate variable definitions for xarray Dataset.
 
@@ -248,7 +248,7 @@ def create_coordinate_variables(
 
 def create_operation_variables(
     names, types, actions, durations, comments=None
-) -> dict[str, tuple]:
+) -> dict[str, tuple[list[str], Any, dict[str, Any]]]:
     """
     Create standardized operation variable definitions for xarray Dataset.
 

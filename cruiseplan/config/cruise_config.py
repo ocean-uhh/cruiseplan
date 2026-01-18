@@ -7,7 +7,7 @@ configuration file. This is the top-level YAML structure that contains
 all cruise metadata, global catalog definitions, and schedule organization.
 """
 
-from typing import Optional, Union
+from typing import Any, Optional, Union
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -61,7 +61,7 @@ class ClusterDefinition(BaseModel):
     )
 
     # New activities-based architecture
-    activities: list[Union[str, dict]] = Field(
+    activities: list[Union[str, dict[str, Any]]] = Field(
         default_factory=list,
         description="Unified list of all activities in this cluster (can be string references or dict objects)",
     )
@@ -186,7 +186,7 @@ class LegDefinition(BaseModel):
     )
 
     # Activity organization
-    activities: Optional[list[Union[str, dict]]] = Field(
+    activities: Optional[list[Union[str, dict[str, Any]]]] = Field(
         default_factory=list,
         description="Unified list of all activities in this leg (can be string references or dict objects)",
     )

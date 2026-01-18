@@ -8,7 +8,7 @@ Implements discrete sampling geometries as specified in netcdf_outputs.md.
 import logging
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional
+from typing import Any, Optional
 
 import numpy as np
 import xarray as xr
@@ -96,7 +96,7 @@ class NetCDFGenerator:
         return generated_files
 
     def generate_point_operations(
-        self, config: CruiseConfig, timeline: list[ActivityRecord], output_path: Path
+        self, config: CruiseConfig, timeline: list[dict[str, Any]], output_path: Path
     ) -> None:
         """
         Generate point operations NetCDF from stations and moorings.
@@ -311,14 +311,12 @@ class NetCDFGenerator:
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
-                lats.append(event["lat"])
-                lons.append(event["lon"])
+                lats.append(event["entry_lat"])
+                lons.append(event["entry_lon"])
                 names.append(event["label"])
-                leg_names.append(event.get("leg_name", ""))
+                leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
-                vessel_speeds.append(
-                    event.get("vessel_speed_kt", config.default_vessel_speed)
-                )
+                vessel_speeds.append(event["vessel_speed_kt"])
 
                 # Determine waterdepth and operation_depth: real depths for point operations, NaN for others
                 activity = event["activity"]
@@ -376,7 +374,7 @@ class NetCDFGenerator:
                     else:
                         # Fallback to activity type
                         types.append(activity.lower())
-                        actions.append(event.get("action", "unknown"))
+                        actions.append(event.get("action") or "unknown")
 
                 elif activity == "Area":
                     categories.append("area_operation")
@@ -407,7 +405,7 @@ class NetCDFGenerator:
                 elif activity == "Transit" and event.get("action"):
                     categories.append("line_operation")
                     types.append(event.get("operation_type", "underway"))
-                    actions.append(event.get("action", "unknown"))
+                    actions.append(event.get("action") or "unknown")
                 elif activity == "Transit":
                     categories.append("transit")
                     types.append("navigation")
@@ -439,8 +437,8 @@ class NetCDFGenerator:
                 # Extract start/end coordinates for line operations
                 if activity == "Transit" and event.get("action"):
                     # This is a line operation - use provided start coordinates
-                    start_lats.append(event.get("start_lat", event["lat"]))
-                    start_lons.append(event.get("start_lon", event["lon"]))
+                    start_lats.append(event.get("start_lat", event["entry_lat"]))
+                    start_lons.append(event.get("start_lon", event["entry_lon"]))
                     # For end coordinates, use route end point from transit definition if available
                     transit_name = event["label"]
                     line_def = line_lookup.get(transit_name)
@@ -455,8 +453,8 @@ class NetCDFGenerator:
                         end_lons.append(end_point.longitude)
                     else:
                         # Fallback: use event position as end point
-                        end_lats.append(event["lat"])
-                        end_lons.append(event["lon"])
+                        end_lats.append(event["entry_lat"])
+                        end_lons.append(event["entry_lon"])
                 else:
                     # Not a line operation - fill with NaN
                     start_lats.append(np.nan)
@@ -1063,25 +1061,23 @@ class NetCDFGenerator:
                 epoch_days = (time_obj - datetime(1970, 1, 1)).total_seconds() / 86400.0
                 times.append(epoch_days)
 
-                lats.append(event["lat"])
-                lons.append(event["lon"])
+                lats.append(event["entry_lat"])
+                lons.append(event["entry_lon"])
                 names.append(event["label"])
-                leg_names.append(event.get("leg_name", ""))
+                leg_names.append(event["leg_name"])
                 durations.append(event["duration_minutes"] / 60.0)  # Convert to hours
-                vessel_speeds.append(
-                    event.get("vessel_speed_kt", config.default_vessel_speed)
-                )
+                vessel_speeds.append(event["vessel_speed_kt"])
 
                 # Map activity details to standardized fields
                 activity = event["activity"]
                 if activity in ["Station", "Mooring"]:
                     categories.append("point_operation")
                     types.append(activity.lower())  # 'station' or 'mooring'
-                    actions.append(event.get("action", "unknown"))
+                    actions.append(event.get("action") or "unknown")
                 elif activity == "Transit" and event.get("action"):
                     categories.append("line_operation")
                     types.append(event.get("operation_type", "underway"))
-                    actions.append(event.get("action", "unknown"))
+                    actions.append(event.get("action") or "unknown")
                 elif activity == "Transit":
                     categories.append("transit")
                     types.append("navigation")
@@ -1252,7 +1248,7 @@ class NetCDFGenerator:
         for event in timeline:
             if event["activity"] == "Transit" and event.get("action"):
                 # This is a scientific transit with action (ADCP, bathymetry, etc.)
-                transit_name = event["label"]
+                transit_name = event.label
                 line_def = line_lookup.get(transit_name)
 
                 if line_def and len(line_def.route) >= 2:
@@ -1265,7 +1261,7 @@ class NetCDFGenerator:
                             "name": event["label"],
                             "category": "line_operation",
                             "type": event.get("operation_type", "underway"),
-                            "action": event.get("action", "unknown"),
+                            "action": event.get("action") or "unknown",
                             "start_lat": start_point.latitude,
                             "start_lon": start_point.longitude,
                             "end_lat": end_point.latitude,
@@ -1280,8 +1276,8 @@ class NetCDFGenerator:
                     )
                 else:
                     # Fallback: use event position with small offset (previous behavior)
-                    start_lat = event["lat"]
-                    start_lon = event["lon"]
+                    start_lat = event["entry_lat"]
+                    start_lon = event["entry_lon"]
                     operation_dist = event.get("dist_nm", 10.0)
                     lat_offset = operation_dist / 60.0
 
@@ -1290,7 +1286,7 @@ class NetCDFGenerator:
                             "name": event["label"],
                             "category": "line_operation",
                             "type": event.get("operation_type", "underway"),
-                            "action": event.get("action", "unknown"),
+                            "action": event.get("action") or "unknown",
                             "start_lat": start_lat,
                             "start_lon": start_lon,
                             "end_lat": start_lat + lat_offset,

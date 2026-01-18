@@ -14,6 +14,69 @@ from pathlib import Path
 import cruiseplan
 
 
+def _display_validation_results(result, warnings_only: bool) -> None:
+    """Display validation results in formatted output."""
+    print("")
+    print("=" * 50)
+    print("Validation Results")
+    print("=" * 50)
+
+    if result.errors:
+        print("❌ Validation Errors:")
+        for error in result.errors:
+            print(f"  • {error}")
+
+    if result.warnings:
+        if warnings_only:
+            print("i Validation Warnings (informational only):")
+        else:
+            print("⚠️ Validation Warnings:")
+        for warning in result.warnings:
+            print(f"  • {warning}")
+
+
+def _print_summary_and_exit(result, warnings_only: bool) -> None:
+    """Print validation summary and exit with appropriate code."""
+    if result.success:
+        print(f"✅ Validation passed ({len(result.warnings)} warnings)")
+        if result.warnings and warnings_only:
+            print("i Treating warnings as informational only")
+        sys.exit(0)
+    else:
+        print(
+            f"❌ Validation failed ({len(result.errors)} errors, {len(result.warnings)} warnings)"
+        )
+        sys.exit(1)
+
+
+def _handle_exceptions(args: argparse.Namespace) -> None:
+    """Handle common exceptions with appropriate error messages."""
+
+    def handle_error(message: str, exit_code: int = 1) -> None:
+        print(message, file=sys.stderr)
+        sys.exit(exit_code)
+
+    try:
+        raise
+    except cruiseplan.ValidationError as e:
+        handle_error(f"❌ Configuration validation error: {e}")
+    except cruiseplan.FileError as e:
+        handle_error(f"❌ File operation error: {e}")
+    except cruiseplan.BathymetryError as e:
+        handle_error(f"❌ Bathymetry error: {e}")
+    except FileNotFoundError as e:
+        handle_error(f"❌ File not found: {e}")
+    except KeyboardInterrupt:
+        handle_error("\n⚠️ Operation cancelled by user.")
+    except Exception as e:
+        print(f"❌ Unexpected error: {e}", file=sys.stderr)
+        if getattr(args, "verbose", False):
+            import traceback
+
+            traceback.print_exc()
+        sys.exit(1)
+
+
 def main(args: argparse.Namespace) -> None:
     """
     Thin CLI wrapper for validate command.
@@ -32,61 +95,13 @@ def main(args: argparse.Namespace) -> None:
             verbose=getattr(args, "verbose", False),
         )
 
-        # Display validation results
-        print("")
-        print("=" * 50)
-        print("Validation Results")
-        print("=" * 50)
+        # Display results and exit
+        warnings_only = getattr(args, "warnings_only", False)
+        _display_validation_results(result, warnings_only)
+        _print_summary_and_exit(result, warnings_only)
 
-        if result.errors:
-            print("❌ Validation Errors:")
-            for error in result.errors:
-                print(f"  • {error}")
-
-        if result.warnings:
-            if getattr(args, "warnings_only", False):
-                print("i Validation Warnings (informational only):")
-                for warning in result.warnings:
-                    print(f"  • {warning}")
-            else:
-                print("⚠️ Validation Warnings:")
-                for warning in result.warnings:
-                    print(f"  • {warning}")
-
-        # Print summary and exit
-        if result.success:
-            print(f"✅ Validation passed ({len(result.warnings)} warnings)")
-            if result.warnings and getattr(args, "warnings_only", False):
-                print("i Treating warnings as informational only")
-            sys.exit(0)
-        else:
-            print(
-                f"❌ Validation failed ({len(result.errors)} errors, {len(result.warnings)} warnings)"
-            )
-            sys.exit(1)
-
-    except cruiseplan.ValidationError as e:
-        print(f"❌ Configuration validation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.FileError as e:
-        print(f"❌ File operation error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except cruiseplan.BathymetryError as e:
-        print(f"❌ Bathymetry error: {e}", file=sys.stderr)
-        sys.exit(1)
-    except FileNotFoundError as e:
-        print(f"❌ File not found: {e}", file=sys.stderr)
-        sys.exit(1)
-    except KeyboardInterrupt:
-        print("\n⚠️ Operation cancelled by user.", file=sys.stderr)
-        sys.exit(1)
-    except Exception as e:
-        print(f"❌ Unexpected error: {e}", file=sys.stderr)
-        if getattr(args, "verbose", False):
-            import traceback
-
-            traceback.print_exc()
-        sys.exit(1)
+    except Exception:
+        _handle_exceptions(args)
 
 
 if __name__ == "__main__":

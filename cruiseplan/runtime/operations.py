@@ -186,7 +186,7 @@ class PointOperation(BaseOperation):
     def __init__(
         self,
         name: str,
-        position: tuple,
+        position: GeoPoint,
         operation_depth: Optional[float] = None,
         water_depth: float = 0.0,
         duration: float = 0.0,
@@ -216,7 +216,7 @@ class PointOperation(BaseOperation):
             Specific action for moorings (deploy/recover).
         """
         super().__init__(name, comment, display_name)
-        self.position = position  # (lat, lon)
+        self.position = position
         self.operation_depth = operation_depth
         self.water_depth = water_depth
         self.manual_duration = duration
@@ -308,7 +308,7 @@ class PointOperation(BaseOperation):
         tuple[float, float]
             (latitude, longitude) of the operation location.
         """
-        return self.position
+        return (self.position.latitude, self.position.longitude)
 
     def get_exit_point(self) -> tuple[float, float]:
         """
@@ -321,7 +321,7 @@ class PointOperation(BaseOperation):
         tuple[float, float]
             (latitude, longitude) of the operation location.
         """
-        return self.position
+        return (self.position.latitude, self.position.longitude)
 
     # What is this used for? probably belongs in vocabulary.py if it's just a lookup.
     def get_operation_type(self) -> str:
@@ -363,7 +363,7 @@ class PointOperation(BaseOperation):
             New PointOperation instance.
         """
         # 1. Extract Position (Guaranteed by validation.py to exist)
-        pos = (obj.latitude, obj.longitude)
+        pos = GeoPoint(latitude=obj.latitude, longitude=obj.longitude)
 
         # 2. Map operation types to legacy internal types
         # Use the original operation_type from YAML for display
@@ -412,7 +412,7 @@ class PointOperation(BaseOperation):
         PointOperation
             New PointOperation instance representing a port.
         """
-        pos = (obj.latitude, obj.longitude)
+        pos = GeoPoint(latitude=obj.latitude, longitude=obj.longitude)
 
         return cls(
             name=obj.name,
@@ -447,7 +447,7 @@ class LineOperation(BaseOperation):
     def __init__(
         self,
         name: str,
-        route: list[tuple],
+        route: list[GeoPoint],
         speed: float = 10.0,
         comment: Optional[str] = None,
         display_name: Optional[str] = None,
@@ -469,7 +469,7 @@ class LineOperation(BaseOperation):
             Human-readable comment or description.
         """
         super().__init__(name, comment, display_name)
-        self.route = route  # List of (lat, lon)
+        self.route = route  # List of GeoPoint
         self.speed = speed
         self.op_type = op_type
         self.action = action
@@ -530,7 +530,7 @@ class LineOperation(BaseOperation):
         """
         if not self.route:
             return (0.0, 0.0)  # Fallback for empty routes
-        return self.route[0]
+        return (self.route[0].latitude, self.route[0].longitude)
 
     def get_exit_point(self) -> tuple[float, float]:
         """
@@ -545,7 +545,7 @@ class LineOperation(BaseOperation):
         """
         if not self.route:
             return (0.0, 0.0)  # Fallback for empty routes
-        return self.route[-1]
+        return (self.route[-1].latitude, self.route[-1].longitude)
 
     def get_operation_distance_nm(self) -> float:
         """
@@ -587,7 +587,8 @@ class LineOperation(BaseOperation):
             New LineOperation instance.
         """
         # Convert List[GeoPoint] -> List[tuple]
-        route_tuples = [(p.latitude, p.longitude) for p in obj.route]
+        # Use GeoPoints directly instead of converting to tuples
+        route_geopoints = obj.route
 
         # Use the original operation_type from YAML for display
         display_op_type = obj.operation_type.value if obj.operation_type else "line"
@@ -595,7 +596,7 @@ class LineOperation(BaseOperation):
 
         return cls(
             name=obj.name,
-            route=route_tuples,
+            route=route_geopoints,
             speed=obj.vessel_speed if obj.vessel_speed else default_speed,
             comment=obj.comment,
             display_name=getattr(obj, "display_name", None),
@@ -630,7 +631,7 @@ class AreaOperation(BaseOperation):
     def __init__(
         self,
         name: str,
-        boundary_polygon: list[tuple[float, float]],
+        boundary_polygon: list[GeoPoint],
         area_km2: float,
         duration: Optional[float] = None,
         start_point: Optional[tuple[float, float]] = None,
@@ -664,7 +665,7 @@ class AreaOperation(BaseOperation):
             Human-readable comment or description.
         """
         super().__init__(name, comment, display_name)
-        self.boundary_polygon = boundary_polygon
+        self.boundary_polygon = boundary_polygon  # List of GeoPoint
         self.area_km2 = area_km2
         self.duration = duration
         self.sampling_density = sampling_density
@@ -673,10 +674,14 @@ class AreaOperation(BaseOperation):
 
         # Set start/end points, defaulting to first/last corners if not specified
         self.start_point = start_point or (
-            boundary_polygon[0] if boundary_polygon else (0.0, 0.0)
+            (self.boundary_polygon[0].latitude, self.boundary_polygon[0].longitude)
+            if self.boundary_polygon
+            else (0.0, 0.0)
         )
         self.end_point = end_point or (
-            boundary_polygon[-1] if boundary_polygon else (0.0, 0.0)
+            (self.boundary_polygon[-1].latitude, self.boundary_polygon[-1].longitude)
+            if self.boundary_polygon
+            else (0.0, 0.0)
         )
 
     def calculate_duration(self, rules: Any) -> float:
@@ -762,9 +767,11 @@ class AreaOperation(BaseOperation):
             )
 
         # Convert List[GeoPoint] -> List[tuple]
-        boundary_tuples = [(p.latitude, p.longitude) for p in obj.corners]
+        # Use GeoPoints directly instead of converting to tuples
+        boundary_geopoints = obj.corners
 
-        # Calculate approximate area using shoelace formula
+        # Calculate approximate area using shoelace formula (convert GeoPoints to tuples for calculation)
+        boundary_tuples = [(p.latitude, p.longitude) for p in boundary_geopoints]
         area_km2 = cls._calculate_polygon_area(boundary_tuples)
 
         # Use first and last corners as start/end points
@@ -777,7 +784,7 @@ class AreaOperation(BaseOperation):
 
         return cls(
             name=obj.name,
-            boundary_polygon=boundary_tuples,
+            boundary_polygon=boundary_geopoints,
             area_km2=area_km2,
             duration=obj.duration,
             start_point=start_point,

@@ -549,7 +549,9 @@ class BathymetryManager:
             self._dataset.close()
 
 
-def download_bathymetry(target_dir: str = "data/bathymetry", source: str = "etopo2022"):
+def download_bathymetry(
+    target_dir: str = "data/bathymetry", source: str = "etopo2022"
+) -> bool:
     """
     Download bathymetry dataset with progress bar.
 
