@@ -22,9 +22,11 @@ class TestBathymetryAPI:
     @patch("cruiseplan.data.bathymetry.download_bathymetry")
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.stat")
-    def test_bathymetry_default_parameters(self, mock_stat, mock_mkdir, mock_download):
+    @patch("pathlib.Path.exists")
+    def test_bathymetry_default_parameters(self, mock_exists, mock_stat, mock_mkdir, mock_download):
         """Test bathymetry with default parameters."""
-        # Mock file size
+        # Mock file existence and size
+        mock_exists.return_value = True
         mock_stat.return_value.st_size = 1024 * 1024 * 100  # 100 MB
         mock_download.return_value = "/test/data/etopo2022.nc"
 
@@ -45,8 +47,11 @@ class TestBathymetryAPI:
     @patch("cruiseplan.data.bathymetry.download_bathymetry")
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.stat")
-    def test_bathymetry_custom_parameters(self, mock_stat, mock_mkdir, mock_download):
+    @patch("pathlib.Path.exists")
+    def test_bathymetry_custom_parameters(self, mock_exists, mock_stat, mock_mkdir, mock_download):
         """Test bathymetry with custom parameters."""
+        # Mock file existence and size
+        mock_exists.return_value = True
         mock_stat.return_value.st_size = 1024 * 1024 * 50  # 50 MB
         mock_download.return_value = "/custom/gebco2025.nc"
 
