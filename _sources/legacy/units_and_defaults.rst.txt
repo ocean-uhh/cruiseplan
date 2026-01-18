@@ -4,9 +4,9 @@ Units and Defaults
 This reference covers units, formats, and defaults used throughout CruisePlan.
 
 .. seealso::
-   - :doc:`yaml_reference` for complete YAML syntax
+   - :doc:`../reference/yaml-full` for complete YAML syntax
    - :doc:`calculations` for calculation methods  
-   - :doc:`user_workflows` for practical usage examples
+   - :doc:`../user-guide/workflows` for practical usage examples
 
 .. contents:: Table of Contents
    :local:

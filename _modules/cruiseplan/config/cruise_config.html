@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.config.cruise_config &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+  <title>cruiseplan.config.cruise_config &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -117,7 +117,7 @@
 
 
 <div class="viewcode-block" id="ClusterDefinition">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.ClusterDefinition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ClusterDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Definition of a cluster for operation boundary management.</span>
@@ -162,7 +162,7 @@
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="ClusterDefinition.validate_cluster_activities">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition.validate_cluster_activities">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.ClusterDefinition.validate_cluster_activities">[docs]</a>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_cluster_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -192,7 +192,7 @@
 
 
 <div class="viewcode-block" id="ClusterDefinition.validate_strategy">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition.validate_strategy">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.ClusterDefinition.validate_strategy">[docs]</a>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;strategy&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_strategy</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -209,7 +209,7 @@
 
 
 <div class="viewcode-block" id="LegDefinition">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">LegDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Definition of a maritime cruise leg (port-to-port segment).</span>
@@ -299,7 +299,7 @@
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="LegDefinition.validate_ports">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_ports">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition.validate_ports">[docs]</a>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_ports</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -311,7 +311,7 @@
 
 
 <div class="viewcode-block" id="LegDefinition.validate_vessel_speed">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_vessel_speed">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition.validate_vessel_speed">[docs]</a>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;vessel_speed&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_vessel_speed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -323,7 +323,7 @@
 
 
 <div class="viewcode-block" id="LegDefinition.validate_station_spacing">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_station_spacing">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition.validate_station_spacing">[docs]</a>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;distance_between_stations&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_station_spacing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -335,7 +335,7 @@
 
 
 <div class="viewcode-block" id="LegDefinition.validate_time_fields">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_time_fields">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition.validate_time_fields">[docs]</a>
     <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;turnaround_time&quot;</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">)</span>
     <span class="nd">@classmethod</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_time_fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
@@ -347,7 +347,7 @@
 
 
 <div class="viewcode-block" id="LegDefinition.validate_leg_structure">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_leg_structure">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.LegDefinition.validate_leg_structure">[docs]</a>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_leg_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -369,7 +369,7 @@
 
 
 <div class="viewcode-block" id="CruiseConfig">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.CruiseConfig">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">CruiseConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Root configuration model for cruise planning.</span>
@@ -470,7 +470,7 @@
     <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
 
 <div class="viewcode-block" id="CruiseConfig.validate_cruise_structure">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.CruiseConfig.validate_cruise_structure">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.cruise_config.CruiseConfig.validate_cruise_structure">[docs]</a>
     <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">validate_cruise_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>

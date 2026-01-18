@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>cruiseplan.config.exceptions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+  <title>cruiseplan.config.exceptions &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
@@ -13,7 +13,7 @@
   
       <script src="../../../_static/jquery.js?v=5d32c60e"></script>
       <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/documentation_options.js?v=6b4f5fd0"></script>
       <script src="../../../_static/doctools.js?v=9bcbadda"></script>
       <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -99,7 +99,7 @@
 
 <span class="c1"># Custom exception types for clean CLI error handling</span>
 <div class="viewcode-block" id="ValidationError">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ValidationError">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.exceptions.ValidationError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">ValidationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when configuration validation fails.&quot;&quot;&quot;</span>
 
@@ -108,7 +108,7 @@
 
 
 <div class="viewcode-block" id="FileError">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.FileError">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.exceptions.FileError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FileError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when file operations fail (reading, writing, permissions).&quot;&quot;&quot;</span>
 
@@ -117,7 +117,7 @@
 
 
 <div class="viewcode-block" id="BathymetryError">
-<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.BathymetryError">[docs]</a>
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.exceptions.BathymetryError">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">BathymetryError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when bathymetry operations fail.&quot;&quot;&quot;</span>
 

@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Developer Guide &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+  <title>CruisePlan Developer Guide &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/documentation_options.js?v=6b4f5fd0"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -387,7 +387,7 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
         <span class="k">return</span> <span class="n">duration_calc</span><span class="o">.</span><span class="n">calculate_ctd_time</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">depth</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">op_type</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>For details on the CTD duration calculation, see  <a class="reference internal" href="#calculations.rst"><span class="xref myst">calculations</span></a>.</p>
+<p>CTD duration calculations use configurable descent/ascent rates plus turnaround time.</p>
 </section>
 <section id="line-operations-lineoperation">
 <h3>Line Operations (LineOperation)<a class="headerlink" href="#line-operations-lineoperation" title="Link to this heading"></a></h3>
@@ -423,7 +423,7 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
         <span class="k">return</span> <span class="n">duration_hours</span> <span class="o">*</span> <span class="mf">60.0</span>  <span class="c1"># Convert to minutes</span>
 </pre></div>
 </div>
-<p>For details on the haversine distance calculation, see  <a class="reference internal" href="#calculations.rst"><span class="xref myst">calculations</span></a>.</p>
+<p>Distance calculations use the haversine formula for great circle distances.</p>
 </section>
 <section id="area-operations-areaoperation">
 <h3>Area Operations (AreaOperation)<a class="headerlink" href="#area-operations-areaoperation" title="Link to this heading"></a></h3>
@@ -567,7 +567,7 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
 <li><p><strong>Type-agnostic interface</strong>: Works with any objects having <code class="docutils literal notranslate"><span class="pre">get_entry_point()</span></code>/<code class="docutils literal notranslate"><span class="pre">get_exit_point()</span></code> methods</p></li>
 <li><p><strong>Automatic transit insertion</strong>: Distance calculations between operations trigger transit generation</p></li>
 </ul>
-<p><strong>For detailed calculation formulas and parameters, see <a class="reference internal" href="#calculations.rst"><span class="xref myst">calculations</span></a>.</strong></p>
+<p><strong>Calculation formulas use standard oceanographic parameters with configurable rates.</strong></p>
 </section>
 <section id="duration-calculations">
 <h3>Duration Calculations<a class="headerlink" href="#duration-calculations" title="Link to this heading"></a></h3>
@@ -584,7 +584,7 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
 </pre></div>
 </div>
 <p>Architecture: Operations call calculate_duration(rules) which dispatches to appropriate calculator methods based on operation type.</p>
-<p><strong>For detailed formulas, rates, and parameters, see <a class="reference internal" href="#calculations.rst"><span class="xref myst">calculations</span></a>.</strong></p>
+<p><strong>Formulas use operation-specific rates and configurable vessel parameters.</strong></p>
 </section>
 </section>
 <section id="validation-architecture">
@@ -752,7 +752,7 @@ Look for <code class="docutils literal notranslate"><span class="pre">CruiseConf
 <li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan/interactive/</span></code>: Station picker and GUI components</p></li>
 <li><p><code class="docutils literal notranslate"><span class="pre">cruiseplan/utils/</span></code>: Coordinate conversion, common utilities</p></li>
 </ul>
-<p>See the complete structure in <a class="reference internal" href="#project_structure.md"><span class="xref myst">project_structure</span></a></p>
+<p>The codebase follows a modular structure with clear separation of concerns</p>
 </section>
 <section id="dependencies">
 <h3>Dependencies<a class="headerlink" href="#dependencies" title="Link to this heading"></a></h3>

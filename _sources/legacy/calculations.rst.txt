@@ -153,7 +153,7 @@ CTD operations use depth-based duration calculations incorporating realistic des
 
 **Depth-Duration Examples**:
 
-Based on the calculation, the following are example CTD profile durations at various depths.  Note, however, that in practice, the CTD speed is typically slower in the top 100 m and bottom 100m (to avoid hitting the bottom/let the altimeter kick in).  So our timing estimates will be inaccurate for many shallow profiles.  This can be adjusted by altering the descent/ascent rates in the cruise configuration (see :ref:`yaml-reference`) or the turnaround time.
+Based on the calculation, the following are example CTD profile durations at various depths.  Note, however, that in practice, the CTD speed is typically slower in the top 100 m and bottom 100m (to avoid hitting the bottom/let the altimeter kick in).  So our timing estimates will be inaccurate for many shallow profiles.  This can be adjusted by altering the descent/ascent rates in the cruise configuration or the turnaround time.
 
 Note: Weather and sea state, or equipment variations may require further adjustments not automatically included in these calculations.
 

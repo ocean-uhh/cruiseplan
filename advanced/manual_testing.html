@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+  <title>Manual Testing and Verification &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev2</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
@@ -14,7 +14,7 @@
   
       <script src="../_static/jquery.js?v=5d32c60e"></script>
       <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/documentation_options.js?v=6b4f5fd0"></script>
       <script src="../_static/doctools.js?v=9bcbadda"></script>
       <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -186,7 +186,7 @@ ls<span class="w"> </span>tests_output/fixtures/
 <ol class="arabic simple" start="4">
 <li><p><input type="checkbox"> Verify that the CTD takes <strong>2.1 hours</strong>, based on a 30 minute “turnaround_time” (the default from <cite>cruiseplan/config/values.py</cite>) and a 2850m CTD (using mocked bathymetry) from <cite>DEFAULT_CTD_RATE_M_S</cite> in <cite>cruiseplan/config/values.py</cite>, which is 47.5 minutes down and 47.5 minutes up, plus 30 minutes turnaround = 125 minutes or 2.1 hours.</p></li>
 <li><p><input type="checkbox"> Verify that the total cruise duration is <strong>262.4 hours / 10.9 days</strong>.</p></li>
-<li><p><input type="checkbox"> Compare with the <a class="reference external" href="_static/fixtures/TC1_Single_Test_schedule.html">HTML schedule output</a> to verify CTD timing calculations.</p></li>
+<li><p><input type="checkbox"> Compare with the <a class="reference external" href="../_static/fixtures/TC1_Single_Test_schedule.html">HTML schedule output</a> to verify CTD timing calculations.</p></li>
 </ol>
 </section>
 <section id="tc1-single-test-schedule-csv">
@@ -194,7 +194,7 @@ ls<span class="w"> </span>tests_output/fixtures/
 <ol class="arabic simple" start="7">
 <li><p><input type="checkbox"> Verify that the first row, second to last entry is <strong>-34.51</strong> (Longitude minutes for -63.5752 degrees)</p></li>
 </ol>
-<div class="highlight-csv notranslate"><div class="highlight"><pre><span></span>activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>activity,label,operation_action,start_time,end_time,Transit dist [nm],Vessel speed [kt],Duration [hrs],Depth [m],Lat [deg],Lon [deg],Lat [deg_rounded],Lat [min],Lon [deg_rounded],Lon [min],leg_name
 Port,port_halifax,Port mob,1970-01-01T00:00:00,1970-01-01T00:00:00,0.0,0,0.0,0,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
 Transit,Transit to STN_001,Transit,1970-01-01T00:00:00,1970-01-04T06:57:00,789.6,10.0,79.0,,44.6488,-63.5752,44,38.93,-63,-34.51,Leg_Single
 Station,STN_001,Station profile,1970-01-04T06:57:00,1970-01-04T09:02:00,0.0,0,2.1,2850,45.0,-45.0,45,0.0,-45,-0.0,Leg_Single
@@ -225,8 +225,8 @@ Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.
 <section id="figures-map-png-and-schedule-png">
 <h3><strong>Figures _map.png and _schedule.png</strong><a class="headerlink" href="#figures-map-png-and-schedule-png" title="Link to this heading"></a></h3>
 <ol class="arabic simple" start="11">
-<li><p><input type="checkbox"> Verify that the map PNG shows no ports <a class="reference external" href="_static/fixtures/TC1_Single_Test_map.png">TC1_Single_Test_map.png</a></p></li>
-<li><p><input type="checkbox"> Verify that the schedule PNG shows ports <a class="reference external" href="_static/fixtures/TC1_Single_Test_schedule.png">TC1_Single_Test_schedule.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the map PNG shows no ports <a class="reference external" href="../_static/fixtures/TC1_Single_Test_map.png">TC1_Single_Test_map.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the schedule PNG shows ports <a class="reference external" href="../_static/fixtures/TC1_Single_Test_schedule.png">TC1_Single_Test_schedule.png</a></p></li>
 </ol>
 </section>
 <section id="kml-tc1-single-test-catalog-kml">
@@ -235,7 +235,7 @@ Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.
 <li><p><input type="checkbox"> Verify that the KML file includes the station details</p></li>
 </ol>
 <figure class="align-default" id="id1">
-<a class="reference internal image-reference" href="advanced/_static/fixtures/TC1_Single_Test_catalog_kml.png"><img alt="KML Output Screenshot" src="advanced/_static/fixtures/TC1_Single_Test_catalog_kml.png" style="width: 400px;" />
+<a class="reference internal image-reference" href="../_images/TC1_Single_Test_catalog_kml.png"><img alt="KML Output Screenshot" src="../_images/TC1_Single_Test_catalog_kml.png" style="width: 400px;" />
 </a>
 <figcaption>
 <p><span class="caption-text">KML output viewed in Google Earth showing station location and details.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
@@ -257,7 +257,7 @@ Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.
 <ol class="arabic simple">
 <li><p><input type="checkbox"> Verify that the <cite>*.html</cite> shows total duration of <strong>1440.4 hours</strong> (because the default mooring time is <strong>999.0 hours</strong>)</p></li>
 <li><p><input type="checkbox"> Verify that two legs are generated with <strong>277.2 hours</strong> in Leg 1 and <strong>1163.2 hours</strong> in Leg 2.</p></li>
-<li><p><input type="checkbox"> Verify that the <cite>_schedule.png</cite> matches <a class="reference external" href="_static/fixtures/TC2_TwoLegs_Test_schedule.png">TC2_TwoLegs_Test_schedule.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the <cite>_schedule.png</cite> matches <a class="reference external" href="../_static/fixtures/TC2_TwoLegs_Test_schedule.png">TC2_TwoLegs_Test_schedule.png</a></p></li>
 <li><p><input type="checkbox"> Verify that the <cite>_work_days.tex</cite> has a total duration with operations of <strong>1000.0</strong> hours and transit duration of <strong>440.4</strong> hours.</p></li>
 </ol>
 </section>
@@ -281,7 +281,7 @@ Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.
 <li><p><input type="checkbox"> Verify that <cite>3e. Leg_Survey_Duplicate4</cite> repeats <cite>STN_001</cite>, adding a total of 0.5 hours to the duration (making it <strong>128.4</strong> hours).</p></li>
 <li><p><input type="checkbox"> Verify that the <cite>3f. Leg_Survey_Reorder</cite> does the stations in order of <cite>STN_004</cite> then <cite>STN_003</cite> then <cite>STN_002</cite> then <cite>STN_001</cite>.</p></li>
 </ol>
-<p>See the HTML output <a class="reference external" href="_static/fixtures/TC3_Clusters_Test_schedule.html">TC3_Clusters_Test_schedule.html</a> for reference.</p>
+<p>See the HTML output <a class="reference external" href="../_static/fixtures/TC3_Clusters_Test_schedule.html">TC3_Clusters_Test_schedule.html</a> for reference.</p>
 </section>
 <hr class="docutils" />
 <section id="test-case-4-mixed-operations-tc4-mixed-ops-yaml">
@@ -295,7 +295,7 @@ Port,port_cadiz,Port mob,1970-01-11T22:21:00,1970-01-11T22:21:00,0.0,0,0.0,0,36.
 </ul>
 <p><strong>Manual verification</strong>:</p>
 <ol class="arabic simple">
-<li><p><input type="checkbox"> Verify that the <cite>*_map.png</cite> shows a shaded area, a line and a station.  Compare to <a class="reference external" href="_static/fixtures/TC4_Mixed_Test_map.png">TC4_Mixed_Test_map.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the <cite>*_map.png</cite> shows a shaded area, a line and a station.  Compare to <a class="reference external" href="../_static/fixtures/TC4_Mixed_Test_map.png">TC4_Mixed_Test_map.png</a></p></li>
 <li><p><input type="checkbox"> Verify that the <cite>*_stations.tex</cite> shows 3 lines with:</p></li>
 </ol>
 <div class="highlight-latex notranslate"><div class="highlight"><pre><span></span>Station <span class="nb">&amp;</span> STN-001 <span class="nb">&amp;</span> 45<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>00.00&#39;W <span class="nb">&amp;</span> 58 <span class="k">\\</span>
@@ -303,7 +303,7 @@ Line (line) <span class="nb">&amp;</span> ADCP-Survey <span class="nb">&amp;</sp
 Area (None) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</span> Center: 47<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>30.00&#39;N, 050<span class="s">$</span><span class="nb">^</span><span class="nv">\circ</span><span class="s">$</span>30.00&#39;W <span class="nb">&amp;</span> Variable <span class="k">\\</span>
 </pre></div>
 </div>
-<p>Compare with the <a class="reference external" href="_static/fixtures/TC4_Mixed_Test_schedule.html">TC4_Mixed_Test_schedule.html</a> for coordinates and depths.</p>
+<p>Compare with the <a class="reference external" href="../_static/fixtures/TC4_Mixed_Test_schedule.html">TC4_Mixed_Test_schedule.html</a> for coordinates and depths.</p>
 <ol class="arabic simple" start="3">
 <li><p><input type="checkbox"> Verify that the <cite>*_schedule.html</cite> shows total duration of <strong>287.2 hours</strong>.</p></li>
 <li><p><input type="checkbox"> Verify that the total cruise shows <strong>3 operations</strong> and the <cite>3a. Mixed_Survey</cite> leg shows <strong>3 operations</strong>.</p></li>
@@ -340,7 +340,7 @@ Area (None) <span class="nb">&amp;</span> Area-01 <span class="nb">&amp;</span> 
 </pre></div>
 </div>
 <ol class="arabic simple" start="2">
-<li><p><input type="checkbox"> Verify that the <cite>_map.png</cite> shows all 14 stations from the section <a class="reference external" href="_static/fixtures/TC5_Sections_Test_map.png">TC5_Sections_Test_map.png</a></p></li>
+<li><p><input type="checkbox"> Verify that the <cite>_map.png</cite> shows all 14 stations from the section <a class="reference external" href="../_static/fixtures/TC5_Sections_Test_map.png">TC5_Sections_Test_map.png</a></p></li>
 <li><p><input type="checkbox"> Verify that the <cite>_schedule.html</cite> shows a station spacing of <strong>11.2 nm</strong>.</p></li>
 </ol>
 <p><strong>Mooring-focused</strong>: <code class="docutils literal notranslate"><span class="pre">tc1_mooring.yaml</span></code>
