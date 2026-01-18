@@ -1,0 +1,399 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>API Examples &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="CruisePlan Demo" href="../demo-output.html" />
+    <link rel="prev" title="LaTeX Output" href="../output/latex.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API Examples</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#quick-start">Quick Start</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core-api-functions">Core API Functions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#data-acquisition">Data Acquisition</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#cruise-configuration">Cruise Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#timeline-generation">Timeline Generation</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-operations">Working with Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#creating-operations-programmatically">Creating Operations Programmatically</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#distance-and-duration-calculations">Distance and Duration Calculations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#output-generation">Output Generation</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#html-timeline">HTML Timeline</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#netcdf-export">NetCDF Export</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#maps-and-visualizations">Maps and Visualizations</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#working-with-pangaea-data">Working with PANGAEA Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#error-handling">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#integration-example">Integration Example</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">API Examples</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="api-examples">
+<h1>API Examples<a class="headerlink" href="#api-examples" title="Link to this heading"></a></h1>
+<p>This guide shows how to use CruisePlan’s Python API for programmatic cruise planning.</p>
+<section id="quick-start">
+<h2>Quick Start<a class="headerlink" href="#quick-start" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
+
+<span class="c1"># Download bathymetry data</span>
+<span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">()</span>
+
+<span class="c1"># Search PANGAEA for historical data</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">pangaea</span><span class="p">(</span><span class="s2">&quot;CTD&quot;</span><span class="p">,</span> <span class="n">lat_bounds</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span> <span class="n">lon_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">])</span>
+
+<span class="c1"># Load and process a cruise configuration</span>
+<span class="n">cruise</span> <span class="o">=</span> <span class="n">cruiseplan</span><span class="o">.</span><span class="n">load_cruise</span><span class="p">(</span><span class="s2">&quot;my_cruise.yaml&quot;</span><span class="p">)</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">enrich</span><span class="p">()</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="core-api-functions">
+<h2>Core API Functions<a class="headerlink" href="#core-api-functions" title="Link to this heading"></a></h2>
+<section id="data-acquisition">
+<h3>Data Acquisition<a class="headerlink" href="#data-acquisition" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.data</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span><span class="p">,</span> <span class="n">pangaea</span>
+
+<span class="c1"># Download bathymetry</span>
+<span class="n">bathy_result</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="p">(</span><span class="n">bathy_source</span><span class="o">=</span><span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;data/bathymetry&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Downloaded: </span><span class="si">{</span><span class="n">bathy_result</span><span class="o">.</span><span class="n">data_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Search PANGAEA database</span>
+<span class="n">pangaea_result</span> <span class="o">=</span> <span class="n">pangaea</span><span class="p">(</span>
+    <span class="n">query_terms</span><span class="o">=</span><span class="s2">&quot;CTD temperature&quot;</span><span class="p">,</span>
+    <span class="n">lat_bounds</span><span class="o">=</span><span class="p">[</span><span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+    <span class="n">lon_bounds</span><span class="o">=</span><span class="p">[</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span>
+    <span class="n">max_results</span><span class="o">=</span><span class="mi">50</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">pangaea_result</span><span class="o">.</span><span class="n">stations_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> campaigns&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="cruise-configuration">
+<h3>Cruise Configuration<a class="headerlink" href="#cruise-configuration" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
+<span class="c1"># Load cruise from YAML file</span>
+<span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="p">(</span><span class="s2">&quot;cruise_config.yaml&quot;</span><span class="p">)</span>
+
+<span class="c1"># Access configuration data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Cruise: </span><span class="si">{</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Start date: </span><span class="si">{</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">start_date</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of points: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">points</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">[])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Enrich with bathymetry data</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">enrich_depths</span><span class="p">()</span>
+
+<span class="c1"># Add coordinate displays</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">add_coordinate_displays</span><span class="p">()</span>
+
+<span class="c1"># Save processed configuration</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">to_yaml</span><span class="p">(</span><span class="s2">&quot;enriched_cruise.yaml&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="timeline-generation">
+<h3>Timeline Generation<a class="headerlink" href="#timeline-generation" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_timeline</span>
+
+<span class="c1"># Generate cruise timeline</span>
+<span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+
+<span class="c1"># Access timeline data</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total duration: </span><span class="si">{</span><span class="n">timeline</span><span class="o">.</span><span class="n">total_duration_hours</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Number of operations: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="o">.</span><span class="n">operations</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Export timeline</span>
+<span class="n">timeline</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="s2">&quot;cruise_timeline.csv&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-operations">
+<h2>Working with Operations<a class="headerlink" href="#working-with-operations" title="Link to this heading"></a></h2>
+<section id="creating-operations-programmatically">
+<h3>Creating Operations Programmatically<a class="headerlink" href="#creating-operations-programmatically" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointDefinition</span><span class="p">,</span> <span class="n">LineDefinition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.cruise_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseConfig</span>
+
+<span class="c1"># Create point operations</span>
+<span class="n">points</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">PointDefinition</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CTD_001&quot;</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="o">=</span><span class="mf">60.0</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="o">=-</span><span class="mf">30.0</span><span class="p">,</span>
+        <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;ctd&quot;</span><span class="p">,</span>
+        <span class="n">duration</span><span class="o">=</span><span class="mi">45</span>
+    <span class="p">),</span>
+    <span class="n">PointDefinition</span><span class="p">(</span>
+        <span class="n">name</span><span class="o">=</span><span class="s2">&quot;CTD_002&quot;</span><span class="p">,</span>
+        <span class="n">latitude</span><span class="o">=</span><span class="mf">61.0</span><span class="p">,</span>
+        <span class="n">longitude</span><span class="o">=-</span><span class="mf">29.0</span><span class="p">,</span>
+        <span class="n">operation_type</span><span class="o">=</span><span class="s2">&quot;ctd&quot;</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+
+<span class="c1"># Create cruise configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">CruiseConfig</span><span class="p">(</span>
+    <span class="n">cruise_name</span><span class="o">=</span><span class="s2">&quot;API Generated Cruise&quot;</span><span class="p">,</span>
+    <span class="n">start_date</span><span class="o">=</span><span class="s2">&quot;2025-06-15&quot;</span><span class="p">,</span>
+    <span class="n">points</span><span class="o">=</span><span class="n">points</span><span class="p">,</span>
+    <span class="n">legs</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;leg1&quot;</span><span class="p">,</span> <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;CTD_001&quot;</span><span class="p">,</span> <span class="s2">&quot;CTD_002&quot;</span><span class="p">]}]</span>
+<span class="p">)</span>
+
+<span class="c1"># Create cruise instance</span>
+<span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="distance-and-duration-calculations">
+<h3>Distance and Duration Calculations<a class="headerlink" href="#distance-and-duration-calculations" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.duration</span><span class="w"> </span><span class="kn">import</span> <span class="n">calculate_ctd_time</span><span class="p">,</span> <span class="n">calculate_transit_time</span>
+
+<span class="c1"># Calculate distance between stations</span>
+<span class="n">distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span><span class="mf">60.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">30.0</span><span class="p">,</span> <span class="mf">61.0</span><span class="p">,</span> <span class="o">-</span><span class="mf">29.0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distance: </span><span class="si">{</span><span class="n">distance_km</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> km&quot;</span><span class="p">)</span>
+
+<span class="c1"># Calculate operation durations</span>
+<span class="n">ctd_time</span> <span class="o">=</span> <span class="n">calculate_ctd_time</span><span class="p">(</span><span class="n">depth</span><span class="o">=</span><span class="mi">3500</span><span class="p">,</span> <span class="n">ctd_rate_m_s</span><span class="o">=</span><span class="mf">1.0</span><span class="p">)</span>
+<span class="n">transit_time</span> <span class="o">=</span> <span class="n">calculate_transit_time</span><span class="p">(</span><span class="n">distance_km</span><span class="p">,</span> <span class="n">vessel_speed_kt</span><span class="o">=</span><span class="mf">10.0</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;CTD time: </span><span class="si">{</span><span class="n">ctd_time</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> minutes&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Transit time: </span><span class="si">{</span><span class="n">transit_time</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2"> minutes&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="output-generation">
+<h2>Output Generation<a class="headerlink" href="#output-generation" title="Link to this heading"></a></h2>
+<section id="html-timeline">
+<h3>HTML Timeline<a class="headerlink" href="#html-timeline" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.html_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_html_timeline</span>
+
+<span class="c1"># Generate HTML timeline</span>
+<span class="n">html_file</span> <span class="o">=</span> <span class="n">generate_html_timeline</span><span class="p">(</span>
+    <span class="n">timeline</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;cruise_timeline.html&quot;</span><span class="p">,</span>
+    <span class="n">include_map</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HTML timeline: </span><span class="si">{</span><span class="n">html_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="netcdf-export">
+<h3>NetCDF Export<a class="headerlink" href="#netcdf-export" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.netcdf_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_netcdf</span>
+
+<span class="c1"># Export to NetCDF</span>
+<span class="n">netcdf_file</span> <span class="o">=</span> <span class="n">generate_netcdf</span><span class="p">(</span>
+    <span class="n">cruise</span><span class="p">,</span>
+    <span class="n">timeline</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;cruise_data.nc&quot;</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;NetCDF file: </span><span class="si">{</span><span class="n">netcdf_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="maps-and-visualizations">
+<h3>Maps and Visualizations<a class="headerlink" href="#maps-and-visualizations" title="Link to this heading"></a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.output.map_generator</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_folium_map</span>
+
+<span class="c1"># Create interactive map</span>
+<span class="n">map_file</span> <span class="o">=</span> <span class="n">generate_folium_map</span><span class="p">(</span>
+    <span class="n">cruise</span><span class="o">.</span><span class="n">get_all_positions</span><span class="p">(),</span>
+    <span class="n">output_file</span><span class="o">=</span><span class="s2">&quot;cruise_map.html&quot;</span><span class="p">,</span>
+    <span class="n">include_bathymetry</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-pangaea-data">
+<h2>Working with PANGAEA Data<a class="headerlink" href="#working-with-pangaea-data" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.pangaea</span><span class="w"> </span><span class="kn">import</span> <span class="n">PangaeaManager</span><span class="p">,</span> <span class="n">load_campaign_data</span>
+
+<span class="c1"># Initialize PANGAEA manager</span>
+<span class="n">manager</span> <span class="o">=</span> <span class="n">PangaeaManager</span><span class="p">()</span>
+
+<span class="c1"># Search for datasets</span>
+<span class="n">datasets</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+    <span class="n">query</span><span class="o">=</span><span class="s2">&quot;CTD North Atlantic&quot;</span><span class="p">,</span>
+    <span class="n">bbox</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">70</span><span class="p">),</span>  <span class="c1"># min_lon, min_lat, max_lon, max_lat</span>
+    <span class="n">limit</span><span class="o">=</span><span class="mi">20</span>
+<span class="p">)</span>
+
+<span class="c1"># Load existing campaign data</span>
+<span class="n">historical_data</span> <span class="o">=</span> <span class="n">load_campaign_data</span><span class="p">(</span><span class="s2">&quot;data/historical_stations.pkl&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Loaded </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">historical_data</span><span class="p">)</span><span class="si">}</span><span class="s2"> campaigns&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="error-handling">
+<h2>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading"></a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span><span class="p">,</span> <span class="n">FileError</span>
+
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;cruise_config.yaml&quot;</span><span class="p">)</span>
+    <span class="n">cruise</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>
+
+<span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="n">FileError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="integration-example">
+<h2>Integration Example<a class="headerlink" href="#integration-example" title="Link to this heading"></a></h2>
+<p>Complete workflow using the API:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">cruiseplan</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_timeline</span>
+
+<span class="c1"># 1. Ensure bathymetry data is available</span>
+<span class="n">cruiseplan</span><span class="o">.</span><span class="n">bathymetry</span><span class="p">()</span>
+
+<span class="c1"># 2. Load and process cruise configuration</span>
+<span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_yaml</span><span class="p">(</span><span class="s2">&quot;my_cruise.yaml&quot;</span><span class="p">)</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">enrich</span><span class="p">()</span>  <span class="c1"># Add bathymetry depths</span>
+<span class="n">cruise</span><span class="o">.</span><span class="n">validate</span><span class="p">()</span>  <span class="c1"># Check configuration</span>
+
+<span class="c1"># 3. Generate timeline</span>
+<span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+
+<span class="c1"># 4. Create outputs</span>
+<span class="n">cruiseplan</span><span class="o">.</span><span class="n">schedule_cruise</span><span class="p">(</span>
+    <span class="n">cruise_file</span><span class="o">=</span><span class="s2">&quot;my_cruise.yaml&quot;</span><span class="p">,</span>
+    <span class="n">output_formats</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;html&quot;</span><span class="p">,</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">,</span> <span class="s2">&quot;csv&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Cruise &#39;</span><span class="si">{</span><span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">cruise_name</span><span class="si">}</span><span class="s2">&#39; processed successfully!&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Duration: </span><span class="si">{</span><span class="n">timeline</span><span class="o">.</span><span class="n">total_duration_hours</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> hours&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>For complete API documentation, see <a class="reference internal" href="../api/modules.html"><span class="doc">CruisePlan API</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="../output/latex.html" class="btn btn-neutral float-left" title="LaTeX Output" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../demo-output.html" class="btn btn-neutral float-right" title="CruisePlan Demo" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

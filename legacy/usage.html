@@ -1,0 +1,221 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Usage Overview &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Usage Overview</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="usage-overview">
+<h1>Usage Overview<a class="headerlink" href="#usage-overview" title="Link to this heading"></a></h1>
+<p>This page provides a high-level overview of how to use CruisePlan for oceanographic cruise planning. For detailed step-by-step instructions, see the linked workflow guides below.</p>
+<figure class="align-center" id="id1">
+<a class="reference internal image-reference" href="legacy/_static/diagrams/cruiseplan_process.png"><img alt="CruisePlan Process Overview" src="legacy/_static/diagrams/cruiseplan_process.png" style="width: 100%;" />
+</a>
+<figcaption>
+<p><span class="caption-text"><strong>CruisePlan Process Overview</strong>: The complete workflow from data preparation through final deliverables, showing the unified <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> command and individual command options. CruisePlan commands are in red, files in black, and the blue box indicates where manual editing occurs.</span><a class="headerlink" href="#id1" title="Link to this image"></a></p>
+</figcaption>
+</figure>
+<section id="three-phase-workflow">
+<h2>Three-Phase Workflow<a class="headerlink" href="#three-phase-workflow" title="Link to this heading"></a></h2>
+<p>CruisePlan follows a systematic three-phase approach to cruise planning:</p>
+<section id="phase-1-data-preparation">
+<h3>Phase 1: Data Preparation<a class="headerlink" href="#phase-1-data-preparation" title="Link to this heading"></a></h3>
+<p><strong>Goal</strong>: Gather <em>external</em> datasets needed for planning</p>
+<ul class="simple">
+<li><p><strong>Download bathymetry</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">bathymetry</span></code> - Acquire global depth data (ETOPO/GEBCO)</p></li>
+<li><p><strong>Search and download historical data</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">pangaea</span></code> - Find and process PANGAEA datasets by query + region, or process existing DOI files</p></li>
+</ul>
+<p>This phase provides the foundational data layers for informed station placement.</p>
+</section>
+<section id="phase-2-cruise-configuration">
+<h3>Phase 2: Cruise Configuration<a class="headerlink" href="#phase-2-cruise-configuration" title="Link to this heading"></a></h3>
+<p><strong>Goal</strong>: Define your cruise plan and validate the configuration</p>
+<ul class="simple">
+<li><p><strong>Interactive planning</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">stations</span></code> - Place points on interactive maps with bathymetry</p></li>
+<li><p><strong>Manual editing</strong>: Edit generated YAML configuration to define operation types, actions, legs, and clusters</p></li>
+<li><p><strong>Enrich metadata</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">process</span></code> - Add depths, coordinates, and expand sections automatically, validate configuration, and generate maps</p></li>
+</ul>
+<p>This phase creates and refines your complete cruise configuration file.</p>
+</section>
+<section id="phase-3-schedule-generation">
+<h3>Phase 3: Schedule Generation<a class="headerlink" href="#phase-3-schedule-generation" title="Link to this heading"></a></h3>
+<p><strong>Goal</strong>: Generate final cruise timeline and professional outputs</p>
+<ul class="simple">
+<li><p><strong>Create schedule</strong>: <code class="docutils literal notranslate"><span class="pre">cruiseplan</span> <span class="pre">schedule</span></code> - Calculate timing and generate deliverables</p></li>
+<li><p><strong>Multiple formats</strong>: HTML summaries, LaTeX tables, NetCDF files, KML exports, PNG maps</p></li>
+</ul>
+<p>This phase produces documentation in various formats for cruise proposals (png figure + latex tables) and onward manipulation in python (netCDF).</p>
+</section>
+</section>
+<section id="yaml-configuration-structure">
+<h2>YAML Configuration Structure<a class="headerlink" href="#yaml-configuration-structure" title="Link to this heading"></a></h2>
+<p>CruisePlan uses YAML files as the central configuration format. These files contain two main components:</p>
+<dl class="simple">
+<dt><strong>Catalog Section</strong></dt><dd><p>Defines all available elements:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">points</span></code>: Geographic locations with operation types (CTD, mooring, etc.)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">lines</span></code>: Movement between locations or survey patterns</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">areas</span></code>: Defined working regions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">legs</span></code>: Groupings of operations for scheduling</p></li>
+</ul>
+</dd>
+<dt><strong>Schedule Section</strong></dt><dd><p>Defines the sequence:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">legs</span></code>: Ordered list of operations to perform</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">clusters</span></code>: Strategic groupings and routing optimizations</p></li>
+</ul>
+</dd>
+</dl>
+<p>The catalog acts as a “library” of all possible operations, while the schedule determines which ones to execute and in what order. This separation allows flexible reuse of point definitions across different cruise scenarios.</p>
+<p>For complete YAML syntax and options, see the <span class="xref std std-doc">yaml_reference</span>.</p>
+</section>
+<section id="how-to-get-started">
+<h2>How to Get Started<a class="headerlink" href="#how-to-get-started" title="Link to this heading"></a></h2>
+<p>Get started immediately with:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>cruiseplan<span class="w"> </span>--help
+</pre></div>
+</div>
+<p>This displays all available commands with brief descriptions, helping you choose the right tool for your planning needs.</p>
+<p>Or choose your preferred approach and follow the guides:</p>
+<p><strong>Command Line Workflows</strong></p>
+<p>Follow the comprehensive <span class="xref std std-doc">User Workflows (CLI)</span> guide for three different planning scenarios:</p>
+<blockquote>
+<div><ul class="simple">
+<li><p><strong>Basic Planning</strong>: Simple workflow without historical data</p></li>
+<li><p><strong>PANGAEA-Enhanced</strong>: Incorporating historical oceanographic data</p></li>
+<li><p><strong>Configuration-Only</strong>: Processing existing YAML files</p></li>
+</ul>
+</div></blockquote>
+<dl class="simple">
+<dt><strong>Jupyter Notebook Approach</strong></dt><dd><p>CruisePlan provides a Python API for programmatic usage:</p>
+<ul class="simple">
+<li><p>Interactive Python API usage</p></li>
+<li><p>Data analysis integration</p></li>
+<li><p>Programmatic configuration generation</p></li>
+<li><p>Custom visualization examples</p></li>
+</ul>
+</dd>
+<dt><strong>Configuration Reference</strong></dt><dd><p>Consult the <span class="xref std std-doc">yaml_reference</span> for:</p>
+<ul class="simple">
+<li><p>Complete field documentation</p></li>
+<li><p>Validation rules and constraints</p></li>
+<li><p>Example configurations</p></li>
+<li><p>Best practices</p></li>
+</ul>
+</dd>
+</dl>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

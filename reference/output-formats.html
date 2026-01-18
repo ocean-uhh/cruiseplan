@@ -1,0 +1,327 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Output Formats &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HTML Output" href="../output/html.html" />
+    <link rel="prev" title="YAML Configuration Reference" href="yaml-full.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Output Formats</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#timeline-formats">Timeline Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#html-schedule">HTML Schedule</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#netcdf-data-file">NetCDF Data File</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#csv-schedule">CSV Schedule</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#map-outputs">Map Outputs</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#png-maps">PNG Maps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#kml-kmz-files">KML/KMZ Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#document-formats">Document Formats</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#latex-pdf-report">LaTeX/PDF Report</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#working-files">Working Files</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#yaml-configuration">YAML Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#pickle-files">Pickle Files</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#output-selection">Output Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-naming">File Naming</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="../output/html.html">HTML Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/netcdf.html">NetCDF Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/csv.html">CSV Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/png.html">PNG Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/kml.html">KML Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../output/latex.html">LaTeX Output</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Output Formats</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="output-formats">
+<h1>Output Formats<a class="headerlink" href="#output-formats" title="Link to this heading"></a></h1>
+<p>CruisePlan generates outputs in multiple formats for different use cases.</p>
+<section id="timeline-formats">
+<h2>Timeline Formats<a class="headerlink" href="#timeline-formats" title="Link to this heading"></a></h2>
+<section id="html-schedule">
+<h3>HTML Schedule<a class="headerlink" href="#html-schedule" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.html</span></code></p>
+<p>HTML timeline with:</p>
+<ul class="simple">
+<li><p>Operation details and timing</p></li>
+<li><p>Detailed scheduling information</p></li>
+<li><p>Expandable sections for each leg</p></li>
+<li><p>Responsive design for mobile/desktop</p></li>
+</ul>
+<p><strong>Best for</strong>: Sharing with collaborators, project presentations</p>
+</section>
+<section id="netcdf-data-file">
+<h3>NetCDF Data File<a class="headerlink" href="#netcdf-data-file" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.nc</span></code></p>
+<p>CF-1.8 compliant NetCDF with:</p>
+<ul class="simple">
+<li><p>Station coordinates and metadata</p></li>
+<li><p>Operation timing and durations</p></li>
+<li><p>Cruise track as trajectory data</p></li>
+<li><p>Compatible with scientific analysis tools</p></li>
+</ul>
+<p><strong>Best for</strong>: Data analysis, archival storage</p>
+</section>
+<section id="csv-schedule">
+<h3>CSV Schedule<a class="headerlink" href="#csv-schedule" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}_schedule.csv</span></code></p>
+<p>Tabular format with columns:</p>
+<ul class="simple">
+<li><p>Operation name, type, start/end times</p></li>
+<li><p>Coordinates and water depths</p></li>
+<li><p>Duration and distance information</p></li>
+</ul>
+<p><strong>Best for</strong>: Spreadsheet analysis, custom processing</p>
+</section>
+</section>
+<section id="map-outputs">
+<h2>Map Outputs<a class="headerlink" href="#map-outputs" title="Link to this heading"></a></h2>
+<section id="png-maps">
+<h3>PNG Maps<a class="headerlink" href="#png-maps" title="Link to this heading"></a></h3>
+<p><strong>Files</strong>:
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_map.png</span></code> - Station overview
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_bathymetry_map.png</span></code> - With depth contours</p>
+<p>Static maps showing:</p>
+<ul class="simple">
+<li><p>Station locations and labels</p></li>
+<li><p>Bathymetry contours (optional)</p></li>
+<li><p>Cruise track connections</p></li>
+<li><p>Scale bar and coordinate grid</p></li>
+</ul>
+<p><strong>Best for</strong>: Reports, presentations, printing</p>
+</section>
+<section id="kml-kmz-files">
+<h3>KML/KMZ Files<a class="headerlink" href="#kml-kmz-files" title="Link to this heading"></a></h3>
+<p><strong>File</strong>: <code class="docutils literal notranslate"><span class="pre">{cruise_name}.kml</span></code></p>
+<p>Google Earth format with:</p>
+<ul class="simple">
+<li><p>3D visualization of stations</p></li>
+<li><p>Bathymetry-draped seafloor</p></li>
+<li><p>Interactive station information</p></li>
+<li><p>Cruise track animation</p></li>
+</ul>
+<p><strong>Best for</strong>: 3D visualization, Google Earth</p>
+</section>
+</section>
+<section id="document-formats">
+<h2>Document Formats<a class="headerlink" href="#document-formats" title="Link to this heading"></a></h2>
+<section id="latex-pdf-report">
+<h3>LaTeX/PDF Report<a class="headerlink" href="#latex-pdf-report" title="Link to this heading"></a></h3>
+<p><strong>Files</strong>:
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_cruise_plan.tex</span></code> - LaTeX source
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_cruise_plan.pdf</span></code> - Compiled PDF</p>
+<p>Professional cruise planning document with:</p>
+<ul class="simple">
+<li><p>Executive summary and metadata</p></li>
+<li><p>Detailed station tables</p></li>
+<li><p>Maps and bathymetry profiles</p></li>
+<li><p>Timeline and logistics summary</p></li>
+</ul>
+<p><strong>Best for</strong>: Formal proposals, ship time applications</p>
+</section>
+</section>
+<section id="working-files">
+<h2>Working Files<a class="headerlink" href="#working-files" title="Link to this heading"></a></h2>
+<section id="yaml-configuration">
+<h3>YAML Configuration<a class="headerlink" href="#yaml-configuration" title="Link to this heading"></a></h3>
+<p><strong>Files</strong>:
+- <code class="docutils literal notranslate"><span class="pre">stations.yaml</span></code> - Initial configuration from station picker
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_enriched.yaml</span></code> - Enriched configuration with depths and validation</p>
+<p>Human-readable configuration containing:</p>
+<ul class="simple">
+<li><p>All station definitions and metadata</p></li>
+<li><p>Cruise logistics and timing parameters</p></li>
+<li><p>Comments and documentation fields</p></li>
+<li><p>Complete specification for reproducibility</p></li>
+</ul>
+<p><strong>Best for</strong>: Configuration management, version control</p>
+</section>
+<section id="pickle-files">
+<h3>Pickle Files<a class="headerlink" href="#pickle-files" title="Link to this heading"></a></h3>
+<p><strong>Files</strong>:
+- <code class="docutils literal notranslate"><span class="pre">{cruise_name}_stations.pkl</span></code> - Processed station data
+- <code class="docutils literal notranslate"><span class="pre">historical_stations.pkl</span></code> - PANGAEA historical data</p>
+<p>Binary data files for:</p>
+<ul class="simple">
+<li><p>Fast loading of complex datasets</p></li>
+<li><p>Preserving exact coordinate precision</p></li>
+<li><p>Efficient storage of large station catalogs</p></li>
+</ul>
+<p><strong>Best for</strong>: Internal processing, caching</p>
+</section>
+</section>
+<section id="output-selection">
+<h2>Output Selection<a class="headerlink" href="#output-selection" title="Link to this heading"></a></h2>
+<p>Choose formats based on your needs:</p>
+<p><strong>For Proposals</strong>:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>cruiseplan schedule cruise.yaml –formats latex,html</p>
+</div></blockquote>
+<p><strong>For Analysis</strong>:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>cruiseplan schedule cruise.yaml –formats netcdf,csv</p>
+</div></blockquote>
+<p><strong>For Visualization</strong>:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>cruiseplan schedule cruise.yaml –formats html,kml</p>
+</div></blockquote>
+<p><strong>Everything</strong>:
+.. code-block:: bash</p>
+<blockquote>
+<div><p>cruiseplan schedule cruise.yaml  # All formats</p>
+</div></blockquote>
+</section>
+<section id="file-naming">
+<h2>File Naming<a class="headerlink" href="#file-naming" title="Link to this heading"></a></h2>
+<p>All outputs use consistent naming:</p>
+<ul class="simple">
+<li><p>Base name from YAML cruise_name field</p></li>
+<li><p>Format-specific extensions</p></li>
+<li><p>No spaces (replaced with underscores)</p></li>
+<li><p>Timestamps preserved in metadata</p></li>
+</ul>
+<p>Example for <code class="docutils literal notranslate"><span class="pre">cruise_name:</span> <span class="pre">&quot;North</span> <span class="pre">Atlantic</span> <span class="pre">Survey</span> <span class="pre">2025&quot;</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025_timeline.html</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025.nc</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">North_Atlantic_Survey_2025_map.png</span></code></p></li>
+</ul>
+<p>For detailed format specifications, see the individual format pages below:</p>
+<div class="toctree-wrapper compound">
+<p class="caption" role="heading"><span class="caption-text">Detailed Format Specifications</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../output/html.html">HTML Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/netcdf.html">NetCDF Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/csv.html">CSV Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/png.html">PNG Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/kml.html">KML Output</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../output/latex.html">LaTeX Output</a></li>
+</ul>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="yaml-full.html" class="btn btn-neutral float-left" title="YAML Configuration Reference" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="../output/html.html" class="btn btn-neutral float-right" title="HTML Output" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

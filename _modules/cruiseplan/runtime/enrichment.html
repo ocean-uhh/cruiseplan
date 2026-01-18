@@ -1,0 +1,627 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.runtime.enrichment &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.runtime.enrichment</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.runtime.enrichment</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cruise configuration enrichment functions.</span>
+
+<span class="sd">This module contains functions for enriching cruise configurations by adding</span>
+<span class="sd">missing data like depths, coordinate displays, and expanding sections into</span>
+<span class="sd">individual stations. These functions operate on CruiseInstance objects.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_sanitize_name_for_stations</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sanitize a name for use as a station name base.</span>
+
+<span class="sd">    Removes special characters, converts Unicode to ASCII, and ensures</span>
+<span class="sd">    the result contains only alphanumeric characters and underscores.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Original name to sanitize.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Sanitized name suitable for station naming.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">unicodedata</span>
+
+    <span class="c1"># Convert Unicode to ASCII equivalent</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFD&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s2">&quot;ascii&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Replace common separators and special chars with underscores</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[^\w\s]&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Replace non-word chars (except spaces)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>  <span class="c1"># Replace spaces with underscores</span>
+
+    <span class="c1"># Clean up multiple consecutive underscores</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;_+&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="n">name</span><span class="p">)</span>
+
+    <span class="c1"># Remove leading and trailing underscores</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+    <span class="c1"># If name becomes empty, provide a fallback</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span><span class="p">:</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;Section&quot;</span>
+
+    <span class="k">return</span> <span class="n">name</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_unique_name</span><span class="p">(</span><span class="n">base_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">point_registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate a unique name by checking against existing point registry.</span>
+
+<span class="sd">    If the base name already exists, append _01, _02, etc. until a unique name is found.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    base_name : str</span>
+<span class="sd">        The base name to make unique.</span>
+<span class="sd">    point_registry : dict</span>
+<span class="sd">        Dictionary of existing point names to check against.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        A unique name that doesn&#39;t exist in the point registry.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">base_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">point_registry</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">base_name</span>
+
+    <span class="c1"># Name exists, find unique suffix (using legacy format _01, _02, etc.)</span>
+    <span class="n">counter</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">counter</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">point_registry</span><span class="p">:</span>
+        <span class="n">counter</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_</span><span class="si">{</span><span class="n">counter</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_update_leg_activities_for_expanded_section</span><span class="p">(</span>
+    <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span> <span class="n">section_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">station_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Update leg activities to replace expanded section with station names.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify.</span>
+<span class="sd">    section_name : str</span>
+<span class="sd">        Name of the section that was expanded.</span>
+<span class="sd">    station_names : list[str]</span>
+<span class="sd">        Names of the stations created from the expansion.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
+        <span class="c1"># Update activities list - activities are resolved objects, not strings</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;activities&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+            <span class="n">updated_activities</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+                <span class="c1"># Check if this activity object has the name we&#39;re looking for</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">activity</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">section_name</span><span class="p">:</span>
+                    <span class="c1"># Replace with PointDefinition objects from registry</span>
+                    <span class="k">for</span> <span class="n">station_name</span> <span class="ow">in</span> <span class="n">station_names</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="n">station_name</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">:</span>
+                            <span class="n">updated_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_name</span><span class="p">]</span>
+                            <span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">updated_activities</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+            <span class="n">leg</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">updated_activities</span>
+
+        <span class="c1"># Update first_activity if it points to the expanded section</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;first_activity&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span><span class="p">:</span>
+            <span class="c1"># Handle both string references and resolved objects</span>
+            <span class="n">activity_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">activity_name</span> <span class="o">==</span> <span class="n">section_name</span><span class="p">:</span>
+                <span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span> <span class="o">=</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_names</span><span class="p">[</span><span class="mi">0</span><span class="p">]]</span>
+
+        <span class="c1"># Update last_activity if it points to the expanded section</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;last_activity&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span><span class="p">:</span>
+            <span class="c1"># Handle both string references and resolved objects</span>
+            <span class="n">activity_name</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span><span class="o">.</span><span class="n">name</span>
+                <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span>
+                <span class="k">else</span> <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">activity_name</span> <span class="o">==</span> <span class="n">section_name</span><span class="p">:</span>
+                <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span> <span class="o">=</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_names</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span>
+
+
+<div class="viewcode-block" id="expand_sections">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.expand_sections">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expand_sections</span><span class="p">(</span>
+    <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span> <span class="n">default_depth</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand CTD sections into individual station definitions.</span>
+
+<span class="sd">    This method finds CTD sections in lines catalog and expands them into</span>
+<span class="sd">    individual stations, adding them to the point_registry. This is structural</span>
+<span class="sd">    enrichment that modifies the cruise configuration.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify</span>
+<span class="sd">    default_depth : float, optional</span>
+<span class="sd">        Default depth value for expanded stations. Default is -9999.0.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, int]</span>
+<span class="sd">        Dictionary with expansion summary:</span>
+<span class="sd">        - sections_expanded: Number of sections expanded</span>
+<span class="sd">        - stations_from_expansion: Number of stations created</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">sections_expanded</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">total_stations_created</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Find CTD sections in lines catalog</span>
+    <span class="n">ctd_sections</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line_name</span><span class="p">,</span> <span class="n">line_def</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">line_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">line_def</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;action&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">line_def</span><span class="o">.</span><span class="n">action</span> <span class="o">==</span> <span class="s2">&quot;section&quot;</span>
+        <span class="p">):</span>
+            <span class="n">ctd_sections</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">line_name</span><span class="p">,</span>
+                    <span class="s2">&quot;route&quot;</span><span class="p">:</span> <span class="n">line_def</span><span class="o">.</span><span class="n">route</span><span class="p">,</span>
+                    <span class="s2">&quot;distance_between_stations&quot;</span><span class="p">:</span> <span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;distance_between_stations&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">20.0</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;max_depth&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;max_depth&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                    <span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                        <span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">,</span> <span class="kc">None</span>
+                    <span class="p">),</span>
+                    <span class="s2">&quot;duration&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">line_def</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Expand each section</span>
+    <span class="n">sections_to_remove</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="n">ctd_sections</span><span class="p">:</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;route&quot;</span><span class="p">]</span>
+        <span class="n">distance_km</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;distance_between_stations&quot;</span><span class="p">]</span>
+        <span class="n">section_name</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Sanitize section name for station naming</span>
+        <span class="n">base_name</span> <span class="o">=</span> <span class="n">_sanitize_name_for_stations</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+
+        <span class="c1"># Calculate stations along the route using original inline logic</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.distance</span><span class="w"> </span><span class="kn">import</span> <span class="n">haversine_distance</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.plot_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">interpolate_great_circle_position</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">route</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">route</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;No valid route for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">start</span> <span class="o">=</span> <span class="n">route</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="n">route</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># Extract coordinates from GeoPoint objects</span>
+        <span class="n">start_lat</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="n">start_lon</span> <span class="o">=</span> <span class="n">start</span><span class="o">.</span><span class="n">longitude</span>
+        <span class="n">end_lat</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">latitude</span>
+        <span class="n">end_lon</span> <span class="o">=</span> <span class="n">end</span><span class="o">.</span><span class="n">longitude</span>
+
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">coord</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">coord</span> <span class="ow">in</span> <span class="p">[</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">]):</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid coordinates for section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">total_distance_km</span> <span class="o">=</span> <span class="n">haversine_distance</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">),</span> <span class="p">(</span><span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">num_stations</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_distance_km</span> <span class="o">/</span> <span class="n">distance_km</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="c1"># Create station definitions for each calculated position</span>
+        <span class="n">stations_created</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">station_names_created</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_stations</span><span class="p">):</span>
+            <span class="c1"># Calculate position along great circle route</span>
+            <span class="n">fraction</span> <span class="o">=</span> <span class="n">ii</span> <span class="o">/</span> <span class="p">(</span><span class="n">num_stations</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">num_stations</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="k">else</span> <span class="mi">0</span>
+            <span class="n">lat</span><span class="p">,</span> <span class="n">lon</span> <span class="o">=</span> <span class="n">interpolate_great_circle_position</span><span class="p">(</span>
+                <span class="n">start_lat</span><span class="p">,</span> <span class="n">start_lon</span><span class="p">,</span> <span class="n">end_lat</span><span class="p">,</span> <span class="n">end_lon</span><span class="p">,</span> <span class="n">fraction</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Generate unique station name (handle duplicates)</span>
+            <span class="n">base_station_name</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_Stn</span><span class="si">{</span><span class="n">ii</span><span class="o">+</span><span class="mi">1</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="n">station_name</span> <span class="o">=</span> <span class="n">_generate_unique_name</span><span class="p">(</span>
+                <span class="n">base_station_name</span><span class="p">,</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Create PointDefinition</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">PointDefinition</span>
+
+            <span class="n">station_attrs</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">station_name</span><span class="p">,</span>
+                <span class="s2">&quot;latitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lat</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="s2">&quot;longitude&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">lon</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+                <span class="s2">&quot;operation_type&quot;</span><span class="p">:</span> <span class="s2">&quot;CTD&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;action&quot;</span><span class="p">:</span> <span class="s2">&quot;profile&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;history&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;expanded from line operation: </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">;&quot;</span><span class="p">,</span>
+            <span class="p">}</span>
+
+            <span class="c1"># Add depth information</span>
+            <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;max_depth&quot;</span><span class="p">]</span>
+            <span class="c1"># Skip setting water_depth if using default sentinel value</span>
+
+            <span class="c1"># Add duration information</span>
+            <span class="k">if</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span>
+            <span class="k">elif</span> <span class="n">section</span><span class="p">[</span><span class="s2">&quot;planned_duration_hours&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">station_attrs</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">section</span><span class="p">[</span><span class="s1">&#39;planned_duration_hours&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">h&quot;</span>
+
+            <span class="c1"># Create and register the station</span>
+            <span class="n">station</span> <span class="o">=</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">station_attrs</span><span class="p">)</span>
+            <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">[</span><span class="n">station_name</span><span class="p">]</span> <span class="o">=</span> <span class="n">station</span>
+            <span class="n">station_names_created</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+            <span class="n">stations_created</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">stations_created</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># Update leg activities to reference expanded stations</span>
+            <span class="n">_update_leg_activities_for_expanded_section</span><span class="p">(</span>
+                <span class="n">cruise_instance</span><span class="p">,</span> <span class="n">section_name</span><span class="p">,</span> <span class="n">station_names_created</span>
+            <span class="p">)</span>
+
+            <span class="n">sections_to_remove</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">section_name</span><span class="p">)</span>
+            <span class="n">total_stations_created</span> <span class="o">+=</span> <span class="n">stations_created</span>
+            <span class="n">sections_expanded</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Expanded section </span><span class="si">{</span><span class="n">section_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">stations_created</span><span class="si">}</span><span class="s2"> stations created&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Remove expanded sections from line registry</span>
+    <span class="k">for</span> <span class="n">section_name</span> <span class="ow">in</span> <span class="n">sections_to_remove</span><span class="p">:</span>
+        <span class="k">del</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">line_registry</span><span class="p">[</span><span class="n">section_name</span><span class="p">]</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Section expansion complete: </span><span class="si">{</span><span class="n">sections_expanded</span><span class="si">}</span><span class="s2"> sections → </span><span class="si">{</span><span class="n">total_stations_created</span><span class="si">}</span><span class="s2"> stations&quot;</span>
+    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;sections_expanded&quot;</span><span class="p">:</span> <span class="n">sections_expanded</span><span class="p">,</span>
+        <span class="s2">&quot;stations_from_expansion&quot;</span><span class="p">:</span> <span class="n">total_stations_created</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="add_station_defaults">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.add_station_defaults">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_station_defaults</span><span class="p">(</span><span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add missing defaults to station definitions.</span>
+
+<span class="sd">    This function adds default values for station fields based on operation type</span>
+<span class="sd">    and scientific best practices. Currently focuses on mooring duration defaults.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of stations that had defaults added</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">defaults_added</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Add mooring duration defaults</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;operation_type&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">operation_type</span> <span class="o">==</span> <span class="s2">&quot;mooring&quot;</span>
+            <span class="ow">and</span> <span class="p">(</span><span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;duration&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">station</span><span class="o">.</span><span class="n">duration</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">):</span>
+            <span class="c1"># Default mooring deployment/recovery duration: 999 hours (59940 minutes)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_MOORING_DURATION_MIN</span>
+
+            <span class="n">station</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;duration&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">DEFAULT_MOORING_DURATION_MIN</span>
+            <span class="n">defaults_added</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Added default duration to mooring </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">DEFAULT_MOORING_DURATION_MIN</span><span class="si">}</span><span class="s2"> min&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Add other operation-specific defaults as needed</span>
+        <span class="c1"># Future: CTD cast duration defaults, transit speed defaults, etc.</span>
+
+    <span class="k">if</span> <span class="n">defaults_added</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added defaults to </span><span class="si">{</span><span class="n">defaults_added</span><span class="si">}</span><span class="s2"> stations&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">defaults_added</span></div>
+
+
+
+<div class="viewcode-block" id="enrich_depths">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.enrich_depths">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">enrich_depths</span><span class="p">(</span>
+    <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add missing depth values to stations using bathymetry data.</span>
+
+<span class="sd">    This function queries bathymetry data to fill in missing water depth values</span>
+<span class="sd">    for stations that don&#39;t have them specified.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify</span>
+<span class="sd">    bathymetry_source : str, optional</span>
+<span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;)</span>
+<span class="sd">    bathymetry_dir : str, optional</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    set[str]</span>
+<span class="sd">        Set of station names that had depths added</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stations_with_depths_added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># Initialize bathymetry manager</span>
+    <span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span><span class="n">source</span><span class="o">=</span><span class="n">bathymetry_source</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">bathymetry_dir</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">station_name</span><span class="p">,</span> <span class="n">station</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="c1"># Check if station already has water_depth</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">station</span><span class="p">,</span> <span class="s2">&quot;water_depth&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">station</span><span class="o">.</span><span class="n">water_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Get depth from bathymetry</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">bathymetry_depth</span> <span class="o">=</span> <span class="n">bathymetry</span><span class="o">.</span><span class="n">get_depth_at_point</span><span class="p">(</span>
+                <span class="n">station</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">station</span><span class="o">.</span><span class="n">longitude</span>
+            <span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">bathymetry_depth</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="c1"># Convert to positive depth value (bathymetry returns negative elevation)</span>
+                <span class="n">water_depth</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">bathymetry_depth</span><span class="p">)</span>
+
+                <span class="c1"># Add depth to station</span>
+                <span class="n">station</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">[</span><span class="s2">&quot;water_depth&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">water_depth</span>
+                <span class="n">stations_with_depths_added</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">station_name</span><span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Added depth to </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">water_depth</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">m&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Failed to get depth for station </span><span class="si">{</span><span class="n">station_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+    <span class="k">if</span> <span class="n">stations_with_depths_added</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Added depths to </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">stations_with_depths_added</span><span class="p">)</span><span class="si">}</span><span class="s2"> stations using </span><span class="si">{</span><span class="n">bathymetry_source</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">stations_with_depths_added</span></div>
+
+
+
+<div class="viewcode-block" id="expand_ports">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.expand_ports">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">expand_ports</span><span class="p">(</span><span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Expand global port references into full PortDefinition objects.</span>
+
+<span class="sd">    This function processes port references in the cruise configuration and</span>
+<span class="sd">    expands them into full port definitions with coordinates and metadata.</span>
+
+<span class="sd">    Note: In v0.3.4+ architecture, ports are automatically resolved during</span>
+<span class="sd">    CruiseInstance creation, so this function may be largely redundant.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, int]</span>
+<span class="sd">        Dictionary with expansion summary:</span>
+<span class="sd">        - ports_expanded: Number of port references expanded</span>
+<span class="sd">        - ports_added: Number of port definitions added</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">ports_expanded</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ports_added</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># This functionality is now handled during CruiseInstance initialization</span>
+    <span class="c1"># Port references are automatically resolved to full PortDefinition objects</span>
+    <span class="c1"># when the configuration is loaded.</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Port expansion is handled automatically during configuration loading&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;ports_expanded&quot;</span><span class="p">:</span> <span class="n">ports_expanded</span><span class="p">,</span>
+        <span class="s2">&quot;ports_added&quot;</span><span class="p">:</span> <span class="n">ports_added</span><span class="p">,</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="add_coordinate_displays">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.enrichment.add_coordinate_displays">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">add_coordinate_displays</span><span class="p">(</span>
+    <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span> <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ddm&quot;</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add human-readable coordinate display fields for final YAML output.</span>
+
+<span class="sd">    This function adds formatted coordinate fields (latitude_display, longitude_display)</span>
+<span class="sd">    to all geographic entities (stations, ports, etc.) for better human readability</span>
+<span class="sd">    in generated YAML files.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to modify</span>
+<span class="sd">    coord_format : str, optional</span>
+<span class="sd">        Coordinate format (&quot;ddm&quot; for degrees/decimal minutes, &quot;dms&quot; for degrees/minutes/seconds)</span>
+<span class="sd">        Default is &quot;ddm&quot;.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    int</span>
+<span class="sd">        Number of entities that had coordinate displays added</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="c1"># Add coordinate displays for points that have coordinates but lack display fields</span>
+    <span class="k">for</span> <span class="n">point</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="nb">hasattr</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">)</span>
+            <span class="ow">and</span> <span class="n">point</span><span class="o">.</span><span class="n">latitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="n">point</span><span class="o">.</span><span class="n">longitude</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">):</span>
+            <span class="c1"># For now, we&#39;ll add the coordinate display as a &quot;position_string&quot; field</span>
+            <span class="c1"># This will be used for display purposes in the output</span>
+            <span class="k">if</span> <span class="n">coord_format</span> <span class="o">==</span> <span class="s2">&quot;ddm&quot;</span><span class="p">:</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.coordinates</span><span class="w"> </span><span class="kn">import</span> <span class="n">format_ddm_comment</span>
+
+                <span class="n">position_display</span> <span class="o">=</span> <span class="n">format_ddm_comment</span><span class="p">(</span><span class="n">point</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span> <span class="n">point</span><span class="o">.</span><span class="n">longitude</span><span class="p">)</span>
+                <span class="c1"># Set the position string for display (this gets used in YAML output)</span>
+                <span class="n">point</span><span class="o">.</span><span class="n">position_string</span> <span class="o">=</span> <span class="n">position_display</span>
+                <span class="n">coord_changes_made</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">coord_changes_made</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

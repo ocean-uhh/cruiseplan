@@ -1,0 +1,1267 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.api.process_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.api.process_cruise</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.api.process_cruise</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cruise processing workflow API.</span>
+
+<span class="sd">This module provides the complete processing workflow including enrich(), validate(),</span>
+<span class="sd">and process() functions that coordinate the full data processing pipeline.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">python_warnings</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">EnrichResult</span><span class="p">,</span> <span class="n">ProcessResult</span><span class="p">,</span> <span class="n">ValidationResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryError</span><span class="p">,</span> <span class="n">FileError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">CruisePlanValidationError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ACTION_FIELD</span><span class="p">,</span>
+    <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">LINES_FIELD</span><span class="p">,</span>
+    <span class="n">OP_TYPE_FIELD</span><span class="p">,</span>
+    <span class="n">START_DATE_FIELD</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">,</span>
+    <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">,</span>
+    <span class="n">DEFAULT_LEG_NAME</span><span class="p">,</span>
+    <span class="n">DEFAULT_START_DATE</span><span class="p">,</span>
+    <span class="n">DEFAULT_UPDATE_PREFIX</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_yaml</span><span class="p">,</span> <span class="n">load_yaml_safe</span><span class="p">,</span> <span class="n">save_yaml</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.data.bathymetry</span><span class="w"> </span><span class="kn">import</span> <span class="n">BathymetryManager</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.validation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">check_complete_duplicates</span><span class="p">,</span>
+    <span class="n">check_cruise_metadata</span><span class="p">,</span>
+    <span class="n">check_duplicate_names</span><span class="p">,</span>
+    <span class="n">check_unexpanded_ctd_sections</span><span class="p">,</span>
+    <span class="n">format_validation_warnings</span><span class="p">,</span>
+    <span class="n">validate_depth_accuracy</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="c1"># --- Shared Warning Handling Utilities ---</span>
+
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_validation_warning_capture</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Context manager for capturing and formatting validation warnings.</span>
+
+<span class="sd">    Yields</span>
+<span class="sd">    ------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List that will be populated with captured warning messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
+    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">captured_warnings</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span>
+
+
+<span class="c1"># --- Enrichment Functions ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_minimal_preprocess_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Minimal preprocessing to ensure config_dict can pass Pydantic validation.</span>
+
+<span class="sd">    Only adds the absolute minimum required for Cruise.from_dict() to succeed.</span>
+<span class="sd">    All intelligent defaults and business logic moved to Cruise object methods.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_dict : dict[str, Any]</span>
+<span class="sd">        Raw configuration dictionary from YAML.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Minimally processed config dictionary ready for Cruise.from_dict().</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Create a copy to avoid modifying original</span>
+    <span class="n">processed_config</span> <span class="o">=</span> <span class="n">config_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+    <span class="c1"># Only add what&#39;s absolutely required for Pydantic validation to pass</span>
+    <span class="c1"># Most defaults will be handled by Cruise object methods</span>
+
+    <span class="c1"># Ensure legs list exists (required by schema)</span>
+    <span class="k">if</span> <span class="s2">&quot;legs&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">processed_config</span><span class="p">:</span>
+        <span class="n">processed_config</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># If no legs and no ports, add minimal default leg for validation</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">processed_config</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">]:</span>
+        <span class="n">departure_port</span> <span class="o">=</span> <span class="n">processed_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+            <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span> <span class="n">DEFAULT_DEPARTURE_PORT</span>
+        <span class="p">)</span>
+        <span class="n">arrival_port</span> <span class="o">=</span> <span class="n">processed_config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span> <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">)</span>
+
+        <span class="n">processed_config</span><span class="p">[</span><span class="s2">&quot;legs&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">DEFAULT_LEG_NAME</span><span class="p">,</span>
+                <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">:</span> <span class="n">departure_port</span><span class="p">,</span>
+                <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">:</span> <span class="n">arrival_port</span><span class="p">,</span>
+            <span class="p">}</span>
+        <span class="p">]</span>
+
+        <span class="c1"># Remove global ports since they&#39;re now in the leg</span>
+        <span class="n">processed_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">processed_config</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">processed_config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_save_config</span><span class="p">(</span>
+    <span class="n">config_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Save configuration to file with section comments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_dict : dict[str, Any]</span>
+<span class="sd">        Configuration dictionary to save.</span>
+<span class="sd">    output_path : Optional[Path]</span>
+<span class="sd">        Path for output file (if None, no save).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">output_path</span><span class="p">:</span>
+        <span class="c1"># Add section comments to the config before saving</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span>
+
+        <span class="n">commented_data</span> <span class="o">=</span> <span class="n">CommentedMap</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+
+        <span class="c1"># Add cruise metadata comment before first field</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="n">key</span> <span class="ow">in</span> <span class="n">config_dict</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;start_date&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+        <span class="p">):</span>
+            <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                <span class="nb">list</span><span class="p">(</span><span class="n">config_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;Cruise metadata&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Add spacing and comments for main sections</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;points&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;lines&quot;</span> <span class="ow">or</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;areas&quot;</span><span class="p">:</span>
+                <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Global catalog - define your operations&quot;</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;legs&quot;</span><span class="p">:</span>
+                <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                    <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Schedule organization&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">save_yaml</span><span class="p">(</span><span class="n">commented_data</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_process_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process and display captured warnings in user-friendly format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    captured_warnings : list[str]</span>
+<span class="sd">        List of captured warning messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">captured_warnings</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️ Configuration Warnings:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">captured_warnings</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">warning</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>  <span class="c1"># Add spacing between warning groups</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_enrich_configuration</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">add_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">add_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">expand_sections</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ddm&quot;</span><span class="p">,</span>
+    <span class="n">output_path</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Add missing data to cruise configuration.</span>
+
+<span class="sd">    Enriches the cruise configuration by adding bathymetric depths and</span>
+<span class="sd">    formatted coordinates where missing. Port references are automatically</span>
+<span class="sd">    resolved to full PortDefinition objects during loading.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_path : Path</span>
+<span class="sd">        Path to input YAML configuration.</span>
+<span class="sd">    add_depths : bool, optional</span>
+<span class="sd">        Whether to add missing depth values (default: False).</span>
+<span class="sd">    add_coords : bool, optional</span>
+<span class="sd">        Whether to add formatted coordinate fields (default: False).</span>
+<span class="sd">    expand_sections : bool, optional</span>
+<span class="sd">        Whether to expand CTD sections into individual stations (default: False).</span>
+<span class="sd">    bathymetry_source : str, optional</span>
+<span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;).</span>
+<span class="sd">    coord_format : str, optional</span>
+<span class="sd">        Coordinate format (&quot;ddm&quot; or &quot;dms&quot;, default: &quot;ddm&quot;).</span>
+<span class="sd">    output_path : Optional[Path], optional</span>
+<span class="sd">        Path for output file (if None, modifies in place).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, Any]</span>
+<span class="sd">        Dictionary with enrichment summary containing:</span>
+<span class="sd">        - stations_with_depths_added: Number of depths added</span>
+<span class="sd">        - stations_with_coords_added: Number of coordinates added</span>
+<span class="sd">        - sections_expanded: Number of CTD sections expanded</span>
+<span class="sd">        - stations_from_expansion: Number of stations generated from expansion</span>
+<span class="sd">        - total_stations_processed: Total stations processed</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># === Clean Architecture: Minimal preprocessing → Cruise enhancement phase ===</span>
+
+    <span class="c1"># 1. Load raw YAML</span>
+    <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+
+    <span class="c1"># 2. Minimal preprocessing (only what&#39;s required for Pydantic validation)</span>
+    <span class="n">processed_config</span> <span class="o">=</span> <span class="n">_minimal_preprocess_config</span><span class="p">(</span><span class="n">config_dict</span><span class="p">)</span>
+
+    <span class="c1"># 3. Create Cruise object</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
+    <span class="k">with</span> <span class="n">_validation_warning_capture</span><span class="p">()</span> <span class="k">as</span> <span class="n">captured_warnings</span><span class="p">:</span>
+        <span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="o">.</span><span class="n">from_dict</span><span class="p">(</span><span class="n">processed_config</span><span class="p">)</span>
+
+    <span class="c1"># 4. Cruise enhancement phase - all business logic in Cruise object methods</span>
+    <span class="n">sections_expanded</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">stations_from_expansion</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">expand_sections</span><span class="p">:</span>
+        <span class="n">section_summary</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">expand_sections</span><span class="p">()</span>
+        <span class="n">sections_expanded</span> <span class="o">=</span> <span class="n">section_summary</span><span class="p">[</span><span class="s2">&quot;sections_expanded&quot;</span><span class="p">]</span>
+        <span class="n">stations_from_expansion</span> <span class="o">=</span> <span class="n">section_summary</span><span class="p">[</span><span class="s2">&quot;stations_from_expansion&quot;</span><span class="p">]</span>
+
+    <span class="c1"># Add station defaults (like mooring durations)</span>
+    <span class="n">station_defaults_added</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">add_station_defaults</span><span class="p">()</span>
+
+    <span class="n">stations_with_depths_added</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">add_depths</span><span class="p">:</span>
+        <span class="n">stations_with_depths_added</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">enrich_depths</span><span class="p">(</span>
+            <span class="n">bathymetry_source</span><span class="p">,</span> <span class="n">bathymetry_dir</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Ports are automatically resolved during Cruise object creation</span>
+    <span class="c1"># No need for explicit expand_ports flag anymore</span>
+
+    <span class="c1"># 5. Add coordinate displays if requested (Cruise object enhancement)</span>
+    <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">add_coords</span><span class="p">:</span>
+        <span class="n">coord_changes_made</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">add_coordinate_displays</span><span class="p">(</span><span class="n">coord_format</span><span class="p">)</span>
+
+    <span class="c1"># 6. Generate final YAML output with all enhancements</span>
+    <span class="n">output_config</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">to_commented_dict</span><span class="p">()</span>
+
+    <span class="c1"># 7. Build summary and save</span>
+    <span class="n">final_summary</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;sections_expanded&quot;</span><span class="p">:</span> <span class="n">sections_expanded</span><span class="p">,</span>
+        <span class="s2">&quot;stations_from_expansion&quot;</span><span class="p">:</span> <span class="n">stations_from_expansion</span><span class="p">,</span>
+        <span class="s2">&quot;stations_with_depths_added&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">stations_with_depths_added</span><span class="p">),</span>
+        <span class="s2">&quot;stations_with_coords_added&quot;</span><span class="p">:</span> <span class="n">coord_changes_made</span><span class="p">,</span>
+        <span class="s2">&quot;station_defaults_added&quot;</span><span class="p">:</span> <span class="n">station_defaults_added</span><span class="p">,</span>
+        <span class="s2">&quot;total_stations_processed&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">cruise</span><span class="o">.</span><span class="n">point_registry</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Process warnings and save configuration</span>
+    <span class="n">_process_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">)</span>
+    <span class="n">_save_config</span><span class="p">(</span><span class="n">output_config</span><span class="p">,</span> <span class="n">output_path</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">final_summary</span>
+
+
+<div class="viewcode-block" id="enrich">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.enrich">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">enrich</span><span class="p">(</span>  <span class="c1"># noqa: C901</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">add_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">add_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
+    <span class="n">coord_format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ddm&quot;</span><span class="p">,</span>
+    <span class="n">expand_sections</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">EnrichResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enrich a cruise configuration file (mirrors: cruiseplan enrich).</span>
+
+<span class="sd">    This function now handles all validation, file operations, and error handling</span>
+<span class="sd">    that was previously in the CLI layer.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str or Path</span>
+<span class="sd">        Input YAML configuration file</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Output directory for enriched file (default: &quot;data&quot;)</span>
+<span class="sd">    output : str, optional</span>
+<span class="sd">        Base filename for output (default: use input filename)</span>
+<span class="sd">    add_depths : bool</span>
+<span class="sd">        Add missing depth values to stations using bathymetry data (default: True)</span>
+<span class="sd">    add_coords : bool</span>
+<span class="sd">        Add formatted coordinate fields (default: True)</span>
+<span class="sd">    expand_sections : bool</span>
+<span class="sd">        Expand CTD sections into individual station definitions (default: True)</span>
+<span class="sd">    bathy_source : str</span>
+<span class="sd">        Bathymetry dataset (default: &quot;etopo2022&quot;)</span>
+<span class="sd">    bathy_dir : str</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+<span class="sd">    coord_format : str</span>
+<span class="sd">        Coordinate format (default: &quot;ddm&quot;)</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Enable verbose logging (default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    EnrichResult</span>
+<span class="sd">        Structured result with output file, files created, and summary</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValidationError</span>
+<span class="sd">        If configuration validation fails</span>
+<span class="sd">    FileError</span>
+<span class="sd">        If file operations fail (reading, writing, permissions)</span>
+<span class="sd">    BathymetryError</span>
+<span class="sd">        If bathymetry operations fail</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import cruiseplan</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.enrich(config_file=&quot;cruise.yaml&quot;, add_depths=True)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Enriched file: {result.output_file}&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Summary: {result.summary}&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Setup verbose logging if requested</span>
+        <span class="n">configure_logging</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Verbose logging enabled&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Validate input file path using centralized utility</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config_path</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+        <span class="c1"># Validate config file format</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config_data</span> <span class="o">=</span> <span class="n">load_yaml</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+            <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">CruisePlanValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Invalid YAML configuration: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Setup and validate output paths</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_output_paths</span>
+
+            <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span> <span class="o">=</span> <span class="n">setup_output_paths</span><span class="p">(</span>
+                <span class="n">config_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">output</span>
+            <span class="p">)</span>
+
+            <span class="c1"># Create output directory if needed</span>
+            <span class="n">output_dir_path</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+            <span class="c1"># Test directory writability</span>
+            <span class="n">test_file</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="s2">&quot;.tmp_write_test&quot;</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">test_file</span><span class="o">.</span><span class="n">touch</span><span class="p">()</span>
+                <span class="n">test_file</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+            <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output directory is not writable: </span><span class="si">{</span><span class="n">output_dir_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="n">FileError</span><span class="p">):</span>
+                <span class="k">raise</span>
+            <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Output directory setup failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Determine final output file path</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">output_dir_path</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">base_name</span><span class="si">}</span><span class="s2">_enriched.yaml&quot;</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔧 Enriching </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📁 Output directory: </span><span class="si">{</span><span class="n">output_dir_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📄 Output file: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;⚙️  Operations: depths=</span><span class="si">{</span><span class="n">add_depths</span><span class="si">}</span><span class="s2">, coords=</span><span class="si">{</span><span class="n">add_coords</span><span class="si">}</span><span class="s2">, sections=</span><span class="si">{</span><span class="n">expand_sections</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Perform the actual enrichment</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">summary</span> <span class="o">=</span> <span class="n">_enrich_configuration</span><span class="p">(</span>
+                <span class="n">config_path</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+                <span class="n">add_depths</span><span class="o">=</span><span class="n">add_depths</span><span class="p">,</span>
+                <span class="n">add_coords</span><span class="o">=</span><span class="n">add_coords</span><span class="p">,</span>
+                <span class="n">expand_sections</span><span class="o">=</span><span class="n">expand_sections</span><span class="p">,</span>
+                <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+                <span class="n">bathymetry_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+                <span class="n">coord_format</span><span class="o">=</span><span class="n">coord_format</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="c1"># Convert low-level errors to appropriate high-level exceptions</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">if</span> <span class="p">(</span>
+                <span class="s2">&quot;validation&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;invalid&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;missing&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="n">CruisePlanValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration validation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="s2">&quot;bathymetry&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;etopo&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;gebco&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="n">BathymetryError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bathymetry processing failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="p">(</span>
+                <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;directory&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+                <span class="ow">or</span> <span class="s2">&quot;permission&quot;</span> <span class="ow">in</span> <span class="n">error_msg</span>
+            <span class="p">):</span>
+                <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;File operation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Re-raise as generic error for now</span>
+                <span class="k">raise</span>
+
+        <span class="c1"># Verify output was created successfully</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">output_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Enrichment completed but output file was not created: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Generate extended summary information</span>
+        <span class="n">extended_summary</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;config_file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span>
+            <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">cruise_name</span><span class="p">,</span>
+            <span class="s2">&quot;operations_performed&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;add_depths&quot;</span><span class="p">:</span> <span class="n">add_depths</span><span class="p">,</span>
+                <span class="s2">&quot;add_coords&quot;</span><span class="p">:</span> <span class="n">add_coords</span><span class="p">,</span>
+                <span class="s2">&quot;expand_sections&quot;</span><span class="p">:</span> <span class="n">expand_sections</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;output_size_bytes&quot;</span><span class="p">:</span> <span class="n">output_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">summary</span><span class="p">,</span>  <span class="c1"># Include detailed summary from _enrich_configuration</span>
+        <span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Configuration enriched successfully: </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">EnrichResult</span><span class="p">(</span>
+            <span class="n">output_file</span><span class="o">=</span><span class="n">output_path</span><span class="p">,</span>
+            <span class="n">files_created</span><span class="o">=</span><span class="p">[</span><span class="n">output_path</span><span class="p">],</span>
+            <span class="n">summary</span><span class="o">=</span><span class="n">extended_summary</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="p">(</span><span class="n">CruisePlanValidationError</span><span class="p">,</span> <span class="n">FileError</span><span class="p">,</span> <span class="n">BathymetryError</span><span class="p">):</span>
+        <span class="c1"># Re-raise our custom exceptions as-is</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">KeyboardInterrupt</span><span class="p">:</span>
+        <span class="k">raise</span>  <span class="c1"># Let CLI handle this</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Wrap unexpected errors</span>
+        <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unexpected error during enrichment: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span></div>
+
+
+
+<span class="c1"># --- Validation Functions ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validate_configuration</span><span class="p">(</span>
+    <span class="n">config_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">check_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">bathymetry_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathymetry_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Comprehensive validation of YAML configuration file.</span>
+
+<span class="sd">    Performs schema validation, logical consistency checks, and optional</span>
+<span class="sd">    depth verification against bathymetry data.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_path : Path</span>
+<span class="sd">        Path to input YAML configuration.</span>
+<span class="sd">    check_depths : bool, optional</span>
+<span class="sd">        Whether to validate depths against bathymetry (default: False).</span>
+<span class="sd">    tolerance : float, optional</span>
+<span class="sd">        Depth difference tolerance percentage (default: 10.0).</span>
+<span class="sd">    bathymetry_source : str, optional</span>
+<span class="sd">        Bathymetry dataset to use (default: &quot;etopo2022&quot;).</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Tuple[bool, List[str], List[str]]</span>
+<span class="sd">        Tuple of (success, errors, warnings) where:</span>
+<span class="sd">        - success: True if validation passed</span>
+<span class="sd">        - errors: List of error messages</span>
+<span class="sd">        - warnings: List of warning messages</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Capture Python warnings for better formatting</span>
+    <span class="n">captured_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">warning_handler</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">category</span><span class="p">,</span> <span class="n">filename</span><span class="p">,</span> <span class="n">lineno</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">line</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="n">captured_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">message</span><span class="p">))</span>
+
+    <span class="c1"># Set up warning capture</span>
+    <span class="n">old_showwarning</span> <span class="o">=</span> <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span>
+    <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">warning_handler</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Import here to avoid circular dependencies</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
+        <span class="c1"># Load and validate configuration</span>
+        <span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+
+        <span class="c1"># Basic validation passed if we get here</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;✓ YAML structure and schema validation passed&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Duplicate detection (always run)</span>
+        <span class="n">duplicate_errors</span><span class="p">,</span> <span class="n">duplicate_warnings</span> <span class="o">=</span> <span class="n">check_duplicate_names</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">duplicate_errors</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">duplicate_warnings</span><span class="p">)</span>
+
+        <span class="n">complete_dup_errors</span><span class="p">,</span> <span class="n">complete_dup_warnings</span> <span class="o">=</span> <span class="n">check_complete_duplicates</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">complete_dup_errors</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">complete_dup_warnings</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">duplicate_errors</span> <span class="ow">or</span> <span class="n">complete_dup_errors</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicate_errors</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">complete_dup_errors</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate-related errors&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">duplicate_warnings</span> <span class="ow">or</span> <span class="n">complete_dup_warnings</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">duplicate_warnings</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">complete_dup_warnings</span><span class="p">)</span><span class="si">}</span><span class="s2"> duplicate-related warnings&quot;</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Depth validation if requested</span>
+        <span class="k">if</span> <span class="n">check_depths</span><span class="p">:</span>
+            <span class="n">bathymetry</span> <span class="o">=</span> <span class="n">BathymetryManager</span><span class="p">(</span>
+                <span class="n">source</span><span class="o">=</span><span class="n">bathymetry_source</span><span class="p">,</span> <span class="n">data_dir</span><span class="o">=</span><span class="n">bathymetry_dir</span>
+            <span class="p">)</span>
+            <span class="n">stations_checked</span><span class="p">,</span> <span class="n">depth_warnings</span> <span class="o">=</span> <span class="n">validate_depth_accuracy</span><span class="p">(</span>
+                <span class="n">cruise</span><span class="p">,</span> <span class="n">bathymetry</span><span class="p">,</span> <span class="n">tolerance</span>
+            <span class="p">)</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">depth_warnings</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Checked </span><span class="si">{</span><span class="n">stations_checked</span><span class="si">}</span><span class="s2"> stations for depth accuracy&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Additional validations can be added here</span>
+
+        <span class="c1"># Check for unexpanded CTD sections (raw YAML and cruise object)</span>
+        <span class="n">ctd_section_warnings</span> <span class="o">=</span> <span class="n">check_unexpanded_ctd_sections</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ctd_section_warnings</span><span class="p">)</span>
+
+        <span class="c1"># Check for cruise metadata issues</span>
+        <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="n">check_cruise_metadata</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">metadata_warnings</span><span class="p">)</span>
+
+        <span class="c1"># Process captured warnings and format them nicely</span>
+        <span class="n">formatted_warnings</span> <span class="o">=</span> <span class="n">format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="n">cruise</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formatted_warnings</span><span class="p">)</span>
+
+        <span class="n">success</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">return</span> <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
+
+    <span class="k">except</span> <span class="n">ValidationError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="c1"># Load raw config first to help with error formatting</span>
+        <span class="n">raw_config</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">raw_config</span> <span class="o">=</span> <span class="n">load_yaml_safe</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Best-effort: if we cannot load raw YAML, continue with basic error reporting</span>
+            <span class="k">pass</span>
+
+        <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">errors</span><span class="p">():</span>
+            <span class="c1"># Enhanced location formatting with station names when possible</span>
+            <span class="n">location</span> <span class="o">=</span> <span class="n">_format_error_location</span><span class="p">(</span><span class="n">error</span><span class="p">[</span><span class="s2">&quot;loc&quot;</span><span class="p">],</span> <span class="n">raw_config</span><span class="p">)</span>
+            <span class="n">message</span> <span class="o">=</span> <span class="n">error</span><span class="p">[</span><span class="s2">&quot;msg&quot;</span><span class="p">]</span>
+            <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Schema error at </span><span class="si">{</span><span class="n">location</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Still try to collect warnings even when validation fails</span>
+        <span class="k">try</span><span class="p">:</span>
+
+            <span class="c1"># Check cruise metadata from raw YAML</span>
+            <span class="k">if</span> <span class="n">raw_config</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="n">_check_cruise_metadata_raw</span><span class="p">(</span><span class="n">raw_config</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">metadata_warnings</span><span class="p">)</span>
+
+                <span class="c1"># Check for unexpanded CTD sections from raw YAML</span>
+                <span class="n">ctd_warnings</span> <span class="o">=</span> <span class="n">_check_unexpanded_ctd_sections_raw</span><span class="p">(</span><span class="n">raw_config</span><span class="p">)</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">ctd_warnings</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># If we can&#39;t load raw YAML, just continue</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Process captured Pydantic warnings even on validation failure</span>
+        <span class="n">formatted_warnings</span> <span class="o">=</span> <span class="n">_format_validation_warnings</span><span class="p">(</span><span class="n">captured_warnings</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">formatted_warnings</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Configuration loading error: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span>
+
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="c1"># Restore original warning handler</span>
+        <span class="n">python_warnings</span><span class="o">.</span><span class="n">showwarning</span> <span class="o">=</span> <span class="n">old_showwarning</span>
+
+
+<span class="c1"># --- Business Logic Functions (moved to core modules) ---</span>
+<span class="c1"># All validation business logic has been moved to cruiseplan.core.validation</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_unexpanded_ctd_sections_raw</span><span class="p">(</span><span class="n">config_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check for CTD sections that haven&#39;t been expanded yet from raw YAML.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_dict : Dict[str, Any]</span>
+<span class="sd">        Raw configuration dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List of warnings about unexpanded CTD sections.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">LINES_FIELD</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">[</span><span class="n">LINES_FIELD</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">OP_TYPE_FIELD</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;CTD&quot;</span> <span class="ow">and</span> <span class="n">line</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ACTION_FIELD</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;section&quot;</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;CTD section &#39;</span><span class="si">{</span><span class="n">line</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;unnamed&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&#39; should be expanded &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;using &#39;cruiseplan enrich --expand-sections&#39; before scheduling&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">warnings</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_cruise_metadata_raw</span><span class="p">(</span><span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>  <span class="c1"># noqa: C901</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check cruise metadata for placeholder values and default coordinates from raw YAML.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    raw_config : dict</span>
+<span class="sd">        Raw YAML configuration dictionary.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    List[str]</span>
+<span class="sd">        List of cruise metadata warning messages.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metadata_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Check for UPDATE- placeholders in cruise-level fields</span>
+
+    <span class="c1"># Check start_date</span>
+    <span class="k">if</span> <span class="n">START_DATE_FIELD</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">start_date</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">raw_config</span><span class="p">[</span><span class="n">START_DATE_FIELD</span><span class="p">])</span>
+        <span class="k">if</span> <span class="n">start_date</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">DEFAULT_UPDATE_PREFIX</span><span class="p">):</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Start date is set to placeholder &#39;</span><span class="si">{</span><span class="n">DEFAULT_UPDATE_PREFIX</span><span class="si">}</span><span class="s2">YYYY-MM-DDTHH:MM:SSZ&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">start_date</span> <span class="o">==</span> <span class="n">DEFAULT_START_DATE</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Start date is set to default &#39;1970-01-01T00:00:00Z&#39;. Please update with actual cruise start date.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check departure port</span>
+    <span class="k">if</span> <span class="n">DEPARTURE_PORT_FIELD</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">raw_config</span><span class="p">[</span><span class="n">DEPARTURE_PORT_FIELD</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">DEFAULT_DEPARTURE_PORT</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Departure port name is set to placeholder &#39;</span><span class="si">{</span><span class="n">DEFAULT_DEPARTURE_PORT</span><span class="si">}</span><span class="s2">&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Departure port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Departure port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check arrival port</span>
+    <span class="k">if</span> <span class="n">ARRIVAL_PORT_FIELD</span> <span class="ow">in</span> <span class="n">raw_config</span><span class="p">:</span>
+        <span class="n">port</span> <span class="o">=</span> <span class="n">raw_config</span><span class="p">[</span><span class="n">ARRIVAL_PORT_FIELD</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="nb">str</span><span class="p">(</span><span class="n">port</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="n">DEFAULT_ARRIVAL_PORT</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Arrival port name is set to placeholder &#39;</span><span class="si">{</span><span class="n">DEFAULT_ARRIVAL_PORT</span><span class="si">}</span><span class="s2">&#39;. Please update with actual port name.&quot;</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s2">&quot;latitude&quot;</span> <span class="ow">in</span> <span class="n">port</span> <span class="ow">and</span> <span class="s2">&quot;longitude&quot;</span> <span class="ow">in</span> <span class="n">port</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span> <span class="ow">and</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;longitude&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">:</span>
+                <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="s2">&quot;Arrival port coordinates are set to default (0.0, 0.0). Please update with actual port coordinates.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">port</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;timezone&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;GMT+0&quot;</span><span class="p">:</span>
+            <span class="n">metadata_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="s2">&quot;Arrival port timezone is set to default &#39;GMT+0&#39;. Please update with actual port timezone.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Format warnings if any found</span>
+    <span class="k">if</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+        <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Cruise Metadata:&quot;</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">metadata_warnings</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)]</span>
+
+    <span class="k">return</span> <span class="p">[]</span>
+
+
+<span class="c1"># --- Error Location Formatting ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_error_location</span><span class="p">(</span><span class="n">location_path</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">,</span> <span class="n">raw_config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Format error location path to be more user-friendly.</span>
+
+<span class="sd">    Converts array indices to meaningful names when possible.</span>
+<span class="sd">    E.g., &quot;stations -&gt; 0 -&gt; latitude&quot; becomes</span>
+<span class="sd">    &quot;stations -&gt; Station_001 (index 0) -&gt; latitude&quot;</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    location_path : tuple</span>
+<span class="sd">        Path tuple from Pydantic validation error.</span>
+<span class="sd">    raw_config : dict</span>
+<span class="sd">        Raw configuration dictionary for name lookup.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Formatted location string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">location_path</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;root&quot;</span>
+
+    <span class="n">formatted_parts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">current_config</span> <span class="o">=</span> <span class="n">raw_config</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">part</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">location_path</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="c1"># This is an array index</span>
+
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_config</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">part</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_config</span><span class="p">):</span>
+                    <span class="n">item</span> <span class="o">=</span> <span class="n">current_config</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;name&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+                        <span class="n">formatted_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">item</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (index </span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+                    <span class="k">else</span><span class="p">:</span>
+                        <span class="n">formatted_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">formatted_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">IndexError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="n">formatted_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;index </span><span class="si">{</span><span class="n">part</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Update current_config for next iteration</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_config</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="ow">and</span> <span class="n">part</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">current_config</span><span class="p">):</span>
+                    <span class="n">current_config</span> <span class="o">=</span> <span class="n">current_config</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">current_config</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">IndexError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="n">current_config</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># This is a regular key</span>
+            <span class="n">formatted_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">))</span>
+
+            <span class="c1"># Update current_config for next iteration</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">current_config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">current_config</span><span class="p">:</span>
+                    <span class="n">current_config</span> <span class="o">=</span> <span class="n">current_config</span><span class="p">[</span><span class="n">part</span><span class="p">]</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">current_config</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">except</span> <span class="p">(</span><span class="ne">KeyError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">):</span>
+                <span class="n">current_config</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="s2">&quot; -&gt; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">formatted_parts</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="validate">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.validate">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">validate</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
+    <span class="n">check_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="n">warnings_only</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidationResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Validate a cruise configuration file (mirrors: cruiseplan validate).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str or Path</span>
+<span class="sd">        Input YAML configuration file</span>
+<span class="sd">    bathy_source : str</span>
+<span class="sd">        Bathymetry dataset (default: &quot;etopo2022&quot;)</span>
+<span class="sd">    bathy_dir : str</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+<span class="sd">    check_depths : bool</span>
+<span class="sd">        Compare existing depths with bathymetry data (default: True)</span>
+<span class="sd">    tolerance : float</span>
+<span class="sd">        Depth difference tolerance in percent (default: 10.0)</span>
+<span class="sd">    warnings_only : bool</span>
+<span class="sd">        Show warnings without failing - warnings don&#39;t affect return value (default: False)</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Enable verbose logging (default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ValidationResult</span>
+<span class="sd">        Structured validation result with success status, errors, warnings, and summary.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import cruiseplan</span>
+<span class="sd">    &gt;&gt;&gt; # Validate cruise configuration with depth checking</span>
+<span class="sd">    &gt;&gt;&gt; is_valid = cruiseplan.validate(config_file=&quot;cruise.yaml&quot;, check_depths=True)</span>
+<span class="sd">    &gt;&gt;&gt; # Custom tolerance validation</span>
+<span class="sd">    &gt;&gt;&gt; is_valid = cruiseplan.validate(config_file=&quot;cruise.yaml&quot;, tolerance=5.0)</span>
+<span class="sd">    &gt;&gt;&gt; if is_valid:</span>
+<span class="sd">    ...     print(&quot;✅ Configuration is valid&quot;)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">configure_logging</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="c1"># Validate input file path using centralized utility</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🔍 Validating </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">success</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">warnings</span> <span class="o">=</span> <span class="n">_validate_configuration</span><span class="p">(</span>
+            <span class="n">config_path</span><span class="o">=</span><span class="n">config_path</span><span class="p">,</span>
+            <span class="n">check_depths</span><span class="o">=</span><span class="n">check_depths</span><span class="p">,</span>
+            <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+            <span class="n">bathymetry_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+            <span class="n">bathymetry_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Create summary information</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;config_file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span>
+            <span class="s2">&quot;error_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">),</span>
+            <span class="s2">&quot;warning_count&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">warnings</span><span class="p">),</span>
+            <span class="s2">&quot;depth_checking_enabled&quot;</span><span class="p">:</span> <span class="n">check_depths</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="c1"># Try to add cruise name to summary if available</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_yaml_safe</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="s2">&quot;cruise_name&quot;</span> <span class="ow">in</span> <span class="n">config_dict</span><span class="p">:</span>
+                <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">config_dict</span><span class="p">[</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">]</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># Best-effort enrichment: failure to read cruise_name should not break validation</span>
+            <span class="k">pass</span>
+
+        <span class="c1"># Report results (UI layer responsibility)</span>
+        <span class="k">if</span> <span class="n">errors</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;❌ Validation Errors:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="n">errors</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • </span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">warnings</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️ Validation Warnings:&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">warning</span> <span class="ow">in</span> <span class="n">warnings</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  • </span><span class="si">{</span><span class="n">warning</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle warnings_only mode</span>
+        <span class="n">final_success</span> <span class="o">=</span> <span class="n">success</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">warnings_only</span> <span class="k">else</span> <span class="p">(</span><span class="n">success</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">errors</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">final_success</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ Validation passed&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;❌ Validation failed&quot;</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">ValidationResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="n">final_success</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">,</span>
+            <span class="n">warnings</span><span class="o">=</span><span class="n">warnings</span><span class="p">,</span>
+            <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;💥 Validation failed&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">ValidationResult</span><span class="p">(</span>
+            <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Validation failed: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">],</span>
+            <span class="n">warnings</span><span class="o">=</span><span class="p">[],</span>
+            <span class="n">summary</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;config_file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span>
+                <span class="s2">&quot;error_count&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+                <span class="s2">&quot;warning_count&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span></div>
+
+
+
+<span class="c1"># --- Process Function ---</span>
+
+
+<div class="viewcode-block" id="process">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.process">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
+    <span class="n">add_depths</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">add_coords</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">expand_sections</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">run_validation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">run_map_generation</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">depth_check</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">tolerance</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">no_port_map</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProcessResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Process cruise configuration with unified workflow (mirrors: cruiseplan process).</span>
+
+<span class="sd">    This function runs the complete processing workflow: enrichment -&gt; validation -&gt; map generation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str or Path</span>
+<span class="sd">        Input YAML configuration file</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Output directory for generated files (default: &quot;data&quot;)</span>
+<span class="sd">    output : str, optional</span>
+<span class="sd">        Base filename for outputs (default: use cruise name from config)</span>
+<span class="sd">    bathy_source : str</span>
+<span class="sd">        Bathymetry dataset (default: &quot;etopo2022&quot;)</span>
+<span class="sd">    bathy_dir : str</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data/bathymetry&quot;)</span>
+<span class="sd">    add_depths : bool</span>
+<span class="sd">        Add missing depth values to stations using bathymetry data (default: True)</span>
+<span class="sd">    add_coords : bool</span>
+<span class="sd">        Add formatted coordinate fields (default: True)</span>
+<span class="sd">    expand_sections : bool</span>
+<span class="sd">        Expand CTD sections into individual station definitions (default: True)</span>
+<span class="sd">    run_validation : bool</span>
+<span class="sd">        Run validation after enrichment (default: True)</span>
+<span class="sd">    run_map_generation : bool</span>
+<span class="sd">        Generate maps after validation (default: True)</span>
+<span class="sd">    depth_check : bool</span>
+<span class="sd">        Compare existing depths with bathymetry data during validation (default: True)</span>
+<span class="sd">    tolerance : float</span>
+<span class="sd">        Depth difference tolerance in percent for validation (default: 10.0)</span>
+<span class="sd">    format : str</span>
+<span class="sd">        Map output format(s): &quot;png&quot;, &quot;pdf&quot;, &quot;all&quot; (default: &quot;all&quot;)</span>
+<span class="sd">    bathy_stride : int</span>
+<span class="sd">        Bathymetry contour stride for maps (default: 10)</span>
+<span class="sd">    figsize : list, optional</span>
+<span class="sd">        Figure size for maps [width, height] (default: auto)</span>
+<span class="sd">    no_port_map : bool</span>
+<span class="sd">        Skip port overview map generation (default: False)</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Enable verbose logging (default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ProcessResult</span>
+<span class="sd">        Structured result with all files created, validation results, and summary</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import cruiseplan</span>
+<span class="sd">    &gt;&gt;&gt; # Process with all defaults</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.process(&quot;cruise.yaml&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Files created: {len(result.files_created)}&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; # Custom processing workflow</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.process(&quot;cruise.yaml&quot;, run_map_generation=False, depth_check=False)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">configure_logging</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;🚀 Processing cruise configuration: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span>
+
+    <span class="c1"># Validate input file</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">validation_result</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Step 1: Enrichment (always run)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;🔧 Enriching cruise configuration...&quot;</span><span class="p">)</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">enrich_result</span> <span class="o">=</span> <span class="n">enrich</span><span class="p">(</span>
+                <span class="n">config_file</span><span class="o">=</span><span class="n">config_file</span><span class="p">,</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">,</span>
+                <span class="n">add_depths</span><span class="o">=</span><span class="n">add_depths</span><span class="p">,</span>
+                <span class="n">add_coords</span><span class="o">=</span><span class="n">add_coords</span><span class="p">,</span>
+                <span class="n">expand_sections</span><span class="o">=</span><span class="n">expand_sections</span><span class="p">,</span>
+                <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+                <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">enriched_config_path</span> <span class="o">=</span> <span class="n">enrich_result</span><span class="o">.</span><span class="n">output_file</span>
+            <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">enriched_config_path</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;❌ Enrichment failed&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;💡 Try running validation only on your original config:&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   cruiseplan.validate(config_file=&#39;</span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&#39;)&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;   Or use the CLI: cruiseplan validate </span><span class="si">{config_file}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span>
+
+        <span class="c1"># Step 2: Validation (optional)</span>
+        <span class="k">if</span> <span class="n">run_validation</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;✅ Validating cruise configuration...&quot;</span><span class="p">)</span>
+            <span class="n">validation_result</span> <span class="o">=</span> <span class="n">validate</span><span class="p">(</span>
+                <span class="n">config_file</span><span class="o">=</span><span class="n">enriched_config_path</span><span class="p">,</span>  <span class="c1"># Use enriched config if available</span>
+                <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+                <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+                <span class="n">check_depths</span><span class="o">=</span><span class="n">depth_check</span><span class="p">,</span>
+                <span class="n">tolerance</span><span class="o">=</span><span class="n">tolerance</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;⚠️ Validation completed with warnings/errors&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Step 3: Map generation (optional)</span>
+        <span class="k">if</span> <span class="n">run_map_generation</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;🗺️ Generating cruise maps...&quot;</span><span class="p">)</span>
+
+            <span class="c1"># Import here to avoid circular import</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.map_cruise</span><span class="w"> </span><span class="kn">import</span> <span class="nb">map</span>
+
+            <span class="n">map_result</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span>
+                <span class="n">config_file</span><span class="o">=</span><span class="n">enriched_config_path</span><span class="p">,</span>  <span class="c1"># Use enriched config if available</span>
+                <span class="n">output_dir</span><span class="o">=</span><span class="n">output_dir</span><span class="p">,</span>
+                <span class="n">output</span><span class="o">=</span><span class="n">output</span><span class="p">,</span>
+                <span class="nb">format</span><span class="o">=</span><span class="nb">format</span><span class="p">,</span>
+                <span class="n">bathy_source</span><span class="o">=</span><span class="n">bathy_source</span><span class="p">,</span>
+                <span class="n">bathy_dir</span><span class="o">=</span><span class="n">bathy_dir</span><span class="p">,</span>
+                <span class="n">bathy_stride</span><span class="o">=</span><span class="n">bathy_stride</span><span class="p">,</span>
+                <span class="n">figsize</span><span class="o">=</span><span class="n">figsize</span><span class="p">,</span>
+                <span class="n">no_ports</span><span class="o">=</span><span class="n">no_port_map</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">generated_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">map_result</span><span class="o">.</span><span class="n">map_files</span><span class="p">)</span>
+
+        <span class="c1"># Load config metadata for summary</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config_dict</span> <span class="o">=</span> <span class="n">load_yaml_safe</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+            <span class="n">cruise_name</span> <span class="o">=</span> <span class="n">config_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;Unknown&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">cruise_name</span> <span class="o">=</span> <span class="s2">&quot;Unknown&quot;</span>
+
+        <span class="c1"># Create comprehensive summary</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;config_file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">config_path</span><span class="p">),</span>
+            <span class="s2">&quot;cruise_name&quot;</span><span class="p">:</span> <span class="n">cruise_name</span><span class="p">,</span>
+            <span class="s2">&quot;enriched_config&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">enriched_config_path</span><span class="p">),</span>
+            <span class="s2">&quot;operations_performed&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">&quot;enrichment&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+                <span class="s2">&quot;validation&quot;</span><span class="p">:</span> <span class="n">run_validation</span><span class="p">,</span>
+                <span class="s2">&quot;map_generation&quot;</span><span class="p">:</span> <span class="n">run_map_generation</span><span class="p">,</span>
+            <span class="p">},</span>
+            <span class="s2">&quot;total_files_created&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">),</span>
+            <span class="s2">&quot;files_generated&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">),</span>  <span class="c1"># Add for CLI compatibility</span>
+            <span class="s2">&quot;validation_summary&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="n">validation_result</span><span class="o">.</span><span class="n">summary</span> <span class="k">if</span> <span class="n">validation_result</span> <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;✅ Processing complete! Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Extract validation errors/warnings for cleaner API</span>
+        <span class="n">validation_errors</span> <span class="o">=</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">errors</span> <span class="k">if</span> <span class="n">validation_result</span> <span class="k">else</span> <span class="p">[]</span>
+        <span class="n">validation_warnings</span> <span class="o">=</span> <span class="n">validation_result</span><span class="o">.</span><span class="n">warnings</span> <span class="k">if</span> <span class="n">validation_result</span> <span class="k">else</span> <span class="p">[]</span>
+
+        <span class="k">return</span> <span class="n">ProcessResult</span><span class="p">(</span>
+            <span class="n">config</span><span class="o">=</span><span class="n">enriched_config_path</span><span class="p">,</span>
+            <span class="n">files_created</span><span class="o">=</span><span class="n">generated_files</span><span class="p">,</span>
+            <span class="n">summary</span><span class="o">=</span><span class="n">summary</span><span class="p">,</span>
+            <span class="n">errors</span><span class="o">=</span><span class="n">validation_errors</span><span class="p">,</span>
+            <span class="n">warnings</span><span class="o">=</span><span class="n">validation_warnings</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;💥 Processing failed&quot;</span><span class="p">)</span>
+        <span class="k">raise</span></div>
+
+
+
+<span class="c1"># --- Backward Compatibility Exports ---</span>
+
+<span class="c1"># For backward compatibility, expose the internal function with the old name</span>
+<span class="n">enrich_configuration</span> <span class="o">=</span> <span class="n">_enrich_configuration</span>
+<span class="n">validate_configuration</span> <span class="o">=</span> <span class="n">_validate_configuration</span>
+
+<span class="c1"># Import core validation functions for backward compatibility</span>
+
+<span class="c1"># Adding backward compatibility aliases for private functions used in tests</span>
+<span class="n">_format_validation_warnings</span> <span class="o">=</span> <span class="n">format_validation_warnings</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

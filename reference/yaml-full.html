@@ -1,0 +1,491 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>YAML Configuration Reference &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Output Formats" href="output-formats.html" />
+    <link rel="prev" title="CLI Commands" href="cli-commands.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">YAML Configuration Reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#configuration-structure">Configuration Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#coordinate-conventions">Coordinate Conventions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cruise-metadata">Cruise Metadata</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#point-operations">Point Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#required-fields">Required Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#optional-fields">Optional Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#line-operations">Line Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id1">Required Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id2">Optional Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#area-operations">Area Operations</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#id3">Required Fields</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#id4">Optional Fields</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#schedule-organization">Schedule Organization</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#basic-leg">Basic Leg</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#advanced-leg-options">Advanced Leg Options</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#clusters">Clusters</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#operation-types">Operation Types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#validation-rules">Validation Rules</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#parameter-inheritance">Parameter Inheritance</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#comments-and-documentation">Comments and Documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#file-processing">File Processing</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">YAML Configuration Reference</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="yaml-configuration-reference">
+<h1>YAML Configuration Reference<a class="headerlink" href="#yaml-configuration-reference" title="Link to this heading"></a></h1>
+<p>Complete reference for all YAML configuration fields in CruisePlan.</p>
+<nav class="contents local" id="contents">
+<p class="topic-title">Contents</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="#configuration-structure" id="id5">Configuration Structure</a></p></li>
+<li><p><a class="reference internal" href="#coordinate-conventions" id="id6">Coordinate Conventions</a></p></li>
+<li><p><a class="reference internal" href="#cruise-metadata" id="id7">Cruise Metadata</a></p></li>
+<li><p><a class="reference internal" href="#point-operations" id="id8">Point Operations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#required-fields" id="id9">Required Fields</a></p></li>
+<li><p><a class="reference internal" href="#optional-fields" id="id10">Optional Fields</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#line-operations" id="id11">Line Operations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id1" id="id12">Required Fields</a></p></li>
+<li><p><a class="reference internal" href="#id2" id="id13">Optional Fields</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#area-operations" id="id14">Area Operations</a></p>
+<ul>
+<li><p><a class="reference internal" href="#id3" id="id15">Required Fields</a></p></li>
+<li><p><a class="reference internal" href="#id4" id="id16">Optional Fields</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#schedule-organization" id="id17">Schedule Organization</a></p>
+<ul>
+<li><p><a class="reference internal" href="#basic-leg" id="id18">Basic Leg</a></p></li>
+<li><p><a class="reference internal" href="#advanced-leg-options" id="id19">Advanced Leg Options</a></p></li>
+<li><p><a class="reference internal" href="#clusters" id="id20">Clusters</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference internal" href="#operation-types" id="id21">Operation Types</a></p></li>
+<li><p><a class="reference internal" href="#validation-rules" id="id22">Validation Rules</a></p></li>
+<li><p><a class="reference internal" href="#parameter-inheritance" id="id23">Parameter Inheritance</a></p></li>
+<li><p><a class="reference internal" href="#comments-and-documentation" id="id24">Comments and Documentation</a></p></li>
+<li><p><a class="reference internal" href="#file-processing" id="id25">File Processing</a></p></li>
+</ul>
+</nav>
+<section id="configuration-structure">
+<h2><a class="toc-backref" href="#id5" role="doc-backlink">Configuration Structure</a><a class="headerlink" href="#configuration-structure" title="Link to this heading"></a></h2>
+<p>CruisePlan YAML files have three main sections:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># 1. Cruise-wide metadata and settings</span>
+<span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Example</span><span class="nv"> </span><span class="s">Cruise</span><span class="nv"> </span><span class="s">2025&quot;</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Oceanographic</span><span class="nv"> </span><span class="s">survey&quot;</span>
+<span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-15&quot;</span>
+
+<span class="c1"># 2. Global catalog (reusable definitions)</span>
+<span class="nt">points</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">        </span><span class="c1"># Point operations</span>
+<span class="nt">lines</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Line operations</span>
+<span class="nt">areas</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">         </span><span class="c1"># Area operations</span>
+
+<span class="c1"># 3. Schedule organization</span>
+<span class="nt">legs</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">...</span><span class="p p-Indicator">]</span><span class="w">          </span><span class="c1"># Execution phases</span>
+</pre></div>
+</div>
+</section>
+<section id="coordinate-conventions">
+<h2><a class="toc-backref" href="#id6" role="doc-backlink">Coordinate Conventions</a><a class="headerlink" href="#coordinate-conventions" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>Latitude</strong>: -90.0 to 90.0 decimal degrees (negative = South)</p></li>
+<li><p><strong>Longitude</strong>: -180.0 to 180.0 decimal degrees (negative = West)</p></li>
+<li><p><strong>Depth</strong>: meters below sea level (positive values)</p></li>
+<li><p><strong>Distance</strong>: kilometers</p></li>
+<li><p><strong>Duration</strong>: minutes</p></li>
+</ul>
+</section>
+<section id="cruise-metadata">
+<h2><a class="toc-backref" href="#id7" role="doc-backlink">Cruise Metadata</a><a class="headerlink" href="#cruise-metadata" title="Link to this heading"></a></h2>
+<p>Root-level cruise configuration fields:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">cruise_name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;North</span><span class="nv"> </span><span class="s">Atlantic</span><span class="nv"> </span><span class="s">Survey</span><span class="nv"> </span><span class="s">2025&quot;</span>
+<span class="nt">start_date</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;2025-06-15&quot;</span><span class="w">           </span><span class="c1"># ISO format</span>
+<span class="nt">day_start_hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">6</span><span class="w">                  </span><span class="c1"># Start of working day (0-23)</span>
+<span class="nt">day_end_hour</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">22</span><span class="w">                   </span><span class="c1"># End of working day (0-23)</span>
+<span class="nt">default_vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span><span class="w">         </span><span class="c1"># Transit speed in knots</span>
+<span class="nt">turnaround_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span><span class="w">                </span><span class="c1"># Time between operations in minutes</span>
+<span class="nt">ctd_descent_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">              </span><span class="c1"># CTD descent speed in m/s</span>
+<span class="nt">ctd_ascent_rate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">1.0</span><span class="w">               </span><span class="c1"># CTD ascent speed in m/s</span>
+</pre></div>
+</div>
+</section>
+<section id="point-operations">
+<h2><a class="toc-backref" href="#id8" role="doc-backlink">Point Operations</a><a class="headerlink" href="#point-operations" title="Link to this heading"></a></h2>
+<p>Individual station operations (CTD, moorings, sampling):</p>
+<section id="required-fields">
+<h3><a class="toc-backref" href="#id9" role="doc-backlink">Required Fields</a><a class="headerlink" href="#required-fields" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span><span class="w">               </span><span class="c1"># Unique identifier</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span><span class="w">               </span><span class="c1"># Decimal degrees</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span><span class="w">             </span><span class="c1"># Decimal degrees</span>
+</pre></div>
+</div>
+</section>
+<section id="optional-fields">
+<h3><a class="toc-backref" href="#id10" role="doc-backlink">Optional Fields</a><a class="headerlink" href="#optional-fields" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;STN_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CTD</span><span class="w">          </span><span class="c1"># Operation category</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">profile</span><span class="w">              </span><span class="c1"># Specific action</span>
+<span class="w">    </span><span class="nt">water_depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3500</span><span class="w">            </span><span class="c1"># Water depth (auto-filled by &#39;process&#39;)</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">45</span><span class="w">                 </span><span class="c1"># Time for operation in minutes</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">station&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="line-operations">
+<h2><a class="toc-backref" href="#id11" role="doc-backlink">Line Operations</a><a class="headerlink" href="#line-operations" title="Link to this heading"></a></h2>
+<p>Transect and underway survey operations:</p>
+<section id="id1">
+<h3><a class="toc-backref" href="#id12" role="doc-backlink">Required Fields</a><a class="headerlink" href="#id1" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lines</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;transect_A&quot;</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span><span class="w">                       </span><span class="c1"># List of waypoints</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-20.0</span>
+</pre></div>
+</div>
+</section>
+<section id="id2">
+<h3><a class="toc-backref" href="#id13" role="doc-backlink">Optional Fields</a><a class="headerlink" href="#id2" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">lines</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;transect_A&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">underway</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ADCP</span>
+<span class="w">    </span><span class="nt">route</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-20.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Cross-slope</span><span class="nv"> </span><span class="s">section&quot;</span>
+<span class="w">    </span><span class="nt">vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8.0</span><span class="w">            </span><span class="c1"># Speed during transect</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="area-operations">
+<h2><a class="toc-backref" href="#id14" role="doc-backlink">Area Operations</a><a class="headerlink" href="#area-operations" title="Link to this heading"></a></h2>
+<p>Box surveys and mapping operations:</p>
+<section id="id3">
+<h3><a class="toc-backref" href="#id15" role="doc-backlink">Required Fields</a><a class="headerlink" href="#id3" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">areas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;survey_box&quot;</span>
+<span class="w">    </span><span class="nt">corners</span><span class="p">:</span><span class="w">                     </span><span class="c1"># Polygon corners (min 3)</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-28.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-28.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-27.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-27.0</span>
+</pre></div>
+</div>
+</section>
+<section id="id4">
+<h3><a class="toc-backref" href="#id16" role="doc-backlink">Optional Fields</a><a class="headerlink" href="#id4" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">areas</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;survey_box&quot;</span>
+<span class="w">    </span><span class="nt">operation_type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">survey</span>
+<span class="w">    </span><span class="nt">action</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bathymetry</span>
+<span class="w">    </span><span class="nt">corners</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-28.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-28.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">61.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-27.0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.5</span>
+<span class="w">        </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-27.0</span>
+<span class="w">    </span><span class="nt">duration</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">120</span><span class="w">               </span><span class="c1"># Total survey time in minutes</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;High-priority</span><span class="nv"> </span><span class="s">mapping</span><span class="nv"> </span><span class="s">area&quot;</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="schedule-organization">
+<h2><a class="toc-backref" href="#id17" role="doc-backlink">Schedule Organization</a><a class="headerlink" href="#schedule-organization" title="Link to this heading"></a></h2>
+<p>Legs organize activities into cruise phases:</p>
+<section id="basic-leg">
+<h3><a class="toc-backref" href="#id18" role="doc-backlink">Basic Leg</a><a class="headerlink" href="#basic-leg" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;leg1&quot;</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;transect_A&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="advanced-leg-options">
+<h3><a class="toc-backref" href="#id19" role="doc-backlink">Advanced Leg Options</a><a class="headerlink" href="#advanced-leg-options" title="Link to this heading"></a></h3>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;leg1&quot;</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Main</span><span class="nv"> </span><span class="s">science</span><span class="nv"> </span><span class="s">leg&quot;</span>
+<span class="w">    </span><span class="nt">departure_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">port_reykjavik</span><span class="w">     </span><span class="c1"># Departure port</span>
+<span class="w">    </span><span class="nt">arrival_port</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">port_bergen</span><span class="w">          </span><span class="c1"># Arrival port</span>
+<span class="w">    </span><span class="nt">first_activity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">STN_001</span>
+<span class="w">    </span><span class="nt">last_activity</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">transect_A</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;STN_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;STN_002&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;transect_A&quot;</span><span class="p p-Indicator">]</span>
+
+<span class="w">    </span><span class="c1"># Leg-level parameter overrides</span>
+<span class="w">    </span><span class="nt">vessel_speed</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span>
+<span class="w">    </span><span class="nt">turnaround_time</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">    </span><span class="nt">distance_between_stations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">25.0</span>
+</pre></div>
+</div>
+</section>
+<section id="clusters">
+<h3><a class="toc-backref" href="#id20" role="doc-backlink">Clusters</a><a class="headerlink" href="#clusters" title="Link to this heading"></a></h3>
+<p>Group activities within legs for advanced scheduling:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;leg1&quot;</span>
+<span class="w">    </span><span class="nt">clusters</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;northern_stations&quot;</span>
+<span class="w">        </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_001&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_002&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;optimize_distance&quot;</span><span class="w">    </span><span class="c1"># Reorder for efficiency</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;southern_stations&quot;</span>
+<span class="w">        </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_003&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;CTD_004&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">strategy</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;preserve_order&quot;</span><span class="w">       </span><span class="c1"># Keep original order</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="operation-types">
+<h2><a class="toc-backref" href="#id21" role="doc-backlink">Operation Types</a><a class="headerlink" href="#operation-types" title="Link to this heading"></a></h2>
+<p>Standard operation types with default durations:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 25.0%" />
+<col style="width: 25.0%" />
+<col style="width: 50.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Type</strong></p></th>
+<th class="head"><p><strong>Default Duration</strong></p></th>
+<th class="head"><p><strong>Description</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ctd</span></code></p></td>
+<td><p>45 min</p></td>
+<td><p>CTD/rosette operations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">underway</span></code></p></td>
+<td><p>Transit time</p></td>
+<td><p>Continuous measurements</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">multibeam</span></code></p></td>
+<td><p>2 hours</p></td>
+<td><p>Seafloor mapping</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">mooring</span></code></p></td>
+<td><p>4 hours</p></td>
+<td><p>Mooring operations</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">net_tow</span></code></p></td>
+<td><p>90 min</p></td>
+<td><p>Biological sampling</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">grab_sample</span></code></p></td>
+<td><p>30 min</p></td>
+<td><p>Sediment/water sampling</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">adcp</span></code></p></td>
+<td><p>Transit time</p></td>
+<td><p>Current profiling</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">xbt</span></code></p></td>
+<td><p>15 min</p></td>
+<td><p>Expendable temperature probe</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="validation-rules">
+<h2><a class="toc-backref" href="#id22" role="doc-backlink">Validation Rules</a><a class="headerlink" href="#validation-rules" title="Link to this heading"></a></h2>
+<p>CruisePlan validates configurations with these rules:</p>
+<ul class="simple">
+<li><p><strong>Unique names</strong>: All operation names must be unique</p></li>
+<li><p><strong>Valid coordinates</strong>: Lat/lon within valid ranges</p></li>
+<li><p><strong>Date format</strong>: ISO format YYYY-MM-DD</p></li>
+<li><p><strong>Positive durations</strong>: Times must be &gt; 0</p></li>
+<li><p><strong>Referenced activities</strong>: All leg activities must exist in catalog</p></li>
+</ul>
+</section>
+<section id="parameter-inheritance">
+<h2><a class="toc-backref" href="#id23" role="doc-backlink">Parameter Inheritance</a><a class="headerlink" href="#parameter-inheritance" title="Link to this heading"></a></h2>
+<p>Parameters cascade from cruise → leg → cluster → operation:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="c1"># Cruise level (applied to all)</span>
+<span class="nt">vessel_speed_kt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">10.0</span>
+
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;leg1&quot;</span>
+<span class="w">    </span><span class="nt">vessel_speed_kt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">12.0</span><span class="w">      </span><span class="c1"># Overrides cruise default</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span><span class="w">              </span><span class="c1"># Uses leg speed: 12.0 kt</span>
+
+<span class="nt">points</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
+<span class="w">    </span><span class="nt">vessel_speed_kt</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">8.0</span><span class="w">       </span><span class="c1"># Overrides leg speed for this operation</span>
+</pre></div>
+</div>
+</section>
+<section id="comments-and-documentation">
+<h2><a class="toc-backref" href="#id24" role="doc-backlink">Comments and Documentation</a><a class="headerlink" href="#comments-and-documentation" title="Link to this heading"></a></h2>
+<p>Add comments to document your configuration:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="nt">points</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;CTD_001&quot;</span>
+<span class="w">    </span><span class="nt">latitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">60.0</span>
+<span class="w">    </span><span class="nt">longitude</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">-30.0</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Deep</span><span class="nv"> </span><span class="s">water</span><span class="nv"> </span><span class="s">station</span><span class="nv"> </span><span class="s">for</span><span class="nv"> </span><span class="s">overflow</span><span class="nv"> </span><span class="s">monitoring&quot;</span>
+
+<span class="nt">legs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;leg1&quot;</span>
+<span class="w">    </span><span class="nt">comment</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Main</span><span class="nv"> </span><span class="s">science</span><span class="nv"> </span><span class="s">operations</span><span class="nv"> </span><span class="s">in</span><span class="nv"> </span><span class="s">Denmark</span><span class="nv"> </span><span class="s">Strait&quot;</span>
+<span class="w">    </span><span class="nt">activities</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;CTD_001&quot;</span><span class="p p-Indicator">]</span>
+</pre></div>
+</div>
+</section>
+<section id="file-processing">
+<h2><a class="toc-backref" href="#id25" role="doc-backlink">File Processing</a><a class="headerlink" href="#file-processing" title="Link to this heading"></a></h2>
+<p>CruisePlan processes files in this sequence:</p>
+<ol class="arabic simple">
+<li><p><strong>Parse YAML</strong>: Load and validate syntax</p></li>
+<li><p><strong>Validate structure</strong>: Check required fields and references</p></li>
+<li><p><strong>Enrich data</strong>: Add depths, distances, durations</p></li>
+<li><p><strong>Generate outputs</strong>: Create timeline and deliverables</p></li>
+</ol>
+<p>For examples and workflows, see <a class="reference internal" href="../user-guide/workflows.html"><span class="doc">Workflows</span></a>.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="cli-commands.html" class="btn btn-neutral float-left" title="CLI Commands" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="output-formats.html" class="btn btn-neutral float-right" title="Output Formats" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

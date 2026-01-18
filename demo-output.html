@@ -6,7 +6,7 @@
   <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5</title>
+  <title>CruisePlan Demo &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
       <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
       <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
       <link rel="stylesheet" type="text/css" href="_static/nbsphinx-code-cells.css?v=2aa19091" />
@@ -15,7 +15,7 @@
   
       <script src="_static/jquery.js?v=5d32c60e"></script>
       <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
-      <script src="_static/documentation_options.js?v=ba50482b"></script>
+      <script src="_static/documentation_options.js?v=5cb7d5ba"></script>
       <script src="_static/doctools.js?v=9bcbadda"></script>
       <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
       <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
@@ -24,8 +24,8 @@
     <script src="_static/js/theme.js"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="CruisePlan Architecture" href="cruise_architecture.html" />
-    <link rel="prev" title="Path 3: Configuration-Only Workflow" href="workflow/path3.html" /> 
+    <link rel="next" title="CruisePlan Developer Guide" href="advanced/developer_guide.html" />
+    <link rel="prev" title="API Examples" href="advanced/api-examples.html" /> 
 </head>
 
 <body class="wy-body-for-nav"> 
@@ -48,20 +48,21 @@
   </form>
 </div>
         </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <p class="caption" role="heading"><span class="caption-text">Getting Started</span></p>
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="usage.html">Usage Overview</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="user-guide/yaml-basics.html">YAML Basics</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">CLI Workflows</span></p>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html">Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#workflow-paths">Workflow Paths</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#advanced-topics">Advanced Topics</a></li>
-<li class="toctree-l1"><a class="reference internal" href="user_workflows.html#troubleshooting">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference/output-formats.html">Output Formats</a></li>
 </ul>
-<p class="caption" role="heading"><span class="caption-text">Notebook Demo</span></p>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
 <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="advanced/api-examples.html">API Examples</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">CruisePlan Demo</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="#Workflow-Overview">Workflow Overview</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#Setup-and-Imports">Setup and Imports</a></li>
@@ -83,30 +84,10 @@
 <li class="toctree-l2"><a class="reference internal" href="#Workflow-Summary">Workflow Summary</a></li>
 </ul>
 </li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Project Specifications</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="cruise_architecture.html">Cruise Specifications</a></li>
-<li class="toctree-l1"><a class="reference internal" href="cli_reference.html">CLI Command Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="yaml_reference.html">YAML Configuration Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="operation_types.html">Operation Types Reference</a></li>
-<li class="toctree-l1"><a class="reference internal" href="calculations.html">Calculation Methods</a></li>
-<li class="toctree-l1"><a class="reference internal" href="units_and_defaults.html">Units and defaults</a></li>
-<li class="toctree-l1"><a class="reference internal" href="global_ports.html">Port list</a></li>
-<li class="toctree-l1"><a class="reference internal" href="output_formats.html">Output formats</a></li>
-</ul>
-<p class="caption" role="heading"><span class="caption-text">Help and Reference</span></p>
-<ul>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan">GitHub Repository</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api/modules.html">API Reference</a></li>
-<li class="toctree-l1"><a class="reference external" href="https://github.com/ocean-uhh/cruiseplan/blob/main/CONTRIBUTING.md">Contributing Guidelines</a></li>
-<li class="toctree-l1"><a class="reference internal" href="project_structure.html">Project Structure</a></li>
-<li class="toctree-l1"><a class="reference internal" href="developer_guide.html">Developer Guide</a></li>
-<li class="toctree-l1"><a class="reference internal" href="manual_testing.html">Manual Testing</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html">Development Roadmap</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#implementation-notes">Implementation Notes</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#risk-assessment">Risk Assessment</a></li>
-<li class="toctree-l1"><a class="reference internal" href="roadmap/index.html#contributing">Contributing</a></li>
 </ul>
 
         </div>
@@ -158,14 +139,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">xarray</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">xr</span>
-
-<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span><span class="p">,</span> <span class="n">pangaea</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schedule</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.global_ports</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">add_custom_port</span><span class="p">,</span>
     <span class="n">get_available_ports</span><span class="p">,</span>
     <span class="n">list_ports_in_region</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan</span><span class="w"> </span><span class="kn">import</span> <span class="n">bathymetry</span><span class="p">,</span> <span class="n">pangaea</span><span class="p">,</span> <span class="n">process</span><span class="p">,</span> <span class="n">schedule</span>
 
 <span class="c1"># Set up output directory</span>
 <span class="n">output_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s1">&#39;../tests_output/demo&#39;</span><span class="p">)</span>
@@ -342,8 +323,8 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
 </pre></div>
 </div>
 <p><strong>BUT</strong> for this demo, we’ll create a programmatic station configuration rather than using the interactive interface. Maybe we’ll make an interactive demo to show the other options, but the interactive part runs nicely from the command line.</p>
-<div class="nbinput docutils container">
-<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[4]:
+<div class="nbinput nblast docutils container">
+<div class="prompt highlight-none notranslate"><div class="highlight"><pre><span></span>[ ]:
 </pre></div>
 </div>
 <div class="input_area highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🗺️  Creating station configuration...&quot;</span><span class="p">)</span>
@@ -359,8 +340,8 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
     <span class="s1">&#39;calculate_depth_via_bathymetry&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
     <span class="s1">&#39;start_date&#39;</span><span class="p">:</span> <span class="s1">&#39;2025-06-01T00:00:00Z&#39;</span><span class="p">,</span>
 
-    <span class="c1"># Define stations along a transect</span>
-    <span class="s1">&#39;stations&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="c1"># Define points along a transect</span>
+    <span class="s1">&#39;points&#39;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;STN_001&#39;</span><span class="p">,</span>
             <span class="s1">&#39;latitude&#39;</span><span class="p">:</span> <span class="mf">55.0</span><span class="p">,</span>
@@ -421,8 +402,8 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
         <span class="p">}</span>
     <span class="p">],</span>
 
-    <span class="c1"># Add scientific transit</span>
-    <span class="s1">&#39;transits&#39;</span><span class="p">:</span> <span class="p">[</span>
+    <span class="c1"># Add scientific lines</span>
+    <span class="s1">&#39;lines&#39;</span><span class="p">:</span> <span class="p">[</span>
         <span class="p">{</span>
             <span class="s1">&#39;name&#39;</span><span class="p">:</span> <span class="s1">&#39;Demo_ADCP_Survey&#39;</span><span class="p">,</span>
             <span class="s1">&#39;operation_type&#39;</span><span class="p">:</span> <span class="s1">&#39;underway&#39;</span><span class="p">,</span>
@@ -455,32 +436,11 @@ INFO: 🚀 Next step: cruiseplan stations -p /Users/eddifying/Cloudfree/github/c
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;✅ Station configuration created&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Configuration saved to: </span><span class="si">{</span><span class="n">config_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Stations: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;stations&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Transits: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;transits&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Points: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;points&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Lines: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;lines&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   Legs: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">cruise_config</span><span class="p">[</span><span class="s1">&#39;legs&#39;</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="nboutput docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area stderr docutils container">
-<div class="highlight"><pre>
-INFO: Saved configuration to: ../tests_output/demo/demo_cruise.yaml
-</pre></div></div>
-</div>
-<div class="nboutput nblast docutils container">
-<div class="prompt empty docutils container">
-</div>
-<div class="output_area docutils container">
-<div class="highlight"><pre>
-🗺️  Creating station configuration...
-✅ Station configuration created
-   Configuration saved to: ../tests_output/demo/demo_cruise.yaml
-   Stations: 7
-   Transits: 1
-   Legs: 1
-</pre></div></div>
 </div>
 </section>
 <section id="Step-3.5:-Manually-edit-configuration">
@@ -1351,8 +1311,8 @@ Attributes:
            </div>
           </div>
           <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
-        <a href="workflow/path3.html" class="btn btn-neutral float-left" title="Path 3: Configuration-Only Workflow" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
-        <a href="cruise_architecture.html" class="btn btn-neutral float-right" title="CruisePlan Architecture" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+        <a href="advanced/api-examples.html" class="btn btn-neutral float-left" title="API Examples" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="advanced/developer_guide.html" class="btn btn-neutral float-right" title="CruisePlan Developer Guide" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
     </div>
 
   <hr/>

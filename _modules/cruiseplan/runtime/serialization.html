@@ -1,0 +1,645 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.runtime.serialization &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.runtime.serialization</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.runtime.serialization</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cruise configuration serialization functions.</span>
+
+<span class="sd">This module contains high-level business logic for serializing CruiseInstance objects back to</span>
+<span class="sd">dictionary and YAML formats with proper field ordering and comment preservation.</span>
+
+<span class="sd">**I/O Module Architecture:**</span>
+<span class="sd">- **cruiseplan.utils.io**: File system validation, path handling, directory creation</span>
+<span class="sd">- **cruiseplan.schema.yaml_io**: YAML file format reading/writing with comment preservation (used by this module)</span>
+<span class="sd">- **cruiseplan.core.serialization** (this module): High-level CruiseInstance object serialization to YAML</span>
+<span class="sd">- **cruiseplan.output.*_generator**: Specialized output format generators (HTML, LaTeX, CSV, etc.)</span>
+
+<span class="sd">**Dependencies**: Uses `cruiseplan.schema.yaml_io` for YAML operations and `cruiseplan.utils.io` for file handling.</span>
+
+<span class="sd">**See Also**:</span>
+<span class="sd">- For file system operations: `cruiseplan.utils.io`</span>
+<span class="sd">- For YAML file operations: `cruiseplan.schema.yaml_io`</span>
+<span class="sd">- For generating specific output formats: `cruiseplan.output.html_generator`, `cruiseplan.output.latex_generator`, etc.</span>
+<span class="sd">- For the enrichment process that uses these functions: `cruiseplan.core.enrichment`</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.activities</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AreaDefinition</span><span class="p">,</span>
+    <span class="n">LineDefinition</span><span class="p">,</span>
+    <span class="n">PointDefinition</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.cruise_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">ClusterDefinition</span><span class="p">,</span> <span class="n">LegDefinition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ACTIVITIES_FIELD</span><span class="p">,</span>
+    <span class="n">AREA_ALLOWED_FIELDS</span><span class="p">,</span>
+    <span class="n">AREA_VERTEX_FIELD</span><span class="p">,</span>
+    <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">CLUSTER_ALLOWED_FIELDS</span><span class="p">,</span>
+    <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">,</span>
+    <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">,</span>
+    <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">,</span>
+    <span class="n">LATITUDE_FIELD</span><span class="p">,</span>
+    <span class="n">LEG_ALLOWED_FIELDS</span><span class="p">,</span>
+    <span class="n">LINE_ALLOWED_FIELDS</span><span class="p">,</span>
+    <span class="n">LINE_VERTEX_FIELD</span><span class="p">,</span>
+    <span class="n">LONGITUDE_FIELD</span><span class="p">,</span>
+    <span class="n">POINT_ALLOWED_FIELDS</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">save_yaml</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="deserialize_inline_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.deserialize_inline_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">deserialize_inline_definition</span><span class="p">(</span>
+    <span class="n">definition_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Union</span><span class="p">[</span><span class="n">PointDefinition</span><span class="p">,</span> <span class="n">LineDefinition</span><span class="p">,</span> <span class="n">AreaDefinition</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert an inline dictionary definition to the appropriate definition object.</span>
+
+<span class="sd">    Determines the type of definition based on the presence of key fields</span>
+<span class="sd">    and creates the corresponding Pydantic object.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    definition_dict : dict</span>
+<span class="sd">        Dictionary containing the inline definition fields.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Union[PointDefinition, LineDefinition, AreaDefinition]</span>
+<span class="sd">        The appropriate definition object created from the dictionary.</span>
+
+<span class="sd">    Raises</span>
+<span class="sd">    ------</span>
+<span class="sd">    ValueError</span>
+<span class="sd">        If the definition type cannot be determined or validation fails.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Determine definition type based on key fields (check most specific first)</span>
+    <span class="k">if</span> <span class="n">LINE_VERTEX_FIELD</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>  <span class="c1"># &quot;route&quot;</span>
+        <span class="k">return</span> <span class="n">LineDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">AREA_VERTEX_FIELD</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">AreaDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+    <span class="c1"># Fallback: assume it&#39;s a station if it has common station fields</span>
+    <span class="k">elif</span> <span class="nb">any</span><span class="p">(</span><span class="n">field</span> <span class="ow">in</span> <span class="n">definition_dict</span> <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;latitude&quot;</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">]):</span>
+        <span class="c1"># Add default operation_type if missing</span>
+        <span class="k">if</span> <span class="s2">&quot;operation_type&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">definition_dict</span><span class="p">:</span>
+            <span class="n">definition_dict</span> <span class="o">=</span> <span class="n">definition_dict</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+            <span class="n">definition_dict</span><span class="p">[</span><span class="s2">&quot;operation_type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;CTD&quot;</span>  <span class="c1"># Default operation type - TODO this doesn&#39;t seem right, do we have a default operation defined in defaults.py?</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">PointDefinition</span><span class="p">(</span><span class="o">**</span><span class="n">definition_dict</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Cannot determine definition type for inline definition: </span><span class="si">{</span><span class="n">definition_dict</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="serialize_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_definition</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span>
+        <span class="n">PointDefinition</span><span class="p">,</span>
+        <span class="n">LineDefinition</span><span class="p">,</span>
+        <span class="n">AreaDefinition</span><span class="p">,</span>
+        <span class="n">ClusterDefinition</span><span class="p">,</span>
+        <span class="n">LegDefinition</span><span class="p">,</span>
+    <span class="p">],</span>
+    <span class="n">allowed_fields</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Convert a Pydantic definition object to a dictionary with field filtering.</span>
+
+<span class="sd">    This function extracts only the allowed fields from the object, filtering out</span>
+<span class="sd">    internal fields and maintaining canonical field ordering from YAML_FIELD_ORDER.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    obj : Union[PointDefinition, LineDefinition, AreaDefinition, ClusterDefinition, LegDefinition]</span>
+<span class="sd">        The Pydantic object to serialize</span>
+<span class="sd">    allowed_fields : Union[list[str], set[str]]</span>
+<span class="sd">        Collection of field names that should be included in the output.</span>
+<span class="sd">        Field ordering is determined by YAML_FIELD_ORDER, not by this parameter.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Dictionary containing only the allowed fields with their values in canonical order</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.fields</span><span class="w"> </span><span class="kn">import</span> <span class="n">YAML_FIELD_ORDER</span>
+
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Serialize fields in canonical order using YAML_FIELD_ORDER</span>
+    <span class="c1"># Only include fields that are in allowed_fields</span>
+    <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">pydantic_field</span> <span class="ow">in</span> <span class="n">YAML_FIELD_ORDER</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">pydantic_field</span> <span class="ow">in</span> <span class="n">allowed_fields</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pydantic_field</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">pydantic_field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># Skip None values to keep YAML clean</span>
+                <span class="c1"># Convert enum values to strings for YAML serialization</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+                    <span class="n">output</span><span class="p">[</span><span class="n">pydantic_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span><span class="o">.</span><span class="n">value</span>
+                <span class="c1"># Convert GeoPoint objects to coordinate dictionaries</span>
+                <span class="k">elif</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">&quot;__iter__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                    <span class="c1"># Handle lists of GeoPoint objects (e.g., route, corners)</span>
+                    <span class="n">converted_list</span> <span class="o">=</span> <span class="p">[]</span>
+                    <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">value</span><span class="p">:</span>
+                        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="s2">&quot;longitude&quot;</span><span class="p">):</span>
+                            <span class="c1"># This is a GeoPoint object</span>
+                            <span class="n">converted_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                                <span class="p">{</span>
+                                    <span class="n">LATITUDE_FIELD</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">latitude</span><span class="p">,</span>
+                                    <span class="n">LONGITUDE_FIELD</span><span class="p">:</span> <span class="n">item</span><span class="o">.</span><span class="n">longitude</span><span class="p">,</span>
+                                <span class="p">}</span>
+                            <span class="p">)</span>
+                        <span class="k">else</span><span class="p">:</span>
+                            <span class="n">converted_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                    <span class="n">output</span><span class="p">[</span><span class="n">pydantic_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">converted_list</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">output</span><span class="p">[</span><span class="n">pydantic_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+
+<div class="viewcode-block" id="serialize_point_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_point_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_point_definition</span><span class="p">(</span><span class="n">point</span><span class="p">:</span> <span class="n">PointDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize a PointDefinition to dictionary format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    point : PointDefinition</span>
+<span class="sd">        The point definition to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Serialized point definition dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">point</span><span class="p">,</span> <span class="n">POINT_ALLOWED_FIELDS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="serialize_line_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_line_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_line_definition</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="n">LineDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize a LineDefinition to dictionary format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    line : LineDefinition</span>
+<span class="sd">        The line definition to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Serialized line definition dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">line</span><span class="p">,</span> <span class="n">LINE_ALLOWED_FIELDS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="serialize_area_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_area_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_area_definition</span><span class="p">(</span><span class="n">area</span><span class="p">:</span> <span class="n">AreaDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize an AreaDefinition to dictionary format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    area : AreaDefinition</span>
+<span class="sd">        The area definition to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Serialized area definition dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">area</span><span class="p">,</span> <span class="n">AREA_ALLOWED_FIELDS</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="serialize_cluster_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_cluster_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_cluster_definition</span><span class="p">(</span><span class="n">cluster</span><span class="p">:</span> <span class="n">ClusterDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize a ClusterDefinition to dictionary format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cluster : ClusterDefinition</span>
+<span class="sd">        The cluster definition to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Serialized cluster definition dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Handle activities separately BEFORE calling serialize_definition</span>
+    <span class="c1"># to avoid PointDefinition objects being converted to coordinate dictionaries</span>
+    <span class="n">activities_backup</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="s2">&quot;activities&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+        <span class="n">activities_backup</span> <span class="o">=</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span>
+        <span class="c1"># Convert PointDefinition objects to string references</span>
+        <span class="n">activities_list</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+                <span class="c1"># This is a PointDefinition object, use its name</span>
+                <span class="n">activities_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># This is already a string reference</span>
+                <span class="n">activities_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span>
+        <span class="c1"># Temporarily replace activities for serialization</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">activities_list</span>
+
+    <span class="c1"># Now serialize with the string references</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">cluster</span><span class="p">,</span> <span class="n">CLUSTER_ALLOWED_FIELDS</span><span class="p">)</span>
+
+    <span class="c1"># Restore original activities</span>
+    <span class="k">if</span> <span class="n">activities_backup</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">cluster</span><span class="o">.</span><span class="n">activities</span> <span class="o">=</span> <span class="n">activities_backup</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_serialize_port_object</span><span class="p">(</span><span class="n">port_obj</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to serialize port objects for leg definitions.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="s2">&quot;latitude&quot;</span><span class="p">):</span>
+        <span class="c1"># This is a full PortDefinition object, serialize it</span>
+        <span class="k">return</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">port_obj</span><span class="p">,</span> <span class="n">POINT_ALLOWED_FIELDS</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">port_obj</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_convert_activity_to_name</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to convert activity object to string name reference.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">activity</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">):</span>
+        <span class="c1"># This is a PointDefinition object, use its name</span>
+        <span class="k">return</span> <span class="n">activity</span><span class="o">.</span><span class="n">name</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># This is already a string reference</span>
+        <span class="k">return</span> <span class="n">activity</span>
+
+
+<div class="viewcode-block" id="serialize_leg_definition">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.serialize_leg_definition">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">serialize_leg_definition</span><span class="p">(</span><span class="n">leg</span><span class="p">:</span> <span class="n">LegDefinition</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Serialize a LegDefinition to dictionary format.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    leg : LegDefinition</span>
+<span class="sd">        The leg definition to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    dict[str, Any]</span>
+<span class="sd">        Serialized leg definition dictionary</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="n">serialize_definition</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">LEG_ALLOWED_FIELDS</span><span class="p">)</span>
+
+    <span class="c1"># Handle special serialization for nested port objects</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">departure_port</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">DEPARTURE_PORT_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">_serialize_port_object</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">departure_port</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">ARRIVAL_PORT_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">_serialize_port_object</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">arrival_port</span><span class="p">)</span>
+
+    <span class="c1"># Handle clusters within legs</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="s2">&quot;clusters&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="s2">&quot;clusters&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_cluster_definition</span><span class="p">(</span><span class="n">cluster</span><span class="p">)</span> <span class="k">for</span> <span class="n">cluster</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">clusters</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Handle activities - convert PointDefinition objects back to string references</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">ACTIVITIES_FIELD</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">activities</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">ACTIVITIES_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">_convert_activity_to_name</span><span class="p">(</span><span class="n">activity</span><span class="p">)</span> <span class="k">for</span> <span class="n">activity</span> <span class="ow">in</span> <span class="n">leg</span><span class="o">.</span><span class="n">activities</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Handle first_activity - convert PointDefinition object back to string reference</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">FIRST_ACTIVITY_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">_convert_activity_to_name</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">first_activity</span><span class="p">)</span>
+
+    <span class="c1"># Handle last_activity - convert PointDefinition object back to string reference</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">leg</span><span class="p">,</span> <span class="n">LAST_ACTIVITY_FIELD</span><span class="p">)</span> <span class="ow">and</span> <span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">LAST_ACTIVITY_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">_convert_activity_to_name</span><span class="p">(</span><span class="n">leg</span><span class="o">.</span><span class="n">last_activity</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+
+<div class="viewcode-block" id="to_commented_dict">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.to_commented_dict">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_commented_dict</span><span class="p">(</span><span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Export CruiseInstance configuration to a structured dictionary with comment preservation.</span>
+
+<span class="sd">    This method provides the foundation for YAML output with canonical field</span>
+<span class="sd">    ordering and comment preservation capabilities. Returns a dictionary that</span>
+<span class="sd">    can be processed by ruamel.yaml for structured output with comments.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to serialize</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Dict[str, Any]</span>
+<span class="sd">        Dictionary with canonical field ordering suitable for YAML export</span>
+<span class="sd">        with comment preservation.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The output dictionary follows canonical ordering:</span>
+<span class="sd">    1. Cruise Metadata (cruise_name, description, start_date, start_time)</span>
+<span class="sd">    2. Vessel Parameters (default_vessel_speed, turnaround_time, etc.)</span>
+<span class="sd">    3. Calculation Settings (calculate_*, day_start_hour, etc.)</span>
+<span class="sd">    4. Catalog Definitions (points, lines, areas, ports)</span>
+<span class="sd">    5. Schedule Organization (legs)</span>
+
+<span class="sd">    Comment preservation is handled at the YAML layer using ruamel.yaml</span>
+<span class="sd">    with end-of-line and section header comment support.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.fields</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">AREAS_FIELD</span><span class="p">,</span>
+        <span class="n">LEGS_FIELD</span><span class="p">,</span>
+        <span class="n">LINES_FIELD</span><span class="p">,</span>
+        <span class="n">POINTS_FIELD</span><span class="p">,</span>
+        <span class="n">PORTS_FIELD</span><span class="p">,</span>
+        <span class="n">YAML_FIELD_ORDER</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Start with canonical field ordering</span>
+    <span class="n">output</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># Serialize cruise-level fields in canonical order using YAML_FIELD_ORDER</span>
+    <span class="k">for</span> <span class="n">yaml_field</span><span class="p">,</span> <span class="n">pydantic_field</span> <span class="ow">in</span> <span class="n">YAML_FIELD_ORDER</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">pydantic_field</span><span class="p">):</span>
+            <span class="n">value</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">pydantic_field</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">value</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">output</span><span class="p">[</span><span class="n">yaml_field</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="c1"># Handle special port serialization for global departure/arrival ports</span>
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">DEPARTURE_PORT_FIELD</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span>
+    <span class="p">):</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">DEPARTURE_PORT_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialize_point_definition</span><span class="p">(</span>
+            <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">departure_port</span>
+        <span class="p">)</span>
+
+    <span class="k">if</span> <span class="p">(</span>
+        <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">ARRIVAL_PORT_FIELD</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
+    <span class="p">):</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">ARRIVAL_PORT_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="n">serialize_point_definition</span><span class="p">(</span>
+            <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">arrival_port</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Serialize catalog definitions</span>
+    <span class="k">if</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">POINTS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_point_definition</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">point_registry</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">line_registry</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">LINES_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_line_definition</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">line_registry</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">area_registry</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">AREAS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_area_definition</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">area_registry</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Serialize ports catalog if it exists (separate from global departure/arrival ports)</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;ports&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ports</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">PORTS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_point_definition</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">ports</span>
+        <span class="p">]</span>
+
+    <span class="c1"># Serialize legs with their hierarchical structure</span>
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="s2">&quot;legs&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span><span class="p">:</span>
+        <span class="n">output</span><span class="p">[</span><span class="n">LEGS_FIELD</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">serialize_leg_definition</span><span class="p">(</span><span class="n">leg</span><span class="p">)</span> <span class="k">for</span> <span class="n">leg</span> <span class="ow">in</span> <span class="n">cruise_instance</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">legs</span>
+        <span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">output</span></div>
+
+
+
+<div class="viewcode-block" id="to_yaml">
+<a class="viewcode-back" href="../../../api/cruiseplan.runtime.html#cruiseplan.runtime.serialization.to_yaml">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">to_yaml</span><span class="p">(</span>
+    <span class="n">cruise_instance</span><span class="p">:</span> <span class="s2">&quot;CruiseInstance&quot;</span><span class="p">,</span>
+    <span class="n">output_file</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">backup</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="n">add_comments</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Export CruiseInstance configuration to YAML format with comment preservation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_instance : CruiseInstance</span>
+<span class="sd">        The cruise instance to serialize</span>
+<span class="sd">    output_file : Optional[Union[str, Path]], optional</span>
+<span class="sd">        Path to write YAML file. If None, returns YAML string.</span>
+<span class="sd">    backup : bool, optional</span>
+<span class="sd">        Whether to create backup of existing file (default: True)</span>
+<span class="sd">    add_comments : bool, optional</span>
+<span class="sd">        Whether to add descriptive comments to YAML (default: True)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    Optional[str]</span>
+<span class="sd">        YAML string if output_file is None, otherwise None</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # Save to file</span>
+<span class="sd">    &gt;&gt;&gt; cruise.to_yaml(&quot;enhanced_cruise.yaml&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; # Get YAML string</span>
+<span class="sd">    &gt;&gt;&gt; yaml_str = cruise.to_yaml()</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Generate the dictionary representation</span>
+    <span class="n">output_dict</span> <span class="o">=</span> <span class="n">to_commented_dict</span><span class="p">(</span><span class="n">cruise_instance</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">output_file</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="c1"># Add comments to the dictionary if requested</span>
+        <span class="k">if</span> <span class="n">add_comments</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">ruamel.yaml.comments</span><span class="w"> </span><span class="kn">import</span> <span class="n">CommentedMap</span>
+
+            <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">dict_to_yaml_string</span>
+
+            <span class="c1"># Convert to CommentedMap with section comments</span>
+            <span class="n">commented_data</span> <span class="o">=</span> <span class="n">CommentedMap</span><span class="p">(</span><span class="n">output_dict</span><span class="p">)</span>
+
+            <span class="c1"># Add section comments based on field presence</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="n">key</span> <span class="ow">in</span> <span class="n">output_dict</span>
+                <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;cruise_name&quot;</span><span class="p">,</span> <span class="s2">&quot;start_date&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">]</span>
+            <span class="p">):</span>
+                <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                    <span class="nb">list</span><span class="p">(</span><span class="n">output_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">],</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;Cruise metadata&quot;</span>
+                <span class="p">)</span>
+
+            <span class="c1"># Add spacing and comments for main sections</span>
+            <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">output_dict</span><span class="o">.</span><span class="n">keys</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;points&quot;</span><span class="p">:</span>
+                    <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                        <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Global catalog - define your operations&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;legs&quot;</span><span class="p">:</span>
+                    <span class="n">commented_data</span><span class="o">.</span><span class="n">yaml_set_comment_before_after_key</span><span class="p">(</span>
+                        <span class="n">key</span><span class="p">,</span> <span class="n">before</span><span class="o">=</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Schedule organization&quot;</span>
+                    <span class="p">)</span>
+
+            <span class="n">output_dict</span> <span class="o">=</span> <span class="n">commented_data</span>
+
+        <span class="c1"># Save to file</span>
+        <span class="n">output_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+        <span class="n">save_yaml</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">output_path</span><span class="p">,</span> <span class="n">backup</span><span class="o">=</span><span class="n">backup</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saved cruise configuration to </span><span class="si">{</span><span class="n">output_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Return as string</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.yaml_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">dict_to_yaml_string</span>
+
+        <span class="k">return</span> <span class="n">dict_to_yaml_string</span><span class="p">(</span><span class="n">output_dict</span><span class="p">,</span> <span class="n">add_comments</span><span class="o">=</span><span class="n">add_comments</span><span class="p">)</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

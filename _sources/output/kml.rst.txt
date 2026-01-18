@@ -6,7 +6,7 @@ KML Output
 
 KML format provides geographic visualization compatible with Google Earth, Google Maps, and other geographic information systems. The output focuses on positional data for the scientific operations.
 
-.. figure:: ../_static/screenshots/kml_output_google_earth.png
+.. figure:: _static/screenshots/kml_output_google_earth.png
    :alt: KML cruise plan displayed in Google Earth showing stations, transits, and areas
    :align: center
    :width: 90%

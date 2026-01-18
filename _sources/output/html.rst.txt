@@ -6,7 +6,7 @@ HTML Output
 
 HTML format provides interactive web summaries ideal for cruise documentation, review, and sharing. The output includes embedded maps, detailed timelines, and operation summaries.
 
-.. figure:: ../_static/screenshots/html_output_fullpage.png
+.. figure:: _static/screenshots/html_output_fullpage.png
    :alt: HTML cruise schedule output showing interactive map, timeline, and operation details
    :align: center
    :width: 90%

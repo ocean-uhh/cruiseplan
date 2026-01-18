@@ -1,0 +1,534 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.config.cruise_config &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.config.cruise_config</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.config.cruise_config</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Main cruise configuration and schedule organization models.</span>
+
+<span class="sd">Defines the root CruiseConfig class and schedule organization models</span>
+<span class="sd">(LegDefinition, ClusterDefinition) that represent the complete cruise</span>
+<span class="sd">configuration file. This is the top-level YAML structure that contains</span>
+<span class="sd">all cruise metadata, global catalog definitions, and schedule organization.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">ConfigDict</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">model_validator</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.values</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DEFAULT_CTD_RATE_M_S</span><span class="p">,</span>
+    <span class="n">DEFAULT_DAY_END_HR</span><span class="p">,</span>
+    <span class="n">DEFAULT_DAY_START_HR</span><span class="p">,</span>
+    <span class="n">DEFAULT_START_DATE</span><span class="p">,</span>
+    <span class="n">DEFAULT_STATION_SPACING_KM</span><span class="p">,</span>
+    <span class="n">DEFAULT_TURNAROUND_TIME_MIN</span><span class="p">,</span>
+    <span class="n">DEFAULT_VESSEL_SPEED_KT</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.activities</span><span class="w"> </span><span class="kn">import</span> <span class="n">AreaDefinition</span><span class="p">,</span> <span class="n">LineDefinition</span><span class="p">,</span> <span class="n">PointDefinition</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.values</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrategyEnum</span>
+
+
+<div class="viewcode-block" id="ClusterDefinition">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ClusterDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Definition of a cluster for operation boundary management.</span>
+
+<span class="sd">    Clusters define boundaries for operation shuffling/reordering during scheduling.</span>
+<span class="sd">    Operations within a cluster can be reordered according to the cluster&#39;s strategy,</span>
+<span class="sd">    but cannot be mixed with operations from other clusters or the parent leg.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Unique identifier for the cluster.</span>
+<span class="sd">    description : Optional[str]</span>
+<span class="sd">        Human-readable description of the cluster purpose.</span>
+<span class="sd">    strategy : StrategyEnum</span>
+<span class="sd">        Scheduling strategy for the cluster (default: SEQUENTIAL).</span>
+<span class="sd">    ordered : bool</span>
+<span class="sd">        Whether operations should maintain their order (default: True).</span>
+<span class="sd">    activities : List[dict]</span>
+<span class="sd">        Unified list of all activities (stations, transits, areas) in this cluster.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Human-readable description of the cluster purpose&quot;</span>
+    <span class="p">)</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">StrategyEnum</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">StrategyEnum</span><span class="o">.</span><span class="n">SEQUENTIAL</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Scheduling strategy for operations within this cluster&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">ordered</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether operations should maintain their defined order&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># New activities-based architecture</span>
+    <span class="n">activities</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unified list of all activities in this cluster (can be string references or dict objects)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="ClusterDefinition.validate_cluster_activities">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition.validate_cluster_activities">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_cluster_activities</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate cluster has activities and handle deprecated fields.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        ClusterDefinition</span>
+<span class="sd">            Validated cluster definition.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If cluster has no activities defined.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Check for deprecated field usage and migrate to activities</span>
+        <span class="n">has_activities</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">activities</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">has_activities</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Cluster &#39;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&#39; must have at least one activity&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># Warning for deprecated usage would go here in production</span>
+        <span class="c1"># (omitting to avoid import dependencies)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+
+
+<div class="viewcode-block" id="ClusterDefinition.validate_strategy">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ClusterDefinition.validate_strategy">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;strategy&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_strategy</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Ensure strategy is a valid StrategyEnum.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">StrategyEnum</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;Invalid strategy: </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">. Must be one of </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">StrategyEnum</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="LegDefinition">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LegDefinition</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Definition of a maritime cruise leg (port-to-port segment).</span>
+
+<span class="sd">    Represents a complete leg of the cruise from departure port to arrival port,</span>
+<span class="sd">    containing all operations and clusters that occur during this segment.</span>
+<span class="sd">    Maritime legs are always port-to-port with defined departure and arrival points.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    name : str</span>
+<span class="sd">        Unique identifier for the leg.</span>
+<span class="sd">    description : Optional[str]</span>
+<span class="sd">        Human-readable description of the leg.</span>
+<span class="sd">    departure_port : Union[str, PointDefinition]</span>
+<span class="sd">        Required departure port for this leg.</span>
+<span class="sd">    arrival_port : Union[str, PointDefinition]</span>
+<span class="sd">        Required arrival port for this leg.</span>
+<span class="sd">    vessel_speed : Optional[float]</span>
+<span class="sd">        Vessel speed for this leg in knots (inheritable from cruise).</span>
+<span class="sd">    distance_between_stations : Optional[float]</span>
+<span class="sd">        Default station spacing for this leg in kilometers (inheritable from cruise).</span>
+<span class="sd">    turnaround_time : Optional[float]</span>
+<span class="sd">        Turnaround time between operations in minutes (inheritable from cruise).</span>
+<span class="sd">    first_activity : Optional[str]</span>
+<span class="sd">        First activity/navigation marker for this leg (routing only, not executed).</span>
+<span class="sd">    last_activity : Optional[str]</span>
+<span class="sd">        Last activity/navigation marker for this leg (routing only, not executed).</span>
+<span class="sd">    strategy : Optional[StrategyEnum]</span>
+<span class="sd">        Default scheduling strategy for the leg.</span>
+<span class="sd">    ordered : Optional[bool]</span>
+<span class="sd">        Whether the leg operations should be ordered.</span>
+<span class="sd">    buffer_time : Optional[float]</span>
+<span class="sd">        Contingency time for entire leg operations in minutes (e.g., weather delays).</span>
+<span class="sd">    activities : Optional[List[dict]]</span>
+<span class="sd">        Unified list of all activities (points, lines, areas) in this leg.</span>
+<span class="sd">    clusters : Optional[List[ClusterDefinition]]</span>
+<span class="sd">        List of operation clusters in the leg.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># Required maritime port-to-port structure</span>
+    <span class="n">departure_port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]</span>
+    <span class="n">arrival_port</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]</span>
+
+    <span class="c1"># Inheritable cruise parameters</span>
+    <span class="n">vessel_speed</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Vessel speed for this leg in knots&quot;</span>
+    <span class="p">)</span>
+    <span class="n">distance_between_stations</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Default station spacing for this leg in kilometers&quot;</span>
+    <span class="p">)</span>
+    <span class="n">turnaround_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Turnaround time between operations in minutes&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Navigation activities (not executed, routing only)</span>
+    <span class="n">first_activity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;First navigation activity for this leg (routing only)&quot;</span>
+    <span class="p">)</span>
+    <span class="n">last_activity</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Last navigation activity for this leg (routing only)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Scheduling parameters</span>
+    <span class="n">strategy</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">StrategyEnum</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Default scheduling strategy for this leg&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ordered</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Whether leg operations should maintain order&quot;</span>
+    <span class="p">)</span>
+    <span class="n">buffer_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Contingency time for weather delays (minutes)&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Activity organization</span>
+    <span class="n">activities</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Unified list of all activities in this leg (can be string references or dict objects)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">clusters</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">ClusterDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of operation clusters&quot;</span>
+    <span class="p">)</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="LegDefinition.validate_ports">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_ports">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;departure_port&quot;</span><span class="p">,</span> <span class="s2">&quot;arrival_port&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_ports</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate port references are not None.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Departure and arrival ports are required for all legs&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="LegDefinition.validate_vessel_speed">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_vessel_speed">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;vessel_speed&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_vessel_speed</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate vessel speed is positive.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Vessel speed must be positive&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="LegDefinition.validate_station_spacing">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_station_spacing">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;distance_between_stations&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_station_spacing</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate station spacing is positive.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Distance between stations must be positive&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="LegDefinition.validate_time_fields">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_time_fields">[docs]</a>
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;turnaround_time&quot;</span><span class="p">,</span> <span class="s2">&quot;buffer_time&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_time_fields</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Validate time fields are non-negative.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">v</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Time values must be non-negative&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span></div>
+
+
+<div class="viewcode-block" id="LegDefinition.validate_leg_structure">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LegDefinition.validate_leg_structure">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_leg_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate leg has valid structure and content.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        LegDefinition</span>
+<span class="sd">            Validated leg definition.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If leg structure is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="CruiseConfig">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.CruiseConfig">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">CruiseConfig</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Root configuration model for cruise planning.</span>
+
+<span class="sd">    Contains all the high-level parameters and definitions for a complete</span>
+<span class="sd">    oceanographic cruise plan. Represents the top-level YAML structure</span>
+<span class="sd">    with cruise metadata, global catalog, and schedule organization.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    cruise_name : str</span>
+<span class="sd">        Name of the cruise.</span>
+<span class="sd">    description : Optional[str]</span>
+<span class="sd">        Human-readable description of the cruise.</span>
+<span class="sd">    default_vessel_speed : float</span>
+<span class="sd">        Default vessel speed in knots.</span>
+<span class="sd">    default_distance_between_stations : float</span>
+<span class="sd">        Default station spacing in kilometers.</span>
+<span class="sd">    turnaround_time : float</span>
+<span class="sd">        Time required for station turnaround in minutes.</span>
+<span class="sd">    ctd_descent_rate : float</span>
+<span class="sd">        CTD descent rate in meters per second.</span>
+<span class="sd">    ctd_ascent_rate : float</span>
+<span class="sd">        CTD ascent rate in meters per second.</span>
+<span class="sd">    day_start_hour : int</span>
+<span class="sd">        Start hour for daytime operations (0-23).</span>
+<span class="sd">    day_end_hour : int</span>
+<span class="sd">        End hour for daytime operations (0-23).</span>
+<span class="sd">    start_date : str</span>
+<span class="sd">        Cruise start date.</span>
+<span class="sd">    start_time : Optional[str]</span>
+<span class="sd">        Cruise start time.</span>
+<span class="sd">    departure_port : Optional[Union[str, PointDefinition]]</span>
+<span class="sd">        Port where the cruise begins.</span>
+<span class="sd">    arrival_port : Optional[Union[str, PointDefinition]]</span>
+<span class="sd">        Port where the cruise ends.</span>
+<span class="sd">    points : Optional[List[PointDefinition]]</span>
+<span class="sd">        Global catalog of point definitions.</span>
+<span class="sd">    lines : Optional[List[LineDefinition]]</span>
+<span class="sd">        Global catalog of line definitions.</span>
+<span class="sd">    areas : Optional[List[AreaDefinition]]</span>
+<span class="sd">        Global catalog of area definitions.</span>
+<span class="sd">    ports : Optional[List[WaypointDefinition]]</span>
+<span class="sd">        Global catalog of port definitions.</span>
+<span class="sd">    legs : Optional[List[LegDefinition]]</span>
+<span class="sd">        List of cruise legs for schedule organization.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">cruise_name</span><span class="p">:</span> <span class="nb">str</span>  <span class="c1"># TODO: Decide if needed as default - could use &quot;Untitled Cruise&quot;</span>
+    <span class="n">description</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># --- LOGIC CONSTRAINTS ---</span>
+    <span class="n">default_vessel_speed</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">DEFAULT_VESSEL_SPEED_KT</span>  <span class="c1"># TODO: Decide if needed as default</span>
+    <span class="p">)</span>
+    <span class="n">default_distance_between_stations</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_STATION_SPACING_KM</span>
+    <span class="n">turnaround_time</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_TURNAROUND_TIME_MIN</span>
+    <span class="n">ctd_descent_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_CTD_RATE_M_S</span>
+    <span class="n">ctd_ascent_rate</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">DEFAULT_CTD_RATE_M_S</span>
+
+    <span class="c1"># Configuration &quot;daylight&quot; or &quot;dayshift&quot; window for moorings</span>
+    <span class="n">day_start_hour</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DAY_START_HR</span>  <span class="c1"># Default 08:00</span>
+    <span class="n">day_end_hour</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_DAY_END_HR</span>  <span class="c1"># Default 20:00</span>
+
+    <span class="n">start_date</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">DEFAULT_START_DATE</span>
+    <span class="n">start_time</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;08:00&quot;</span>
+
+    <span class="c1"># Port definitions for single-leg cruises</span>
+    <span class="n">departure_port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Port where the cruise begins (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">arrival_port</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="kc">None</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Port where the cruise ends (can be global port reference). Required for single-leg cruises, forbidden for multi-leg cruises.&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Global catalog definitions</span>
+    <span class="n">points</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Global catalog of point definitions&quot;</span>
+    <span class="p">)</span>
+    <span class="n">lines</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">LineDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Global catalog of line definitions&quot;</span>
+    <span class="p">)</span>
+    <span class="n">areas</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">AreaDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Global catalog of area definitions&quot;</span>
+    <span class="p">)</span>
+    <span class="n">ports</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">PointDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Global catalog of port definitions&quot;</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Schedule organization</span>
+    <span class="n">legs</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">LegDefinition</span><span class="p">]]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;List of cruise legs for schedule organization&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;allow&quot;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="CruiseConfig.validate_cruise_structure">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.CruiseConfig.validate_cruise_structure">[docs]</a>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_cruise_structure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">        Validate overall cruise configuration structure.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        CruiseConfig</span>
+<span class="sd">            Validated cruise configuration.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        ValueError</span>
+<span class="sd">            If cruise structure is invalid.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Basic validation - more complex validators can be added later</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">cruise_name</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Cruise name cannot be empty&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_vessel_speed</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Default vessel speed must be positive&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">default_distance_between_stations</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">msg</span> <span class="o">=</span> <span class="s2">&quot;Default distance between stations must be positive&quot;</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="bp">self</span></div>
+</div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

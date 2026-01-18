@@ -1,0 +1,376 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.api.schedule_cruise &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.api.schedule_cruise</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.api.schedule_cruise</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Cruise schedule generation API.</span>
+
+<span class="sd">This module provides the main schedule() function that generates cruise timelines</span>
+<span class="sd">and various output formats (HTML, CSV, NetCDF, PNG, LaTeX).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Union</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.types</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScheduleResult</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.config.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">FileError</span><span class="p">,</span> <span class="n">ValidationError</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="schedule">
+<a class="viewcode-back" href="../../../api/cruiseplan.api.html#cruiseplan.api.schedule">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">schedule</span><span class="p">(</span>  <span class="c1"># noqa: C901, PLR0915</span>
+    <span class="n">config_file</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+    <span class="n">output_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data&quot;</span><span class="p">,</span>
+    <span class="n">output</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="nb">format</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">leg</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">derive_netcdf</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">bathy_source</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;etopo2022&quot;</span><span class="p">,</span>
+    <span class="n">bathy_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;data/bathymetry&quot;</span><span class="p">,</span>
+    <span class="n">bathy_stride</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span>
+    <span class="n">figsize</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">list</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScheduleResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generate cruise schedule (mirrors: cruiseplan schedule).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    config_file : str or Path</span>
+<span class="sd">        Input YAML configuration file</span>
+<span class="sd">    output_dir : str</span>
+<span class="sd">        Output directory for schedule files (default: &quot;data&quot;)</span>
+<span class="sd">    output : str, optional</span>
+<span class="sd">        Base filename for outputs (default: use cruise name from config)</span>
+<span class="sd">    format : str or None</span>
+<span class="sd">        Output formats: &quot;html&quot;, &quot;latex&quot;, &quot;csv&quot;, &quot;kml&quot;, &quot;netcdf&quot;, &quot;png&quot;, &quot;all&quot;, or None (default: &quot;all&quot;).</span>
+<span class="sd">        If None, only computes timeline without generating files.</span>
+<span class="sd">    leg : str, optional</span>
+<span class="sd">        Process specific leg only (default: process all legs)</span>
+<span class="sd">    derive_netcdf : bool</span>
+<span class="sd">        Generate specialized NetCDF files (_points.nc, _lines.nc, _areas.nc) (default: False)</span>
+<span class="sd">    bathy_source : str</span>
+<span class="sd">        Bathymetry dataset (default: &quot;etopo2022&quot;)</span>
+<span class="sd">    bathy_dir : str</span>
+<span class="sd">        Directory containing bathymetry data (default: &quot;data&quot;)</span>
+<span class="sd">    bathy_stride : int</span>
+<span class="sd">        Bathymetry contour stride for PNG maps (default: 10)</span>
+<span class="sd">    figsize : list</span>
+<span class="sd">        Figure size for PNG maps [width, height] (default: [12, 8])</span>
+<span class="sd">    verbose : bool</span>
+<span class="sd">        Enable verbose logging (default: False)</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    ScheduleResult</span>
+<span class="sd">        Structured result containing timeline, generated files, and summary information.</span>
+<span class="sd">        Timeline contains computed schedule data for programmatic use.</span>
+<span class="sd">        Files list contains paths to all generated files (HTML, CSV, NetCDF, etc.).</span>
+<span class="sd">        Summary contains metadata about the generation process.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import cruiseplan</span>
+<span class="sd">    &gt;&gt;&gt; # Generate all formats and get timeline for analysis</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.schedule(config_file=&quot;cruise.yaml&quot;, format=&quot;all&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Generated files: {result.files_created}&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; print(f&quot;Timeline has {len(result.timeline)} activities&quot;)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Find specific file type from generated files</span>
+<span class="sd">    &gt;&gt;&gt; netcdf_file = next(f for f in result.files_created if f.suffix == &#39;.nc&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; html_file = next(f for f in result.files_created if f.suffix == &#39;.html&#39;)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Get only timeline data without generating files</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.schedule(config_file=&quot;cruise.yaml&quot;, format=None)</span>
+<span class="sd">    &gt;&gt;&gt; for activity in result.timeline:</span>
+<span class="sd">    ...     print(f&quot;{activity[&#39;label&#39;]}: {activity[&#39;start_time&#39;]} -&gt; {activity[&#39;end_time&#39;]}&quot;)</span>
+<span class="sd">    &gt;&gt;&gt;</span>
+<span class="sd">    &gt;&gt;&gt; # Load NetCDF file with xarray</span>
+<span class="sd">    &gt;&gt;&gt; result = cruiseplan.schedule(config_file=&quot;cruise.yaml&quot;, format=&quot;netcdf&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; netcdf_file = result.files_created[0]  # NetCDF file</span>
+<span class="sd">    &gt;&gt;&gt; import xarray as xr</span>
+<span class="sd">    &gt;&gt;&gt; ds = xr.open_dataset(netcdf_file)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">_parse_schedule_formats</span><span class="p">,</span>
+        <span class="n">_setup_verbose_logging</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.runtime.cruise</span><span class="w"> </span><span class="kn">import</span> <span class="n">CruiseInstance</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.timeline.scheduler</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_timeline</span>
+
+    <span class="n">_setup_verbose_logging</span><span class="p">(</span><span class="n">verbose</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">figsize</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">figsize</span> <span class="o">=</span> <span class="p">[</span><span class="mi">12</span><span class="p">,</span> <span class="mi">8</span><span class="p">]</span>
+
+    <span class="c1"># Validate input file path using centralized utility</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_input_file</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">config_path</span> <span class="o">=</span> <span class="n">validate_input_file</span><span class="p">(</span><span class="n">config_file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FileError</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;📅 Generating schedule from </span><span class="si">{</span><span class="n">config_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="c1"># Load and validate cruise configuration</span>
+        <span class="n">cruise</span> <span class="o">=</span> <span class="n">CruiseInstance</span><span class="p">(</span><span class="n">config_path</span><span class="p">)</span>
+
+        <span class="c1"># Handle specific leg processing if requested</span>
+        <span class="n">target_legs</span> <span class="o">=</span> <span class="n">cruise</span><span class="o">.</span><span class="n">runtime_legs</span>
+        <span class="k">if</span> <span class="n">leg</span><span class="p">:</span>
+            <span class="n">target_legs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">runtime_leg</span>
+                <span class="k">for</span> <span class="n">runtime_leg</span> <span class="ow">in</span> <span class="n">cruise</span><span class="o">.</span><span class="n">runtime_legs</span>
+                <span class="k">if</span> <span class="n">runtime_leg</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="n">leg</span>
+            <span class="p">]</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">target_legs</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">leg</span><span class="si">}</span><span class="s2">&#39; not found in cruise configuration&quot;</span><span class="p">)</span>
+                <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Leg &#39;</span><span class="si">{</span><span class="n">leg</span><span class="si">}</span><span class="s2">&#39; not found in cruise configuration&quot;</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Processing specific leg: </span><span class="si">{</span><span class="n">leg</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">target_legs</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No legs found in cruise configuration&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">ValidationError</span><span class="p">(</span><span class="s2">&quot;No legs found in cruise configuration&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Generate timeline for specified legs</span>
+        <span class="n">timeline</span> <span class="o">=</span> <span class="n">generate_timeline</span><span class="p">(</span><span class="n">cruise</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">timeline</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to generate timeline&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;Failed to generate timeline&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Handle format=None case (timeline only)</span>
+        <span class="k">if</span> <span class="nb">format</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;📊 Computing timeline only (no file output)&quot;</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ScheduleResult</span><span class="p">(</span>
+                <span class="n">timeline</span><span class="o">=</span><span class="n">timeline</span><span class="p">,</span>
+                <span class="n">files_created</span><span class="o">=</span><span class="p">[],</span>
+                <span class="n">summary</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">),</span> <span class="s2">&quot;files_generated&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">},</span>
+            <span class="p">)</span>
+
+        <span class="c1"># Setup output paths using helper function</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.utils.io</span><span class="w"> </span><span class="kn">import</span> <span class="n">setup_output_paths</span>
+
+        <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span> <span class="o">=</span> <span class="n">setup_output_paths</span><span class="p">(</span><span class="n">config_file</span><span class="p">,</span> <span class="n">output_dir</span><span class="p">,</span> <span class="n">output</span><span class="p">)</span>
+
+        <span class="c1"># Parse format list</span>
+        <span class="n">formats</span> <span class="o">=</span> <span class="n">_parse_schedule_formats</span><span class="p">(</span><span class="nb">format</span><span class="p">,</span> <span class="n">derive_netcdf</span><span class="p">)</span>
+
+        <span class="c1"># Import generator helpers</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">cruiseplan.api.init_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">generate_csv_format</span><span class="p">,</span>
+            <span class="n">generate_html_format</span><span class="p">,</span>
+            <span class="n">generate_latex_format</span><span class="p">,</span>
+            <span class="n">generate_netcdf_format</span><span class="p">,</span>
+            <span class="n">generate_png_format</span><span class="p">,</span>
+            <span class="n">generate_specialized_netcdf</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">generated_files</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># Generate each requested format</span>
+        <span class="k">for</span> <span class="n">fmt</span> <span class="ow">in</span> <span class="n">formats</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">generate_html_format</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+                    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;latex&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">generate_latex_format</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+                    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;csv&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">generate_csv_format</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+                    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;netcdf&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">generate_netcdf_format</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_dir_path</span><span class="p">,</span> <span class="n">base_name</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+                    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;netcdf_specialized&quot;</span> <span class="ow">and</span> <span class="n">derive_netcdf</span><span class="p">:</span>
+                <span class="n">specialized_files</span> <span class="o">=</span> <span class="n">generate_specialized_netcdf</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="o">.</span><span class="n">config</span><span class="p">,</span> <span class="n">timeline</span><span class="p">,</span> <span class="n">output_dir_path</span>
+                <span class="p">)</span>
+                <span class="n">generated_files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">specialized_files</span><span class="p">)</span>
+
+            <span class="k">elif</span> <span class="n">fmt</span> <span class="o">==</span> <span class="s2">&quot;png&quot;</span><span class="p">:</span>
+                <span class="n">output_file</span> <span class="o">=</span> <span class="n">generate_png_format</span><span class="p">(</span>
+                    <span class="n">cruise</span><span class="p">,</span>
+                    <span class="n">timeline</span><span class="p">,</span>
+                    <span class="n">output_dir_path</span><span class="p">,</span>
+                    <span class="n">base_name</span><span class="p">,</span>
+                    <span class="n">bathy_source</span><span class="p">,</span>
+                    <span class="n">bathy_dir</span><span class="p">,</span>
+                    <span class="n">bathy_stride</span><span class="p">,</span>
+                    <span class="nb">tuple</span><span class="p">(</span><span class="n">figsize</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">figsize</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="n">figsize</span><span class="p">,</span>
+                    <span class="n">suffix</span><span class="o">=</span><span class="s2">&quot;schedule&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
+                    <span class="n">generated_files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">output_file</span><span class="p">)</span>
+
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Format &#39;</span><span class="si">{</span><span class="n">fmt</span><span class="si">}</span><span class="s2">&#39; not supported or generator not available&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">generated_files</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;📅 Schedule generation complete! Generated </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">)</span><span class="si">}</span><span class="s2"> files&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="n">ScheduleResult</span><span class="p">(</span>
+                <span class="n">timeline</span><span class="o">=</span><span class="n">timeline</span><span class="p">,</span>
+                <span class="n">files_created</span><span class="o">=</span><span class="n">generated_files</span><span class="p">,</span>
+                <span class="n">summary</span><span class="o">=</span><span class="p">{</span>
+                    <span class="s2">&quot;activities&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">timeline</span><span class="p">),</span>
+                    <span class="s2">&quot;files_generated&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">generated_files</span><span class="p">),</span>
+                    <span class="s2">&quot;formats&quot;</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span><span class="n">formats</span><span class="p">),</span>
+                    <span class="s2">&quot;leg&quot;</span><span class="p">:</span> <span class="n">leg</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;No schedule files were generated&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span>
+                <span class="s2">&quot;Schedule generation failed: No output files were created&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;❌ Schedule generation failed&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
+            <span class="kn">import</span><span class="w"> </span><span class="nn">traceback</span>
+
+            <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">()</span>
+        <span class="k">raise</span>  <span class="c1"># Re-raise the exception so caller knows it failed</span></div>
+
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

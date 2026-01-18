@@ -56,7 +56,7 @@ The LaTeX output includes a working areas table following DFG cruise proposal ex
     \end{tabular}
     \end{table}
 
-.. figure:: ../_static/screenshots/latex_output_example.png
+.. figure:: _static/screenshots/latex_output_example.png
    :alt: LaTeX work days at sea table showing transit and operational time breakdown
    :align: center
    :width: 90%
@@ -69,7 +69,7 @@ Station List Format
 
 Note that the jinja template will break long tables across multiple ``tabular`` elements as needed.  The maximum number of rows is hard-coded at the moment in ``latex_generator.py`` as ``MAX_ROWS_PER_PAGE = 45``.
 
-.. figure:: ../_static/screenshots/latex_stations_example.png
+.. figure:: _static/screenshots/latex_stations_example.png
    :alt: LaTeX stations table showing operations, coordinates, depths and timing
    :align: center
    :width: 90%

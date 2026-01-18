@@ -13,14 +13,6 @@ cruiseplan.data.bathymetry module
    :undoc-members:
    :show-inheritance:
 
-cruiseplan.data.cache module
-----------------------------
-
-.. automodule:: cruiseplan.data.cache
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 cruiseplan.data.pangaea module
 ------------------------------
 

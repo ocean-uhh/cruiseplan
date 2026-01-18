@@ -1,0 +1,353 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../../../">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cruiseplan.config.values &mdash; CruisePlan v0.3.5 v0.3.5.post1.dev1</title>
+      <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../../../_static/css/custom.css?v=393fce2e" />
+
+  
+      <script src="../../../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../../../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../../../_static/documentation_options.js?v=5cb7d5ba"></script>
+      <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../../../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="../../../index.html" class="icon icon-home">
+            CruisePlan v0.3.5
+              <img src="../../../_static/cruise_plan_logo.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">User Guide</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/quick-start.html">Quick Start</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/workflows.html">Workflows</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../user-guide/yaml-basics.html">YAML Basics</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Reference</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/cli-commands.html">CLI Commands</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/yaml-full.html">YAML Configuration Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference/output-formats.html">Output Formats</a></li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Advanced</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/api-examples.html">API Examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../demo-output.html">CruisePlan Demo</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/developer_guide.html">CruisePlan Developer Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html">Manual Testing and Verification</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../advanced/manual_testing.html#development-workflow-integration">Development Workflow Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api/modules.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../../../index.html">CruisePlan v0.3.5</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../../../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../../index.html">Module code</a></li>
+      <li class="breadcrumb-item active">cruiseplan.config.values</li>
+      <li class="wy-breadcrumbs-aside">
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <h1>Source code for cruiseplan.config.values</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">YAML field values and enumeration types for cruise configuration.</span>
+
+<span class="sd">This module defines valid values that can appear in YAML configuration fields</span>
+<span class="sd">(right-hand side of YAML), along with their defaults. This complements</span>
+<span class="sd">cruiseplan.schema.fields which defines field names (left-hand side of YAML).</span>
+
+<span class="sd">Contains:</span>
+<span class="sd">- Default value constants for YAML fields</span>
+<span class="sd">- Placeholder values for user guidance</span>
+<span class="sd">- Enumeration classes for valid field values</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Default Values for YAML Fields</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># --- Default Cruise Parameters ---</span>
+<span class="c1"># These are used as code-level fallbacks if a configuration parameter is</span>
+<span class="c1"># required before the CruiseConfig object is fully initialized</span>
+
+<span class="c1"># Default vessel transit speed in knots (kt)</span>
+<span class="n">DEFAULT_VESSEL_SPEED_KT</span> <span class="o">=</span> <span class="mf">10.0</span>
+
+<span class="c1"># Default profile turnaround time in minutes (minutes)</span>
+<span class="n">DEFAULT_TURNAROUND_TIME_MIN</span> <span class="o">=</span> <span class="mf">30.0</span>
+
+<span class="c1"># Default CTD descent/ascent rate in meters per second (m/s)</span>
+<span class="n">DEFAULT_CTD_RATE_M_S</span> <span class="o">=</span> <span class="mf">1.0</span>
+
+<span class="c1"># Default distance between stations in kilometers (km)</span>
+<span class="n">DEFAULT_STATION_SPACING_KM</span> <span class="o">=</span> <span class="mf">15.0</span>
+
+<span class="c1"># Default mooring operation duration in minutes (999 hours = 59940 minutes)</span>
+<span class="c1"># Used as a highly visible placeholder for mooring operations without specified duration</span>
+<span class="n">DEFAULT_MOORING_DURATION_MIN</span> <span class="o">=</span> <span class="mf">59940.0</span>
+
+<span class="c1"># Default start date/time</span>
+<span class="n">DEFAULT_START_DATE_NUM</span> <span class="o">=</span> <span class="n">datetime</span><span class="p">(</span><span class="mi">1970</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">tzinfo</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+<span class="n">DEFAULT_START_DATE</span> <span class="o">=</span> <span class="n">DEFAULT_START_DATE_NUM</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+
+<span class="c1"># Default hours for daylight operations window</span>
+<span class="n">DEFAULT_DAY_START_HR</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">DEFAULT_DAY_END_HR</span> <span class="o">=</span> <span class="mi">20</span>
+
+<span class="c1"># Default leg name for minimal cruise configurations</span>
+<span class="n">DEFAULT_LEG_NAME</span> <span class="o">=</span> <span class="s2">&quot;CRUISE&quot;</span>
+
+<span class="c1"># Default strategy</span>
+<span class="n">DEFAULT_STRATEGY</span> <span class="o">=</span> <span class="s2">&quot;sequential&quot;</span>
+
+<span class="c1"># Sentinel value indicating that depth data is missing, the station is outside</span>
+<span class="c1"># the bathymetry grid boundaries, or a calculation failed.</span>
+<span class="c1"># This value is defined in the specs as the default depth if ETOPO data is not found.</span>
+<span class="n">DEFAULT_DEPTH</span> <span class="o">=</span> <span class="o">-</span><span class="mf">9999.0</span>
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Placeholder Values for User Guidance</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="c1"># Port placeholder names used to indicate fields that need user updates</span>
+<span class="n">DEFAULT_DEPARTURE_PORT</span> <span class="o">=</span> <span class="s2">&quot;port_update_departure&quot;</span>
+<span class="n">DEFAULT_ARRIVAL_PORT</span> <span class="o">=</span> <span class="s2">&quot;port_update_arrival&quot;</span>
+
+<span class="c1"># Legacy placeholder prefix for backwards compatibility</span>
+<span class="n">DEFAULT_UPDATE_PREFIX</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-&quot;</span>
+
+<span class="c1"># Default action values for interactive operations that need user review</span>
+<span class="n">DEFAULT_POINT_ACTION</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-profile-sampling-etc&quot;</span>
+<span class="n">DEFAULT_LINE_ACTION</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-ADCP-bathymetry-etc&quot;</span>
+<span class="n">DEFAULT_AREA_ACTION</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-bathymetry-survey-etc&quot;</span>
+
+<span class="c1"># Default operation type values for interactive operations</span>
+<span class="n">DEFAULT_POINT_OPTYPE</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-CTD-mooring-etc&quot;</span>
+<span class="n">DEFAULT_LINE_OPTYPE</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-underway-etc&quot;</span>
+<span class="n">DEFAULT_AREA_OPTYPE</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-survey-etc&quot;</span>
+
+<span class="c1"># Default first_waypoint</span>
+<span class="n">DEFAULT_FIRST_ACTIVITY</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-first-station-name&quot;</span>
+<span class="n">DEFAULT_LAST_ACTIVITY</span> <span class="o">=</span> <span class="s2">&quot;UPDATE-last-station-name&quot;</span>
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Enumeration Types for Valid Field Values</span>
+<span class="c1"># =============================================================================</span>
+
+
+<div class="viewcode-block" id="StrategyEnum">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.StrategyEnum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">StrategyEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of scheduling strategies for cruise operations.</span>
+
+<span class="sd">    Defines how operations within a cluster or composite should be executed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SEQUENTIAL</span> <span class="o">=</span> <span class="s2">&quot;sequential&quot;</span>
+    <span class="n">SPATIAL_INTERLEAVED</span> <span class="o">=</span> <span class="s2">&quot;spatial_interleaved&quot;</span>
+    <span class="n">DAY_NIGHT_SPLIT</span> <span class="o">=</span> <span class="s2">&quot;day_night_split&quot;</span></div>
+
+
+
+<div class="viewcode-block" id="OperationTypeEnum">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.OperationTypeEnum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">OperationTypeEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of point operation types.</span>
+
+<span class="sd">    Defines the type of scientific operation to be performed at a station.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Existing scientific operations</span>
+    <span class="n">CTD</span> <span class="o">=</span> <span class="s2">&quot;CTD&quot;</span>
+    <span class="n">WATER_SAMPLING</span> <span class="o">=</span> <span class="s2">&quot;water_sampling&quot;</span>
+    <span class="n">MOORING</span> <span class="o">=</span> <span class="s2">&quot;mooring&quot;</span>
+    <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span>
+
+    <span class="c1"># v0.3.1 Unified operations - ports and waypoints become point operations</span>
+    <span class="n">PORT</span> <span class="o">=</span> <span class="s2">&quot;port&quot;</span>  <span class="c1"># Departure/arrival ports</span>
+    <span class="n">WAYPOINT</span> <span class="o">=</span> <span class="s2">&quot;waypoint&quot;</span>  <span class="c1"># Navigation waypoints</span>
+
+    <span class="c1"># Default placeholder for interactive operations</span>
+    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">DEFAULT_POINT_OPTYPE</span></div>
+
+
+
+<div class="viewcode-block" id="ActionEnum">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.ActionEnum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">ActionEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of specific actions for operations.</span>
+
+<span class="sd">    Defines the specific scientific action to be taken for each operation type.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Point operation actions</span>
+    <span class="n">PROFILE</span> <span class="o">=</span> <span class="s2">&quot;profile&quot;</span>
+    <span class="n">SAMPLING</span> <span class="o">=</span> <span class="s2">&quot;sampling&quot;</span>
+    <span class="n">DEPLOYMENT</span> <span class="o">=</span> <span class="s2">&quot;deployment&quot;</span>
+    <span class="n">RECOVERY</span> <span class="o">=</span> <span class="s2">&quot;recovery&quot;</span>
+    <span class="n">CALIBRATION</span> <span class="o">=</span> <span class="s2">&quot;calibration&quot;</span>
+
+    <span class="c1"># v0.3.1 Port operation actions</span>
+    <span class="n">MOB</span> <span class="o">=</span> <span class="s2">&quot;mob&quot;</span>  <span class="c1"># Port departure (mobilization)</span>
+    <span class="n">DEMOB</span> <span class="o">=</span> <span class="s2">&quot;demob&quot;</span>  <span class="c1"># Port arrival (demobilization)</span>
+
+    <span class="c1"># Line operation actions</span>
+    <span class="n">ADCP</span> <span class="o">=</span> <span class="s2">&quot;ADCP&quot;</span>
+    <span class="n">BATHYMETRY</span> <span class="o">=</span> <span class="s2">&quot;bathymetry&quot;</span>
+    <span class="n">THERMOSALINOGRAPH</span> <span class="o">=</span> <span class="s2">&quot;thermosalinograph&quot;</span>
+    <span class="n">TOW_YO</span> <span class="o">=</span> <span class="s2">&quot;tow_yo&quot;</span>
+    <span class="n">SEISMIC</span> <span class="o">=</span> <span class="s2">&quot;seismic&quot;</span>
+    <span class="n">MICROSTRUCTURE</span> <span class="o">=</span> <span class="s2">&quot;microstructure&quot;</span>
+    <span class="n">SECTION</span> <span class="o">=</span> <span class="s2">&quot;section&quot;</span>  <span class="c1"># For CTD sections that can be expanded</span>
+
+    <span class="c1"># Default placeholder for interactive operations</span>
+    <span class="n">DEFAULT_POINT</span> <span class="o">=</span> <span class="n">DEFAULT_POINT_ACTION</span>
+    <span class="n">DEFAULT_LINE</span> <span class="o">=</span> <span class="n">DEFAULT_LINE_ACTION</span>
+    <span class="n">DEFAULT_AREA</span> <span class="o">=</span> <span class="n">DEFAULT_AREA_ACTION</span></div>
+
+
+
+<div class="viewcode-block" id="LineOperationTypeEnum">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.LineOperationTypeEnum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">LineOperationTypeEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of line operation types.</span>
+
+<span class="sd">    Defines the type of operation performed along a route or transect.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">UNDERWAY</span> <span class="o">=</span> <span class="s2">&quot;underway&quot;</span>
+    <span class="n">TOWING</span> <span class="o">=</span> <span class="s2">&quot;towing&quot;</span>
+    <span class="n">CTD</span> <span class="o">=</span> <span class="s2">&quot;CTD&quot;</span>  <span class="c1"># Support for CTD sections that can be expanded</span>
+
+    <span class="c1"># Default placeholder for interactive operations</span>
+    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">DEFAULT_LINE_OPTYPE</span></div>
+
+
+
+<div class="viewcode-block" id="AreaOperationTypeEnum">
+<a class="viewcode-back" href="../../../api/cruiseplan.config.html#cruiseplan.config.AreaOperationTypeEnum">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">AreaOperationTypeEnum</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Enumeration of area operation types.</span>
+
+<span class="sd">    Defines operations that cover defined geographic areas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">SURVEY</span> <span class="o">=</span> <span class="s2">&quot;survey&quot;</span>
+
+    <span class="c1"># Default placeholder for interactive operations</span>
+    <span class="n">DEFAULT</span> <span class="o">=</span> <span class="n">DEFAULT_AREA_OPTYPE</span></div>
+
+
+
+<span class="c1"># =============================================================================</span>
+<span class="c1"># Export all constants and enums</span>
+<span class="c1"># =============================================================================</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;DEFAULT_AREA_ACTION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_AREA_OPTYPE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_ARRIVAL_PORT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_CTD_RATE_M_S&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_DAY_END_HR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_DAY_START_HR&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_DEPARTURE_PORT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_FIRST_ACTIVITY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_LAST_ACTIVITY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_LEG_NAME&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_LINE_ACTION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_LINE_OPTYPE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_MOORING_DURATION_MIN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_POINT_ACTION&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_POINT_OPTYPE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_START_DATE&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_START_DATE_NUM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_STATION_SPACING_KM&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_STRATEGY&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_TURNAROUND_TIME_MIN&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_UPDATE_PREFIX&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;DEFAULT_VESSEL_SPEED_KT&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ActionEnum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AreaOperationTypeEnum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LineOperationTypeEnum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;OperationTypeEnum&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;StrategyEnum&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p></p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
