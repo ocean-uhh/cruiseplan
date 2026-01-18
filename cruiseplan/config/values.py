@@ -49,6 +49,9 @@ DEFAULT_DAY_END_HR = 20
 # Default leg name for minimal cruise configurations
 DEFAULT_LEG_NAME = "CRUISE"
 
+# Default cruise name placeholder for user guidance
+DEFAULT_CRUISE_NAME = "UPDATE-cruise-name"
+
 # Default strategy
 DEFAULT_STRATEGY = "sequential"
 
@@ -190,6 +193,7 @@ __all__ = [
     "DEFAULT_AREA_ACTION",
     "DEFAULT_AREA_OPTYPE",
     "DEFAULT_ARRIVAL_PORT",
+    "DEFAULT_CRUISE_NAME",
     "DEFAULT_CTD_RATE_M_S",
     "DEFAULT_DAY_END_HR",
     "DEFAULT_DAY_START_HR",

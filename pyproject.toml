@@ -118,10 +118,9 @@ ignore = [
 ]
 
 # Per-file ignores for complex legacy functions (to be refactored gradually)
-# TODO Phase 1: Complete refactoring of format_validation_warnings() in validation.py
 # TODO Phase 2: Refactor netcdf_generator.py, latex_generator.py (large data processing functions)
 [tool.ruff.lint.per-file-ignores]
-"cruiseplan/runtime/validation.py" = ["C901"]  # Complex validation functions (format_validation_warnings)
+# "cruiseplan/runtime/validation.py" = ["C901"]  # RESOLVED: Complex validation functions (format_validation_warnings) - refactored into helper functions
 # "cruiseplan/api/data.py" = ["C901", "PLR0915"]  # RESOLVED: Complex API handling functions (pangaea) - refactored into helper functions
 "cruiseplan/output/netcdf_generator.py" = ["C901", "PLR0912", "PLR0915"]  # Large data processing functions
 "cruiseplan/data/pangaea.py" = ["C901"]  # Complex PANGAEA API functions

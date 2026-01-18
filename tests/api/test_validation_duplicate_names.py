@@ -343,7 +343,8 @@ class TestDuplicateNameDetection:
         # Should detect the duplicate station name
         assert len(errors) == 1
         assert "DUPLICATE_STN" in errors[0]
-        assert "found 2 times" in errors[0]
+        assert "2 points" in errors[0]
+        assert "catalog entities" in errors[0]
 
     def test_check_duplicate_leg_names(self):
         """Test detection of duplicate leg names."""
@@ -367,14 +368,14 @@ class TestDuplicateNameDetection:
         assert "DUPLICATE_LEG" in errors[0]
 
     def test_check_complete_duplicates(self):
-        """Test detection of completely identical stations."""
+        """Test detection of completely identical stations (same name + same attributes)."""
         cruise = MagicMock()
 
         # Create mock operation types and actions that compare equal
         ctd_op_type = MagicMock()
         profile_action = MagicMock()
 
-        # Create stations with identical coordinates and operations
+        # Create stations - complete duplicates have same name AND same attributes
         station1 = MagicMock()
         station1.name = "STN_A"
         station1.latitude = 50.0
@@ -383,27 +384,29 @@ class TestDuplicateNameDetection:
         station1.action = profile_action  # Same object reference
 
         station2 = MagicMock()
-        station2.name = "STN_B"
+        station2.name = "STN_A"  # Same name - indicates likely copy-paste error
         station2.latitude = 50.0  # Same coordinates
         station2.longitude = -30.0
         station2.operation_type = ctd_op_type  # Same object reference
         station2.action = profile_action  # Same object reference
 
+        # Different name, same coordinates - this is valid (e.g., CTD + mooring at same location)
         station3 = MagicMock()
-        station3.name = "STN_C"
-        station3.latitude = 51.0  # Different coordinates
-        station3.longitude = -31.0
+        station3.name = "STN_B"
+        station3.latitude = 50.0  # Same coordinates as above
+        station3.longitude = -30.0
         station3.operation_type = ctd_op_type
         station3.action = profile_action
 
         cruise.config.points = [station1, station2, station3]
 
-        _errors, warnings = check_complete_duplicates(cruise)
+        errors, _warnings = check_complete_duplicates(cruise)
 
-        # Should warn about potential duplicates
-        assert len(warnings) == 1
-        assert "STN_A" in warnings[0] and "STN_B" in warnings[0]
-        assert "identical coordinates and operations" in warnings[0]
+        # Should error about true complete duplicates (same name + same attributes)
+        assert len(errors) == 1
+        assert "STN_A" in errors[0]
+        assert "Complete duplicate found" in errors[0]
+        assert "copy-paste error" in errors[0]
 
     def test_no_duplicates_clean_config(self):
         """Test that clean configuration produces no duplicate errors."""

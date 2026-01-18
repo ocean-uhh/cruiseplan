@@ -1,8 +1,26 @@
 """
-Core validation functions for cruise configurations.
+Cruise Configuration Validation Functions.
 
-This module contains validation business logic that operates on CruiseInstance objects.
-These functions perform the actual validation checks without file I/O or API concerns.
+This module provides comprehensive validation for cruise configurations, organized into
+distinct validation categories:
+
+1. **Duplicate Detection**: Find naming conflicts and identical entries with proper scoping
+   - check_duplicate_names() - Enforce uniqueness scopes: global catalog (points/lines/areas), legs, and per-leg clusters
+   - check_complete_duplicates() - Find true duplicates (same name + same attributes) - likely copy-paste errors
+
+2. **Scientific Data Validation**: Verify oceanographic accuracy
+   - validate_depth_accuracy() - Compare stated depths with bathymetry data
+
+3. **Configuration Completeness**: Check for missing/incomplete configuration
+   - check_unexpanded_ctd_sections() - Find CTD sections needing expansion
+   - check_cruise_metadata() - Verify cruise metadata completeness
+
+4. **Pydantic Warning Processing**: Convert technical validation errors to user-friendly messages
+   - format_validation_warnings() - Main entry point for processing Pydantic warnings
+   - Helper functions for text matching and message cleanup
+
+All validation functions operate on CruiseInstance objects and return structured
+error/warning information suitable for display to users.
 """
 
 import logging
@@ -11,8 +29,18 @@ from typing import TYPE_CHECKING, Union
 from cruiseplan.config.activities import AreaDefinition, LineDefinition, PointDefinition
 from cruiseplan.config.fields import (
     AREA_REGISTRY,
+    CRUISE_NAME_FIELD,
+    INSTITUTION_FIELD,
     LINE_REGISTRY,
     POINT_REGISTRY,
+    PRINCIPAL_INVESTIGATOR_FIELD,
+    VESSEL_FIELD,
+)
+from cruiseplan.config.values import (
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_CRUISE_NAME,
+    DEFAULT_DEPARTURE_PORT,
+    DEFAULT_UPDATE_PREFIX,
 )
 from cruiseplan.data.bathymetry import BathymetryManager
 
@@ -22,11 +50,56 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
+# =============================================================================
+# DUPLICATE DETECTION
+# =============================================================================
+
+
+def _get_all_entities(cruise_instance: "CruiseInstance"):
+    """
+    Yield all entity collections with their metadata.
+
+    Parameters
+    ----------
+    cruise_instance : CruiseInstance
+        Loaded cruise configuration object.
+
+    Yields
+    ------
+    tuple
+        (entity_type, display_name, entities, comparison_fields) where:
+        - entity_type: String identifier (e.g., "points", "lines")
+        - display_name: Human-readable name for error messages
+        - entities: List of actual entity objects
+        - comparison_fields: List of field names to compare for complete duplicates
+    """
+    entity_definitions = [
+        ("points", "point", ["latitude", "longitude", "operation_type", "action"]),
+        ("lines", "line", ["operation_type", "action", "route"]),
+        ("areas", "area", ["operation_type", "action", "corners"]),
+        (
+            "legs",
+            "leg",
+            [],
+        ),  # Legs only checked for name duplicates, no field comparison needed
+    ]
+
+    for entity_type, display_name, comparison_fields in entity_definitions:
+        entities = getattr(cruise_instance.config, entity_type, None) or []
+        if entities:
+            yield entity_type, display_name, entities, comparison_fields
+
+
 def check_duplicate_names(
     cruise_instance: "CruiseInstance",
 ) -> tuple[list[str], list[str]]:
     """
-    Check for duplicate names across different configuration sections.
+    Check for duplicate names across different configuration scopes.
+
+    Enforces three uniqueness scopes:
+    1. Global catalog: points, lines, areas must all have unique names (cross-type)
+    2. Leg scope: legs must have unique names within legs
+    3. Cluster scope: clusters must have unique names within clusters
 
     Parameters
     ----------
@@ -41,57 +114,129 @@ def check_duplicate_names(
     errors = []
     warnings = []
 
-    # Check for duplicate station names - use raw config to catch duplicates
-    # that were silently overwritten during point_registry creation
-    if hasattr(cruise_instance.config, "points") and cruise_instance.config.points:
-        station_names = [station.name for station in cruise_instance.config.points]
-        if len(station_names) != len(set(station_names)):
-            duplicates = [
-                name for name in station_names if station_names.count(name) > 1
-            ]
-            unique_duplicates = list(set(duplicates))
-            for dup_name in unique_duplicates:
-                count = station_names.count(dup_name)
-                errors.append(
-                    f"Duplicate station name '{dup_name}' found {count} times - station names must be unique"
-                )
+    # 1. Check global catalog scope: points, lines, areas must be unique across types
+    catalog_entities = []
 
-    # Check for duplicate leg names (if cruise has legs)
+    for entity_type, display_name, entities, _ in _get_all_entities(cruise_instance):
+        # Skip legs - they have their own scope
+        if entity_type != "legs":
+            for entity in entities:
+                if hasattr(entity, "name"):
+                    catalog_entities.append((entity.name, display_name))
+
+    # Check for cross-type duplicates in catalog
+    if catalog_entities:
+        catalog_errors = _check_cross_type_duplicates(catalog_entities)
+        errors.extend(catalog_errors)
+
+    # 2. Check leg scope: legs must be unique within legs
     if hasattr(cruise_instance.config, "legs") and cruise_instance.config.legs:
-        leg_names = [leg.name for leg in cruise_instance.config.legs]
-        if len(leg_names) != len(set(leg_names)):
-            duplicates = [name for name in leg_names if leg_names.count(name) > 1]
-            unique_duplicates = list(set(duplicates))
-            for dup_name in unique_duplicates:
-                count = leg_names.count(dup_name)
-                errors.append(
-                    f"Duplicate leg name '{dup_name}' found {count} times - leg names must be unique"
-                )
+        leg_errors = _check_entity_duplicates(cruise_instance.config.legs, "leg")
+        errors.extend(leg_errors)
 
-    # Check for duplicate section names (if cruise has sections)
-    if hasattr(cruise_instance.config, "sections") and cruise_instance.config.sections:
-        section_names = [section.name for section in cruise_instance.config.sections]
-        if len(section_names) != len(set(section_names)):
-            duplicates = [
-                name for name in section_names if section_names.count(name) > 1
-            ]
-            unique_duplicates = list(set(duplicates))
-            for dup_name in unique_duplicates:
-                count = section_names.count(dup_name)
-                errors.append(
-                    f"Duplicate section name '{dup_name}' found {count} times - section names must be unique"
+    # 3. Check cluster scope: clusters must be unique within each leg
+    if hasattr(cruise_instance.config, "legs") and cruise_instance.config.legs:
+        for leg in cruise_instance.config.legs:
+            if hasattr(leg, "clusters") and leg.clusters:
+                cluster_errors = _check_entity_duplicates(
+                    leg.clusters, f"cluster (in leg '{leg.name}')"
                 )
-
-    # NOTE: Moorings are no longer a separate section - they are stations with operation_type="mooring"
+                errors.extend(cluster_errors)
 
     return errors, warnings
+
+
+def _check_cross_type_duplicates(catalog_entities: list[tuple[str, str]]) -> list[str]:
+    """
+    Check for name duplicates across different entity types in the catalog.
+
+    Parameters
+    ----------
+    catalog_entities : list[tuple[str, str]]
+        List of (entity_name, entity_type) tuples
+
+    Returns
+    -------
+    list[str]
+        List of error messages for cross-type duplicates
+    """
+    errors = []
+    name_to_types = {}
+
+    # Group entities by name
+    for name, entity_type in catalog_entities:
+        if name not in name_to_types:
+            name_to_types[name] = []
+        name_to_types[name].append(entity_type)
+
+    # Check for conflicts
+    for name, types in name_to_types.items():
+        if len(types) > 1:
+            type_counts = {}
+            for t in types:
+                type_counts[t] = type_counts.get(t, 0) + 1
+
+            # Format error message
+            type_descriptions = []
+            for entity_type, count in type_counts.items():
+                if count == 1:
+                    type_descriptions.append(f"1 {entity_type}")
+                else:
+                    type_descriptions.append(f"{count} {entity_type}s")
+
+            errors.append(
+                f"Name conflict: '{name}' is used by {', '.join(type_descriptions)} - "
+                f"all catalog entities (points, lines, areas) must have unique names"
+            )
+
+    return errors
+
+
+def _check_entity_duplicates(entities: list, entity_display_name: str) -> list[str]:
+    """
+    Check for duplicate names in a list of entities.
+
+    Parameters
+    ----------
+    entities : list
+        List of entities with 'name' attributes
+    entity_display_name : str
+        Display name for error messages (e.g., "point", "leg")
+
+    Returns
+    -------
+    list[str]
+        List of error messages for duplicates found
+    """
+    errors = []
+    entity_names = [entity.name for entity in entities if hasattr(entity, "name")]
+
+    if len(entity_names) != len(set(entity_names)):
+        # Find duplicates efficiently
+        name_counts = {}
+        for name in entity_names:
+            name_counts[name] = name_counts.get(name, 0) + 1
+
+        # Report duplicates
+        for name, count in name_counts.items():
+            if count > 1:
+                errors.append(
+                    f"Duplicate {entity_display_name} name '{name}' found {count} times - "
+                    f"{entity_display_name} names must be unique"
+                )
+
+    return errors
 
 
 def check_complete_duplicates(
     cruise_instance: "CruiseInstance",
 ) -> tuple[list[str], list[str]]:
     """
-    Check for completely identical entries (same name, coordinates, operation, etc.).
+    Check for completely identical entries across all entity types.
+
+    This catches true duplicates where everything is identical - likely copy-paste errors
+    or accidental duplicates. This is a subset of entities that would also be caught by
+    check_duplicate_names(), but indicates a more serious duplication issue.
 
     Parameters
     ----------
@@ -105,37 +250,79 @@ def check_complete_duplicates(
     """
     errors = []
     warnings = []
-    warned_pairs = set()  # Track warned pairs to avoid duplicates
 
-    # Check for complete duplicate stations
-    if hasattr(cruise_instance.config, "points") and cruise_instance.config.points:
-        stations = cruise_instance.config.points
-        for ii, station1 in enumerate(stations):
-            for _jj, station2 in enumerate(stations[ii + 1 :], ii + 1):
-                # Check if all key attributes are identical
-                if (
-                    station1.name
-                    != station2.name  # Don't compare same names (handled above)
-                    and getattr(station1, "latitude", None)
-                    == getattr(station2, "latitude", None)
-                    and getattr(station1, "longitude", None)
-                    == getattr(station2, "longitude", None)
-                    and getattr(station1, "operation_type", None)
-                    == getattr(station2, "operation_type", None)
-                    and getattr(station1, "action", None)
-                    == getattr(station2, "action", None)
-                ):
-
-                    # Create a sorted pair to avoid duplicate warnings for same stations
-                    pair = tuple(sorted([station1.name, station2.name]))
-                    if pair not in warned_pairs:
-                        warned_pairs.add(pair)
-                        warnings.append(
-                            f"Potentially duplicate stations '{station1.name}' and '{station2.name}' "
-                            f"have identical coordinates and operations"
-                        )
+    # Check each entity type for complete duplicates using shared iterator
+    for _, display_name, entities, comparison_fields in _get_all_entities(
+        cruise_instance
+    ):
+        # Skip entities that don't have comparison fields (like legs)
+        if comparison_fields:
+            entity_errors = _check_complete_entity_duplicates(
+                entities, display_name, comparison_fields
+            )
+            errors.extend(entity_errors)
 
     return errors, warnings
+
+
+def _check_complete_entity_duplicates(
+    entities: list, entity_display_name: str, comparison_fields: list[str]
+) -> list[str]:
+    """
+    Check for complete duplicates in a list of entities.
+
+    Parameters
+    ----------
+    entities : list
+        List of entities with attributes to compare
+    entity_display_name : str
+        Display name for error messages (e.g., "point", "line")
+    comparison_fields : list[str]
+        List of attribute names to compare for duplicates
+
+    Returns
+    -------
+    list[str]
+        List of error messages for complete duplicates found
+    """
+    errors = []
+    warned_pairs = set()  # Track warned pairs to avoid duplicates
+
+    for ii, entity1 in enumerate(entities):
+        for entity2 in entities[ii + 1 :]:
+            # First check if names are the same (required for complete duplicate)
+            if not (
+                hasattr(entity1, "name")
+                and hasattr(entity2, "name")
+                and entity1.name == entity2.name
+            ):
+                continue
+
+            # Check if all comparison fields are identical
+            all_fields_match = True
+            for field in comparison_fields:
+                val1 = getattr(entity1, field, None)
+                val2 = getattr(entity2, field, None)
+                if val1 != val2:
+                    all_fields_match = False
+                    break
+
+            if all_fields_match:
+                # Create a sorted pair to avoid duplicate warnings for same entities
+                pair = tuple(sorted([entity1.name, entity2.name]))
+                if pair not in warned_pairs:
+                    warned_pairs.add(pair)
+                    errors.append(
+                        f"Complete duplicate found: {entity_display_name} '{entity1.name}' appears multiple times "
+                        f"with identical attributes - likely a copy-paste error"
+                    )
+
+    return errors
+
+
+# =============================================================================
+# SCIENTIFIC DATA VALIDATION
+# =============================================================================
 
 
 def validate_depth_accuracy(
@@ -164,6 +351,11 @@ def validate_depth_accuracy(
         - stations_checked: Number of stations with depth data
         - warning_messages: List of depth discrepancy warnings
     """
+
+    def _calc_percent_diff(depth1: float, depth2: float) -> float:
+        """Calculate percentage difference between two depth values."""
+        return abs(depth1 - depth2) / depth2 * 100
+
     stations_checked = 0
     warning_messages = []
 
@@ -185,9 +377,7 @@ def validate_depth_accuracy(
 
                 # Calculate percentage difference
                 if expected_depth > 0:
-                    diff_percent = (
-                        abs(stated_depth - expected_depth) / expected_depth * 100
-                    )
+                    diff_percent = _calc_percent_diff(stated_depth, expected_depth)
 
                     if diff_percent > tolerance:
                         warning_msg = (
@@ -210,7 +400,7 @@ def validate_depth_accuracy(
 
             if operation_depth is not None and water_depth is not None:
                 # For moorings, operation_depth and water_depth should be very close
-                diff_percent = abs(operation_depth - water_depth) / water_depth * 100
+                diff_percent = _calc_percent_diff(operation_depth, water_depth)
 
                 if diff_percent > tolerance:
                     warning_msg = (
@@ -227,6 +417,11 @@ def validate_depth_accuracy(
                 warning_messages.append(warning_msg)
 
     return stations_checked, warning_messages
+
+
+# =============================================================================
+# CONFIGURATION COMPLETENESS
+# =============================================================================
 
 
 def check_unexpanded_ctd_sections(cruise_instance: "CruiseInstance") -> list[str]:
@@ -246,15 +441,15 @@ def check_unexpanded_ctd_sections(cruise_instance: "CruiseInstance") -> list[str
     warnings = []
 
     # TODO: update to use sections instead of transits
-    for transit_name, transit in cruise_instance.line_registry.items():
+    for line_name, line in cruise_instance.line_registry.items():
         if (
-            hasattr(transit, "operation_type")
-            and transit.operation_type == "CTD"
-            and hasattr(transit, "action")
-            and transit.action == "section"
+            hasattr(line, "operation_type")
+            and line.operation_type == "CTD"
+            and hasattr(line, "action")
+            and line.action == "section"
         ):
             warnings.append(
-                f"CTD section '{transit_name}' should be expanded using "
+                f"CTD section '{line_name}' should be expanded using "
                 f"'cruiseplan enrich --expand-sections' before scheduling"
             )
 
@@ -264,6 +459,11 @@ def check_unexpanded_ctd_sections(cruise_instance: "CruiseInstance") -> list[str
 def check_cruise_metadata(cruise_instance: "CruiseInstance") -> list[str]:
     """
     Check cruise metadata for placeholder values and default coordinates.
+
+    Uses specific placeholder patterns defined in cruiseplan.config.values:
+    - UPDATE- prefix for placeholder values
+    - port_update_ prefix for port placeholders
+    - Default cruise name placeholder
 
     Parameters
     ----------
@@ -277,24 +477,55 @@ def check_cruise_metadata(cruise_instance: "CruiseInstance") -> list[str]:
     """
     warnings = []
 
-    if hasattr(cruise_instance.config, "cruise_name"):
-        cruise_name = cruise_instance.config.cruise_name
-        if cruise_name and "placeholder" in str(cruise_name).lower():
+    # Check cruise name for placeholder
+    if hasattr(cruise_instance.config, CRUISE_NAME_FIELD):
+        cruise_name = getattr(cruise_instance.config, CRUISE_NAME_FIELD)
+        if cruise_name == DEFAULT_CRUISE_NAME or (
+            cruise_name and cruise_name.startswith(DEFAULT_UPDATE_PREFIX)
+        ):
             warnings.append(f"Cruise name contains placeholder value: {cruise_name}")
 
-    placeholders = [
-        ("Principal Investigator", cruise_instance.config, "principal_investigator"),
-        ("Institution", cruise_instance.config, "institution"),
-        ("Vessel", cruise_instance.config, "vessel"),
+    # Check standard metadata fields for UPDATE- prefix
+    metadata_fields = [
+        (
+            "Principal Investigator",
+            cruise_instance.config,
+            PRINCIPAL_INVESTIGATOR_FIELD,
+        ),
+        ("Institution", cruise_instance.config, INSTITUTION_FIELD),
+        ("Vessel", cruise_instance.config, VESSEL_FIELD),
     ]
 
-    for description, obj, field_name in placeholders:
+    for description, obj, field_name in metadata_fields:
         if hasattr(obj, field_name):
             value = getattr(obj, field_name)
-            if value and isinstance(value, str) and "placeholder" in str(value).lower():
+            if (
+                value
+                and isinstance(value, str)
+                and value.startswith(DEFAULT_UPDATE_PREFIX)
+            ):
                 warnings.append(f"{description} contains placeholder value: {value}")
 
+    # Check port names for placeholder patterns
+    for leg in cruise_instance.config.legs:
+        if hasattr(leg, "departure_port") and leg.departure_port:
+            if leg.departure_port.name == DEFAULT_DEPARTURE_PORT:
+                warnings.append(
+                    f"Departure port contains placeholder value: {leg.departure_port.name}"
+                )
+
+        if hasattr(leg, "arrival_port") and leg.arrival_port:
+            if leg.arrival_port.name == DEFAULT_ARRIVAL_PORT:
+                warnings.append(
+                    f"Arrival port contains placeholder value: {leg.arrival_port.name}"
+                )
+
     return warnings
+
+
+# =============================================================================
+# PYDANTIC WARNING PROCESSING
+# =============================================================================
 
 
 def format_validation_warnings(
@@ -302,6 +533,9 @@ def format_validation_warnings(
 ) -> list[str]:
     """
     Format captured Pydantic warnings into user-friendly grouped messages.
+
+    This is the main entry point for converting technical Pydantic validation
+    errors into readable warnings grouped by entity type (Points/Lines/Areas).
 
     Parameters
     ----------
@@ -318,80 +552,97 @@ def format_validation_warnings(
     if not captured_warnings:
         return []
 
-    # Group warnings by type and entity
+    # Categorize warnings using helper function
+    warning_groups = _categorize_warnings(captured_warnings, cruise_instance)
+
+    # Format output using helper function
+    return _format_warning_groups(warning_groups)
+
+
+def _categorize_warnings(
+    captured_warnings: list[str], cruise_instance: "CruiseInstance"
+) -> dict[str, dict]:
+    """
+    Categorize warnings by entity type and specific entities.
+
+    Returns
+    -------
+    dict
+        Warning groups with Points/Lines/Areas containing entity-specific warnings,
+        and Configuration containing uncategorized warnings.
+    """
     warning_groups = {
-        "Cruise Metadata": [],
         "Points": {},
         "Lines": {},
         "Areas": {},
         "Configuration": [],
     }
 
-    # Process each warning and try to associate it with specific entities
+    # Process warnings for each entity type
+    warning_groups["Points"] = _process_warnings_for_entity_type(
+        captured_warnings, cruise_instance, POINT_REGISTRY
+    )
+    warning_groups["Lines"] = _process_warnings_for_entity_type(
+        captured_warnings, cruise_instance, LINE_REGISTRY
+    )
+    warning_groups["Areas"] = _process_warnings_for_entity_type(
+        captured_warnings, cruise_instance, AREA_REGISTRY
+    )
+
+    # Find warnings that weren't categorized to any entity
+    all_categorized_warnings = set()
+    for entity_group in [
+        warning_groups["Points"],
+        warning_groups["Lines"],
+        warning_groups["Areas"],
+    ]:
+        for entity_warnings in entity_group.values():
+            all_categorized_warnings.update(entity_warnings)
+
+    # Add uncategorized warnings to Configuration
     for warning_msg in captured_warnings:
-        # Try to identify which entity this warning belongs to
-        entity_found = False
+        cleaned_warning = clean_warning_message(warning_msg)
+        if cleaned_warning not in all_categorized_warnings:
+            warning_groups["Configuration"].append(cleaned_warning)
 
-        # Check points
-        if hasattr(cruise_instance, POINT_REGISTRY):
-            for station_name, station in getattr(
-                cruise_instance, POINT_REGISTRY
-            ).items():
-                if warning_relates_to_entity(warning_msg, station):
-                    if station_name not in warning_groups["Points"]:
-                        warning_groups["Points"][station_name] = []
-                    warning_groups["Points"][station_name].append(
-                        clean_warning_message(warning_msg)
-                    )
-                    entity_found = True
-                    break
+    return warning_groups
 
-        # Check lines
-        if not entity_found and hasattr(cruise_instance, LINE_REGISTRY):
-            for transit_name, transit in getattr(
-                cruise_instance, LINE_REGISTRY
-            ).items():
-                if warning_relates_to_entity(warning_msg, transit):
-                    if transit_name not in warning_groups["Lines"]:
-                        warning_groups["Lines"][transit_name] = []
-                    warning_groups["Lines"][transit_name].append(
-                        clean_warning_message(warning_msg)
-                    )
-                    entity_found = True
-                    break
 
-        # Check areas
-        if not entity_found and hasattr(cruise_instance, AREA_REGISTRY):
-            for area_name, area in getattr(cruise_instance, AREA_REGISTRY).items():
-                if warning_relates_to_entity(warning_msg, area):
-                    if area_name not in warning_groups["Areas"]:
-                        warning_groups["Areas"][area_name] = []
-                    warning_groups["Areas"][area_name].append(
-                        clean_warning_message(warning_msg)
-                    )
-                    entity_found = True
-                    break
+def _process_warnings_for_entity_type(
+    warnings: list[str], cruise_instance: "CruiseInstance", registry_name: str
+) -> dict[str, list[str]]:
+    """Process warnings for a specific entity type (points, lines, areas)."""
+    entity_warnings = {}
+    registry = _get_entity_registry(cruise_instance, registry_name)
 
-        # If not found, add to general configuration warnings
-        if not entity_found:
-            warning_groups["Configuration"].append(clean_warning_message(warning_msg))
+    for warning_msg in warnings:
+        for entity_name, entity in registry.items():
+            if warning_relates_to_entity(warning_msg, entity):
+                if entity_name not in entity_warnings:
+                    entity_warnings[entity_name] = []
+                entity_warnings[entity_name].append(clean_warning_message(warning_msg))
 
-    # Format the grouped warnings
+    return entity_warnings
+
+
+def _get_entity_registry(cruise_instance: "CruiseInstance", registry_name: str) -> dict:
+    """Get entity registry by name, returns empty dict if not found."""
+    if hasattr(cruise_instance, registry_name):
+        return getattr(cruise_instance, registry_name)
+    return {}
+
+
+def _format_warning_groups(warning_groups: dict) -> list[str]:
+    """Format categorized warning groups into user-friendly output sections."""
     formatted_sections = []
 
-    for group_name in [
-        "Points",
-        "Lines",
-        "Areas",
-    ]:
+    # Format entity-specific warnings
+    for group_name in ["Points", "Lines", "Areas"]:
         if warning_groups[group_name]:
-            lines = [f"{group_name}:"]
-            # Sort entity names alphabetically
-            for entity_name in sorted(warning_groups[group_name].keys()):
-                entity_warnings = warning_groups[group_name][entity_name]
-                for warning in entity_warnings:
-                    lines.append(f"  - {entity_name}: {warning}")
-            formatted_sections.append("\n".join(lines))
+            formatted_section = _format_entity_warnings(
+                group_name, warning_groups[group_name]
+            )
+            formatted_sections.append(formatted_section)
 
     # Add configuration warnings
     if warning_groups["Configuration"]:
@@ -403,10 +654,40 @@ def format_validation_warnings(
     return formatted_sections
 
 
+def _format_entity_warnings(
+    group_name: str, entity_warnings: dict[str, list[str]]
+) -> str:
+    """Format warnings for a specific entity group (Points/Lines/Areas)."""
+    lines = [f"{group_name}:"]
+    # Sort entity names alphabetically
+    for entity_name in sorted(entity_warnings.keys()):
+        warnings_for_entity = entity_warnings[entity_name]
+        for warning in warnings_for_entity:
+            lines.append(f"  - {entity_name}: {warning}")
+    return "\n".join(lines)
+
+
 def warning_relates_to_entity(
     warning_msg: str, entity: Union[PointDefinition, LineDefinition, AreaDefinition]
 ) -> bool:
-    """Check if a warning message relates to a specific entity by examining field values."""
+    """
+    Check if a Pydantic warning message relates to a specific entity.
+
+    Uses text pattern matching to determine which station/line/area a validation
+    error belongs to by checking if entity field values appear in the warning text.
+
+    Parameters
+    ----------
+    warning_msg : str
+        Raw Pydantic validation warning message
+    entity : Union[PointDefinition, LineDefinition, AreaDefinition]
+        Entity to check against the warning message
+
+    Returns
+    -------
+    bool
+        True if the warning appears to relate to this entity
+    """
     # Use literal strings for Python object attribute access (entity is a Pydantic model)
     # not vocabulary constants which are for YAML field access
     if hasattr(entity, "operation_type") and str(entity.operation_type) in warning_msg:
@@ -427,7 +708,22 @@ def warning_relates_to_entity(
 
 
 def clean_warning_message(warning_msg: str) -> str:
-    """Clean up warning message for user display."""
+    """
+    Clean up Pydantic validation warnings for user display.
+
+    Removes technical Pydantic-specific text and formats warnings in a more
+    user-friendly way.
+
+    Parameters
+    ----------
+    warning_msg : str
+        Raw Pydantic validation warning message
+
+    Returns
+    -------
+    str
+        Cleaned warning message suitable for display to users
+    """
     cleaned = warning_msg.replace(
         "Duration is set to placeholder value ", "Duration is set to placeholder "
     )

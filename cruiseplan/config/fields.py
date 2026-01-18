@@ -21,6 +21,10 @@ OP_DEPTH_FIELD = "operation_depth"
 WATER_DEPTH_FIELD = "water_depth"
 START_DATE_FIELD = "start_date"
 START_TIME_FIELD = "start_time"
+CRUISE_NAME_FIELD = "cruise_name"
+PRINCIPAL_INVESTIGATOR_FIELD = "principal_investigator"
+INSTITUTION_FIELD = "institution"
+VESSEL_FIELD = "vessel"
 DEFAULT_VESSEL_SPEED_FIELD = "default_vessel_speed"
 DEFAULT_STATION_SPACING_FIELD = "default_distance_between_stations"
 CTD_DESCENT_RATE_FIELD = "ctd_descent_rate"
@@ -192,6 +196,7 @@ __all__ = [
     "CLUSTERS_FIELD",
     "CLUSTER_ALLOWED_FIELDS",
     "COMMENT_FIELD",
+    "CRUISE_NAME_FIELD",
     "DEFAULT_VESSEL_SPEED_FIELD",
     "DELAY_END_FIELD",
     "DELAY_START_FIELD",
@@ -200,6 +205,7 @@ __all__ = [
     "DURATION_FIELD",
     "FIRST_ACTIVITY_FIELD",
     "HISTORY_FIELD",
+    "INSTITUTION_FIELD",
     "LAST_ACTIVITY_FIELD",
     "LATITUDE_FIELD",
     "LEGS_FIELD",
@@ -215,11 +221,13 @@ __all__ = [
     "POINTS_FIELD",
     "POINT_ALLOWED_FIELDS",
     "POINT_REGISTRY",
+    "PRINCIPAL_INVESTIGATOR_FIELD",
     "REVERSIBLE_FIELD",
     "START_DATE_FIELD",
     "START_TIME_FIELD",
     "STATION_SPACING_FIELD",
     "STRATEGY_FIELD",
+    "VESSEL_FIELD",
     "VESSEL_SPEED_FIELD",
     "WATER_DEPTH_FIELD",
     "YAML_FIELD_ORDER",

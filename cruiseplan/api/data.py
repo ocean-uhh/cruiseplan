@@ -100,7 +100,7 @@ def _prepare_pangaea_config(
         Custom base filename
     lat_bounds, lon_bounds : Optional[list[float]]
         Geographic bounds for search
-        
+
     Returns
     -------
     dict
@@ -138,7 +138,9 @@ def _prepare_pangaea_config(
     }
 
 
-def _process_doi_file(query_terms: str, dois_file: Path) -> tuple[list[str], list[Path]]:
+def _process_doi_file(
+    query_terms: str, dois_file: Path
+) -> tuple[list[str], list[Path]]:
     """Process DOI file input mode."""
     import shutil
 
@@ -156,7 +158,9 @@ def _process_doi_file(query_terms: str, dois_file: Path) -> tuple[list[str], lis
     return clean_dois, generated_files
 
 
-def _process_single_doi(query_terms: str, dois_file: Path, manager) -> tuple[list[str], list[Path]]:
+def _process_single_doi(
+    query_terms: str, dois_file: Path, manager
+) -> tuple[list[str], list[Path]]:
     """Process single DOI input mode."""
     logger.info(f"📄 Processing single DOI: '{query_terms}'")
 
@@ -184,7 +188,7 @@ def _process_search_query(
     lon_bounds: Optional[list[float]],
     limit: int,
     dois_file: Path,
-    manager
+    manager,
 ) -> tuple[list[str], list[Path]]:
     """Process search query input mode."""
     logger.info(f"🔍 Searching PANGAEA for: '{query_terms}'")
@@ -207,9 +211,7 @@ def _process_search_query(
         )
 
         if not clean_dois:
-            logger.warning(
-                "❌ No DOIs found. Try broadening your search criteria."
-            )
+            logger.warning("❌ No DOIs found. Try broadening your search criteria.")
             raise RuntimeError("No DOIs found for the given search criteria")
 
         logger.info(f"✅ Found {len(clean_dois)} datasets")
@@ -220,9 +222,7 @@ def _process_search_query(
             f.write("# PANGAEA Search Results\n")
             f.write(f"# Query: {query_terms}\n")
             if bbox and lat_bounds and lon_bounds:
-                f.write(
-                    f"# Geographic bounds: lat {lat_bounds}, lon {lon_bounds}\n"
-                )
+                f.write(f"# Geographic bounds: lat {lat_bounds}, lon {lon_bounds}\n")
             f.write(f"# Results limit: {limit}\n")
             f.write(
                 f"# Generated: {pq.totalcount} total matches, showing first {len(clean_dois)}\n"
@@ -251,11 +251,11 @@ def _resolve_doi_list(
     limit: int,
     manager,
     lat_bounds: Optional[list[float]],
-    lon_bounds: Optional[list[float]]
+    lon_bounds: Optional[list[float]],
 ) -> tuple[list[str], list[Path]]:
     """
     Determine input type and get clean DOI list.
-    
+
     Parameters
     ----------
     query_terms : str
@@ -268,7 +268,7 @@ def _resolve_doi_list(
         PANGAEA manager instance
     lat_bounds, lon_bounds : Optional[list[float]]
         Geographic bounds for search mode
-        
+
     Returns
     -------
     tuple[list[str], list[Path]]
@@ -303,9 +303,9 @@ def _fetch_and_save_datasets(
 ) -> list:
     """
     Fetch detailed PANGAEA datasets and save to file.
-    
+
     Parameters
-    ---------- 
+    ----------
     clean_dois : list[str]
         List of clean DOI strings
     stations_file : Path
@@ -316,7 +316,7 @@ def _fetch_and_save_datasets(
         API request rate limit
     merge_campaigns : bool
         Whether to merge campaigns with same name
-        
+
     Returns
     -------
     list
@@ -360,7 +360,7 @@ def _build_pangaea_result(
 ) -> PangaeaResult:
     """
     Construct the final PangaeaResult object with summary information.
-    
+
     Parameters
     ----------
     query_terms : str
@@ -375,7 +375,7 @@ def _build_pangaea_result(
         Maximum number of results processed
     stations_file : Path
         Path to the stations pickle file
-    
+
     Returns
     -------
     PangaeaResult
@@ -465,7 +465,9 @@ def pangaea(
 
     try:
         # Validate inputs and prepare paths
-        config = _prepare_pangaea_config(query_terms, output_dir, output, lat_bounds, lon_bounds)
+        config = _prepare_pangaea_config(
+            query_terms, output_dir, output, lat_bounds, lon_bounds
+        )
         stations_file = config["stations_file"]
 
         manager = PangaeaManager()
@@ -481,8 +483,13 @@ def pangaea(
         )
 
         return _build_pangaea_result(
-            query_terms, detailed_datasets, generated_files,
-            lat_bounds, lon_bounds, limit, stations_file
+            query_terms,
+            detailed_datasets,
+            generated_files,
+            lat_bounds,
+            lon_bounds,
+            limit,
+            stations_file,
         )
 
     except Exception as e:
