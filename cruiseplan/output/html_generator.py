@@ -16,7 +16,7 @@ tables for each operation type.
 import logging
 from pathlib import Path
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import (
     format_activity_type,
     get_activity_depth,

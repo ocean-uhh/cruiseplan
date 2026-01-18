@@ -8,7 +8,7 @@ import csv
 import logging
 from pathlib import Path
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import (
     format_operation_action,
     get_activity_depth,

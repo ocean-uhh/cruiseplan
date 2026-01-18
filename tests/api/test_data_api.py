@@ -20,7 +20,9 @@ class TestBathymetryAPI:
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.stat")
     @patch("pathlib.Path.exists")
-    def test_bathymetry_default_parameters(self, mock_exists, mock_stat, mock_mkdir, mock_download):
+    def test_bathymetry_default_parameters(
+        self, mock_exists, mock_stat, mock_mkdir, mock_download
+    ):
         """Test bathymetry with default parameters."""
         # Mock file existence and size
         mock_exists.return_value = True
@@ -45,7 +47,9 @@ class TestBathymetryAPI:
     @patch("pathlib.Path.mkdir")
     @patch("pathlib.Path.stat")
     @patch("pathlib.Path.exists")
-    def test_bathymetry_custom_parameters(self, mock_exists, mock_stat, mock_mkdir, mock_download):
+    def test_bathymetry_custom_parameters(
+        self, mock_exists, mock_stat, mock_mkdir, mock_download
+    ):
         """Test bathymetry with custom parameters."""
         # Mock file existence and size
         mock_exists.return_value = True
@@ -106,7 +110,6 @@ class TestPangaeaAPI:
             safe_query = "".join(c if c.isalnum() else "_" for c in input_query)
             safe_query = re.sub(r"_+", "_", safe_query).strip("_")
             assert safe_query == expected_safe
-
 
     def test_pangaea_default_parameters(self):
         """Test that default parameters are handled correctly."""

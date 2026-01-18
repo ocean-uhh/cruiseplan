@@ -12,14 +12,14 @@ import logging
 from pathlib import Path
 from typing import Any, Optional, Union
 
-from cruiseplan.config import (
+from cruiseplan.config.activities import (
     AreaDefinition,
-    CruiseConfig,
     LineDefinition,
     PointDefinition,
-    StrategyEnum,
 )
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.config.ports import resolve_port_reference
+from cruiseplan.config.values import StrategyEnum
 from cruiseplan.config.yaml_io import load_yaml
 from cruiseplan.runtime import enrichment, serialization
 from cruiseplan.runtime.organizational import (

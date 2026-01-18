@@ -12,7 +12,7 @@ from cruiseplan.api.process_cruise import (
     validate_configuration,
     validate_depth_accuracy,
 )
-from cruiseplan.config import POINTS_FIELD
+from cruiseplan.config.fields import POINTS_FIELD
 
 
 class TestEnrichConfiguration:

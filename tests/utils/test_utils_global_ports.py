@@ -4,7 +4,7 @@ import warnings
 
 import pytest
 
-from cruiseplan.config import PointDefinition
+from cruiseplan.config.activities import PointDefinition
 from cruiseplan.config.ports import (
     GLOBAL_PORTS,
     get_available_ports,

@@ -20,7 +20,7 @@ location once regardless of visitation frequency.
 import logging
 from pathlib import Path
 
-from cruiseplan.config import CruiseConfig
+from cruiseplan.config.cruise_config import CruiseConfig
 from cruiseplan.output.output_utils import is_line_operation, is_scientific_operation
 from cruiseplan.timeline.scheduler import ActivityRecord
 
