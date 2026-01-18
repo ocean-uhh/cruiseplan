@@ -133,7 +133,7 @@ After installation, verify CruisePlan is working correctly:
 
 Expected output should show version information and available subcommands without errors.
 
-.. figure:: _static/screenshots/installation_terminal.png
+.. figure:: ../_static/screenshots/installation_terminal.png
    :alt: Successful CruisePlan installation verification
    :width: 600px
    :align: center

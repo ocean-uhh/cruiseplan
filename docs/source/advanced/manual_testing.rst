@@ -87,7 +87,7 @@ Test Case 1: Single Station (tc1_single.yaml)
 
 5. |uncheck| Verify that the total cruise duration is **262.4 hours / 10.9 days**.
 
-6. |uncheck| Compare with the `HTML schedule output <_static/fixtures/TC1_Single_Test_schedule.html>`_ to verify CTD timing calculations.
+6. |uncheck| Compare with the `HTML schedule output <../_static/fixtures/TC1_Single_Test_schedule.html>`_ to verify CTD timing calculations.
 
 **TC1_Single_Test_schedule.csv**
 .................................
@@ -126,15 +126,15 @@ Test Case 1: Single Station (tc1_single.yaml)
 **Figures _map.png and _schedule.png**
 ..........................................
 
-11. |uncheck| Verify that the map PNG shows no ports `TC1_Single_Test_map.png <_static/fixtures/TC1_Single_Test_map.png>`_
-12. |uncheck| Verify that the schedule PNG shows ports `TC1_Single_Test_schedule.png <_static/fixtures/TC1_Single_Test_schedule.png>`_
+11. |uncheck| Verify that the map PNG shows no ports `TC1_Single_Test_map.png <../_static/fixtures/TC1_Single_Test_map.png>`_
+12. |uncheck| Verify that the schedule PNG shows ports `TC1_Single_Test_schedule.png <../_static/fixtures/TC1_Single_Test_schedule.png>`_
 
 **KML: TC1_Single_Test_catalog.kml**
 ........................................
 
 13. |uncheck| Verify that the KML file includes the station details
 
-.. figure:: _static/fixtures/TC1_Single_Test_catalog_kml.png
+.. figure:: ../_static/fixtures/TC1_Single_Test_catalog_kml.png
    :alt: KML Output Screenshot
    :width: 400px
 
@@ -159,7 +159,7 @@ Test Case 2: Two Legs (tc2_two_legs.yaml)
 
 2. |uncheck| Verify that two legs are generated with **277.2 hours** in Leg 1 and **1163.2 hours** in Leg 2.
 
-3. |uncheck| Verify that the `_schedule.png` matches `TC2_TwoLegs_Test_schedule.png <_static/fixtures/TC2_TwoLegs_Test_schedule.png>`_
+3. |uncheck| Verify that the `_schedule.png` matches `TC2_TwoLegs_Test_schedule.png <../_static/fixtures/TC2_TwoLegs_Test_schedule.png>`_
 
 4. |uncheck| Verify that the `_work_days.tex` has a total duration with operations of **1000.0** hours and transit duration of **440.4** hours.
 
@@ -192,7 +192,7 @@ Check the `*.html` output for each routing strategy:
 
 5. |uncheck| Verify that the `3f. Leg_Survey_Reorder` does the stations in order of `STN_004` then `STN_003` then `STN_002` then `STN_001`.
 
-See the HTML output `TC3_Clusters_Test_schedule.html <_static/fixtures/TC3_Clusters_Test_schedule.html>`_ for reference.
+See the HTML output `TC3_Clusters_Test_schedule.html <../_static/fixtures/TC3_Clusters_Test_schedule.html>`_ for reference.
 
 ----
 
@@ -209,7 +209,7 @@ Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)
 
 **Manual verification**:
 
-1. |uncheck| Verify that the `*_map.png` shows a shaded area, a line and a station.  Compare to `TC4_Mixed_Test_map.png <_static/fixtures/TC4_Mixed_Test_map.png>`_
+1. |uncheck| Verify that the `*_map.png` shows a shaded area, a line and a station.  Compare to `TC4_Mixed_Test_map.png <../_static/fixtures/TC4_Mixed_Test_map.png>`_
 
 2. |uncheck| Verify that the `*_stations.tex` shows 3 lines with:
 
@@ -219,7 +219,7 @@ Test Case 4: Mixed Operations (tc4_mixed_ops.yaml)
    Line (line) & ADCP-Survey & (46$^\circ$00.00'N, 050$^\circ$00.00'W) to (46$^\circ$00.00'N, 050$^\circ$00.00'W) & N/A \\
    Area (None) & Area-01 & Center: 47$^\circ$30.00'N, 050$^\circ$30.00'W & Variable \\
 
-Compare with the `TC4_Mixed_Test_schedule.html <_static/fixtures/TC4_Mixed_Test_schedule.html>`_ for coordinates and depths.
+Compare with the `TC4_Mixed_Test_schedule.html <../_static/fixtures/TC4_Mixed_Test_schedule.html>`_ for coordinates and depths.
 
 3. |uncheck| Verify that the `*_schedule.html` shows total duration of **287.2 hours**.
 
@@ -262,7 +262,7 @@ Test Case 5: Sections (tc5_sections.yaml)
       comment: Station 1/14 on SEC_001 section
       duration: 120.0
 
-2. |uncheck| Verify that the `_map.png` shows all 14 stations from the section `TC5_Sections_Test_map.png <_static/fixtures/TC5_Sections_Test_map.png>`_
+2. |uncheck| Verify that the `_map.png` shows all 14 stations from the section `TC5_Sections_Test_map.png <../_static/fixtures/TC5_Sections_Test_map.png>`_
 
 3. |uncheck| Verify that the `_schedule.html` shows a station spacing of **11.2 nm**.
 

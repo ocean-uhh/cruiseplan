@@ -3,7 +3,7 @@ Usage Overview
 
 This page provides a high-level overview of how to use CruisePlan for oceanographic cruise planning. For detailed step-by-step instructions, see the linked workflow guides below.
 
-.. figure:: _static/diagrams/cruiseplan_process.png
+.. figure:: ../_static/diagrams/cruiseplan_process.png
    :align: center
    :alt: CruisePlan Process Overview
    :width: 100%
