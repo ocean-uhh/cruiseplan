@@ -287,8 +287,11 @@ class StationsConfig:
     bathy_dir: str = "data/bathymetry"
     """Directory containing bathymetry data"""
 
-    initial_stations: int = 1
-    """Initial number of stations to place"""
+    high_resolution: bool = False
+    """Use high resolution bathymetry data"""
+
+    overwrite: bool = False
+    """Overwrite existing output files"""
 
     # Nested configuration objects
     output: OutputConfig = None

@@ -544,3 +544,61 @@ def pangaea(
     except Exception as e:
         _handle_error_with_logging(e, "PANGAEA search failed", verbose)
         raise  # Re-raise the exception so caller knows it failed
+
+
+def pangaea_with_config(
+    query_terms: str,
+    config: PangaeaConfig = None,
+) -> PangaeaResult:
+    """
+    Search PANGAEA oceanographic database using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy pangaea()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    query_terms : str
+        Search terms for PANGAEA database query
+    config : PangaeaConfig, optional
+        Configuration object containing all PANGAEA search options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    PangaeaResult
+        Result object containing search results and metadata
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = pangaea_with_config("temperature CTD")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import PangaeaConfig, OutputConfig
+    >>> config = PangaeaConfig(
+    ...     lat_bounds=[-60, -40],
+    ...     lon_bounds=[-180, 180],
+    ...     limit=20,
+    ...     output=OutputConfig(directory="results")
+    ... )
+    >>> result = pangaea_with_config("temperature CTD", config)
+    """
+    if config is None:
+        config = PangaeaConfig()
+
+    # Call the legacy function with expanded parameters
+    return pangaea(
+        query_terms=query_terms,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        lat_bounds=config.lat_bounds,
+        lon_bounds=config.lon_bounds,
+        limit=config.limit,
+        rate_limit=config.rate_limit,
+        merge_campaigns=config.merge_campaigns,
+        verbose=config.output.verbose,
+    )

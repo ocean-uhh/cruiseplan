@@ -271,7 +271,8 @@ def stations_with_config(
         pangaea_file=config.pangaea_file,
         bathy_source=config.bathy_source,
         bathy_dir=config.bathy_dir,
-        initial_stations=config.initial_stations,
+        high_resolution=config.high_resolution,
+        overwrite=config.overwrite,
         verbose=config.output.verbose,
     )
 
