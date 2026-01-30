@@ -137,17 +137,18 @@ ignore = [
 "cruiseplan/cli/process.py" = ["C901"]  # CLI main function complexity
 "cruiseplan/cli/schedule.py" = ["C901"]  # CLI main function complexity
 "cruiseplan/utils/output_formatting.py" = ["RUF001"]  # Intentional use of emoji/unicode icons for visual output
-"tests/**/*.py" = ["D100", "D101", "D102", "D103", "D105", "D205", "D400", "E402", "E712", "F841", "PLR0913", "RUF001", "RUF003"]  # Test functions don't need docstrings, unused vars common, import placement flexible, explicit True/False comparisons allowed, many args OK for mocked tests, ambiguous characters OK in test data including multiplication symbols
+"tests/**/*.py" = ["D100", "D101", "D102", "D103", "D105", "D205", "D400", "E712", "F841", "PLR0913", "RUF001", "RUF003"]  # Test functions don't need docstrings, unused vars common, explicit True/False comparisons allowed, many args OK for mocked tests, ambiguous characters OK in test data including multiplication symbols
 "**/*.ipynb" = ["B018"]  # Allow useless expressions in Jupyter notebooks (common for displaying values)
 
 [tool.ruff.lint.pydocstyle]
 convention = "numpy"
-# TODO: Fix remaining ~100 D205 errors (blank line between summary and description)
-#       Key API files have been fixed, remainder are in implementation modules
-# TODO: Review test file imports (E402) - move imports to top where possible
-#       Some delayed imports are legitimate (mocking, conditional), others can be moved
-# TODO: Refactor functions with too many arguments (PLR0913) - 162 violations in main code
-#       API functions like pangaea() have 9+ parameters, consider using config objects
+# TODO: Fix remaining ~16 D205 errors (blank line between summary and description) in test files
+#       These require manual review as auto-fix didn't work
+# E402 violations have been resolved by moving imports to top of files
+# TODO: Refactor functions with too many arguments (PLR0913) - 189 violations in main code
+#       Following plan in docs/legacy/CLAUDE-v0.3.3-refactor-complex.md
+#       ✅ PROGRESS: Created ProcessConfig and MapConfig with process_with_config() and map_with_config()
+#       🔄 REMAINING: schedule_with_config(), pangaea_with_config(), and other API functions
 
 [tool.ruff.lint.mccabe]
 # Maximum allowed complexity for functions (reduced from 15)

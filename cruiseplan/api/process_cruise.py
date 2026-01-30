@@ -13,6 +13,7 @@ from typing import Any, Optional, Union
 
 from pydantic import ValidationError
 
+from cruiseplan.api.config import EnrichConfig, ProcessConfig, ValidateConfig
 from cruiseplan.api.types import EnrichResult, ProcessResult, ValidationResult
 from cruiseplan.config.exceptions import BathymetryError, FileError
 from cruiseplan.config.exceptions import ValidationError as CruisePlanValidationError
@@ -286,6 +287,64 @@ def _enrich_configuration(
     _save_config(output_config, output_path)
 
     return final_summary
+
+
+def enrich_with_config(
+    config_file: Union[str, Path],
+    config: EnrichConfig = None,
+) -> EnrichResult:
+    """
+    Enrich cruise configuration using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy enrich()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    config : EnrichConfig, optional
+        Configuration object containing all enrichment options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    EnrichResult
+        Result object containing enriched config and summary
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = enrich_with_config("cruise.yaml")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import EnrichConfig, BathymetryConfig
+    >>> config = EnrichConfig(
+    ...     add_depths=True,
+    ...     coord_format="dd",
+    ...     bathymetry=BathymetryConfig(source="gebco2025")
+    ... )
+    >>> result = enrich_with_config("cruise.yaml", config)
+    """
+    if config is None:
+        config = EnrichConfig()
+
+    # Call the legacy function with expanded parameters
+    return enrich(
+        config_file=config_file,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        add_depths=config.add_depths,
+        add_coords=config.add_coords,
+        bathy_source=config.bathymetry.source,
+        bathy_dir=config.bathymetry.directory,
+        coord_format=config.coord_format,
+        expand_sections=config.expand_sections,
+        verbose=config.output.verbose,
+    )
 
 
 def enrich(  # noqa: C901
@@ -809,6 +868,61 @@ def _format_error_location(location_path: tuple, raw_config: dict) -> str:
     return " -> ".join(formatted_parts)
 
 
+def validate_with_config(
+    config_file: Union[str, Path],
+    config: ValidateConfig = None,
+) -> ValidationResult:
+    """
+    Validate cruise configuration using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy validate()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    config : ValidateConfig, optional
+        Configuration object containing all validation options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    ValidationResult
+        Result object containing validation status and issues
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = validate_with_config("cruise.yaml")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import ValidateConfig, BathymetryConfig
+    >>> config = ValidateConfig(
+    ...     check_depths=True,
+    ...     tolerance=5.0,
+    ...     bathymetry=BathymetryConfig(source="gebco2025")
+    ... )
+    >>> result = validate_with_config("cruise.yaml", config)
+    """
+    if config is None:
+        config = ValidateConfig()
+
+    # Call the legacy function with expanded parameters
+    return validate(
+        config_file=config_file,
+        bathy_source=config.bathymetry.source,
+        bathy_dir=config.bathymetry.directory,
+        check_depths=config.check_depths,
+        tolerance=config.tolerance,
+        warnings_only=config.warnings_only,
+        verbose=config.verbose,
+    )
+
+
 def validate(
     config_file: Union[str, Path],
     bathy_source: str = "etopo2022",
@@ -931,6 +1045,70 @@ def validate(
 
 
 # --- Process Function ---
+
+
+def process_with_config(
+    config_file: Union[str, Path],
+    config: ProcessConfig = None,
+) -> ProcessResult:
+    """
+    Process cruise configuration with unified workflow using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy process()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config_file : str or Path
+        Input YAML configuration file
+    config : ProcessConfig, optional
+        Configuration object containing all processing options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    ProcessResult
+        Result object containing enriched config and list of output files
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = process_with_config("cruise.yaml")
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import ProcessConfig, BathymetryConfig
+    >>> config = ProcessConfig(
+    ...     add_depths=True,
+    ...     bathymetry=BathymetryConfig(source="gebco2025", stride=5)
+    ... )
+    >>> result = process_with_config("cruise.yaml", config)
+    """
+    if config is None:
+        config = ProcessConfig()
+
+    # Call the legacy function with expanded parameters for now
+    return process(
+        config_file=config_file,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        bathy_source=config.bathymetry.source,
+        bathy_dir=config.bathymetry.directory,
+        add_depths=config.add_depths,
+        add_coords=config.add_coords,
+        expand_sections=config.expand_sections,
+        run_validation=config.validation.run_validation,
+        run_map_generation=config.run_map_generation,
+        depth_check=config.validation.depth_check,
+        tolerance=config.validation.tolerance,
+        format=config.output.format,
+        bathy_stride=config.bathymetry.stride,
+        figsize=config.visualization.figsize,
+        no_port_map=not config.visualization.include_ports,
+        verbose=config.output.verbose,
+    )
 
 
 def process(

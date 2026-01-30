@@ -1,8 +1,10 @@
 # tests/unit/test_validation_minimal.py
 from pathlib import Path
+from unittest.mock import MagicMock
 
 import pytest
 
+from cruiseplan.api.process_cruise import _check_cruise_metadata_raw
 from cruiseplan.config.fields import (
     ACTION_FIELD,
     ARRIVAL_PORT_FIELD,
@@ -14,8 +16,25 @@ from cruiseplan.config.fields import (
     POINTS_FIELD,
     START_DATE_FIELD,
 )
+from cruiseplan.config.values import (
+    DEFAULT_ARRIVAL_PORT,
+    DEFAULT_DEPARTURE_PORT,
+    DEFAULT_START_DATE,
+)
 from cruiseplan.runtime.cruise import CruiseInstance
 from cruiseplan.runtime.organizational import ReferenceError
+from cruiseplan.runtime.validation import (
+    clean_warning_message as _clean_warning_message,
+)
+from cruiseplan.runtime.validation import (
+    format_validation_warnings as _format_validation_warnings,
+)
+from cruiseplan.runtime.validation import (
+    validate_depth_accuracy,
+)
+from cruiseplan.runtime.validation import (
+    warning_relates_to_entity as _warning_relates_to_entity,
+)
 
 # Path to the sample file
 SAMPLE_YAML = Path("tests/data/cruise_example.yaml")
@@ -103,34 +122,9 @@ calculate_depth_via_bathymetry: false
     assert "not found in any Catalog" in str(exc.value)
 
 
-"""
-Tests to boost validation.py coverage.
-
-This module provides targeted tests for uncovered validation functions,
-particularly the internal metadata checking and warning formatting functions
-that have large uncovered line ranges.
-"""
-
-from unittest.mock import MagicMock
-
-from cruiseplan.api.process_cruise import _check_cruise_metadata_raw
-from cruiseplan.config.values import (
-    DEFAULT_ARRIVAL_PORT,
-    DEFAULT_DEPARTURE_PORT,
-    DEFAULT_START_DATE,
-)
-from cruiseplan.runtime.validation import (
-    clean_warning_message as _clean_warning_message,
-)
-from cruiseplan.runtime.validation import (
-    format_validation_warnings as _format_validation_warnings,
-)
-from cruiseplan.runtime.validation import (
-    validate_depth_accuracy,
-)
-from cruiseplan.runtime.validation import (
-    warning_relates_to_entity as _warning_relates_to_entity,
-)
+# Additional tests to boost validation.py coverage.
+# This section provides targeted tests for uncovered validation functions,
+# particularly the internal metadata checking and warning formatting functions.
 
 
 class TestCruiseMetadataValidation:

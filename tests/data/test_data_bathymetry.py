@@ -1,20 +1,22 @@
 # Note: You need to mock the Path object used inside the Manager constructor
+import zipfile
 from pathlib import Path
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, mock_open, patch
 
 import netCDF4 as nc
 import numpy as np
 import pytest
 import requests
 
+import cruiseplan.data.bathymetry as bathy_module
 from cruiseplan.config.values import DEFAULT_DEPTH
-from cruiseplan.data.bathymetry import BathymetryManager, download_bathymetry
 
 
 @pytest.fixture
 def mock_netcdf_data():
     """
     Returns mock coordinate data and a mock netCDF4.Dataset object.
+
     Grid: Lats 40-44 (5 points), Lons -50 to -46 (5 points). 1-degree spacing.
     Depth formula (Mock): Z = -(lat * 10 + lon * 1)
     """
@@ -64,7 +66,7 @@ def mock_netcdf_data():
 
 @pytest.fixture
 def real_mode_manager(mock_netcdf_data):
-    """Returns a BathymetryManager forced into REAL mode."""
+    """Returns a bathy_module.BathymetryManager forced into REAL mode."""
     # 1. Patch Path.exists() to return True
     with patch.object(Path, "exists", return_value=True):
         # 2. Mock file size check to return a valid size
@@ -75,7 +77,7 @@ def real_mode_manager(mock_netcdf_data):
             with patch(
                 "cruiseplan.data.bathymetry.nc.Dataset", return_value=mock_netcdf_data
             ):
-                manager = BathymetryManager()
+                manager = bathy_module.BathymetryManager()
                 # 4. Manually set the internal state to the mock's arrays (since __init__ does this)
                 manager._lats = mock_netcdf_data.variables["lat"]
                 manager._lons = mock_netcdf_data.variables["lon"]
@@ -86,9 +88,9 @@ def real_mode_manager(mock_netcdf_data):
 
 @pytest.fixture
 def mock_bathymetry():
-    """Returns a BathymetryManager forced into Mock Mode."""
+    """Returns a bathy_module.BathymetryManager forced into Mock Mode."""
     # We pass a non-existent path to force mock mode
-    bm = BathymetryManager(source="non_existent_file")
+    bm = bathy_module.BathymetryManager(source="non_existent_file")
     return bm
 
 
@@ -163,6 +165,7 @@ def test_interpolation_bounds_check(real_mode_manager):
 def test_get_grid_subset_real_mode(real_mode_manager):
     """
     Verify real data subsetting works and respects stride.
+
     The bounds are extended slightly (e.g., to 44.0001) to ensure the
     searchsorted index includes the final grid point (index 4) when slicing.
     """
@@ -197,7 +200,7 @@ def test_close_method(real_mode_manager, mock_netcdf_data):
     mock_netcdf_data.close.assert_called_once()
 
 
-# Patch global objects used by download_bathymetry
+# Patch global objects used by bathy_module.download_bathymetry
 @patch("cruiseplan.data.bathymetry.Path.exists")
 @patch("cruiseplan.data.bathymetry.Path.mkdir")
 @patch("cruiseplan.data.bathymetry.Path.unlink")
@@ -229,7 +232,7 @@ def test_download_bathymetry_success_path(
     mock_path_instance = MagicMock()
     mock_open.return_value.__enter__.return_value = mock_path_instance
 
-    download_bathymetry(target_dir=str(temp_output_dir))
+    bathy_module.download_bathymetry(target_dir=str(temp_output_dir))
 
     # Assert successful calls
     mock_requests_get.assert_called_once()
@@ -258,7 +261,7 @@ def test_download_bathymetry_failure_cleanup_and_fallback(
 
     # We must patch Path.exists inside the function call logic.
     with patch("builtins.print") as mock_print:
-        download_bathymetry(target_dir=str(temp_output_dir))
+        bathy_module.download_bathymetry(target_dir=str(temp_output_dir))
 
     # Assert requests were made to both URLs
     assert mock_requests_get.call_count == 2
@@ -277,16 +280,6 @@ Simplified additional tests to improve bathymetry.py coverage.
 This test suite targets the missing coverage areas with simpler, more reliable tests.
 """
 
-from unittest.mock import MagicMock, patch
-
-import pytest
-
-import cruiseplan.data.bathymetry as bathy_module
-from cruiseplan.data.bathymetry import (
-    ETOPO_FILENAME,
-    get_bathymetry_singleton,
-)
-
 
 class TestBathymetrySimpleCoverage:
     """Simplified tests to improve bathymetry coverage."""
@@ -296,12 +289,12 @@ class TestBathymetrySimpleCoverage:
         # Create a small file that will be detected as incomplete
         bathymetry_dir = tmp_path / "data" / "bathymetry"
         bathymetry_dir.mkdir(parents=True, exist_ok=True)
-        etopo_file = bathymetry_dir / ETOPO_FILENAME
+        etopo_file = bathymetry_dir / bathy_module.ETOPO_FILENAME
         etopo_file.write_bytes(b"small file content")  # Much smaller than 450 MB
 
         with patch("cruiseplan.data.bathymetry.logger") as mock_logger:
             # Override the data directory to use our test path
-            manager = BathymetryManager(source="etopo2022")
+            manager = bathy_module.BathymetryManager(source="etopo2022")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
@@ -318,7 +311,7 @@ class TestBathymetrySimpleCoverage:
         # Create a large file that passes size check but fails NetCDF loading
         bathymetry_dir = tmp_path / "data" / "bathymetry"
         bathymetry_dir.mkdir(parents=True, exist_ok=True)
-        etopo_file = bathymetry_dir / ETOPO_FILENAME
+        etopo_file = bathymetry_dir / bathy_module.ETOPO_FILENAME
         # Create a file larger than 450 MB (simulate with just marking it)
         large_content = b"corrupted netcdf content" * 1000000  # ~25 MB
         etopo_file.write_bytes(large_content)
@@ -334,7 +327,7 @@ class TestBathymetrySimpleCoverage:
             mock_stat_obj.st_size = 500 * 1024 * 1024  # 500 MB
             mock_stat.return_value = mock_stat_obj
 
-            manager = BathymetryManager(source="etopo2022")
+            manager = bathy_module.BathymetryManager(source="etopo2022")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
@@ -346,7 +339,7 @@ class TestBathymetrySimpleCoverage:
 
     def test_interpolation_error_handling(self):
         """Test error handling during depth interpolation."""
-        manager = BathymetryManager(source="etopo2022")
+        manager = bathy_module.BathymetryManager(source="etopo2022")
 
         # Set up manager to not be in mock mode
         manager._is_mock = False
@@ -377,7 +370,7 @@ class TestBathymetrySimpleCoverage:
         bathymetry_dir.mkdir(parents=True, exist_ok=True)
 
         with patch("cruiseplan.data.bathymetry.logger") as mock_logger:
-            manager = BathymetryManager(source="custom_source")
+            manager = bathy_module.BathymetryManager(source="custom_source")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
@@ -386,7 +379,7 @@ class TestBathymetrySimpleCoverage:
 
     def test_grid_subset_edge_cases(self):
         """Test grid subset with edge cases."""
-        manager = BathymetryManager(source="etopo2022")
+        manager = bathy_module.BathymetryManager(source="etopo2022")
         manager._is_mock = False
 
         # Mock the dataset and coordinates
@@ -403,7 +396,7 @@ class TestBathymetrySimpleCoverage:
 
     def test_bilinear_interpolation_edge_cases(self):
         """Test bilinear interpolation edge cases."""
-        manager = BathymetryManager(source="etopo2022")
+        manager = bathy_module.BathymetryManager(source="etopo2022")
         manager._is_mock = False
 
         # Set up minimal coordinates
@@ -431,12 +424,12 @@ class TestBathymetrySimpleCoverage:
         bathy_module._bathymetry_instance = None
 
         # Get singleton twice
-        instance1 = get_bathymetry_singleton()
-        instance2 = get_bathymetry_singleton()
+        instance1 = bathy_module.get_bathymetry_singleton()
+        instance2 = bathy_module.get_bathymetry_singleton()
 
         # Should be the same instance
         assert instance1 is instance2
-        assert isinstance(instance1, BathymetryManager)
+        assert isinstance(instance1, bathy_module.BathymetryManager)
 
     def test_module_getattr_bathymetry(self):
         """Test the module __getattr__ for backwards compatibility."""
@@ -446,8 +439,8 @@ class TestBathymetrySimpleCoverage:
         # Access via __getattr__
         bathymetry_instance = bathy_module.bathymetry
 
-        # Should return a BathymetryManager instance
-        assert isinstance(bathymetry_instance, BathymetryManager)
+        # Should return a bathy_module.BathymetryManager instance
+        assert isinstance(bathymetry_instance, bathy_module.BathymetryManager)
 
     def test_module_getattr_invalid_attribute(self):
         """Test the module __getattr__ with invalid attribute."""
@@ -457,7 +450,7 @@ class TestBathymetrySimpleCoverage:
 
     def test_interpolation_bounds_edge_cases(self):
         """Test interpolation boundary conditions that might cause errors."""
-        manager = BathymetryManager(source="etopo2022")
+        manager = bathy_module.BathymetryManager(source="etopo2022")
         manager._is_mock = False
 
         # Mock the dataset and coordinates
@@ -483,14 +476,14 @@ class TestBathymetrySimpleCoverage:
         # Mock the stack trace to simulate download context
 
         mock_frame = MagicMock()
-        mock_frame.name = "download_bathymetry"
+        mock_frame.name = "bathy_module.download_bathymetry"
 
         with (
             patch("traceback.extract_stack", return_value=[mock_frame] * 5),
             patch("cruiseplan.data.bathymetry.logger") as mock_logger,
         ):
 
-            manager = BathymetryManager(source="etopo2022")
+            manager = bathy_module.BathymetryManager(source="etopo2022")
             manager.data_dir = bathymetry_dir
             manager._initialize_data()
 
@@ -505,17 +498,12 @@ class TestBathymetrySimpleCoverage:
 
 
 """
-Comprehensive pytest suite for BathymetryManager's GEBCO 2025 functionality.
+Comprehensive pytest suite for bathy_module.BathymetryManager's GEBCO 2025 functionality.
 
 This test suite focuses on the ensure_gebco_2025 method and covers all aspects
 of downloading, extracting, and validating the GEBCO 2025 dataset without
 performing actual network operations or creating large files.
 """
-
-import zipfile
-from unittest.mock import MagicMock, mock_open, patch
-
-import pytest
 
 
 class TestGEBCO2025Functionality:
@@ -530,9 +518,9 @@ class TestGEBCO2025Functionality:
 
     @pytest.fixture
     def bathymetry_manager(self, test_bathymetry_dir, temp_output_dir):
-        """Create a BathymetryManager instance with test directory."""
+        """Create a bathy_module.BathymetryManager instance with test directory."""
         # Create manager with custom data directory to avoid using real data/bathymetry/
-        manager = BathymetryManager(
+        manager = bathy_module.BathymetryManager(
             source="gebco2025", data_dir=str(temp_output_dir / "bathy")
         )
         # Override the data_dir to use our test directory
@@ -795,10 +783,10 @@ class TestGEBCO2025Functionality:
     def test_bathymetry_manager_with_gebco_source_initialization(
         self, test_bathymetry_dir, temp_output_dir
     ):
-        """Test BathymetryManager initialization with GEBCO source."""
+        """Test bathy_module.BathymetryManager initialization with GEBCO source."""
         with patch.object(Path, "exists", return_value=False):
             # Create manager with GEBCO source
-            manager = BathymetryManager(
+            manager = bathy_module.BathymetryManager(
                 source="gebco2025", data_dir=str(temp_output_dir / "bathy")
             )
             manager.data_dir = test_bathymetry_dir

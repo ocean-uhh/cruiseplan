@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 from typing import Any, Optional
 
+from cruiseplan.api.config import StationsConfig
 from cruiseplan.api.types import BaseResult
 from cruiseplan.utils.coordinates import _validate_coordinate_bounds
 from cruiseplan.utils.io import (
@@ -218,6 +219,62 @@ def _display_usage_instructions() -> None:
     logger.info("  'Escape'   - Exit without saving")
     logger.info("")
     logger.info("🎯 Launching interactive station picker...")
+
+
+def stations_with_config(
+    config: StationsConfig = None,
+) -> StationPickerResult:
+    """
+    Launch interactive station picker using configuration object.
+
+    This is the modern API that uses a configuration object to reduce the number
+    of function parameters. For backward compatibility, the legacy stations()
+    function with individual parameters is still available.
+
+    Parameters
+    ----------
+    config : StationsConfig, optional
+        Configuration object containing all station picker options.
+        If None, default configuration is used.
+
+    Returns
+    -------
+    StationPickerResult
+        Result object containing output file and metadata
+
+    Examples
+    --------
+    Basic usage with defaults:
+
+    >>> result = stations_with_config()
+
+    Custom configuration:
+
+    >>> from cruiseplan.api.config import StationsConfig, OutputConfig
+    >>> config = StationsConfig(
+    ...     lat_bounds=(-65, -45),
+    ...     lon_bounds=(160, 180),
+    ...     pangaea_file="pangaea_data.pkl",
+    ...     output=OutputConfig(directory="cruise_stations")
+    ... )
+    >>> result = stations_with_config(config)
+    """
+    if config is None:
+        config = StationsConfig()
+
+    # Call the legacy function with expanded parameters
+    return stations(
+        lat_bounds=config.lat_bounds,
+        lon_bounds=config.lon_bounds,
+        output_dir=config.output.directory,
+        output=config.output.filename,
+        pangaea_file=config.pangaea_file,
+        bathy_source=config.bathy_source,
+        bathy_dir=config.bathy_dir,
+        high_resolution=config.high_resolution,
+        overwrite=config.overwrite,
+        verbose=config.output.verbose,
+    )
 
 
 def stations(

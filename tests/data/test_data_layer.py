@@ -218,6 +218,7 @@ class TestLoadCampaignData:
     def test_load_and_merge_success(self, mock_exists, mock_merge, mock_merged_data):
         """
         Tests successful loading, validation, and mandatory merging.
+
         The mock open simulates loading raw data, and we mock merge to verify it runs.
         """
         # Mock the data found in the pickle file (must be a list of dicts)
